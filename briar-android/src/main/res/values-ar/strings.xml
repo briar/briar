@@ -149,7 +149,6 @@
   <string name="contact_added_toast">تم إضافة جهة إتصال: %s</string>
   <string name="contact_already_exists">جهة الإتصال %s بالفعل موجودة</string>
   <string name="qr_code_invalid">رمز QR غير صالح</string>
-  <string name="qr_code_unsupported">رمز QR الذي تحاول مسحه يعود لإصدار قديم من %s لم يعد مدعومًا.\n\nمن فضلك تأكد أن كليكما يستخدم آخر إصدار ثم حاول مجددًا.</string>
   <string name="camera_error">خطأ بالكاميرا</string>
   <string name="connecting_to_device">يتم الإتصال بالجهاز\u2026</string>
   <string name="authenticating_with_device">يتم التوثيق مع الجهاز\u2026</string>
@@ -379,10 +378,8 @@
   <string name="tor_mobile_data_title">إستخدم بيانات الجوال</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">الأمان</string>
-  <string name="pref_lock_title">قفل الشاشة</string>
   <string name="pref_lock_summary">استخدم قفل شاشة الجهاز لحماية Briar (براير) في حال تسجيل الدخول</string>
   <string name="pref_lock_disabled_summary">لاستخدام هذه الميزة، قم بإعداد قفل شاشة لجهازك</string>
-  <string name="pref_lock_timeout_title">زمن قفل الشاشة عند عدم النشاط</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">حينما لا تستخدم Briar (براير)، أقفله تلقائيا بعد %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -434,8 +431,6 @@
   <string name="notify_blog_posts_setting_summary">أظهر التنبيهات للتدوينات</string>
   <string name="notify_blog_posts_setting_summary_26">اضبط التنبيهات للتدوينات</string>
   <string name="notify_vibration_setting">إهتزاز</string>
-  <string name="notify_lock_screen_setting_title">قفل الشاشة</string>
-  <string name="notify_lock_screen_setting_summary">أظهر التنبيهات على قفل الشاشة</string>
   <string name="notify_sound_setting">الصوت</string>
   <string name="notify_sound_setting_default">النغمة الافتراضية</string>
   <string name="notify_sound_setting_disabled">لا شيء</string>

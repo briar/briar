@@ -139,7 +139,6 @@
   <string name="contact_added_toast">Kontakt dodany: %s</string>
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
   <string name="qr_code_invalid">Kod QR jest nie prawidłowy</string>
-  <string name="qr_code_unsupported">Kod QR który chcecsz zeskanować jest z wersji %s która nie jest już wspierana.\n\nProszę upewnić się czy oboje używacie najnowszej wersji i spróbować ponownie.</string>
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
@@ -359,10 +358,8 @@
   <string name="tor_mobile_data_title">Używaj danych komórkowych</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Bezpieczeństwo</string>
-  <string name="pref_lock_title">Blokada ekranu</string>
   <string name="pref_lock_summary">Użyj blokady ekranu urządzenia by chronić Briar gdy zalogowany</string>
   <string name="pref_lock_disabled_summary">Aby użyć tej funkcji skonfiguruj blokadę ekranu na swoim urządzeniu</string>
-  <string name="pref_lock_timeout_title">Blokada ekranu gdy wykryto aktywności</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Gdy nie używam Briar, automatycznie zablokuj po %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -414,8 +411,6 @@
   <string name="notify_blog_posts_setting_summary">Pokazuj powiadomienia dla wpisów na blogach</string>
   <string name="notify_blog_posts_setting_summary_26">Skonfiguruj alerty dla wpisów na blogach</string>
   <string name="notify_vibration_setting">Wibruj</string>
-  <string name="notify_lock_screen_setting_title">Ekran blokady</string>
-  <string name="notify_lock_screen_setting_summary">Pokaż powiadomienia na zablokowanym ekranie</string>
   <string name="notify_sound_setting">Dźwięk</string>
   <string name="notify_sound_setting_default">Domyślny dzwonek</string>
   <string name="notify_sound_setting_disabled">Brak</string>

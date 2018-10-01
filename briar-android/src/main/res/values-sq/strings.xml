@@ -33,10 +33,10 @@
   <string name="startup_failed_notification_title">Briar-i s\’u nis dot</string>
   <string name="startup_failed_notification_text">Prekeni për më tepër të dhëna.</string>
   <string name="startup_failed_activity_title">Dështim Nisjeje i Briar-it</string>
-  <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave të Briar-it është e dëmtuar sa nuk ndreqet dot. Llogaria juaj, të dhënat tuaja dhe krejt kontaktet tuaja humbën. Mjerisht, ju duhet të ri-instaloni Briar-in dhe të rregulloni një llogari të re duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
-  <string name="startup_failed_data_too_old_error">Llogaria juaj qe krijuar me një version të vjetër të këtij aplikacioni dhe s’mund të hapet me këtë version. Ose duhet të ri-instaloni versionin e vjetër, ose të fshini llogarinë tuaj të vjetër duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
+  <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave të Briar-it është e dëmtuar sa nuk ndreqet dot. Llogaria juaj, të dhënat tuaja dhe krejt kontaktet tuaja humbën. Mjerisht, ju duhet të ri-instaloni Briar-in dhe të rregulloni një llogari të re, duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
+  <string name="startup_failed_data_too_old_error">Llogaria juaj qe krijuar me një version të vjetër të këtij aplikacioni dhe s\’mund të hapet me këtë version. Ose duhet të ri-instaloni versionin e vjetër, ose të fshini llogarinë tuaj të vjetër duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
   <string name="startup_failed_data_too_new_error">Ky version i aplikacionit është shumë i vjetër. Ju lutemi, përmirësojeni me versionin më të ri dhe riprovoni.</string>
-  <string name="startup_failed_service_error">Briar-i s\’arriti të nisë një shtojcë të domosdoshme. Ri-instalimi i Briar-it zakonisht e zgjidh këtë problem. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
+  <string name="startup_failed_service_error">Briar-i s\’arriti të nisë një shtojcë të domosdoshme. Zakonisht këtë problem e zgjidh Ri-instalimi i Briar-it. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
     <item quantity="other">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
@@ -46,7 +46,7 @@
   <string name="download_briar">Që të vazhdoni të përdorni Briar-in, ju lutemi, shkarkoni versionin 1.0.</string>
   <string name="create_new_account">Do t’ju duhet të krijoni një llogari të re, por mund të përdorni të njëjtën nofkë.</string>
   <string name="download_briar_button">Shkarko Briar 1.0</string>
-  <string name="startup_open_database">Po shfshehtëzohet Baza e të dhënave…</string>
+  <string name="startup_open_database">Po shfshehtëzohet Baza e të Dhënave…</string>
   <string name="startup_migrate_database">Po përditësohet Baza e të dhënave…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Hap sirtarin e lëvizjeve</string>
@@ -129,7 +129,8 @@
   <string name="contact_added_toast">Kontakti u shtua: %s</string>
   <string name="contact_already_exists">Kontakti %s ekziston tashmë</string>
   <string name="qr_code_invalid">Kodi QR është i pavlefshëm</string>
-  <string name="qr_code_unsupported">Kodi QR që po provoni të skanoni më poshtë i përket një versioni të vjetër të %s-it, i cili nuk mbulohet më.\n\nJu lutemi, sigurohuni që që të dy ju xhironi versionin më të ri dhe mandej riprovoni.</string>
+  <string name="qr_code_too_old">Kodi QR që keni skanuar vjen prej një versioni të vjetër të %s-it.\n\nJu lutemi, kërkojini kontaktit tuaj ta përmirësojë me versionin më të ri dhe mandej riprovoni.</string>
+  <string name="qr_code_too_new">Kodi QR që keni skanuar vjen prej një versioni më të ri të %s-it.\n\nJu lutemi, përmirësojeni me versionin më të ri dhe mandej riprovoni.</string>
   <string name="camera_error">Gabim kamere</string>
   <string name="connecting_to_device">Po lidhet me pajisjen\u2026</string>
   <string name="authenticating_with_device">Po bëhet mirëfilltësimi me pajisjen\u2026</string>
@@ -199,15 +200,15 @@
   <string name="groups_invitations_invitation_sent">Keni ftuar %1$s të bëhet pjesë e grupit \"%2$s\".</string>
   <string name="groups_invitations_invitation_received">%1$s ju ka ftuar të bëheni pjesë e grupit \"%2$s\".</string>
   <string name="groups_invitations_joined">U bëtë pjesë e grupit</string>
-  <string name="groups_invitations_declined">Ftesa e grupit u hodh poshtë</string>
+  <string name="groups_invitations_declined">Ftesa për në grup u hodh poshtë</string>
   <plurals name="groups_invitations_open">
     <item quantity="one">%d ftesë grupi e hapur</item>
     <item quantity="other">%d ftesa grupi të hapura</item>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Pranuat ftesën e grupit nga %s.</string>
-  <string name="groups_invitations_response_declined_sent">Hodhët poshtë ftesën e grupit nga %s.</string>
+  <string name="groups_invitations_response_declined_sent">Hodhët poshtë ftesën për në grup nga %s.</string>
   <string name="groups_invitations_response_accepted_received">%s e pranoi ftesën e grupit.</string>
-  <string name="groups_invitations_response_declined_received">%s e hodhi poshtë ftesën e grupit.</string>
+  <string name="groups_invitations_response_declined_received">%s e hodhi poshtë ftesën për në grup.</string>
   <string name="sharing_status_groups">Vetëm krijuesi mund të ftojë anëtarë të rinj në grup. Më poshtë gjenden tërë anëtarët e tanishëm të grupit.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Shfaqua Kontaktet</string>
@@ -217,7 +218,7 @@
   <string name="groups_reveal_visible_revealed_by_contact">Marrëdhënia e kontaktit është e dukshme për grupin (shfaqur nga %s)</string>
   <string name="groups_reveal_invisible">Marrëdhënia e kontaktit s\’është e dukshme për grupin</string>
   <!--Forums-->
-  <string name="no_forums">S’ka forume për shfaqje</string>
+  <string name="no_forums">S\’ka forume për shfaqje</string>
   <string name="no_forums_action">Prekni ikonën + që të krijoni një forum, ose kërkojuni kontakteve tuaj të ndajnë forume me ju</string>
   <string name="create_forum_title">Krijoje Forumin</string>
   <string name="choose_forum_hint">Zgjidhni një emër për forumin tuaj</string>
@@ -278,7 +279,7 @@
   <string name="blogs_blog_post_scroll_to">Kalo Te</string>
   <string name="blogs_feed_empty_state">S\’ka postime për shfaqje</string>
   <string name="blogs_feed_empty_state_action">Këtu do të shfaqet postimet nga kontaktet tuaja dhe blogjet që ndiqni\n\nQë të shkruani një postim, prekni ikonën penë</string>
-  <string name="blogs_remove_blog">hiqe Blogun</string>
+  <string name="blogs_remove_blog">Hiqe Blogun</string>
   <string name="blogs_remove_blog_dialog_message">Jeni i sigurt se doni të hiqet ky blog?\n\nPostimet do të hiqen nga pajisja juaj, por jo nga pajisjet e personave të tjerë.\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë blog mund të reshtin së marri përditësime.</string>
   <string name="blogs_remove_blog_ok">Hiqe</string>
   <string name="blogs_blog_removed">Blogu u hoq</string>
@@ -292,7 +293,7 @@
   <string name="blogs_sharing_response_accepted_sent">Pranuat ftesën e blogut nga %s.</string>
   <string name="blogs_sharing_response_declined_sent">Hodhët poshtë ftesën e blogut nga %s.</string>
   <string name="blogs_sharing_response_accepted_received">%s pranoi ftesën e blogut.</string>
-  <string name="blogs_sharing_response_declined_received">%s hodhi poshtë ftesën e blogut.</string>
+  <string name="blogs_sharing_response_declined_received">%s hodhi poshtë ftesë blogu.</string>
   <string name="blogs_sharing_invitation_received">%1$s ndau me ju \"%2$s\".</string>
   <string name="blogs_sharing_invitation_sent">Ndatë blogun \"%1$s\" me %2$s.</string>
   <string name="blogs_sharing_invitations_title">Ftesa Blogu</string>
@@ -309,7 +310,7 @@
   <string name="blogs_rss_feeds_manage_author">Autor:</string>
   <string name="blogs_rss_feeds_manage_updated">Përditësuar Së Fundi:</string>
   <string name="blogs_rss_remove_feed">Hiqe Prurjen</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Jeni i sigurt se doni të hiqet kjo prurje?\n\nPostimet do të hiqen nga pajisja juaj, por jo nga pajisjet e njerëzve të tjerë.\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë prurje mund të reshtin së marri përditësime.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Jeni i sigurt se doni të hiqet kjo prurje?\n\nPostimet do të hiqen nga pajisja juaj, por jo nga pajisjet e personave të tjerë.\n\nÇfarëdo kontaktesh me të cilët e keni ndarë këtë prurje mund të reshtin së marri përditësime.</string>
   <string name="blogs_rss_remove_feed_ok">Hiqe</string>
   <string name="blogs_rss_feeds_manage_delete_error">S\’u fshi dot prurja!</string>
   <string name="blogs_rss_feeds_manage_empty_state">S’ka prurje RSS për shfaqje\n\nPrekni ikonën + që të importohet një prurje</string>
@@ -339,14 +340,14 @@
   <string name="tor_mobile_data_title">Përdor të dhëna celulare</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Siguri</string>
-  <string name="pref_lock_title">Kyçje ekrani</string>
+  <string name="pref_lock_title">Kyçje aplikacioni</string>
   <string name="pref_lock_summary">Përdorni kyçjen e ekranit të pajisjes që të mbroni Briar-in teksa keni bërë hyrjen në llogari </string>
   <string name="pref_lock_disabled_summary">Që të përdorni këtë veçori, rregulloni kyçje ekrani për pajisjen tuaj</string>
-  <string name="pref_lock_timeout_title">Afat mosveprimi për kyçje ekrani</string>
+  <string name="pref_lock_timeout_title">Skadim kohe mosveprimtarie për kyçje aplikacioni</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Kur Briar-i s’është në përdorim, kyçe vetvetiu pas %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
-  <string name="pref_lock_timeout_1">1 minuti</string>
+  <string name="pref_lock_timeout_1">1 minute</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_5">5 minutash</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -360,7 +361,7 @@
   <string name="change_password">Ndryshoni fjalëkalimin</string>
   <string name="current_password">Fjalëkalimi i tanishëm</string>
   <string name="choose_new_password">Fjalëkalim i ri</string>
-  <string name="confirm_new_password">Konfirmo fjalëkalimin e ri</string>
+  <string name="confirm_new_password">Riopohoni fjalëkalimin e ri</string>
   <string name="password_changed">Fjalëkalimi u ndryshua.</string>
   <string name="panic_setting">Rregullimi i butonit të panikut</string>
   <string name="panic_setting_title">Buton paniku</string>
@@ -371,6 +372,7 @@
   <string name="panic_app_setting_none">Asnjë</string>
   <string name="dialog_title_connect_panic_app">Ripohoni Aplikacion Paniku</string>
   <string name="dialog_message_connect_panic_app">Jeni i sigurt se doni të lejohet %1$s të prodhojë veprime shkatërruese butoni paniku?</string>
+  <string name="panic_setting_destructive_action">Veprime Shkatërruese</string>
   <string name="panic_setting_signout_title">Dilni</string>
   <string name="panic_setting_signout_summary">Dil nga Briar-i nëse shtypet një buton paniku</string>
   <string name="purge_setting_title">Fshi Llogarinë</string>
@@ -394,8 +396,6 @@
   <string name="notify_blog_posts_setting_summary">Shfaq sinjalizime për postime blogu</string>
   <string name="notify_blog_posts_setting_summary_26">Formësoni sinjalizime për postime blogu</string>
   <string name="notify_vibration_setting">Dridhu</string>
-  <string name="notify_lock_screen_setting_title">Kyçe Ekranin</string>
-  <string name="notify_lock_screen_setting_summary">Shfaqi njoftimet edhe me ekran të kyçur</string>
   <string name="notify_sound_setting">Tingull</string>
   <string name="notify_sound_setting_default">Zilja parazgjedhje</string>
   <string name="notify_sound_setting_disabled">Asnjë</string>
@@ -407,10 +407,10 @@
   <!--Link Warning-->
   <string name="link_warning_title">Sinjalizim Lidhjeje</string>
   <string name="link_warning_intro">Ju ndan një hap nga hapja e lidhjes vijuese me një aplikacion të jashtëm.</string>
-  <string name="link_warning_text">Kjo mund të përdoret për t\’ju identifikuar. Mendohuni nëse e besoni apo jo personin që ju dërgoi këtë lidhje dhe shihni mundësinë e hapjes së sja me Orfox</string>
+  <string name="link_warning_text">Kjo mund të përdoret për t\’ju identifikuar. Mendohuni nëse e besoni apo jo personin që ju dërgoi këtë lidhje dhe shihni mundësinë e hapjes së saj me Orfox</string>
   <string name="link_warning_open_link">Hape Lidhjen</string>
   <!--Crash Reporter-->
-  <string name="crash_report_title">Njoftim Vithisjesh Briar</string>
+  <string name="crash_report_title">Njoftim Vithisjesh Briar-i</string>
   <string name="briar_crashed">Na ndjeni, Briar-i u vithis.</string>
   <string name="not_your_fault">S\’është faji juaj.</string>
   <string name="please_send_report">Ju lutemi, na ndihmoni të ndërtojmë një Briar më të mirë, duke na dërguar një njoftim vithisjeje.</string>
@@ -429,20 +429,20 @@
   <string name="progress_title_logout">Po dilet nga Briar-i…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">U kap dalje jashtë ekrani</string>
-  <string name="screen_filter_body">Sipër Briar-it po vizaton një tjetër aplikacion. Për të mbrojtur sigurinë tuaj, Briar-i nuk do t’u përgjigjet prekjeve kur një tjetër aplikacion vizaton përsipër.\n\nPërsipër mund të jenë duke vizatuar aplikacionet vijues:\n\n%1$s</string>
+  <string name="screen_filter_body">Sipër Briar-it po vizaton një tjetër aplikacion. Për të mbrojtur sigurinë tuaj, Briar-i nuk do t\’u përgjigjet prekjeve kur një tjetër aplikacion vizaton përsipër.\n\nPërsipër mund të jenë duke vizatuar aplikacionet vijues:\n\n%1$s</string>
   <string name="screen_filter_allow">Lejoji këto aplikacione të vizatojnë përsipër</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Leje mbi kamerën</string>
   <string name="permission_camera_request_body">Që të skanojë kodin QR, Briar-i lypset të hyjë te kamera.</string>
   <string name="permission_camera_denied_body">Keni mohuar hyrjen në kamera, por shtimi i kontakteve lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
-  <string name="permission_camera_denied_toast">S\’u dhanë leje mbi kamerën</string>
+  <string name="permission_camera_denied_toast">S\’u akorduan leje mbi kamerën</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
   <!--App Locking-->
   <string name="lock_unlock">Shkyçe Briar-in</string>
-  <string name="lock_unlock_verbose">Jepni PIN-in, mostrën ose fjalëkalimin e pajisjes tuaj, që të shkyçet Briar-i</string>
-  <string name="lock_unlock_fingerprint_description">Prekni sensorin e shenjave të gishtërinjëve me gishtin e regjistruar për të vazhduar</string>
-  <string name="lock_unlock_password">Përdorni fjalëkalimin</string>
+  <string name="lock_unlock_verbose">Që të shkyçet Briar-i, jepni PIN-in, mostrën ose fjalëkalimin e pajisjes tuaj</string>
+  <string name="lock_unlock_fingerprint_description">Që të vazhdohet, prekni me gishtin e regjistruar ndijuesin e shenjave të gishtave</string>
+  <string name="lock_unlock_password">Përdor Fjalëkalim</string>
   <string name="lock_is_locked">Briar-i është i kyçur</string>
   <string name="lock_tap_to_unlock">Prekeni që të shkyçet</string>
 </resources>

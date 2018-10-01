@@ -131,7 +131,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="contact_added_toast">Contacte apondut : %s</string>
   <string name="contact_already_exists">Lo contacte %s existís ja</string>
   <string name="qr_code_invalid">Lo QR còdi es invalid</string>
-  <string name="qr_code_unsupported">Lo còdi QR qu’ensajatz de numerizar ven d’una anciana version de %s qu’es pas mai desvolopada.\n\nMercés de vos assegurar que los dos avètz la darrièra version e de tornar ensajar.</string>
   <string name="camera_error">Error de camèra</string>
   <string name="connecting_to_device">Connexion a l’aparelh\u2026</string>
   <string name="authenticating_with_device">Autentificacion amb l’aparelh\u2026</string>
@@ -344,10 +343,8 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="tor_mobile_data_title">Utilizar la connexion del mobil</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
-  <string name="pref_lock_title">Verrolhatge de l’ecran</string>
   <string name="pref_lock_summary">Utilizar l’ecran de verrolhatge per protegir Briar quand es connectat</string>
   <string name="pref_lock_disabled_summary">Per utilizar aquesta foncion, configuratz un ecran de verrolatge per l’aparelh</string>
-  <string name="pref_lock_timeout_title">Relambi pel verrolhatge de l’ecran aprèp inactivitat</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Sens utilizar Briar, lo verrolhar aprèp %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -399,8 +396,6 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="notify_blog_posts_setting_summary">Notificar los articles de blòg</string>
   <string name="notify_blog_posts_setting_summary_26">Configurar las alèrtas d’articles de blòg</string>
   <string name="notify_vibration_setting">Vibracion</string>
-  <string name="notify_lock_screen_setting_title">Verrolhar l’ecran</string>
-  <string name="notify_lock_screen_setting_summary">Mostrar las notificacions sus l’ecran verrolhat</string>
   <string name="notify_sound_setting">Sonariá</string>
   <string name="notify_sound_setting_default">Sonariá per defaut</string>
   <string name="notify_sound_setting_disabled">Cap</string>

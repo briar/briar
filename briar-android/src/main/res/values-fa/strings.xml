@@ -136,9 +136,6 @@
   <string name="contact_added_toast">مخاطب اضافه شد: %s</string>
   <string name="contact_already_exists">مخاطب %s از قبل وجود دارد</string>
   <string name="qr_code_invalid">کد QR نامعتبر می باشد</string>
-  <string name="qr_code_unsupported">کد QR که شما سعی دارید اسکن کنید متعلق به یک نسخه قدیمی از %s میباشد که دیگر پشتیبانی نمی شود.
-
-لطفا مطمئن شوید که هردوی شما از آخرین نسخه استفاده میکنید و دوباره امتحان کنید.</string>
   <string name="camera_error">خطای دوربین</string>
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
@@ -370,10 +367,8 @@
   <string name="tor_mobile_data_title">استفاده از داده موبایل</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
-  <string name="pref_lock_title">قفل صفحه</string>
   <string name="pref_lock_summary">استفاده از قفل صفحه دستگاه به منظور محافظت از Briar (برایر) در هنگام استفاده از آن</string>
   <string name="pref_lock_disabled_summary">برای استفاده از این ویژگی، قفل صفحه را برای دستگاه خود برپا کنید</string>
-  <string name="pref_lock_timeout_title">اتمام وقت عدم فعالیت قفل صفحه</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">زمانی که از Briar (برایر) استفاده نمی شود، به صورت خودکار بعد از %s آن را قفل کن</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -425,8 +420,6 @@
   <string name="notify_blog_posts_setting_summary">نمایش هشدار برای پست های بلاگ</string>
   <string name="notify_blog_posts_setting_summary_26">تنظیم هشدار برای پست های بلاگ</string>
   <string name="notify_vibration_setting">لرزش</string>
-  <string name="notify_lock_screen_setting_title">قفل صفحه</string>
-  <string name="notify_lock_screen_setting_summary">نمایش نوتیفیکشن روی صفحه قفل</string>
   <string name="notify_sound_setting">صدا</string>
   <string name="notify_sound_setting_default">رینگتون پیش فرض</string>
   <string name="notify_sound_setting_disabled">هیچکدام</string>

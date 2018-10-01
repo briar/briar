@@ -129,7 +129,6 @@
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
-  <string name="qr_code_unsupported">Der QR-Code, den du zu scannen versuchst, gehört zu einer alten Version von %s, welche nicht mehr unterstützt wird.\n\nBitte versichert euch, dass bei euch beiden die neueste Version läuft und versucht es dann erneut.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
@@ -339,10 +338,8 @@
   <string name="tor_mobile_data_title">Mobile Daten benutzen</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
-  <string name="pref_lock_title">Bildschirmsperre</string>
   <string name="pref_lock_summary">Systemsperrbildschirm benutzen um Briar zu schützen, während angemeldet</string>
   <string name="pref_lock_disabled_summary">Um dieses Feature zu benutzen aktiviere den Systemsperrbildschirm</string>
-  <string name="pref_lock_timeout_title">Inaktivitätstimeout Systemsperrbildschirm</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar automatisch nach %s sperren, wenn unbenutzt.</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -394,8 +391,6 @@
   <string name="notify_blog_posts_setting_summary">Benachrichtigungen für Blogbeiträge anzeigen</string>
   <string name="notify_blog_posts_setting_summary_26">Benachrichtigungen für Blogbeiträge konfigurieren</string>
   <string name="notify_vibration_setting">Vibration</string>
-  <string name="notify_lock_screen_setting_title">Sperrbildschirm</string>
-  <string name="notify_lock_screen_setting_summary">Benachrichtigungen auf dem Sperrbildschirm anzeigen</string>
   <string name="notify_sound_setting">Ton</string>
   <string name="notify_sound_setting_default">Standardklingelton</string>
   <string name="notify_sound_setting_disabled">Keine</string>

@@ -141,7 +141,6 @@
   <string name="contact_added_toast">Контакт добавлен: %s</string>
   <string name="contact_already_exists">Контакт %s уже существует</string>
   <string name="qr_code_invalid">Неверный QR-код</string>
-  <string name="qr_code_unsupported">QR-код, который вы пытаетесь отсканировать, создан в старой версии %s, которая больше не поддерживается.\n\nУбедитесь, что у вас обоих установлена ​​последняя версия, а затем повторите попытку.</string>
   <string name="camera_error">Ошибка камеры</string>
   <string name="connecting_to_device">Подключение к устройству\u2026</string>
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
@@ -361,10 +360,8 @@
   <string name="tor_mobile_data_title">Использовать мобильные данные</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безопасность</string>
-  <string name="pref_lock_title">Блокировка экрана</string>
   <string name="pref_lock_summary">Использовать блокировку экрана устройства для защиты Briar при входе</string>
   <string name="pref_lock_disabled_summary">Чтобы использовать эту функцию, установите блокировку экрана вашего устройства</string>
-  <string name="pref_lock_timeout_title">Тайм-аут блокировки блокировки экрана</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Автоматически блокировать Briar через %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -416,8 +413,6 @@
   <string name="notify_blog_posts_setting_summary">Показывать оповещения для постов блога</string>
   <string name="notify_blog_posts_setting_summary_26">Настройка оповещений для постов блога</string>
   <string name="notify_vibration_setting">Вибрация</string>
-  <string name="notify_lock_screen_setting_title">Экран блокировки</string>
-  <string name="notify_lock_screen_setting_summary">Показывать уведомления на экране блокировки</string>
   <string name="notify_sound_setting">Звук</string>
   <string name="notify_sound_setting_default">Мелодия по умолчанию</string>
   <string name="notify_sound_setting_disabled">Нет</string>

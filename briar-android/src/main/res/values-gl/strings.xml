@@ -129,7 +129,6 @@
   <string name="contact_added_toast">Contacto engadido: %s</string>
   <string name="contact_already_exists">O contacto %s xa existe</string>
   <string name="qr_code_invalid">O código QR non é válido</string>
-  <string name="qr_code_unsupported">O código QR que intenta escanear pertence a unha versión antiga de %s que xa non ten mantemento.\n\nPor favor, asegúrese que ambas utilizan a última versión e inténteno de novo.</string>
   <string name="camera_error">Fallo na cámara</string>
   <string name="connecting_to_device">Conectando co dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticándose co dispositivo\u2026</string>
@@ -339,10 +338,10 @@
   <string name="tor_mobile_data_title">Utilizar datos móbiles</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguridade</string>
-  <string name="pref_lock_title">Bloquear pantalla</string>
+  <string name="pref_lock_title">Bloquear app</string>
   <string name="pref_lock_summary">Utilizar o bloqueo de pantalla do dispositiov para protexer Briar mentras está conectada</string>
   <string name="pref_lock_disabled_summary">Para utilizar esta función, axuste o bloqueo de pantalla do dispositivo</string>
-  <string name="pref_lock_timeout_title">Tempo de inactividade para o bloqueo da pantalla</string>
+  <string name="pref_lock_timeout_title">Tempo de espera en inactividade para o bloqueo</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Cando non utilice Briar, bloquear automáticamente tras %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -394,8 +393,6 @@
   <string name="notify_blog_posts_setting_summary">Amosar alertas para entradas no blog</string>
   <string name="notify_blog_posts_setting_summary_26">Configurar alertas para entradas no blog</string>
   <string name="notify_vibration_setting">Vibrar</string>
-  <string name="notify_lock_screen_setting_title">Bloquear pantalla</string>
-  <string name="notify_lock_screen_setting_summary">Amosar notificacións na pantalla bloqueada</string>
   <string name="notify_sound_setting">Son</string>
   <string name="notify_sound_setting_default">Ton por omisión</string>
   <string name="notify_sound_setting_disabled">Ningún</string>

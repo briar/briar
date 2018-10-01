@@ -129,7 +129,8 @@
   <string name="contact_added_toast">Contacto añadido: %s</string>
   <string name="contact_already_exists">El contacto %s ya existe</string>
   <string name="qr_code_invalid">El código QR no es válido</string>
-  <string name="qr_code_unsupported">El código QR que intentas escanear pertenece a una versión anterior de %s que ya no es compatible.\n\nAsegúrate de que ambos estén ejecutando la última versión y luego inténtalo de nuevo.</string>
+  <string name="qr_code_too_old">El código QR que has escaneado proviene de una versión anterior de %s.\n\nPor favor solicita a tu contacto que actualice a la última versión y luego intenta nuevamente.</string>
+  <string name="qr_code_too_new">El código QR que has escaneado proviene de una versión posterior de %s.\n\nPor favor actualiza a la última versión y luego intenta nuevamente.</string>
   <string name="camera_error">Error de cámara</string>
   <string name="connecting_to_device">Conectando al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autentificándose con el dispositivo\u2026</string>
@@ -339,10 +340,10 @@
   <string name="tor_mobile_data_title">Usar datos móviles</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguridad</string>
-  <string name="pref_lock_title">Bloqueo de pantalla</string>
+  <string name="pref_lock_title">Bloqueo de apli</string>
   <string name="pref_lock_summary">Usar el bloqueo de pantalla del dispositivo para proteger Briar mientras estés con sesión iniciada.</string>
   <string name="pref_lock_disabled_summary">Para usar esta característica, configurar un bloqueo de pantalla para tu dispositivo</string>
-  <string name="pref_lock_timeout_title">Expiración por inactividad. Pantalla bloqueada</string>
+  <string name="pref_lock_timeout_title">Tiempo alcanzado para bloqueo de apli por inactividad</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Cuando no se está usando Briar, bloquearlo automáticamente luego de %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -371,6 +372,7 @@
   <string name="panic_app_setting_none">Ninguna</string>
   <string name="dialog_title_connect_panic_app">Confirmar aplicación de pánico</string>
   <string name="dialog_message_connect_panic_app">¿Seguro que quieres permitir que %1$s desencadene acciones destructivas de botón de pánico?</string>
+  <string name="panic_setting_destructive_action">Acciones destructivas</string>
   <string name="panic_setting_signout_title">Cerrar sesión</string>
   <string name="panic_setting_signout_summary">Cerrar la sesión de Briar si se pulsa un botón de pánico</string>
   <string name="purge_setting_title">Eliminar cuenta</string>
@@ -394,8 +396,6 @@
   <string name="notify_blog_posts_setting_summary">Mostrar notificaciones para artículos de blog</string>
   <string name="notify_blog_posts_setting_summary_26">Configurar notificaciones para artículos de blog</string>
   <string name="notify_vibration_setting">Vibrar</string>
-  <string name="notify_lock_screen_setting_title">Bloqueo de Pantalla</string>
-  <string name="notify_lock_screen_setting_summary">Notificaciones en la pantalla de bloqueo</string>
   <string name="notify_sound_setting">Sonido</string>
   <string name="notify_sound_setting_default">Tono de notificación predeterminado</string>
   <string name="notify_sound_setting_disabled">Ninguno</string>

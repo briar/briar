@@ -129,7 +129,6 @@
   <string name="contact_added_toast">Kapcsolat hozzáadva: %s</string>
   <string name="contact_already_exists">%s kapcsolat már létezik</string>
   <string name="qr_code_invalid">A QR kód érvénytelen</string>
-  <string name="qr_code_unsupported">A QR kód amit le szeretne olvasni egy korábbi %s  verzióhoz tartozik, ami már nem támogatott többé.\n\nKérjük biztosítsák, hogy mindketten a legfrissebb verziót használják és próbálják újra.</string>
   <string name="camera_error">Kamera hiba</string>
   <string name="connecting_to_device">Csatlakozás az eszközhöz\u2026</string>
   <string name="authenticating_with_device">Azonosítás az eszközzel\u2026</string>
@@ -341,10 +340,8 @@
   <string name="tor_mobile_data_title">Mobil adat használata</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Biztonság</string>
-  <string name="pref_lock_title">Képernyőzár</string>
   <string name="pref_lock_summary">Az eszköz képernyő zárának használata a Briar védelmére, ha be van jelentkezve</string>
   <string name="pref_lock_disabled_summary">Ahhoz, hogy használni tudja ezt az opciót, állítson be zárképernyőt az eszközén</string>
-  <string name="pref_lock_timeout_title">Képernyőzár inaktivítási idő </string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Ha nem használja a Briar-t, automatikusan zárol %s után</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -397,8 +394,6 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="notify_blog_posts_setting_summary">Értesítés megjelenítése blog bejegyzésekről</string>
   <string name="notify_blog_posts_setting_summary_26">Értesítés beállítása blog bejegyésekhez</string>
   <string name="notify_vibration_setting">Rezgés</string>
-  <string name="notify_lock_screen_setting_title">Zárolási képernyő</string>
-  <string name="notify_lock_screen_setting_summary">Értesítések megjelenítése a zárolási képernyőn</string>
   <string name="notify_sound_setting">Hang</string>
   <string name="notify_sound_setting_default">Alapértelmezett csengőhang</string>
   <string name="notify_sound_setting_disabled">Egyik sem</string>

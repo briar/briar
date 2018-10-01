@@ -134,7 +134,8 @@
   <string name="contact_added_toast">Contact adăugat: %s</string>
   <string name="contact_already_exists">Contactul %s există deja</string>
   <string name="qr_code_invalid">Codul QR este invalid!</string>
-  <string name="qr_code_unsupported">Codul QR pe care încercați să îl scanați aparține unei versiuni vechi %s care nu mai este acceptată.\n\nVă rugăm să vă asigurați că amândoi aveți cea mai recentă versiune și încercați din nou.</string>
+  <string name="qr_code_too_old">Codul QR pe care l-ați scanat aparține unei versiuni vechi %s.\n\nRugați-vă contactul să actualizeze aplicația la cea mai recentă versiune și apoi încercați din nou.</string>
+  <string name="qr_code_too_new">Codul QR pe care l-ați scanat aparține unei versiuni mai noi %s.\n\nVă rugăm să actualizați aplicația la cea mai recentă versiune și apoi încercați din nou.</string>
   <string name="camera_error">Eroare la camera foto</string>
   <string name="connecting_to_device">Conectare la dispozitiv\u2026</string>
   <string name="authenticating_with_device">Autentificare cu dispozitivul\u2026</string>
@@ -349,10 +350,10 @@
   <string name="tor_mobile_data_title">Utilizează date mobile</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Securitate</string>
-  <string name="pref_lock_title">Blocare ecran</string>
+  <string name="pref_lock_title">Blocare aplicație</string>
   <string name="pref_lock_summary">Folosește blocarea ecranului dispozitivului pentru a proteja Briar atunci cand sunteți autentificați</string>
   <string name="pref_lock_disabled_summary">Pentru a utiliza această caracteristică, setați blocarea ecranului dispozitivului dumneavoastră</string>
-  <string name="pref_lock_timeout_title">Perioada de inactivitate înainte de blocarea ecranului</string>
+  <string name="pref_lock_timeout_title">Perioada de inactivitate înainte de blocarea aplicației</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Când Briar nu este folosit, va fi blocat automat după %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -381,6 +382,7 @@
   <string name="panic_app_setting_none">Nici una</string>
   <string name="dialog_title_connect_panic_app">Confirmare aplicație de panică</string>
   <string name="dialog_message_connect_panic_app">Sigur doriți să permiteți %1$s să declanșeze acțiuni destructive pentru butonul de panică?</string>
+  <string name="panic_setting_destructive_action">Acțiuni distructive</string>
   <string name="panic_setting_signout_title">Ieșire</string>
   <string name="panic_setting_signout_summary">Ieși din Briar dacă un buton de panică este apăsat</string>
   <string name="purge_setting_title">Șterge cont</string>
@@ -404,8 +406,6 @@
   <string name="notify_blog_posts_setting_summary">Arată alerte pentru mesajele de pe blog</string>
   <string name="notify_blog_posts_setting_summary_26">Configurare alerte pentru mesajele de pe blog</string>
   <string name="notify_vibration_setting">Vibrează</string>
-  <string name="notify_lock_screen_setting_title">Ecran de blocare</string>
-  <string name="notify_lock_screen_setting_summary">Arată notificări pe ecranul de blocare</string>
   <string name="notify_sound_setting">Sunet</string>
   <string name="notify_sound_setting_default">Sunet implicit</string>
   <string name="notify_sound_setting_disabled">Nici unul</string>

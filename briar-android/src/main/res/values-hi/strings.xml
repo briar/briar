@@ -129,7 +129,6 @@
   <string name="contact_added_toast">संपर्क जोड़ा गया:%s</string>
   <string name="contact_already_exists">संपर्क%s पहले से मौजूद है</string>
   <string name="qr_code_invalid">QR कोड अमान्य है</string>
-  <string name="qr_code_unsupported">क्यूआर कोड जिसे आप स्कैन करने का प्रयास कर रहे हैं वह पुराने संस्करण से संबंधित है %sजिसका अब समर्थित नहीं है। \ N \ n कृपया सुनिश्चित करें कि आप दोनों नवीनतम संस्करण चला रहे हैं और फिर पुन: प्रयास करें।</string>
   <string name="camera_error">कैमरा त्रुटि</string>
   <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
   <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
@@ -339,10 +338,8 @@
   <string name="tor_mobile_data_title">मोबाइल डेटा का प्रयोग करें</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">सुरक्षा</string>
-  <string name="pref_lock_title">स्क्रीन लॉक</string>
   <string name="pref_lock_summary">साइन इन करते समय Briar की सुरक्षा के लिए डिवाइस के स्क्रीन लॉक का उपयोग करें</string>
   <string name="pref_lock_disabled_summary">इस सुविधा का उपयोग करने के लिए, अपने डिवाइस के लिए एक स्क्रीन लॉक सेट करें</string>
-  <string name="pref_lock_timeout_title">स्क्रीन लॉक निष्क्रियता टाइमआउट</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar का उपयोग नहीं करते समय, इसे स्वचालित रूप से बाद में लॉक करें %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -394,8 +391,6 @@
   <string name="notify_blog_posts_setting_summary">ब्लॉग पोस्ट के लिए अलर्ट्स दिखाएं</string>
   <string name="notify_blog_posts_setting_summary_26">ब्लॉग पोस्ट के लिए अलर्ट कॉन्फ़िगर करें</string>
   <string name="notify_vibration_setting">कांपना</string>
-  <string name="notify_lock_screen_setting_title">लॉक स्क्रीन</string>
-  <string name="notify_lock_screen_setting_summary">लॉक स्क्रीन पर सूचनाएं दिखाएं</string>
   <string name="notify_sound_setting">ध्वनि</string>
   <string name="notify_sound_setting_default">बकाया घंटी</string>
   <string name="notify_sound_setting_disabled">कोई नहीं</string>

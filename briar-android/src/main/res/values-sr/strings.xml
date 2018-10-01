@@ -136,9 +136,6 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="contact_added_toast">Kontakt dodat: %s</string>
   <string name="contact_already_exists">Kontakt %s već postoji</string>
   <string name="qr_code_invalid">QR kod nije validan</string>
-  <string name="qr_code_unsupported">QR kod koji skenirate pripada staroj verziji %s koja nije više podržana.
-
-Molim vas provjerite da oboje imate posljednju verziju a onda pokušajte ponovo.</string>
   <string name="camera_error">Greska kamere</string>
   <string name="connecting_to_device">Povezujem se sa uređajem\u2026</string>
   <string name="authenticating_with_device">Autentikacija sa uređajem\u2026</string>
@@ -369,10 +366,10 @@ Dotaknite + ikonu da uvezete kanal</string>
   <string name="tor_mobile_data_title">Koristi mobilinu mrežu</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sigurnost</string>
-  <string name="pref_lock_title">Zaključavanje ekrana</string>
+  <string name="pref_lock_title">Zakljucavanje applikacije</string>
   <string name="pref_lock_summary">Koristi zaključavanje ekrana uređaja da bi zaštitili Briar dok ste prijavljeni</string>
   <string name="pref_lock_disabled_summary">Da bi koristili ovu mogućnost, podesite zaključavanje ekrana za vaš uređaj</string>
-  <string name="pref_lock_timeout_title">Isteklo vrijeme neaktivnosti zaključavanja ekrana</string>
+  <string name="pref_lock_timeout_title">Zaključavanje aplikacije po neaktivnosti</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Kada se ne koristi Briar, automatski zaključaj poslije %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -424,8 +421,6 @@ Dotaknite + ikonu da uvezete kanal</string>
   <string name="notify_blog_posts_setting_summary">Prikaži upozorenja na blog postove</string>
   <string name="notify_blog_posts_setting_summary_26">Podesite upozorenja za blog postove</string>
   <string name="notify_vibration_setting">Vibriranje</string>
-  <string name="notify_lock_screen_setting_title">Zaključaj ekran</string>
-  <string name="notify_lock_screen_setting_summary">Prikaži obavještenja na zaključanom ekranu</string>
   <string name="notify_sound_setting">Zvuk</string>
   <string name="notify_sound_setting_default">Podrazumijevanio zvono</string>
   <string name="notify_sound_setting_disabled">Ništa</string>

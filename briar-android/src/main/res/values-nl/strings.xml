@@ -129,7 +129,6 @@
   <string name="contact_added_toast">Contact toegevoegd: %s</string>
   <string name="contact_already_exists">Contact %s bestaat al</string>
   <string name="qr_code_invalid">De QR-code is ongeldig</string>
-  <string name="qr_code_unsupported">De QR-code die je probeert te scannen is van een oude versie van %s die niet meer wordt ondersteund.\n\nControleer alsjeblieft dat jullie beiden de laatste versie gebruiken en probeer het nog een keer.</string>
   <string name="camera_error">Camerafout</string>
   <string name="connecting_to_device">Aan het verbinden met apparaat\u2026</string>
   <string name="authenticating_with_device">Aan het authenticeren met apparaat\u2026</string>
@@ -339,10 +338,8 @@
   <string name="tor_mobile_data_title">Gebruik mobiele data</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Beveiliging</string>
-  <string name="pref_lock_title">Schermvergrendeling</string>
   <string name="pref_lock_summary">Gebruik de schermvergrendeling van het apparaat om Briar te beschermen terwijl je bent ingelogd</string>
   <string name="pref_lock_disabled_summary">Stel een schermvergrendeling in op je apparaat om deze feature te gebruiken</string>
-  <string name="pref_lock_timeout_title">Time-out van schermvergrendeling bij inactiviteit</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Als Briar niet wordt gebruikt, vergrendel automatisch na %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -394,8 +391,6 @@
   <string name="notify_blog_posts_setting_summary">Toon meldingen voor blogposts</string>
   <string name="notify_blog_posts_setting_summary_26">Configureer meldingen voor blogposts</string>
   <string name="notify_vibration_setting">Tril</string>
-  <string name="notify_lock_screen_setting_title">Schermvergrendeling</string>
-  <string name="notify_lock_screen_setting_summary">Toon notificaties over de schermvergrendeling</string>
   <string name="notify_sound_setting">Geluid</string>
   <string name="notify_sound_setting_default">Standaard meldingsgeluid</string>
   <string name="notify_sound_setting_disabled">Geen</string>

@@ -129,7 +129,6 @@
   <string name="contact_added_toast">S\'ha afegit el contacte %s</string>
   <string name="contact_already_exists">El contacte %s ja existia</string>
   <string name="qr_code_invalid">El codi QR és invàlid</string>
-  <string name="qr_code_unsupported">El codi QR que intenteu escanejar pertany a una versió antiga de %s que ja no és compatible.\n\nAssegureu-vos que tothom està executant la darrera versió i torneu a provar-ho.</string>
   <string name="camera_error">Error de la càmera</string>
   <string name="connecting_to_device">Connectant-se al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
@@ -339,10 +338,8 @@
   <string name="tor_mobile_data_title">Usa dades mòbils</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
-  <string name="pref_lock_title">Bloqueig de pantalla</string>
   <string name="pref_lock_summary">Usa el bloqueig de pantalla del dispositiu per protegir Briar mentre inicieu la sessió</string>
   <string name="pref_lock_disabled_summary">Per utilitzar aquesta funció, configureu el bloqueig de pantalla en el vostre dispositiu</string>
-  <string name="pref_lock_timeout_title">Temps d\'inactivitat del bloqueig de pantalla</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar es bloquejarà automàticament després de %s de no usar-se.</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -394,8 +391,6 @@
   <string name="notify_blog_posts_setting_summary">Mostra avisos pels apunts als blogs</string>
   <string name="notify_blog_posts_setting_summary_26">Configura els avisos pels apunts als blogs</string>
   <string name="notify_vibration_setting">Vibra</string>
-  <string name="notify_lock_screen_setting_title">Bloca la pantalla</string>
-  <string name="notify_lock_screen_setting_summary">Mostra les notificacions a la pantalla de bloqueig</string>
   <string name="notify_sound_setting">So</string>
   <string name="notify_sound_setting_default">So d\'avís predeterminat</string>
   <string name="notify_sound_setting_disabled">Cap</string>

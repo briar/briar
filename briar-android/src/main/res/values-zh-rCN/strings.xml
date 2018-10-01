@@ -124,7 +124,6 @@
   <string name="contact_added_toast">联系人已添加：%s</string>
   <string name="contact_already_exists">联系人 %s 已存在</string>
   <string name="qr_code_invalid">二维码无效</string>
-  <string name="qr_code_unsupported">您正在扫描的是来自旧版本 %s 版的二维码，该版本目前已不再支持。\n\n请确保你们两人都在运行最新版本并重试。</string>
   <string name="camera_error">相机出错</string>
   <string name="connecting_to_device">正在连接至设备\u2026</string>
   <string name="authenticating_with_device">正在验证设备\u2026</string>
@@ -329,10 +328,8 @@
   <string name="tor_mobile_data_title">使用移动数据</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
-  <string name="pref_lock_title">屏幕锁定</string>
   <string name="pref_lock_summary">登录后，使用设备的屏幕锁定保护 Briar</string>
   <string name="pref_lock_disabled_summary">为了使用该功能，请为设备设置屏幕锁定</string>
-  <string name="pref_lock_timeout_title">屏幕锁定所需的无操作时间</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">当有 %s 不使用 Briar 后，自动将其锁定</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -384,8 +381,6 @@
   <string name="notify_blog_posts_setting_summary">显示博文通知</string>
   <string name="notify_blog_posts_setting_summary_26">设置博文通知</string>
   <string name="notify_vibration_setting">震动</string>
-  <string name="notify_lock_screen_setting_title">锁定屏幕</string>
-  <string name="notify_lock_screen_setting_summary">在锁定屏幕上显示通知</string>
   <string name="notify_sound_setting">声音</string>
   <string name="notify_sound_setting_default">默认铃声</string>
   <string name="notify_sound_setting_disabled">无</string>

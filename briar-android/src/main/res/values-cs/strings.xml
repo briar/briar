@@ -132,7 +132,6 @@
   <string name="contact_added_toast">Kontakt byl přidán: %s</string>
   <string name="contact_already_exists">Kontakt %s již existuje</string>
   <string name="qr_code_invalid">QR kód je neplatný</string>
-  <string name="qr_code_unsupported">QR kód, který se pokoušíte skenovat, patří k starší verzi %s, která již není podporována.\n\nJe potřebné, aby oba kontakty používali nejnovější verzi a následně to zkuste znovu.</string>
   <string name="camera_error">Vyskytla se chyba fotoaparátu</string>
   <string name="connecting_to_device">Připojování k zařízení\u2026</string>
   <string name="authenticating_with_device">Ověřování se zařízením\u2026</string>
@@ -366,8 +365,6 @@
   <string name="notify_blog_posts_setting_summary">Zobrazit upozornění pro příspěvky v blogu</string>
   <string name="notify_blog_posts_setting_summary_26">Nastavení upozornění pro příspěvky blogu</string>
   <string name="notify_vibration_setting">Vibrovat</string>
-  <string name="notify_lock_screen_setting_title">Zamčená obrazovka</string>
-  <string name="notify_lock_screen_setting_summary">Zobrazit oznámení na zamčené obrazovce</string>
   <string name="notify_sound_setting">Zvuk</string>
   <string name="notify_sound_setting_default">Výchozí vyzvánění</string>
   <string name="notify_sound_setting_disabled">Žádný</string>

@@ -129,7 +129,8 @@
   <string name="contact_added_toast">Contatto aggiunto: %s</string>
   <string name="contact_already_exists">Il contatto %s esiste già</string>
   <string name="qr_code_invalid">Il codice QR non è valido</string>
-  <string name="qr_code_unsupported">Il codice QR che state tentando di scansionare appartiene ad una vecchia versione di %s che non è più supportata.\n\nAssicuratevi entrambi di utilizzare la versione più recente e poi riprovare.</string>
+  <string name="qr_code_too_old">Il codice QR che hai scansionato proviene da una vecchia versione di %s.\n\nChiedi al tuo contatto di aggiornare all\'ultima versione e poi riprova.</string>
+  <string name="qr_code_too_new">Il codice QR che hai scansionato proviene da una versione più recente di %s.\n\nAggiorna all\'ultima versione e poi riprova.</string>
   <string name="camera_error">Errore fotocamera</string>
   <string name="connecting_to_device">Connessione al dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticazione con il dispositivo\u2026</string>
@@ -339,10 +340,10 @@
   <string name="tor_mobile_data_title">Usa dati mobili</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicurezza</string>
-  <string name="pref_lock_title">Blocco schermo</string>
+  <string name="pref_lock_title">Blocco dell\'app</string>
   <string name="pref_lock_summary">Usa il blocco schermo del dispositivo per proteggere Briar mentre sei connesso</string>
   <string name="pref_lock_disabled_summary">Per usare questa funzione, imposta un blocco schermo per il dispositivo</string>
-  <string name="pref_lock_timeout_title">Blocco schermo per inattività</string>
+  <string name="pref_lock_timeout_title">Tempo inattività per blocco app</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Quando non usi Briar, bloccalo automaticamente dopo %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -371,6 +372,7 @@
   <string name="panic_app_setting_none">Nessuno</string>
   <string name="dialog_title_connect_panic_app">Conferma App Panico</string>
   <string name="dialog_message_connect_panic_app">Sei sicuro di voler consentire %1$s di attivare le azioni distruttive del pulsante panico?</string>
+  <string name="panic_setting_destructive_action">Azioni distruttive</string>
   <string name="panic_setting_signout_title">Esci</string>
   <string name="panic_setting_signout_summary">Uscire da Briar se viene premuto un pulsante di panico</string>
   <string name="purge_setting_title">Elimina Account</string>
@@ -394,8 +396,6 @@
   <string name="notify_blog_posts_setting_summary">Mostra avvisi per post di blog</string>
   <string name="notify_blog_posts_setting_summary_26">Configurare avvisi per post di blog</string>
   <string name="notify_vibration_setting">Vibrazione</string>
-  <string name="notify_lock_screen_setting_title">Blocca schermo</string>
-  <string name="notify_lock_screen_setting_summary">Mostra notifiche sul blocca schermo</string>
   <string name="notify_sound_setting">Suono</string>
   <string name="notify_sound_setting_default">Suoneria di default</string>
   <string name="notify_sound_setting_disabled">Nessuno</string>
