@@ -1,6 +1,5 @@
 dependencyVerification {
     verify = [
-        'Android:Sdk:platforms:android.jar:d20853d289a5161d9cf1c1268d7923076487d4fa68c970b0733e2d5a0ccfc3c5',
         'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
         'com.android.tools.analytics-library:protos:26.2.0:protos-26.2.0.jar:306784ac579be37f64f110204ea3fad8568e09e10817bb574bac0fc71b6402c5',
         'com.android.tools.analytics-library:shared:26.2.0:shared-26.2.0.jar:10782c593b7edcaf63cf79f7179c4652fee1c01298e0d81d888eea5ea1c320d4',

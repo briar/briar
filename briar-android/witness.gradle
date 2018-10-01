@@ -1,6 +1,5 @@
 dependencyVerification {
     verify = [
-        'Android:Sdk:platforms:android.jar:d20853d289a5161d9cf1c1268d7923076487d4fa68c970b0733e2d5a0ccfc3c5',
         'android.arch.core:common:1.1.1:common-1.1.1.jar:3a616a32f433e9e23f556b38575c31b013613d3ae85206263b7625fe1f4c151a',
         'android.arch.core:runtime:1.1.1:runtime-1.1.1.aar:c3215aa5873311b3f88a6f4e4a3c25ad89971bc127de8c3e1291c57f93a05c39',
         'android.arch.lifecycle:common:1.1.1:common-1.1.1.jar:8d378e88ebd5189e09eef623414812c868fd90aa519d6160e2311fb8b81cff56',
