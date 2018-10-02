@@ -10,6 +10,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.briar.android.util.UiUtils;
 
+import java.util.Locale;
+
 import javax.annotation.Nullable;
 
 import static android.support.v4.view.ViewCompat.setTransitionName;
@@ -36,7 +38,7 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 		// unread count
 		int unreadCount = item.getUnreadCount();
 		if (unreadCount > 0) {
-			unread.setText(String.valueOf(unreadCount));
+			unread.setText(String.format(Locale.getDefault(), "%d", unreadCount));
 			unread.setVisibility(View.VISIBLE);
 		} else {
 			unread.setVisibility(View.INVISIBLE);
