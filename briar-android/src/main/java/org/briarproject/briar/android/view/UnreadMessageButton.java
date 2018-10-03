@@ -12,6 +12,8 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
+import java.util.Locale;
+
 import javax.annotation.Nullable;
 
 @UiThread
@@ -69,7 +71,7 @@ public class UnreadMessageButton extends FrameLayout {
 		} else {
 			fab.show();
 			unread.setVisibility(VISIBLE);
-			unread.setText(String.valueOf(count));
+			unread.setText(String.format(Locale.getDefault(), "%d", count));
 		}
 	}
 

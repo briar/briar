@@ -12,6 +12,8 @@ import android.widget.TextView;
 
 import org.briarproject.briar.R;
 
+import java.util.Locale;
+
 import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -44,7 +46,7 @@ public class TextAvatarView extends FrameLayout {
 
 	public void setUnreadCount(int count) {
 		if (count > 0) {
-			badge.setText(String.valueOf(count));
+			badge.setText(String.format(Locale.getDefault(), "%d", count));
 			badge.setVisibility(VISIBLE);
 		} else {
 			badge.setVisibility(INVISIBLE);

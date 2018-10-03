@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 
+import java.util.Locale;
+
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 
@@ -45,7 +47,8 @@ public class ThreadPostViewHolder<I extends ThreadItem>
 		}
 		if (item.getLevel() > 5) {
 			lvlText.setVisibility(VISIBLE);
-			lvlText.setText(String.valueOf(item.getLevel()));
+			lvlText.setText(
+					String.format(Locale.getDefault(), "%d", item.getLevel()));
 		} else {
 			lvlText.setVisibility(GONE);
 		}
