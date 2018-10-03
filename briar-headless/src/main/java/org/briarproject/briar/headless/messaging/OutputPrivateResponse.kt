@@ -1,5 +1,3 @@
-@file:Suppress("MemberVisibilityCanBePrivate", "unused")
-
 package org.briarproject.briar.headless.messaging
 
 import org.briarproject.bramble.api.contact.ContactId

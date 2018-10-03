@@ -11,7 +11,6 @@ import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.client.SessionId
-import org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
@@ -44,6 +43,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
 
     private val header =
         PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true)
+    private val sessionId = SessionId(getRandomId())
 
     @Test
     fun list() {
@@ -57,10 +57,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
 
     @Test
     fun listIntroductionRequest() {
-        val sessionId = SessionId(getRandomId())
-        val text = getRandomString(MAX_REQUEST_MESSAGE_LENGTH)
         val request = IntroductionRequest(
-            message.id, group.id, timestamp, true, true, false, true, sessionId, author, text,
+            message.id, group.id, timestamp, true, true, false, true, sessionId, author, body,
             false, false
         )
 
@@ -113,12 +111,13 @@ internal class MessagingControllerImplTest : ControllerTest() {
         controller.write(ctx)
 
         val output = slot.captured
-        assertEquals(contact.id.int, output.get("contactId"))
-        assertEquals(body, output.get("body"))
-        assertEquals(message.id.bytes, output.get("id"))
+        assertEquals(privateMessage.output(contact.id, body), output)
+        assertEquals(contact.id.int, output["contactId"])
+        assertEquals(body, output["body"])
+        assertEquals(message.id.bytes, output["id"])
         assertEquals(
             "org.briarproject.briar.api.messaging.PrivateMessageHeader",
-            output.get("type")
+            output["type"]
         )
     }
 
@@ -183,6 +182,33 @@ internal class MessagingControllerImplTest : ControllerTest() {
             }
         """
         assertJsonEquals(json, header.output(contact.id, body))
+    }
+
+    @Test
+    fun testIntroductionRequestWithEmptyBody() {
+        val request = IntroductionRequest(
+            message.id, group.id, timestamp, true, true, false, true, sessionId, author, null,
+            false, false
+        )
+        val json = """
+            {
+                "body": null,
+                "type": "org.briarproject.briar.api.introduction.IntroductionRequest",
+                "timestamp": $timestamp,
+                "groupId": ${toJson(request.groupId.bytes)},
+                "contactId": ${contact.id.int},
+                "local": ${request.isLocal},
+                "seen": ${request.isSeen},
+                "read": ${request.isRead},
+                "sent": ${request.isSent},
+                "id": ${toJson(request.id.bytes)},
+                "sessionId": ${toJson(request.sessionId.bytes)},
+                "name": ${request.name},
+                "answered": ${request.wasAnswered()},
+                "alreadyContact": ${request.isContact}
+            }
+        """
+        assertJsonEquals(json, request.output(contact.id))
     }
 
     private fun expectGetContact() {
