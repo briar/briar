@@ -24,6 +24,7 @@ import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
+import org.briarproject.briar.android.reporting.DevReportActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
@@ -42,6 +43,10 @@ import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 
+/**
+ * Warning: Some activities don't extend {@link BaseActivity}.
+ *          E.g. {@link DevReportActivity}
+ */
 public abstract class BaseActivity extends AppCompatActivity
 		implements DestroyableContext, OnTapFilteredListener {
 

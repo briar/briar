@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.reporting;
 
+import android.content.Context;
 import android.content.res.Configuration;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import org.acra.collector.CrashReportData;
 import org.acra.dialog.BaseCrashReportDialog;
 import org.acra.file.CrashReportPersister;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.util.UserFeedback;
 
 import java.io.File;
@@ -38,6 +40,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 import static java.util.logging.Level.WARNING;
 import static org.acra.ACRAConstants.EXTRA_REPORT_FILE;
@@ -47,6 +50,7 @@ import static org.acra.ReportField.APP_VERSION_NAME;
 import static org.acra.ReportField.PACKAGE_NAME;
 import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.STACK_TRACE;
+import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 public class DevReportActivity extends BaseCrashReportDialog
 		implements CompoundButton.OnCheckedChangeListener {
@@ -107,6 +111,8 @@ public class DevReportActivity extends BaseCrashReportDialog
 	public void init(Bundle state) {
 		super.init(state);
 
+		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
+
 		getDelegate().setContentView(R.layout.activity_dev_report);
 
 		Toolbar tb = findViewById(R.id.toolbar);
@@ -164,6 +170,12 @@ public class DevReportActivity extends BaseCrashReportDialog
 
 		if (!isFeedback() && !reviewing)
 			requestReport.setVisibility(VISIBLE);
+	}
+
+	@Override
+	protected void attachBaseContext(Context base) {
+		super.attachBaseContext(
+				Localizer.getInstance().setLocale(base));
 	}
 
 	@Override
