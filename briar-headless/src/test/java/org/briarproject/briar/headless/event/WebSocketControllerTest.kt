@@ -65,7 +65,7 @@ internal class WebSocketControllerTest : ControllerTest() {
         val json = """
         {
             "type": "event",
-            "name": "org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent",
+            "name": "PrivateMessageReceivedEvent",
             "data": ${toJson(header.output(contact.id, body))}
         }
         """

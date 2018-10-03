@@ -115,10 +115,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         assertEquals(contact.id.int, output["contactId"])
         assertEquals(body, output["body"])
         assertEquals(message.id.bytes, output["id"])
-        assertEquals(
-            "org.briarproject.briar.api.messaging.PrivateMessageHeader",
-            output["type"]
-        )
+        assertEquals("PrivateMessage", output["type"])
     }
 
     @Test
@@ -170,7 +167,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val json = """
             {
                 "body": "$body",
-                "type": "org.briarproject.briar.api.messaging.PrivateMessageHeader",
+                "type": "PrivateMessage",
                 "timestamp": $timestamp,
                 "groupId": ${toJson(header.groupId.bytes)},
                 "contactId": ${contact.id.int},
@@ -193,7 +190,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val json = """
             {
                 "body": null,
-                "type": "org.briarproject.briar.api.introduction.IntroductionRequest",
+                "type": "IntroductionRequest",
                 "timestamp": $timestamp,
                 "groupId": ${toJson(request.groupId.bytes)},
                 "contactId": ${contact.id.int},

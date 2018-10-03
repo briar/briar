@@ -31,8 +31,7 @@ import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-internal const val EVENT_PRIVATE_MESSAGE =
-    "org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent"
+internal const val EVENT_PRIVATE_MESSAGE = "PrivateMessageReceivedEvent"
 
 @Immutable
 @Singleton

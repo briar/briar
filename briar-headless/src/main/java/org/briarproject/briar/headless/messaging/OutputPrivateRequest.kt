@@ -23,7 +23,7 @@ internal fun PrivateRequest<*>.output(contactId: ContactId): JsonDict {
 internal fun IntroductionRequest.output(contactId: ContactId): JsonDict {
     val dict = (this as PrivateRequest<*>).output(contactId)
     dict.putAll(
-        "type" to "org.briarproject.briar.api.introduction.IntroductionRequest",
+        "type" to "IntroductionRequest",
         "alreadyContact" to isContact
     )
     return dict
@@ -37,18 +37,18 @@ internal fun InvitationRequest<*>.output(contactId: ContactId): JsonDict {
 
 internal fun BlogInvitationRequest.output(contactId: ContactId): JsonDict {
     val dict = (this as InvitationRequest<*>).output(contactId)
-    dict["type"] = "org.briarproject.briar.api.blog.BlogInvitationRequest"
+    dict["type"] = "BlogInvitationRequest"
     return dict
 }
 
 internal fun ForumInvitationRequest.output(contactId: ContactId): JsonDict {
     val dict = (this as InvitationRequest<*>).output(contactId)
-    dict["type"] = "org.briarproject.briar.api.forum.ForumInvitationRequest"
+    dict["type"] = "ForumInvitationRequest"
     return dict
 }
 
 internal fun GroupInvitationRequest.output(contactId: ContactId): JsonDict {
     val dict = (this as InvitationRequest<*>).output(contactId)
-    dict["type"] = "org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest"
+    dict["type"] = "GroupInvitationRequest"
     return dict
 }

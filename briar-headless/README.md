@@ -89,7 +89,7 @@ It returns a JSON array of private messages:
     "seen": true,
     "sent": true,
     "timestamp": 1537376633850,
-    "type": "org.briarproject.briar.api.messaging.PrivateMessageHeader"
+    "type": "PrivateMessage"
 }
 ```
 
@@ -172,9 +172,9 @@ it will send a JSON object to connected websocket clients:
         "seen": false,
         "sent": false,
         "timestamp": 1537389146088,
-        "type": "org.briarproject.briar.api.messaging.PrivateMessageHeader"
+        "type": "PrivateMessage"
     },
-    "name": "org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent",
+    "name": "PrivateMessageReceivedEvent",
     "type": "event"
 }
 ```

@@ -6,7 +6,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.headless.json.JsonDict
 
 internal fun PrivateMessageHeader.output(contactId: ContactId, body: String?) = JsonDict(
-    "type" to "org.briarproject.briar.api.messaging.PrivateMessageHeader",
+    "type" to "PrivateMessage",
     "contactId" to contactId.int,
     "timestamp" to timestamp,
     "read" to isRead,
@@ -19,7 +19,7 @@ internal fun PrivateMessageHeader.output(contactId: ContactId, body: String?) = 
 )
 
 internal fun PrivateMessage.output(contactId: ContactId, body: String) = JsonDict(
-    "type" to "org.briarproject.briar.api.messaging.PrivateMessageHeader",
+    "type" to "PrivateMessage",
     "contactId" to contactId.int,
     "timestamp" to message.timestamp,
     "read" to true,
