@@ -33,24 +33,24 @@ internal fun IntroductionRequest.output(contactId: ContactId): JsonDict {
 
 internal fun InvitationRequest<*>.output(contactId: ContactId): JsonDict {
     val dict = (this as PrivateRequest<*>).output(contactId)
-    dict.put("canBeOpened", canBeOpened())
+    dict["canBeOpened"] = canBeOpened()
     return dict
 }
 
 internal fun BlogInvitationRequest.output(contactId: ContactId): JsonDict {
     val dict = (this as InvitationRequest<*>).output(contactId)
-    dict.put("type", "org.briarproject.briar.api.blog.BlogInvitationRequest")
+    dict["type"] = "org.briarproject.briar.api.blog.BlogInvitationRequest"
     return dict
 }
 
 internal fun ForumInvitationRequest.output(contactId: ContactId): JsonDict {
     val dict = (this as InvitationRequest<*>).output(contactId)
-    dict.put("type", "org.briarproject.briar.api.forum.ForumInvitationRequest")
+    dict["type"] = "org.briarproject.briar.api.forum.ForumInvitationRequest"
     return dict
 }
 
 internal fun GroupInvitationRequest.output(contactId: ContactId): JsonDict {
     val dict = (this as InvitationRequest<*>).output(contactId)
-    dict.put("type", "org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest")
+    dict["type"] = "org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest"
     return dict
 }

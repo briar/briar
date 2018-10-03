@@ -18,7 +18,7 @@ internal fun BlogPostHeader.output(body: String): JsonDict {
         "timestamp" to timestamp,
         "timestampReceived" to timeReceived
     )
-    if (parentId != null) dict.put("parentId", (parentId as MessageId).bytes)
+    if (parentId != null) dict["parentId"] = (parentId as MessageId).bytes
     return dict
 }
 

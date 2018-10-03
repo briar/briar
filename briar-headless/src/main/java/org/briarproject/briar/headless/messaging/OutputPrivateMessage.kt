@@ -17,7 +17,7 @@ internal fun PrivateMessageHeader.output(contactId: ContactId, body: String?): J
         "id" to id.bytes,
         "groupId" to groupId.bytes
     )
-    if (body != null) dict.put("body", body)
+    if (body != null) dict["body"] = body
     return dict
 }
 
