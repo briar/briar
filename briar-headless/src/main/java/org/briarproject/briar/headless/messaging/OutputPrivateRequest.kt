@@ -11,7 +11,7 @@ import org.briarproject.briar.api.sharing.InvitationRequest
 import org.briarproject.briar.headless.json.JsonDict
 
 internal fun PrivateRequest<*>.output(contactId: ContactId): JsonDict {
-    val dict = (this as PrivateMessageHeader).output(contactId, null)
+    val dict = (this as PrivateMessageHeader).output(contactId, message)
     dict.putAll(
         "sessionId" to sessionId.bytes,
         "name" to name,
