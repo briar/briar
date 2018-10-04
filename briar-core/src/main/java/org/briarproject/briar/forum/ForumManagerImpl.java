@@ -94,14 +94,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public Forum addForum(String name) throws DbException {
 		Forum f = forumFactory.createForum(name);
-
-		Transaction txn = db.startTransaction(false);
-		try {
-			db.addGroup(txn, f.getGroup());
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		db.transaction(false, txn -> db.addGroup(txn, f.getGroup()));
 		return f;
 	}
 
@@ -112,15 +105,11 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public void removeForum(Forum f) throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
+		db.transaction(false, txn -> {
 			for (RemoveForumHook hook : removeHooks)
 				hook.removingForum(txn, f);
 			db.removeGroup(txn, f.getGroup());
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		});
 	}
 
 	@Override
@@ -131,45 +120,35 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 			p = forumPostFactory.createPost(groupId, timestamp, parentId,
 					author, body);
 		} catch (GeneralSecurityException | FormatException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 		return p;
 	}
 
 	@Override
 	public ForumPostHeader addLocalPost(ForumPost p) throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			BdfDictionary meta = new BdfDictionary();
-			meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-			if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
-			Author a = p.getAuthor();
-			meta.put(KEY_AUTHOR, clientHelper.toList(a));
-			meta.put(KEY_LOCAL, true);
-			meta.put(MSG_KEY_READ, true);
-			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
-			messageTracker.trackOutgoingMessage(txn, p.getMessage());
-			db.commitTransaction(txn);
-		} catch (FormatException e) {
-			throw new RuntimeException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
+		db.transaction(false, txn -> {
+			try {
+				BdfDictionary meta = new BdfDictionary();
+				meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
+				if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
+				Author a = p.getAuthor();
+				meta.put(KEY_AUTHOR, clientHelper.toList(a));
+				meta.put(KEY_LOCAL, true);
+				meta.put(MSG_KEY_READ, true);
+				clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
+				messageTracker.trackOutgoingMessage(txn, p.getMessage());
+			} catch (FormatException e) {
+				throw new AssertionError(e);
+			}
+		});
 		return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
 				p.getMessage().getTimestamp(), p.getAuthor(), OURSELVES, true);
 	}
 
 	@Override
 	public Forum getForum(GroupId g) throws DbException {
-		Forum forum;
-		Transaction txn = db.startTransaction(true);
-		try {
-			forum = getForum(txn, g);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return forum;
+		return db.transactionWithResult(true, txn -> getForum(txn, g));
 	}
 
 	@Override
@@ -184,15 +163,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public Collection<Forum> getForums() throws DbException {
+		Collection<Group> groups = db.transactionWithResult(true, txn ->
+				db.getGroups(txn, CLIENT_ID, MAJOR_VERSION));
 		try {
-			Collection<Group> groups;
-			Transaction txn = db.startTransaction(true);
-			try {
-				groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
 			List<Forum> forums = new ArrayList<>();
 			for (Group g : groups) forums.add(parseForum(g));
 			return forums;
@@ -218,36 +191,35 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
-
-		Collection<ForumPostHeader> headers = new ArrayList<>();
-		Transaction txn = db.startTransaction(true);
 		try {
-			Map<MessageId, BdfDictionary> metadata =
-					clientHelper.getMessageMetadataAsDictionary(txn, g);
-			// get all authors we need to get the status for
-			Set<AuthorId> authors = new HashSet<>();
-			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-				BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
-				Author a = clientHelper.parseAndValidateAuthor(authorList);
-				authors.add(a.getId());
-			}
-			// get statuses for all authors
-			Map<AuthorId, Status> statuses = new HashMap<>();
-			for (AuthorId id : authors) {
-				statuses.put(id, identityManager.getAuthorStatus(txn, id));
-			}
-			// Parse the metadata
-			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
-				BdfDictionary meta = entry.getValue();
-				headers.add(getForumPostHeader(txn, entry.getKey(), meta,
-						statuses));
-			}
-			db.commitTransaction(txn);
-			return headers;
+			return db.throwingTransactionWithResult(true, txn -> {
+				Collection<ForumPostHeader> headers = new ArrayList<>();
+				Map<MessageId, BdfDictionary> metadata =
+						clientHelper.getMessageMetadataAsDictionary(txn, g);
+				// get all authors we need to get the status for
+				Set<AuthorId> authors = new HashSet<>();
+				for (Entry<MessageId, BdfDictionary> entry :
+						metadata.entrySet()) {
+					BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
+					Author a = clientHelper.parseAndValidateAuthor(authorList);
+					authors.add(a.getId());
+				}
+				// get statuses for all authors
+				Map<AuthorId, Status> statuses = new HashMap<>();
+				for (AuthorId id : authors) {
+					statuses.put(id, identityManager.getAuthorStatus(txn, id));
+				}
+				// Parse the metadata
+				for (Entry<MessageId, BdfDictionary> entry :
+						metadata.entrySet()) {
+					BdfDictionary meta = entry.getValue();
+					headers.add(getForumPostHeader(txn, entry.getKey(), meta,
+							statuses));
+				}
+				return headers;
+			});
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
