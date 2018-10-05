@@ -77,6 +77,19 @@ public interface DatabaseComponent {
 	void endTransaction(Transaction txn);
 
 	/**
+	 * Runs the given task within a transaction.
+	 */
+	<E extends Exception> void transaction(boolean readOnly,
+			DbRunnable<E> task) throws DbException, E;
+
+	/**
+	 * Runs the given task within a transaction and returns the result of the
+	 * task.
+	 */
+	<R, E extends Exception> R transactionWithResult(boolean readOnly,
+			DbCallable<R, E> task) throws DbException, E;
+
+	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
