@@ -36,7 +36,8 @@ internal const val EVENT_PRIVATE_MESSAGE = "PrivateMessageReceivedEvent"
 @Immutable
 @Singleton
 internal class MessagingControllerImpl
-@Inject constructor(
+@Inject
+constructor(
     private val messagingManager: MessagingManager,
     private val conversationManager: ConversationManager,
     private val privateMessageFactory: PrivateMessageFactory,

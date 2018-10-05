@@ -1,17 +1,17 @@
 # Briar REST API
 
-This is a headless Briar client that exposes a REST API
+This is a headless Briar peer that exposes a REST API
 with an integrated HTTP server instead of a traditional user interface.
-You can use this API to script the client behavior
+You can use this API to script the peer behavior
 or to develop your own user interface for it.
 
 ## How to use
 
-The REST API client comes as a `jar` file
+The REST API peer comes as a `jar` file
 and needs a Java Runtime Environment (JRE) that supports at least Java 8.
 It currently works only on GNU/Linux operating systems.
 
-You can start the client (and its API server) like this:
+You can start the peer (and its API server) like this:
 
     $ java -jar briar-headless/build/libs/briar-headless.jar
 
@@ -69,7 +69,7 @@ Returns a JSON array of contacts:
 *Not yet implemented*
 
 The only workaround is to add a contact to the Briar app running on a rooted Android phone
-and then move its database (and key files) to the headless client.
+and then move its database (and key files) to the headless peer.
 
 ### Listing all private messages
 
@@ -93,7 +93,7 @@ It returns a JSON array of private messages:
 }
 ```
 
-If `local` is `true`, the message was sent by the Briar client instead of its remote contact.
+If `local` is `true`, the message was sent by the Briar peer instead of its remote contact.
 
 Attention: There can messages of other `type`s where the message `body` is `null`.
 
@@ -136,7 +136,7 @@ The text of the blog post should be included in the form parameter `text`.
 
 ## Websocket API
 
-The Briar client uses a websocket to notify a connected API client about new events.
+The Briar peer uses a websocket to notify a connected API client about new events.
 
 `WS /v1/ws`
 
@@ -157,7 +157,7 @@ Your websocket client will most likely add these headers automatically.
 
 ### Receiving new private messages
 
-When the Briar client receives a new private message,
+When the Briar peer receives a new private message,
 it will send a JSON object to connected websocket clients:
 
 ```json

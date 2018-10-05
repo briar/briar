@@ -9,7 +9,8 @@ import javax.inject.Singleton
 @Immutable
 @Singleton
 internal class ContactControllerImpl
-@Inject constructor(private val contactManager: ContactManager) : ContactController {
+@Inject
+constructor(private val contactManager: ContactManager) : ContactController {
 
     override fun list(ctx: Context): Context {
         val contacts = contactManager.activeContacts.map { contact ->

@@ -44,6 +44,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     private val header =
         PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true)
     private val sessionId = SessionId(getRandomId())
+    private val privateMessage = PrivateMessage(message)
 
     @Test
     fun list() {
@@ -91,7 +92,6 @@ internal class MessagingControllerImplTest : ControllerTest() {
 
     @Test
     fun write() {
-        val privateMessage = PrivateMessage(message)
         val slot = CapturingSlot<JsonDict>()
 
         expectGetContact()
@@ -110,12 +110,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
 
         controller.write(ctx)
 
-        val output = slot.captured
-        assertEquals(privateMessage.output(contact.id, body), output)
-        assertEquals(contact.id.int, output["contactId"])
-        assertEquals(body, output["body"])
-        assertEquals(message.id.bytes, output["id"])
-        assertEquals("PrivateMessage", output["type"])
+        assertEquals(privateMessage.output(contact.id, body), slot.captured)
     }
 
     @Test
@@ -179,6 +174,25 @@ internal class MessagingControllerImplTest : ControllerTest() {
             }
         """
         assertJsonEquals(json, header.output(contact.id, body))
+    }
+
+    @Test
+    fun testOutputPrivateMessage() {
+        val json = """
+            {
+                "body": "$body",
+                "type": "PrivateMessage",
+                "timestamp": ${message.timestamp},
+                "groupId": ${toJson(message.groupId.bytes)},
+                "contactId": ${contact.id.int},
+                "local": true,
+                "seen": true,
+                "read": true,
+                "sent": true,
+                "id": ${toJson(message.id.bytes)}
+            }
+        """
+        assertJsonEquals(json, privateMessage.output(contact.id, body))
     }
 
     @Test

@@ -44,7 +44,7 @@ internal fun BlogInvitationResponse.output(contactId: ContactId): JsonDict {
 
 internal fun ForumInvitationResponse.output(contactId: ContactId): JsonDict {
     val dict = (this as InvitationResponse).output(contactId)
-    dict["type"] = "BlogInvitationResponse"
+    dict["type"] = "ForumInvitationResponse"
     return dict
 }
 

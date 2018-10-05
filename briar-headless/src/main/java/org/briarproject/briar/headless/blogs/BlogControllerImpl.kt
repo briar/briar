@@ -15,7 +15,8 @@ import javax.inject.Singleton
 @Immutable
 @Singleton
 internal class BlogControllerImpl
-@Inject constructor(
+@Inject
+constructor(
     private val blogManager: BlogManager,
     private val blogPostFactory: BlogPostFactory,
     private val identityManager: IdentityManager,

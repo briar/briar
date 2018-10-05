@@ -5,7 +5,7 @@ import io.javalin.JavalinEvent.SERVER_START_FAILED
 import io.javalin.JavalinEvent.SERVER_STOPPED
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.ContextUtil
-import io.javalin.core.util.Header
+import io.javalin.core.util.Header.AUTHORIZATION
 import org.briarproject.briar.headless.blogs.BlogController
 import org.briarproject.briar.headless.contact.ContactController
 import org.briarproject.briar.headless.event.WebSocketController
@@ -21,7 +21,8 @@ import kotlin.system.exitProcess
 
 @Immutable
 @Singleton
-internal class Router @Inject
+internal class Router
+@Inject
 constructor(
     private val briarService: BriarService,
     private val webSocketController: WebSocketController,
@@ -36,7 +37,7 @@ constructor(
 
     fun start(authToken: String, port: Int, debug: Boolean) {
         briarService.start()
-        getRuntime().addShutdownHook(Thread(Runnable { stop() }))
+        getRuntime().addShutdownHook(Thread(this::stop))
 
         val app = Javalin.create()
             .port(port)
@@ -48,7 +49,7 @@ constructor(
         app.start()
 
         app.accessManager { handler, ctx, _ ->
-            if (ctx.header("Authorization") == "Bearer $authToken") {
+            if (ctx.header(AUTHORIZATION) == "Bearer $authToken") {
                 handler.handle(ctx)
             } else {
                 ctx.status(401).result("Unauthorized")
@@ -77,7 +78,7 @@ constructor(
         }
         app.ws("/v1/ws") { ws ->
             ws.onConnect { session ->
-                val authHeader = session.header(Header.AUTHORIZATION)
+                val authHeader = session.header(AUTHORIZATION)
                 val token = ContextUtil.getBasicAuthCredentials(authHeader)?.username
                 if (authToken == token) {
                     logger.info("Adding websocket session with ${session.remoteAddress}")

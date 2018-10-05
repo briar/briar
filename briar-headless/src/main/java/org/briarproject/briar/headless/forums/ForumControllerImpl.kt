@@ -12,7 +12,8 @@ import javax.inject.Singleton
 @Immutable
 @Singleton
 internal class ForumControllerImpl
-@Inject constructor(private val forumManager: ForumManager) : ForumController {
+@Inject
+constructor(private val forumManager: ForumManager) : ForumController {
 
     override fun list(ctx: Context): Context {
         return ctx.json(forumManager.forums.output())
