@@ -169,19 +169,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void transaction(boolean readOnly, DbRunnable<DbException> task)
-			throws DbException {
-		throwingTransaction(readOnly, task);
-	}
-
-	@Override
-	public <R> R transactionWithResult(boolean readOnly,
-			DbCallable<R, DbException> task) throws DbException {
-		return throwingTransactionWithResult(readOnly, task);
-	}
-
-	@Override
-	public <E extends Exception> void throwingTransaction(boolean readOnly,
+	public <E extends Exception> void transaction(boolean readOnly,
 			DbRunnable<E> task) throws DbException, E {
 		final Transaction txn = startTransaction(readOnly);
 		try {
@@ -193,8 +181,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public <R, E extends Exception> R throwingTransactionWithResult(
-			boolean readOnly, DbCallable<R, E> task) throws DbException, E {
+	public <R, E extends Exception> R transactionWithResult(boolean readOnly,
+			DbCallable<R, E> task) throws DbException, E {
 		final Transaction txn = startTransaction(readOnly);
 		try {
 			R result = task.call(txn);

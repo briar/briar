@@ -192,7 +192,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	public Collection<ForumPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
 		try {
-			return db.throwingTransactionWithResult(true, txn -> {
+			return db.transactionWithResult(true, txn -> {
 				Collection<ForumPostHeader> headers = new ArrayList<>();
 				Map<MessageId, BdfDictionary> metadata =
 						clientHelper.getMessageMetadataAsDictionary(txn, g);

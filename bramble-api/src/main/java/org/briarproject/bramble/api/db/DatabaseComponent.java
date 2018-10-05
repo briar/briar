@@ -79,27 +79,14 @@ public interface DatabaseComponent {
 	/**
 	 * Runs the given task within a transaction.
 	 */
-	void transaction(boolean readOnly, DbRunnable<DbException> task)
-			throws DbException;
-
-	/**
-	 * Runs the given task within a transaction and returns the result of the
-	 * task.
-	 */
-	<R> R transactionWithResult(boolean readOnly,
-			DbCallable<R, DbException> task) throws DbException;
-
-	/**
-	 * Runs the given task within a transaction.
-	 */
-	<E extends Exception> void throwingTransaction(boolean readOnly,
+	<E extends Exception> void transaction(boolean readOnly,
 			DbRunnable<E> task) throws DbException, E;
 
 	/**
 	 * Runs the given task within a transaction and returns the result of the
 	 * task.
 	 */
-	<R, E extends Exception> R throwingTransactionWithResult(boolean readOnly,
+	<R, E extends Exception> R transactionWithResult(boolean readOnly,
 			DbCallable<R, E> task) throws DbException, E;
 
 	/**
