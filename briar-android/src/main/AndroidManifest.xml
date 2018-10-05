@@ -387,7 +387,7 @@
 		<activity
 			android:name="org.briarproject.briar.android.panic.PanicResponderActivity"
 			android:noHistory="true"
-			android:theme="@android:style/Theme.NoDisplay">
+			android:theme="@style/Theme.AppCompat.NoActionBar">
 			<!-- this can never have launchMode singleTask or singleInstance! -->
 			<intent-filter>
 				<action android:name="info.guardianproject.panic.action.TRIGGER"/>
@@ -397,12 +397,12 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.logout.ExitActivity"
-			android:theme="@android:style/Theme.NoDisplay">
+			android:theme="@style/Theme.AppCompat.NoActionBar">
 		</activity>
 
 		<activity
 			android:name=".android.logout.HideUiActivity"
-			android:theme="@android:style/Theme.NoDisplay">
+			android:theme="@style/Theme.AppCompat.NoActionBar">
 		</activity>
 
 		<activity
