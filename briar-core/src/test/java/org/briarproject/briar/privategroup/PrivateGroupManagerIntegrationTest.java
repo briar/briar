@@ -31,6 +31,7 @@ import static org.briarproject.briar.api.privategroup.Visibility.VISIBLE;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class PrivateGroupManagerIntegrationTest
@@ -102,7 +103,7 @@ public class PrivateGroupManagerIntegrationTest
 				header = h;
 			}
 		}
-		assertTrue(header != null);
+		assertNotNull(header);
 		assertFalse(header.isRead());
 		assertEquals(author0, header.getAuthor());
 		assertEquals(time, header.getTimestamp());
@@ -244,7 +245,7 @@ public class PrivateGroupManagerIntegrationTest
 				groupManager0.getPreviousMsgId(groupId0));
 
 		// share the group with 1
-		withinTransaction(db0, txn -> db0.setGroupVisibility(txn,
+		db0.transaction(false, txn -> db0.setGroupVisibility(txn,
 				contactId1From0, privateGroup0.getId(), SHARED));
 
 		// author1 joins privateGroup0 with wrong timestamp
@@ -262,7 +263,7 @@ public class PrivateGroupManagerIntegrationTest
 				groupManager1.getPreviousMsgId(groupId0));
 
 		// share the group with 0
-		withinTransaction(db1, txn -> db1.setGroupVisibility(txn,
+		db1.transaction(false, txn -> db1.setGroupVisibility(txn,
 				contactId0From1, privateGroup0.getId(), SHARED));
 
 		// sync join messages
@@ -296,7 +297,7 @@ public class PrivateGroupManagerIntegrationTest
 				groupManager0.getPreviousMsgId(groupId0));
 
 		// share the group with 1
-		withinTransaction(db0, txn -> db0.setGroupVisibility(txn,
+		db0.transaction(false, txn -> db0.setGroupVisibility(txn,
 				contactId1From0, privateGroup0.getId(), SHARED));
 
 		// author1 joins privateGroup0 with wrong signature in join message
@@ -315,7 +316,7 @@ public class PrivateGroupManagerIntegrationTest
 				groupManager1.getPreviousMsgId(groupId0));
 
 		// share the group with 0
-		withinTransaction(db1, txn -> db1.setGroupVisibility(txn,
+		db1.transaction(false, txn -> db1.setGroupVisibility(txn,
 				contactId0From1, privateGroup0.getId(), SHARED));
 
 		// sync join messages
@@ -391,7 +392,7 @@ public class PrivateGroupManagerIntegrationTest
 		addGroup();
 
 		// share the group with 2
-		withinTransaction(db0, txn -> db0.setGroupVisibility(txn,
+		db0.transaction(false, txn -> db0.setGroupVisibility(txn,
 				contactId2From0, privateGroup0.getId(), SHARED));
 
 		// author2 joins privateGroup0
@@ -404,7 +405,7 @@ public class PrivateGroupManagerIntegrationTest
 		GroupMessage joinMsg2 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author2,
 						inviteTime, creatorSignature);
-		withinTransaction(db2, txn -> {
+		db2.transaction(false, txn -> {
 			groupManager2.addPrivateGroup(txn, privateGroup0, joinMsg2, false);
 			// share the group with 0
 			db2.setGroupVisibility(txn,
@@ -440,9 +441,9 @@ public class PrivateGroupManagerIntegrationTest
 		}
 
 		// reveal contact relationship
-		withinTransaction(db1, txn -> groupManager1.relationshipRevealed(txn,
+		db1.transaction(false, txn -> groupManager1.relationshipRevealed(txn,
 				groupId0, author2.getId(), false));
-		withinTransaction(db2, txn -> groupManager2.relationshipRevealed(txn,
+		db2.transaction(false, txn -> groupManager2.relationshipRevealed(txn,
 				groupId0, author1.getId(), true));
 
 		// assert that contact relationship is now revealed properly
@@ -496,7 +497,7 @@ public class PrivateGroupManagerIntegrationTest
 		assertFalse(groupManager1.isDissolved(groupId0));
 
 		// creator dissolves group
-		withinTransaction(db1,
+		db1.transaction(false,
 				txn -> groupManager1.markGroupDissolved(txn, groupId0));
 
 		// group is dissolved now
@@ -513,7 +514,7 @@ public class PrivateGroupManagerIntegrationTest
 				groupManager0.getPreviousMsgId(groupId0));
 
 		// share the group with 1
-		withinTransaction(db0, txn -> db0.setGroupVisibility(txn,
+		db0.transaction(false, txn -> db0.setGroupVisibility(txn,
 				contactId1From0, privateGroup0.getId(), SHARED));
 
 		// author1 joins privateGroup0
@@ -529,7 +530,7 @@ public class PrivateGroupManagerIntegrationTest
 		groupManager1.addPrivateGroup(privateGroup0, joinMsg1, false);
 
 		// share the group with 0
-		withinTransaction(db1, txn -> db1.setGroupVisibility(txn,
+		db1.transaction(false, txn -> db1.setGroupVisibility(txn,
 				contactId0From1, privateGroup0.getId(), SHARED));
 		assertEquals(joinMsg1.getMessage().getId(),
 				groupManager1.getPreviousMsgId(groupId0));

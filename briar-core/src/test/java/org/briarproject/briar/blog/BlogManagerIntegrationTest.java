@@ -62,7 +62,7 @@ public class BlogManagerIntegrationTest
 		blog1 = blogFactory.createBlog(author1);
 
 		rssBlog = blogFactory.createFeedBlog(rssAuthor);
-		withinTransaction(db0, txn -> blogManager0.addBlog(txn, rssBlog));
+		db0.transaction(false, txn -> blogManager0.addBlog(txn, rssBlog));
 	}
 
 	@Override
@@ -330,7 +330,7 @@ public class BlogManagerIntegrationTest
 				cHeader = h;
 			}
 		}
-		assertTrue(cHeader != null);
+		assertNotNull(cHeader);
 
 		// another comment on the comment
 		String comment2 = "This is a comment on a comment.";

@@ -35,6 +35,7 @@ import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -145,8 +146,9 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(blog2));
 
 		// invitee has one invitation message from sharer
-		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
-				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
+		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
+				txn -> blogSharingManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
 		for (PrivateMessageHeader m : list) {
@@ -166,8 +168,8 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, withinTransactionReturns(db0,
-				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+		assertEquals(2, db0.transactionWithResult(true, txn ->
+				blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can not be shared again
 		assertFalse(blogSharingManager0.canBeShared(blog2.getId(),
@@ -218,7 +220,7 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(rssBlog));
 
 		// invitee has one invitation message from sharer
-		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
 				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
@@ -239,7 +241,7 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, withinTransactionReturns(db0,
+		assertEquals(2, db0.transactionWithResult(true,
 				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can not be shared again
@@ -280,7 +282,7 @@ public class BlogSharingIntegrationTest
 		assertEquals(0, blogSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
 				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the  message
@@ -291,7 +293,7 @@ public class BlogSharingIntegrationTest
 				assertTrue(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getName());
-				assertEquals(null, invitation.getMessage());
+				assertNull(invitation.getMessage());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
 				assertEquals(blog2.getId(), response.getShareableId());
@@ -300,7 +302,7 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, withinTransactionReturns(db0,
+		assertEquals(2, db0.transactionWithResult(true,
 				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can be shared again
@@ -388,7 +390,7 @@ public class BlogSharingIntegrationTest
 
 		// make sure 1 knows that they have blog2 already
 		Collection<PrivateMessageHeader> messages =
-				withinTransactionReturns(db1, txn -> blogSharingManager1
+				db1.transactionWithResult(true, txn -> blogSharingManager1
 						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		assertEquals(blog2, blogManager1.getBlog(blog2.getId()));

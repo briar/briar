@@ -39,6 +39,7 @@ import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.forum.ForumSharingManager.MAJOR_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ForumSharingIntegrationTest
@@ -128,7 +129,7 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 
 		// invitee has one invitation message from sharer
-		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
 				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the forum message
@@ -148,7 +149,7 @@ public class ForumSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, withinTransactionReturns(db0, txn ->
+		assertEquals(2, db0.transactionWithResult(true, txn ->
 				forumSharingManager0.getMessageHeaders(txn, contactId1From0)).size());
 		// forum can not be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
@@ -184,7 +185,7 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, forumSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
 				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the forum message
@@ -194,7 +195,7 @@ public class ForumSharingIntegrationTest
 				assertEquals(forum0, invitation.getNameable());
 				assertTrue(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
-				assertEquals(null, invitation.getMessage());
+				assertNull(invitation.getMessage());
 				assertFalse(invitation.canBeOpened());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
@@ -204,7 +205,7 @@ public class ForumSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, withinTransactionReturns(db0, txn ->
+		assertEquals(2, db0.transactionWithResult(true, txn ->
 				forumSharingManager0.getMessageHeaders(txn, contactId1From0)).size());
 		// forum can be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
@@ -446,7 +447,7 @@ public class ForumSharingIntegrationTest
 		listenToEvents(true);
 
 		// invitee adds the same forum
-		withinTransaction(db1, txn -> forumManager1.addForum(txn, forum0));
+		db1.transaction(false, txn -> forumManager1.addForum(txn, forum0));
 
 		// send invitation
 		forumSharingManager0
@@ -478,10 +479,10 @@ public class ForumSharingIntegrationTest
 				.contains(contact0From1));
 
 		// and both have each other's invitations (and no response)
-		assertEquals(2, withinTransactionReturns(db0, txn ->
+		assertEquals(2, db0.transactionWithResult(true, txn ->
 				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
-		assertEquals(2, withinTransactionReturns(db1, txn ->
+		assertEquals(2, db1.transactionWithResult(true, txn ->
 				forumSharingManager1.getMessageHeaders(txn, contactId0From1))
 				.size());
 
@@ -558,7 +559,7 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testTwoContactsShareSameForum() throws Exception {
 		// second sharer adds the same forum
-		withinTransaction(db2, txn -> db2.addGroup(txn, forum0.getGroup()));
+		db2.transaction(false, txn -> db2.addGroup(txn, forum0.getGroup()));
 
 		// add listeners
 		listener0 = new SharerListener(true);
@@ -576,7 +577,7 @@ public class ForumSharingIntegrationTest
 		sync0To1(1, true);
 
 		// second sharer sends invitation for same forum
-		assertTrue(contactId1From2 != null);
+		assertNotNull(contactId1From2);
 		forumSharingManager2
 				.sendInvitation(forum0.getId(), contactId1From2, null,
 						clock.currentTimeMillis());
@@ -735,7 +736,7 @@ public class ForumSharingIntegrationTest
 
 		// get invitation MessageId for later
 		MessageId invitationId = null;
-		Collection<PrivateMessageHeader> list = withinTransactionReturns(db1,
+		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
 				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
 		for (PrivateMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
