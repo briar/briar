@@ -30,7 +30,7 @@ internal class ForumControllerTest : ControllerTest() {
 
     @Test
     fun create() {
-        every { ctx.formParam("text") } returns forum.name
+        every { ctx.body() } returns """{"text": "${forum.name}"}"""
         every { forumManager.addForum(forum.name) } returns forum
         every { ctx.json(forum.output()) } returns ctx
 
@@ -39,21 +39,35 @@ internal class ForumControllerTest : ControllerTest() {
 
     @Test
     fun createNoName() {
-        every { ctx.formParam("text") } returns null
+        every { ctx.body() } returns "{}"
 
         assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
     }
 
     @Test
     fun createEmptyName() {
-        every { ctx.formParam("text") } returns ""
+        every { ctx.body() } returns """{"text": ""}"""
+
+        assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
+    }
+
+    @Test
+    fun createNullName() {
+        every { ctx.body() } returns """{"text": null}"""
+
+        assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
+    }
+
+    @Test
+    fun createNoJsonName() {
+        every { ctx.body() } returns "foo"
 
         assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
     }
 
     @Test
     fun createTooLongName() {
-        every { ctx.formParam("text") } returns getRandomString(MAX_FORUM_NAME_LENGTH + 1)
+        every { ctx.body() } returns """{"text": "${getRandomString(MAX_FORUM_NAME_LENGTH + 1)}"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.create(ctx) }
     }

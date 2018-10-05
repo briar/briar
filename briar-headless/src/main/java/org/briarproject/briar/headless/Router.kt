@@ -1,5 +1,9 @@
 package org.briarproject.briar.headless
 
+import com.fasterxml.jackson.core.JsonParseException
+import com.fasterxml.jackson.databind.ObjectMapper
+import io.javalin.BadRequestResponse
+import io.javalin.Context
 import io.javalin.Javalin
 import io.javalin.JavalinEvent.SERVER_START_FAILED
 import io.javalin.JavalinEvent.SERVER_STOPPED
@@ -102,4 +106,20 @@ constructor(
         }
     }
 
+}
+
+/**
+ * Returns a String from the JSON field or throws [BadRequestResponse] if null or empty.
+ */
+fun Context.getFromJson(field: String) : String {
+    try {
+        // TODO use a static object mapper to avoid re-initializations
+        val jsonNode = ObjectMapper().readTree(body())
+        if (!jsonNode.hasNonNull(field)) throw BadRequestResponse("'$field' missing in JSON")
+        val result = jsonNode.get(field).asText()
+        if (result == null || result.isEmpty()) throw BadRequestResponse("'$field' empty in JSON")
+        return result
+    } catch (e: JsonParseException) {
+        throw BadRequestResponse("Invalid JSON")
+    }
 }

@@ -95,7 +95,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val slot = CapturingSlot<JsonDict>()
 
         expectGetContact()
-        every { ctx.formParam("text") } returns body
+        every { ctx.body() } returns """{"text": "$body"}"""
         every { messagingManager.getContactGroup(contact) } returns group
         every { clock.currentTimeMillis() } returns timestamp
         every {
@@ -126,7 +126,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun writeNonexistentBody() {
         expectGetContact()
-        every { ctx.formParam("text") } returns null
+        every { ctx.body() } returns """{"foo": "bar"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
     }
@@ -134,7 +134,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun writeEmptyBody() {
         expectGetContact()
-        every { ctx.formParam("text") } returns ""
+        every { ctx.body() } returns """{"text": ""}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
     }
@@ -142,7 +142,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun writeTooLongBody() {
         expectGetContact()
-        every { ctx.formParam("text") } returns getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1)
+        every { ctx.body() } returns """{"text": "${getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1)}"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
     }

@@ -101,7 +101,13 @@ Attention: There can messages of other `type`s where the message `body` is `null
 
 `POST /messages/{contactId}`
 
-The text of the message should be included in the form parameter `text`.
+The text of the message should be posted as JSON:
+
+```json
+{
+  "text": "Hello World!"
+}
+```
 
 ### Listing blog posts
 
@@ -132,7 +138,13 @@ Returns a JSON array of blog posts:
 
 `POST /v1/blogs/posts`
 
-The text of the blog post should be included in the form parameter `text`.
+The text of the blog post should be posted as JSON:
+
+```json
+{
+  "text": "Hello Blog World!"
+}
+```
 
 ## Websocket API
 

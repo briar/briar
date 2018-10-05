@@ -30,23 +30,15 @@ internal class BlogControllerTest : ControllerTest() {
     private val rssFeed = false
     private val read = true
     private val header = BlogPostHeader(
-        POST,
-        group.id,
-        message.id,
-        parentId,
-        message.timestamp,
-        timestamp,
-        author,
-        OURSELVES,
-        rssFeed,
-        read
+        POST, group.id, message.id, parentId, message.timestamp, timestamp, author, OURSELVES,
+        rssFeed, read
     )
 
     @Test
     fun testCreate() {
         val post = BlogPost(message, null, localAuthor)
 
-        every { ctx.formParam("text") } returns body
+        every { ctx.body() } returns """{"text": "$body"}"""
         every { identityManager.localAuthor } returns localAuthor
         every { blogManager.getPersonalBlog(localAuthor) } returns blog
         every { clock.currentTimeMillis() } returns message.timestamp
@@ -68,21 +60,21 @@ internal class BlogControllerTest : ControllerTest() {
 
     @Test
     fun testCreateNoText() {
-        every { ctx.formParam("text") } returns null
+        every { ctx.body() } returns """{"foo": "bar"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.createPost(ctx) }
     }
 
     @Test
     fun testCreateEmptyText() {
-        every { ctx.formParam("text") } returns ""
+        every { ctx.body() } returns """{"text": ""}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.createPost(ctx) }
     }
 
     @Test
     fun testCreateTooLongText() {
-        every { ctx.formParam("text") } returns getRandomString(MAX_BLOG_POST_BODY_LENGTH + 1)
+        every { ctx.body() } returns """{"text": "${getRandomString(MAX_BLOG_POST_BODY_LENGTH + 1)}"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.createPost(ctx) }
     }

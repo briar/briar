@@ -25,6 +25,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.event.output
+import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
 import java.util.concurrent.Executor
 import javax.annotation.concurrent.Immutable
@@ -59,9 +60,7 @@ constructor(
     override fun write(ctx: Context): Context {
         val contact = getContact(ctx)
 
-        val message = ctx.formParam("text")
-        if (message == null || message.isEmpty())
-            throw BadRequestResponse("Expecting Message text")
+        val message = ctx.getFromJson("text")
         if (utf8IsTooLong(message, MAX_PRIVATE_MESSAGE_BODY_LENGTH))
             throw BadRequestResponse("Message text too large")
 
