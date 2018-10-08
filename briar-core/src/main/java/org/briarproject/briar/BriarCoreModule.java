@@ -6,6 +6,7 @@ import org.briarproject.briar.feed.DnsModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.introduction.IntroductionModule;
+import org.briarproject.briar.logging.LoggingModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
@@ -22,6 +23,7 @@ import dagger.Module;
 		ForumModule.class,
 		GroupInvitationModule.class,
 		IntroductionModule.class,
+		LoggingModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class,

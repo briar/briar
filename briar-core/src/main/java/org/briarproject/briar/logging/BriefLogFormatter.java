@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.logging;
+package org.briarproject.briar.logging;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -47,6 +47,7 @@ public class BriefLogFormatter extends Formatter {
 			sb.append('\n');
 			appendThrowable(sb, t);
 		}
+		sb.append('\n');
 		return sb.toString();
 	}
 

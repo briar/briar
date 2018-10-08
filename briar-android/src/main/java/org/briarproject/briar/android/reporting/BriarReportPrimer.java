@@ -15,10 +15,12 @@ import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.briar.BuildConfig;
+import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.android.logging.BriefLogFormatter;
+import org.briarproject.briar.api.logging.PersistentLogManager;
 
 import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -37,6 +39,7 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.content.Context.ACTIVITY_SERVICE;
 import static android.content.Context.CONNECTIVITY_SERVICE;
+import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.WIFI_P2P_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
@@ -81,12 +84,27 @@ public class BriarReportPrimer implements ReportPrimer {
 			// Log
 			BriarApplication app =
 					(BriarApplication) ctx.getApplicationContext();
+			AndroidComponent appComponent = app.getApplicationComponent();
+			PersistentLogManager logManager =
+					appComponent.persistentLogManager();
+			Formatter formatter = appComponent.formatter();
+
 			StringBuilder sb = new StringBuilder();
-			Formatter formatter = new BriefLogFormatter();
 			for (LogRecord record : app.getRecentLogRecords()) {
-				sb.append(formatter.format(record)).append('\n');
+				sb.append(formatter.format(record));
 			}
 			customData.put("Log", sb.toString());
+
+			sb = new StringBuilder();
+			try {
+				File logDir = ctx.getDir("log", MODE_PRIVATE);
+				for (String line : logManager.getPersistedLog(logDir)) {
+					sb.append(line).append('\n');
+				}
+			} catch (IOException e) {
+				sb.append("Could not recover persisted log: ").append(e);
+			}
+			customData.put("Persisted log", sb.toString());
 
 			// System memory
 			Object o = ctx.getSystemService(ACTIVITY_SERVICE);
