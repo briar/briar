@@ -16,12 +16,12 @@ import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime
+import java.lang.System.exit
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.logging.Logger.getLogger
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.system.exitProcess
 
 @Immutable
 @Singleton
@@ -47,8 +47,8 @@ constructor(
             .port(port)
             .disableStartupBanner()
             .enableCaseSensitiveUrls()
-            .event(SERVER_START_FAILED) { stop() }
-            .event(SERVER_STOPPED) { stop() }
+            .event(SERVER_START_FAILED) {serverStopped() }
+            .event(SERVER_STOPPED) { serverStopped() }
         if (debug) app.enableDebugLogging()
         app.start()
 
@@ -99,10 +99,14 @@ constructor(
         }
     }
 
+    private fun serverStopped() {
+        stop()
+        exit(1)
+    }
+
     private fun stop() {
         if (!stopped.getAndSet(true)) {
             briarService.stop()
-            exitProcess(0)
         }
     }
 
