@@ -102,7 +102,7 @@ internal class BlogControllerTest : ControllerTest() {
     fun testOutputBlogPost() {
         val json = """
             {
-                "body": "$body",
+                "text": "$body",
                 "author": ${toJson(author.output())},
                 "authorStatus": "ourselves",
                 "type": "post",

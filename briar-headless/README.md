@@ -41,7 +41,7 @@ You can test that things work as expected by running:
     []
 
 The answer is an empty JSON array, because you don't have any contacts.
-Note you the HTTP request sets an `Authorization` header with the bearer token.
+Note that the HTTP request sets an `Authorization` header with the bearer token.
 A missing or wrong token will result in a `401` response.
 
 ## REST API
@@ -55,6 +55,7 @@ Returns a JSON array of contacts:
 ```json
 {
     "author": {
+        "formatVersion": 1,
         "id": "y1wkIzAimAbYoCGgWxkWlr6vnq1F8t1QRA/UMPgI0E0=",
         "name": "Test",
         "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
@@ -80,7 +81,6 @@ It returns a JSON array of private messages:
 
 ```json
 {
-    "body": "test",
     "contactId": 1,
     "groupId": "oRRvCri85UE2XGcSloAKt/u8JDcMkmDc26SOMouxr4U=",
     "id": "ZGDrlpCxO9v7doO4Bmijh95QqQDykaS4Oji/mZVMIJ8=",
@@ -88,6 +88,7 @@ It returns a JSON array of private messages:
     "read": true,
     "seen": true,
     "sent": true,
+    "text": "test",
     "timestamp": 1537376633850,
     "type": "PrivateMessage"
 }
@@ -95,7 +96,7 @@ It returns a JSON array of private messages:
 
 If `local` is `true`, the message was sent by the Briar peer instead of its remote contact.
 
-Attention: There can messages of other `type`s where the message `body` is `null`.
+Attention: There can messages of other `type`s where the message `text` is `null`.
 
 ### Writing a private message
 
@@ -118,16 +119,17 @@ Returns a JSON array of blog posts:
 ```json
 {
     "author": {
+        "formatVersion": 1,
         "id": "VNKXkaERPpXmZuFbHHwYT6Qc148D+KNNxQ4hwtx7Kq4=",
         "name": "Test",
         "publicKey": "NbwpQWjS3gHMjjDQIASIy/j+bU6NRZnSRT8X8FKDoN4="
     },
     "authorStatus": "ourselves",
-    "body": "Test Post Content",
     "id": "X1jmHaYfrX47kT5OEd0OD+p/bptyR92IvuOBYSgxETM=",
     "parentId": null,
     "read": true,
     "rssFeed": false,
+    "text": "Test Post Content",
     "timestamp": 1535397886749,
     "timestampReceived": 1535397886749,
     "type": "post"
@@ -152,8 +154,8 @@ The Briar peer uses a websocket to notify a connected API client about new event
 
 `WS /v1/ws`
 
-The authentication token needs to be provided with basic auth as the username
-while the password can be left empty.
+The websocket request must use basic auth,
+with the authentication token as the username and a blank password.
 
 You can test connecting to the websocket with curl:
 
@@ -175,7 +177,6 @@ it will send a JSON object to connected websocket clients:
 ```json
 {
     "data": {
-        "body": "Test Message",
         "contactId": 1,
         "groupId": "oRRvCri85UE2XGcSloAKt/u8JDcMkmDc26SOMouxr4U=",
         "id": "JBc+ogQIok/yr+7XtxN2iQgNfzw635mHikNaP5QOEVs=",
@@ -183,6 +184,7 @@ it will send a JSON object to connected websocket clients:
         "read": false,
         "seen": false,
         "sent": false,
+        "text": "Test Message",
         "timestamp": 1537389146088,
         "type": "PrivateMessage"
     },

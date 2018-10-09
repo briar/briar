@@ -41,6 +41,7 @@ internal class ContactControllerTest : ControllerTest() {
     fun testOutputAuthor() {
         val json = """
             {
+                "formatVersion": 1,
                 "id": ${toJson(author.id.bytes)},
                 "name": "${author.name}",
                 "publicKey": ${toJson(author.publicKey)}

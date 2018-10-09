@@ -11,4 +11,3 @@ fun Author.output() = JsonDict(
 )
 
 fun Author.Status.output() = name.toLowerCase()
-

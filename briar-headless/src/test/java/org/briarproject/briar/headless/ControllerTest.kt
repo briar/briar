@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.test.TestUtils.*
 import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.skyscreamer.jsonassert.JSONAssert.assertEquals
+import org.skyscreamer.jsonassert.JSONCompareMode.STRICT
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -38,7 +39,7 @@ abstract class ControllerTest {
     protected val timestamp = 42L
 
     protected fun assertJsonEquals(json: String, obj: Any) {
-        assertEquals(json, outputCtx.json(obj).resultString(), false)
+        assertEquals(json, outputCtx.json(obj).resultString(), STRICT)
     }
 
 }

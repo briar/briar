@@ -161,7 +161,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun testOutputPrivateMessageHeader() {
         val json = """
             {
-                "body": "$body",
+                "text": "$body",
                 "type": "PrivateMessage",
                 "timestamp": $timestamp,
                 "groupId": ${toJson(header.groupId.bytes)},
@@ -180,15 +180,15 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun testOutputPrivateMessage() {
         val json = """
             {
-                "body": "$body",
+                "text": "$body",
                 "type": "PrivateMessage",
                 "timestamp": ${message.timestamp},
                 "groupId": ${toJson(message.groupId.bytes)},
                 "contactId": ${contact.id.int},
                 "local": true,
-                "seen": true,
+                "seen": false,
                 "read": true,
-                "sent": true,
+                "sent": false,
                 "id": ${toJson(message.id.bytes)}
             }
         """
@@ -203,7 +203,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         )
         val json = """
             {
-                "body": null,
+                "text": null,
                 "type": "IntroductionRequest",
                 "timestamp": $timestamp,
                 "groupId": ${toJson(request.groupId.bytes)},

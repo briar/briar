@@ -27,7 +27,7 @@ private val DEFAULT_DATA_DIR = getProperty("user.home") + separator + ".briar"
 
 private class Main : CliktCommand(
     name = "briar-headless",
-    help = "A Briar client without GUI that exposes a REST and Websocket API"
+    help = "A Briar peer without GUI that exposes a REST and Websocket API"
 ) {
     private val debug by option("--debug", "-d", help = "Enable printing of debug messages").flag(
         default = false

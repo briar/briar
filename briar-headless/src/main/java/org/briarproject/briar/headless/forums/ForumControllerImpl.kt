@@ -21,7 +21,7 @@ constructor(private val forumManager: ForumManager) : ForumController {
     }
 
     override fun create(ctx: Context): Context {
-        val name = ctx.getFromJson("text")
+        val name = ctx.getFromJson("name")
         if (StringUtils.utf8IsTooLong(name, MAX_FORUM_NAME_LENGTH))
             throw BadRequestResponse("Forum name is too long")
         return ctx.json(forumManager.addForum(name).output())
