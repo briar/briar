@@ -72,24 +72,24 @@ public class ForumManagerTest
 	}
 
 	private ForumPost createForumPost(GroupId groupId,
-			@Nullable ForumPost parent, String body, long ms) throws Exception {
+			@Nullable ForumPost parent, String text, long ms) throws Exception {
 		return forumPostFactory.createPost(groupId, ms,
 				parent == null ? null : parent.getMessage().getId(),
-				author0, body);
+				author0, text);
 	}
 
 	@Test
 	public void testForumPost() throws Exception {
 		assertEquals(1, forumManager0.getForums().size());
 		long ms1 = clock.currentTimeMillis() - 1000L;
-		String body1 = "some forum text";
+		String text1 = "some forum text";
 		long ms2 = clock.currentTimeMillis();
-		String body2 = "some other forum text";
+		String text2 = "some other forum text";
 		ForumPost post1 =
-				createForumPost(forum0.getGroup().getId(), null, body1, ms1);
+				createForumPost(forum0.getGroup().getId(), null, text1, ms1);
 		assertEquals(ms1, post1.getMessage().getTimestamp());
 		ForumPost post2 =
-				createForumPost(forum0.getGroup().getId(), post1, body2, ms2);
+				createForumPost(forum0.getGroup().getId(), post1, text2, ms2);
 		assertEquals(ms2, post2.getMessage().getTimestamp());
 		forumManager0.addLocalPost(post1);
 		forumManager0.setReadFlag(forum0.getGroup().getId(),
@@ -109,19 +109,19 @@ public class ForumManagerTest
 				forumManager0.getPostHeaders(forum0.getGroup().getId());
 		assertEquals(2, headers.size());
 		for (ForumPostHeader h : headers) {
-			String hBody = forumManager0.getPostBody(h.getId());
+			String hText = forumManager0.getPostText(h.getId());
 
 			boolean isPost1 = h.getId().equals(post1.getMessage().getId());
 			boolean isPost2 = h.getId().equals(post2.getMessage().getId());
 			assertTrue(isPost1 || isPost2);
 			if (isPost1) {
 				assertEquals(h.getTimestamp(), ms1);
-				assertEquals(body1, hBody);
+				assertEquals(text1, hText);
 				assertNull(h.getParentId());
 				assertTrue(h.isRead());
 			} else {
 				assertEquals(h.getTimestamp(), ms2);
-				assertEquals(body2, hBody);
+				assertEquals(text2, hText);
 				assertEquals(h.getParentId(), post2.getParent());
 				assertFalse(h.isRead());
 			}

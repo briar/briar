@@ -19,10 +19,10 @@ public class IntroductionRequest extends PrivateRequest<Author> {
 
 	public IntroductionRequest(MessageId messageId, GroupId groupId,
 			long time, boolean local, boolean sent, boolean seen, boolean read,
-			SessionId sessionId, Author author, @Nullable String message,
+			SessionId sessionId, Author author, @Nullable String text,
 			boolean answered, boolean contact) {
 		super(messageId, groupId, time, local, sent, seen, read, sessionId,
-				author, message, answered);
+				author, text, answered);
 		this.contact = contact;
 	}
 

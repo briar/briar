@@ -17,11 +17,11 @@ public interface SharingManager<S extends Shareable>
 		extends ConversationClient {
 
 	/**
-	 * Sends an invitation to share the given group with the given contact
-	 * and sends an optional message along with it.
+	 * Sends an invitation to share the given group with the given contact,
+	 * including optional text.
 	 */
 	void sendInvitation(GroupId shareableId, ContactId contactId,
-			@Nullable String message, long timestamp) throws DbException;
+			@Nullable String text, long timestamp) throws DbException;
 
 	/**
 	 * Responds to a pending group invitation

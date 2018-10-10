@@ -51,7 +51,7 @@ public interface ForumManager {
 	 * Creates a local forum post.
 	 */
 	@CryptoExecutor
-	ForumPost createLocalPost(GroupId groupId, String body, long timestamp,
+	ForumPost createLocalPost(GroupId groupId, String text, long timestamp,
 			@Nullable MessageId parentId, LocalAuthor author);
 
 	/**
@@ -75,9 +75,9 @@ public interface ForumManager {
 	Collection<Forum> getForums() throws DbException;
 
 	/**
-	 * Returns the body of the forum post with the given ID.
+	 * Returns the text of the forum post with the given ID.
 	 */
-	String getPostBody(MessageId m) throws DbException;
+	String getPostText(MessageId m) throws DbException;
 
 	/**
 	 * Returns the headers of all posts in the given forum.

@@ -14,14 +14,14 @@ class RequestMessage extends AbstractIntroductionMessage {
 
 	private final Author author;
 	@Nullable
-	private final String message;
+	private final String text;
 
-	protected RequestMessage(MessageId messageId, GroupId groupId,
-			long timestamp, @Nullable MessageId previousMessageId,
-			Author author, @Nullable String message) {
+	RequestMessage(MessageId messageId, GroupId groupId, long timestamp,
+			@Nullable MessageId previousMessageId, Author author,
+			@Nullable String text) {
 		super(messageId, groupId, timestamp, previousMessageId);
 		this.author = author;
-		this.message = message;
+		this.text = text;
 	}
 
 	public Author getAuthor() {
@@ -29,8 +29,8 @@ class RequestMessage extends AbstractIntroductionMessage {
 	}
 
 	@Nullable
-	public String getMessage() {
-		return message;
+	public String getText() {
+		return text;
 	}
 
 }

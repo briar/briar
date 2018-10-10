@@ -122,15 +122,14 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testBlogPost() throws Exception {
 		// check that blog0 has no posts
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		Collection<BlogPostHeader> headers0 =
 				blogManager0.getPostHeaders(blog0.getId());
 		assertEquals(0, headers0.size());
 
 		// add a post to blog0
-		BlogPost p = blogPostFactory
-				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, body);
+		BlogPost p = blogPostFactory.createBlogPost(blog0.getId(),
+				clock.currentTimeMillis(), null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// check that post is now in blog0
@@ -138,7 +137,7 @@ public class BlogManagerIntegrationTest
 		assertEquals(1, headers0.size());
 
 		// check that body is there
-		assertEquals(body, blogManager0.getPostBody(p.getMessage().getId()));
+		assertEquals(text, blogManager0.getPostText(p.getMessage().getId()));
 
 		// make sure that blog0 at author1 doesn't have the post yet
 		Collection<BlogPostHeader> headers1 =
@@ -154,16 +153,16 @@ public class BlogManagerIntegrationTest
 		assertEquals(POST, headers1.iterator().next().getType());
 
 		// check that body is there
-		assertEquals(body, blogManager1.getPostBody(p.getMessage().getId()));
+		assertEquals(text, blogManager1.getPostText(p.getMessage().getId()));
 	}
 
 	@Test
 	public void testBlogPostInWrongBlog() throws Exception {
 		// add a post to blog1
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog1.getId(), clock.currentTimeMillis(), null,
-						author0, body);
+						author0, text);
 		blogManager0.addLocalPost(p);
 
 		// check that post is now in blog1
@@ -199,10 +198,10 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testBlogComment() throws Exception {
 		// add a post to blog0
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, body);
+						author0, text);
 		blogManager0.addLocalPost(p);
 
 		// sync the post over
@@ -234,7 +233,7 @@ public class BlogManagerIntegrationTest
 		// ensure that body can be retrieved from wrapped post
 		MessageId parentId = h.getParentId();
 		assertNotNull(parentId);
-		assertEquals(body, blogManager0.getPostBody(parentId));
+		assertEquals(text, blogManager0.getPostText(parentId));
 
 		// 1 has only their own comment in their blog
 		headers1 = blogManager1.getPostHeaders(blog1.getId());
@@ -244,10 +243,10 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testBlogCommentOnOwnPost() throws Exception {
 		// add a post to blog0
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, body);
+						author0, text);
 		blogManager0.addLocalPost(p);
 
 		// get header of own post
@@ -270,7 +269,7 @@ public class BlogManagerIntegrationTest
 		assertEquals(2, headers1.size());
 		for (BlogPostHeader h : headers1) {
 			if (h.getType() == POST) {
-				assertEquals(body, blogManager1.getPostBody(h.getId()));
+				assertEquals(text, blogManager1.getPostText(h.getId()));
 			} else {
 				assertEquals(comment, ((BlogCommentHeader) h).getComment());
 			}
@@ -280,10 +279,10 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testCommentOnComment() throws Exception {
 		// add a post to blog0
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, body);
+						author0, text);
 		blogManager0.addLocalPost(p);
 
 		// sync the post over
@@ -368,10 +367,10 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testCommentOnOwnComment() throws Exception {
 		// add a post to blog0
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(blog0.getId(), clock.currentTimeMillis(), null,
-						author0, body);
+						author0, text);
 		blogManager0.addLocalPost(p);
 
 		// sync the post over
@@ -413,10 +412,10 @@ public class BlogManagerIntegrationTest
 		assertTrue(rssBlog.isRssFeed());
 
 		// add a feed post to rssBlog
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
-						null, author0, body);
+						null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// make sure it got saved as an RSS feed post
@@ -432,10 +431,10 @@ public class BlogManagerIntegrationTest
 	@Test
 	public void testFeedReblog() throws Exception {
 		// add a feed post to rssBlog
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		BlogPost p = blogPostFactory
 				.createBlogPost(rssBlog.getId(), clock.currentTimeMillis(),
-						null, author0, body);
+						null, author0, text);
 		blogManager0.addLocalPost(p);
 
 		// reblog feed post to own blog

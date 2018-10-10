@@ -8,7 +8,7 @@
 	tools:context=".android.blog.WriteBlogPostActivity">
 
 	<org.briarproject.briar.android.view.LargeTextInputView
-		android:id="@+id/bodyInput"
+		android:id="@+id/textInput"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:gravity="bottom"

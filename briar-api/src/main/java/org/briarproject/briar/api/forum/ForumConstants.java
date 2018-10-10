@@ -15,9 +15,9 @@ public interface ForumConstants {
 	int FORUM_SALT_LENGTH = 32;
 
 	/**
-	 * The maximum length of a forum post's body in bytes.
+	 * The maximum length of a forum post's text in UTF-8 bytes.
 	 */
-	int MAX_FORUM_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
+	int MAX_FORUM_POST_TEXT_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
 	// Metadata keys
 	String KEY_TIMESTAMP = "timestamp";

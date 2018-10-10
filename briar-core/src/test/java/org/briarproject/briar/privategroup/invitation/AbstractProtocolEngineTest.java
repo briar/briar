@@ -34,7 +34,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
-import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
@@ -89,7 +89,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
 					privateGroupId, 0L, privateGroup.getName(),
 					privateGroup.getCreator(), privateGroup.getSalt(),
-					getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH),
+					getRandomString(MAX_GROUP_INVITATION_TEXT_LENGTH),
 					signature);
 	final JoinMessage joinMessage =
 			new JoinMessage(new MessageId(getRandomId()), contactGroupId,
@@ -121,12 +121,12 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	void expectSendInviteMessage(String msg) throws Exception {
+	void expectSendInviteMessage(String text) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.encodeInviteMessage(contactGroupId, privateGroupId,
 							inviteTimestamp, privateGroup.getName(), author,
-							privateGroup.getSalt(), msg, signature);
+							privateGroup.getSalt(), text, signature);
 			will(returnValue(message));
 		}});
 		expectSendMessage(INVITE, true);

@@ -106,7 +106,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		SyndEntry entry = new SyndEntryImpl();
 		entry.setUpdatedDate(new Date());
 		entries.add(entry);
-		String body = "<p> (" + entry.getUpdatedDate().toString() + ")</p>";
+		String text = "<p> (" + entry.getUpdatedDate().toString() + ")</p>";
 		Message msg = getMessage(blogGroupId);
 		BlogPost post = new BlogPost(msg, null, localAuthor);
 
@@ -116,7 +116,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(42L));
 			oneOf(blogPostFactory).createBlogPost(feed.getBlogId(), 42L, null,
-					localAuthor, body);
+					localAuthor, text);
 			will(returnValue(post));
 			oneOf(blogManager).addLocalPost(txn, post);
 			oneOf(db).commitTransaction(txn);

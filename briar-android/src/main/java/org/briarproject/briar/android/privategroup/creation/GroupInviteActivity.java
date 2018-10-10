@@ -18,7 +18,7 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -55,10 +55,10 @@ public class GroupInviteActivity extends ContactSelectorActivity
 	}
 
 	@Override
-	public boolean onButtonClick(String message) {
+	public boolean onButtonClick(String text) {
 		if (groupId == null)
 			throw new IllegalStateException("GroupId was not initialized");
-		controller.sendInvitation(groupId, contacts, message,
+		controller.sendInvitation(groupId, contacts, text,
 				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
 					public void onResultUi(Void result) {
@@ -76,7 +76,7 @@ public class GroupInviteActivity extends ContactSelectorActivity
 	}
 
 	@Override
-	public int getMaximumMessageLength() {
-		return MAX_GROUP_INVITATION_MSG_LENGTH;
+	public int getMaximumTextLength() {
+		return MAX_GROUP_INVITATION_TEXT_LENGTH;
 	}
 }

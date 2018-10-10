@@ -15,6 +15,7 @@ import static org.briarproject.briar.privategroup.invitation.CreatorState.JOINED
 import static org.briarproject.briar.privategroup.invitation.CreatorState.LEFT;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
@@ -36,15 +37,15 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnInviteActionFromStart() throws Exception {
 		CreatorSession session =
 				new CreatorSession(contactGroupId, privateGroupId);
-		String message = "Invitation Message";
+		String text = "Invitation text";
 
-		expectOnLocalInvite(message);
+		expectOnLocalInvite(text);
 		CreatorSession newSession =
-				engine.onInviteAction(txn, session, message, inviteTimestamp,
+				engine.onInviteAction(txn, session, text, inviteTimestamp,
 						signature);
 		assertEquals(INVITED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
-		assertEquals(null, newSession.getLastRemoteMessageId());
+		assertNull(newSession.getLastRemoteMessageId());
 		assertEquals(messageTimestamp, newSession.getLocalTimestamp());
 		assertEquals(inviteTimestamp, newSession.getInviteTimestamp());
 		assertSessionConstantsUnchanged(session, newSession);
@@ -61,13 +62,13 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 						signature);
 		assertEquals(INVITED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
-		assertEquals(null, newSession.getLastRemoteMessageId());
+		assertNull(newSession.getLastRemoteMessageId());
 		assertEquals(messageTimestamp, newSession.getLocalTimestamp());
 		assertEquals(inviteTimestamp, newSession.getInviteTimestamp());
 		assertSessionConstantsUnchanged(session, newSession);
 	}
 
-	private void expectOnLocalInvite(String msg) throws Exception {
+	private void expectOnLocalInvite(String text) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).getGroup(txn, privateGroupId);
 			will(returnValue(privateGroupGroup));
@@ -75,7 +76,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			will(returnValue(privateGroup));
 			oneOf(messageTracker).trackOutgoingMessage(txn, message);
 		}});
-		expectSendInviteMessage(msg);
+		expectSendInviteMessage(text);
 		expectGetLocalTimestamp(messageTimestamp);
 	}
 
@@ -112,7 +113,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	// onJoinAction
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnJoinActionFails() throws Exception {
+	public void testOnJoinActionFails() {
 		engine.onJoinAction(txn, getDefaultSession(START));
 	}
 
@@ -186,7 +187,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	// onMemberAddedAction
 
 	@Test
-	public void testOnMemberAddedAction() throws Exception {
+	public void testOnMemberAddedAction() {
 		CreatorSession session = getDefaultSession(START);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 

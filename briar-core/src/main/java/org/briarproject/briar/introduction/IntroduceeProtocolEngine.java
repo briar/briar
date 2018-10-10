@@ -85,8 +85,7 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onRequestAction(Transaction txn,
-			IntroduceeSession session, @Nullable String message,
-			long timestamp) {
+			IntroduceeSession session, @Nullable String text, long timestamp) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -256,7 +255,7 @@ class IntroduceeProtocolEngine
 				.contactExists(txn, m.getAuthor().getId(), localAuthor.getId());
 		IntroductionRequest request = new IntroductionRequest(m.getMessageId(),
 				m.getGroupId(), m.getTimestamp(), false, false, false, false,
-				s.getSessionId(), m.getAuthor(), m.getMessage(), false,
+				s.getSessionId(), m.getAuthor(), m.getText(), false,
 				contactExists);
 		IntroductionRequestReceivedEvent e =
 				new IntroductionRequestReceivedEvent(request, c.getId());

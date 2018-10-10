@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 interface ProtocolEngine<S extends Session> {
 
-	S onInviteAction(Transaction txn, S session, @Nullable String message,
+	S onInviteAction(Transaction txn, S session, @Nullable String text,
 			long timestamp, byte[] signature) throws DbException;
 
 	S onJoinAction(Transaction txn, S session) throws DbException;

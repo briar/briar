@@ -22,10 +22,10 @@ import org.briarproject.briar.api.blog.MessageType;
 
 import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
@@ -39,8 +39,8 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_TEXT_LENGTH;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.blog.BlogPostFactory.SIGNING_LABEL_COMMENT;
@@ -99,15 +99,15 @@ class BlogPostValidator extends BdfMessageValidator {
 	private BdfMessageContext validatePost(Message m, Group g, BdfList body)
 			throws InvalidMessageException, FormatException {
 
-		// Content, Signature
+		// Text, signature
 		checkSize(body, 2);
-		String postBody = body.getString(0);
-		checkLength(postBody, 0, MAX_BLOG_POST_BODY_LENGTH);
+		String text = body.getString(0);
+		checkLength(text, 0, MAX_BLOG_POST_TEXT_LENGTH);
 
-		// Verify Signature
+		// Verify signature
 		byte[] sig = body.getRaw(1);
 		checkLength(sig, 1, MAX_SIGNATURE_LENGTH);
-		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), postBody);
+		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), text);
 		Blog b = blogFactory.parseBlog(g);
 		Author a = b.getAuthor();
 		try {
@@ -128,23 +128,23 @@ class BlogPostValidator extends BdfMessageValidator {
 	private BdfMessageContext validateComment(Message m, Group g, BdfList body)
 			throws InvalidMessageException, FormatException {
 
-		// comment, parent_original_id, parent_id, signature
+		// Comment, parent original ID, parent ID, signature
 		checkSize(body, 4);
 
 		// Comment
 		String comment = body.getOptionalString(0);
-		checkLength(comment, 1, MAX_BLOG_COMMENT_LENGTH);
+		checkLength(comment, 1, MAX_BLOG_COMMENT_TEXT_LENGTH);
 
-		// parent_original_id
-		// The ID of a post or comment in this group or another group
+		// Parent original ID
+		// The ID of a post or comment in this blog or another blog
 		byte[] pOriginalIdBytes = body.getRaw(1);
 		checkLength(pOriginalIdBytes, MessageId.LENGTH);
 		MessageId pOriginalId = new MessageId(pOriginalIdBytes);
 
-		// parent_id
-		// The ID of a post, comment, wrapped post or wrapped comment in this
-		// group, which had the ID parent_original_id in the group
-		// where it was originally posted
+		// Parent ID
+		// The ID of the comment's parent, which is a post, comment, wrapped
+		// post or wrapped comment in this blog, which had the ID
+		// parentOriginalId in the blog where it was originally posted
 		byte[] currentIdBytes = body.getRaw(2);
 		checkLength(currentIdBytes, MessageId.LENGTH);
 		MessageId currentId = new MessageId(currentIdBytes);
@@ -170,35 +170,37 @@ class BlogPostValidator extends BdfMessageValidator {
 		meta.put(KEY_ORIGINAL_PARENT_MSG_ID, pOriginalId);
 		meta.put(KEY_PARENT_MSG_ID, currentId);
 		meta.put(KEY_AUTHOR, clientHelper.toList(a));
-		Collection<MessageId> dependencies = Collections.singleton(currentId);
+		Collection<MessageId> dependencies = singletonList(currentId);
 		return new BdfMessageContext(meta, dependencies);
 	}
 
 	private BdfMessageContext validateWrappedPost(BdfList body)
 			throws InvalidMessageException, FormatException {
 
-		// p_group descriptor, p_timestamp, p_content, p_signature
+		// Copied group descriptor, copied timestamp, copied text, copied
+		// signature
 		checkSize(body, 4);
 
-		// Group Descriptor
+		// Copied group descriptor of original post
 		byte[] descriptor = body.getRaw(0);
 
-		// Timestamp of Wrapped Post
+		// Copied timestamp of original post
 		long wTimestamp = body.getLong(1);
 		if (wTimestamp < 0) throw new FormatException();
 
-		// Content of Wrapped Post
-		String content = body.getString(2);
+		// Copied text of original post
+		String text = body.getString(2);
+		checkLength(text, 0, MAX_BLOG_POST_TEXT_LENGTH);
 
-		// Signature of Wrapped Post
+		// Copied signature of original post
 		byte[] signature = body.getRaw(3);
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 
-		// Get and Validate the Wrapped Message
+		// Reconstruct and validate the original post
 		Group wGroup = groupFactory.createGroup(CLIENT_ID, MAJOR_VERSION,
 				descriptor);
 		Blog wBlog = blogFactory.parseBlog(wGroup);
-		BdfList wBodyList = BdfList.of(POST.getInt(), content, signature);
+		BdfList wBodyList = BdfList.of(POST.getInt(), text, signature);
 		byte[] wBody = clientHelper.toByteArray(wBodyList);
 		Message wMessage =
 				messageFactory.createMessage(wGroup.getId(), wTimestamp, wBody);
@@ -217,47 +219,46 @@ class BlogPostValidator extends BdfMessageValidator {
 	private BdfMessageContext validateWrappedComment(BdfList body)
 			throws InvalidMessageException, FormatException {
 
-		// c_group descriptor, c_timestamp, c_comment, c_parent_original_id,
-		// c_parent_id, c_signature, parent_id
+		// Copied group descriptor, copied timestamp, copied text, copied
+		// parent original ID, copied parent ID, copied signature, parent ID
 		checkSize(body, 7);
 
-		// Group Descriptor
+		// Copied group descriptor of original comment
 		byte[] descriptor = body.getRaw(0);
 
-		// Timestamp of Wrapped Comment
+		// Copied timestamp of original comment
 		long wTimestamp = body.getLong(1);
 		if (wTimestamp < 0) throw new FormatException();
 
-		// Body of Wrapped Comment
+		// Copied text of original comment
 		String comment = body.getOptionalString(2);
-		checkLength(comment, 1, MAX_BLOG_COMMENT_LENGTH);
+		checkLength(comment, 1, MAX_BLOG_COMMENT_TEXT_LENGTH);
 
-		// c_parent_original_id
-		// Taken from the original comment
+		// Copied parent original ID of original comment
 		byte[] pOriginalIdBytes = body.getRaw(3);
 		checkLength(pOriginalIdBytes, MessageId.LENGTH);
 		MessageId pOriginalId = new MessageId(pOriginalIdBytes);
 
-		// c_parent_id
-		// Taken from the original comment
+		// Copied parent ID of original comment
 		byte[] oldIdBytes = body.getRaw(4);
 		checkLength(oldIdBytes, MessageId.LENGTH);
 		MessageId oldId = new MessageId(oldIdBytes);
 
-		// c_signature
-		// Taken from the original comment
+		// Copied signature of original comment
 		byte[] signature = body.getRaw(5);
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 
-		// parent_id
-		// The ID of a post, comment, wrapped post or wrapped comment in this
-		// group, which had the ID c_parent_original_id in the group
-		// where it was originally posted
+		// Parent ID
+		// The ID of this comment's parent, which is a post, comment, wrapped
+		// post or wrapped comment in this blog, which had the ID
+		// copiedParentOriginalId in the blog where the parent was originally
+		// posted, and the ID copiedParentId in the blog where this comment was
+		// originally posted
 		byte[] parentIdBytes = body.getRaw(6);
 		checkLength(parentIdBytes, MessageId.LENGTH);
 		MessageId parentId = new MessageId(parentIdBytes);
 
-		// Get and Validate the Wrapped Comment
+		// Reconstruct and validate the original comment
 		Group wGroup = groupFactory.createGroup(CLIENT_ID, MAJOR_VERSION,
 				descriptor);
 		BdfList wBodyList = BdfList.of(COMMENT.getInt(), comment, pOriginalId,
@@ -269,7 +270,7 @@ class BlogPostValidator extends BdfMessageValidator {
 		BdfMessageContext c = validateComment(wMessage, wGroup, wBodyList);
 
 		// Return the metadata and dependencies
-		Collection<MessageId> dependencies = Collections.singleton(parentId);
+		Collection<MessageId> dependencies = singletonList(parentId);
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(KEY_ORIGINAL_MSG_ID, wMessage.getId());
 		meta.put(KEY_ORIGINAL_PARENT_MSG_ID, pOriginalId);

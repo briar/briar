@@ -16,16 +16,16 @@ class InviteMessage extends GroupInvitationMessage {
 	private final Author creator;
 	private final byte[] salt, signature;
 	@Nullable
-	private final String message;
+	private final String text;
 
 	InviteMessage(MessageId id, GroupId contactGroupId, GroupId privateGroupId,
 			long timestamp, String groupName, Author creator, byte[] salt,
-			@Nullable String message, byte[] signature) {
+			@Nullable String text, byte[] signature) {
 		super(id, contactGroupId, privateGroupId, timestamp);
 		this.groupName = groupName;
 		this.creator = creator;
 		this.salt = salt;
-		this.message = message;
+		this.text = text;
 		this.signature = signature;
 	}
 
@@ -42,8 +42,8 @@ class InviteMessage extends GroupInvitationMessage {
 	}
 
 	@Nullable
-	String getMessage() {
-		return message;
+	String getText() {
+		return text;
 	}
 
 	byte[] getSignature() {

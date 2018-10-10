@@ -17,16 +17,16 @@ internal fun PrivateMessageHeader.output(contactId: ContactId) = JsonDict(
     "groupId" to groupId.bytes
 )
 
-internal fun PrivateMessageHeader.output(contactId: ContactId, body: String?): JsonDict {
+internal fun PrivateMessageHeader.output(contactId: ContactId, text: String?): JsonDict {
     val dict = output(contactId)
-    dict["text"] = body
+    dict["text"] = text
     return dict
 }
 
 /**
  * Use only for outgoing messages that were just sent
  */
-internal fun PrivateMessage.output(contactId: ContactId, body: String) = JsonDict(
+internal fun PrivateMessage.output(contactId: ContactId, text: String) = JsonDict(
     "type" to "PrivateMessage",
     "contactId" to contactId.int,
     "timestamp" to message.timestamp,
@@ -36,5 +36,5 @@ internal fun PrivateMessage.output(contactId: ContactId, body: String) = JsonDic
     "local" to true,
     "id" to message.id.bytes,
     "groupId" to message.groupId.bytes,
-    "text" to body
+    "text" to text
 )

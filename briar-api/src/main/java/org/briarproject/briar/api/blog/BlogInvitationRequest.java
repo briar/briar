@@ -14,10 +14,10 @@ public class BlogInvitationRequest extends InvitationRequest<Blog> {
 
 	public BlogInvitationRequest(MessageId id, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			SessionId sessionId, Blog blog, @Nullable String message,
+			SessionId sessionId, Blog blog, @Nullable String text,
 			boolean available, boolean canBeOpened) {
 		super(id, groupId, time, local, sent, seen, read, sessionId, blog,
-				message, available, canBeOpened);
+				text, available, canBeOpened);
 	}
 
 	@Override

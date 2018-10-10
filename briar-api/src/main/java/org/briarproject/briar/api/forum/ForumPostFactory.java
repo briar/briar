@@ -20,7 +20,7 @@ public interface ForumPostFactory {
 
 	@CryptoExecutor
 	ForumPost createPost(GroupId groupId, long timestamp,
-			@Nullable MessageId parent, LocalAuthor author, String body)
+			@Nullable MessageId parent, LocalAuthor author, String text)
 			throws FormatException, GeneralSecurityException;
 
 }

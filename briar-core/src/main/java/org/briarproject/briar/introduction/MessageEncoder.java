@@ -31,7 +31,7 @@ interface MessageEncoder {
 
 	Message encodeRequestMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, Author author,
-			@Nullable String message);
+			@Nullable String text);
 
 	Message encodeAcceptMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId,

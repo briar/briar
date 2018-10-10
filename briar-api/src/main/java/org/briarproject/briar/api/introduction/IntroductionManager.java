@@ -36,7 +36,7 @@ public interface IntroductionManager extends ConversationClient {
 	/**
 	 * Sends two initial introduction messages.
 	 */
-	void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
+	void makeIntroduction(Contact c1, Contact c2, @Nullable String text,
 			long timestamp) throws DbException;
 
 	/**

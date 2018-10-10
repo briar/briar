@@ -107,7 +107,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	}
 
 	Message sendInviteMessage(Transaction txn, S session,
-			@Nullable String message, long timestamp, byte[] signature)
+			@Nullable String text, long timestamp, byte[] signature)
 			throws DbException {
 		Group g = db.getGroup(txn, session.getPrivateGroupId());
 		PrivateGroup privateGroup;
@@ -119,7 +119,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		Message m = messageEncoder.encodeInviteMessage(
 				session.getContactGroupId(), privateGroup.getId(),
 				timestamp, privateGroup.getName(), privateGroup.getCreator(),
-				privateGroup.getSalt(), message, signature);
+				privateGroup.getSalt(), text, signature);
 		sendMessage(txn, m, INVITE, privateGroup.getId(), true);
 		return m;
 	}

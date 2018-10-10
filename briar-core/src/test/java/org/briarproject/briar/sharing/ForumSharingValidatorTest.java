@@ -11,7 +11,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
-import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 
 public class ForumSharingValidatorTest extends SharingValidatorTest {
@@ -20,8 +20,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	private final byte[] salt = getRandomBytes(FORUM_SALT_LENGTH);
 	private final Forum forum = new Forum(group, forumName, salt);
 	private final BdfList descriptor = BdfList.of(forumName, salt);
-	private final String content =
-			getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
+	private final String text = getRandomString(MAX_INVITATION_TEXT_LENGTH);
 
 	@Override
 	SharingValidator getValidator() {
@@ -30,17 +29,16 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	}
 
 	@Test
-	public void testAcceptsInvitationWithContent() throws Exception {
+	public void testAcceptsInvitationWithText() throws Exception {
 		expectCreateForum(forumName);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext context = validator.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
-						content));
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, text));
 		assertExpectedContext(context, previousMsgId);
 	}
 
 	@Test
-	public void testAcceptsInvitationWithNullContent() throws Exception {
+	public void testAcceptsInvitationWithNullText() throws Exception {
 		expectCreateForum(forumName);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext context = validator.validateMessage(message, group,
@@ -137,14 +135,14 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNonStringContent() throws Exception {
+	public void testRejectsNonStringText() throws Exception {
 		expectCreateForum(forumName);
 		validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, 123));
 	}
 
 	@Test
-	public void testAcceptsMinLengthContent() throws Exception {
+	public void testAcceptsMinLengthText() throws Exception {
 		expectCreateForum(forumName);
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext context = validator.validateMessage(message, group,
@@ -153,13 +151,12 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooLongContent() throws Exception {
-		String invalidContent =
-				getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
+	public void testRejectsTooLongText() throws Exception {
+		String invalidText = getRandomString(MAX_INVITATION_TEXT_LENGTH + 1);
 		expectCreateForum(forumName);
 		validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
-						invalidContent));
+						invalidText));
 	}
 
 	private void expectCreateForum(String name) {

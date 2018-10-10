@@ -80,11 +80,11 @@ public class PrivateGroupManagerIntegrationTest
 
 		// create and add test message
 		long time = clock.currentTimeMillis();
-		String body = "This is a test message!";
+		String text = "This is a test message!";
 		MessageId previousMsgId =
 				groupManager0.getPreviousMsgId(groupId0);
 		GroupMessage msg = groupMessageFactory
-				.createGroupMessage(groupId0, time, null, author0, body,
+				.createGroupMessage(groupId0, time, null, author0, text,
 						previousMsgId);
 		groupManager0.addLocalMessage(msg);
 		assertEquals(msg.getMessage().getId(),
@@ -108,7 +108,7 @@ public class PrivateGroupManagerIntegrationTest
 		assertEquals(author0, header.getAuthor());
 		assertEquals(time, header.getTimestamp());
 		assertEquals(VERIFIED, header.getAuthorStatus());
-		assertEquals(body, groupManager1.getMessageBody(header.getId()));
+		assertEquals(text, groupManager1.getMessageText(header.getId()));
 		GroupCount count = groupManager1.getGroupCount(groupId0);
 		assertEquals(2, count.getUnreadCount());
 		assertEquals(time, count.getLatestMsgTime());

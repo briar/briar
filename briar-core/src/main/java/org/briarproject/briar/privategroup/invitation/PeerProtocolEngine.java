@@ -51,8 +51,7 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 
 	@Override
 	public PeerSession onInviteAction(Transaction txn, PeerSession s,
-			@Nullable String message, long timestamp, byte[] signature)
-			throws DbException {
+			@Nullable String text, long timestamp, byte[] signature) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 

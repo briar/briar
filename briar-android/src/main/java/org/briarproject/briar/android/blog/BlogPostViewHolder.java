@@ -41,7 +41,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final AuthorView reblogger;
 	private final AuthorView author;
 	private final ImageButton reblogButton;
-	private final TextView body;
+	private final TextView text;
 	private final ViewGroup commentContainer;
 	private final boolean fullText;
 
@@ -63,7 +63,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		reblogger = v.findViewById(R.id.rebloggerView);
 		author = v.findViewById(R.id.authorView);
 		reblogButton = v.findViewById(R.id.commentView);
-		body = v.findViewById(R.id.bodyView);
+		text = v.findViewById(R.id.textView);
 		commentContainer = v.findViewById(R.id.commentContainer);
 	}
 
@@ -111,17 +111,17 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			author.setAuthorNotClickable();
 		}
 
-		// post body
-		Spanned bodyText = getSpanned(item.getBody());
+		// post text
+		Spanned postText = getSpanned(item.getText());
 		if (fullText) {
-			body.setText(bodyText);
-			body.setTextIsSelectable(true);
-			makeLinksClickable(body, fragmentManager);
+			text.setText(postText);
+			text.setTextIsSelectable(true);
+			makeLinksClickable(text, fragmentManager);
 		} else {
-			body.setTextIsSelectable(false);
-			if (bodyText.length() > TEASER_LENGTH)
-				bodyText = getTeaser(ctx, bodyText);
-			body.setText(bodyText);
+			text.setTextIsSelectable(false);
+			if (postText.length() > TEASER_LENGTH)
+				postText = getTeaser(ctx, postText);
+			text.setText(postText);
 		}
 
 		// reblog button
@@ -163,15 +163,15 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 							commentContainer, false);
 
 			AuthorView author = v.findViewById(R.id.authorView);
-			TextView body = v.findViewById(R.id.bodyView);
+			TextView text = v.findViewById(R.id.textView);
 
 			author.setAuthor(c.getAuthor());
 			author.setAuthorStatus(c.getAuthorStatus());
 			author.setDate(c.getTimestamp());
 			// TODO make author clickable #624
 
-			body.setText(c.getComment());
-			if (fullText) body.setTextIsSelectable(true);
+			text.setText(c.getComment());
+			if (fullText) text.setTextIsSelectable(true);
 
 			commentContainer.addView(v);
 		}

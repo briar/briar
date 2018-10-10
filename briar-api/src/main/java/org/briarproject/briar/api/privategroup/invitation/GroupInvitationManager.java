@@ -42,7 +42,7 @@ public interface GroupInvitationManager extends ConversationClient {
 	 * shared with the contact, for example because an invitation is already
 	 * pending.
 	 */
-	void sendInvitation(GroupId g, ContactId c, @Nullable String message,
+	void sendInvitation(GroupId g, ContactId c, @Nullable String text,
 			long timestamp, byte[] signature) throws DbException;
 
 	/**

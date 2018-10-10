@@ -82,9 +82,9 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		messageTracker.trackIncomingMessage(txn, m);
 
 		ForumPostHeader header = getForumPostHeader(txn, m.getId(), meta);
-		String postBody = getPostBody(body);
+		String text = getPostText(body);
 		ForumPostReceivedEvent event =
-				new ForumPostReceivedEvent(m.getGroupId(), header, postBody);
+				new ForumPostReceivedEvent(m.getGroupId(), header, text);
 		txn.attach(event);
 
 		// share message
@@ -113,12 +113,12 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	public ForumPost createLocalPost(GroupId groupId, String body,
+	public ForumPost createLocalPost(GroupId groupId, String text,
 			long timestamp, @Nullable MessageId parentId, LocalAuthor author) {
 		ForumPost p;
 		try {
 			p = forumPostFactory.createPost(groupId, timestamp, parentId,
-					author, body);
+					author, text);
 		} catch (GeneralSecurityException | FormatException e) {
 			throw new AssertionError(e);
 		}
@@ -175,16 +175,16 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	}
 
 	@Override
-	public String getPostBody(MessageId m) throws DbException {
+	public String getPostText(MessageId m) throws DbException {
 		try {
-			return getPostBody(clientHelper.getMessageAsList(m));
+			return getPostText(clientHelper.getMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
 	}
 
-	private String getPostBody(BdfList body) throws FormatException {
-		// Parent ID, author, forum post body, signature
+	private String getPostText(BdfList body) throws FormatException {
+		// Parent ID, author, text, signature
 		return body.getString(2);
 	}
 

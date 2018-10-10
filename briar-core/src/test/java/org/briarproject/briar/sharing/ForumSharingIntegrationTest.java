@@ -139,7 +139,7 @@ public class ForumSharingIntegrationTest
 				assertTrue(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
 				assertEquals(forum0, invitation.getNameable());
-				assertEquals("Hi!", invitation.getMessage());
+				assertEquals("Hi!", invitation.getText());
 				assertTrue(invitation.canBeOpened());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
@@ -195,7 +195,7 @@ public class ForumSharingIntegrationTest
 				assertEquals(forum0, invitation.getNameable());
 				assertTrue(invitation.wasAnswered());
 				assertEquals(forum0.getName(), invitation.getName());
-				assertNull(invitation.getMessage());
+				assertNull(invitation.getText());
 				assertFalse(invitation.canBeOpened());
 			} else {
 				ForumInvitationResponse response = (ForumInvitationResponse) m;
@@ -635,10 +635,9 @@ public class ForumSharingIntegrationTest
 
 		// sharer posts into the forum
 		long time = clock.currentTimeMillis();
-		String body = getRandomString(42);
+		String text = getRandomString(42);
 		ForumPost p = forumPostFactory
-				.createPost(forum0.getId(), time, null, author0,
-						body);
+				.createPost(forum0.getId(), time, null, author0, text);
 		forumManager0.addLocalPost(p);
 
 		// sync forum post
@@ -654,10 +653,9 @@ public class ForumSharingIntegrationTest
 
 		// now invitee creates a post
 		time = clock.currentTimeMillis();
-		body = getRandomString(42);
+		text = getRandomString(42);
 		p = forumPostFactory
-				.createPost(forum0.getId(), time, null, author1,
-						body);
+				.createPost(forum0.getId(), time, null, author1, text);
 		forumManager1.addLocalPost(p);
 
 		// sync forum post
@@ -697,10 +695,9 @@ public class ForumSharingIntegrationTest
 
 		// now invitee creates a post
 		time = clock.currentTimeMillis();
-		body = getRandomString(42);
+		text = getRandomString(42);
 		p = forumPostFactory
-				.createPost(forum0.getId(), time, null, author1,
-						body);
+				.createPost(forum0.getId(), time, null, author1, text);
 		forumManager1.addLocalPost(p);
 
 		// sync forum post

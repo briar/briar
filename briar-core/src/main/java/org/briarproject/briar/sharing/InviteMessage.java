@@ -14,17 +14,17 @@ class InviteMessage<S extends Shareable> extends SharingMessage {
 
 	private final S shareable;
 	@Nullable
-	private final String message;
+	private final String text;
 
 	InviteMessage(MessageId id, @Nullable MessageId previousMessageId,
-			GroupId contactGroupId, S shareable, @Nullable String message,
+			GroupId contactGroupId, S shareable, @Nullable String text,
 			long timestamp) {
 		super(id, contactGroupId, shareable.getId(), timestamp,
 				previousMessageId);
-		if (message != null && message.equals(""))
+		if (text != null && text.isEmpty())
 			throw new IllegalArgumentException();
 		this.shareable = shareable;
-		this.message = message;
+		this.text = text;
 	}
 
 	public S getShareable() {
@@ -32,8 +32,8 @@ class InviteMessage<S extends Shareable> extends SharingMessage {
 	}
 
 	@Nullable
-	public String getMessage() {
-		return message;
+	public String getText() {
+		return text;
 	}
 
 }

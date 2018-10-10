@@ -260,7 +260,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void sendInvitation(GroupId privateGroupId, ContactId c,
-			@Nullable String message, long timestamp, byte[] signature)
+			@Nullable String text, long timestamp, byte[] signature)
 			throws DbException {
 		SessionId sessionId = getSessionId(privateGroupId);
 		Transaction txn = db.startTransaction(false);
@@ -283,7 +283,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				storageId = ss.storageId;
 			}
 			// Handle the invite action
-			session = creatorEngine.onInviteAction(txn, session, message,
+			session = creatorEngine.onInviteAction(txn, session, text,
 					timestamp, signature);
 			// Store the updated session
 			storeSession(txn, storageId, session);
@@ -416,7 +416,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		return new GroupInvitationRequest(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
 				status.isSeen(), meta.isRead(), sessionId, pg,
-				invite.getMessage(), meta.isAvailableToAnswer(), canBeOpened);
+				invite.getText(), meta.isAvailableToAnswer(), canBeOpened);
 	}
 
 	private GroupInvitationResponse parseInvitationResponse(

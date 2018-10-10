@@ -20,7 +20,7 @@ class ConversationNoticeOutItem extends ConversationOutItem {
 	ConversationNoticeOutItem(String text, PrivateRequest r) {
 		super(r.getId(), r.getGroupId(), text, r.getTimestamp(), r.isSent(),
 				r.isSeen());
-		this.msgText = r.getMessage();
+		this.msgText = r.getText();
 	}
 
 	ConversationNoticeOutItem(String text, PrivateResponse r) {

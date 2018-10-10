@@ -34,8 +34,8 @@ class BlogCommentItem extends BlogPostItem {
 		}
 	}
 
-	public void setBody(String body) {
-		this.body = body;
+	public void setText(String text) {
+		this.text = text;
 	}
 
 	@Override

@@ -27,7 +27,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATUR
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
-import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -71,15 +71,15 @@ class GroupInvitationValidator extends BdfMessageValidator {
 
 	private BdfMessageContext validateInviteMessage(Message m, BdfList body)
 			throws FormatException {
-		// Message type, creator, group name, salt, optional message, signature
+		// Message type, creator, group name, salt, optional text, signature
 		checkSize(body, 6);
 		BdfList creatorList = body.getList(1);
 		String groupName = body.getString(2);
 		checkLength(groupName, 1, MAX_GROUP_NAME_LENGTH);
 		byte[] salt = body.getRaw(3);
 		checkLength(salt, GROUP_SALT_LENGTH);
-		String message = body.getOptionalString(4);
-		checkLength(message, 1, MAX_GROUP_INVITATION_MSG_LENGTH);
+		String text = body.getOptionalString(4);
+		checkLength(text, 1, MAX_GROUP_INVITATION_TEXT_LENGTH);
 		byte[] signature = body.getRaw(5);
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 

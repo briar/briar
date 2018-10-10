@@ -13,7 +13,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 
 @Immutable
 @NotNullByDefault
@@ -28,12 +28,12 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 
 	@Override
 	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
-			String body) throws FormatException {
+			String text) throws FormatException {
 		// Validate the arguments
-		if (utf8IsTooLong(body, MAX_PRIVATE_MESSAGE_BODY_LENGTH))
+		if (utf8IsTooLong(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
 			throw new IllegalArgumentException();
 		// Serialise the message
-		BdfList message = BdfList.of(body);
+		BdfList message = BdfList.of(text);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);
 		return new PrivateMessage(m);
 	}

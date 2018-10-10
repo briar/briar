@@ -8,6 +8,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 public interface PrivateMessageFactory {
 
 	PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
-			String body) throws FormatException;
+			String text) throws FormatException;
 
 }

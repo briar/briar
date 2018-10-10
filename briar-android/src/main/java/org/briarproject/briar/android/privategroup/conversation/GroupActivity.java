@@ -37,7 +37,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_GROUP_INVITE;
-import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -179,8 +179,8 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected int getMaxBodyLength() {
-		return MAX_GROUP_POST_BODY_LENGTH;
+	protected int getMaxTextLength() {
+		return MAX_GROUP_POST_TEXT_LENGTH;
 	}
 
 	@Override

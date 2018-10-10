@@ -13,7 +13,7 @@ import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.client.SessionId
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.*
-import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
+import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.event.WebSocketController
@@ -50,8 +50,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun list() {
         expectGetContact()
         every { conversationManager.getMessageHeaders(contact.id) } returns listOf(header)
-        every { messagingManager.getMessageBody(message.id) } returns body
-        every { ctx.json(listOf(header.output(contact.id, body))) } returns ctx
+        every { messagingManager.getMessageText(message.id) } returns text
+        every { ctx.json(listOf(header.output(contact.id, text))) } returns ctx
 
         controller.list(ctx)
     }
@@ -59,7 +59,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun listIntroductionRequest() {
         val request = IntroductionRequest(
-            message.id, group.id, timestamp, true, true, false, true, sessionId, author, body,
+            message.id, group.id, timestamp, true, true, false, true, sessionId, author, text,
             false, false
         )
 
@@ -95,14 +95,14 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val slot = CapturingSlot<JsonDict>()
 
         expectGetContact()
-        every { ctx.body() } returns """{"text": "$body"}"""
+        every { ctx.body() } returns """{"text": "$text"}"""
         every { messagingManager.getContactGroup(contact) } returns group
         every { clock.currentTimeMillis() } returns timestamp
         every {
             privateMessageFactory.createPrivateMessage(
                 group.id,
                 timestamp,
-                body
+                text
             )
         } returns privateMessage
         every { messagingManager.addLocalMessage(privateMessage) } just runs
@@ -110,7 +110,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
 
         controller.write(ctx)
 
-        assertEquals(privateMessage.output(contact.id, body), slot.captured)
+        assertEquals(privateMessage.output(contact.id, text), slot.captured)
     }
 
     @Test
@@ -124,7 +124,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
-    fun writeNonexistentBody() {
+    fun writeNonexistentText() {
         expectGetContact()
         every { ctx.body() } returns """{"foo": "bar"}"""
 
@@ -132,7 +132,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
-    fun writeEmptyBody() {
+    fun writeEmptyText() {
         expectGetContact()
         every { ctx.body() } returns """{"text": ""}"""
 
@@ -140,9 +140,9 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
-    fun writeTooLongBody() {
+    fun writeTooLongText() {
         expectGetContact()
-        every { ctx.body() } returns """{"text": "${getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1)}"}"""
+        every { ctx.body() } returns """{"text": "${getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH + 1)}"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
     }
@@ -151,8 +151,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun privateMessageEvent() {
         val event = PrivateMessageReceivedEvent(header, contact.id)
 
-        every { messagingManager.getMessageBody(message.id) } returns body
-        every { webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, event.output(body)) } just runs
+        every { messagingManager.getMessageText(message.id) } returns text
+        every { webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, event.output(text)) } just runs
 
         controller.eventOccurred(event)
     }
@@ -161,7 +161,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun testOutputPrivateMessageHeader() {
         val json = """
             {
-                "text": "$body",
+                "text": "$text",
                 "type": "PrivateMessage",
                 "timestamp": $timestamp,
                 "groupId": ${toJson(header.groupId.bytes)},
@@ -173,14 +173,14 @@ internal class MessagingControllerImplTest : ControllerTest() {
                 "id": ${toJson(header.id.bytes)}
             }
         """
-        assertJsonEquals(json, header.output(contact.id, body))
+        assertJsonEquals(json, header.output(contact.id, text))
     }
 
     @Test
     fun testOutputPrivateMessage() {
         val json = """
             {
-                "text": "$body",
+                "text": "$text",
                 "type": "PrivateMessage",
                 "timestamp": ${message.timestamp},
                 "groupId": ${toJson(message.groupId.bytes)},
@@ -192,11 +192,11 @@ internal class MessagingControllerImplTest : ControllerTest() {
                 "id": ${toJson(message.id.bytes)}
             }
         """
-        assertJsonEquals(json, privateMessage.output(contact.id, body))
+        assertJsonEquals(json, privateMessage.output(contact.id, text))
     }
 
     @Test
-    fun testIntroductionRequestWithEmptyBody() {
+    fun testIntroductionRequestWithNullText() {
         val request = IntroductionRequest(
             message.id, group.id, timestamp, true, true, false, true, sessionId, author, null,
             false, false

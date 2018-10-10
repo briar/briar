@@ -312,15 +312,15 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private void createRandomPrivateMessage(GroupId groupId, int num)
 			throws DbException, FormatException {
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
-		String body = getRandomText();
+		String text = getRandomText();
 		boolean local = random.nextBoolean();
-		createPrivateMessage(groupId, body, timestamp, local);
+		createPrivateMessage(groupId, text, timestamp, local);
 	}
 
-	private void createPrivateMessage(GroupId groupId, String body,
+	private void createPrivateMessage(GroupId groupId, String text,
 			long timestamp, boolean local) throws DbException, FormatException {
 		PrivateMessage m = privateMessageFactory
-				.createPrivateMessage(groupId, timestamp, body);
+				.createPrivateMessage(groupId, timestamp, text);
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("timestamp", timestamp);
 		meta.put("local", local);
@@ -338,10 +338,10 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	@Override
-	public void addPrivateMessage(Contact contact, String body, long time,
+	public void addPrivateMessage(Contact contact, String text, long time,
 			boolean local) throws DbException, FormatException {
 		Group group = messagingManager.getContactGroup(contact);
-		createPrivateMessage(group.getId(), body, time, local);
+		createPrivateMessage(group.getId(), text, time, local);
 	}
 
 	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)
@@ -359,10 +359,10 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private void addBlogPost(LocalAuthor author, int num) throws DbException {
 		Blog blog = blogManager.getPersonalBlog(author);
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
-		String body = getRandomText();
+		String text = getRandomText();
 		try {
 			BlogPost blogPost = blogPostFactory.createBlogPost(blog.getId(),
-					timestamp, null, author, body);
+					timestamp, null, author, text);
 			blogManager.addLocalPost(blogPost);
 		} catch (FormatException | GeneralSecurityException e) {
 			throw new RuntimeException(e);
@@ -404,14 +404,14 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			Contact contact = contacts.get(random.nextInt(contacts.size()));
 			LocalAuthor author = localAuthors.get(contact);
 			long timestamp = clock.currentTimeMillis() - i * 60 * 1000;
-			String body = getRandomText();
+			String text = getRandomText();
 			MessageId parent = null;
 			if (random.nextBoolean() && posts.size() > 0) {
 				ForumPost parentPost =
 						posts.get(random.nextInt(posts.size()));
 				parent = parentPost.getMessage().getId();
 			}
-			ForumPost post = forumManager.createLocalPost(forum.getId(), body,
+			ForumPost post = forumManager.createLocalPost(forum.getId(), text,
 					timestamp, parent, author);
 			posts.add(post);
 			forumManager.addLocalPost(post);

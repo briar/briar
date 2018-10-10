@@ -51,13 +51,13 @@ public interface GroupMessageFactory {
 	 * @param parentId The ID of the parent post, or null if the post has no
 	 * parent
 	 * @param author The author of the post
-	 * @param body The content of the post
+	 * @param text The text of the post
 	 * @param previousMsgId The ID of the author's previous message
 	 * in this group
 	 */
 	@CryptoExecutor
 	GroupMessage createGroupMessage(GroupId groupId, long timestamp,
-			@Nullable MessageId parentId, LocalAuthor author, String body,
+			@Nullable MessageId parentId, LocalAuthor author, String text,
 			MessageId previousMsgId);
 
 }

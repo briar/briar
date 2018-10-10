@@ -8,7 +8,7 @@ public interface IntroductionConstants {
 	 * The maximum length of the introducer's optional message to the
 	 * introducees in UTF-8 bytes.
 	 */
-	int MAX_REQUEST_MESSAGE_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
+	int MAX_INTRODUCTION_TEXT_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
 	String LABEL_SESSION_ID = "org.briarproject.briar.introduction/SESSION_ID";
 

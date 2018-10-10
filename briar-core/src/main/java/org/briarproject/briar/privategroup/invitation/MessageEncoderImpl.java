@@ -76,7 +76,7 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public Message encodeInviteMessage(GroupId contactGroupId,
 			GroupId privateGroupId, long timestamp, String groupName,
-			Author creator, byte[] salt, @Nullable String message,
+			Author creator, byte[] salt, @Nullable String text,
 			byte[] signature) {
 		BdfList creatorList = clientHelper.toList(creator);
 		BdfList body = BdfList.of(
@@ -84,7 +84,7 @@ class MessageEncoderImpl implements MessageEncoder {
 				creatorList,
 				groupName,
 				salt,
-				message,
+				text,
 				signature
 		);
 		try {

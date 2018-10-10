@@ -9,5 +9,5 @@ internal class OutputEvent(val name: String, val data: Any) {
     val type = "event"
 }
 
-internal fun PrivateMessageReceivedEvent<*>.output(body: String) =
-    messageHeader.output(contactId, body)
+internal fun PrivateMessageReceivedEvent<*>.output(text: String) =
+    messageHeader.output(contactId, text)

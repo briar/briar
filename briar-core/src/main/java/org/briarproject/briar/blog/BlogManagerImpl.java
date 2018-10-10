@@ -456,21 +456,22 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public String getPostBody(MessageId m) throws DbException {
+	public String getPostText(MessageId m) throws DbException {
 		try {
-			return getPostBody(clientHelper.getMessageAsList(m));
+			return getPostText(clientHelper.getMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
 	}
 
-	private String getPostBody(BdfList message) throws FormatException {
+	private String getPostText(BdfList message) throws FormatException {
 		MessageType type = MessageType.valueOf(message.getLong(0).intValue());
 		if (type == POST) {
-			// type, body, signature
+			// Type, text, signature
 			return message.getString(1);
 		} else if (type == WRAPPED_POST) {
-			// type, p_group descriptor, p_timestamp, p_content, p_signature
+			// Type, copied group descriptor, copied timestamp, copied text,
+			// copied signature
 			return message.getString(3);
 		} else {
 			throw new FormatException();

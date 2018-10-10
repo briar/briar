@@ -76,14 +76,14 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public Message encodeInviteMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, BdfList descriptor,
-			@Nullable String message) {
-		if (message != null && message.equals(""))
+			@Nullable String text) {
+		if (text != null && text.isEmpty())
 			throw new IllegalArgumentException();
 		BdfList body = BdfList.of(
 				INVITE.getValue(),
 				previousMessageId,
 				descriptor,
-				message
+				text
 		);
 		try {
 			return messageFactory.createMessage(contactGroupId, timestamp,

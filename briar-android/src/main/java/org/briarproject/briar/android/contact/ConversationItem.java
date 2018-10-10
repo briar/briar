@@ -14,17 +14,17 @@ import javax.annotation.concurrent.NotThreadSafe;
 abstract class ConversationItem {
 
 	@Nullable
-	protected String body;
+	protected String text;
 	private final MessageId id;
 	private final GroupId groupId;
 	private final long time;
 	private boolean read;
 
-	ConversationItem(MessageId id, GroupId groupId, @Nullable String body,
+	ConversationItem(MessageId id, GroupId groupId, @Nullable String text,
 			long time, boolean read) {
 		this.id = id;
 		this.groupId = groupId;
-		this.body = body;
+		this.text = text;
 		this.time = time;
 		this.read = read;
 	}
@@ -37,13 +37,13 @@ abstract class ConversationItem {
 		return groupId;
 	}
 
-	void setBody(String body) {
-		this.body = body;
+	void setText(String text) {
+		this.text = text;
 	}
 
 	@Nullable
-	public String getBody() {
-		return body;
+	public String getText() {
+		return text;
 	}
 
 	long getTime() {

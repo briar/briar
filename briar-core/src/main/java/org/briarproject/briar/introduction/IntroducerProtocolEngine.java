@@ -58,11 +58,11 @@ class IntroducerProtocolEngine
 
 	@Override
 	public IntroducerSession onRequestAction(Transaction txn,
-			IntroducerSession s, @Nullable String message, long timestamp)
+			IntroducerSession s, @Nullable String text, long timestamp)
 			throws DbException {
 		switch (s.getState()) {
 			case START:
-				return onLocalRequest(txn, s, message, timestamp);
+				return onLocalRequest(txn, s, text, timestamp);
 			case AWAIT_RESPONSES:
 			case AWAIT_RESPONSE_A:
 			case AWAIT_RESPONSE_B:
@@ -222,7 +222,7 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onLocalRequest(Transaction txn,
-			IntroducerSession s, @Nullable String message, long timestamp)
+			IntroducerSession s, @Nullable String text, long timestamp)
 			throws DbException {
 		// Send REQUEST messages
 		long maxIntroduceeTimestamp =
@@ -230,11 +230,9 @@ class IntroducerProtocolEngine
 						getLocalTimestamp(s, s.getIntroduceeB()));
 		long localTimestamp = Math.max(timestamp, maxIntroduceeTimestamp);
 		Message sentA = sendRequestMessage(txn, s.getIntroduceeA(),
-				localTimestamp, s.getIntroduceeB().author, message
-		);
+				localTimestamp, s.getIntroduceeB().author, text);
 		Message sentB = sendRequestMessage(txn, s.getIntroduceeB(),
-				localTimestamp, s.getIntroduceeA().author, message
-		);
+				localTimestamp, s.getIntroduceeA().author, text);
 		// Track the messages
 		messageTracker.trackOutgoingMessage(txn, sentA);
 		messageTracker.trackOutgoingMessage(txn, sentB);

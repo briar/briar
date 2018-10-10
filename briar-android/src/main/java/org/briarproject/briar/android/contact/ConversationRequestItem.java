@@ -27,7 +27,7 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 	private boolean answered;
 
 	ConversationRequestItem(String text, RequestType type, PrivateRequest r) {
-		super(r.getId(), r.getGroupId(), text, r.getMessage(),
+		super(r.getId(), r.getGroupId(), text, r.getText(),
 				r.getTimestamp(), r.isRead());
 		this.requestType = type;
 		this.sessionId = r.getSessionId();

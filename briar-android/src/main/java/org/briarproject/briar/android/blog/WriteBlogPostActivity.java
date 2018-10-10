@@ -35,7 +35,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 public class WriteBlogPostActivity extends BriarActivity
 		implements OnEditorActionListener, TextInputListener {
@@ -70,7 +70,7 @@ public class WriteBlogPostActivity extends BriarActivity
 
 		setContentView(R.layout.activity_write_blog_post);
 
-		input = findViewById(R.id.bodyInput);
+		input = findViewById(R.id.textInput);
 		input.setSendButtonEnabled(false);
 		input.addTextChangedListener(new TextWatcher() {
 			@Override
@@ -132,23 +132,23 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(String body) {
+	public void onSendClick(String text) {
 		// hide publish button, show progress bar
 		input.hideSoftKeyboard();
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
-		body = StringUtils.truncateUtf8(body, MAX_BLOG_POST_BODY_LENGTH);
-		storePost(body);
+		text = StringUtils.truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
+		storePost(text);
 	}
 
-	private void storePost(String body) {
+	private void storePost(String text) {
 		runOnDbThread(() -> {
 			long timestamp = System.currentTimeMillis();
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
 				BlogPost p = blogPostFactory
-						.createBlogPost(groupId, timestamp, null, author, body);
+						.createBlogPost(groupId, timestamp, null, author, text);
 				blogManager.addLocalPost(p);
 				postPublished();
 			} catch (DbException | GeneralSecurityException

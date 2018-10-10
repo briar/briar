@@ -62,7 +62,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private final BlogFactory blogFactory = context.mock(BlogFactory.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
 	private final Author author;
-	private final String body = getRandomString(42);
+	private final String text = getRandomString(42);
 
 	public BlogPostValidatorTest() {
 		group = getGroup(CLIENT_ID, MAJOR_VERSION);
@@ -99,9 +99,9 @@ public class BlogPostValidatorTest extends BriarTestCase {
 	private void testValidateProperBlogPost(Blog b, boolean rssFeed)
 			throws IOException, GeneralSecurityException {
 		byte[] sigBytes = getRandomBytes(42);
-		BdfList m = BdfList.of(POST.getInt(), body, sigBytes);
+		BdfList m = BdfList.of(POST.getInt(), text, sigBytes);
 
-		BdfList signed = BdfList.of(b.getId(), message.getTimestamp(), body);
+		BdfList signed = BdfList.of(b.getId(), message.getTimestamp(), text);
 		expectCrypto(b, SIGNING_LABEL_POST, signed, sigBytes);
 		BdfDictionary result =
 				validator.validateMessage(message, group, m).getDictionary();
@@ -114,7 +114,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testValidateBlogPostWithoutAttachments() throws IOException {
-		BdfList content = BdfList.of(null, null, body);
+		BdfList content = BdfList.of(null, null, text);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 
 		validator.validateMessage(message, group, m);
@@ -122,7 +122,7 @@ public class BlogPostValidatorTest extends BriarTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testValidateBlogPostWithoutSignature() throws IOException {
-		BdfList content = BdfList.of(null, null, body, null);
+		BdfList content = BdfList.of(null, null, text, null);
 		BdfList m = BdfList.of(POST.getInt(), content, null);
 
 		validator.validateMessage(message, group, m);
@@ -191,12 +191,12 @@ public class BlogPostValidatorTest extends BriarTestCase {
 		// group descriptor, timestamp, content, signature
 		byte[] sigBytes = getRandomBytes(42);
 		BdfList m = BdfList.of(WRAPPED_POST.getInt(), descriptor,
-				message.getTimestamp(), body, sigBytes);
+				message.getTimestamp(), text, sigBytes);
 
-		BdfList signed = BdfList.of(b.getId(), message.getTimestamp(), body);
+		BdfList signed = BdfList.of(b.getId(), message.getTimestamp(), text);
 		expectCrypto(b, SIGNING_LABEL_POST, signed, sigBytes);
 
-		BdfList originalList = BdfList.of(POST.getInt(), body, sigBytes);
+		BdfList originalList = BdfList.of(POST.getInt(), text, sigBytes);
 		byte[] originalBody = getRandomBytes(42);
 
 		context.checking(new Expectations() {{

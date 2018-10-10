@@ -106,13 +106,13 @@ public class UiUtils {
 		return (int) daysBeforeExpiry;
 	}
 
-	public static SpannableStringBuilder getTeaser(Context ctx, Spanned body) {
-		if (body.length() < TEASER_LENGTH)
+	public static SpannableStringBuilder getTeaser(Context ctx, Spanned text) {
+		if (text.length() < TEASER_LENGTH)
 			throw new IllegalArgumentException(
 					"String is shorter than TEASER_LENGTH");
 
 		SpannableStringBuilder builder =
-				new SpannableStringBuilder(body.subSequence(0, TEASER_LENGTH));
+				new SpannableStringBuilder(text.subSequence(0, TEASER_LENGTH));
 		String ellipsis = ctx.getString(R.string.ellipsis);
 		builder.append(ellipsis).append(" ");
 

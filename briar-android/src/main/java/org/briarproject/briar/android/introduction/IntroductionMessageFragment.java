@@ -38,7 +38,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
 public class IntroductionMessageFragment extends BaseFragment
 		implements TextInputListener {
@@ -187,10 +187,10 @@ public class IntroductionMessageFragment extends BaseFragment
 		// disable button to prevent accidental double invitations
 		ui.message.setSendButtonEnabled(false);
 
-		String msg = ui.message.getText().toString();
-		if (msg.equals("")) msg = null;
-		else msg = StringUtils.truncateUtf8(msg, MAX_REQUEST_MESSAGE_LENGTH);
-		makeIntroduction(contact1, contact2, msg);
+		String txt = ui.message.getText().toString();
+		if (txt.isEmpty()) txt = null;
+		else txt = StringUtils.truncateUtf8(txt, MAX_INTRODUCTION_TEXT_LENGTH);
+		makeIntroduction(contact1, contact2, txt);
 
 		// don't wait for the introduction to be made before finishing activity
 		introductionActivity.hideSoftKeyboard(ui.message);
@@ -199,12 +199,12 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	private void makeIntroduction(Contact c1, Contact c2,
-			@Nullable String msg) {
+			@Nullable String text) {
 		introductionActivity.runOnDbThread(() -> {
 			// actually make the introduction
 			try {
 				long timestamp = System.currentTimeMillis();
-				introductionManager.makeIntroduction(c1, c2, msg, timestamp);
+				introductionManager.makeIntroduction(c1, c2, text, timestamp);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				introductionError();

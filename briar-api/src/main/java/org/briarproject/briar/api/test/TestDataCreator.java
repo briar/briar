@@ -26,7 +26,7 @@ public interface TestDataCreator {
 	Contact addContact(String name) throws DbException;
 
 	@IoExecutor
-	void addPrivateMessage(Contact contact, String body, long time,
+	void addPrivateMessage(Contact contact, String text, long time,
 			boolean local) throws DbException, FormatException;
 
 }

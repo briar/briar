@@ -5,10 +5,10 @@ import org.briarproject.bramble.api.client.BdfMessageContext;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.test.ValidatorTestCase;
-import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -30,41 +30,40 @@ public class PrivateMessageValidatorTest extends ValidatorTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNullContent() throws Exception {
+	public void testRejectsNullText() throws Exception {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
 		v.validateMessage(message, group, BdfList.of((String) null));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNonStringContent() throws Exception {
+	public void testRejectsNonStringText() throws Exception {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
 		v.validateMessage(message, group, BdfList.of(123));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooLongContent() throws Exception {
+	public void testRejectsTooLongText() throws Exception {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
-		String invalidContent =
-				StringUtils.getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH + 1);
-		v.validateMessage(message, group, BdfList.of(invalidContent));
+		String invalidText =
+				getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH + 1);
+		v.validateMessage(message, group, BdfList.of(invalidText));
 	}
 
 	@Test
-	public void testAcceptsMaxLengthContent() throws Exception {
+	public void testAcceptsMaxLengthText() throws Exception {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
-		String content =
-				StringUtils.getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		String text = getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		BdfMessageContext messageContext =
-				v.validateMessage(message, group, BdfList.of(content));
+				v.validateMessage(message, group, BdfList.of(text));
 		assertExpectedContext(messageContext);
 	}
 
 	@Test
-	public void testAcceptsMinLengthContent() throws Exception {
+	public void testAcceptsMinLengthText() throws Exception {
 		PrivateMessageValidator v = new PrivateMessageValidator(clientHelper,
 				metadataEncoder, clock);
 		BdfMessageContext messageContext =

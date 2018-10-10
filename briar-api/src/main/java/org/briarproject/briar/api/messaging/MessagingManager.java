@@ -42,8 +42,8 @@ public interface MessagingManager extends ConversationClient {
 	GroupId getConversationId(ContactId c) throws DbException;
 
 	/**
-	 * Returns the body of the private message with the given ID.
+	 * Returns the text of the private message with the given ID.
 	 */
-	String getMessageBody(MessageId m) throws DbException;
+	String getMessageText(MessageId m) throws DbException;
 
 }

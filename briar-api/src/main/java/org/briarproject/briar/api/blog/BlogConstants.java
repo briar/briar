@@ -5,14 +5,14 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_L
 public interface BlogConstants {
 
 	/**
-	 * The maximum length of a blog post's body in bytes.
+	 * The maximum length of a blog post's text in UTF-8 bytes.
 	 */
-	int MAX_BLOG_POST_BODY_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
+	int MAX_BLOG_POST_TEXT_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
 	/**
-	 * The maximum length of a blog comment in bytes.
+	 * The maximum length of a blog comment's text in UTF-8 bytes.
 	 */
-	int MAX_BLOG_COMMENT_LENGTH = MAX_BLOG_POST_BODY_LENGTH;
+	int MAX_BLOG_COMMENT_TEXT_LENGTH = MAX_BLOG_POST_TEXT_LENGTH;
 
 	// Metadata keys
 	String KEY_TYPE = "type";

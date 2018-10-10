@@ -29,8 +29,8 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.junit.Assert.assertTrue;
 
 public class MessageSizeIntegrationTest extends BriarTestCase {
@@ -56,13 +56,13 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		// Create a maximum-length private message
 		GroupId groupId = new GroupId(getRandomId());
 		long timestamp = Long.MAX_VALUE;
-		String body = getRandomString(MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		String text = getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, body);
+				groupId, timestamp, text);
 		// Check the size of the serialised message
 		int length = message.getMessage().getRawLength();
 		assertTrue(length > UniqueId.LENGTH + 8
-				+ MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+				+ MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
 	}
 
@@ -79,14 +79,14 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		GroupId groupId = new GroupId(getRandomId());
 		long timestamp = Long.MAX_VALUE;
 		MessageId parent = new MessageId(getRandomId());
-		String body = getRandomString(MAX_FORUM_POST_BODY_LENGTH);
+		String text = getRandomString(MAX_FORUM_POST_TEXT_LENGTH);
 		ForumPost post = forumPostFactory.createPost(groupId,
-				timestamp, parent, author, body);
+				timestamp, parent, author, text);
 		// Check the size of the serialised message
 		int length = post.getMessage().getRawLength();
 		assertTrue(length > UniqueId.LENGTH + 8 + UniqueId.LENGTH + 4
 				+ MAX_AUTHOR_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH
-				+ MAX_FORUM_POST_BODY_LENGTH);
+				+ MAX_FORUM_POST_TEXT_LENGTH);
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
 	}
 

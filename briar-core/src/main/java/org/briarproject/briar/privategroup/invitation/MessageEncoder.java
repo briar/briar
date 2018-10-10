@@ -24,7 +24,7 @@ interface MessageEncoder {
 
 	Message encodeInviteMessage(GroupId contactGroupId, GroupId privateGroupId,
 			long timestamp, String groupName, Author creator, byte[] salt,
-			@Nullable String message, byte[] signature);
+			@Nullable String text, byte[] signature);
 
 	Message encodeJoinMessage(GroupId contactGroupId, GroupId privateGroupId,
 			long timestamp, @Nullable MessageId previousMessageId);

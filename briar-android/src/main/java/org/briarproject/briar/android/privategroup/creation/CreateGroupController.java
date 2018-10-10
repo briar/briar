@@ -18,6 +18,6 @@ public interface CreateGroupController
 			ResultExceptionHandler<GroupId, DbException> result);
 
 	void sendInvitation(GroupId g, Collection<ContactId> contacts,
-			String message, ResultExceptionHandler<Void, DbException> result);
+			String text, ResultExceptionHandler<Void, DbException> result);
 
 }

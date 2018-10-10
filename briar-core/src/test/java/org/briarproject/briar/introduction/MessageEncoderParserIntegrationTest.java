@@ -30,7 +30,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
@@ -65,7 +65,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	private final SessionId sessionId = new SessionId(getRandomId());
 	private final MessageId previousMsgId = new MessageId(getRandomId());
 	private final Author author;
-	private final String text = getRandomString(MAX_REQUEST_MESSAGE_LENGTH);
+	private final String text = getRandomString(MAX_INTRODUCTION_TEXT_LENGTH);
 	private final byte[] ephemeralPublicKey =
 			getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 	private final byte[] mac = getRandomBytes(MAC_BYTES);
@@ -128,7 +128,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(m.getTimestamp(), rm.getTimestamp());
 		assertEquals(previousMsgId, rm.getPreviousMessageId());
 		assertEquals(author, rm.getAuthor());
-		assertEquals(text, rm.getMessage());
+		assertEquals(text, rm.getText());
 	}
 
 	@Test
@@ -151,7 +151,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		RequestMessage rm =
 				messageParser.parseRequestMessage(m, clientHelper.toList(m));
 
-		assertNull(rm.getMessage());
+		assertNull(rm.getText());
 	}
 
 	@Test

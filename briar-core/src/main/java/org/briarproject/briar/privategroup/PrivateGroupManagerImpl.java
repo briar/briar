@@ -299,17 +299,17 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public String getMessageBody(MessageId m) throws DbException {
+	public String getMessageText(MessageId m) throws DbException {
 		try {
-			return getMessageBody(clientHelper.getMessageAsList(m));
+			return getMessageText(clientHelper.getMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
 	}
 
-	private String getMessageBody(BdfList body) throws FormatException {
+	private String getMessageText(BdfList body) throws FormatException {
 		// Message type (0), member (1), parent ID (2), previous message ID (3),
-		// content (4), signature (5)
+		// text (4), signature (5)
 		return body.getString(4);
 	}
 
@@ -570,8 +570,8 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			throws DbException, FormatException {
 		GroupMessageHeader header = getGroupMessageHeader(txn, m.getGroupId(),
 				m.getId(), meta, Collections.emptyMap());
-		String body = getMessageBody(clientHelper.toList(m));
-		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, body,
+		String text = getMessageText(clientHelper.toList(m));
+		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, text,
 				local));
 	}
 

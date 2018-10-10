@@ -12,7 +12,7 @@ import java.util.Collection;
 public interface ShareForumController
 		extends ContactSelectorController<SelectableContactItem> {
 
-	void share(GroupId g, Collection<ContactId> contacts, String msg,
+	void share(GroupId g, Collection<ContactId> contacts, String text,
 			ExceptionHandler<DbException> handler);
 
 }

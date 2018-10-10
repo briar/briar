@@ -35,7 +35,7 @@ abstract class ControllerTest {
     protected val localAuthor: LocalAuthor = getLocalAuthor()
     protected val contact = Contact(ContactId(1), author, localAuthor.id, true, true)
     protected val message: Message = getMessage(group.id)
-    protected val body: String = getRandomString(5)
+    protected val text: String = getRandomString(5)
     protected val timestamp = 42L
 
     protected fun assertJsonEquals(json: String, obj: Any) {

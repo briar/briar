@@ -5,8 +5,8 @@ import org.briarproject.briar.api.blog.BlogPostHeader
 import org.briarproject.briar.api.blog.MessageType
 import org.briarproject.briar.headless.json.JsonDict
 
-internal fun BlogPostHeader.output(body: String) = JsonDict(
-        "text" to body,
+internal fun BlogPostHeader.output(text: String) = JsonDict(
+        "text" to text,
         "author" to author.output(),
         "authorStatus" to authorStatus.output(),
         "type" to type.output(),

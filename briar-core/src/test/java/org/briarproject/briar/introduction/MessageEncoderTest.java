@@ -16,7 +16,7 @@ import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 import static org.briarproject.briar.introduction.MessageType.REQUEST;
 
 public class MessageEncoderTest extends BrambleMockTestCase {
@@ -34,7 +34,7 @@ public class MessageEncoderTest extends BrambleMockTestCase {
 	private final byte[] body = message.getBody();
 	private final Author author = getAuthor();
 	private final BdfList authorList = new BdfList();
-	private final String text = getRandomString(MAX_REQUEST_MESSAGE_LENGTH);
+	private final String text = getRandomString(MAX_INTRODUCTION_TEXT_LENGTH);
 
 	@Test
 	public void testEncodeRequestMessage() throws FormatException {

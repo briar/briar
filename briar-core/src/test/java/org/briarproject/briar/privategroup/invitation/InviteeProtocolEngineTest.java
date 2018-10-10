@@ -21,7 +21,7 @@ import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_MSG_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.DISSOLVED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ERROR;
@@ -327,7 +327,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroupId, session.getInviteTimestamp() + 1,
 						privateGroup.getName(), privateGroup.getCreator(),
 						privateGroup.getSalt(),
-						getRandomString(MAX_GROUP_INVITATION_MSG_LENGTH),
+						getRandomString(MAX_GROUP_INVITATION_TEXT_LENGTH),
 						signature);
 		Author notCreator = getAuthor();
 		Contact notCreatorContact = new Contact(contactId, notCreator,

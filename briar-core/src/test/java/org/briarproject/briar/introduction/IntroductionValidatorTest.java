@@ -19,7 +19,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
@@ -38,7 +38,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 
 	private final SessionId sessionId = new SessionId(getRandomId());
 	private final MessageId previousMsgId = new MessageId(getRandomId());
-	private final String text = getRandomString(MAX_REQUEST_MESSAGE_LENGTH);
+	private final String text = getRandomString(MAX_INTRODUCTION_TEXT_LENGTH);
 	private final BdfDictionary meta = new BdfDictionary();
 	private final long acceptTimestamp = 42;
 	private final BdfDictionary transportProperties = BdfDictionary.of(

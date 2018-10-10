@@ -84,7 +84,7 @@ class GroupControllerImpl extends
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			if (!g.isLocal() && g.getGroupId().equals(getGroupId())) {
 				LOG.info("Group message received, adding...");
-				GroupMessageItem item = buildItem(g.getHeader(), g.getBody());
+				GroupMessageItem item = buildItem(g.getHeader(), g.getText());
 				listener.runOnUiThreadUnlessDestroyed(
 						() -> listener.onItemReceived(item));
 			}
@@ -124,13 +124,13 @@ class GroupControllerImpl extends
 	}
 
 	@Override
-	protected String loadMessageBody(GroupMessageHeader header)
+	protected String loadMessageText(GroupMessageHeader header)
 			throws DbException {
 		if (header instanceof JoinMessageHeader) {
 			// will be looked up later
 			return "";
 		}
-		return privateGroupManager.getMessageBody(header.getId());
+		return privateGroupManager.getMessageText(header.getId());
 	}
 
 	@Override
@@ -159,7 +159,7 @@ class GroupControllerImpl extends
 	}
 
 	@Override
-	public void createAndStoreMessage(String body,
+	public void createAndStoreMessage(String text,
 			@Nullable GroupMessageItem parentItem,
 			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
 		runOnDbThread(() -> {
@@ -173,7 +173,7 @@ class GroupControllerImpl extends
 				long timestamp = count.getLatestMsgTime();
 				if (parentItem != null) parentId = parentItem.getId();
 				timestamp = max(clock.currentTimeMillis(), timestamp + 1);
-				createMessage(body, timestamp, parentId, author, previousMsgId,
+				createMessage(text, timestamp, parentId, author, previousMsgId,
 						handler);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -182,7 +182,7 @@ class GroupControllerImpl extends
 		});
 	}
 
-	private void createMessage(String body, long timestamp,
+	private void createMessage(String text, long timestamp,
 			@Nullable MessageId parentId, LocalAuthor author,
 			MessageId previousMsgId,
 			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
@@ -190,8 +190,8 @@ class GroupControllerImpl extends
 			LOG.info("Creating group message...");
 			GroupMessage msg = groupMessageFactory
 					.createGroupMessage(getGroupId(), timestamp,
-							parentId, author, body, previousMsgId);
-			storePost(msg, body, handler);
+							parentId, author, text, previousMsgId);
+			storePost(msg, text, handler);
 		});
 	}
 
@@ -208,11 +208,11 @@ class GroupControllerImpl extends
 
 	@Override
 	protected GroupMessageItem buildItem(GroupMessageHeader header,
-			String body) {
+			String text) {
 		if (header instanceof JoinMessageHeader) {
-			return new JoinMessageItem((JoinMessageHeader) header, body);
+			return new JoinMessageItem((JoinMessageHeader) header, text);
 		}
-		return new GroupMessageItem(header, body);
+		return new GroupMessageItem(header, text);
 	}
 
 	@Override

@@ -57,16 +57,16 @@ class ShareForumControllerImpl extends ContactSelectorControllerImpl
 
 	@Override
 	public void share(GroupId g, Collection<ContactId> contacts,
-			String message, ExceptionHandler<DbException> handler) {
+			String text, ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				String msg = isNullOrEmpty(message) ? null : message;
+				String txt = isNullOrEmpty(text) ? null : text;
 				for (ContactId c : contacts) {
 					try {
 						long time = Math.max(clock.currentTimeMillis(),
 								conversationManager.getGroupCount(c)
 										.getLatestMsgTime() + 1);
-						forumSharingManager.sendInvitation(g, c, msg, time);
+						forumSharingManager.sendInvitation(g, c, txt, time);
 					} catch (NoSuchContactException | NoSuchGroupException e) {
 						logException(LOG, WARNING, e);
 					}
