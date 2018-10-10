@@ -13,6 +13,7 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Properties;
 
 import javax.annotation.Nullable;
@@ -105,5 +106,23 @@ class H2Database extends JdbcDatabase {
 
 	String getUrl() {
 		return url;
+	}
+
+	@Override
+	protected void compactAndClose() throws DbException {
+		Connection c = null;
+		Statement s = null;
+		try {
+			c = createConnection();
+			closeAllConnections();
+			s = c.createStatement();
+			s.execute("SHUTDOWN COMPACT");
+			s.close();
+			c.close();
+		} catch (SQLException e) {
+			tryToClose(s);
+			tryToClose(c);
+			throw new DbException(e);
+		}
 	}
 }

@@ -26,8 +26,8 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.system.SystemClock;
-import org.briarproject.bramble.test.ArrayClock;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.SettableClock;
 import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.TestMessageFactory;
 import org.briarproject.bramble.test.TestUtils;
@@ -46,6 +46,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -1818,10 +1819,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testMessageRetransmission() throws Exception {
 		long now = System.currentTimeMillis();
-		long steps[] = {now, now, now + MAX_LATENCY * 2 - 1,
-				now + MAX_LATENCY * 2};
+		AtomicLong time = new AtomicLong(now);
 		Database<Connection> db =
-				open(false, new TestMessageFactory(), new ArrayClock(steps));
+				open(false, new TestMessageFactory(), new SettableClock(time));
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
@@ -1847,11 +1847,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Time: now + MAX_LATENCY * 2 - 1
 		// The message should not yet be sendable
+		time.set(now + MAX_LATENCY * 2 - 1);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
 
 		// Time: now + MAX_LATENCY * 2
 		// The message should have expired and should now be sendable
+		time.set(now + MAX_LATENCY * 2);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 
@@ -1859,13 +1861,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
-
 	@Test
 	public void testFasterMessageRetransmission() throws Exception {
 		long now = System.currentTimeMillis();
-		long steps[] = {now, now, now, now, now + 1};
+		AtomicLong time = new AtomicLong(now);
 		Database<Connection> db =
-				open(false, new TestMessageFactory(), new ArrayClock(steps));
+				open(false, new TestMessageFactory(), new SettableClock(time));
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
@@ -1903,6 +1904,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Time: now + 1
 		// The message should no longer be sendable via the faster transport,
 		// as the ETA is now equal
+		time.set(now + 1);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE,
 				MAX_LATENCY - 1);
 		assertTrue(ids.isEmpty());
@@ -1910,7 +1912,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.commitTransaction(txn);
 		db.close();
 	}
-
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		return open(resume, new TestMessageFactory(), new SystemClock());

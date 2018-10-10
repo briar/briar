@@ -38,4 +38,18 @@ public abstract class StringMap extends Hashtable<String, String> {
 	public void putInt(String key, int value) {
 		put(key, String.valueOf(value));
 	}
+
+	public long getLong(String key, long defaultValue) {
+		String s = get(key);
+		if (s == null) return defaultValue;
+		try {
+			return Long.valueOf(s);
+		} catch (NumberFormatException e) {
+			return defaultValue;
+		}
+	}
+
+	public void putLong(String key, long value) {
+		put(key, String.valueOf(value));
+	}
 }

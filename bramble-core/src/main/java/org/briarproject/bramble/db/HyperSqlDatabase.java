@@ -61,14 +61,18 @@ class HyperSqlDatabase extends JdbcDatabase {
 
 	@Override
 	public void close() throws DbException {
+		Connection c = null;
+		Statement s = null;
 		try {
 			super.closeAllConnections();
-			Connection c = createConnection();
-			Statement s = c.createStatement();
+			c = createConnection();
+			s = c.createStatement();
 			s.executeQuery("SHUTDOWN");
 			s.close();
 			c.close();
 		} catch (SQLException e) {
+			tryToClose(s);
+			tryToClose(c);
 			throw new DbException(e);
 		}
 	}
@@ -103,5 +107,23 @@ class HyperSqlDatabase extends JdbcDatabase {
 		if (key == null) throw new IllegalStateException();
 		String hex = StringUtils.toHexString(key.getBytes());
 		return DriverManager.getConnection(url + ";crypt_key=" + hex);
+	}
+
+	@Override
+	protected void compactAndClose() throws DbException {
+		Connection c = null;
+		Statement s = null;
+		try {
+			super.closeAllConnections();
+			c = createConnection();
+			s = c.createStatement();
+			s.executeQuery("SHUTDOWN COMPACT");
+			s.close();
+			c.close();
+		} catch (SQLException e) {
+			tryToClose(s);
+			tryToClose(c);
+			throw new DbException(e);
+		}
 	}
 }
