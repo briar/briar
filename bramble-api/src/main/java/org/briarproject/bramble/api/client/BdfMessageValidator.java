@@ -48,12 +48,8 @@ public abstract class BdfMessageValidator implements MessageValidator {
 			throw new InvalidMessageException(
 					"Timestamp is too far in the future");
 		}
-		byte[] body = m.getBody();
-		if (body.length == 0) {
-			throw new InvalidMessageException("Message is too short");
-		}
 		try {
-			BdfList bodyList = clientHelper.toList(body);
+			BdfList bodyList = clientHelper.toList(m.getBody());
 			BdfMessageContext result = validateMessage(m, g, bodyList);
 			Metadata meta = metadataEncoder.encode(result.getDictionary());
 			return new MessageContext(meta, result.getDependencies());
