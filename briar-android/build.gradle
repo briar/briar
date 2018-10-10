@@ -17,7 +17,7 @@ def getStdout = { command, defaultValue ->
 
 android {
 	compileSdkVersion 28
-	buildToolsVersion '28.0.2'
+	buildToolsVersion '28.0.3'
 
 	defaultConfig {
 		minSdkVersion 15
@@ -90,7 +90,7 @@ dependencies {
 	implementation project(path: ':bramble-core', configuration: 'default')
 	implementation project(':bramble-android')
 
-	def supportVersion = '27.1.1'
+	def supportVersion = '28.0.0'
 	implementation "com.android.support:support-v4:$supportVersion"
 	implementation("com.android.support:appcompat-v7:$supportVersion") {
 		exclude module: 'support-v4'
@@ -106,15 +106,15 @@ dependencies {
 	implementation "com.android.support:support-annotations:$supportVersion"
 	implementation 'com.android.support.constraint:constraint-layout:1.1.3'
 
-	implementation('ch.acra:acra:4.9.1') {
+	implementation('ch.acra:acra:4.11') {
 		exclude module: 'support-v4'
 		exclude module: 'support-annotations'
 	}
 	implementation 'info.guardianproject.panic:panic:0.5'
 	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
 	implementation 'de.hdodenhof:circleimageview:2.2.0'
-	implementation 'com.google.zxing:core:3.3.0'
-	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.8.0'
+	implementation 'com.google.zxing:core:3.3.3'
+	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.12.4'
 	implementation 'com.vanniktech:emoji-google:0.5.1'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'

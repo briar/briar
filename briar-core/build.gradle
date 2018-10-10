@@ -10,10 +10,10 @@ apply from: 'witness.gradle'
 
 dependencies {
 	implementation project(path: ':briar-api', configuration: 'default')
-	implementation 'com.rometools:rome:1.7.3'
+	implementation 'com.rometools:rome:1.10.0'
 	implementation 'org.jdom:jdom2:2.0.6'
-	implementation 'com.squareup.okhttp3:okhttp:3.8.0'
-	implementation 'org.jsoup:jsoup:1.10.3'
+	implementation 'com.squareup.okhttp3:okhttp:3.10.0'
+	implementation 'org.jsoup:jsoup:1.11.3'
 
 	apt 'com.google.dagger:dagger-compiler:2.0.2'
 

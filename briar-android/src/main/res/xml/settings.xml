@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-	xmlns:android="http://schemas.android.com/apk/res/android">
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
 	<PreferenceCategory
 		android:layout="@layout/preferences_category"
 		android:title="@string/display_settings_title">
@@ -10,7 +11,8 @@
 			android:entryValues="@array/pref_language_values"
 			android:key="pref_key_language"
 			android:summary="%s"
-			android:title="@string/pref_language_title"/>
+			android:title="@string/pref_language_title"
+			app:iconSpaceReserved="false"/>
 
 		<ListPreference
 			android:defaultValue="@string/pref_theme_light_value"
@@ -18,8 +20,9 @@
 			android:entryValues="@array/pref_theme_values"
 			android:key="pref_key_theme"
 			android:summary="%s"
-			android:title="@string/pref_theme_title"/>
-		
+			android:title="@string/pref_theme_title"
+			app:iconSpaceReserved="false"/>
+
 	</PreferenceCategory>
 
 	<PreferenceCategory
@@ -33,7 +36,8 @@
 			android:key="pref_key_bluetooth"
 			android:persistent="false"
 			android:summary="%s"
-			android:title="@string/bluetooth_setting"/>
+			android:title="@string/bluetooth_setting"
+			app:iconSpaceReserved="false"/>
 
 		<ListPreference
 			android:defaultValue="0"
@@ -42,14 +46,16 @@
 			android:key="pref_key_tor_network"
 			android:persistent="false"
 			android:summary="%s"
-			android:title="@string/tor_network_setting"/>
+			android:title="@string/tor_network_setting"
+			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_tor_mobile_data"
 			android:persistent="false"
 			android:title="@string/tor_mobile_data_title"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 	</PreferenceCategory>
 
@@ -63,7 +69,8 @@
 			android:persistent="false"
 			android:summary="@string/pref_lock_summary"
 			android:title="@string/pref_lock_title"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 		<ListPreference
 			android:defaultValue="@string/pref_lock_timeout_value_default"
@@ -73,11 +80,13 @@
 			android:key="pref_key_lock_timeout"
 			android:persistent="false"
 			android:summary="@string/pref_lock_timeout_summary"
-			android:title="@string/pref_lock_timeout_title"/>
+			android:title="@string/pref_lock_timeout_title"
+			app:iconSpaceReserved="false"/>
 
 		<Preference
 			android:key="pref_key_change_password"
-			android:title="@string/change_password">
+			android:title="@string/change_password"
+			app:iconSpaceReserved="false">
 
 			<intent
 				android:targetClass="org.briarproject.briar.android.login.ChangePasswordActivity"
@@ -92,7 +101,8 @@
 
 		<Preference
 			android:summary="@string/panic_setting_hint"
-			android:title="@string/panic_setting">
+			android:title="@string/panic_setting"
+			app:iconSpaceReserved="false">
 
 			<intent
 				android:targetClass="org.briarproject.briar.android.panic.PanicPreferencesActivity"
@@ -111,7 +121,8 @@
 			android:key="pref_key_notify_sign_in"
 			android:summary="@string/notify_sign_in_summary"
 			android:title="@string/notify_sign_in_title"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -119,7 +130,8 @@
 			android:persistent="false"
 			android:summary="@string/notify_private_messages_setting_summary"
 			android:title="@string/notify_private_messages_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -127,7 +139,8 @@
 			android:persistent="false"
 			android:summary="@string/notify_group_messages_setting_summary"
 			android:title="@string/notify_group_messages_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -135,7 +148,8 @@
 			android:persistent="false"
 			android:summary="@string/notify_forum_posts_setting_summary"
 			android:title="@string/notify_forum_posts_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
@@ -143,28 +157,34 @@
 			android:persistent="false"
 			android:summary="@string/notify_blog_posts_setting_summary"
 			android:title="@string/notify_blog_posts_setting_title"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_notify_vibration"
 			android:persistent="false"
 			android:title="@string/notify_vibration_setting"
-			android:widgetLayout="@layout/preference_switch_compat"/>
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
 
 		<Preference
 			android:key="pref_key_notify_sound"
-			android:title="@string/notify_sound_setting"/>
+			android:title="@string/notify_sound_setting"
+			app:iconSpaceReserved="false"/>
 
 	</PreferenceCategory>
 
 	<PreferenceCategory
 		android:layout="@layout/preferences_category"
-		android:title="@string/feedback_settings_title"/>
+		android:title="@string/feedback_settings_title">
 
-	<Preference
-		android:key="pref_key_send_feedback"
-		android:title="@string/send_feedback"/>
+		<Preference
+			android:key="pref_key_send_feedback"
+			android:title="@string/send_feedback"
+			app:iconSpaceReserved="false"/>
+
+	</PreferenceCategory>
 
 	<PreferenceCategory
 		android:layout="@layout/preferences_category"
@@ -172,7 +192,8 @@
 
 		<Preference
 			android:key="pref_key_test_data"
-			android:title="Create Test Data">
+			android:title="Create Test Data"
+			app:iconSpaceReserved="false">
 
 			<intent
 				android:targetClass="org.briarproject.briar.android.test.TestDataActivity"
@@ -181,7 +202,8 @@
 
 		<Preference
 			android:key="pref_key_explode"
-			android:title="Crash"/>
+			android:title="Crash"
+			app:iconSpaceReserved="false"/>
 
 	</PreferenceCategory>
 

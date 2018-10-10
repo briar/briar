@@ -6,7 +6,6 @@ import android.support.annotation.NonNull;
 import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
-import org.acra.util.JSONReportBuilder.JSONReportException;
 import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.android.AndroidComponent;
@@ -34,12 +33,7 @@ public class BriarReportSender implements ReportSender {
 			@NonNull CrashReportData errorContent)
 			throws ReportSenderException {
 		component.inject(this);
-		String crashReport;
-		try {
-			crashReport = errorContent.toJSON().toString();
-		} catch (JSONReportException e) {
-			throw new ReportSenderException("Couldn't create JSON", e);
-		}
+		String crashReport = errorContent.toJSON().toString();
 		try {
 			File reportDir = AndroidUtils.getReportDir(ctx);
 			String reportId = errorContent.getProperty(REPORT_ID);

@@ -24,9 +24,11 @@ import org.acra.ReportField;
 import org.acra.collector.CrashReportData;
 import org.acra.dialog.BaseCrashReportDialog;
 import org.acra.file.CrashReportPersister;
+import org.acra.model.Element;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.util.UserFeedback;
+import org.json.JSONException;
 
 import java.io.File;
 import java.io.IOException;
@@ -282,7 +284,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 				CrashReportPersister persister = new CrashReportPersister();
 				try {
 					return persister.load(reportFile);
-				} catch (IOException e) {
+				} catch (IOException | JSONException e) {
 					LOG.log(WARNING, "Could not load report file", e);
 					return null;
 				}
@@ -292,9 +294,10 @@ public class DevReportActivity extends BaseCrashReportDialog
 			protected void onPostExecute(CrashReportData crashData) {
 				LayoutInflater inflater = getLayoutInflater();
 				if (crashData != null) {
-					for (Entry<ReportField, String> e : crashData.entrySet()) {
+					for (Entry<ReportField, Element> e : crashData.entrySet()) {
 						ReportField field = e.getKey();
-						String value = e.getValue().replaceAll("\\\\n", "\n");
+						String value = e.getValue().toString()
+								.replaceAll("\\\\n", "\n");
 						boolean required = requiredFields.contains(field);
 						boolean excluded = excludedFields.contains(field);
 						View v = inflater.inflate(R.layout.list_item_crash,
@@ -343,10 +346,10 @@ public class DevReportActivity extends BaseCrashReportDialog
 							data.remove(field);
 						}
 					} else {
-						Iterator<Entry<ReportField, String>> iter =
+						Iterator<Entry<ReportField, Element>> iter =
 								data.entrySet().iterator();
 						while (iter.hasNext()) {
-							Entry<ReportField, String> e = iter.next();
+							Entry<ReportField, Element> e = iter.next();
 							if (!requiredFields.contains(e.getKey())) {
 								iter.remove();
 							}
@@ -354,7 +357,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 					}
 					persister.store(data, reportFile);
 					return true;
-				} catch (IOException e) {
+				} catch (IOException | JSONException e) {
 					LOG.log(WARNING, "Error processing report file", e);
 					return false;
 				}
