@@ -68,7 +68,8 @@
 		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintStart_toEndOf="@id/pasteButton"
 		app:layout_constraintTop_toBottomOf="@id/linkInput"
-		android:drawableStart="@drawable/ic_qr_code"/>
+		android:drawableStart="@drawable/ic_qr_code"
+		android:visibility="gone"/>
 
 	<TextView
 		android:id="@+id/linkIntro"
@@ -145,7 +146,8 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="0.5"
 		app:layout_constraintStart_toEndOf="@id/shareButton"
-		app:layout_constraintTop_toTopOf="@id/copyButton"/>
+		app:layout_constraintTop_toTopOf="@id/copyButton"
+		android:visibility="gone"/>
 
 	<Button
 		android:id="@+id/addButton"
