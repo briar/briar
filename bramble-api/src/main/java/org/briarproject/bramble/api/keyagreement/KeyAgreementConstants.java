@@ -21,7 +21,7 @@ public interface KeyAgreementConstants {
 	/**
 	 * The connection timeout in milliseconds.
 	 */
-	long CONNECTION_TIMEOUT = 40 * 1000;
+	long CONNECTION_TIMEOUT = 60_000;
 
 	/**
 	 * The transport identifier for Bluetooth.

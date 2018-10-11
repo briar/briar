@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.AndroidUtils;
 
 import java.io.Closeable;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -45,6 +48,7 @@ import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -57,8 +61,11 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private static final Logger LOG =
 			Logger.getLogger(AndroidBluetoothPlugin.class.getName());
 
+	private static final int MAX_DISCOVERY_MS = 10_000;
+
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
+	private final Clock clock;
 
 	private volatile boolean wasEnabledByUs = false;
 	private volatile BluetoothStateReceiver receiver = null;
@@ -68,12 +75,13 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, AndroidExecutor androidExecutor,
-			Context appContext, SecureRandom secureRandom, Backoff backoff,
-			DuplexPluginCallback callback, int maxLatency) {
+			Context appContext, SecureRandom secureRandom, Clock clock,
+			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
 		super(connectionLimiter, ioExecutor, secureRandom, backoff, callback,
 				maxLatency);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
+		this.clock = clock;
 	}
 
 	@Override
@@ -213,7 +221,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	}
 
 	private Collection<String> discoverDevices() {
-		Collection<String> addresses = new ArrayList<>();
+		List<String> addresses = new ArrayList<>();
 		BlockingQueue<Intent> intents = new LinkedBlockingQueue<>();
 		DiscoveryReceiver receiver = new DiscoveryReceiver(intents);
 		IntentFilter filter = new IntentFilter();
@@ -223,8 +231,11 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		appContext.registerReceiver(receiver, filter);
 		try {
 			if (adapter.startDiscovery()) {
-				while (true) {
-					Intent i = intents.take();
+				long now = clock.currentTimeMillis();
+				long end = now + MAX_DISCOVERY_MS;
+				while (now < end) {
+					Intent i = intents.poll(end - now, MILLISECONDS);
+					if (i == null) break;
 					String action = i.getAction();
 					if (ACTION_DISCOVERY_STARTED.equals(action)) {
 						LOG.info("Discovery started");
@@ -239,6 +250,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 						if (!addresses.contains(address))
 							addresses.add(address);
 					}
+					now = clock.currentTimeMillis();
 				}
 			} else {
 				LOG.info("Could not start discovery");
@@ -247,9 +259,12 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			LOG.info("Interrupted while discovering devices");
 			Thread.currentThread().interrupt();
 		} finally {
+			LOG.info("Cancelling discovery");
 			adapter.cancelDiscovery();
 			appContext.unregisterReceiver(receiver);
 		}
+		// Shuffle the addresses so we don't always try the same one first
+		Collections.shuffle(addresses);
 		return addresses;
 	}
 
