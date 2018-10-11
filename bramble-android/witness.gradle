@@ -63,7 +63,7 @@ dependencyVerification {
         'org.beanshell:bsh:1.3.0:bsh-1.3.0.jar:9b04edc75d19db54f1b4e8b5355e9364384c6cf71eb0a1b9724c159d779879f8',
         'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
         'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
-        'org.briarproject:tor-android:0.2.9.16:tor-android-0.2.9.16.zip:515e33dda6a30853c885a2de2c79ae1ab9ad8b6db44f5db8890333ec2e24f4ae',
+        'org.briarproject:tor-android:0.3.4.8:tor-android-0.3.4.8.zip:989a0352d9d8d8172cd6c2137654e165e5d2beb10ed1211bab3814e224ad1926',
         'org.codehaus.groovy:groovy-all:2.4.12:groovy-all-2.4.12.jar:6a56af4bd48903d56bec62821876cadefafd007360cc6bd0d8f7aa8d72b38be4',
         'org.codehaus.mojo:animal-sniffer-annotations:1.14:animal-sniffer-annotations-1.14.jar:2068320bd6bad744c3673ab048f67e30bef8f518996fa380033556600669905d',
         'org.glassfish.jaxb:jaxb-core:2.2.11:jaxb-core-2.2.11.jar:37bcaee8ebb04362c8352a5bf6221b86967ecdab5164c696b10b9a2bb587b2aa',
