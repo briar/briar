@@ -21,8 +21,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.briar.R;
-import org.briarproject.briar.R.string;
-import org.briarproject.briar.R.style;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -217,14 +215,14 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		boolean cameraRationale = shouldShowRationale(CAMERA);
 		boolean locationRationale = shouldShowRationale(ACCESS_COARSE_LOCATION);
 		if (cameraRationale && locationRationale) {
-			showRationale(string.permission_camera_location_title,
-					string.permission_camera_location_request_body);
+			showRationale(R.string.permission_camera_location_title,
+					R.string.permission_camera_location_request_body);
 		} else if (cameraRationale) {
-			showRationale(string.permission_camera_title,
-					string.permission_camera_request_body);
+			showRationale(R.string.permission_camera_title,
+					R.string.permission_camera_request_body);
 		} else if (locationRationale) {
-			showRationale(string.permission_location_title,
-					string.permission_location_request_body);
+			showRationale(R.string.permission_location_title,
+					R.string.permission_location_request_body);
 		} else if (gotCameraPermission) {
 			// Location permission has been permanently denied but we can
 			// continue without it
@@ -246,10 +244,10 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private void showRationale(@StringRes int title, @StringRes int body) {
-		Builder builder = new Builder(this, style.BriarDialogTheme);
+		Builder builder = new Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(title);
 		builder.setMessage(body);
-		builder.setNeutralButton(string.continue_button,
+		builder.setNeutralButton(R.string.continue_button,
 				(dialog, which) -> requestPermissions());
 		builder.show();
 	}
@@ -274,17 +272,19 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 				showNextScreen();
 			} else {
 				if (shouldShowRationale(CAMERA)) {
-					Toast.makeText(this, string.permission_camera_denied_toast,
+					Toast.makeText(this,
+							R.string.permission_camera_denied_toast,
 							LENGTH_LONG).show();
 					supportFinishAfterTransition();
 				} else {
 					// The user has permanently denied the request
-					Builder builder = new Builder(this, style.BriarDialogTheme);
-					builder.setTitle(string.permission_camera_title);
-					builder.setMessage(string.permission_camera_denied_body);
-					builder.setPositiveButton(string.ok,
+					Builder builder =
+							new Builder(this, R.style.BriarDialogTheme);
+					builder.setTitle(R.string.permission_camera_title);
+					builder.setMessage(R.string.permission_camera_denied_body);
+					builder.setPositiveButton(R.string.ok,
 							UiUtils.getGoToSettingsListener(this));
-					builder.setNegativeButton(string.cancel,
+					builder.setNegativeButton(R.string.cancel,
 							(dialog, which) -> supportFinishAfterTransition());
 					builder.show();
 				}
