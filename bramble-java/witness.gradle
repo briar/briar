@@ -12,7 +12,7 @@ dependencyVerification {
         'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
         'org.apache.ant:ant:1.9.4:ant-1.9.4.jar:649ae0730251de07b8913f49286d46bba7b92d47c5f332610aa426c4f02161d8',
         'org.beanshell:bsh:1.3.0:bsh-1.3.0.jar:9b04edc75d19db54f1b4e8b5355e9364384c6cf71eb0a1b9724c159d779879f8',
-        'org.briarproject:tor:0.2.9.16:tor-0.2.9.16.zip:f33091ba414d6a952263981d9059b3d0a9093fd277ae887b3cdd02e8f1936558',
+        'org.briarproject:tor:0.3.4.8:tor-0.3.4.8.zip:bc0158c34002f471a4fe14a6a481816c918eb520a220bb027f64be902beb757f',
         'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
         'org.hamcrest:hamcrest-library:1.3:hamcrest-library-1.3.jar:711d64522f9ec410983bd310934296da134be4254a125080a0416ec178dfad1c',
         'org.jmock:jmock-junit4:2.8.2:jmock-junit4-2.8.2.jar:f7ee4df4f7bd7b7f1cafad3b99eb74d579f109d5992ff625347352edb55e674c',
