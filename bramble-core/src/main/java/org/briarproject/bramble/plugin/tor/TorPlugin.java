@@ -627,11 +627,24 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (s.getNamespace().equals(ID.getString())) {
 				LOG.info("Tor settings updated");
 				settings = s.getSettings();
+				// Works around a bug introduced in Tor 0.3.4.8. Could be
+				// replaced with callback.transportDisabled() when fixed.
+				disableNetwork();
 				updateConnectionStatus(networkManager.getNetworkStatus());
 			}
 		} else if (e instanceof NetworkStatusEvent) {
 			updateConnectionStatus(((NetworkStatusEvent) e).getStatus());
 		}
+	}
+
+	private void disableNetwork() {
+		connectionStatusExecutor.execute(() -> {
+			try {
+				enableNetwork(false);
+			} catch (IOException ex) {
+				logException(LOG, WARNING, ex);
+			}
+		});
 	}
 
 	private void updateConnectionStatus(NetworkStatus status) {
