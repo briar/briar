@@ -24,7 +24,7 @@ import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_REQUEST_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
 import static org.briarproject.briar.introduction.MessageType.AUTH;
@@ -75,8 +75,8 @@ class IntroductionValidator extends BdfMessageValidator {
 		BdfList authorList = body.getList(2);
 		clientHelper.parseAndValidateAuthor(authorList);
 
-		String msg = body.getOptionalString(3);
-		checkLength(msg, 1, MAX_REQUEST_MESSAGE_LENGTH);
+		String text = body.getOptionalString(3);
+		checkLength(text, 1, MAX_INTRODUCTION_TEXT_LENGTH);
 
 		BdfDictionary meta =
 				messageEncoder.encodeRequestMetadata(m.getTimestamp());

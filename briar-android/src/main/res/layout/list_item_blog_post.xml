@@ -54,7 +54,7 @@
 			app:tint="?attr/colorControlNormal"/>
 
 		<com.vanniktech.emoji.EmojiTextView
-			android:id="@+id/bodyView"
+			android:id="@+id/textView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_margin="@dimen/listitem_vertical_margin"
@@ -72,7 +72,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/listitem_vertical_margin"
 			android:orientation="vertical"
-			app:layout_constraintTop_toBottomOf="@+id/bodyView">
+			app:layout_constraintTop_toBottomOf="@+id/textView">
 
 			<include
 				layout="@layout/list_item_blog_comment"

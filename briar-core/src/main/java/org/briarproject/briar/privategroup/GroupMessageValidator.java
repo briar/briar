@@ -31,7 +31,7 @@ import static org.briarproject.briar.api.privategroup.GroupMessageFactory.SIGNIN
 import static org.briarproject.briar.api.privategroup.GroupMessageFactory.SIGNING_LABEL_POST;
 import static org.briarproject.briar.api.privategroup.MessageType.JOIN;
 import static org.briarproject.briar.api.privategroup.MessageType.POST;
-import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_INITIAL_JOIN_MSG;
 import static org.briarproject.briar.privategroup.GroupConstants.KEY_MEMBER;
@@ -65,7 +65,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 		// Message type (int)
 		int type = body.getLong(0).intValue();
 
-		// Member (list of int, string, raw)
+		// Member (author)
 		BdfList memberList = body.getList(1);
 		Author member = clientHelper.parseAndValidateAuthor(memberList);
 
@@ -144,14 +144,14 @@ class GroupMessageValidator extends BdfMessageValidator {
 	private BdfMessageContext validatePost(Message m, Group g, BdfList body,
 			Author member) throws FormatException {
 		// Message type, member, optional parent ID, previous message ID,
-		// content, signature
+		// text, signature
 		checkSize(body, 6);
 		byte[] parentId = body.getOptionalRaw(2);
 		checkLength(parentId, MessageId.LENGTH);
 		byte[] previousMessageId = body.getRaw(3);
 		checkLength(previousMessageId, MessageId.LENGTH);
-		String content = body.getString(4);
-		checkLength(content, 1, MAX_GROUP_POST_BODY_LENGTH);
+		String text = body.getString(4);
+		checkLength(text, 1, MAX_GROUP_POST_TEXT_LENGTH);
 		byte[] signature = body.getRaw(5);
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 
@@ -163,7 +163,7 @@ class GroupMessageValidator extends BdfMessageValidator {
 				memberList,
 				parentId,
 				previousMessageId,
-				content
+				text
 		);
 		try {
 			clientHelper.verifySignature(signature, SIGNING_LABEL_POST,

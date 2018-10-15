@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.identity.output
 import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.blog.*
-import org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH
+import org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH
 import org.briarproject.briar.api.blog.MessageType.POST
 import org.briarproject.briar.headless.ControllerTest
 import org.junit.jupiter.api.Assertions.assertThrows
@@ -38,7 +38,7 @@ internal class BlogControllerTest : ControllerTest() {
     fun testCreate() {
         val post = BlogPost(message, null, localAuthor)
 
-        every { ctx.body() } returns """{"text": "$body"}"""
+        every { ctx.body() } returns """{"text": "$text"}"""
         every { identityManager.localAuthor } returns localAuthor
         every { blogManager.getPersonalBlog(localAuthor) } returns blog
         every { clock.currentTimeMillis() } returns message.timestamp
@@ -48,12 +48,12 @@ internal class BlogControllerTest : ControllerTest() {
                 message.timestamp,
                 parentId,
                 localAuthor,
-                body
+                text
             )
         } returns post
         every { blogManager.addLocalPost(post) } just Runs
         every { blogManager.getPostHeader(post.message.groupId, post.message.id) } returns header
-        every { ctx.json(header.output(body)) } returns ctx
+        every { ctx.json(header.output(text)) } returns ctx
 
         controller.createPost(ctx)
     }
@@ -74,7 +74,7 @@ internal class BlogControllerTest : ControllerTest() {
 
     @Test
     fun testCreateTooLongText() {
-        every { ctx.body() } returns """{"text": "${getRandomString(MAX_BLOG_POST_BODY_LENGTH + 1)}"}"""
+        every { ctx.body() } returns """{"text": "${getRandomString(MAX_BLOG_POST_TEXT_LENGTH + 1)}"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.createPost(ctx) }
     }
@@ -83,8 +83,8 @@ internal class BlogControllerTest : ControllerTest() {
     fun testList() {
         every { blogManager.blogs } returns listOf(blog)
         every { blogManager.getPostHeaders(group.id) } returns listOf(header)
-        every { blogManager.getPostBody(message.id) } returns body
-        every { ctx.json(listOf(header.output(body))) } returns ctx
+        every { blogManager.getPostText(message.id) } returns text
+        every { ctx.json(listOf(header.output(text))) } returns ctx
 
         controller.listPosts(ctx)
     }
@@ -102,7 +102,7 @@ internal class BlogControllerTest : ControllerTest() {
     fun testOutputBlogPost() {
         val json = """
             {
-                "text": "$body",
+                "text": "$text",
                 "author": ${toJson(author.output())},
                 "authorStatus": "ourselves",
                 "type": "post",
@@ -114,7 +114,7 @@ internal class BlogControllerTest : ControllerTest() {
                 "timestampReceived": $timestamp
             }
         """
-        assertJsonEquals(json, header.output(body))
+        assertJsonEquals(json, header.output(text))
     }
 
 }

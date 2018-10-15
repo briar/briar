@@ -21,7 +21,7 @@ public interface BlogPostFactory {
 	String SIGNING_LABEL_COMMENT = CLIENT_ID.getString() + "/COMMENT";
 
 	BlogPost createBlogPost(GroupId groupId, long timestamp,
-			@Nullable MessageId parent, LocalAuthor author, String body)
+			@Nullable MessageId parent, LocalAuthor author, String text)
 			throws FormatException, GeneralSecurityException;
 
 	Message createBlogComment(GroupId groupId, LocalAuthor author,

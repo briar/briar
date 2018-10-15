@@ -18,9 +18,9 @@ public class GroupInvitationRequest extends InvitationRequest<PrivateGroup> {
 	public GroupInvitationRequest(MessageId id, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
 			SessionId sessionId, PrivateGroup shareable,
-			@Nullable String message, boolean available, boolean canBeOpened) {
+			@Nullable String text, boolean available, boolean canBeOpened) {
 		super(id, groupId, time, local, sent, seen, read, sessionId, shareable,
-				message, available, canBeOpened);
+				text, available, canBeOpened);
 	}
 
 	@Override

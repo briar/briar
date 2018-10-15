@@ -10,7 +10,7 @@ import org.junit.Test;
 
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 
 public class BlogSharingValidatorTest extends SharingValidatorTest {
@@ -20,8 +20,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	private final BdfList authorList = BdfList.of(author.getFormatVersion(),
 			author.getName(), author.getPublicKey());
 	private final BdfList descriptor = BdfList.of(authorList, false);
-	private final String content =
-			getRandomString(MAX_INVITATION_MESSAGE_LENGTH);
+	private final String text = getRandomString(MAX_INVITATION_TEXT_LENGTH);
 
 	@Override
 	SharingValidator getValidator() {
@@ -30,17 +29,16 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	}
 
 	@Test
-	public void testAcceptsInvitationWithContent() throws Exception {
+	public void testAcceptsInvitationWithText() throws Exception {
 		expectCreateBlog();
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext context = validator.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
-						content));
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, text));
 		assertExpectedContext(context, previousMsgId);
 	}
 
 	@Test
-	public void testAcceptsInvitationWithNullContent() throws Exception {
+	public void testAcceptsInvitationWithNullText() throws Exception {
 		expectCreateBlog();
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext context = validator.validateMessage(message, group,
@@ -53,7 +51,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 		expectCreateBlog();
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext context = validator.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), null, descriptor, content));
+				BdfList.of(INVITE.getValue(), null, descriptor, text));
 		assertExpectedContext(context, null);
 	}
 
@@ -64,7 +62,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 		BdfList rssDescriptor = BdfList.of(authorList, true);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, rssDescriptor,
-						content));
+						text));
 		assertExpectedContext(context, previousMsgId);
 	}
 
@@ -85,32 +83,30 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNonStringContent() throws Exception {
+	public void testRejectsNonStringText() throws Exception {
 		expectCreateBlog();
 		validator.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
-						123));
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, 123));
 	}
 
 	@Test
-	public void testAcceptsMinLengthContent() throws Exception {
-		String shortContent = getRandomString(1);
+	public void testAcceptsMinLengthText() throws Exception {
+		String shortText = getRandomString(1);
 		expectCreateBlog();
 		expectEncodeMetadata(INVITE);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
-						shortContent));
+						shortText));
 		assertExpectedContext(context, previousMsgId);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooLongContent() throws Exception {
-		String invalidContent =
-				getRandomString(MAX_INVITATION_MESSAGE_LENGTH + 1);
+	public void testRejectsTooLongText() throws Exception {
+		String invalidText = getRandomString(MAX_INVITATION_TEXT_LENGTH + 1);
 		expectCreateBlog();
 		validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
-						invalidContent));
+						invalidText));
 	}
 
 	private void expectCreateBlog() throws Exception {

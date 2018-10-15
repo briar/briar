@@ -30,7 +30,7 @@ import static org.briarproject.bramble.api.identity.Author.Status.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -85,9 +85,9 @@ public class ForumActivityTest {
 		ForumItem[] forumItems = new ForumItem[6];
 		for (int i = 0; i < forumItems.length; i++) {
 			Author author = getAuthor();
-			String content = getRandomString(MAX_FORUM_POST_BODY_LENGTH);
+			String text = getRandomString(MAX_FORUM_POST_TEXT_LENGTH);
 			forumItems[i] = new ForumItem(MESSAGE_IDS[i], PARENT_IDS[i],
-					content, System.currentTimeMillis(), author, UNKNOWN);
+					text, System.currentTimeMillis(), author, UNKNOWN);
 			forumItems[i].setLevel(LEVELS[i]);
 		}
 		ThreadItemList<ForumItem> list = new ThreadItemListImpl<>();

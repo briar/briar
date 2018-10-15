@@ -20,8 +20,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_TEXT_LENGTH;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
@@ -42,23 +42,23 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 
 	@Override
 	public BlogPost createBlogPost(GroupId groupId, long timestamp,
-			@Nullable MessageId parent, LocalAuthor author, String body)
+			@Nullable MessageId parent, LocalAuthor author, String text)
 			throws FormatException, GeneralSecurityException {
 
 		// Validate the arguments
-		int bodyLength = StringUtils.toUtf8(body).length;
-		if (bodyLength > MAX_BLOG_POST_BODY_LENGTH)
+		int textLength = StringUtils.toUtf8(text).length;
+		if (textLength > MAX_BLOG_POST_TEXT_LENGTH)
 			throw new IllegalArgumentException();
 
 		// Serialise the data to be signed
-		BdfList signed = BdfList.of(groupId, timestamp, body);
+		BdfList signed = BdfList.of(groupId, timestamp, text);
 
 		// Generate the signature
 		byte[] sig = clientHelper
 				.sign(SIGNING_LABEL_POST, signed, author.getPrivateKey());
 
 		// Serialise the signed message
-		BdfList message = BdfList.of(POST.getInt(), body, sig);
+		BdfList message = BdfList.of(POST.getInt(), text, sig);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);
 		return new BlogPost(m, parent, author);
 	}
@@ -72,7 +72,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		if (comment != null) {
 			int commentLength = StringUtils.toUtf8(comment).length;
 			if (commentLength == 0) throw new IllegalArgumentException();
-			if (commentLength > MAX_BLOG_COMMENT_LENGTH)
+			if (commentLength > MAX_BLOG_COMMENT_TEXT_LENGTH)
 				throw new IllegalArgumentException();
 		}
 
@@ -98,10 +98,10 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 			throw new IllegalArgumentException("Needs to wrap a POST");
 
 		// Serialise the message
-		String content = body.getString(1);
+		String text = body.getString(1);
 		byte[] signature = body.getRaw(2);
 		BdfList message = BdfList.of(WRAPPED_POST.getInt(), descriptor,
-				timestamp, content, signature);
+				timestamp, text, signature);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}
@@ -116,10 +116,10 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 		// Serialise the message
 		byte[] descriptor = body.getRaw(1);
 		long timestamp = body.getLong(2);
-		String content = body.getString(3);
+		String text = body.getString(3);
 		byte[] signature = body.getRaw(4);
 		BdfList message = BdfList.of(WRAPPED_POST.getInt(), descriptor,
-				timestamp, content, signature);
+				timestamp, text, signature);
 		return clientHelper
 				.createMessage(groupId, clock.currentTimeMillis(), message);
 	}

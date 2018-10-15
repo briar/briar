@@ -18,10 +18,11 @@ import org.briarproject.bramble.api.system.Clock;
 
 import java.security.GeneralSecurityException;
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
@@ -29,7 +30,7 @@ import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_READ;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
-import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumPostFactory.SIGNING_LABEL_POST;
 
 @Immutable
@@ -44,7 +45,7 @@ class ForumPostValidator extends BdfMessageValidator {
 	@Override
 	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws InvalidMessageException, FormatException {
-		// Parent ID, author, content type, forum post body, signature
+		// Parent ID, author, text, signature
 		checkSize(body, 4);
 
 		// Parent ID is optional
@@ -55,16 +56,17 @@ class ForumPostValidator extends BdfMessageValidator {
 		BdfList authorList = body.getList(1);
 		Author author = clientHelper.parseAndValidateAuthor(authorList);
 
-		// Forum post body
-		String content = body.getString(2);
-		checkLength(content, 0, MAX_FORUM_POST_BODY_LENGTH);
+		// Text
+		String text = body.getString(2);
+		checkLength(text, 0, MAX_FORUM_POST_TEXT_LENGTH);
 
 		// Signature
 		byte[] sig = body.getRaw(3);
 		checkLength(sig, 1, MAX_SIGNATURE_LENGTH);
+
 		// Verify the signature
 		BdfList signed = BdfList.of(g.getId(), m.getTimestamp(), parent,
-				authorList, content);
+				authorList, text);
 		try {
 			clientHelper.verifySignature(sig, SIGNING_LABEL_POST,
 					signed, author.getPublicKey());
@@ -74,11 +76,11 @@ class ForumPostValidator extends BdfMessageValidator {
 
 		// Return the metadata and dependencies
 		BdfDictionary meta = new BdfDictionary();
-		Collection<MessageId> dependencies = Collections.emptyList();
+		Collection<MessageId> dependencies = emptyList();
 		meta.put(KEY_TIMESTAMP, m.getTimestamp());
 		if (parent != null) {
 			meta.put(KEY_PARENT, parent);
-			dependencies = Collections.singletonList(new MessageId(parent));
+			dependencies = singletonList(new MessageId(parent));
 		}
 		meta.put(KEY_AUTHOR, authorList);
 		meta.put(KEY_READ, false);

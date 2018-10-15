@@ -23,7 +23,7 @@ internal class WebSocketControllerTest : ControllerTest() {
     private val header =
         PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true)
     private val event = PrivateMessageReceivedEvent(header, contact.id)
-    private val outputEvent = OutputEvent(EVENT_PRIVATE_MESSAGE, event.output(body))
+    private val outputEvent = OutputEvent(EVENT_PRIVATE_MESSAGE, event.output(text))
 
     @Test
     fun testSendEvent() {
@@ -32,7 +32,7 @@ internal class WebSocketControllerTest : ControllerTest() {
         every { session1.send(capture(slot)) } just Runs
 
         controller.sessions.add(session1)
-        controller.sendEvent(EVENT_PRIVATE_MESSAGE, event.output(body))
+        controller.sendEvent(EVENT_PRIVATE_MESSAGE, event.output(text))
 
         assertJsonEquals(slot.captured, outputEvent)
     }
@@ -55,7 +55,7 @@ internal class WebSocketControllerTest : ControllerTest() {
 
         controller.sessions.add(session1)
         controller.sessions.add(session2)
-        controller.sendEvent(EVENT_PRIVATE_MESSAGE, event.output(body))
+        controller.sendEvent(EVENT_PRIVATE_MESSAGE, event.output(text))
 
         verify { session2.send(slot.captured) }
     }
@@ -66,7 +66,7 @@ internal class WebSocketControllerTest : ControllerTest() {
         {
             "type": "event",
             "name": "PrivateMessageReceivedEvent",
-            "data": ${toJson(header.output(contact.id, body))}
+            "data": ${toJson(header.output(contact.id, text))}
         }
         """
         assertJsonEquals(json, outputEvent)

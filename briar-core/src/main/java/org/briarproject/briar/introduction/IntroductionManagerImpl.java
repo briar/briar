@@ -316,7 +316,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void makeIntroduction(Contact c1, Contact c2, @Nullable String msg,
+	public void makeIntroduction(Contact c1, Contact c2, @Nullable String text,
 			long timestamp) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -350,7 +350,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			}
 			// Handle the request action
 			session = introducerEngine
-					.onRequestAction(txn, session, msg, timestamp);
+					.onRequestAction(txn, session, text, timestamp);
 			// Store the updated session
 			storeSession(txn, storageId, session);
 			db.commitTransaction(txn);
@@ -461,14 +461,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		Message msg = clientHelper.getMessage(txn, m);
 		BdfList body = clientHelper.toList(msg);
 		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
-		String message = rm.getMessage();
+		String text = rm.getText();
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		boolean contactExists = contactManager
 				.contactExists(txn, rm.getAuthor().getId(),
 						localAuthor.getId());
 		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
-				sessionId, author, message, !meta.isAvailableToAnswer(),
+				sessionId, author, text, !meta.isAvailableToAnswer(),
 				contactExists);
 	}
 

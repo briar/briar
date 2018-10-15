@@ -24,7 +24,7 @@ public class ForumInvitationFactoryImpl
 		SessionId sessionId = new SessionId(m.getShareableId().getBytes());
 		return new ForumInvitationRequest(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), local, sent, seen, read, sessionId,
-				m.getShareable(), m.getMessage(), available, canBeOpened);
+				m.getShareable(), m.getText(), available, canBeOpened);
 	}
 
 	@Override

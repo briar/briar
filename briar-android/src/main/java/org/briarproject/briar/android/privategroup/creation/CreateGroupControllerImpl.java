@@ -123,7 +123,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 
 	@Override
 	public void sendInvitation(GroupId g, Collection<ContactId> contactIds,
-			String message, ResultExceptionHandler<Void, DbException> handler) {
+			String text, ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor localAuthor = identityManager.getLocalAuthor();
@@ -135,7 +135,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 						// Continue
 					}
 				}
-				signInvitations(g, localAuthor, contacts, message, handler);
+				signInvitations(g, localAuthor, contacts, text, handler);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				handler.onException(e);
@@ -144,7 +144,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	private void signInvitations(GroupId g, LocalAuthor localAuthor,
-			Collection<Contact> contacts, String message,
+			Collection<Contact> contacts, String text,
 			ResultExceptionHandler<Void, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			long timestamp = clock.currentTimeMillis();
@@ -155,20 +155,20 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				contexts.add(new InvitationContext(c.getId(), timestamp,
 						signature));
 			}
-			sendInvitations(g, contexts, message, handler);
+			sendInvitations(g, contexts, text, handler);
 		});
 	}
 
 	private void sendInvitations(GroupId g,
-			Collection<InvitationContext> contexts, String message,
+			Collection<InvitationContext> contexts, String text,
 			ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				String msg = message.isEmpty() ? null : message;
+				String txt = text.isEmpty() ? null : text;
 				for (InvitationContext context : contexts) {
 					try {
 						groupInvitationManager.sendInvitation(g,
-								context.contactId, msg, context.timestamp,
+								context.contactId, txt, context.timestamp,
 								context.signature);
 					} catch (NoSuchContactException e) {
 						// Continue

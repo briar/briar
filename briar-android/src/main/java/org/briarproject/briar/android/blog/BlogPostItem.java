@@ -15,12 +15,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class BlogPostItem implements Comparable<BlogPostItem> {
 
 	private final BlogPostHeader header;
-	protected String body;
+	protected String text;
 	private boolean read;
 
-	BlogPostItem(BlogPostHeader header, @Nullable String body) {
+	BlogPostItem(BlogPostHeader header, @Nullable String text) {
 		this.header = header;
-		this.body = body;
+		this.text = text;
 		this.read = header.isRead();
 	}
 
@@ -44,8 +44,8 @@ public class BlogPostItem implements Comparable<BlogPostItem> {
 		return header.getAuthorStatus();
 	}
 
-	public String getBody() {
-		return body;
+	public String getText() {
+		return text;
 	}
 
 	public boolean isRssFeed() {

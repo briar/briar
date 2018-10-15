@@ -19,7 +19,7 @@ import org.briarproject.briar.api.forum.ForumInvitationResponse
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.introduction.IntroductionResponse
 import org.briarproject.briar.api.messaging.*
-import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH
+import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
@@ -61,8 +61,8 @@ constructor(
         val contact = getContact(ctx)
 
         val message = ctx.getFromJson("text")
-        if (utf8IsTooLong(message, MAX_PRIVATE_MESSAGE_BODY_LENGTH))
-            throw BadRequestResponse("Message text too large")
+        if (utf8IsTooLong(message, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
+            throw BadRequestResponse("Message text is too long")
 
         val group = messagingManager.getContactGroup(contact)
         val now = clock.currentTimeMillis()
@@ -75,8 +75,8 @@ constructor(
     override fun eventOccurred(e: Event) {
         when (e) {
             is PrivateMessageReceivedEvent<*> -> dbExecutor.execute {
-                val body = messagingManager.getMessageBody(e.messageHeader.id)
-                webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, e.output(body))
+                val text = messagingManager.getMessageText(e.messageHeader.id)
+                webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, e.output(text))
             }
         }
     }
@@ -103,7 +103,7 @@ private class JsonVisitor(
 ) : PrivateMessageVisitor<JsonDict> {
 
     override fun visitPrivateMessageHeader(h: PrivateMessageHeader) =
-        h.output(contactId, messagingManager.getMessageBody(h.id))
+        h.output(contactId, messagingManager.getMessageText(h.id))
 
     override fun visitBlogInvitationRequest(r: BlogInvitationRequest) = r.output(contactId)
 

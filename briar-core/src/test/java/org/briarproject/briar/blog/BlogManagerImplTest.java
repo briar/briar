@@ -47,7 +47,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_RSS_FEED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIMESTAMP;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TIME_RECEIVED;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_TYPE;
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_LENGTH;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_TEXT_LENGTH;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
@@ -99,7 +99,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		rssMessageId = rssMessage.getId();
 		timestamp = message.getTimestamp();
 		timeReceived = timestamp + 1;
-		comment = getRandomString(MAX_BLOG_COMMENT_LENGTH);
+		comment = getRandomString(MAX_BLOG_COMMENT_TEXT_LENGTH);
 	}
 
 	@Test
@@ -694,7 +694,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 				new BdfEntry(KEY_TIMESTAMP, timestamp),
 				new BdfEntry(KEY_TIME_RECEIVED, timeReceived)
 		);
-		String localComment = getRandomString(MAX_BLOG_COMMENT_LENGTH);
+		String localComment = getRandomString(MAX_BLOG_COMMENT_TEXT_LENGTH);
 		Message localCommentMsg = getMessage(blog2.getId());
 		MessageId localCommentId = localCommentMsg.getId();
 		BdfDictionary localCommentMeta = BdfDictionary.of(

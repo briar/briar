@@ -24,7 +24,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.KEY_READ;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
-import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumPostFactory.SIGNING_LABEL_POST;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -33,7 +33,7 @@ import static org.junit.Assert.assertFalse;
 public class ForumPostValidatorTest extends ValidatorTestCase {
 
 	private final MessageId parentId = new MessageId(getRandomId());
-	private final String content = getRandomString(MAX_FORUM_POST_BODY_LENGTH);
+	private final String text = getRandomString(MAX_FORUM_POST_TEXT_LENGTH);
 	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
 	private final Author author = getAuthor();
 	private final String authorName = author.getName();
@@ -41,9 +41,9 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	private final BdfList authorList = BdfList.of(author.getFormatVersion(),
 			authorName, authorPublicKey);
 	private final BdfList signedWithParent = BdfList.of(groupId, timestamp,
-			parentId.getBytes(), authorList, content);
+			parentId.getBytes(), authorList, text);
 	private final BdfList signedWithoutParent = BdfList.of(groupId, timestamp,
-			null, authorList, content);
+			null, authorList, text);
 
 	private final ForumPostValidator v = new ForumPostValidator(clientHelper,
 			metadataEncoder, clock);
@@ -51,13 +51,13 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBody() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content));
+				BdfList.of(parentId, authorList, text));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBody() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content, signature, 123));
+				BdfList.of(parentId, authorList, text, signature, 123));
 	}
 
 	@Test
@@ -69,40 +69,40 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		}});
 
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(null, authorList, content, signature));
+				BdfList.of(null, authorList, text, signature));
 		assertExpectedContext(messageContext, false);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonRawParentId() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(123, authorList, content, signature));
+				BdfList.of(123, authorList, text, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortParentId() throws Exception {
 		byte[] invalidParentId = getRandomBytes(UniqueId.LENGTH - 1);
 		v.validateMessage(message, group,
-				BdfList.of(invalidParentId, authorList, content, signature));
+				BdfList.of(invalidParentId, authorList, text, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongParentId() throws Exception {
 		byte[] invalidParentId = getRandomBytes(UniqueId.LENGTH + 1);
 		v.validateMessage(message, group,
-				BdfList.of(invalidParentId, authorList, content, signature));
+				BdfList.of(invalidParentId, authorList, text, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNullAuthorList() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(parentId, null, content, signature));
+				BdfList.of(parentId, null, text, signature));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNonListAuthorList() throws Exception {
 		v.validateMessage(message, group,
-				BdfList.of(parentId, 123, content, signature));
+				BdfList.of(parentId, 123, text, signature));
 	}
 
 	@Test(expected = FormatException.class)
@@ -112,11 +112,11 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 			will(throwException(new FormatException()));
 		}});
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content, signature));
+				BdfList.of(parentId, authorList, text, signature));
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNullContent() throws Exception {
+	public void testRejectsNullText() throws Exception {
 		expectCreateAuthor();
 
 		v.validateMessage(message, group,
@@ -124,7 +124,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsNonStringContent() throws Exception {
+	public void testRejectsNonStringText() throws Exception {
 		expectCreateAuthor();
 
 		v.validateMessage(message, group,
@@ -132,30 +132,30 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	}
 
 	@Test
-	public void testAcceptsMinLengthContent() throws Exception {
-		String shortContent = "";
-		BdfList signedWithShortContent = BdfList.of(groupId, timestamp,
-				parentId.getBytes(), authorList, shortContent);
+	public void testAcceptsMinLengthText() throws Exception {
+		String shortText = "";
+		BdfList signedWithShortText = BdfList.of(groupId, timestamp,
+				parentId.getBytes(), authorList, shortText);
 
 		expectCreateAuthor();
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).verifySignature(signature, SIGNING_LABEL_POST,
-					signedWithShortContent, authorPublicKey);
+					signedWithShortText, authorPublicKey);
 		}});
 
 		BdfMessageContext messageContext = v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, shortContent, signature));
+				BdfList.of(parentId, authorList, shortText, signature));
 		assertExpectedContext(messageContext, true);
 	}
 
 	@Test(expected = FormatException.class)
-	public void testRejectsTooLongContent() throws Exception {
-		String invalidContent = getRandomString(MAX_FORUM_POST_BODY_LENGTH + 1);
+	public void testRejectsTooLongText() throws Exception {
+		String invalidText = getRandomString(MAX_FORUM_POST_TEXT_LENGTH + 1);
 
 		expectCreateAuthor();
 
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, invalidContent, signature));
+				BdfList.of(parentId, authorList, invalidText, signature));
 	}
 
 	@Test(expected = FormatException.class)
@@ -163,7 +163,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		expectCreateAuthor();
 
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content, null));
+				BdfList.of(parentId, authorList, text, null));
 	}
 
 	@Test(expected = FormatException.class)
@@ -171,7 +171,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		expectCreateAuthor();
 
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content, 123));
+				BdfList.of(parentId, authorList, text, 123));
 	}
 
 	@Test(expected = FormatException.class)
@@ -181,7 +181,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		expectCreateAuthor();
 
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content, invalidSignature));
+				BdfList.of(parentId, authorList, text, invalidSignature));
 	}
 
 	@Test(expected = FormatException.class)
@@ -195,7 +195,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		}});
 
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content, signature));
+				BdfList.of(parentId, authorList, text, signature));
 	}
 
 	@Test(expected = InvalidMessageException.class)
@@ -209,7 +209,7 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 		}});
 
 		v.validateMessage(message, group,
-				BdfList.of(parentId, authorList, content, signature));
+				BdfList.of(parentId, authorList, text, signature));
 	}
 
 	private void expectCreateAuthor() throws Exception {

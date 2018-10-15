@@ -92,9 +92,9 @@ public interface PrivateGroupManager {
 	Collection<PrivateGroup> getPrivateGroups() throws DbException;
 
 	/**
-	 * Returns the body of the private group message with the given ID.
+	 * Returns the text of the private group message with the given ID.
 	 */
-	String getMessageBody(MessageId m) throws DbException;
+	String getMessageText(MessageId m) throws DbException;
 
 	/**
 	 * Returns the headers of all messages in the given private group.

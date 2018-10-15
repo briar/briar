@@ -64,7 +64,7 @@ import okhttp3.ResponseBody;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_INTERVAL;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_UNIT;
@@ -410,11 +410,10 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		return lastEntryTime;
 	}
 
-	private void postEntry(Transaction txn, Feed feed, SyndEntry entry)
-			throws DbException {
+	private void postEntry(Transaction txn, Feed feed, SyndEntry entry) {
 		LOG.info("Adding new entry...");
 
-		// build post body
+		// build post text
 		StringBuilder b = new StringBuilder();
 
 		if (!StringUtils.isNullOrEmpty(entry.getTitle())) {
@@ -454,12 +453,12 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		if (date == null) date = entry.getPublishedDate();
 		if (date == null) time = now;
 		else time = Math.max(0, Math.min(date.getTime(), now));
-		String body = getPostBody(b.toString());
+		String text = getPostText(b.toString());
 		try {
 			// create and store post
 			LocalAuthor localAuthor = feed.getLocalAuthor();
 			BlogPost post = blogPostFactory
-					.createBlogPost(groupId, time, null, localAuthor, body);
+					.createBlogPost(groupId, time, null, localAuthor, text);
 			blogManager.addLocalPost(txn, post);
 		} catch (DbException | GeneralSecurityException | FormatException e) {
 			logException(LOG, WARNING, e);
@@ -470,9 +469,9 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		}
 	}
 
-	private String getPostBody(String text) {
+	private String getPostText(String text) {
 		text = clean(text, ARTICLE);
-		return StringUtils.truncateUtf8(text, MAX_BLOG_POST_BODY_LENGTH);
+		return StringUtils.truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
 	}
 
 	private Comparator<SyndEntry> getEntryComparator() {

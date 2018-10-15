@@ -16,7 +16,7 @@ import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -31,11 +31,10 @@ class PrivateMessageValidator extends BdfMessageValidator {
 	@Override
 	protected BdfMessageContext validateMessage(Message m, Group g,
 			BdfList body) throws FormatException {
-		// private message body
+		// Private message text
 		checkSize(body, 1);
-		// Private message body
-		String privateMessageBody = body.getString(0);
-		checkLength(privateMessageBody, 0, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		String text = body.getString(0);
+		checkLength(text, 0, MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("timestamp", m.getTimestamp());

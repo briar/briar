@@ -24,7 +24,7 @@ interface MessageEncoder {
 
 	Message encodeInviteMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, BdfList descriptor,
-			@Nullable String message);
+			@Nullable String text);
 
 	Message encodeAcceptMessage(GroupId contactGroupId, GroupId shareableId,
 			long timestamp, @Nullable MessageId previousMessageId);

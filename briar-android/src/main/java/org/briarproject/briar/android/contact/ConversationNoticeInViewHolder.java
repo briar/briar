@@ -29,13 +29,13 @@ class ConversationNoticeInViewHolder extends ConversationItemViewHolder {
 		ConversationNoticeInItem item =
 				(ConversationNoticeInItem) conversationItem;
 
-		String message = item.getMsgText();
-		if (StringUtils.isNullOrEmpty(message)) {
+		String text = item.getMsgText();
+		if (StringUtils.isNullOrEmpty(text)) {
 			msgText.setVisibility(GONE);
 			layout.setBackgroundResource(R.drawable.notice_in);
 		} else {
 			msgText.setVisibility(VISIBLE);
-			msgText.setText(StringUtils.trim(message));
+			msgText.setText(StringUtils.trim(text));
 			layout.setBackgroundResource(R.drawable.notice_in_bottom);
 		}
 	}

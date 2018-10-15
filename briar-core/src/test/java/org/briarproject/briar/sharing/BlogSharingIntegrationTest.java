@@ -159,7 +159,7 @@ public class BlogSharingIntegrationTest
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getName());
 				assertFalse(invitation.getNameable().isRssFeed());
-				assertEquals("Hi!", invitation.getMessage());
+				assertEquals("Hi!", invitation.getText());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
 				assertEquals(blog2.getId(), response.getShareableId());
@@ -232,7 +232,7 @@ public class BlogSharingIntegrationTest
 				assertEquals(rssBlog.getAuthor().getName(),
 						invitation.getName());
 				assertTrue(invitation.getNameable().isRssFeed());
-				assertEquals("Hi!", invitation.getMessage());
+				assertEquals("Hi!", invitation.getText());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
 				assertEquals(rssBlog.getId(), response.getShareableId());
@@ -293,7 +293,7 @@ public class BlogSharingIntegrationTest
 				assertTrue(invitation.wasAnswered());
 				assertEquals(blog2.getAuthor().getName(),
 						invitation.getName());
-				assertNull(invitation.getMessage());
+				assertNull(invitation.getText());
 			} else {
 				BlogInvitationResponse response = (BlogInvitationResponse) m;
 				assertEquals(blog2.getId(), response.getShareableId());

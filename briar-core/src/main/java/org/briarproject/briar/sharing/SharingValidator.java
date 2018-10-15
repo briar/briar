@@ -21,7 +21,7 @@ import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
+import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 
 @Immutable
@@ -60,8 +60,8 @@ abstract class SharingValidator extends BdfMessageValidator {
 		checkLength(previousMessageId, UniqueId.LENGTH);
 		BdfList descriptor = body.getList(2);
 		GroupId shareableId = validateDescriptor(descriptor);
-		String msg = body.getOptionalString(3);
-		checkLength(msg, 1, MAX_INVITATION_MESSAGE_LENGTH);
+		String text = body.getOptionalString(3);
+		checkLength(text, 1, MAX_INVITATION_TEXT_LENGTH);
 
 		BdfDictionary meta = messageEncoder
 				.encodeMetadata(INVITE, shareableId, m.getTimestamp(), false,

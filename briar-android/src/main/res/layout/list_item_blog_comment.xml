@@ -24,7 +24,7 @@
 		app:persona="commenter"/>
 
 	<com.vanniktech.emoji.EmojiTextView
-		android:id="@+id/bodyView"
+		android:id="@+id/textView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:paddingBottom="@dimen/listitem_vertical_margin"

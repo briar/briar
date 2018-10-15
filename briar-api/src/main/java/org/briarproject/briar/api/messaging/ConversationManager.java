@@ -25,7 +25,7 @@ public interface ConversationManager {
 	 * Returns the headers of all messages in the given private conversation.
 	 *
 	 * Only {@link MessagingManager} returns only headers.
-	 * The others also return the message body.
+	 * The others also return the message text.
 	 */
 	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;

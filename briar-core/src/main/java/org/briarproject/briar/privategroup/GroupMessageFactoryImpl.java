@@ -78,7 +78,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 
 	@Override
 	public GroupMessage createGroupMessage(GroupId groupId, long timestamp,
-			@Nullable MessageId parentId, LocalAuthor member, String content,
+			@Nullable MessageId parentId, LocalAuthor member, String text,
 			MessageId previousMsgId) {
 		try {
 			// Generate the signature
@@ -89,7 +89,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 					memberList,
 					parentId,
 					previousMsgId,
-					content
+					text
 			);
 			byte[] signature = clientHelper.sign(SIGNING_LABEL_POST, toSign,
 					member.getPrivateKey());
@@ -100,7 +100,7 @@ class GroupMessageFactoryImpl implements GroupMessageFactory {
 					memberList,
 					parentId,
 					previousMsgId,
-					content,
+					text,
 					signature
 			);
 			Message m = clientHelper.createMessage(groupId, timestamp, body);

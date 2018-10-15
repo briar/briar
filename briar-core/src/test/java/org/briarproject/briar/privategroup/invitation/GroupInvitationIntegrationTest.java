@@ -76,8 +76,8 @@ public class GroupInvitationIntegrationTest
 	@Test
 	public void testSendInvitation() throws Exception {
 		long timestamp = clock.currentTimeMillis();
-		String msg = "Hi!";
-		sendInvitation(timestamp, msg);
+		String text = "Hi!";
+		sendInvitation(timestamp, text);
 
 		sync0To1(1, true);
 
@@ -97,7 +97,7 @@ public class GroupInvitationIntegrationTest
 		assertEquals(1, messages.size());
 		GroupInvitationRequest request =
 				(GroupInvitationRequest) messages.iterator().next();
-		assertEquals(msg, request.getMessage());
+		assertEquals(text, request.getText());
 		assertEquals(author0, request.getNameable().getCreator());
 		assertEquals(timestamp, request.getTimestamp());
 		assertEquals(privateGroup0.getName(), request.getNameable().getName());
@@ -442,12 +442,12 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 	}
 
-	private void sendInvitation(long timestamp, @Nullable String msg) throws
+	private void sendInvitation(long timestamp, @Nullable String text) throws
 			DbException {
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
 				privateGroup0.getId(), timestamp, author0.getPrivateKey());
 		groupInvitationManager0
-				.sendInvitation(privateGroup0.getId(), contactId1From0, msg,
+				.sendInvitation(privateGroup0.getId(), contactId1From0, text,
 						timestamp, signature);
 	}
 

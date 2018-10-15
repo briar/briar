@@ -29,13 +29,13 @@ class ConversationNoticeOutViewHolder extends ConversationOutItemViewHolder {
 		ConversationNoticeOutItem item =
 				(ConversationNoticeOutItem) conversationItem;
 
-		String message = item.getMsgText();
-		if (StringUtils.isNullOrEmpty(message)) {
+		String text = item.getMsgText();
+		if (StringUtils.isNullOrEmpty(text)) {
 			msgText.setVisibility(GONE);
 			layout.setBackgroundResource(R.drawable.notice_out);
 		} else {
 			msgText.setVisibility(VISIBLE);
-			msgText.setText(StringUtils.trim(message));
+			msgText.setText(StringUtils.trim(text));
 			layout.setBackgroundResource(R.drawable.notice_out_bottom);
 		}
 	}

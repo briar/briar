@@ -78,10 +78,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 
 	@Override
 	public Session onInviteAction(Transaction txn, Session s,
-			@Nullable String message, long timestamp) throws DbException {
+			@Nullable String text, long timestamp) throws DbException {
 		switch (s.getState()) {
 			case START:
-				return onLocalInvite(txn, s, message, timestamp);
+				return onLocalInvite(txn, s, text, timestamp);
 			case LOCAL_INVITED:
 			case REMOTE_INVITED:
 			case SHARING:
@@ -94,9 +94,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	private Session onLocalInvite(Transaction txn, Session s,
-			@Nullable String message, long timestamp) throws DbException {
+			@Nullable String text, long timestamp) throws DbException {
 		// Send an INVITE message
-		Message sent = sendInviteMessage(txn, s, message, timestamp);
+		Message sent = sendInviteMessage(txn, s, text, timestamp);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Make the shareable visible to the contact
@@ -112,7 +112,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	private Message sendInviteMessage(Transaction txn, Session s,
-			@Nullable String message, long timestamp) throws DbException {
+			@Nullable String text, long timestamp) throws DbException {
 		Group g = db.getGroup(txn, s.getShareableId());
 		BdfList descriptor;
 		try {
@@ -122,7 +122,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
 		Message m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
-				localTimestamp, s.getLastLocalMessageId(), descriptor, message);
+				localTimestamp, s.getLastLocalMessageId(), descriptor, text);
 		sendMessage(txn, m, INVITE, s.getShareableId(), true);
 		return m;
 	}

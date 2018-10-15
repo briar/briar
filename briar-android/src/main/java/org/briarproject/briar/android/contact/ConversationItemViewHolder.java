@@ -29,10 +29,10 @@ class ConversationItemViewHolder extends ViewHolder {
 
 	@CallSuper
 	void bind(ConversationItem item) {
-		if (item.getBody() == null) {
+		if (item.getText() == null) {
 			text.setText("\u2026");
 		} else {
-			text.setText(StringUtils.trim(item.getBody()));
+			text.setText(StringUtils.trim(item.getText()));
 		}
 
 		long timestamp = item.getTime();

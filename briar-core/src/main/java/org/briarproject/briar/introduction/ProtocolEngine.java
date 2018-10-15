@@ -10,7 +10,7 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 interface ProtocolEngine<S extends Session> {
 
-	S onRequestAction(Transaction txn, S session, @Nullable String message,
+	S onRequestAction(Transaction txn, S session, @Nullable String text,
 			long timestamp) throws DbException;
 
 	S onAcceptAction(Transaction txn, S session, long timestamp)

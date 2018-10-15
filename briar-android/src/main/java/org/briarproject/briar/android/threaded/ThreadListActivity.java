@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.controller.SharingController;
@@ -43,6 +42,7 @@ import static android.support.design.widget.Snackbar.make;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCount;
 
 @MethodsNotNullByDefault
@@ -351,7 +351,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	public void onSendClick(String text) {
 		if (text.trim().length() == 0)
 			return;
-		if (StringUtils.utf8IsTooLong(text, getMaxBodyLength())) {
+		if (utf8IsTooLong(text, getMaxTextLength())) {
 			displaySnackbar(R.string.text_too_long);
 			return;
 		}
@@ -375,7 +375,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		updateTextInput();
 	}
 
-	protected abstract int getMaxBodyLength();
+	protected abstract int getMaxTextLength();
 
 	@Override
 	public void onItemReceived(I item) {

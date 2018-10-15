@@ -98,11 +98,11 @@ class MessageParserImpl implements MessageParser {
 	@Override
 	public InviteMessage parseInviteMessage(Message m, BdfList body)
 			throws FormatException {
-		// Message type, creator, group name, salt, optional message, signature
+		// Message type, creator, group name, salt, optional text, signature
 		BdfList creatorList = body.getList(1);
 		String groupName = body.getString(2);
 		byte[] salt = body.getRaw(3);
-		String message = body.getOptionalString(4);
+		String text = body.getOptionalString(4);
 		byte[] signature = body.getRaw(5);
 
 		// Format version, name, public key
@@ -117,7 +117,7 @@ class MessageParserImpl implements MessageParser {
 				groupName, creator, salt);
 		return new InviteMessage(m.getId(), m.getGroupId(),
 				privateGroup.getId(), m.getTimestamp(), groupName, creator,
-				salt, message, signature);
+				salt, text, signature);
 	}
 
 	@Override

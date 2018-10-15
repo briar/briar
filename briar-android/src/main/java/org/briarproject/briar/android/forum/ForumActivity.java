@@ -33,7 +33,7 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_FORUM;
-import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_BODY_LENGTH;
+import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -130,8 +130,8 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected int getMaxBodyLength() {
-		return MAX_FORUM_POST_BODY_LENGTH;
+	protected int getMaxTextLength() {
+		return MAX_FORUM_POST_TEXT_LENGTH;
 	}
 
 	@Override

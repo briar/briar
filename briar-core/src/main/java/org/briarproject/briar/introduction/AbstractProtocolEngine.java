@@ -72,11 +72,11 @@ abstract class AbstractProtocolEngine<S extends Session>
 	}
 
 	Message sendRequestMessage(Transaction txn, PeerSession s,
-			long timestamp, Author author, @Nullable String message)
+			long timestamp, Author author, @Nullable String text)
 			throws DbException {
 		Message m = messageEncoder
 				.encodeRequestMessage(s.getContactGroupId(), timestamp,
-						s.getLastLocalMessageId(), author, message);
+						s.getLastLocalMessageId(), author, text);
 		sendMessage(txn, REQUEST, s.getSessionId(), m, true);
 		return m;
 	}

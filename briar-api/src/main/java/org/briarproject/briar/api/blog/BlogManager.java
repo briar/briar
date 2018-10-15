@@ -104,9 +104,9 @@ public interface BlogManager {
 	BlogPostHeader getPostHeader(GroupId g, MessageId m) throws DbException;
 
 	/**
-	 * Returns the body of the blog post with the given ID.
+	 * Returns the text of the blog post with the given ID.
 	 */
-	String getPostBody(MessageId m) throws DbException;
+	String getPostText(MessageId m) throws DbException;
 
 	/**
 	 * Returns the headers of all posts in the given blog.

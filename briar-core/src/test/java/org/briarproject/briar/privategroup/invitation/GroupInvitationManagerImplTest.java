@@ -464,7 +464,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testSendFirstInvitation() throws Exception {
-		String msg = "Invitation text for first invitation";
+		String text = "Invitation text for first invitation";
 		long time = 42L;
 		byte[] signature = getRandomBytes(42);
 
@@ -481,7 +481,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		expectCreateStorageId();
 		context.checking(new Expectations() {{
 			oneOf(creatorEngine).onInviteAction(with(txn),
-					with(any(CreatorSession.class)), with(msg), with(time),
+					with(any(CreatorSession.class)), with(text), with(time),
 					with(signature));
 			will(returnValue(creatorSession));
 		}});
@@ -491,12 +491,12 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).endTransaction(txn);
 		}});
 		groupInvitationManager.sendInvitation(privateGroup.getId(), contactId,
-				msg, time, signature);
+				text, time, signature);
 	}
 
 	@Test
 	public void testSendSubsequentInvitation() throws Exception {
-		String msg = "Invitation text for subsequent invitation";
+		String text = "Invitation text for subsequent invitation";
 		long time = 43L;
 		byte[] signature = getRandomBytes(43);
 
@@ -513,7 +513,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					.parseCreatorSession(contactGroup.getId(), bdfSession);
 			will(returnValue(creatorSession));
 			oneOf(creatorEngine).onInviteAction(with(txn),
-					with(any(CreatorSession.class)), with(msg), with(time),
+					with(any(CreatorSession.class)), with(text), with(time),
 					with(signature));
 			will(returnValue(creatorSession));
 		}});
@@ -523,7 +523,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).endTransaction(txn);
 		}});
 		groupInvitationManager.sendInvitation(privateGroup.getId(), contactId,
-				msg, time, signature);
+				text, time, signature);
 	}
 
 	@Test(expected = IllegalArgumentException.class)

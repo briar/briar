@@ -89,9 +89,9 @@ abstract class MessageParserImpl<S extends Shareable>
 		MessageId previousMessageId = (b == null ? null : new MessageId(b));
 		BdfList descriptor = body.getList(2);
 		S shareable = createShareable(descriptor);
-		String message = body.getOptionalString(3);
+		String text = body.getOptionalString(3);
 		return new InviteMessage<>(m.getId(), previousMessageId,
-				m.getGroupId(), shareable, message, m.getTimestamp());
+				m.getGroupId(), shareable, text, m.getTimestamp());
 	}
 
 	@Override

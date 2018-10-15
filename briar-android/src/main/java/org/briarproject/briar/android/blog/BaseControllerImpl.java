@@ -51,7 +51,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	protected final IdentityManager identityManager;
 	protected final BlogManager blogManager;
 
-	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
+	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
 	private final Map<MessageId, BlogPostHeader> headerCache =
 			new ConcurrentHashMap<>();
 
@@ -129,17 +129,17 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	public void loadBlogPost(BlogPostHeader header,
 			ResultExceptionHandler<BlogPostItem, DbException> handler) {
 
-		String body = bodyCache.get(header.getId());
-		if (body != null) {
-			LOG.info("Loaded body from cache");
-			handler.onResult(new BlogPostItem(header, body));
+		String text = textCache.get(header.getId());
+		if (text != null) {
+			LOG.info("Loaded text from cache");
+			handler.onResult(new BlogPostItem(header, text));
 			return;
 		}
 		runOnDbThread(() -> {
 			try {
 				long start = now();
 				BlogPostItem item = getItem(header);
-				logDuration(LOG, "Loading body", start);
+				logDuration(LOG, "Loading text", start);
 				handler.onResult(item);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -200,28 +200,28 @@ abstract class BaseControllerImpl extends DbControllerImpl
 
 	@DatabaseExecutor
 	private BlogPostItem getItem(BlogPostHeader h) throws DbException {
-		String body;
+		String text;
 		if (h instanceof BlogCommentHeader) {
 			BlogCommentHeader c = (BlogCommentHeader) h;
 			BlogCommentItem item = new BlogCommentItem(c);
-			body = getPostBody(item.getPostHeader().getId());
-			item.setBody(body);
+			text = getPostText(item.getPostHeader().getId());
+			item.setText(text);
 			return item;
 		} else {
-			body = getPostBody(h.getId());
-			return new BlogPostItem(h, body);
+			text = getPostText(h.getId());
+			return new BlogPostItem(h, text);
 		}
 	}
 
 	@DatabaseExecutor
-	private String getPostBody(MessageId m) throws DbException {
-		String body = bodyCache.get(m);
-		if (body == null) {
-			body = HtmlUtils.clean(blogManager.getPostBody(m), ARTICLE);
-			bodyCache.put(m, body);
+	private String getPostText(MessageId m) throws DbException {
+		String text = textCache.get(m);
+		if (text == null) {
+			text = HtmlUtils.clean(blogManager.getPostText(m), ARTICLE);
+			textCache.put(m, text);
 		}
 		//noinspection ConstantConditions
-		return body;
+		return text;
 	}
 
 }

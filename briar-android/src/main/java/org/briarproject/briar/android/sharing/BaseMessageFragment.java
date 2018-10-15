@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
@@ -19,7 +18,8 @@ import org.briarproject.briar.android.view.TextInputView.TextInputListener;
 
 import static android.support.design.widget.Snackbar.LENGTH_SHORT;
 import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
-import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_MESSAGE_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
+import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
 
 public abstract class BaseMessageFragment extends BaseFragment
 		implements TextInputListener {
@@ -76,8 +76,8 @@ public abstract class BaseMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(String msg) {
-		if (StringUtils.utf8IsTooLong(msg, listener.getMaximumMessageLength())) {
+	public void onSendClick(String text) {
+		if (utf8IsTooLong(text, listener.getMaximumTextLength())) {
 			Snackbar.make(message, R.string.text_too_long, LENGTH_SHORT).show();
 			return;
 		}
@@ -86,8 +86,8 @@ public abstract class BaseMessageFragment extends BaseFragment
 		message.setSendButtonEnabled(false);
 		message.hideSoftKeyboard();
 
-		msg = truncateUtf8(msg, MAX_INVITATION_MESSAGE_LENGTH);
-		if(!listener.onButtonClick(msg)) {
+		text = truncateUtf8(text, MAX_INVITATION_TEXT_LENGTH);
+		if(!listener.onButtonClick(text)) {
 			message.setSendButtonEnabled(true);
 			message.showSoftKeyboard();
 		}
@@ -102,9 +102,9 @@ public abstract class BaseMessageFragment extends BaseFragment
 		void setTitle(@StringRes int titleRes);
 
 		/** Returns true when the button click has been consumed. */
-		boolean onButtonClick(String message);
+		boolean onButtonClick(String text);
 
-		int getMaximumMessageLength();
+		int getMaximumTextLength();
 
 	}
 

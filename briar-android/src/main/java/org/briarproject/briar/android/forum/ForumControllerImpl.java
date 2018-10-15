@@ -79,7 +79,7 @@ class ForumControllerImpl extends
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			if (f.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum post received, adding...");
-				onForumPostReceived(f.getHeader(), f.getBody());
+				onForumPostReceived(f.getHeader(), f.getText());
 			}
 		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
@@ -109,8 +109,8 @@ class ForumControllerImpl extends
 	}
 
 	@Override
-	protected String loadMessageBody(ForumPostHeader h) throws DbException {
-		return forumManager.getPostBody(h.getId());
+	protected String loadMessageText(ForumPostHeader h) throws DbException {
+		return forumManager.getPostText(h.getId());
 	}
 
 	@Override
@@ -137,7 +137,7 @@ class ForumControllerImpl extends
 	}
 
 	@Override
-	public void createAndStoreMessage(String body,
+	public void createAndStoreMessage(String text,
 			@Nullable ForumItem parentItem,
 			ResultExceptionHandler<ForumItem, DbException> handler) {
 		runOnDbThread(() -> {
@@ -148,7 +148,7 @@ class ForumControllerImpl extends
 						clock.currentTimeMillis());
 				MessageId parentId = parentItem != null ?
 						parentItem.getId() : null;
-				createMessage(body, timestamp, parentId, author, handler);
+				createMessage(text, timestamp, parentId, author, handler);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				handler.onException(e);
@@ -156,14 +156,14 @@ class ForumControllerImpl extends
 		});
 	}
 
-	private void createMessage(String body, long timestamp,
+	private void createMessage(String text, long timestamp,
 			@Nullable MessageId parentId, LocalAuthor author,
 			ResultExceptionHandler<ForumItem, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating forum post...");
-			ForumPost msg = forumManager.createLocalPost(getGroupId(), body,
+			ForumPost msg = forumManager.createLocalPost(getGroupId(), text,
 					timestamp, parentId, author);
-			storePost(msg, body, handler);
+			storePost(msg, text, handler);
 		});
 	}
 
@@ -179,12 +179,12 @@ class ForumControllerImpl extends
 	}
 
 	@Override
-	protected ForumItem buildItem(ForumPostHeader header, String body) {
-		return new ForumItem(header, body);
+	protected ForumItem buildItem(ForumPostHeader header, String text) {
+		return new ForumItem(header, text);
 	}
 
-	private void onForumPostReceived(ForumPostHeader h, String body) {
-		ForumItem item = buildItem(h, body);
+	private void onForumPostReceived(ForumPostHeader h, String text) {
+		ForumItem item = buildItem(h, text);
 		listener.runOnUiThreadUnlessDestroyed(
 				() -> listener.onItemReceived(item));
 	}

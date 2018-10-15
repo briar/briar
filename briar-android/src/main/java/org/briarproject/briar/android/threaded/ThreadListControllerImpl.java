@@ -50,7 +50,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
 	private final EventBus eventBus;
-	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
+	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
 	private volatile GroupId groupId;
 
 	protected final IdentityManager identityManager;
@@ -161,9 +161,9 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 				// Load bodies into cache
 				start = now();
 				for (H header : headers) {
-					if (!bodyCache.containsKey(header.getId())) {
-						bodyCache.put(header.getId(),
-								loadMessageBody(header));
+					if (!textCache.containsKey(header.getId())) {
+						textCache.put(header.getId(),
+								loadMessageText(header));
 					}
 				}
 				logDuration(LOG, "Loading bodies", start);
@@ -181,7 +181,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	protected abstract Collection<H> loadHeaders() throws DbException;
 
 	@DatabaseExecutor
-	protected abstract String loadMessageBody(H header) throws DbException;
+	protected abstract String loadMessageText(H header) throws DbException;
 
 	@Override
 	public void markItemRead(I item) {
@@ -206,15 +206,15 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	@DatabaseExecutor
 	protected abstract void markRead(MessageId id) throws DbException;
 
-	protected void storePost(M msg, String body,
+	protected void storePost(M msg, String text,
 			ResultExceptionHandler<I, DbException> resultHandler) {
 		runOnDbThread(() -> {
 			try {
 				long start = now();
 				H header = addLocalMessage(msg);
-				bodyCache.put(msg.getMessage().getId(), body);
+				textCache.put(msg.getMessage().getId(), text);
 				logDuration(LOG, "Storing message", start);
-				resultHandler.onResult(buildItem(header, body));
+				resultHandler.onResult(buildItem(header, text));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				resultHandler.onException(e);
@@ -247,7 +247,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			throws DbException {
 		ThreadItemList<I> items = new ThreadItemListImpl<>();
 		for (H h : headers) {
-			items.add(buildItem(h, bodyCache.get(h.getId())));
+			items.add(buildItem(h, textCache.get(h.getId())));
 		}
 		MessageId msgId = messageTracker.loadStoredMessageId(groupId);
 		if (LOG.isLoggable(INFO))
@@ -256,7 +256,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		return items;
 	}
 
-	protected abstract I buildItem(H header, String body);
+	protected abstract I buildItem(H header, String text);
 
 	protected GroupId getGroupId() {
 		checkGroupId();

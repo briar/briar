@@ -17,14 +17,14 @@ public class GroupMessageAddedEvent extends Event {
 
 	private final GroupId groupId;
 	private final GroupMessageHeader header;
-	private final String body;
+	private final String text;
 	private final boolean local;
 
 	public GroupMessageAddedEvent(GroupId groupId, GroupMessageHeader header,
-			String body, boolean local) {
+			String text, boolean local) {
 		this.groupId = groupId;
 		this.header = header;
-		this.body = body;
+		this.text = text;
 		this.local = local;
 	}
 
@@ -36,8 +36,8 @@ public class GroupMessageAddedEvent extends Event {
 		return header;
 	}
 
-	public String getBody() {
-		return body;
+	public String getText() {
+		return text;
 	}
 
 	public boolean isLocal() {

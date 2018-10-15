@@ -74,9 +74,9 @@ class MessageParserImpl implements MessageParser {
 		MessageId previousMessageId = (previousMsgBytes == null ? null :
 				new MessageId(previousMsgBytes));
 		Author author = clientHelper.parseAndValidateAuthor(body.getList(2));
-		String message = body.getOptionalString(3);
+		String text = body.getOptionalString(3);
 		return new RequestMessage(m.getId(), m.getGroupId(),
-				m.getTimestamp(), previousMessageId, author, message);
+				m.getTimestamp(), previousMessageId, author, text);
 	}
 
 	@Override

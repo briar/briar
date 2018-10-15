@@ -30,13 +30,13 @@ import static org.briarproject.briar.android.contact.ConversationRequestItem.Req
 class ConversationVisitor implements PrivateMessageVisitor<ConversationItem> {
 
 	private final Context ctx;
-	private final BodyCache bodyCache;
+	private final TextCache textCache;
 	private final LiveData<String> contactName;
 
-	ConversationVisitor(Context ctx, BodyCache bodyCache,
+	ConversationVisitor(Context ctx, TextCache textCache,
 			LiveData<String> contactName) {
 		this.ctx = ctx;
-		this.bodyCache = bodyCache;
+		this.textCache = textCache;
 		this.contactName = contactName;
 	}
 
@@ -45,8 +45,8 @@ class ConversationVisitor implements PrivateMessageVisitor<ConversationItem> {
 		ConversationItem item;
 		if (h.isLocal()) item = new ConversationMessageOutItem(h);
 		else item = new ConversationMessageInItem(h);
-		String body = bodyCache.getBody(h.getId());
-		if (body != null) item.setBody(body);
+		String text = textCache.getText(h.getId());
+		if (text != null) item.setText(text);
 		return item;
 	}
 
@@ -239,8 +239,8 @@ class ConversationVisitor implements PrivateMessageVisitor<ConversationItem> {
 		}
 	}
 
-	interface BodyCache {
+	interface TextCache {
 		@Nullable
-		String getBody(MessageId m);
+		String getText(MessageId m);
 	}
 }

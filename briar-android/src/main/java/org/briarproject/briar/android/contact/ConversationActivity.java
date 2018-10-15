@@ -53,7 +53,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
-import org.briarproject.briar.android.contact.ConversationVisitor.BodyCache;
+import org.briarproject.briar.android.contact.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
@@ -105,7 +105,7 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRO
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_BODY_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
@@ -113,7 +113,7 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
 		implements EventListener, ConversationListener, TextInputListener,
-		BodyCache {
+		TextCache {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -130,7 +130,7 @@ public class ConversationActivity extends BriarActivity
 	@CryptoExecutor
 	Executor cryptoExecutor;
 
-	private final Map<MessageId, String> bodyCache = new ConcurrentHashMap<>();
+	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
 	private final MutableLiveData<String> contactName = new MutableLiveData<>();
 
 	private ConversationVisitor visitor;
@@ -370,28 +370,28 @@ public class ConversationActivity extends BriarActivity
 		return items;
 	}
 
-	private void loadMessageBody(MessageId m) {
+	private void loadMessageText(MessageId m) {
 		runOnDbThread(() -> {
 			try {
 				long start = now();
-				String body = messagingManager.getMessageBody(m);
-				logDuration(LOG, "Loading body", start);
-				displayMessageBody(m, body);
+				String text = messagingManager.getMessageText(m);
+				logDuration(LOG, "Loading text", start);
+				displayMessageText(m, text);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
 	}
 
-	private void displayMessageBody(MessageId m, String body) {
+	private void displayMessageText(MessageId m, String text) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			bodyCache.put(m, body);
+			textCache.put(m, text);
 			SparseArray<ConversationItem> messages =
 					adapter.getPrivateMessages();
 			for (int i = 0; i < messages.size(); i++) {
 				ConversationItem item = messages.valueAt(i);
 				if (item.getId().equals(m)) {
-					item.setBody(body);
+					item.setText(text);
 					adapter.notifyItemChanged(messages.keyAt(i));
 					list.scrollToPosition(adapter.getItemCount() - 1);
 					return;
@@ -470,7 +470,7 @@ public class ConversationActivity extends BriarActivity
 				}
 			} else {
 				addConversationItem(h.accept(visitor));
-				loadMessageBody(h.getId());
+				loadMessageText(h.getId());
 			}
 		});
 	}
@@ -495,8 +495,8 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onSendClick(String text) {
-		if (text.equals("")) return;
-		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_BODY_LENGTH);
+		if (text.isEmpty()) return;
+		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		if (messagingGroupId == null) loadGroupId(text, timestamp);
@@ -510,12 +510,12 @@ public class ConversationActivity extends BriarActivity
 		return item == null ? 0 : item.getTime() + 1;
 	}
 
-	private void loadGroupId(String body, long timestamp) {
+	private void loadGroupId(String text, long timestamp) {
 		runOnDbThread(() -> {
 			try {
 				messagingGroupId =
 						messagingManager.getConversationId(contactId);
-				createMessage(body, timestamp);
+				createMessage(text, timestamp);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -523,19 +523,19 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void createMessage(String body, long timestamp) {
+	private void createMessage(String text, long timestamp) {
 		cryptoExecutor.execute(() -> {
 			try {
 				//noinspection ConstantConditions init in loadGroupId()
 				storeMessage(privateMessageFactory.createPrivateMessage(
-						messagingGroupId, timestamp, body), body);
+						messagingGroupId, timestamp, text), text);
 			} catch (FormatException e) {
 				throw new RuntimeException(e);
 			}
 		});
 	}
 
-	private void storeMessage(PrivateMessage m, String body) {
+	private void storeMessage(PrivateMessage m, String text) {
 		runOnDbThread(() -> {
 			try {
 				long start = now();
@@ -545,7 +545,7 @@ public class ConversationActivity extends BriarActivity
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, false, false, false);
-				bodyCache.put(message.getId(), body);
+				textCache.put(message.getId(), text);
 				addConversationItem(h.accept(visitor));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -761,9 +761,9 @@ public class ConversationActivity extends BriarActivity
 
 	@Nullable
 	@Override
-	public String getBody(MessageId m) {
-		String body = bodyCache.get(m);
-		if (body == null) loadMessageBody(m);
-		return body;
+	public String getText(MessageId m) {
+		String text = textCache.get(m);
+		if (text == null) loadMessageText(m);
+		return text;
 	}
 }

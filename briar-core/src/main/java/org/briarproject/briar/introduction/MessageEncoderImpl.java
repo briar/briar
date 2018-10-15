@@ -89,15 +89,15 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public Message encodeRequestMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, Author author,
-			@Nullable String message) {
-		if (message != null && message.equals("")) {
+			@Nullable String text) {
+		if (text != null && text.isEmpty()) {
 			throw new IllegalArgumentException();
 		}
 		BdfList body = BdfList.of(
 				REQUEST.getValue(),
 				previousMessageId,
 				clientHelper.toList(author),
-				message
+				text
 		);
 		return createMessage(contactGroupId, timestamp, body);
 	}

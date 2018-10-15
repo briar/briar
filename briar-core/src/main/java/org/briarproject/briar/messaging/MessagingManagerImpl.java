@@ -209,9 +209,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public String getMessageBody(MessageId m) throws DbException {
+	public String getMessageText(MessageId m) throws DbException {
 		try {
-			// 0: private message body
+			// 0: private message text
 			return clientHelper.getMessageAsList(m).getString(0);
 		} catch (FormatException e) {
 			throw new DbException(e);

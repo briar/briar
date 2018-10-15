@@ -252,7 +252,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	@Override
 	public void sendInvitation(GroupId shareableId, ContactId contactId,
-			@Nullable String message, long timestamp) throws DbException {
+			@Nullable String text, long timestamp) throws DbException {
 		SessionId sessionId = getSessionId(shareableId);
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -277,7 +277,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 				storageId = ss.storageId;
 			}
 			// Handle the invite action
-			session = engine.onInviteAction(txn, session, message, timestamp);
+			session = engine.onInviteAction(txn, session, text, timestamp);
 			// Store the updated session
 			storeSession(txn, storageId, session);
 			db.commitTransaction(txn);

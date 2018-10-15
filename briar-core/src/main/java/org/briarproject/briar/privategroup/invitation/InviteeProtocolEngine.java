@@ -56,7 +56,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 
 	@Override
 	public InviteeSession onInviteAction(Transaction txn, InviteeSession s,
-			@Nullable String message, long timestamp, byte[] signature) {
+			@Nullable String text, long timestamp, byte[] signature) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
@@ -330,7 +330,7 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		SessionId sessionId = new SessionId(m.getPrivateGroupId().getBytes());
 		return new GroupInvitationRequest(m.getId(), m.getContactGroupId(),
 				m.getTimestamp(), false, false, true, false, sessionId, pg,
-				m.getMessage(), true, false);
+				m.getText(), true, false);
 	}
 
 }

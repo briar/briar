@@ -16,17 +16,17 @@ public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
 	private final SessionId sessionId;
 	private final N nameable;
 	@Nullable
-	private final String message;
+	private final String text;
 	private final boolean answered;
 
 	public PrivateRequest(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
-			SessionId sessionId, N nameable, @Nullable String message,
+			SessionId sessionId, N nameable, @Nullable String text,
 			boolean answered) {
 		super(messageId, groupId, time, local, sent, seen, read);
 		this.sessionId = sessionId;
 		this.nameable = nameable;
-		this.message = message;
+		this.text = text;
 		this.answered = answered;
 	}
 
@@ -43,8 +43,8 @@ public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
 	}
 
 	@Nullable
-	public String getMessage() {
-		return message;
+	public String getText() {
+		return text;
 	}
 
 	public boolean wasAnswered() {

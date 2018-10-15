@@ -176,10 +176,10 @@ public class PrivateGroupIntegrationTest
 
 		// 2 sends a message to the group
 		long time = clock.currentTimeMillis();
-		String body = "This is a test message!";
+		String text = "This is a test message!";
 		MessageId previousMsgId = groupManager2.getPreviousMsgId(groupId0);
 		GroupMessage msg = groupMessageFactory
-				.createGroupMessage(groupId0, time, null, author2, body,
+				.createGroupMessage(groupId0, time, null, author2, text,
 						previousMsgId);
 		groupManager2.addLocalMessage(msg);
 
@@ -209,13 +209,13 @@ public class PrivateGroupIntegrationTest
 	}
 
 	private void sendInvitation(ContactId c, long timestamp,
-			@Nullable String msg) throws DbException {
+			@Nullable String text) throws DbException {
 		Contact contact = contactManager0.getContact(c);
 		byte[] signature = groupInvitationFactory
 				.signInvitation(contact, groupId0, timestamp,
 						author0.getPrivateKey());
 		groupInvitationManager0
-				.sendInvitation(groupId0, c, msg, timestamp, signature);
+				.sendInvitation(groupId0, c, text, timestamp, signature);
 	}
 
 	private GroupMember getGroupMember(PrivateGroupManager groupManager,
