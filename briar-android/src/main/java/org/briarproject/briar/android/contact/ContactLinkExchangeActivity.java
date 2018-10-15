@@ -27,17 +27,21 @@ import static android.content.Intent.ACTION_VIEW;
 import static android.content.Intent.EXTRA_TEXT;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.SystemClock.elapsedRealtime;
+import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
 
 public class ContactLinkExchangeActivity extends BriarActivity implements
 		BaseFragmentListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactLinkExchangeActivity.class.getName());
+
+	static final String OUR_LINK = "briar://" + getRandomBase32String(64);
 
 	@Inject
 	LifecycleManager lifecycleManager;
@@ -110,6 +114,7 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 	}
 
 	void linkScanned(@Nullable String link) {
+		// FIXME: Contact name is lost
 		showNextFragment(ContactLinkExchangeFragment.newInstance(link));
 	}
 
@@ -117,7 +122,7 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 		showNextFragment(new ContactQrCodeOutputFragment());
 	}
 
-	void addFakeRequest(String name) {
+	void addFakeRequest(String name, String link) {
 		long timestamp = clock.currentTimeMillis();
 		try {
 			messagingManager.addNewPendingContact(name, timestamp);
@@ -127,8 +132,10 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 
 		AlarmManager alarmManager =
 				(AlarmManager) requireNonNull(getSystemService(ALARM_SERVICE));
+		double random = getPseudoRandom(link, OUR_LINK);
 		long m = MINUTES.toMillis(1);
-		long fromNow = (long) (-m * Math.log(Math.random()));
+		long fromNow = (long) (-m * Math.log(random));
+		LOG.info("Delay " + fromNow + " ms based on seed " + random);
 		long triggerAt = elapsedRealtime() + fromNow;
 
 		Intent i = new Intent(this, ContactLinkExchangeActivity.class);
@@ -139,6 +146,24 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 		PendingIntent pendingIntent =
 				PendingIntent.getActivity(this, (int) timestamp / 1000, i, 0);
 		alarmManager.set(ELAPSED_REALTIME, triggerAt, pendingIntent);
+	}
+
+	/**
+	 * Returns a pseudo-random value greater than or equal to 0 and less than 1,
+	 * approximately uniformly distributed, based on the given strings. The
+	 * same value is returned if the strings are swapped.
+	 */
+	private double getPseudoRandom(String a, String b) {
+		String first, second;
+		if (CASE_INSENSITIVE_ORDER.compare(a, b) < 0) {
+			first = a;
+			second = b;
+		} else {
+			first = b;
+			second = a;
+		}
+		int hash = (first + second).hashCode() & Integer.MAX_VALUE;
+		return hash / (1.0 + Integer.MAX_VALUE);
 	}
 
 	private void removeFakeRequest(String name, long timestamp) {
