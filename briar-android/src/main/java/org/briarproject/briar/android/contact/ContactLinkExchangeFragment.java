@@ -30,7 +30,7 @@ import static android.support.v4.graphics.drawable.DrawableCompat.setTint;
 import static android.support.v4.graphics.drawable.DrawableCompat.wrap;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
-import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
+import static org.briarproject.briar.android.contact.ContactLinkExchangeActivity.OUR_LINK;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
 public class ContactLinkExchangeFragment extends BaseFragment
@@ -114,13 +114,11 @@ public class ContactLinkExchangeFragment extends BaseFragment
 			if (activity != null) activity.scanCode();
 		});
 
-		String link = "briar://" + getRandomBase32String(64);
-
 		TextView linkView = v.findViewById(R.id.linkView);
-		linkView.setText(link);
+		linkView.setText(OUR_LINK);
 
 		ClipData clip = ClipData.newPlainText(
-				getString(R.string.link_clip_label), link);
+				getString(R.string.link_clip_label), OUR_LINK);
 
 		Button copyButton = v.findViewById(R.id.copyButton);
 		copyButton.setOnClickListener(view -> {
@@ -132,7 +130,7 @@ public class ContactLinkExchangeFragment extends BaseFragment
 		Button shareButton = v.findViewById(R.id.shareButton);
 		shareButton.setOnClickListener(view -> {
 			Intent i = new Intent(ACTION_SEND);
-			i.putExtra(EXTRA_TEXT, link);
+			i.putExtra(EXTRA_TEXT, OUR_LINK);
 			i.setType("text/plain");
 			startActivity(i);
 		});
@@ -180,7 +178,8 @@ public class ContactLinkExchangeFragment extends BaseFragment
 		ContactLinkExchangeActivity activity = getCastActivity();
 		if (activity == null) return;
 
-		activity.addFakeRequest(contactNameInput.getText().toString());
+		activity.addFakeRequest(contactNameInput.getText().toString(),
+				linkInput.getText().toString());
 
 		Intent intent = new Intent(activity, PendingRequestsActivity.class);
 		startActivity(intent);

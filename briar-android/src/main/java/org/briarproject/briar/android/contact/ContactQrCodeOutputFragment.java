@@ -15,7 +15,7 @@ import org.briarproject.briar.android.view.QrCodeView;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
+import static org.briarproject.briar.android.contact.ContactLinkExchangeActivity.OUR_LINK;
 import static org.briarproject.briar.android.keyagreement.QrCodeUtils.createQrCode;
 
 public class ContactQrCodeOutputFragment extends BaseFragment {
@@ -44,9 +44,8 @@ public class ContactQrCodeOutputFragment extends BaseFragment {
 		View v = inflater.inflate(R.layout.fragment_contact_qr_code_output,
 				container, false);
 
-		String link = "briar://" + getRandomBase32String(64);
 		DisplayMetrics dm = getResources().getDisplayMetrics();
-		Bitmap qrCode = createQrCode(dm, link);
+		Bitmap qrCode = createQrCode(dm, OUR_LINK);
 		QrCodeView qrCodeView = v.findViewById(R.id.qrCodeView);
 		qrCodeView.setQrCode(qrCode);
 
