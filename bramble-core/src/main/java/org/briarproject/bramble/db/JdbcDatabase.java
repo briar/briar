@@ -766,7 +766,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			for (Entry<ContactId, Boolean> e : visibility.entrySet()) {
 				ContactId c = e.getKey();
 				boolean offered = removeOfferedMessage(txn, c, m.getId());
-				boolean seen = offered || (sender != null && c.equals(sender));
+				boolean seen = offered || c.equals(sender);
 				addStatus(txn, m.getId(), c, m.getGroupId(), m.getTimestamp(),
 						raw.length, state, e.getValue(), messageShared,
 						false, seen);
