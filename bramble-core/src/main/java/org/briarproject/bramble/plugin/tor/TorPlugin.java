@@ -28,7 +28,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.util.IoUtils;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.Closeable;
 import java.io.EOFException;
@@ -70,9 +69,11 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WITH_BRIDGES;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
-import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION;
+import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
+import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -87,7 +88,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final String OWNER = "__OwningControllerProcess";
 	private static final int COOKIE_TIMEOUT_MS = 3000;
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
-	private static final Pattern ONION = Pattern.compile("[a-z2-7]{16}");
+	private static final Pattern ONION_V2 = Pattern.compile("[a-z2-7]{16}");
+	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
 
 	private final Executor ioExecutor, connectionStatusExecutor;
 	private final NetworkManager networkManager;
@@ -362,7 +364,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// If there's already a port number stored in config, reuse it
 			String portString = settings.get(PREF_TOR_PORT);
 			int port;
-			if (StringUtils.isNullOrEmpty(portString)) port = 0;
+			if (isNullOrEmpty(portString)) port = 0;
 			else port = Integer.parseInt(portString);
 			// Bind a server socket to receive connections from Tor
 			ServerSocket ss = null;
@@ -427,11 +429,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return;
 		}
 		// Publish the hidden service's onion hostname in transport properties
-		String hostname = response.get(HS_ADDRESS);
+		String onion2 = response.get(HS_ADDRESS);
 		if (LOG.isLoggable(INFO))
-			LOG.info("Hidden service " + scrubOnion(hostname));
+			LOG.info("Hidden service " + scrubOnion(onion2));
 		TransportProperties p = new TransportProperties();
-		p.put(PROP_ONION, hostname);
+		p.put(PROP_ONION_V2, onion2);
 		callback.mergeLocalProperties(p);
 		if (privKey == null) {
 			// Save the hidden service's private key for next time
@@ -530,26 +532,41 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (!isRunning()) return null;
-		String onion = p.get(PROP_ONION);
-		if (StringUtils.isNullOrEmpty(onion)) return null;
-		if (!ONION.matcher(onion).matches()) {
-			// not scrubbing this address, so we are able to find the problem
-			if (LOG.isLoggable(INFO)) LOG.info("Invalid hostname: " + onion);
-			return null;
+		String bestOnion = null;
+		String onion2 = p.get(PROP_ONION_V2);
+		String onion3 = p.get(PROP_ONION_V3);
+		if (!isNullOrEmpty(onion2)) {
+			if (ONION_V2.matcher(onion2).matches()) {
+				bestOnion = onion2;
+			} else {
+				// Don't scrub the address so we can find the problem
+				if (LOG.isLoggable(INFO))
+					LOG.info("Invalid v2 hostname: " + onion2);
+			}
 		}
+		if (!isNullOrEmpty(onion3)) {
+			if (ONION_V3.matcher(onion3).matches()) {
+				bestOnion = onion3;
+			} else {
+				// Don't scrub the address so we can find the problem
+				if (LOG.isLoggable(INFO))
+					LOG.info("Invalid v3 hostname: " + onion3);
+			}
+		}
+		if (bestOnion == null) return null;
 		Socket s = null;
 		try {
 			if (LOG.isLoggable(INFO))
-				LOG.info("Connecting to " + scrubOnion(onion));
-			s = torSocketFactory.createSocket(onion + ".onion", 80);
+				LOG.info("Connecting to " + scrubOnion(bestOnion));
+			s = torSocketFactory.createSocket(bestOnion + ".onion", 80);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO))
-				LOG.info("Connected to " + scrubOnion(onion));
+				LOG.info("Connected to " + scrubOnion(bestOnion));
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("Could not connect to " + scrubOnion(onion) + ": " +
-						e.toString());
+				LOG.info("Could not connect to " + scrubOnion(bestOnion)
+						+ ": " + e.toString());
 			}
 			tryToClose(s);
 			return null;
