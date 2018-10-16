@@ -20,6 +20,7 @@ import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
 
@@ -34,7 +35,7 @@ public class OpenDatabaseActivity extends BriarActivity
 
 	private TextView textView;
 	private ImageView imageView;
-	private boolean showingMigration = false;
+	private boolean showingMigration = false, showingCompaction = false;
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
@@ -57,6 +58,7 @@ public class OpenDatabaseActivity extends BriarActivity
 			finishAndStartApp();
 		} else {
 			if (state == MIGRATING_DATABASE) showMigration();
+			else if (state == COMPACTING_DATABASE) showCompaction();
 			eventBus.addListener(this);
 		}
 	}
@@ -75,6 +77,8 @@ public class OpenDatabaseActivity extends BriarActivity
 				runOnUiThreadUnlessDestroyed(this::finishAndStartApp);
 			else if (state == MIGRATING_DATABASE)
 				runOnUiThreadUnlessDestroyed(this::showMigration);
+			else if (state == COMPACTING_DATABASE)
+				runOnUiThreadUnlessDestroyed(this::showCompaction);
 		}
 	}
 
@@ -83,6 +87,13 @@ public class OpenDatabaseActivity extends BriarActivity
 		textView.setText(R.string.startup_migrate_database);
 		imageView.setImageResource(R.drawable.startup_migration);
 		showingMigration = true;
+	}
+
+	private void showCompaction() {
+		if (showingCompaction) return;
+		textView.setText(R.string.startup_compact_database);
+		imageView.setImageResource(R.drawable.startup_migration);
+		showingCompaction = true;
 	}
 
 	private void finishAndStartApp() {

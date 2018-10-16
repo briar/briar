@@ -26,11 +26,10 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.system.SystemClock;
-import org.briarproject.bramble.test.ArrayClock;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.SettableClock;
 import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.TestMessageFactory;
-import org.briarproject.bramble.test.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +45,7 @@ import java.util.Map.Entry;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
@@ -61,6 +61,9 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERE
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
+import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
+import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
@@ -1818,10 +1821,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testMessageRetransmission() throws Exception {
 		long now = System.currentTimeMillis();
-		long steps[] = {now, now, now + MAX_LATENCY * 2 - 1,
-				now + MAX_LATENCY * 2};
+		AtomicLong time = new AtomicLong(now);
 		Database<Connection> db =
-				open(false, new TestMessageFactory(), new ArrayClock(steps));
+				open(false, new TestMessageFactory(), new SettableClock(time));
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
@@ -1847,11 +1849,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Time: now + MAX_LATENCY * 2 - 1
 		// The message should not yet be sendable
+		time.set(now + MAX_LATENCY * 2 - 1);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertTrue(ids.isEmpty());
 
 		// Time: now + MAX_LATENCY * 2
 		// The message should have expired and should now be sendable
+		time.set(now + MAX_LATENCY * 2);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE, MAX_LATENCY);
 		assertEquals(singletonList(messageId), ids);
 
@@ -1859,13 +1863,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
-
 	@Test
 	public void testFasterMessageRetransmission() throws Exception {
 		long now = System.currentTimeMillis();
-		long steps[] = {now, now, now, now, now + 1};
+		AtomicLong time = new AtomicLong(now);
 		Database<Connection> db =
-				open(false, new TestMessageFactory(), new ArrayClock(steps));
+				open(false, new TestMessageFactory(), new SettableClock(time));
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
@@ -1903,6 +1906,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Time: now + 1
 		// The message should no longer be sendable via the faster transport,
 		// as the ETA is now equal
+		time.set(now + 1);
 		ids = db.getMessagesToSend(txn, contactId, ONE_MEGABYTE,
 				MAX_LATENCY - 1);
 		assertTrue(ids.isEmpty());
@@ -1911,6 +1915,45 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Test
+	public void testCompactionTime() throws Exception {
+		MessageFactory messageFactory = new TestMessageFactory();
+		long now = System.currentTimeMillis();
+		AtomicLong time = new AtomicLong(now);
+		Clock clock = new SettableClock(time);
+
+		// Time: now
+		// The last compaction time should be initialised to the current time
+		Database<Connection> db = open(false, messageFactory, clock);
+		Connection txn = db.startTransaction();
+		Settings s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
+		assertEquals(now, s.getLong(LAST_COMPACTED_KEY, 0));
+		db.commitTransaction(txn);
+		db.close();
+
+		// Time: now + MAX_COMPACTION_INTERVAL_MS
+		// The DB should not be compacted, so the last compaction time should
+		// not be updated
+		time.set(now + MAX_COMPACTION_INTERVAL_MS);
+		db = open(true, messageFactory, clock);
+		txn = db.startTransaction();
+		s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
+		assertEquals(now, s.getLong(LAST_COMPACTED_KEY, 0));
+		db.commitTransaction(txn);
+		db.close();
+
+		// Time: now + MAX_COMPACTION_INTERVAL_MS + 1
+		// The DB should be compacted, so the last compaction time should be
+		// updated
+		time.set(now + MAX_COMPACTION_INTERVAL_MS + 1);
+		db = open(true, messageFactory, clock);
+		txn = db.startTransaction();
+		s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
+		assertEquals(now + MAX_COMPACTION_INTERVAL_MS + 1,
+				s.getLong(LAST_COMPACTED_KEY, 0));
+		db.commitTransaction(txn);
+		db.close();
+	}
 
 	private Database<Connection> open(boolean resume) throws Exception {
 		return open(resume, new TestMessageFactory(), new SystemClock());
@@ -1921,7 +1964,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db =
 				createDatabase(new TestDatabaseConfig(testDir, MAX_SIZE),
 						messageFactory, clock);
-		if (!resume) TestUtils.deleteTestDirectory(testDir);
+		if (!resume) deleteTestDirectory(testDir);
 		db.open(key, null);
 		return db;
 	}

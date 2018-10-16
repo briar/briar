@@ -54,6 +54,7 @@
 	<string name="download_briar_button">Download Briar 1.0</string>
 	<string name="startup_open_database">Decrypting Database…</string>
 	<string name="startup_migrate_database">Upgrading Database…</string>
+	<string name="startup_compact_database">Compacting Database…</string>
 
 	<!-- Navigation Drawer -->
 	<string name="nav_drawer_open_description">Open the navigation drawer</string>

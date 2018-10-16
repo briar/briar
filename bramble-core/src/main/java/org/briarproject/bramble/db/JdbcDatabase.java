@@ -67,9 +67,13 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERE
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
+import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
+import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 /**
  * A generic database implementation that can be used with any JDBC-compatible
@@ -317,8 +321,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private int openConnections = 0; // Locking: connectionsLock
 	private boolean closed = false; // Locking: connectionsLock
 
-	@Nullable
 	protected abstract Connection createConnection() throws SQLException;
+
+	protected abstract void compactAndClose() throws DbException;
 
 	private final Lock connectionsLock = new ReentrantLock();
 	private final Condition connectionsChanged = connectionsLock.newCondition();
@@ -344,19 +349,41 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throw new DbException(e);
 		}
 		// Open the database and create the tables and indexes if necessary
+		boolean compact;
 		Connection txn = startTransaction();
 		try {
 			if (reopen) {
-				checkSchemaVersion(txn, listener);
+				Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
+				compact = migrateSchema(txn, s, listener) || isCompactionDue(s);
 			} else {
 				createTables(txn);
-				storeSchemaVersion(txn, CODE_SCHEMA_VERSION);
+				initialiseSettings(txn);
+				compact = false;
 			}
 			createIndexes(txn);
 			commitTransaction(txn);
 		} catch (DbException e) {
 			abortTransaction(txn);
 			throw e;
+		}
+		// Compact the database if necessary
+		if (compact) {
+			if (listener != null) listener.onDatabaseCompaction();
+			long start = now();
+			compactAndClose();
+			logDuration(LOG, "Compacting database", start);
+			// Allow the next transaction to reopen the DB
+			synchronized (connectionsLock) {
+				closed = false;
+			}
+			txn = startTransaction();
+			try {
+				storeLastCompacted(txn);
+				commitTransaction(txn);
+			} catch (DbException e) {
+				abortTransaction(txn);
+				throw e;
+			}
 		}
 	}
 
@@ -365,17 +392,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 	 * version used by the current code and applies any suitable migrations to
 	 * the data if necessary.
 	 *
+	 * @return true if any migrations were applied, false if the schema was
+	 * already current
 	 * @throws DataTooNewException if the data uses a newer schema than the
 	 * current code
 	 * @throws DataTooOldException if the data uses an older schema than the
 	 * current code and cannot be migrated
 	 */
-	private void checkSchemaVersion(Connection txn,
+	private boolean migrateSchema(Connection txn, Settings s,
 			@Nullable MigrationListener listener) throws DbException {
-		Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
 		if (dataSchemaVersion == -1) throw new DbException();
-		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return;
+		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return false;
 		if (CODE_SCHEMA_VERSION < dataSchemaVersion)
 			throw new DataTooNewException();
 		// Apply any suitable migrations in order
@@ -384,7 +412,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (start == dataSchemaVersion) {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Migrating from schema " + start + " to " + end);
-				if (listener != null) listener.onMigrationRun();
+				if (listener != null) listener.onDatabaseMigration();
 				// Apply the migration
 				m.migrate(txn);
 				// Store the new schema version
@@ -394,6 +422,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 		if (dataSchemaVersion != CODE_SCHEMA_VERSION)
 			throw new DataTooOldException();
+		return true;
 	}
 
 	// Package access for testing
@@ -401,10 +430,31 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return Arrays.asList(new Migration38_39(), new Migration39_40());
 	}
 
+	private boolean isCompactionDue(Settings s) {
+		long lastCompacted = s.getLong(LAST_COMPACTED_KEY, 0);
+		long elapsed = clock.currentTimeMillis() - lastCompacted;
+		if (LOG.isLoggable(INFO))
+			LOG.info(elapsed + " ms since last compaction");
+		return elapsed > MAX_COMPACTION_INTERVAL_MS;
+	}
+
 	private void storeSchemaVersion(Connection txn, int version)
 			throws DbException {
 		Settings s = new Settings();
 		s.putInt(SCHEMA_VERSION_KEY, version);
+		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
+	}
+
+	private void storeLastCompacted(Connection txn) throws DbException {
+		Settings s = new Settings();
+		s.putLong(LAST_COMPACTED_KEY, clock.currentTimeMillis());
+		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
+	}
+
+	private void initialiseSettings(Connection txn) throws DbException {
+		Settings s = new Settings();
+		s.putInt(SCHEMA_VERSION_KEY, CODE_SCHEMA_VERSION);
+		s.putLong(LAST_COMPACTED_KEY, clock.currentTimeMillis());
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
@@ -416,9 +466,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
-	private void tryToClose(@Nullable Statement s) {
+	protected void tryToClose(@Nullable Statement s) {
 		try {
 			if (s != null) s.close();
+		} catch (SQLException e) {
+			logException(LOG, WARNING, e);
+		}
+	}
+
+	protected void tryToClose(@Nullable Connection c) {
+		try {
+			if (c != null) c.close();
 		} catch (SQLException e) {
 			logException(LOG, WARNING, e);
 		}
@@ -489,7 +547,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (txn == null) {
 				// Open a new connection
 				txn = createConnection();
-				if (txn == null) throw new DbException();
 				txn.setAutoCommit(false);
 				connectionsLock.lock();
 				try {

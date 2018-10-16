@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING;
@@ -159,9 +160,15 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	}
 
 	@Override
-	public void onMigrationRun() {
+	public void onDatabaseMigration() {
 		state = MIGRATING_DATABASE;
 		eventBus.broadcast(new LifecycleEvent(MIGRATING_DATABASE));
+	}
+
+	@Override
+	public void onDatabaseCompaction() {
+		state = COMPACTING_DATABASE;
+		eventBus.broadcast(new LifecycleEvent(COMPACTING_DATABASE));
 	}
 
 	@Override
