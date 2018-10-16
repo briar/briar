@@ -10,6 +10,4 @@ public interface DatabaseConfig {
 	File getDatabaseDirectory();
 
 	File getDatabaseKeyDirectory();
-
-	long getMaxSize();
 }

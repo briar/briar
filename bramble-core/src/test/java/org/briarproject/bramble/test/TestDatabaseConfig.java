@@ -9,12 +9,10 @@ import java.io.File;
 public class TestDatabaseConfig implements DatabaseConfig {
 
 	private final File dbDir, keyDir;
-	private final long maxSize;
 
-	public TestDatabaseConfig(File testDir, long maxSize) {
+	public TestDatabaseConfig(File testDir) {
 		dbDir = new File(testDir, "db");
 		keyDir = new File(testDir, "key");
-		this.maxSize = maxSize;
 	}
 
 	@Override
@@ -25,10 +23,5 @@ public class TestDatabaseConfig implements DatabaseConfig {
 	@Override
 	public File getDatabaseKeyDirectory() {
 		return keyDir;
-	}
-
-	@Override
-	public long getMaxSize() {
-		return maxSize;
 	}
 }

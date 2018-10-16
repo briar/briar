@@ -50,7 +50,6 @@ import static org.junit.Assert.assertTrue;
 public abstract class DatabasePerformanceTest extends BrambleTestCase {
 
 	private static final int ONE_MEGABYTE = 1024 * 1024;
-	static final int MAX_SIZE = 100 * ONE_MEGABYTE;
 
 	/**
 	 * How many contacts to simulate.

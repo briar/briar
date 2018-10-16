@@ -45,8 +45,8 @@ public abstract class SingleDatabasePerformanceTest
 
 	private Database<Connection> openDatabase() throws DbException {
 		Database<Connection> db = createDatabase(
-				new TestDatabaseConfig(testDir, MAX_SIZE),
-				new TestMessageFactory(), new SystemClock());
+				new TestDatabaseConfig(testDir), new TestMessageFactory(),
+				new SystemClock());
 		db.open(databaseKey, null);
 		return db;
 	}

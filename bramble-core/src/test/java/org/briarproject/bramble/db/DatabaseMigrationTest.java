@@ -45,8 +45,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	private final Migration<Connection> migration1 =
 			context.mock(Migration.class, "migration1");
 
-	protected final DatabaseConfig config =
-			new TestDatabaseConfig(testDir, 1024 * 1024);
+	protected final DatabaseConfig config = new TestDatabaseConfig(testDir);
 	protected final MessageFactory messageFactory = new TestMessageFactory();
 	protected final SecretKey key = getSecretKey();
 	protected final Clock clock = new SystemClock();
