@@ -30,7 +30,6 @@ import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.SettableClock;
 import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.TestMessageFactory;
-import org.briarproject.bramble.test.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -62,6 +61,9 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERE
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
+import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
+import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
@@ -1913,6 +1915,46 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Test
+	public void testCompactionTime() throws Exception {
+		MessageFactory messageFactory = new TestMessageFactory();
+		long now = System.currentTimeMillis();
+		AtomicLong time = new AtomicLong(now);
+		Clock clock = new SettableClock(time);
+
+		// Time: now
+		// The last compaction time should be initialised to the current time
+		Database<Connection> db = open(false, messageFactory, clock);
+		Connection txn = db.startTransaction();
+		Settings s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
+		assertEquals(now, s.getLong(LAST_COMPACTED_KEY, 0));
+		db.commitTransaction(txn);
+		db.close();
+
+		// Time: now + MAX_COMPACTION_INTERVAL_MS
+		// The DB should not be compacted, so the last compaction time should
+		// not be updated
+		time.set(now + MAX_COMPACTION_INTERVAL_MS);
+		db = open(true, messageFactory, clock);
+		txn = db.startTransaction();
+		s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
+		assertEquals(now, s.getLong(LAST_COMPACTED_KEY, 0));
+		db.commitTransaction(txn);
+		db.close();
+
+		// Time: now + MAX_COMPACTION_INTERVAL_MS + 1
+		// The DB should be compacted, so the last compaction time should be
+		// updated
+		time.set(now + MAX_COMPACTION_INTERVAL_MS + 1);
+		db = open(true, messageFactory, clock);
+		txn = db.startTransaction();
+		s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
+		assertEquals(now + MAX_COMPACTION_INTERVAL_MS + 1,
+				s.getLong(LAST_COMPACTED_KEY, 0));
+		db.commitTransaction(txn);
+		db.close();
+	}
+
 	private Database<Connection> open(boolean resume) throws Exception {
 		return open(resume, new TestMessageFactory(), new SystemClock());
 	}
@@ -1922,7 +1964,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db =
 				createDatabase(new TestDatabaseConfig(testDir, MAX_SIZE),
 						messageFactory, clock);
-		if (!resume) TestUtils.deleteTestDirectory(testDir);
+		if (!resume) deleteTestDirectory(testDir);
 		db.open(key, null);
 		return db;
 	}
