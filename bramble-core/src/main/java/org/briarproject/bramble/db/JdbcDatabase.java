@@ -354,12 +354,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		try {
 			if (reopen) {
 				Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
-				checkSchemaVersion(txn, s, listener);
-				long lastCompacted = s.getLong(LAST_COMPACTED_KEY, 0);
-				long elapsed = clock.currentTimeMillis() - lastCompacted;
-				if (LOG.isLoggable(INFO))
-					LOG.info(elapsed + " ms since last compaction");
-				compact = elapsed > MAX_COMPACTION_INTERVAL_MS;
+				compact = migrateSchema(txn, s, listener) || isCompactionDue(s);
 			} else {
 				createTables(txn);
 				initialiseSettings(txn);
@@ -397,16 +392,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 	 * version used by the current code and applies any suitable migrations to
 	 * the data if necessary.
 	 *
+	 * @return true if any migrations were applied, false if the schema was
+	 * already current
 	 * @throws DataTooNewException if the data uses a newer schema than the
 	 * current code
 	 * @throws DataTooOldException if the data uses an older schema than the
 	 * current code and cannot be migrated
 	 */
-	private void checkSchemaVersion(Connection txn, Settings s,
+	private boolean migrateSchema(Connection txn, Settings s,
 			@Nullable MigrationListener listener) throws DbException {
 		int dataSchemaVersion = s.getInt(SCHEMA_VERSION_KEY, -1);
 		if (dataSchemaVersion == -1) throw new DbException();
-		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return;
+		if (dataSchemaVersion == CODE_SCHEMA_VERSION) return false;
 		if (CODE_SCHEMA_VERSION < dataSchemaVersion)
 			throw new DataTooNewException();
 		// Apply any suitable migrations in order
@@ -425,11 +422,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 		if (dataSchemaVersion != CODE_SCHEMA_VERSION)
 			throw new DataTooOldException();
+		return true;
 	}
 
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
 		return Arrays.asList(new Migration38_39(), new Migration39_40());
+	}
+
+	private boolean isCompactionDue(Settings s) {
+		long lastCompacted = s.getLong(LAST_COMPACTED_KEY, 0);
+		long elapsed = clock.currentTimeMillis() - lastCompacted;
+		if (LOG.isLoggable(INFO))
+			LOG.info(elapsed + " ms since last compaction");
+		return elapsed > MAX_COMPACTION_INTERVAL_MS;
 	}
 
 	private void storeSchemaVersion(Connection txn, int version)
