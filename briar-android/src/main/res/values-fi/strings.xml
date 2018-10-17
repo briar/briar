@@ -440,4 +440,11 @@
   <string name="lock_unlock_password">Käytä salasanaa</string>
   <string name="lock_is_locked">Briar on lukittu</string>
   <string name="lock_tap_to_unlock">Napauta avataksesi lukitus</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <!--This is a message to be used in screenshots.-->
 </resources>

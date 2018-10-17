@@ -131,6 +131,8 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="contact_added_toast">Contacte apondut : %s</string>
   <string name="contact_already_exists">Lo contacte %s existís ja</string>
   <string name="qr_code_invalid">Lo QR còdi es invalid</string>
+  <string name="qr_code_too_old">Lo còdi QR qu’avètz numerizat ven d’una version anciana de %s.\n\nMercés de demandar a vòstre contact d’installar la darrièra version puèi tornatz ensajar.</string>
+  <string name="qr_code_too_new">Lo còdi QR qu’avètz numerizat ven d’una version mai recenta de %s.\n\nMercés d’installar la darrièra version puèi tornatz ensajar.</string>
   <string name="camera_error">Error de camèra</string>
   <string name="connecting_to_device">Connexion a l’aparelh\u2026</string>
   <string name="authenticating_with_device">Autentificacion amb l’aparelh\u2026</string>
@@ -343,8 +345,10 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="tor_mobile_data_title">Utilizar la connexion del mobil</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
+  <string name="pref_lock_title">Verrolatge de l’aplicacion</string>
   <string name="pref_lock_summary">Utilizar l’ecran de verrolhatge per protegir Briar quand es connectat</string>
   <string name="pref_lock_disabled_summary">Per utilizar aquesta foncion, configuratz un ecran de verrolatge per l’aparelh</string>
+  <string name="pref_lock_timeout_title">Temps d’inactivitat abans verrolatge</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Sens utilizar Briar, lo verrolhar aprèp %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -373,6 +377,7 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="panic_app_setting_none">Cap</string>
   <string name="dialog_title_connect_panic_app">Confirmar l’aplicacion Urgéncia</string>
   <string name="dialog_message_connect_panic_app">Sètz segur de voler autorizar %1$s a aviar las accions de destruccion del boton Urgéncia ?</string>
+  <string name="panic_setting_destructive_action">Accions destructrises</string>
   <string name="panic_setting_signout_title">Se desconnectar</string>
   <string name="panic_setting_signout_summary">Se desconnectar de Briar en apiejant lo boton Urgéncia ?</string>
   <string name="purge_setting_title">Suprimir lo compte</string>
@@ -445,4 +450,17 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="lock_unlock_password">Utilizar lo senhal</string>
   <string name="lock_is_locked">Briar es verrolhat</string>
   <string name="lock_tap_to_unlock">Tocatz per desverrolhar</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alicia</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Joan</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carolina</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Adieu lo Joan !</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Adieu l’Alicia ! Mercés de m’aver parlat de Briar !</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Amb plaser, espri que t\'agradarà !</string>
 </resources>

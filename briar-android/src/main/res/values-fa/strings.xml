@@ -136,6 +136,12 @@
   <string name="contact_added_toast">مخاطب اضافه شد: %s</string>
   <string name="contact_already_exists">مخاطب %s از قبل وجود دارد</string>
   <string name="qr_code_invalid">کد QR نامعتبر می باشد</string>
+  <string name="qr_code_too_old">کد QR که شما اسکن کرده اید متعلق به یک نسخه قدیمی از %s می باشد.
+
+لطفا از مخاطب خود بخواهید تا به آخرین نسخه آپگرید کرده و دوباره تلاش کنید.</string>
+  <string name="qr_code_too_new">کد QR که شما اسکن کرده اید متعلق به یک نسخه جدید  از %s می باشد.
+
+لطفا به آخرین نسخه آپگرید کرده و دوباره تلاش کنید.</string>
   <string name="camera_error">خطای دوربین</string>
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
@@ -367,8 +373,10 @@
   <string name="tor_mobile_data_title">استفاده از داده موبایل</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
+  <string name="pref_lock_title">قفل برنامه</string>
   <string name="pref_lock_summary">استفاده از قفل صفحه دستگاه به منظور محافظت از Briar (برایر) در هنگام استفاده از آن</string>
   <string name="pref_lock_disabled_summary">برای استفاده از این ویژگی، قفل صفحه را برای دستگاه خود برپا کنید</string>
+  <string name="pref_lock_timeout_title">اتمام وقت عدم فعالیت قفل صفحه</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">زمانی که از Briar (برایر) استفاده نمی شود، به صورت خودکار بعد از %s آن را قفل کن</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -397,6 +405,7 @@
   <string name="panic_app_setting_none">هیچکدام</string>
   <string name="dialog_title_connect_panic_app">تایید برنامه هراس</string>
   <string name="dialog_message_connect_panic_app">آیا مطمئن هستید که میخواهید به %1$s اجازه دهید تا باعث عملیات مخرب دکمه هراس بشود؟</string>
+  <string name="panic_setting_destructive_action">فعالیت های مخرب</string>
   <string name="panic_setting_signout_title">خروج</string>
   <string name="panic_setting_signout_summary">در صورت کلیک بر روی کلید هراس از Briar (برایر) خارج شو</string>
   <string name="purge_setting_title">حذف حساب کاربری</string>
@@ -475,4 +484,17 @@
   <string name="lock_unlock_password">از رمز عبور استفاده کنید</string>
   <string name="lock_is_locked">Briar (برایر) قفل می باشد</string>
   <string name="lock_tap_to_unlock">برای آنلاک کردن کلیک کنید</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">آلیس</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">باب</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">کارول</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">هی باب!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">هی آلیس! ممنون از اینکه درباره Briar به من گفتی!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">خواهش میکنم، امیدوارم ازش خوشت بیاد 😀</string>
 </resources>

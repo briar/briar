@@ -49,6 +49,7 @@
   <string name="download_briar_button">Descarcă Briar 1.0</string>
   <string name="startup_open_database">Decriptare bază de date...</string>
   <string name="startup_migrate_database">Actualizare bază de date...</string>
+  <string name="startup_compact_database">Compactare bază de date...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Deschide bara de navigare</string>
   <string name="nav_drawer_close_description">Închide bara de navigare</string>
@@ -455,4 +456,17 @@
   <string name="lock_unlock_password">Folosește parola</string>
   <string name="lock_is_locked">Briar este blocat</string>
   <string name="lock_tap_to_unlock">Atingeți pentru a debloca</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Bună Bob!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Bună Alice! Mersi că mi-ai spus despre Briar!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Cu plăcere, sper să îți placă 😀</string>
 </resources>

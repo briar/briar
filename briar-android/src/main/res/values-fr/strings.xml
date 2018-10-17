@@ -48,6 +48,7 @@
   <string name="download_briar_button">Télécharger Briar 1.0</string>
   <string name="startup_open_database">Déchiffrement de la base de données…</string>
   <string name="startup_migrate_database">Mise à niveau de la base de données…</string>
+  <string name="startup_compact_database">Compactage de la base de données…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Ouvrir le tiroir de navigation</string>
   <string name="nav_drawer_close_description">Fermer le tiroir de navigation</string>
@@ -129,6 +130,8 @@
   <string name="contact_added_toast">Contact ajouté : %s</string>
   <string name="contact_already_exists">Le contact %s existe déjà</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
+  <string name="qr_code_too_old">Le code QR que vous avez lu provient d’une version plus ancienne de %s.\n\nVeuillez demander à votre contact de passer à la version la plus récente, puis ressayez.</string>
+  <string name="qr_code_too_new">Le code QR que vous avez lu provient d’une version plus récente de %s.\n\nVeuillez passer à la version la plus récente, puis ressayez.</string>
   <string name="camera_error">Erreur de la caméra</string>
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
@@ -370,6 +373,7 @@
   <string name="panic_app_setting_none">Aucune</string>
   <string name="dialog_title_connect_panic_app">Confirmer l’application d’urgence</string>
   <string name="dialog_message_connect_panic_app">Voulez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
+  <string name="panic_setting_destructive_action">Actions destructrices</string>
   <string name="panic_setting_signout_title">Déconnexion</string>
   <string name="panic_setting_signout_summary">Se déconnecter de Briar si l’on appuie sur un bouton d’urgence</string>
   <string name="purge_setting_title">Supprimer le compte</string>
@@ -442,4 +446,17 @@
   <string name="lock_unlock_password">Utiliser un mot de passe</string>
   <string name="lock_is_locked">Briar est verrouillée</string>
   <string name="lock_tap_to_unlock">Toucher pour déverrouiller</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Laurence</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Thomas</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Léa</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Bonjour, Thomas !</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Bonjour, Laurence ! Merci de m’avoir parlé de Briar !</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Pas de problème, j’espère que tu aimeras l’appli 😀</string>
 </resources>

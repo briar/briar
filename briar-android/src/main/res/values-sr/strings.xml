@@ -476,4 +476,11 @@ Molim vas da uzmete u obzir odobravanja pristupa.</string>
   <string name="lock_unlock_password">Koristi lozinku</string>
   <string name="lock_is_locked">Briar je zaključan</string>
   <string name="lock_tap_to_unlock">Dotakni da otključaš</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <!--This is a message to be used in screenshots.-->
 </resources>

@@ -5,8 +5,8 @@
   <string name="setup_name_explanation">سيتم إظهار اسمك المستعار بجانب كل ما تنشره من محتوى. لا يمكنك تغيير الاسم بعد إنشاء حسابك.</string>
   <string name="setup_next">التالي</string>
   <string name="setup_password_intro">اختيار كلمة السر</string>
-  <string name="setup_password_explanation">حسابك على Briar (براير) سيتم تخزينه مشفرا على جهازك، وليس على الإنترنت. لذا فإنك إذا نسيت كلمة السر الخاصة بك أو قمت بإلغاء تثبيت Briar (براير)، فلا توجد طريقه لاسترجاع حسابك.\n\nاختر كلمة سر طويلة يصعب تخمينها مثل أربعة كلمات عشوائية أو عشر حروف عشوائية مع أرقام ورموز.</string>
-  <string name="setup_doze_title">اتصالات الخلفية</string>
+  <string name="setup_password_explanation">سيتم تخزين حسابك على Briar (براير) مشفرا على جهازك، وليس على الإنترنت. لذا في حالة نسيان كلمة السر الخاصة بك أو إلغاء تثبيت Briar (براير) لا توجد طريقه لاسترجاع حسابك.\n\nالرجاء اختيار كلمة سر طويلة يصعب تخمينها مثل أربع كلمات عشوائية أو عشرة حروف عشوائية مع أرقام ورموز.</string>
+  <string name="setup_doze_title">الاتصالات الخلفية</string>
   <string name="setup_doze_intro">لاستقبال الرسائل، يحتاج Briar (براير) أن يبقى متصلا في الخلفية.</string>
   <string name="setup_doze_explanation">لاستقبال الرسائل، يحتاج Briar (براير) أن يبقى متصلا في الخلفية. الرجاء تعطيل تحسين البطارية حتى يتمكن Briar (براير) من البقاء متصلا.</string>
   <string name="setup_doze_button">السماح بالاتصالات</string>
@@ -19,10 +19,10 @@
   <string name="create_account_button">إنشاء الحساب</string>
   <string name="more_info">معلومات أكثر</string>
   <string name="don_t_ask_again">عدم الطلب مرة أخرى</string>
-  <string name="setup_huawei_text">الرجاء الظغط على الزر في الأسفل والتأكد من أن Briar (براير) محمى في شاشة \"التطبيقات المحمية\".</string>
+  <string name="setup_huawei_text">الرجاء الضغط على الزر في الأسفل والتأكد من أن Briar (براير) محمى في شاشة \"التطبيقات المحمية\".</string>
   <string name="setup_huawei_button">حماية Briar (براير)</string>
   <string name="setup_huawei_help">إذا لم يتم إضافة Briar (براير) في قائمة التطبيقات المحمية، فلن يتمكن من العمل في الخلفية.</string>
-  <string name="warning_dozed">%s لم يمكن تشغيله في الخلفية</string>
+  <string name="warning_dozed">%s لم يتمكن من الاشتغال في الخلفية</string>
   <!--Login-->
   <string name="enter_password">‮كلمة السّر</string>
   <string name="try_again">كلمة السرّ خاطئة, الرجاء المحاولة مجدّدا</string>
@@ -31,12 +31,12 @@
   <string name="dialog_title_lost_password">فقدت كلمة السر</string>
   <string name="dialog_message_lost_password">حسابك على Briar (براير) سيتم تخزينه مشفرا على جهازك، وليس على الإنترنت. لذا فلا يمكننا إعادة تعيين كلمة السر الخاصة بك. فهل تودّ/ين حذف حسابك والبدء من جديد؟\n\nتحذير: سيتمّ حذف هويّاتك وجهات اتصالك ورسائلك الى الأبد.</string>
   <string name="startup_failed_notification_title">Briar (براير) لم يمكنه البدء</string>
-  <string name="startup_failed_notification_text">المس لمزيد من المعلومات</string>
+  <string name="startup_failed_notification_text">المس/ي لمزيد من المعلومات</string>
   <string name="startup_failed_activity_title">فشل تشغيل Briar (براير)</string>
   <string name="startup_failed_db_error">لسبب ما، فإن قاعدة بيانات Briar (براير) قد تلفت ولم يعد من الممكن إصلاحها. حسابك وبياناتك وكل جهات اتصالك قد فقدت. للأسف، يلزم إعادة تثبيت Briar (براير) أو إنشاء حساب جديد عن طريق خيار \"نسيت كلمة السر\" عند سؤالك عنها.</string>
   <string name="startup_failed_data_too_old_error">حسابك تم إنشاؤه بواسطة إصدار قديم من هذا التطبيق ولا يمكن فتحه بهذا الإصدار. يتوجب إعادة تثبيت الإصدار القديم أو أن تنشئ حسابا جديدًا باختيار \"نسيت كلمة السر\" عند سؤالك عنها.</string>
-  <string name="startup_failed_data_too_new_error">هذا الإصدار من التطبيق قديم جدًا. من فضلك قم بالتحديث لآخر إصدار ثم حاول مجددًا.</string>
-  <string name="startup_failed_service_error">Briar (براير) لم يستطع تشغيل إضافة لازمة. إعادة تشغيل Briar (براير) يحل مثل هذه المشكلة عادة. لكن ذلك يعني أنك ستفقد حسابك وكل بياناتك عليه حيث أن Briar (براير) لا يستعمل خوادم مركزية لتخزين بياناتك.</string>
+  <string name="startup_failed_data_too_new_error">هذا الإصدار من التطبيق قديم جدًا. الرجاء التحديث لآخر إصدار ثم المحاولة مجددًا.</string>
+  <string name="startup_failed_service_error">Briar (براير) لم يستطع تشغيل إضافة لازمة. إعادة تشغيل Briar (براير) يحل مثل هذه المشكلة عادة. لكن ذلك يعني أنك فقدان حسابك وكل بياناتك عليه حيث أن Briar (براير) لا يستعمل خوادم مركزية لتخزين بياناتك.</string>
   <plurals name="expiry_warning">
     <item quantity="zero">هذا إصدار تجريبي من Briar (براير). حسابك سينتهي اليوم ولن يمكن تجديده.</item>
     <item quantity="one">هذا إصدار تجريبي من Briar (براير). حسابك سينتهي خلال يوم ولن يمكن تجديده.</item>
@@ -47,14 +47,14 @@
   </plurals>
   <string name="expiry_update">تم تمديد تاريخ انتهاء التجربة. حسابك الآن سوف ينتهي بعد %d يوم.</string>
   <string name="expiry_date_reached">هذا البرنامج قد انتهت مدته.\nشكرا لك للتجربة!</string>
-  <string name="download_briar">لتستمر في إستعمال Briar (براير)، من فضلك قم بتحميل إصدار رقم 1.0.</string>
-  <string name="create_new_account">تحتاج أن تنشئ حساب جديد، لكن يمكنك استعمال نفس الاسم المستعار.</string>
+  <string name="download_briar">للاستمرار في إستعمال Briar (براير)، من فضلك قم بتحميل إصدار رقم 1.0.</string>
+  <string name="create_new_account">انت في حاجة لانشاء حساب جديد، لكن يمكنك استعمال نفس الاسم المستعار.</string>
   <string name="download_briar_button">تحميل Briar (براير) 1.0</string>
   <string name="startup_open_database">جارِ فك تشفير قاعدة البيانات...</string>
   <string name="startup_migrate_database">جارِ ترقية قاعدة البيانات...</string>
   <!--Navigation Drawer-->
-  <string name="nav_drawer_open_description">إفتح راسم التصفح</string>
-  <string name="nav_drawer_close_description">أغلق راسم التصفح</string>
+  <string name="nav_drawer_open_description">فتح راسم التصفح</string>
+  <string name="nav_drawer_close_description">غلق راسم التصفح</string>
   <string name="contact_list_button">جهات الاتصال</string>
   <string name="groups_button">المجموعات الخاصة</string>
   <string name="forums_button">المنتديات</string>
@@ -64,16 +64,16 @@
   <string name="settings_button">الإعدادات</string>
   <string name="sign_out_button">تسجيل الخروج</string>
   <!--Transports-->
-  <string name="transport_tor">الإنترنت</string>
+  <string name="transport_tor">إنترنت</string>
   <string name="transport_bt">بلوتوث</string>
   <string name="transport_lan">واي-فاي</string>
   <!--Notifications-->
   <string name="reminder_notification_title">تم تسجيل الخروج من Briar (براير)</string>
-  <string name="reminder_notification_text">المس لإعادة الدخول</string>
+  <string name="reminder_notification_text">الرجاء اللمس لإعادة الدخول</string>
   <string name="reminder_notification_channel_title">التذكير بتسجيل الدخول إلى Briar (براير)</string>
   <string name="reminder_notification_dismiss">رفض</string>
-  <string name="ongoing_notification_title">سجِل الدخول إلى Briar (براير)</string>
-  <string name="ongoing_notification_text">المس لفتح Briar (براير).</string>
+  <string name="ongoing_notification_title">تم تسجيل الدخول إلى Briar (براير)</string>
+  <string name="ongoing_notification_text">الرجاء اللمس لفتح Briar (براير).</string>
   <plurals name="private_message_notification_text">
     <item quantity="zero">لا رسائل خاصة جديدة.</item>
     <item quantity="one"> رسالة خاصة جديدة.</item>
@@ -110,41 +110,41 @@
   <string name="now">الآن</string>
   <string name="show">عرض</string>
   <string name="hide">إخفاء</string>
-  <string name="ok">موافق</string>
+  <string name="ok">موافقة</string>
   <string name="cancel">إلغاء</string>
   <string name="got_it">فهمت ذلك</string>
   <string name="delete">حذف</string>
   <string name="accept">قبول</string>
-  <string name="decline">إرفض</string>
+  <string name="decline">رفض</string>
   <string name="options">الخيارات</string>
   <string name="online">متصل</string>
   <string name="offline">غير متصل</string>
-  <string name="send">أرسلْ</string>
-  <string name="allow">إسمح</string>
+  <string name="send">ارسال</string>
+  <string name="allow">السماح</string>
   <string name="open">فتح</string>
   <string name="no_data">لا يوجد بيانات</string>
   <string name="ellipsis">...</string>
   <string name="text_too_long">النص المُدخل طويل جدًا</string>
-  <string name="show_onboarding">أظهر نافذة المساعدة</string>
+  <string name="show_onboarding">اظهار نافذة المساعدة</string>
   <string name="fix">إصلاح</string>
   <string name="help">مساعدة</string>
   <string name="sorry">معذرة</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">لا جهات اتصال للعرض</string>
-  <string name="no_contacts_action">المس علامة + لإضافة جهة إتصال</string>
+  <string name="no_contacts_action">لمس علامة + لإضافة جهة إتصال</string>
   <string name="date_no_private_messages">لا رسائل.</string>
   <string name="no_private_messages">لا رسائل للعرض.</string>
-  <string name="message_hint">أكتب رسالة</string>
+  <string name="message_hint">كتابة رسالة</string>
   <string name="delete_contact">حذف جهة الإتصال</string>
   <string name="dialog_title_delete_contact">تأكيد حذف جهة الإتصال</string>
-  <string name="dialog_message_delete_contact">هل متأكد من أنك تريد حذف جهة الإتصال هذه وكل الرسائل المتبادلة بينكما؟</string>
+  <string name="dialog_message_delete_contact">هل أنت متأكد/ة من أنك تريد حذف جهة الإتصال هذه وكل الرسائل المتبادلة بينكما؟</string>
   <string name="contact_deleted_toast">تم حذف جهة اتصال</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">إضافة جهة اتصال</string>
-  <string name="face_to_face">لابد أن تقابل الشخص الذي تريد إضافته كجهة اتصال.\n\nهذا سيمنع أي شخص من انتحال شخصيتك أو قراءة رسائلك في المستقبل.</string>
+  <string name="face_to_face">لا بد من مقابلة الشخص الذي تريد/ين إضافته كجهة اتصال.\n\nهذا سيمنع أي شخص من انتحال شخصيتك أو قراءة رسائلك في المستقبل.</string>
   <string name="continue_button">إستمرار</string>
-  <string name="try_again_button">حاول مجددًا</string>
-  <string name="waiting_for_contact_to_scan">بإنتظار جهة الإتصال ليقوم بالمسح والإتصال\u2026</string>
+  <string name="try_again_button">الرجاء المحاولة مجددًا</string>
+  <string name="waiting_for_contact_to_scan">بإنتظار أن تقوم جهة الإتصال بالمسح والإتصال\u2026</string>
   <string name="exchanging_contact_details">يتم تبادل معلومات جهة الإتصال\u2026</string>
   <string name="contact_added_toast">تم إضافة جهة إتصال: %s</string>
   <string name="contact_already_exists">جهة الإتصال %s بالفعل موجودة</string>
@@ -172,11 +172,11 @@
   <string name="introduction_request_exists_received">قد طلب %1$s أن يقدمك إلى %2$s، لكن %2$s هو بالفعل في قائمة جهات اتصالك. حيث أن %1$s قد لا يعرف هذا، فلا زال يمكنك الرد:</string>
   <string name="introduction_request_answered_received">لقد طلب %1$s أن يقوم بتقديمك إلى %2$s.</string>
   <string name="introduction_response_accepted_sent">لقد قبلت التقديم إلى %1$s.</string>
-  <string name="introduction_response_accepted_sent_info">قبل أن يتم إضافة %1$s إلى جهات اتصالك، يحتاج أن يقبل هو أيضًا التقديم. هذا يمكن أن يستغرق بعض الوقت.</string>
+  <string name="introduction_response_accepted_sent_info">قبل أن يتم إضافة %1$s إلى جهات اتصالك، يحتاج أن ي/تقبل هو/هي أيضًا التقديم. هذا يمكن أن يستغرق بعض الوقت.</string>
   <string name="introduction_response_declined_sent">لقد رفضت التقديم إلى %1$s.</string>
-  <string name="introduction_response_accepted_received">لقد وافق %1$s على تقديمه إلى %2$s.</string>
-  <string name="introduction_response_declined_received">لقد رفض %1$sتقديمه إلى %2$s.</string>
-  <string name="introduction_response_declined_received_by_introducee">يقول %1$sأن %2$s قد رفض التقدمة.</string>
+  <string name="introduction_response_accepted_received">لقد وافق/ت %1$s على تقديمه/ها إلى %2$s.</string>
+  <string name="introduction_response_declined_received">لقد رفض/ت %1$sتقديمه/ا إلى %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">ي/تقول %1$sأن %2$s قد رفض/ت التقدمة.</string>
   <plurals name="introduction_notification_text">
     <item quantity="zero">لا جهة اتصال تم إضافتها.</item>
     <item quantity="one">جهة اتصال تم إضافتها.</item>
@@ -187,7 +187,7 @@
   </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">لا مجموعات للعرض</string>
-  <string name="groups_list_empty_action">المس علامة + لإنشاء مجموعة، أو اطلب من جهات إتصالك مشاركتك في مجموعاتهم</string>
+  <string name="groups_list_empty_action">الرجاء لمس علامة + لإنشاء مجموعة، أو اطلب من جهات إتصالك مشاركتك في مجموعاتهم</string>
   <string name="groups_created_by">تم إنشاؤها بواسطة %s</string>
   <plurals name="messages">
     <item quantity="zero">%d رسالة</item>
@@ -200,26 +200,26 @@
   <string name="groups_group_is_empty">هذه المجموعة فارغة</string>
   <string name="groups_group_is_dissolved">هذه المجموعة قد تلاشت</string>
   <string name="groups_remove">حذف</string>
-  <string name="groups_create_group_title">قم بإنشاء مجموعة خاصة</string>
-  <string name="groups_create_group_button">أنشئ مجموعة</string>
-  <string name="groups_create_group_invitation_button">أرسل دعوة</string>
-  <string name="groups_create_group_hint">اختر اسمًا لمجموعتك الخاصة</string>
+  <string name="groups_create_group_title">إنشاء مجموعة خاصة</string>
+  <string name="groups_create_group_button">إنشاء مجموعة</string>
+  <string name="groups_create_group_invitation_button">إرسال دعوة</string>
+  <string name="groups_create_group_hint">اختيار اسم لمجموعتك الخاصة</string>
   <string name="groups_invitation_sent">تم إرسال دعوة للمجموعة</string>
   <string name="groups_message_sent">تم إرسال الرسالة</string>
   <string name="groups_member_list">قائمة الأعضاء</string>
   <string name="groups_invite_members">دعوة أعضاء</string>
   <string name="groups_member_created_you">أنت أنشأت المجموعة</string>
   <string name="groups_member_created">%s أنشأ المجموعة</string>
-  <string name="groups_member_joined_you">قد انضممت للمجموعة</string>
-  <string name="groups_member_joined">قد انضم %s للمجموعة</string>
-  <string name="groups_leave">غادر المجموعة</string>
+  <string name="groups_member_joined_you">قد انضممت/ي للمجموعة</string>
+  <string name="groups_member_joined">قد انضم/ت %s للمجموعة</string>
+  <string name="groups_leave">مغادرة المجموعة</string>
   <string name="groups_leave_dialog_title">تأكيد مغادرة المجموعة</string>
-  <string name="groups_leave_dialog_message">هل متأكد من مغادرة هذه المجموعة؟</string>
+  <string name="groups_leave_dialog_message">هل أنت متأكد/ة من مغادرة هذه المجموعة؟</string>
   <string name="groups_dissolve">حلّ المجموعة</string>
-  <string name="groups_dissolve_dialog_title">أكد حلّ وتلاشي المجموعة</string>
-  <string name="groups_dissolve_dialog_message">هل متأكد أنك تريد حلّ هذه المجموعة؟\n\nجميع الأعضاء الآخرين لن يتمكنوا من استكمال حوارهم وربما لن يستقبلوا الرسائل الأخيرة.</string>
+  <string name="groups_dissolve_dialog_title">تأكيد حلّ المجموعة</string>
+  <string name="groups_dissolve_dialog_message">هل تريد/ين فعلا حلّ هذه المجموعة؟\n\nجميع الأعضاء الآخرين لن يتمكنوا من استكمال حوارهم وربما لن يستقبلوا الرسائل الأخيرة.</string>
   <string name="groups_dissolve_button">حلّ</string>
-  <string name="groups_dissolved_dialog_title">تم حلّ المجموعة وتلاشيها</string>
+  <string name="groups_dissolved_dialog_title">تم حلّ المجموعة </string>
   <string name="groups_dissolved_dialog_message">منشئ هذه المجموعة قام بحلّها.\n\n لن يمكنك كتابة رسائل إلى المجموعة كما ويحتمل أنك لم تستقبل جميع الرسائل التي تم كتابتها.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">دعوات المجموعة</string>
@@ -233,26 +233,27 @@
     <item quantity="two">دعوتيْ مجموعة مفتوحتين</item>
     <item quantity="few">%d دعوات مجموعة مفتوحة</item>
     <item quantity="many">%d دعوة مجموعة مفتوحة</item>
-    <item quantity="other">%d دعوة مجموعة مفتوحة</item>
+    <item quantity="other">%d 
+فتح دعوات المجموعات</item>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">قد قبلت دعوة الانضمام للمجموعة من %s.</string>
   <string name="groups_invitations_response_declined_sent">قد رفضت دعوة الانضمام للمجموعة من %s.</string>
-  <string name="groups_invitations_response_accepted_received">قبل %s دعوة الانضمام للمجموعة.</string>
-  <string name="groups_invitations_response_declined_received">رفض %s دعوة الانضمام للمجموعة.</string>
-  <string name="sharing_status_groups">فقط المُنشئ يمكنه دعوة أعضاء جدد للمجموعة. في الأسفل جميع الأعضاء الحاليين بالمجموعة.</string>
+  <string name="groups_invitations_response_accepted_received">قبل/ت %s دعوة الانضمام للمجموعة.</string>
+  <string name="groups_invitations_response_declined_received">رفض/ت %s دعوة الانضمام للمجموعة.</string>
+  <string name="sharing_status_groups">فقط مُنشئ/ة المجموعة يمكنه/ها دعوة أعضاء جدد. في الأسفل جميع الأعضاء الحاليين بالمجموعة.</string>
   <!--Private Groups Revealing Contacts-->
-  <string name="groups_reveal_contacts">أظهر الأعضاء</string>
-  <string name="groups_reveal_dialog_message">يمكن أن تختار إظهار جميع جهات الاتصال الحالية والمستقبلية في هذه المجموعة لبعضهم البعض.\n\nإظهار جهات الاتصال سيجعل اتصالك بالمجموعة أسرع وأفضل اعتمادية، حيث سيمكن التواصل بين جهات الاتصال الظاهرة حتى لو كان منشئ المجموعة غير متصل.</string>
+  <string name="groups_reveal_contacts">اظهار الأعضاء</string>
+  <string name="groups_reveal_dialog_message">يمكن اختيار إظهار جميع جهات الاتصال الحالية والمستقبلية في هذه المجموعة لبعضهم البعض.\n\nإظهار جهات الاتصال سيجعل اتصالك بالمجموعة أسرع وأفضل اعتمادية، حيث سيمكن التواصل بين جهات الاتصال الظاهرة حتى لو كان منشئ المجموعة غير متصل.</string>
   <string name="groups_reveal_visible">علاقات جهات الاتصال ستكون ظاهرة للمجموعة</string>
-  <string name="groups_reveal_visible_revealed_by_us">علاقات جهات الاتصال ظاهرة للمجموعة (قمت أنت بكشفها)</string>
-  <string name="groups_reveal_visible_revealed_by_contact">علاقات جهات الاتصال ظاهرة للمجموعة (قام %s بكشفها)</string>
+  <string name="groups_reveal_visible_revealed_by_us">علاقات جهات الاتصال ظاهرة للمجموعة (قمت/ي أنت بكشفها)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">علاقات جهات الاتصال ظاهرة للمجموعة (قام/ت %s بكشفها)</string>
   <string name="groups_reveal_invisible">علاقات جهات الاتصال غير ظاهرة للمجموعة</string>
   <!--Forums-->
   <string name="no_forums">لا منتديات للعرض</string>
-  <string name="no_forums_action">المس علامة + لإنشاء منتدى، أو اطلب من جهات اتصالك مشاركتك في منتدياتهم</string>
-  <string name="create_forum_title">أنشئ منتدىَ</string>
-  <string name="choose_forum_hint">اختر إسم لمنتداك</string>
-  <string name="create_forum_button">أنشئ منتدىَ</string>
+  <string name="no_forums_action">الرجاء لمس علامة + لإنشاء منتدى، أو طلب من جهات اتصالك مشاركتك في منتدياتهم</string>
+  <string name="create_forum_title">انشاء منتدى</string>
+  <string name="choose_forum_hint">اختيار إسم لمنتداك</string>
+  <string name="create_forum_button">انشاء منتدى</string>
   <string name="forum_created_toast">تم إنشاء المنتدى</string>
   <string name="no_forum_posts">لا منشورات للعرض</string>
   <string name="no_posts">لا منشورات</string>
@@ -270,7 +271,7 @@
   <string name="btn_reply">الرد</string>
   <string name="forum_leave">مغادرة المنتدى</string>
   <string name="dialog_title_leave_forum">تأكيد مغادرة المنتدى</string>
-  <string name="dialog_message_leave_forum">هل متأكد من رغبتك في مغادرة المنتدى؟\n\nأي جهة اتصال قمت بمشاركة هذا المنتدى معها قد يتوقف عنها استلام التحديثات.</string>
+  <string name="dialog_message_leave_forum">هل أنت متأكد/ة من رغبتك في مغادرة المنتدى؟\n\nأي جهة اتصال قمت/ي بمشاركة هذا المنتدى معها قد يتوقف عنها استلام التحديثات.</string>
   <string name="dialog_button_leave">مغادرة</string>
   <string name="forum_left_toast">تم مغادرة المنتدى</string>
   <!--Forum Sharing-->
@@ -278,25 +279,25 @@
   <string name="contacts_selected">جهات الاتصال المختارة</string>
   <string name="activity_share_toolbar_header">إختر جهات الاتصال</string>
   <string name="no_contacts_selector">لا جهات إتصال للعرض</string>
-  <string name="no_contacts_selector_action">رجاءًا العودة لاحقًا هنا بعد إضافة جهة إتصال</string>
+  <string name="no_contacts_selector_action">الرجاء العودة لاحقًا هنا بعد إضافة جهة إتصال</string>
   <string name="forum_shared_snackbar">تم مشاركة المنتدى مع جهات الاتصال المختارة</string>
-  <string name="forum_share_message">أضف رسالة (إختياري)</string>
+  <string name="forum_share_message">اضافة رسالة (إختياري)</string>
   <string name="forum_share_error">حدث خطأ أثناء مشاركة المنتدى</string>
-  <string name="forum_invitation_received">قام %1$s بمشاركة المنتدى \"%2$s\" معك.</string>
-  <string name="forum_invitation_sent">لقد قمت بمشاركة المنتدى \"%1$s\" مع %2$s.</string>
+  <string name="forum_invitation_received">قام/ت %1$s بمشاركة المنتدى \"%2$s\" معك.</string>
+  <string name="forum_invitation_sent">لقد قمت/ي بمشاركة المنتدى \"%1$s\" مع %2$s.</string>
   <string name="forum_invitations_title">دعوات المنتدى</string>
-  <string name="forum_invitation_exists">لقد قمت بالفعل بقبول دعوة لهذا المنتدى.\n\nقبول دعوات إضافية سيجعل اتصالك مع المنتدى أسرع وأكثر اعتمادية.</string>
+  <string name="forum_invitation_exists">لقد قمت/ي بالفعل بقبول دعوة لهذا المنتدى.\n\nقبول دعوات إضافية سيجعل اتصالك مع المنتدى أسرع وأكثر اعتمادية.</string>
   <string name="forum_joined_toast">تم الإنضمام للمنتدى</string>
   <string name="forum_declined_toast">تم رفض الدعوة</string>
-  <string name="shared_by_format">شورٍك بواسطة %s</string>
-  <string name="forum_invitation_already_sharing">مُشارك بالفعل</string>
+  <string name="shared_by_format">تمت المشاركة بواسطة %s</string>
+  <string name="forum_invitation_already_sharing">في طور المشاركة</string>
   <string name="forum_invitation_response_accepted_sent">لقد قبلت دعوة المنتدى من %s.</string>
   <string name="forum_invitation_response_declined_sent">لقد رفضت دعوة المنتدى من %s.</string>
-  <string name="forum_invitation_response_accepted_received">قبل %s دعوة المنتدى.</string>
-  <string name="forum_invitation_response_declined_received">رفض %s دعوة المنتدى.</string>
+  <string name="forum_invitation_response_accepted_received">قبل/ت %s دعوة المنتدى.</string>
+  <string name="forum_invitation_response_declined_received">رفض/ت %s دعوة المنتدى.</string>
   <string name="sharing_status">حالة المشاركة</string>
-  <string name="sharing_status_forum">أي عضو بالمنتدى يمكنه مشاركته مع جهات إتصاله. أنت تشارك هذا المنتدى مع جهات الإتصال هذه. قد يكون هناك أعضاء آخرين لا يمكنك رؤيتهم.</string>
-  <string name="shared_with">مشارك مع %1$d (%2$d متصل)</string>
+  <string name="sharing_status_forum">أي عضو بالمنتدى يمكنه مشاركته مع جهات إتصاله. يمكنك مشاركة هذا المنتدى مع جهات الإتصال هذه. قد يكون هناك أعضاء آخرين لا يمكنك/ي رؤيتهم.</string>
+  <string name="shared_with">تمت المشاركة مع %1$d (%2$d متصل)</string>
   <plurals name="forums_shared">
     <item quantity="zero">لا منتدى مُشارَك من جهات الاتصال</item>
     <item quantity="one">منتدى مُشارَك من جهات الاتصال</item>
@@ -308,54 +309,54 @@
   <string name="nobody">لا أحد</string>
   <!--Blogs-->
   <string name="blogs_other_blog_empty_state">لا منشورات للعرض</string>
-  <string name="read_more">اقرأ المزيد</string>
-  <string name="blogs_write_blog_post">أكتب تدوينة</string>
-  <string name="blogs_write_blog_post_body_hint">أكتب تدوينتك</string>
+  <string name="read_more">قراءة المزيد</string>
+  <string name="blogs_write_blog_post">كتابة تدوينة</string>
+  <string name="blogs_write_blog_post_body_hint">كتابة تدوينتك</string>
   <string name="blogs_publish_blog_post">نشر</string>
   <string name="blogs_blog_post_created">تم إنشاء تدوينة</string>
   <string name="blogs_blog_post_received">تم إستلام تدوينة جديدة</string>
-  <string name="blogs_blog_post_scroll_to">إنزل إلى</string>
+  <string name="blogs_blog_post_scroll_to">النزول إلى</string>
   <string name="blogs_feed_empty_state">لا منشورات للعرض</string>
-  <string name="blogs_feed_empty_state_action">التدوينات من جهات اتصالك والمدونات التي تشترك بها ستظهر هنا\n\nالمس أيقونة القلم لتكتب تدوينة</string>
-  <string name="blogs_remove_blog">احذف المدونة</string>
-  <string name="blogs_remove_blog_dialog_message">هل متأكد أنك تريد حذف هذه المدونة؟\n\nالتدوينات سيتم حذفها من جهازك فقط وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت بمشاركة المدونة معه قد لا يتمكن من استلام التحديثات.</string>
-  <string name="blogs_remove_blog_ok">‮أزِل</string>
+  <string name="blogs_feed_empty_state_action">التدوينات من جهات اتصالك والمدونات التي تشترك/ين بها ستظهر هنا\n\nالرجاء لمس أيقونة القلم لكتابة تدوينة</string>
+  <string name="blogs_remove_blog">حذف المدونة</string>
+  <string name="blogs_remove_blog_dialog_message">هل أنت متأكد/ة من أنك تريد/ين حذف هذه المدونة؟\n\nالتدوينات سيتم حذفها من جهازك فقط وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت/ي بمشاركة المدونة معها قد لا تتمكن من استلام التحديثات.</string>
+  <string name="blogs_remove_blog_ok">حذف</string>
   <string name="blogs_blog_removed">تم حذف المدونة</string>
-  <string name="blogs_reblog_comment_hint">أضف تعليق (إختياري)</string>
-  <string name="blogs_reblog_button">أعد التدوين</string>
+  <string name="blogs_reblog_comment_hint">اضافة تعليق (إختياري)</string>
+  <string name="blogs_reblog_button">اعادة التدوين</string>
   <!--Blog Sharing-->
-  <string name="blogs_sharing_share">شارك المدونة</string>
+  <string name="blogs_sharing_share">مشاركة المدونة</string>
   <string name="blogs_sharing_error">حدث خطأ في مشاركة هذه المدونة.</string>
-  <string name="blogs_sharing_button">شارك المدونة</string>
+  <string name="blogs_sharing_button">مشاركة المدونة</string>
   <string name="blogs_sharing_snackbar">تم مشاركة المدونة مع جهات الاتصال المختارة</string>
   <string name="blogs_sharing_response_accepted_sent">لقد قبلت دعوة المدونة من %s.</string>
   <string name="blogs_sharing_response_declined_sent">لقد رفضت دعوة المدونة من %s.</string>
-  <string name="blogs_sharing_response_accepted_received">قبل %s دعوة المدونة.</string>
-  <string name="blogs_sharing_response_declined_received">رفض %s دعوة المدونة.</string>
-  <string name="blogs_sharing_invitation_received">قام %1$s  بمشاركة المدونة \"%2$s\" معك.</string>
-  <string name="blogs_sharing_invitation_sent">قمت بمشاركة المدونة \"%1$s\" مع %2$s.</string>
+  <string name="blogs_sharing_response_accepted_received">قبل/ت %s دعوة المدونة.</string>
+  <string name="blogs_sharing_response_declined_received">رفض/ت %s دعوة المدونة.</string>
+  <string name="blogs_sharing_invitation_received">قام/ت %1$s  بمشاركة المدونة \"%2$s\" معك.</string>
+  <string name="blogs_sharing_invitation_sent">تمت مشاركة المدونة \"%1$s\" مع %2$s.</string>
   <string name="blogs_sharing_invitations_title">دعوات المدونة</string>
-  <string name="blogs_sharing_joined_toast">أشترك في المدونة</string>
+  <string name="blogs_sharing_joined_toast">مشترك/ة في المدونة</string>
   <string name="blogs_sharing_declined_toast">تم رفض الدعوة</string>
-  <string name="sharing_status_blog">أي شخص أشترك في مدونة يمكنه مشاركتها مع جهات اتصاله. أنت تشارك هذه المدونة مع جهات الإتصال التالية. قد يكون هناك مشتركون آخرون لا يمكنك رؤيتهم.</string>
+  <string name="sharing_status_blog">أي شخص أشترك في مدونة يمكنه مشاركتها مع جهات اتصاله. أنت تشارك/ين هذه المدونة مع جهات الإتصال التالية. قد يكون هناك مشتركون آخرون لا يمكن رؤيتهم.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">إستيراد تحديثات RSS</string>
   <string name="blogs_rss_feeds_import_button">إستيراد</string>
-  <string name="blogs_rss_feeds_import_hint">أدخل رابط تحديثات RSS</string>
+  <string name="blogs_rss_feeds_import_hint">ادخال رابط تحديثات RSS</string>
   <string name="blogs_rss_feeds_import_error">معذرة! حدث خطأ في استيراد التحديثات.</string>
   <string name="blogs_rss_feeds_manage">إدارة تحديثات RSS</string>
-  <string name="blogs_rss_feeds_manage_imported">مستوردة:</string>
-  <string name="blogs_rss_feeds_manage_author">المؤلف:</string>
+  <string name="blogs_rss_feeds_manage_imported">تم استيراد:</string>
+  <string name="blogs_rss_feeds_manage_author">المؤلف/ة:</string>
   <string name="blogs_rss_feeds_manage_updated">آخر تحديث:</string>
-  <string name="blogs_rss_remove_feed">أزل الخلاصة</string>
-  <string name="blogs_rss_remove_feed_dialog_message">هل متأكد من رغبتك في حذف هذه الخلاصة؟\n\nالمنشورات ستحذف من جهازك وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت بمشاركة هذه الخلاصة معهم قد لا يتمكنون من استلام التحديثات.</string>
-  <string name="blogs_rss_remove_feed_ok">‮أزِل</string>
+  <string name="blogs_rss_remove_feed">ازالة الخلاصة</string>
+  <string name="blogs_rss_remove_feed_dialog_message">هل أنت متأكد/ة من رغبتك في حذف هذه الخلاصة؟\n\nالمنشورات ستحذف من جهازك وليس من أجهزة الآخرين.\n\nأي جهة اتصال قمت/ي بمشاركة هذه الخلاصة معها قد لا تتمكن من استلام التحديثات.</string>
+  <string name="blogs_rss_remove_feed_ok">حذف</string>
   <string name="blogs_rss_feeds_manage_delete_error">لا يمكن حذف الخلاصة!</string>
-  <string name="blogs_rss_feeds_manage_empty_state">لا خلاصات RSS للعرض\n\nالمس علامة + لإستيراد خلاصة.</string>
-  <string name="blogs_rss_feeds_manage_error">حدث خطأ في جلب خلاصاتك. من فضلك حاول لاحقًا.</string>
+  <string name="blogs_rss_feeds_manage_empty_state">لا خلاصات RSS للعرض\n\nالرجاء لمس علامة + لإستيراد خلاصة.</string>
+  <string name="blogs_rss_feeds_manage_error">حدث خطأ في جلب خلاصاتك. الرجاء المحاولة لاحقًا.</string>
   <!--Settings Display-->
   <string name="pref_language_title">اللغة &amp; المنطقة</string>
-  <string name="pref_language_changed">هذا الإعداد سيتفعل بعد إعادة تشغيل Briar (براير). من فضلك سجل الخروج ثم أعد تشغيل Briar (براير).</string>
+  <string name="pref_language_changed">هذا الإعداد سيتفعل بعد إعادة تشغيل Briar (براير). الرجاء تسجيل الخروج ثم اعادة تشغيل Briar (براير).</string>
   <string name="pref_language_default">النظام الإفتراضي</string>
   <string name="display_settings_title">العرض</string>
   <string name="pref_theme_title">السمة</string>
@@ -368,20 +369,20 @@
   <string name="bluetooth_setting">الإتصال عبر بلوتوث</string>
   <string name="bluetooth_setting_enabled">متى ما كان أحد جهات الاتصال قريبًا</string>
   <string name="bluetooth_setting_disabled">فقط عند إضافة جهة إتصال</string>
-  <string name="tor_network_setting">اتصل عبر الانترنت (تور)</string>
+  <string name="tor_network_setting">اتصال عبر الانترنت (تور)</string>
   <string name="tor_network_setting_automatic">تلقائيًا حسب الموقع</string>
-  <string name="tor_network_setting_without_bridges">استخدم تور بلا جسور</string>
-  <string name="tor_network_setting_with_bridges">استخدم تور مع الجسور</string>
-  <string name="tor_network_setting_never">لا تتصل</string>
+  <string name="tor_network_setting_without_bridges">استخدام تور بلا جسور</string>
+  <string name="tor_network_setting_with_bridges">استخدام تور مع الجسور</string>
+  <string name="tor_network_setting_never">عدم الاتصال</string>
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">تلقائيا: %1$s (في %2$s)</string>
-  <string name="tor_mobile_data_title">إستخدم بيانات الجوال</string>
+  <string name="tor_mobile_data_title">إستخدام بيانات الجوال</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">الأمان</string>
-  <string name="pref_lock_summary">استخدم قفل شاشة الجهاز لحماية Briar (براير) في حال تسجيل الدخول</string>
-  <string name="pref_lock_disabled_summary">لاستخدام هذه الميزة، قم بإعداد قفل شاشة لجهازك</string>
+  <string name="pref_lock_summary">الرجاء استخدام قفل شاشة الجهاز لحماية Briar (براير) في حال تسجيل الدخول</string>
+  <string name="pref_lock_disabled_summary">لاستخدام هذه الميزة، الرجاء إعداد قفل شاشة لجهازك</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">حينما لا تستخدم Briar (براير)، أقفله تلقائيا بعد %s</string>
+  <string name="pref_lock_timeout_summary">في حالة عدم استعمال Briar (براير)، يقفل تلقائيا بعد %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 دقيقة</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -409,7 +410,7 @@
   <string name="dialog_title_connect_panic_app">تأكيد تطبيق الذعر</string>
   <string name="dialog_message_connect_panic_app">هل متأكد أنك تريد السماح ل %1$s أن يقوم بتفعيل إجراءات زر الذعر؟</string>
   <string name="panic_setting_signout_title">تسجيل الخروج</string>
-  <string name="panic_setting_signout_summary">سجل الخروج من Briar (براير) إذا تم ضغط زر الذعر</string>
+  <string name="panic_setting_signout_summary">تسجيل الخروج من Briar (براير) عند ضغط زر الذعر</string>
   <string name="purge_setting_title">حذف الحساب</string>
   <string name="purge_setting_summary">احذف حساب Briar (براير) إذا تم ضغط زر الذعر. انتبه: هذا سيسبب حذف دائم لكل معرفات وحساباتك ورسائلك.</string>
   <string name="uninstall_setting_title">ألغ تثبيت Briar (براير)</string>
@@ -440,44 +441,51 @@
   <string name="feedback_settings_title">الإفادة حول التطبيق</string>
   <string name="send_feedback">أرسل ملاحظاتك</string>
   <!--Link Warning-->
-  <string name="link_warning_title">تنبيه الرابط</string>
+  <string name="link_warning_title">تنبيه بوجود رابط</string>
   <string name="link_warning_intro">أنت بصدد فتح هذا الرابط في تطبيق خارجي</string>
-  <string name="link_warning_text">يمكن أن يستعمل هذا في تحديد هويتك. تأمل في مدى ثقتك بالشخص الذي أرسل لك هذا الرابط ويفضل بالنظر بفتحه بإستعمال أورفوكس.</string>
+  <string name="link_warning_text">يمكن أن يستعمل هذا في تحديد هويتك. يرجى التفكير في مدى ثقتك بالشخص الذي أرسل لك هذا الرابط و من الأفضل فتحه بإستعمال أورفوكس.</string>
   <string name="link_warning_open_link">افتح الرابط</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">تقرير إنهيار Briar (براير)</string>
   <string name="briar_crashed">معذرة، لقد انهار Briar (براير).</string>
   <string name="not_your_fault">هذا ليس خطؤك.</string>
-  <string name="please_send_report">من فضلك ساعدنا في تحسين Briar (براير) عبر إرسال تقرير الإنهيار.</string>
+  <string name="please_send_report">الرجاء مساعدتنا في تحسين Briar (براير) عبر إرسال تقرير الإنهيار.</string>
   <string name="report_is_encrypted">نعدك بأن التقرير سيرسل مشفرًا وبشكل آمن.</string>
   <string name="feedback_title">الإفادة حول التطبيق</string>
-  <string name="describe_crash">صف ما حدث (إختياري)</string>
-  <string name="enter_feedback">أدخل ملاحظاتك</string>
+  <string name="describe_crash">وصف ما حدث (إختياري)</string>
+  <string name="enter_feedback">ادخال ملاحظاتك</string>
   <string name="optional_contact_email">بريدك الالكتروني (إختياري)</string>
-  <string name="include_debug_report_crash">ضمن بيانات مجهولة عن الإنهيار</string>
-  <string name="include_debug_report_feedback">ضمن بيانات مجهولة عن هذا الجهاز</string>
+  <string name="include_debug_report_crash">تضمين بيانات مجهولة عن الإنهيار</string>
+  <string name="include_debug_report_feedback">تضمين بيانات مجهولة عن هذا الجهاز</string>
   <string name="could_not_load_report_data">لم يمكن تحميل بيانات التقرير.</string>
-  <string name="send_report">أرسل التقرير</string>
+  <string name="send_report">ارسال التقرير</string>
   <string name="close">إغلاق</string>
   <string name="dev_report_saved">تم حفظ التقرير. سيتم إرساله عند تسجيل الدخول إلى Briar (براير) في المرة القادمة.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">تسجيل الخروج من Briar (براير)...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">تم إكتشاف غلاف شاشة</string>
-  <string name="screen_filter_body">تطبيق آخر يعمل كغلاف فوق Briar (براير). لحماية أمنك فإن Briar (براير) لن يستجيب للمس طالما كان تطبيق آخر فوقه.\n\nيحتمل أن يكون أحد هذه التطبيقات الذي يعمل بالفوق:\n\n %1$s</string>
-  <string name="screen_filter_allow">إسمح لهذه التطبيقات بالعمل فوق غيرها</string>
+  <string name="screen_filter_body">تطبيق آخر يعمل كغلاف فوق Briar (براير). لحماية أمنك فإن Briar (براير) لن يستجيب للمس طالما كان تطبيق آخر فوقه.\n\nيحتمل أن تكون أحد هذه التطبيقات التي تعمل بالفوق:\n\n %1$s</string>
+  <string name="screen_filter_allow">السماح لهذه التطبيقات بالعمل فوق غيرها</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">إذن الكاميرا</string>
-  <string name="permission_camera_request_body">لتقم بمسح رمز QR، يحتاج Briar (براير) إلى إستعمال الكاميرا.</string>
-  <string name="permission_camera_denied_body">قد رفضت إعطاء إذن الكاميرا، لكن إضافة جهات إتصال يتطلب إستعمال الكاميرا.\n\nمن فضلك إمنحنا الإذن.</string>
+  <string name="permission_camera_request_body">للتمكن من مسح رمز QR، يحتاج Briar (براير) إلى إستعمال الكاميرا.</string>
+  <string name="permission_camera_denied_body">قد رفضت إعطاء إذن الكاميرا، لكن إضافة جهات إتصال يتطلب إستعمال الكاميرا.\n\nالرجاء منح الإذن.</string>
   <string name="permission_camera_denied_toast">لم يتم منح الإذن بإستعمال الكاميرا</string>
   <string name="qr_code">رمز QR</string>
-  <string name="show_qr_code_fullscreen">أظهر رمز QR بوضع ملء الشاشة</string>
+  <string name="show_qr_code_fullscreen">اظهار رمز QR بوضع ملء الشاشة</string>
   <!--App Locking-->
   <string name="lock_unlock">فك قفل Briar (براير)</string>
-  <string name="lock_unlock_verbose">أدخل رمز، نمط أو كلمة سر جهازك لإلغاء قفل Briar (براير)</string>
-  <string name="lock_unlock_fingerprint_description">المس حساس البصمة ببصمتك المسجلة للإستمرار</string>
-  <string name="lock_unlock_password">استخدم كلمة السر</string>
+  <string name="lock_unlock_verbose">ادخال رمز، نمط أو كلمة سر جهازك لإلغاء قفل Briar (براير)</string>
+  <string name="lock_unlock_fingerprint_description">لمس حساس البصمة ببصمتك المسجلة للإستمرار</string>
+  <string name="lock_unlock_password">استخدام كلمة السر</string>
   <string name="lock_is_locked">Briar (براير) مقفل</string>
-  <string name="lock_tap_to_unlock">إلمس لفك القفل</string>
+  <string name="lock_tap_to_unlock">الرجاء اللمس لفك القفل</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <!--This is a message to be used in screenshots.-->
 </resources>

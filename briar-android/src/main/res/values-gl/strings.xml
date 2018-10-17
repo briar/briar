@@ -48,6 +48,7 @@
   <string name="download_briar_button">Descargar Briar 1.0</string>
   <string name="startup_open_database">Descifrando a Base de datos...</string>
   <string name="startup_migrate_database">Actualizando a Base de datos...</string>
+  <string name="startup_compact_database">Compactando a base de datos...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abra a gaveta de navegación</string>
   <string name="nav_drawer_close_description">Peche a gaveta de navegación</string>
@@ -129,6 +130,8 @@
   <string name="contact_added_toast">Contacto engadido: %s</string>
   <string name="contact_already_exists">O contacto %s xa existe</string>
   <string name="qr_code_invalid">O código QR non é válido</string>
+  <string name="qr_code_too_old">O código QR que escaneou procede de unha versión anterior de %s.\n\nPor favor, solicite ao seu contacto actualizar a nova versión e inténteo de novo.</string>
+  <string name="qr_code_too_new">O código QR que escaneou procede de unha nova versión de %s.\n\nPor favor, actualice a última versión e inténteo de novo.</string>
   <string name="camera_error">Fallo na cámara</string>
   <string name="connecting_to_device">Conectando co dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticándose co dispositivo\u2026</string>
@@ -370,6 +373,7 @@
   <string name="panic_app_setting_none">Ningún</string>
   <string name="dialog_title_connect_panic_app">Confirme a App do pánico</string>
   <string name="dialog_message_connect_panic_app">Está segura de querer permitir a %1$s activar accións destrutivas do botón do pánico?</string>
+  <string name="panic_setting_destructive_action">Accións destructivas</string>
   <string name="panic_setting_signout_title">Finalizar sesión</string>
   <string name="panic_setting_signout_summary">Desconecte de Briar si o botón do pánico se preme</string>
   <string name="purge_setting_title">Eliminar conta</string>
@@ -442,4 +446,17 @@
   <string name="lock_unlock_password">Utilizar contrasinal</string>
   <string name="lock_is_locked">Briar está bloqueada</string>
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Ola Bob!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Ola Alice! Grazas por falarme de Briar!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Sen problema, agardo sexa do teu gusto 😀</string>
 </resources>

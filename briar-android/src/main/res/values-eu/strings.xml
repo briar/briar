@@ -129,6 +129,8 @@
   <string name="contact_added_toast">Kontaktua gehitu da: %s</string>
   <string name="contact_already_exists">%s kontaktua badago aurretik ere</string>
   <string name="qr_code_invalid">QR kodea baliogabea da</string>
+  <string name="qr_code_too_old">Eskaneatu duzun QR kodea %s aplikazioaren bertsio zaharrago batetik dator.\n\nEskatu mesedez zure kontaktuari azken bertsiora eguneratu dezala eta saiatu berriro.</string>
+  <string name="qr_code_too_new">Eskaneatu duzun QR kodea %s aplikazioaren bertsio berriago batetik dator.\n\nEguneratu azken bertsiora eta saiatu berriro.</string>
   <string name="camera_error">Kameraren errorea</string>
   <string name="connecting_to_device">Gailura konektatzen\u2026</string>
   <string name="authenticating_with_device">Gailuarekin autentifikatzen\u2026</string>
@@ -338,8 +340,10 @@
   <string name="tor_mobile_data_title">Erabili datu mugikorrak</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurtasuna</string>
+  <string name="pref_lock_title">Aplikazioaren blokeoa</string>
   <string name="pref_lock_summary">Erabili gailuaren pantaila-blokeoa Briar babesteko saioa irekita dagoen bitartean</string>
   <string name="pref_lock_disabled_summary">Eginbide hau erabiltzeko, ezarri zure gailuarentzako pantaila-blokeo bat</string>
+  <string name="pref_lock_timeout_title">Aplikazioa blokeatzeko jarduera ezaren denbora-muga</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar ez erabiltzean, hura automatikoki blokeatu %s eta gero</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -368,6 +372,7 @@
   <string name="panic_app_setting_none">Bat ere ez</string>
   <string name="dialog_title_connect_panic_app">Baieztatu larrialdi-aplikazioa</string>
   <string name="dialog_message_connect_panic_app">Ziur zaude %1$s larrialdi-botoiaren ekintza suntsitzaileak eragitera baimendu nahi duzula?</string>
+  <string name="panic_setting_destructive_action">Ekintza suntsigarriak</string>
   <string name="panic_setting_signout_title">Amaitu saioa</string>
   <string name="panic_setting_signout_summary">Amaitu Briar saioa larrialdi-botoia zapaltzen bada</string>
   <string name="purge_setting_title">Ezabatu kontua</string>
@@ -440,4 +445,17 @@
   <string name="lock_unlock_password">Erabili pasahitza</string>
   <string name="lock_is_locked">Briar blokeatuta dago</string>
   <string name="lock_tap_to_unlock">Sakatu desblokeatzeko</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Arantza</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Jokin</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Maitane</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Kaixo Jokin!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Kaixo Arantza, eskerrik asko Briar ezagutzera emateagatik!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Ez horregatik, ea gustuko duzun 😀</string>
 </resources>

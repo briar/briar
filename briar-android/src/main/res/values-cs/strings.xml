@@ -407,4 +407,11 @@
   <string name="qr_code">QR kód</string>
   <string name="show_qr_code_fullscreen">Zobrazit QR kód na celou obrazovku</string>
   <!--App Locking-->
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <!--This is a message to be used in screenshots.-->
 </resources>

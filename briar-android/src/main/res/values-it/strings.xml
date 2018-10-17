@@ -445,4 +445,17 @@
   <string name="lock_unlock_password">Usa password</string>
   <string name="lock_is_locked">Briar è bloccato</string>
   <string name="lock_tap_to_unlock">Tocca per sbloccare</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Paolo</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carlotta</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Ciao Paolo!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Ciao Alice! Grazie per avermi parlato di Briar!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Figurati, spero che ti piaccia 😀</string>
 </resources>
