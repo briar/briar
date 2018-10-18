@@ -16,7 +16,7 @@ internal class ForumControllerTest : ControllerTest() {
 
     private val forumManager = mockk<ForumManager>()
 
-    private val controller = ForumControllerImpl(forumManager)
+    private val controller = ForumControllerImpl(forumManager, objectMapper)
 
     private val forum = Forum(group, getRandomString(5), getRandomBytes(5))
 

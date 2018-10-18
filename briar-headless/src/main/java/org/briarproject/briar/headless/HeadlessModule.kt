@@ -1,5 +1,6 @@
 package org.briarproject.briar.headless
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
 import org.briarproject.bramble.api.crypto.CryptoComponent
@@ -112,5 +113,9 @@ internal class HeadlessModule(private val appDir: File) {
             }
         }
     }
+
+    @Provides
+    @Singleton
+    internal fun provideObjectMapper() = ObjectMapper()
 
 }

@@ -1,5 +1,6 @@
 package org.briarproject.briar.headless
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.Context
 import io.javalin.core.util.ContextUtil
 import io.mockk.mockk
@@ -29,6 +30,8 @@ abstract class ControllerTest {
     private val request = mockk<HttpServletRequest>(relaxed = true)
     private val response = mockk<HttpServletResponse>(relaxed = true)
     private val outputCtx = ContextUtil.init(request, response)
+
+    protected val objectMapper = ObjectMapper()
 
     protected val group: Group = getGroup(getClientId(), 0)
     protected val author: Author = getAuthor()
