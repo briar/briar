@@ -472,7 +472,6 @@
 	<string name="permission_camera_location_title">Camera and location</string>
 	<string name="permission_camera_location_request_body">To scan the QR code, Briar needs access to the camera.\n\nTo discover Bluetooth devices, Briar needs permission to access your location.\n\nBriar does not store your location or share it with anyone.</string>
 	<string name="permission_camera_denied_body">You have denied access to the camera, but adding contacts requires using the camera.\n\nPlease consider granting access.</string>
-	<string name="permission_camera_denied_toast">Camera permission was not granted</string>
 	<string name="qr_code">QR code</string>
 	<string name="show_qr_code_fullscreen">Show QR code fullscreen</string>
 
