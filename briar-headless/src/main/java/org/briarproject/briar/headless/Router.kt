@@ -115,10 +115,9 @@ constructor(
 /**
  * Returns a String from the JSON field or throws [BadRequestResponse] if null or empty.
  */
-fun Context.getFromJson(field: String) : String {
+fun Context.getFromJson(objectMapper: ObjectMapper, field: String) : String {
     try {
-        // TODO use a static object mapper to avoid re-initializations
-        val jsonNode = ObjectMapper().readTree(body())
+        val jsonNode = objectMapper.readTree(body())
         if (!jsonNode.hasNonNull(field)) throw BadRequestResponse("'$field' missing in JSON")
         val result = jsonNode.get(field).asText()
         if (result == null || result.isEmpty()) throw BadRequestResponse("'$field' empty in JSON")

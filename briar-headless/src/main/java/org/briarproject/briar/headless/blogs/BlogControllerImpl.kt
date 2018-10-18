@@ -1,5 +1,6 @@
 package org.briarproject.briar.headless.blogs
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.BadRequestResponse
 import io.javalin.Context
 import org.briarproject.bramble.api.identity.IdentityManager
@@ -21,6 +22,7 @@ constructor(
     private val blogManager: BlogManager,
     private val blogPostFactory: BlogPostFactory,
     private val identityManager: IdentityManager,
+    private val objectMapper: ObjectMapper,
     private val clock: Clock
 ) : BlogController {
 
@@ -35,7 +37,7 @@ constructor(
     }
 
     override fun createPost(ctx: Context): Context {
-        val text = ctx.getFromJson("text")
+        val text = ctx.getFromJson(objectMapper, "text")
         if (utf8IsTooLong(text, MAX_BLOG_POST_TEXT_LENGTH))
             throw BadRequestResponse("Blog post text is too long")
 

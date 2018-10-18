@@ -38,6 +38,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
         contactManager,
         webSocketController,
         dbExecutor,
+        objectMapper,
         clock
     )
 

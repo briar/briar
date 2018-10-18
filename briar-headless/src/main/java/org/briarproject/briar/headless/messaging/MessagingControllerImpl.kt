@@ -1,5 +1,6 @@
 package org.briarproject.briar.headless.messaging
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.BadRequestResponse
 import io.javalin.Context
 import io.javalin.NotFoundResponse
@@ -45,6 +46,7 @@ constructor(
     private val contactManager: ContactManager,
     private val webSocketController: WebSocketController,
     @DatabaseExecutor private val dbExecutor: Executor,
+    private val objectMapper: ObjectMapper,
     private val clock: Clock
 ) : MessagingController, EventListener {
 
@@ -60,7 +62,7 @@ constructor(
     override fun write(ctx: Context): Context {
         val contact = getContact(ctx)
 
-        val message = ctx.getFromJson("text")
+        val message = ctx.getFromJson(objectMapper, "text")
         if (utf8IsTooLong(message, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
             throw BadRequestResponse("Message text is too long")
 
