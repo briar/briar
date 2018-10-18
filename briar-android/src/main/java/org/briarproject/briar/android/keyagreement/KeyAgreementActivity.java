@@ -10,11 +10,9 @@ import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -45,8 +43,6 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
-import static android.os.Build.VERSION.SDK_INT;
-import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
 
@@ -60,14 +56,37 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		UNKNOWN, NO_ADAPTER, WAITING, REFUSED, ENABLED, DISCOVERABLE
 	}
 
+	private enum Permission {
+		UNKNOWN, GRANTED, SHOW_RATIONALE, PERMANENTLY_DENIED
+	}
+
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementActivity.class.getName());
 
 	@Inject
 	EventBus eventBus;
 
-	private boolean isResumed = false, wasAdapterEnabled = false;
-	private boolean continueClicked, gotCameraPermission, gotLocationPermission;
+	/**
+	 * Set to true in onPostResume() and false in onPause(). This prevents the
+	 * QR code fragment from being shown if onRequestPermissionsResult() is
+	 * called while the activity is paused, which could cause a crash due to
+	 * https://issuetracker.google.com/issues/37067655.
+	 */
+	private boolean isResumed = false;
+	/**
+	 * Set to true when the continue button is clicked, and false when the QR
+	 * code fragment is shown. This prevents the QR code fragment from being
+	 * shown automatically before the continue button has been clicked.
+	 */
+	private boolean continueClicked = false;
+	/**
+	 * Records whether the Bluetooth adapter was already enabled before we
+	 * asked for Bluetooth discoverability, so we know whether to broadcast a
+	 * {@link BluetoothEnabledEvent}.
+	 */
+	private boolean wasAdapterEnabled = false;
+	private Permission cameraPermission = Permission.UNKNOWN;
+	private Permission locationPermission = Permission.UNKNOWN;
 	private BluetoothState bluetoothState = BluetoothState.UNKNOWN;
 	private BroadcastReceiver bluetoothReceiver = null;
 
@@ -112,19 +131,39 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	@Override
+	public void onStart() {
+		super.onStart();
+		// Permissions may have been granted manually while we were stopped
+		cameraPermission = Permission.UNKNOWN;
+		locationPermission = Permission.UNKNOWN;
+	}
+
+	@Override
 	protected void onPostResume() {
 		super.onPostResume();
 		isResumed = true;
 		// Workaround for
 		// https://code.google.com/p/android/issues/detail?id=190966
-		if (canShowQrCodeFragment()) showQrCodeFragment();
+		showQrCodeFragmentIfAllowed();
 	}
 
-	private boolean canShowQrCodeFragment() {
-		return isResumed && continueClicked
-				&& (SDK_INT < 23 || gotCameraPermission)
-				&& bluetoothState != BluetoothState.UNKNOWN
-				&& bluetoothState != BluetoothState.WAITING;
+	private void showQrCodeFragmentIfAllowed() {
+		if (isResumed && continueClicked && areEssentialPermissionsGranted()) {
+			if (bluetoothState == BluetoothState.UNKNOWN ||
+					bluetoothState == BluetoothState.ENABLED) {
+				requestBluetoothDiscoverable();
+			} else if (bluetoothState != BluetoothState.WAITING) {
+				showQrCodeFragment();
+			}
+		}
+	}
+
+	private boolean areEssentialPermissionsGranted() {
+		// If the camera permission has been granted, and the location
+		// permission has been granted or permanently denied, we can continue
+		return cameraPermission == Permission.GRANTED &&
+				(locationPermission == Permission.GRANTED ||
+						locationPermission == Permission.PERMANENTLY_DENIED);
 	}
 
 	@Override
@@ -136,18 +175,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	@Override
 	public void showNextScreen() {
 		continueClicked = true;
-		if (checkPermissions()) {
-			if (shouldRequestBluetoothDiscoverable()) {
-				requestBluetoothDiscoverable();
-			} else if (canShowQrCodeFragment()) {
-				showQrCodeFragment();
-			}
-		}
-	}
-
-	private boolean shouldRequestBluetoothDiscoverable() {
-		return bluetoothState == BluetoothState.UNKNOWN
-				|| bluetoothState == BluetoothState.REFUSED;
+		if (checkPermissions()) showQrCodeFragmentIfAllowed();
 	}
 
 	private void requestBluetoothDiscoverable() {
@@ -169,7 +197,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 			eventBus.broadcast(new BluetoothEnabledEvent());
 			wasAdapterEnabled = true;
 		}
-		if (canShowQrCodeFragment()) showQrCodeFragment();
+		showQrCodeFragmentIfAllowed();
 	}
 
 	@Override
@@ -189,7 +217,12 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private void showQrCodeFragment() {
+		// If we return to the intro fragment, the continue button needs to be
+		// clicked again before showing the QR code fragment
 		continueClicked = false;
+		// If we return to the intro fragment, ask for Bluetooth
+		// discoverability again before showing the QR code fragment
+		bluetoothState = BluetoothState.UNKNOWN;
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.findFragmentByTag(KeyAgreementFragment.TAG) == null) {
@@ -208,39 +241,35 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private boolean checkPermissions() {
-		gotCameraPermission = checkPermission(CAMERA);
-		gotLocationPermission = checkPermission(ACCESS_COARSE_LOCATION);
-		if (gotCameraPermission && gotLocationPermission) return true;
-		// Should we show an explanation for one or both permissions?
-		boolean cameraRationale = shouldShowRationale(CAMERA);
-		boolean locationRationale = shouldShowRationale(ACCESS_COARSE_LOCATION);
-		if (cameraRationale && locationRationale) {
+		if (areEssentialPermissionsGranted()) return true;
+		// If the camera permission has been permanently denied, ask the
+		// user to change the setting
+		if (cameraPermission == Permission.PERMANENTLY_DENIED) {
+			Builder builder = new Builder(this, R.style.BriarDialogTheme);
+			builder.setTitle(R.string.permission_camera_title);
+			builder.setMessage(R.string.permission_camera_denied_body);
+			builder.setPositiveButton(R.string.ok,
+					UiUtils.getGoToSettingsListener(this));
+			builder.setNegativeButton(R.string.cancel,
+					(dialog, which) -> supportFinishAfterTransition());
+			builder.show();
+			return false;
+		}
+		// Should we show the rationale for one or both permissions?
+		if (cameraPermission == Permission.SHOW_RATIONALE &&
+				locationPermission == Permission.SHOW_RATIONALE) {
 			showRationale(R.string.permission_camera_location_title,
 					R.string.permission_camera_location_request_body);
-		} else if (cameraRationale) {
+		} else if (cameraPermission == Permission.SHOW_RATIONALE) {
 			showRationale(R.string.permission_camera_title,
 					R.string.permission_camera_request_body);
-		} else if (locationRationale) {
+		} else if (locationPermission == Permission.SHOW_RATIONALE) {
 			showRationale(R.string.permission_location_title,
 					R.string.permission_location_request_body);
-		} else if (gotCameraPermission) {
-			// Location permission has been permanently denied but we can
-			// continue without it
-			return true;
 		} else {
 			requestPermissions();
 		}
 		return false;
-	}
-
-	private boolean checkPermission(String permission) {
-		return ContextCompat.checkSelfPermission(this, permission)
-				== PERMISSION_GRANTED;
-	}
-
-	private boolean shouldShowRationale(String permission) {
-		return ActivityCompat.shouldShowRequestPermissionRationale(this,
-				permission);
 	}
 
 	private void showRationale(@StringRes int title, @StringRes int body) {
@@ -261,35 +290,44 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	@Override
 	@UiThread
 	public void onRequestPermissionsResult(int requestCode,
-			String permissions[], int[] grantResults) {
-		if (requestCode == REQUEST_PERMISSION_CAMERA_LOCATION) {
-			// If request is cancelled, the result arrays are empty
-			gotCameraPermission = grantResults.length > 0
-					&& grantResults[0] == PERMISSION_GRANTED;
-			gotLocationPermission = grantResults.length > 1
-					&& grantResults[1] == PERMISSION_GRANTED;
-			if (gotCameraPermission) {
-				showNextScreen();
-			} else {
-				if (shouldShowRationale(CAMERA)) {
-					Toast.makeText(this,
-							R.string.permission_camera_denied_toast,
-							LENGTH_LONG).show();
-					supportFinishAfterTransition();
-				} else {
-					// The user has permanently denied the request
-					Builder builder =
-							new Builder(this, R.style.BriarDialogTheme);
-					builder.setTitle(R.string.permission_camera_title);
-					builder.setMessage(R.string.permission_camera_denied_body);
-					builder.setPositiveButton(R.string.ok,
-							UiUtils.getGoToSettingsListener(this));
-					builder.setNegativeButton(R.string.cancel,
-							(dialog, which) -> supportFinishAfterTransition());
-					builder.show();
-				}
-			}
+			String[] permissions, int[] grantResults) {
+		if (requestCode != REQUEST_PERMISSION_CAMERA_LOCATION)
+			throw new AssertionError();
+		if (gotPermission(CAMERA, permissions, grantResults)) {
+			cameraPermission = Permission.GRANTED;
+		} else if (shouldShowRationale(CAMERA)) {
+			cameraPermission = Permission.SHOW_RATIONALE;
+		} else {
+			cameraPermission = Permission.PERMANENTLY_DENIED;
 		}
+		if (gotPermission(ACCESS_COARSE_LOCATION, permissions, grantResults)) {
+			locationPermission = Permission.GRANTED;
+		} else if (shouldShowRationale(ACCESS_COARSE_LOCATION)) {
+			locationPermission = Permission.SHOW_RATIONALE;
+		} else {
+			locationPermission = Permission.PERMANENTLY_DENIED;
+		}
+		// If a permission dialog has been shown, showing the QR code fragment
+		// on this call path would cause a crash due to
+		// https://code.google.com/p/android/issues/detail?id=190966.
+		// In that case the isResumed flag prevents the fragment from being
+		// shown here, and showQrCodeFragmentIfAllowed() will be called again
+		// from onPostResume().
+		if (checkPermissions()) showQrCodeFragmentIfAllowed();
+	}
+
+	private boolean gotPermission(String permission, String[] permissions,
+			int[] grantResults) {
+		for (int i = 0; i < permissions.length; i++) {
+			if (permission.equals(permissions[i]))
+				return grantResults[i] == PERMISSION_GRANTED;
+		}
+		return false;
+	}
+
+	private boolean shouldShowRationale(String permission) {
+		return ActivityCompat.shouldShowRequestPermissionRationale(this,
+				permission);
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
