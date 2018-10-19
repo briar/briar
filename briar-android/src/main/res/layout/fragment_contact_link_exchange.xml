@@ -1,166 +1,172 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:padding="@dimen/margin_large">
+	android:fillViewport="true">
 
-	<EditText
-		android:id="@+id/contactNameInput"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_person"
-		android:drawablePadding="8dp"
-		android:drawableStart="@drawable/ic_person"
-		android:drawableTint="?attr/colorControlNormal"
-		android:hint="@string/contact_name_hint"
-		android:importantForAutofill="no"
-		android:inputType="text|textCapWords"
-		app:layout_constraintBottom_toTopOf="@id/linkInput"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_chainStyle="packed"/>
-
-	<EditText
-		android:id="@+id/linkInput"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_xlarge"
-		android:drawableLeft="@drawable/ic_link"
-		android:drawablePadding="8dp"
-		android:drawableStart="@drawable/ic_link"
-		android:drawableTint="?attr/colorControlNormal"
-		android:hint="@string/contact_link_hint"
-		android:importantForAutofill="no"
-		android:inputType="textUri"
-		app:layout_constraintBottom_toTopOf="@id/pasteButton"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/contactNameInput"/>
-
-	<Button
-		android:id="@+id/pasteButton"
-		style="@style/BriarButtonFlat.Positive.Tiny"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_content_paste"
-		android:drawablePadding="8dp"
-		android:drawableStart="@drawable/ic_content_paste"
-		android:text="@string/paste_button"
-		app:layout_constraintBottom_toTopOf="@id/linkIntro"
-		app:layout_constraintEnd_toStartOf="@id/scanCodeButton"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/linkInput"/>
-
-	<Button
-		android:id="@+id/scanCodeButton"
-		style="@style/BriarButtonFlat.Positive.Tiny"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_qr_code"
-		android:drawablePadding="8dp"
-		android:text="@string/scan_qr_code_button"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toEndOf="@id/pasteButton"
-		app:layout_constraintTop_toBottomOf="@id/linkInput"
-		android:drawableStart="@drawable/ic_qr_code"
-		android:visibility="gone"/>
-
-	<TextView
-		android:id="@+id/linkIntro"
-		android:gravity="center"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_xlarge"
-		android:text="@string/send_link_instructions"
-		android:textIsSelectable="true"
-		android:textSize="18sp"
-		app:layout_constraintBottom_toTopOf="@id/linkView"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/pasteButton"/>
-
-	<TextView
-		android:id="@+id/linkView"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_medium"
-		android:background="@color/briar_white"
-		android:padding="8dp"
-		android:textColor="@color/briar_primary"
-		android:textIsSelectable="true"
-		android:textSize="18sp"
-		android:typeface="monospace"
-		app:layout_constraintBottom_toTopOf="@id/copyButton"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/linkIntro"
-		tools:text="briar://scnsdflamslkfjgluoblmksdfbwevlewajfdlkjewwhqliafskfjhskdjhvoieiv"/>
-
-	<Button
-		android:id="@+id/copyButton"
-		style="@style/BriarButtonFlat.Positive.Tiny"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_content_copy"
-		android:drawablePadding="8dp"
-		android:drawableStart="@drawable/ic_content_copy"
-		android:text="@string/copy_button"
-		app:layout_constraintBottom_toTopOf="@id/addButton"
-		app:layout_constraintEnd_toStartOf="@id/shareButton"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/linkView"/>
-
-	<Button
-		android:id="@+id/shareButton"
-		style="@style/BriarButtonFlat.Positive.Tiny"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/social_share_blue"
-		android:drawablePadding="8dp"
-		android:drawableStart="@drawable/social_share_blue"
-		android:text="@string/share_button"
-		app:layout_constraintBottom_toBottomOf="@id/copyButton"
-		app:layout_constraintEnd_toStartOf="@id/showCodeButton"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toEndOf="@id/copyButton"
-		app:layout_constraintTop_toTopOf="@id/copyButton"/>
-
-	<Button
-		android:id="@+id/showCodeButton"
-		style="@style/BriarButtonFlat.Positive.Tiny"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:drawableLeft="@drawable/ic_qr_code"
-		android:drawablePadding="8dp"
-		android:drawableStart="@drawable/ic_qr_code"
-		android:drawableTint="@color/briar_button_text_positive"
-		android:text="@string/show_qr_code_button"
-		app:layout_constraintBottom_toBottomOf="@id/copyButton"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.5"
-		app:layout_constraintStart_toEndOf="@id/shareButton"
-		app:layout_constraintTop_toTopOf="@id/copyButton"
-		android:visibility="gone"/>
-
-	<Button
-		android:id="@+id/addButton"
-		style="@style/BriarButton"
+	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_xlarge"
-		android:enabled="false"
-		android:text="@string/add_contact_button"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="0.75"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/copyButton"
-		tools:enabled="true"/>
+		android:padding="@dimen/margin_large">
 
-</android.support.constraint.ConstraintLayout>
+		<EditText
+			android:id="@+id/contactNameInput"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_person"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_person"
+			android:drawableTint="?attr/colorControlNormal"
+			android:hint="@string/contact_name_hint"
+			android:importantForAutofill="no"
+			android:inputType="text|textCapWords"
+			app:layout_constraintBottom_toTopOf="@id/linkInput"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_chainStyle="packed"/>
+
+		<EditText
+			android:id="@+id/linkInput"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_xlarge"
+			android:drawableLeft="@drawable/ic_link"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_link"
+			android:drawableTint="?attr/colorControlNormal"
+			android:hint="@string/contact_link_hint"
+			android:importantForAutofill="no"
+			android:inputType="textUri"
+			app:layout_constraintBottom_toTopOf="@id/pasteButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/contactNameInput"/>
+
+		<Button
+			android:id="@+id/pasteButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_content_paste"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_content_paste"
+			android:text="@string/paste_button"
+			app:layout_constraintBottom_toTopOf="@id/linkIntro"
+			app:layout_constraintEnd_toStartOf="@id/scanCodeButton"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/linkInput"/>
+
+		<Button
+			android:id="@+id/scanCodeButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_qr_code"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_qr_code"
+			android:text="@string/scan_qr_code_button"
+			android:visibility="gone"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toEndOf="@id/pasteButton"
+			app:layout_constraintTop_toBottomOf="@id/linkInput"/>
+
+		<TextView
+			android:id="@+id/linkIntro"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_xlarge"
+			android:gravity="center"
+			android:text="@string/send_link_instructions"
+			android:textIsSelectable="true"
+			android:textSize="18sp"
+			app:layout_constraintBottom_toTopOf="@id/linkView"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/pasteButton"/>
+
+		<TextView
+			android:id="@+id/linkView"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_medium"
+			android:background="@color/briar_white"
+			android:padding="8dp"
+			android:textColor="@color/briar_primary"
+			android:textIsSelectable="true"
+			android:textSize="18sp"
+			android:typeface="monospace"
+			app:layout_constraintBottom_toTopOf="@id/copyButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/linkIntro"
+			tools:text="briar://scnsdflamslkfjgluoblmksdfbwevlewajfdlkjewwhqliafskfjhskdjhvoieiv"/>
+
+		<Button
+			android:id="@+id/copyButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_content_copy"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_content_copy"
+			android:text="@string/copy_button"
+			app:layout_constraintBottom_toTopOf="@id/addButton"
+			app:layout_constraintEnd_toStartOf="@id/shareButton"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/linkView"/>
+
+		<Button
+			android:id="@+id/shareButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/social_share_blue"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/social_share_blue"
+			android:text="@string/share_button"
+			app:layout_constraintBottom_toBottomOf="@id/copyButton"
+			app:layout_constraintEnd_toStartOf="@id/showCodeButton"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toEndOf="@id/copyButton"
+			app:layout_constraintTop_toTopOf="@id/copyButton"/>
+
+		<Button
+			android:id="@+id/showCodeButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_qr_code"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_qr_code"
+			android:drawableTint="@color/briar_button_text_positive"
+			android:text="@string/show_qr_code_button"
+			android:visibility="gone"
+			app:layout_constraintBottom_toBottomOf="@id/copyButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toEndOf="@id/shareButton"
+			app:layout_constraintTop_toTopOf="@id/copyButton"/>
+
+		<Button
+			android:id="@+id/addButton"
+			style="@style/BriarButton"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="@dimen/margin_xlarge"
+			android:enabled="false"
+			android:text="@string/add_contact_button"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.75"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/copyButton"
+			tools:enabled="true"/>
+
+	</android.support.constraint.ConstraintLayout>
+</ScrollView>
