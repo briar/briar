@@ -4,8 +4,7 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent"
-	android:fillViewport="true">
+	android:layout_height="match_parent">
 
 	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
@@ -23,17 +22,16 @@
 			android:hint="@string/contact_name_hint"
 			android:importantForAutofill="no"
 			android:inputType="text|textCapWords"
-			app:layout_constraintBottom_toTopOf="@id/linkInput"
+			app:layout_constraintBottom_toTopOf="@+id/addButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintVertical_chainStyle="packed"/>
+			app:layout_constraintTop_toBottomOf="@+id/pasteButton"/>
 
 		<EditText
 			android:id="@+id/linkInput"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_xlarge"
+			android:layout_marginTop="16dp"
 			android:drawableLeft="@drawable/ic_link"
 			android:drawablePadding="8dp"
 			android:drawableStart="@drawable/ic_link"
@@ -41,25 +39,25 @@
 			android:hint="@string/contact_link_hint"
 			android:importantForAutofill="no"
 			android:inputType="textUri"
-			app:layout_constraintBottom_toTopOf="@id/pasteButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/contactNameInput"/>
+			app:layout_constraintTop_toBottomOf="@+id/copyButton"/>
 
 		<Button
 			android:id="@+id/pasteButton"
 			style="@style/BriarButtonFlat.Positive.Tiny"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginLeft="8dp"
+			android:layout_marginStart="8dp"
 			android:drawableLeft="@drawable/ic_content_paste"
 			android:drawablePadding="8dp"
 			android:drawableStart="@drawable/ic_content_paste"
 			android:text="@string/paste_button"
-			app:layout_constraintBottom_toTopOf="@id/linkIntro"
+			app:layout_constraintBottom_toTopOf="@+id/contactNameInput"
 			app:layout_constraintEnd_toStartOf="@id/scanCodeButton"
-			app:layout_constraintHorizontal_bias="0.5"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/linkInput"/>
+			app:layout_constraintTop_toBottomOf="@+id/linkInput"/>
 
 		<Button
 			android:id="@+id/scanCodeButton"
@@ -74,53 +72,54 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHorizontal_bias="0.5"
 			app:layout_constraintStart_toEndOf="@id/pasteButton"
-			app:layout_constraintTop_toBottomOf="@id/linkInput"/>
+			app:layout_constraintTop_toTopOf="@+id/pasteButton"
+			tools:visibility="visible"/>
 
 		<TextView
 			android:id="@+id/linkIntro"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_xlarge"
-			android:gravity="center"
+			android:gravity="left|start"
 			android:text="@string/send_link_instructions"
-			android:textIsSelectable="true"
 			android:textSize="18sp"
-			app:layout_constraintBottom_toTopOf="@id/linkView"
+			app:layout_constraintBottom_toTopOf="@+id/linkView"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/pasteButton"/>
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_chainStyle="packed"/>
 
 		<TextView
 			android:id="@+id/linkView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_medium"
+			android:layout_marginTop="16dp"
 			android:background="@color/briar_white"
 			android:padding="8dp"
 			android:textColor="@color/briar_primary"
 			android:textIsSelectable="true"
 			android:textSize="18sp"
 			android:typeface="monospace"
-			app:layout_constraintBottom_toTopOf="@id/copyButton"
+			app:layout_constraintBottom_toTopOf="@+id/copyButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/linkIntro"
-			tools:text="briar://scnsdflamslkfjgluoblmksdfbwevlewajfdlkjewwhqliafskfjhskdjhvoieiv"/>
+			app:layout_constraintTop_toBottomOf="@+id/linkIntro"
+			tools:text="briar://scnsdflamslkfjgluoblmksdfbwevlewajfdlkjewwhqliafskfjhskdjhvoieiv"
+			/>
 
 		<Button
 			android:id="@+id/copyButton"
 			style="@style/BriarButtonFlat.Positive.Tiny"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
 			android:drawableLeft="@drawable/ic_content_copy"
 			android:drawablePadding="8dp"
 			android:drawableStart="@drawable/ic_content_copy"
 			android:text="@string/copy_button"
-			app:layout_constraintBottom_toTopOf="@id/addButton"
+			app:layout_constraintBottom_toTopOf="@+id/linkInput"
 			app:layout_constraintEnd_toStartOf="@id/shareButton"
-			app:layout_constraintHorizontal_bias="0.5"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/linkView"/>
+			app:layout_constraintTop_toBottomOf="@+id/linkView"/>
 
 		<Button
 			android:id="@+id/shareButton"
@@ -133,7 +132,6 @@
 			android:text="@string/share_button"
 			app:layout_constraintBottom_toBottomOf="@id/copyButton"
 			app:layout_constraintEnd_toStartOf="@id/showCodeButton"
-			app:layout_constraintHorizontal_bias="0.5"
 			app:layout_constraintStart_toEndOf="@id/copyButton"
 			app:layout_constraintTop_toTopOf="@id/copyButton"/>
 
@@ -150,22 +148,23 @@
 			android:visibility="gone"
 			app:layout_constraintBottom_toBottomOf="@id/copyButton"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintHorizontal_bias="0.5"
 			app:layout_constraintStart_toEndOf="@id/shareButton"
-			app:layout_constraintTop_toTopOf="@id/copyButton"/>
+			app:layout_constraintTop_toTopOf="@id/copyButton"
+			tools:visibility="visible"/>
 
 		<Button
 			android:id="@+id/addButton"
 			style="@style/BriarButton"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/margin_xlarge"
+			android:layout_marginBottom="8dp"
+			android:layout_marginTop="16dp"
 			android:enabled="false"
 			android:text="@string/add_contact_button"
+			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintHorizontal_bias="0.75"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/copyButton"
+			app:layout_constraintTop_toBottomOf="@+id/contactNameInput"
 			tools:enabled="true"/>
 
 	</android.support.constraint.ConstraintLayout>
