@@ -38,6 +38,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.arch.lifecycle.Lifecycle.State.STARTED;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
@@ -148,6 +149,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	public void showNextFragment(BaseFragment f) {
+		if (!getLifecycle().getCurrentState().isAtLeast(STARTED)) return;
 		getSupportFragmentManager().beginTransaction()
 				.setCustomAnimations(R.anim.step_next_in,
 						R.anim.step_previous_out, R.anim.step_previous_in,
