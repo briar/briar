@@ -34,6 +34,7 @@ import org.briarproject.briar.api.android.ScreenFilterMonitor.AppDetails;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -42,6 +43,8 @@ import static android.arch.lifecycle.Lifecycle.State.STARTED;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 /**
@@ -50,6 +53,8 @@ import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOT
  */
 public abstract class BaseActivity extends AppCompatActivity
 		implements DestroyableContext, OnTapFilteredListener {
+
+	private final static Logger LOG = getLogger(BaseActivity.class.getName());
 
 	@Inject
 	protected ScreenFilterMonitor screenFilterMonitor;
@@ -119,6 +124,8 @@ public abstract class BaseActivity extends AppCompatActivity
 	@Override
 	protected void onStart() {
 		super.onStart();
+		if (LOG.isLoggable(INFO))
+			LOG.info("Starting " + this.getClass().getSimpleName());
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityStart();
 		}
@@ -137,6 +144,8 @@ public abstract class BaseActivity extends AppCompatActivity
 	@Override
 	protected void onStop() {
 		super.onStop();
+		if (LOG.isLoggable(INFO))
+			LOG.info("Stopping " + this.getClass().getSimpleName());
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityStop();
 		}
