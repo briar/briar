@@ -153,8 +153,8 @@
 
 	<string name="add_contact_nearby_title">Add Contact Nearby</string>
 	<string name="add_contact_remotely_title">Add Contact with Link</string>
-	<string name="contact_name_hint">Contact name</string>
-	<string name="contact_link_hint">Contact link</string>
+	<string name="contact_name_hint">Give contact a nickname</string>
+	<string name="contact_link_hint">Your contact\'s link</string>
 	<string name="paste_button">Paste</string>
 	<string name="scan_qr_code_button">QR Code</string>
 	<string name="add_contact_button">Add Contact</string>
