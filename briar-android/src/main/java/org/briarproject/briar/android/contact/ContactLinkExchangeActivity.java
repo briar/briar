@@ -41,7 +41,7 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 	private static final Logger LOG =
 			Logger.getLogger(ContactLinkExchangeActivity.class.getName());
 
-	static final String OUR_LINK = "briar://" + getRandomBase32String(64);
+	static final String OUR_LINK = "briar://" + getRandomBase32String(128);
 
 	@Inject
 	LifecycleManager lifecycleManager;
