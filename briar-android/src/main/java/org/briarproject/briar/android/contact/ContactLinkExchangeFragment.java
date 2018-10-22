@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -178,8 +179,22 @@ public class ContactLinkExchangeFragment extends BaseFragment
 		ContactLinkExchangeActivity activity = getCastActivity();
 		if (activity == null) return;
 
+		String linkText = linkInput.getText().toString();
+		if (linkText.equals(OUR_LINK)) {
+			new AlertDialog.Builder(activity, R.style.BriarDialogTheme_Neutral)
+					.setMessage(
+							"Add the link you get from your contact, not your own link.")
+					.setNeutralButton(R.string.ok,
+							(dialog, which) -> {
+								linkInput.setText(null);
+								dialog.cancel();
+							})
+					.show();
+			return;
+		}
+
 		activity.addFakeRequest(contactNameInput.getText().toString(),
-				linkInput.getText().toString());
+				linkText);
 
 		Intent intent = new Intent(activity, PendingRequestsActivity.class);
 		startActivity(intent);
