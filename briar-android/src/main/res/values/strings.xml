@@ -156,7 +156,7 @@
 	<string name="contact_name_hint">Give contact a nickname</string>
 	<string name="contact_link_hint">Your contact\'s link</string>
 	<string name="paste_button">Paste</string>
-	<string name="scan_qr_code_button">QR Code</string>
+	<string name="scan_qr_code_button">Scan Code</string>
 	<string name="add_contact_button">Add Contact</string>
 	<string name="copy_button">Copy</string>
 	<string name="share_button">Share</string>
