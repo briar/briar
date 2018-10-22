@@ -63,10 +63,10 @@
 		<item>@string/pref_theme_auto</item>
 		<item>@string/pref_theme_system</item>
 	</string-array>
-	<string name="pref_theme_light_value">light</string>
-	<string name="pref_theme_dark_value">dark</string>
-	<string name="pref_theme_auto_value">auto</string>
-	<string name="pref_theme_system_value">system</string>
+	<string name="pref_theme_light_value" translatable="false">light</string>
+	<string name="pref_theme_dark_value" translatable="false">dark</string>
+	<string name="pref_theme_auto_value" translatable="false">auto</string>
+	<string name="pref_theme_system_value" translatable="false">system</string>
 	<string-array name="pref_theme_values">
 		<item>@string/pref_theme_light_value</item>
 		<item>@string/pref_theme_dark_value</item>
@@ -82,8 +82,8 @@
 		<item>@string/pref_lock_timeout_30</item>
 		<item>@string/pref_lock_timeout_60</item>
 	</string-array>
-	<string name="pref_lock_timeout_value_default">5</string>
-	<string name="pref_lock_timeout_value_never">-1</string>
+	<string name="pref_lock_timeout_value_default" translatable="false">5</string>
+	<string name="pref_lock_timeout_value_never" translatable="false">-1</string>
 	<string-array name="pref_key_lock_timeout_values">
 		<item>@string/pref_lock_timeout_value_never</item>
 		<item>1</item>

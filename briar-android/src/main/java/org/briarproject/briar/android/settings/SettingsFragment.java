@@ -44,6 +44,7 @@ import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -210,6 +211,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					return true;
 				});
 
+		if (SDK_INT < 27) {
+			// remove System Default Theme option
+			List<CharSequence> entries =
+					new ArrayList<>(Arrays.asList(theme.getEntries()));
+			entries.remove(getString(R.string.pref_theme_system));
+			theme.setEntries(entries.toArray(new CharSequence[0]));
+		}
 		if (IS_DEBUG_BUILD) {
 			findPreference("pref_key_explode").setOnPreferenceClickListener(
 					preference -> {
