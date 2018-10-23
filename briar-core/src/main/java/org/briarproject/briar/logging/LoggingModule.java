@@ -1,8 +1,11 @@
 package org.briarproject.briar.logging;
 
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.briar.api.logging.PersistentLogManager;
 
 import java.util.logging.Formatter;
+
+import javax.inject.Singleton;
 
 import dagger.Module;
 import dagger.Provides;
@@ -16,8 +19,11 @@ public class LoggingModule {
 	}
 
 	@Provides
+	@Singleton
 	PersistentLogManager providePersistentLogManager(
-			PersistentLogManagerImpl logManager) {
-		return logManager;
+			LifecycleManager lifecycleManager,
+			PersistentLogManagerImpl persistentLogManager) {
+		lifecycleManager.registerOpenDatabaseHook(persistentLogManager);
+		return persistentLogManager;
 	}
 }

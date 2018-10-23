@@ -16,8 +16,13 @@ public interface StreamReaderFactory {
 
 	/**
 	 * Creates an {@link InputStream InputStream} for reading from a contact
-	 * exchangestream.
+	 * exchange stream.
 	 */
 	InputStream createContactExchangeStreamReader(InputStream in,
 			SecretKey headerKey);
+
+	/**
+	 * Creates an {@link InputStream} for reading from a log stream.
+	 */
+	InputStream createLogStreamReader(InputStream in, SecretKey headerKey);
 }

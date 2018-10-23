@@ -1,8 +1,16 @@
 package org.briarproject.bramble.api;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import java.util.Hashtable;
 import java.util.Map;
 
+import javax.annotation.Nullable;
+
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
+
+@NotNullByDefault
 public abstract class StringMap extends Hashtable<String, String> {
 
 	protected StringMap(Map<String, String> m) {
@@ -51,5 +59,20 @@ public abstract class StringMap extends Hashtable<String, String> {
 
 	public void putLong(String key, long value) {
 		put(key, String.valueOf(value));
+	}
+
+	@Nullable
+	public byte[] getBytes(String key) {
+		String s = get(key);
+		if (s == null) return null;
+		try {
+			return fromHexString(s);
+		} catch (IllegalArgumentException e) {
+			return null;
+		}
+	}
+
+	public void putBytes(String key, byte[] value) {
+		put(key, toHexString(value));
 	}
 }
