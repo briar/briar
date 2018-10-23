@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -13,13 +15,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
+
+import java.util.regex.Matcher;
 
 import javax.annotation.Nullable;
 
@@ -31,6 +34,7 @@ import static android.support.v4.graphics.drawable.DrawableCompat.setTint;
 import static android.support.v4.graphics.drawable.DrawableCompat.wrap;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.briar.android.contact.ContactLinkExchangeActivity.LINK_REGEX;
 import static org.briarproject.briar.android.contact.ContactLinkExchangeActivity.OUR_LINK;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
@@ -48,8 +52,8 @@ public class ContactLinkExchangeFragment extends BaseFragment
 	}
 
 	private ClipboardManager clipboard;
-	private EditText linkInput;
-	private EditText contactNameInput;
+	private TextInputLayout linkInputLayout;
+	private TextInputEditText linkInput, contactNameInput;
 	private Button addButton;
 
 	@Override
@@ -92,6 +96,7 @@ public class ContactLinkExchangeFragment extends BaseFragment
 			contactNameInput.setCompoundDrawables(drawable, null, null, null);
 		}
 
+		linkInputLayout = v.findViewById(R.id.linkInputLayout);
 		linkInput = v.findViewById(R.id.linkInput);
 		if (SDK_INT < 23) {
 			Drawable drawable = wrap(linkInput.getCompoundDrawables()[0]);
@@ -166,21 +171,38 @@ public class ContactLinkExchangeFragment extends BaseFragment
 	}
 
 	private void updateAddButtonState() {
-		addButton.setEnabled(contactNameInput.getText().length() > 0 &&
-				isBriarLink(linkInput.getText().toString()));
+		boolean validContactName = contactNameInput.getText() != null &&
+				contactNameInput.getText().length() > 0;
+		boolean briarLink = isBriarLink(linkInput.getText());
+		if (briarLink) {
+			linkInputLayout.setErrorEnabled(false);
+		} else {
+			linkInputLayout.setError("Invalid link");
+		}
+		addButton.setEnabled(validContactName && briarLink);
 	}
 
-	private boolean isBriarLink(CharSequence s) {
+	private boolean isBriarLink(@Nullable CharSequence s) {
 		ContactLinkExchangeActivity activity = getCastActivity();
 		return activity != null && activity.isBriarLink(s);
+	}
+
+	@Nullable
+	private String getLink() {
+		Matcher matcher = LINK_REGEX.matcher(linkInput.getText());
+		if (matcher.matches()) // needs to be called before groups become available
+			return matcher.group(2);
+		else
+			return null;
 	}
 
 	private void onAddButtonClicked() {
 		ContactLinkExchangeActivity activity = getCastActivity();
 		if (activity == null) return;
 
-		String linkText = linkInput.getText().toString();
-		if (linkText.equals(OUR_LINK)) {
+		String linkText = getLink();
+		if (linkText == null) throw new AssertionError();
+		if (OUR_LINK.equals("briar://" + linkText)) {
 			new AlertDialog.Builder(activity, R.style.BriarDialogTheme_Neutral)
 					.setMessage(
 							"Add the link you get from your contact, not your own link.")
