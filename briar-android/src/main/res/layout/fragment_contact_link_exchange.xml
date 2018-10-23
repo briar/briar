@@ -11,37 +11,55 @@
 		android:layout_height="wrap_content"
 		android:padding="@dimen/margin_large">
 
-		<EditText
-			android:id="@+id/contactNameInput"
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/contactNameLayout"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_person"
-			android:drawablePadding="8dp"
-			android:drawableStart="@drawable/ic_person"
-			android:drawableTint="?attr/colorControlNormal"
-			android:hint="@string/contact_name_hint"
-			android:importantForAutofill="no"
-			android:inputType="text|textCapWords"
+			app:errorEnabled="true"
+			app:hintEnabled="false"
 			app:layout_constraintBottom_toTopOf="@+id/addButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/pasteButton"/>
+			app:layout_constraintTop_toBottomOf="@+id/pasteButton">
 
-		<EditText
-			android:id="@+id/linkInput"
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/contactNameInput"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:drawableLeft="@drawable/ic_person"
+				android:drawablePadding="8dp"
+				android:drawableStart="@drawable/ic_person"
+				android:drawableTint="?attr/colorControlNormal"
+				android:hint="@string/contact_name_hint"
+				android:importantForAutofill="no"
+				android:inputType="text|textCapWords"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/linkInputLayout"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="16dp"
-			android:drawableLeft="@drawable/ic_link"
-			android:drawablePadding="8dp"
-			android:drawableStart="@drawable/ic_link"
-			android:drawableTint="?attr/colorControlNormal"
-			android:hint="@string/contact_link_hint"
-			android:importantForAutofill="no"
-			android:inputType="textUri"
+			app:errorEnabled="true"
+			app:hintEnabled="false"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/copyButton"/>
+			app:layout_constraintTop_toBottomOf="@+id/copyButton">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/linkInput"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:drawableLeft="@drawable/ic_link"
+				android:drawablePadding="8dp"
+				android:drawableStart="@drawable/ic_link"
+				android:drawableTint="?attr/colorControlNormal"
+				android:hint="@string/contact_link_hint"
+				android:importantForAutofill="no"
+				android:inputType="textUri"/>
+
+		</android.support.design.widget.TextInputLayout>
 
 		<Button
 			android:id="@+id/pasteButton"
@@ -54,10 +72,10 @@
 			android:drawablePadding="8dp"
 			android:drawableStart="@drawable/ic_content_paste"
 			android:text="@string/paste_button"
-			app:layout_constraintBottom_toTopOf="@+id/contactNameInput"
+			app:layout_constraintBottom_toTopOf="@+id/contactNameLayout"
 			app:layout_constraintEnd_toStartOf="@id/scanCodeButton"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/linkInput"/>
+			app:layout_constraintTop_toBottomOf="@+id/linkInputLayout"/>
 
 		<Button
 			android:id="@+id/scanCodeButton"
@@ -116,7 +134,7 @@
 			android:drawablePadding="8dp"
 			android:drawableStart="@drawable/ic_content_copy"
 			android:text="@string/copy_button"
-			app:layout_constraintBottom_toTopOf="@+id/linkInput"
+			app:layout_constraintBottom_toTopOf="@+id/linkInputLayout"
 			app:layout_constraintEnd_toStartOf="@id/shareButton"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/linkView"/>
@@ -164,7 +182,7 @@
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/contactNameInput"
+			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"
 			tools:enabled="true"/>
 
 	</android.support.constraint.ConstraintLayout>

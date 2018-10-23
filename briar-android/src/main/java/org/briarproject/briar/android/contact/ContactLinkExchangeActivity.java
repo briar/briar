@@ -17,6 +17,7 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -41,7 +42,10 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 	private static final Logger LOG =
 			Logger.getLogger(ContactLinkExchangeActivity.class.getName());
 
-	static final String OUR_LINK = "briar://" + getRandomBase32String(128);
+	static final int LINK_LENGTH = 128;
+	static final Pattern LINK_REGEX =
+			Pattern.compile("(briar://)?([a-z2-7]{" + LINK_LENGTH + "})");
+	static final String OUR_LINK = "briar://" + getRandomBase32String(LINK_LENGTH);;
 
 	@Inject
 	LifecycleManager lifecycleManager;
@@ -104,9 +108,8 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 		}
 	}
 
-	boolean isBriarLink(CharSequence s) {
-		String link = s.toString().trim();
-		return link.matches("^(briar://)?[a-z2-7]{64}$");
+	boolean isBriarLink(@Nullable CharSequence s) {
+		return s != null && LINK_REGEX.matcher(s).matches();
 	}
 
 	void scanCode() {
@@ -132,7 +135,7 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 
 		AlarmManager alarmManager =
 				(AlarmManager) requireNonNull(getSystemService(ALARM_SERVICE));
-		double random = getPseudoRandom(link, OUR_LINK);
+		double random = getPseudoRandom(link, OUR_LINK.replace("briar://", ""));
 		long m = MINUTES.toMillis(1);
 		long fromNow = (long) (-m * Math.log(random));
 		LOG.info("Delay " + fromNow + " ms based on seed " + random);
