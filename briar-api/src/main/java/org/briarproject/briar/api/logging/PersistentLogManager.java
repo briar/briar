@@ -24,6 +24,8 @@ public interface PersistentLogManager {
 	/**
 	 * Creates and returns a persistent log handler that stores its logs in
 	 * the given directory.
+	 * <p>
+	 * This method should only be called once.
 	 */
 	Handler createLogHandler(File dir) throws IOException;
 
