@@ -99,7 +99,7 @@ android {
 
 	buildTypes {
 		debug {
-			applicationIdSuffix ".debug"
+			applicationIdSuffix ".debug.qr" // prototype
 			shrinkResources false
 			minifyEnabled true
 			crunchPngs false
