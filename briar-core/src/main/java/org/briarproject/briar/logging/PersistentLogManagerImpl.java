@@ -146,13 +146,17 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 		if (oldLogFile.exists()) {
 			LOG.info("Reading old log file");
 			List<String> lines = new ArrayList<>();
-			try (InputStream in = new FileInputStream(oldLogFile)) {
+			InputStream in = new FileInputStream(oldLogFile);
+			//noinspection TryFinallyCanBeTryWithResources
+			try {
 				InputStream reader = streamReaderFactory
 						.createLogStreamReader(in, oldLogKey);
 				Scanner s = new Scanner(reader);
 				while (s.hasNextLine()) lines.add(s.nextLine());
 				s.close();
 				return lines;
+			} finally {
+				in.close();
 			}
 		} else {
 			LOG.info("Old log file does not exist");
