@@ -38,6 +38,7 @@ import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
 import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
@@ -63,7 +64,8 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private final ContactId contactId = new ContactId(0);
 	private final Author author = getAuthor();
 	private final Contact contact =
-			new Contact(contactId, author, localAuthor.getId(), true, true);
+			new Contact(contactId, author, localAuthor.getId(),
+					getRandomString(5), true, true);
 	private final Collection<Contact> contacts =
 			Collections.singletonList(contact);
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);

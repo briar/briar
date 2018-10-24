@@ -33,6 +33,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 
 public class KeyManagerImplTest extends BrambleMockTestCase {
@@ -66,10 +67,10 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 		Author remoteAuthor = getAuthor();
 		AuthorId localAuthorId = new AuthorId(getRandomId());
 		Collection<Contact> contacts = new ArrayList<>();
-		contacts.add(new Contact(contactId, remoteAuthor, localAuthorId, true,
-				true));
+		contacts.add(new Contact(contactId, remoteAuthor, localAuthorId,
+				getRandomString(5), true, true));
 		contacts.add(new Contact(inactiveContactId, remoteAuthor, localAuthorId,
-				true, false));
+				getRandomString(5), true, false));
 		SimplexPluginFactory pluginFactory =
 				context.mock(SimplexPluginFactory.class);
 		Collection<SimplexPluginFactory> factories =

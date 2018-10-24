@@ -516,6 +516,12 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
+	 * Sets an alias name for the contact or unsets it if alias is null.
+	 */
+	void setContactAlias(Transaction txn, ContactId c, @Nullable String alias)
+			throws DbException;
+
+	/**
 	 * Sets the given group's visibility to the given contact.
 	 */
 	void setGroupVisibility(Transaction txn, ContactId c, GroupId g,

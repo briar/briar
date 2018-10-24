@@ -39,6 +39,7 @@ import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -612,7 +613,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	private Contact getContact(boolean active) {
 		ContactId c = new ContactId(nextContactId++);
 		return new Contact(c, getAuthor(), localAuthor.getId(),
-				true, active);
+				getRandomString(5), true, active);
 	}
 
 	private void expectGetLocalProperties(Transaction txn) throws Exception {

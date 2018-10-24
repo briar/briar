@@ -38,6 +38,7 @@ import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
@@ -56,7 +57,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Contact contact = new Contact(new ContactId(123),
-			getAuthor(), getLocalAuthor().getId(), true, true);
+			getAuthor(), getLocalAuthor().getId(), getRandomString(5), true,
+			true);
 	private final ClientId clientId = getClientId();
 	private final long now = System.currentTimeMillis();
 	private final Transaction txn = new Transaction(null, false);

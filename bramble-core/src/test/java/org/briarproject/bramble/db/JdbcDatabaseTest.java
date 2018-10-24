@@ -53,6 +53,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -74,6 +75,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -1708,6 +1710,39 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// The contact should be active
 		contact = db.getContact(txn, contactId);
 		assertTrue(contact.isActive());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetContactAlias() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				true, true));
+
+		// The contact should have no alias
+		Contact contact = db.getContact(txn, contactId);
+		assertNull(contact.getAlias());
+
+		// Set a contact alias
+		String alias = getRandomString(MAX_AUTHOR_NAME_LENGTH);
+		db.setContactAlias(txn, contactId, alias);
+
+		// The contact should have an alias
+		contact = db.getContact(txn, contactId);
+		assertEquals(alias, contact.getAlias());
+
+		// Set the contact alias null
+		db.setContactAlias(txn, contactId, null);
+
+		// The contact should have no alias
+		contact = db.getContact(txn, contactId);
+		assertNull(contact.getAlias());
 
 		db.commitTransaction(txn);
 		db.close();

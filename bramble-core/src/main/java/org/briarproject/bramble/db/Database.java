@@ -617,6 +617,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Sets an alias name for a contact.
+	 */
+	void setContactAlias(T txn, ContactId c, @Nullable String alias)
+			throws DbException;
+
+	/**
 	 * Sets the given group's visibility to the given contact to either
 	 * {@link Visibility VISIBLE} or {@link Visibility SHARED}.
 	 */

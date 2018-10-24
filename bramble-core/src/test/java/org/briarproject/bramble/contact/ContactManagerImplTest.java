@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -20,9 +21,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -35,9 +38,10 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final ContactId contactId = new ContactId(42);
 	private final Author remote = getAuthor();
 	private final AuthorId local = new AuthorId(getRandomId());
+	private final String alias = getRandomString(MAX_AUTHOR_NAME_LENGTH);
 	private final boolean verified = false, active = true;
 	private final Contact contact =
-			new Contact(contactId, remote, local, verified, active);
+			new Contact(contactId, remote, local, alias, verified, active);
 
 	public ContactManagerImplTest() {
 		contactManager = new ContactManagerImpl(db, keyManager);
@@ -131,7 +135,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	public void testActiveContacts() throws Exception {
 		Collection<Contact> activeContacts = Collections.singletonList(contact);
 		Collection<Contact> contacts = new ArrayList<>(activeContacts);
-		contacts.add(new Contact(new ContactId(3), remote, local, true, false));
+		contacts.add(new Contact(new ContactId(3), remote, local, alias, true,
+				false));
 		Transaction txn = new Transaction(null, true);
 		context.checking(new Expectations() {{
 			oneOf(db).startTransaction(true);
@@ -169,6 +174,23 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		contactManager.setContactActive(txn, contactId, active);
+	}
+
+	@Test
+	public void testSetContactAlias() throws Exception {
+		Transaction txn = new Transaction(null, false);
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(equal(false)), withDbRunnable(txn));
+			oneOf(db).setContactAlias(txn, contactId, alias);
+		}});
+
+		contactManager.setContactAlias(contactId, alias);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testSetContactAliasTooLong() throws Exception {
+		contactManager.setContactAlias(contactId,
+				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1));
 	}
 
 	@Test

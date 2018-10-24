@@ -860,6 +860,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setContactAlias(Transaction transaction, ContactId c,
+			String alias) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.setContactAlias(txn, c, alias);
+	}
+
+	@Override
 	public void setGroupVisibility(Transaction transaction, ContactId c,
 			GroupId g, Visibility v) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

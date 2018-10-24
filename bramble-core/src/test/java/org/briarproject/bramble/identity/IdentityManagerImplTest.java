@@ -29,6 +29,7 @@ import static org.briarproject.bramble.api.identity.Author.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 
 public class IdentityManagerImplTest extends BrambleMockTestCase {
@@ -126,7 +127,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 
 		// add one unverified contact
 		Contact contact = new Contact(new ContactId(1), author,
-				localAuthor.getId(), false, true);
+				localAuthor.getId(), getRandomString(5), false, true);
 		contacts.add(contact);
 
 		checkAuthorStatusContext(authorId, contacts);
@@ -134,7 +135,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 
 		// add one verified contact
 		Contact contact2 = new Contact(new ContactId(1), author,
-				localAuthor.getId(), true, true);
+				localAuthor.getId(), getRandomString(5), true, true);
 		contacts.add(contact2);
 
 		checkAuthorStatusContext(authorId, contacts);
