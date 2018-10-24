@@ -26,6 +26,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.event.output
+import org.briarproject.briar.headless.getContactIdFromPathParam
 import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
 import java.util.concurrent.Executor
@@ -84,13 +85,7 @@ constructor(
     }
 
     private fun getContact(ctx: Context): Contact {
-        val contactString = ctx.pathParam("contactId")
-        val contactInt = try {
-            Integer.parseInt(contactString)
-        } catch (e: NumberFormatException) {
-            throw NotFoundResponse()
-        }
-        val contactId = ContactId(contactInt)
+        val contactId = ctx.getContactIdFromPathParam()
         return try {
             contactManager.getContact(contactId)
         } catch (e: NoSuchContactException) {
