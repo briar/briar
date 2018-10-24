@@ -20,16 +20,11 @@ import android.widget.TextView;
 
 import org.briarproject.briar.R;
 
-import java.util.logging.Logger;
-
 import javax.annotation.Nullable;
 
 import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 
 public class BriarRecyclerView extends FrameLayout {
-
-	private static final Logger LOG =
-			Logger.getLogger(BriarRecyclerView.class.getName());
 
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -39,6 +34,7 @@ public class BriarRecyclerView extends FrameLayout {
 	private TextView emptyText, emptyAction;
 	private ProgressBar progressBar;
 	private RecyclerView.AdapterDataObserver emptyObserver;
+	@Nullable
 	private Runnable refresher = null;
 	private boolean isScrollingToEnd = false;
 
@@ -217,18 +213,15 @@ public class BriarRecyclerView extends FrameLayout {
 			throw new IllegalStateException("Need to call setAdapter() first!");
 		}
 		refresher = () -> {
-			LOG.info("Updating Content...");
 			Adapter adapter = recyclerView.getAdapter();
 			adapter.notifyItemRangeChanged(0, adapter.getItemCount());
 			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 		};
-		LOG.info("Adding Handler Callback");
 		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
 	}
 
 	public void stopPeriodicUpdate() {
 		if (refresher != null) {
-			LOG.info("Removing Handler Callback");
 			handler.removeCallbacks(refresher);
 			refresher = null;
 		}
