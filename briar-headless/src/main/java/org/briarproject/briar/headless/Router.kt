@@ -7,9 +7,11 @@ import io.javalin.Context
 import io.javalin.Javalin
 import io.javalin.JavalinEvent.SERVER_START_FAILED
 import io.javalin.JavalinEvent.SERVER_STOPPED
+import io.javalin.NotFoundResponse
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.ContextUtil
 import io.javalin.core.util.Header.AUTHORIZATION
+import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.headless.blogs.BlogController
 import org.briarproject.briar.headless.contact.ContactController
 import org.briarproject.briar.headless.event.WebSocketController
@@ -63,6 +65,9 @@ constructor(
             path("/v1") {
                 path("/contacts") {
                     get { ctx -> contactController.list(ctx) }
+                    path("/:contactId") {
+                        delete { ctx -> contactController.delete(ctx) }
+                    }
                 }
                 path("/messages/:contactId") {
                     get { ctx -> messagingController.list(ctx) }
@@ -110,6 +115,21 @@ constructor(
         }
     }
 
+}
+
+/**
+ * Returns a [ContactId] from the "contactId" path parameter.
+ *
+ * @throws NotFoundResponse when contactId is not a number.
+ */
+fun Context.getContactIdFromPathParam(): ContactId {
+    val contactString = pathParam("contactId")
+    val contactInt = try {
+        Integer.parseInt(contactString)
+    } catch (e: NumberFormatException) {
+        throw NotFoundResponse()
+    }
+    return ContactId(contactInt)
 }
 
 /**

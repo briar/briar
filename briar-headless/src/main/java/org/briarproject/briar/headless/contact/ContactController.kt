@@ -5,5 +5,6 @@ import io.javalin.Context
 interface ContactController {
 
     fun list(ctx: Context): Context
+    fun delete(ctx: Context): Context
 
 }

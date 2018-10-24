@@ -72,9 +72,16 @@ Returns a JSON array of contacts:
 The only workaround is to add a contact to the Briar app running on a rooted Android phone
 and then move its database (and key files) to the headless peer.
 
+### Removing a contact
+
+`DELETE /v1/contacts/{contactId}`
+
+The `{contactId}` is the `contactId` of the contact (`1` in the example above).
+It returns with a status code `200`, if removal was successful.
+
 ### Listing all private messages
 
-`GET /messages/{contactId}`
+`GET /v1/messages/{contactId}`
 
 The `{contactId}` is the `contactId` of the contact (`1` in the example above).
 It returns a JSON array of private messages:
@@ -100,7 +107,7 @@ Attention: There can messages of other `type`s where the message `text` is `null
 
 ### Writing a private message
 
-`POST /messages/{contactId}`
+`POST /v1/messages/{contactId}`
 
 The text of the message should be posted as JSON:
 
