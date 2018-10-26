@@ -1,44 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
-	android:padding="16dp">
+	android:paddingLeft="16dp"
+	android:paddingRight="16dp"
+	android:paddingTop="16dp">
 
 	<TextView
+		android:id="@+id/titleView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:text="@string/link_warning_title"
+		android:text="@string/set_contact_alias"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_large"
 		android:textStyle="bold"/>
 
-	<TextView
+	<EditText
+		android:id="@+id/aliasEditText"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_large"
-		android:text="@string/link_warning_intro"
-		android:textColor="?android:attr/textColorPrimary"
-		android:textSize="@dimen/text_size_medium"/>
-
-	<TextView
-		android:id="@+id/urlView"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_large"
-		android:textColor="?android:attr/textColorPrimary"
-		android:textIsSelectable="true"
-		android:textSize="@dimen/text_size_medium"
-		android:typeface="monospace"
-		tools:text="http://very.bad.site.com"/>
-
-	<TextView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_large"
-		android:text="@string/link_warning_text"
+		android:layout_marginTop="16dp"
+		android:hint="@string/set_contact_alias_hint"
+		android:inputType="textPersonName"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_medium"/>
 
@@ -52,17 +37,17 @@
 
 		<Button
 			android:id="@+id/cancelButton"
-			style="@style/BriarButtonFlat.Positive"
+			style="@style/BriarButtonFlat.Negative"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:text="@string/cancel"/>
 
 		<Button
-			android:id="@+id/openButton"
-			style="@style/BriarButtonFlat.Negative"
+			android:id="@+id/setButton"
+			style="@style/BriarButtonFlat.Positive"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/link_warning_open_link"/>
+			android:text="@string/set_alias"/>
 
 	</LinearLayout>
 

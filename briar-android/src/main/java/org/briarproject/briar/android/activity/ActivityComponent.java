@@ -15,6 +15,7 @@ import org.briarproject.briar.android.blog.ReblogFragment;
 import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
+import org.briarproject.briar.android.contact.AliasDialogFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
 import org.briarproject.briar.android.contact.ConversationActivity;
@@ -211,4 +212,7 @@ public interface ActivityComponent {
 	void inject(ScreenFilterDialogFragment fragment);
 
 	void inject(ContactExchangeErrorFragment fragment);
+
+	void inject(AliasDialogFragment aliasDialogFragment);
+
 }
