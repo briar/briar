@@ -1,11 +1,11 @@
 package org.briarproject.bramble.sync;
 
+import org.briarproject.bramble.api.Maybe;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -230,17 +230,12 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			if (!generateAckQueued.getAndSet(false)) throw new AssertionError();
 			try {
-				Ack a;
-				Transaction txn = db.startTransaction(false);
-				try {
-					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				Maybe<Ack> a = db.transactionWithResult(false,
+						txn -> new Maybe<>(db.generateAck(txn, contactId,
+								MAX_MESSAGE_IDS)));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated ack: " + (a != null));
-				if (a != null) writerTasks.add(new WriteAck(a));
+					LOG.info("Generated ack: " + a.isPresent());
+				if (a.isPresent()) writerTasks.add(new WriteAck(a.get()));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -275,19 +270,16 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateBatchQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Collection<Message> b;
-				Transaction txn = db.startTransaction(false);
-				try {
-					b = db.generateRequestedBatch(txn, contactId,
-							MAX_RECORD_PAYLOAD_BYTES, maxLatency);
+				Maybe<Collection<Message>>
+						b = db.transactionWithResult(false, txn -> {
+					Collection<Message> batch = db.generateRequestedBatch(txn,
+							contactId, MAX_RECORD_PAYLOAD_BYTES, maxLatency);
 					setNextSendTime(db.getNextSendTime(txn, contactId));
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+					return new Maybe<>(batch);
+				});
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated batch: " + (b != null));
-				if (b != null) writerTasks.add(new WriteBatch(b));
+					LOG.info("Generated batch: " + b.isPresent());
+				if (b.isPresent()) writerTasks.add(new WriteBatch(b.get()));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -322,19 +314,15 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateOfferQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Offer o;
-				Transaction txn = db.startTransaction(false);
-				try {
-					o = db.generateOffer(txn, contactId, MAX_MESSAGE_IDS,
-							maxLatency);
+				Maybe<Offer> o = db.transactionWithResult(false, txn -> {
+					Offer offer = db.generateOffer(txn, contactId,
+							MAX_MESSAGE_IDS, maxLatency);
 					setNextSendTime(db.getNextSendTime(txn, contactId));
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+					return new Maybe<>(offer);
+				});
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated offer: " + (o != null));
-				if (o != null) writerTasks.add(new WriteOffer(o));
+					LOG.info("Generated offer: " + o.isPresent());
+				if (o.isPresent()) writerTasks.add(new WriteOffer(o.get()));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -369,17 +357,12 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateRequestQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Request r;
-				Transaction txn = db.startTransaction(false);
-				try {
-					r = db.generateRequest(txn, contactId, MAX_MESSAGE_IDS);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				Maybe<Request> r = db.transactionWithResult(false,
+						txn -> new Maybe<>(db.generateRequest(txn, contactId,
+								MAX_MESSAGE_IDS)));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated request: " + (r != null));
-				if (r != null) writerTasks.add(new WriteRequest(r));
+					LOG.info("Generated request: " + r.isPresent());
+				if (r.isPresent()) writerTasks.add(new WriteRequest(r.get()));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();

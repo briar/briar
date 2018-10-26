@@ -162,13 +162,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private void rotateKeys() {
 		dbExecutor.execute(() -> {
 			try {
-				Transaction txn = db.startTransaction(false);
-				try {
-					rotateKeys(txn);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				db.transaction(false, this::rotateKeys);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}

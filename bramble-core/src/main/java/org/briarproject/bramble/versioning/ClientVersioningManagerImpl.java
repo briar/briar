@@ -123,16 +123,12 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		List<ClientVersion> versions = new ArrayList<>(clients);
 		Collections.sort(versions);
 		try {
-			Transaction txn = db.startTransaction(false);
-			try {
+			db.transaction(false, txn -> {
 				if (updateClientVersions(txn, versions)) {
 					for (Contact c : db.getContacts(txn))
 						clientVersionsUpdated(txn, c, versions);
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			});
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}

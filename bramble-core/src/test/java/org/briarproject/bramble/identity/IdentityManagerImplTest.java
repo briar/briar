@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,13 +65,10 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testRegisterAndStoreLocalAuthor() throws DbException {
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+	public void testRegisterAndStoreLocalAuthor() throws Exception {
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(db).addLocalAuthor(txn, localAuthor);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		identityManager.registerLocalAuthor(localAuthor);
@@ -79,14 +77,11 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testGetLocalAuthor() throws DbException {
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+	public void testGetLocalAuthor() throws Exception {
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getLocalAuthors(txn);
 			will(returnValue(localAuthors));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 		assertEquals(localAuthor, identityManager.getLocalAuthor());
 	}

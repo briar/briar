@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.RunAction;
 import org.briarproject.bramble.test.TestUtils;
 import org.hamcrest.Description;
@@ -318,7 +319,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Transaction txn1 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Get the current time (the start of rotation period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1000));
@@ -342,8 +343,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			oneOf(dbExecutor).execute(with(any(Runnable.class)));
 			will(new RunAction());
 			// Start a transaction for key rotation
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			// Get the current time (the start of rotation period 1001)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(rotationPeriodLength * 1001));
@@ -364,9 +364,6 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			// Schedule key rotation at the start of the next rotation period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(rotationPeriodLength), with(MILLISECONDS));
-			// Commit the key rotation transaction
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
@@ -539,7 +536,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		}
 
 		@Override
-		public Object invoke(Invocation invocation) throws Throwable {
+		public Object invoke(Invocation invocation) {
 			byte[] tag = (byte[]) invocation.getParameter(0);
 			random.nextBytes(tag);
 			if (tags != null) tags.add(tag);

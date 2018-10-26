@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -55,10 +54,10 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -211,8 +210,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 				shutdown);
 
 		assertFalse(db.open(key, null));
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			db.addLocalAuthor(transaction, localAuthor);
 			assertEquals(contactId, db.addContact(transaction, author,
 					localAuthor.getId(), true, true));
@@ -225,14 +223,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.removeGroup(transaction, group);
 			db.removeContact(transaction, contactId);
 			db.removeLocalAuthor(transaction, localAuthor.getId());
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 		db.close();
 	}
 
-	@Test
+	@Test(expected = NoSuchGroupException.class)
 	public void testLocalMessagesAreNotStoredUnlessGroupExists()
 			throws Exception {
 		context.checking(new Expectations() {{
@@ -245,15 +240,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			db.addLocalMessage(transaction, message, metadata, true);
-			fail();
-		} catch (NoSuchGroupException expected) {
-			// Expected
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				db.addLocalMessage(transaction, message, metadata, true));
 	}
 
 	@Test
@@ -277,13 +265,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			db.addLocalMessage(transaction, message, metadata, true);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				db.addLocalMessage(transaction, message, metadata, true));
 	}
 
 	@Test
@@ -300,177 +283,145 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addTransportKeys(transaction, contactId, createTransportKeys());
+			db.transaction(false, transaction ->
+					db.addTransportKeys(transaction, contactId,
+							createTransportKeys()));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.generateAck(transaction, contactId, 123);
+			db.transaction(false, transaction ->
+					db.generateAck(transaction, contactId, 123));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.generateBatch(transaction, contactId, 123, 456);
+			db.transaction(false, transaction ->
+					db.generateBatch(transaction, contactId, 123, 456));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.generateOffer(transaction, contactId, 123, 456);
+			db.transaction(false, transaction ->
+					db.generateOffer(transaction, contactId, 123, 456));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.generateRequest(transaction, contactId, 123);
+			db.transaction(false, transaction ->
+					db.generateRequest(transaction, contactId, 123));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getContact(transaction, contactId);
+			db.transaction(false, transaction ->
+					db.getContact(transaction, contactId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageStatus(transaction, contactId, groupId);
+			db.transaction(false, transaction ->
+					db.getMessageStatus(transaction, contactId, groupId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageStatus(transaction, contactId, messageId);
+			db.transaction(false, transaction ->
+					db.getMessageStatus(transaction, contactId, messageId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getGroupVisibility(transaction, contactId, groupId);
+			db.transaction(false, transaction ->
+					db.getGroupVisibility(transaction, contactId, groupId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
 			Ack a = new Ack(singletonList(messageId));
-			db.receiveAck(transaction, contactId, a);
+			db.transaction(false, transaction ->
+					db.receiveAck(transaction, contactId, a));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.receiveMessage(transaction, contactId, message);
+			db.transaction(false, transaction ->
+					db.receiveMessage(transaction, contactId, message));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
 			Offer o = new Offer(singletonList(messageId));
-			db.receiveOffer(transaction, contactId, o);
+			db.transaction(false, transaction ->
+					db.receiveOffer(transaction, contactId, o));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
 			Request r = new Request(singletonList(messageId));
-			db.receiveRequest(transaction, contactId, r);
+			db.transaction(false, transaction ->
+					db.receiveRequest(transaction, contactId, r));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.removeContact(transaction, contactId);
+			db.transaction(false, transaction ->
+					db.removeContact(transaction, contactId));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.setContactActive(transaction, contactId, true);
+			db.transaction(false, transaction ->
+					db.setContactActive(transaction, contactId, true));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.setContactAlias(transaction, contactId, alias);
+			db.transaction(false, transaction ->
+					db.setContactAlias(transaction, contactId, alias));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.setGroupVisibility(transaction, contactId, groupId, SHARED);
+			db.transaction(false, transaction ->
+					db.setGroupVisibility(transaction, contactId, groupId,
+							SHARED));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 	}
 
@@ -489,34 +440,29 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addContact(transaction, author, localAuthor.getId(), true, true);
+			db.transaction(false, transaction ->
+					db.addContact(transaction, author, localAuthor.getId(),
+							true, true));
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getLocalAuthor(transaction, localAuthor.getId());
+			db.transaction(false, transaction ->
+					db.getLocalAuthor(transaction, localAuthor.getId()));
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.removeLocalAuthor(transaction, localAuthor.getId());
+			db.transaction(false, transaction ->
+					db.removeLocalAuthor(transaction, localAuthor.getId()));
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 	}
 
@@ -537,84 +483,70 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
 		try {
-			db.getGroup(transaction, groupId);
+			db.transaction(false, transaction ->
+					db.getGroup(transaction, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getGroupMetadata(transaction, groupId);
+			db.transaction(false, transaction ->
+					db.getGroupMetadata(transaction, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageMetadata(transaction, groupId);
+			db.transaction(false, transaction ->
+					db.getMessageMetadata(transaction, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageMetadata(transaction, groupId, new Metadata());
+			db.transaction(false, transaction ->
+					db.getMessageMetadata(transaction, groupId,
+							new Metadata()));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageStatus(transaction, contactId, groupId);
+			db.transaction(false, transaction ->
+					db.getMessageStatus(transaction, contactId, groupId));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.mergeGroupMetadata(transaction, groupId, metadata);
+			db.transaction(false, transaction ->
+					db.mergeGroupMetadata(transaction, groupId, metadata));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.removeGroup(transaction, group);
+			db.transaction(false, transaction ->
+					db.removeGroup(transaction, group));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.setGroupVisibility(transaction, contactId, groupId, SHARED);
+			db.transaction(false, transaction ->
+					db.setGroupVisibility(transaction, contactId, groupId,
+							SHARED));
 			fail();
 		} catch (NoSuchGroupException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 	}
 
@@ -635,114 +567,92 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
 		try {
-			db.deleteMessage(transaction, messageId);
+			db.transaction(false, transaction ->
+					db.deleteMessage(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.deleteMessageMetadata(transaction, messageId);
+			db.transaction(false, transaction ->
+					db.deleteMessageMetadata(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessage(transaction, messageId);
+			db.transaction(false, transaction ->
+					db.getMessage(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageMetadata(transaction, messageId);
+			db.transaction(false, transaction ->
+					db.getMessageMetadata(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageState(transaction, messageId);
+			db.transaction(false, transaction ->
+					db.getMessageState(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.getMessageStatus(transaction, contactId, messageId);
+			db.transaction(false, transaction ->
+					db.getMessageStatus(transaction, contactId, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.mergeMessageMetadata(transaction, messageId, metadata);
+			db.transaction(false, transaction ->
+					db.mergeMessageMetadata(transaction, messageId, metadata));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.setMessageShared(transaction, message.getId());
+			db.transaction(false, transaction ->
+					db.setMessageShared(transaction, message.getId()));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.setMessageState(transaction, messageId, DELIVERED);
+			db.transaction(false, transaction ->
+					db.setMessageState(transaction, messageId, DELIVERED));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(true);
 		try {
-			db.getMessageDependencies(transaction, messageId);
+			db.transaction(false, transaction ->
+					db.getMessageDependencies(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(true);
 		try {
-			db.getMessageDependents(transaction, messageId);
+			db.transaction(false, transaction ->
+					db.getMessageDependents(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 	}
 
@@ -750,30 +660,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	public void testVariousMethodsThrowExceptionIfTransportIsMissing()
 			throws Exception {
 		context.checking(new Expectations() {{
-			// startTransaction()
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			// registerLocalAuthor()
-			oneOf(database).containsLocalAuthor(txn, localAuthor.getId());
-			will(returnValue(false));
-			oneOf(database).addLocalAuthor(txn, localAuthor);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
-			// addContact()
-			oneOf(database).containsLocalAuthor(txn, localAuthor.getId());
-			will(returnValue(true));
-			oneOf(database).containsLocalAuthor(txn, author.getId());
-			will(returnValue(false));
-			oneOf(database).containsContact(txn, author.getId(),
-					localAuthor.getId());
-			will(returnValue(false));
-			oneOf(database).addContact(txn, author, localAuthor.getId(),
-					true, true);
-			will(returnValue(contactId));
-			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(
-					ContactStatusChangedEvent.class)));
-			// endTransaction()
-			oneOf(database).commitTransaction(txn);
 			// Check whether the transport is in the DB (which it's not)
 			exactly(5).of(database).startTransaction();
 			will(returnValue(txn));
@@ -784,72 +670,52 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addLocalAuthor(transaction, localAuthor);
-			assertEquals(contactId, db.addContact(transaction, author,
-					localAuthor.getId(), true, true));
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
-
-		transaction = db.startTransaction(false);
-		try {
-			db.getTransportKeys(transaction, transportId);
+			db.transaction(false, transaction ->
+					db.getTransportKeys(transaction, transportId));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.incrementStreamCounter(transaction, transportId, keySetId);
+			db.transaction(false, transaction ->
+					db.incrementStreamCounter(transaction, transportId,
+							keySetId));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.removeTransport(transaction, transportId);
+			db.transaction(false, transaction ->
+					db.removeTransport(transaction, transportId));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.removeTransportKeys(transaction, transportId, keySetId);
+			db.transaction(false, transaction ->
+					db.removeTransportKeys(transaction, transportId, keySetId));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 
-		transaction = db.startTransaction(false);
 		try {
-			db.setReorderingWindow(transaction, keySetId, transportId, 0, 0,
-					new byte[REORDERING_WINDOW_SIZE / 8]);
+			db.transaction(false, transaction ->
+					db.setReorderingWindow(transaction, keySetId, transportId,
+							0, 0, new byte[REORDERING_WINDOW_SIZE / 8]));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 	}
 
 	@Test
 	public void testGenerateAck() throws Exception {
-		Collection<MessageId> messagesToAck = Arrays.asList(messageId,
-				messageId1);
+		Collection<MessageId> messagesToAck = asList(messageId, messageId1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -863,21 +729,17 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			Ack a = db.generateAck(transaction, contactId, 123);
 			assertNotNull(a);
 			assertEquals(messagesToAck, a.getMessageIds());
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test
 	public void testGenerateBatch() throws Exception {
-		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
-		Collection<Message> messages = Arrays.asList(message, message1);
+		Collection<MessageId> ids = asList(messageId, messageId1);
+		Collection<Message> messages = asList(message, message1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -901,20 +763,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			assertEquals(messages, db.generateBatch(transaction, contactId,
-					MAX_MESSAGE_LENGTH * 2, maxLatency));
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				assertEquals(messages, db.generateBatch(transaction, contactId,
+						MAX_MESSAGE_LENGTH * 2, maxLatency)));
 	}
 
 	@Test
 	public void testGenerateOffer() throws Exception {
 		MessageId messageId1 = new MessageId(getRandomId());
-		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
+		Collection<MessageId> ids = asList(messageId, messageId1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -931,21 +788,17 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			Offer o = db.generateOffer(transaction, contactId, 123, maxLatency);
 			assertNotNull(o);
 			assertEquals(ids, o.getMessageIds());
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test
 	public void testGenerateRequest() throws Exception {
 		MessageId messageId1 = new MessageId(getRandomId());
-		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
+		Collection<MessageId> ids = asList(messageId, messageId1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -959,21 +812,17 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			Request r = db.generateRequest(transaction, contactId, 123);
 			assertNotNull(r);
 			assertEquals(ids, r.getMessageIds());
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test
 	public void testGenerateRequestedBatch() throws Exception {
-		Collection<MessageId> ids = Arrays.asList(messageId, messageId1);
-		Collection<Message> messages = Arrays.asList(message, message1);
+		Collection<MessageId> ids = asList(messageId, messageId1);
+		Collection<Message> messages = asList(message, message1);
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -997,14 +846,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			assertEquals(messages, db.generateRequestedBatch(transaction,
-					contactId, MAX_MESSAGE_LENGTH * 2, maxLatency));
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				assertEquals(messages, db.generateRequestedBatch(transaction,
+						contactId, MAX_MESSAGE_LENGTH * 2, maxLatency)));
 	}
 
 	@Test
@@ -1023,14 +867,10 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			Ack a = new Ack(singletonList(messageId));
 			db.receiveAck(transaction, contactId, a);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test
@@ -1065,15 +905,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			// Receive the message twice
 			db.receiveMessage(transaction, contactId, message);
 			db.receiveMessage(transaction, contactId, message);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test
@@ -1097,13 +933,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			db.receiveMessage(transaction, contactId, message);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				db.receiveMessage(transaction, contactId, message));
 	}
 
 	@Test
@@ -1120,13 +951,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			db.receiveMessage(transaction, contactId, message);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				db.receiveMessage(transaction, contactId, message));
 	}
 
 	@Test
@@ -1165,15 +991,10 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			Offer o = new Offer(Arrays.asList(messageId, messageId1,
-					messageId2, messageId3));
-			db.receiveOffer(transaction, contactId, o);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		Offer o = new Offer(asList(messageId, messageId1,
+				messageId2, messageId3));
+		db.transaction(false, transaction ->
+				db.receiveOffer(transaction, contactId, o));
 	}
 
 	@Test
@@ -1193,14 +1014,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			Request r = new Request(singletonList(messageId));
-			db.receiveRequest(transaction, contactId, r);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		Request r = new Request(singletonList(messageId));
+		db.transaction(false, transaction ->
+				db.receiveRequest(transaction, contactId, r));
 	}
 
 	@Test
@@ -1228,13 +1044,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			db.setGroupVisibility(transaction, contactId, groupId, VISIBLE);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				db.setGroupVisibility(transaction, contactId, groupId,
+						VISIBLE));
 
 		GroupVisibilityUpdatedEvent e = event.get();
 		assertNotNull(e);
@@ -1266,13 +1078,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			db.setGroupVisibility(transaction, contactId, groupId, INVISIBLE);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				db.setGroupVisibility(transaction, contactId, groupId,
+						INVISIBLE));
 
 		GroupVisibilityUpdatedEvent e = event.get();
 		assertNotNull(e);
@@ -1296,13 +1104,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
-			db.setGroupVisibility(transaction, contactId, groupId, VISIBLE);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		db.transaction(false, transaction ->
+				db.setGroupVisibility(transaction, contactId, groupId,
+						VISIBLE));
 	}
 
 	@Test
@@ -1330,14 +1134,10 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			db.updateTransportKeys(transaction, keys);
 			assertEquals(keys, db.getTransportKeys(transaction, transportId));
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test
@@ -1373,8 +1173,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(true);
-		try {
+		db.transaction(true, transaction -> {
 			// With visible group - return stored status
 			Collection<MessageStatus> statuses =
 					db.getMessageStatus(transaction, contactId, groupId);
@@ -1392,10 +1191,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			assertEquals(contactId, s.getContactId());
 			assertFalse(s.isSent());
 			assertFalse(s.isSeen());
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test
@@ -1427,8 +1223,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(true);
-		try {
+		db.transaction(true, transaction -> {
 			// With visible group - return stored status
 			MessageStatus s =
 					db.getMessageStatus(transaction, contactId, messageId);
@@ -1442,10 +1237,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			assertEquals(contactId, s.getContactId());
 			assertFalse(s.isSent());
 			assertFalse(s.isSeen());
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	private TransportKeys createTransportKeys() {
@@ -1497,16 +1289,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			// First merge should broadcast an event
 			db.mergeSettings(transaction, update, "namespace");
 			// Second merge should not broadcast an event
 			db.mergeSettings(transaction, update, "namespace");
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 	}
 
 	@Test(expected = IllegalStateException.class)
@@ -1565,14 +1353,13 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addContact(transaction, author, localAuthor.getId(), true, true);
+			db.transaction(false, transaction ->
+					db.addContact(transaction, author, localAuthor.getId(),
+							true, true));
 			fail();
 		} catch (ContactExistsException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 	}
 
@@ -1595,14 +1382,13 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
 
-		Transaction transaction = db.startTransaction(false);
 		try {
-			db.addContact(transaction, author, localAuthor.getId(), true, true);
+			db.transaction(false, transaction ->
+					db.addContact(transaction, author, localAuthor.getId(),
+							true, true));
 			fail();
 		} catch (ContactExistsException expected) {
 			// Expected
-		} finally {
-			db.endTransaction(transaction);
 		}
 	}
 
@@ -1658,8 +1444,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 				shutdown);
 
 		assertFalse(db.open(key, null));
-		Transaction transaction = db.startTransaction(false);
-		try {
+		db.transaction(false, transaction -> {
 			db.addLocalMessage(transaction, message, metadata, true);
 			Collection<MessageId> dependencies = new ArrayList<>(2);
 			dependencies.add(messageId1);
@@ -1667,10 +1452,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.addMessageDependencies(transaction, message, dependencies);
 			db.getMessageDependencies(transaction, messageId);
 			db.getMessageDependents(transaction, messageId);
-			db.commitTransaction(transaction);
-		} finally {
-			db.endTransaction(transaction);
-		}
+		});
 		db.close();
 	}
 }

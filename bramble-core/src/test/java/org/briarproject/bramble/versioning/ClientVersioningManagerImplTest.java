@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -63,7 +64,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	private final long now = System.currentTimeMillis();
 	private final Transaction txn = new Transaction(null, false);
 
-	private ClientVersioningManagerImpl createInstance() throws Exception {
+	private ClientVersioningManagerImpl createInstance() {
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
 					MAJOR_VERSION);
@@ -162,9 +163,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfList localUpdateBody = BdfList.of(BdfList.of(
 				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// No client versions have been stored yet
 			oneOf(db).getMessageIds(txn, localGroup.getId());
 			will(returnValue(emptyList()));
@@ -190,8 +190,6 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
 			will(returnValue(localUpdateBody));
 			// Latest local update is up-to-date, no visibilities have changed
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		ClientVersioningManagerImpl c = createInstance();
@@ -206,17 +204,14 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfList localVersionsBody =
 				BdfList.of(BdfList.of(clientId.getString(), 123, 234));
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Load the old client versions
 			oneOf(db).getMessageIds(txn, localGroup.getId());
 			will(returnValue(singletonList(localVersionsId)));
 			oneOf(clientHelper).getMessageAsList(txn, localVersionsId);
 			will(returnValue(localVersionsBody));
 			// Client versions are up-to-date
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		ClientVersioningManagerImpl c = createInstance();
@@ -251,9 +246,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_UPDATE_VERSION, 2L),
 				new BdfEntry(MSG_KEY_LOCAL, true));
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Load the old client versions
 			oneOf(db).getMessageIds(txn, localGroup.getId());
 			will(returnValue(singletonList(oldLocalVersionsId)));
@@ -295,8 +289,6 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).addLocalMessage(txn, newLocalUpdate,
 					newLocalUpdateMeta, true);
 			// No visibilities have changed
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		ClientVersioningManagerImpl c = createInstance();
@@ -350,9 +342,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_UPDATE_VERSION, 2L),
 				new BdfEntry(MSG_KEY_LOCAL, true));
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Load the old client versions
 			oneOf(db).getMessageIds(txn, localGroup.getId());
 			will(returnValue(singletonList(oldLocalVersionsId)));
@@ -397,8 +388,6 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					newLocalUpdateMeta, true);
 			// The client's visibility has changed
 			oneOf(hook).onClientVisibilityChanging(txn, contact, visibility);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		ClientVersioningManagerImpl c = createInstance();

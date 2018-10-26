@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -158,7 +157,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 				streamWriterFactory.createContactExchangeStreamWriter(out,
 						alice ? aliceHeaderKey : bobHeaderKey);
 		RecordWriter recordWriter =
-				recordWriterFactory.createRecordWriter(streamWriter.getOutputStream());
+				recordWriterFactory
+						.createRecordWriter(streamWriter.getOutputStream());
 
 		// Derive the nonces to be signed
 		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterSecret,
@@ -287,19 +287,14 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private ContactId addContact(Author remoteAuthor, long timestamp,
 			Map<TransportId, TransportProperties> remoteProperties)
 			throws DbException {
-		ContactId contactId;
-		Transaction txn = db.startTransaction(false);
-		try {
-			contactId = contactManager.addContact(txn, remoteAuthor,
+		return db.transactionWithResult(false, txn -> {
+			ContactId contactId = contactManager.addContact(txn, remoteAuthor,
 					localAuthor.getId(), masterSecret, timestamp, alice,
 					true, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return contactId;
+			return contactId;
+		});
 	}
 
 	private void tryToClose(DuplexTransportConnection conn) {

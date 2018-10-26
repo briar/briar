@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -120,13 +119,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction(false);
-				try {
-					db.receiveAck(txn, contactId, ack);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				db.transaction(false,
+						txn -> db.receiveAck(txn, contactId, ack));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -146,13 +140,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction(false);
-				try {
-					db.receiveMessage(txn, contactId, message);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				db.transaction(false,
+						txn -> db.receiveMessage(txn, contactId, message));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -172,13 +161,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction(false);
-				try {
-					db.receiveOffer(txn, contactId, offer);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				db.transaction(false,
+						txn -> db.receiveOffer(txn, contactId, offer));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -198,13 +182,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				Transaction txn = db.startTransaction(false);
-				try {
-					db.receiveRequest(txn, contactId, request);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				db.transaction(false,
+						txn -> db.receiveRequest(txn, contactId, request));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();

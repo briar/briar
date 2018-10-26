@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -115,20 +114,16 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			dbLatch.countDown();
 			eventBus.broadcast(new LifecycleEvent(STARTING_SERVICES));
 
-			Transaction txn = db.startTransaction(false);
-			try {
+			db.transaction(false, txn -> {
 				for (Client c : clients) {
-					start = now();
+					long start1 = now();
 					c.createLocalState(txn);
 					if (LOG.isLoggable(FINE)) {
 						logDuration(LOG, "Starting client "
-								+ c.getClass().getSimpleName(), start);
+								+ c.getClass().getSimpleName(), start1);
 					}
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			});
 			for (Service s : services) {
 				start = now();
 				s.startService();

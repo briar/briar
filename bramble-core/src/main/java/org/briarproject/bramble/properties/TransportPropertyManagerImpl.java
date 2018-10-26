@@ -142,15 +142,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException {
-		Map<TransportId, TransportProperties> local;
-		Transaction txn = db.startTransaction(true);
-		try {
-			local = getLocalProperties(txn);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return local;
+		return db.transactionWithResult(true, this::getLocalProperties);
 	}
 
 	@Override
@@ -176,9 +168,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	public TransportProperties getLocalProperties(TransportId t)
 			throws DbException {
 		try {
-			TransportProperties p = null;
-			Transaction txn = db.startTransaction(true);
-			try {
+			return db.transactionWithResult(true, txn -> {
+				TransportProperties p = null;
 				// Find the latest local update
 				LatestUpdate latest = findLatest(txn, localGroup.getId(), t,
 						true);
@@ -188,11 +179,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 							latest.messageId);
 					p = parseProperties(message);
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
-			return p == null ? new TransportProperties() : p;
+				return p == null ? new TransportProperties() : p;
+			});
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -201,16 +189,12 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public Map<ContactId, TransportProperties> getRemoteProperties(
 			TransportId t) throws DbException {
-		Map<ContactId, TransportProperties> remote = new HashMap<>();
-		Transaction txn = db.startTransaction(true);
-		try {
+		return db.transactionWithResult(true, txn -> {
+			Map<ContactId, TransportProperties> remote = new HashMap<>();
 			for (Contact c : db.getContacts(txn))
 				remote.put(c.getId(), getRemoteProperties(txn, c, t));
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return remote;
+			return remote;
+		});
 	}
 
 	private TransportProperties getRemoteProperties(Transaction txn, Contact c,
@@ -234,23 +218,15 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public TransportProperties getRemoteProperties(ContactId c, TransportId t)
 			throws DbException {
-		TransportProperties p;
-		Transaction txn = db.startTransaction(true);
-		try {
-			p = getRemoteProperties(txn, db.getContact(txn, c), t);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return p;
+		return db.transactionWithResult(true,
+				txn -> getRemoteProperties(txn, db.getContact(txn, c), t));
 	}
 
 	@Override
 	public void mergeLocalProperties(TransportId t, TransportProperties p)
 			throws DbException {
 		try {
-			Transaction txn = db.startTransaction(false);
-			try {
+			db.transaction(false, txn -> {
 				// Merge the new properties with any existing properties
 				TransportProperties merged;
 				boolean changed;
@@ -287,10 +263,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 							db.removeMessage(txn, latest.messageId);
 					}
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			});
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

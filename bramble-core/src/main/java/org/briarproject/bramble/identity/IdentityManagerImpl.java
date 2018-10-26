@@ -67,27 +67,16 @@ class IdentityManagerImpl implements IdentityManager {
 			LOG.info("No local author to store");
 			return;
 		}
-		Transaction txn = db.startTransaction(false);
-		try {
-			db.addLocalAuthor(txn, cached);
-			db.commitTransaction(txn);
-			LOG.info("Local author stored");
-		} finally {
-			db.endTransaction(txn);
-		}
+		db.transaction(false, txn -> db.addLocalAuthor(txn, cached));
+		LOG.info("Local author stored");
 	}
 
 	@Override
 	public LocalAuthor getLocalAuthor() throws DbException {
 		if (cachedAuthor == null) {
-			Transaction txn = db.startTransaction(true);
-			try {
-				cachedAuthor = loadLocalAuthor(txn);
-				LOG.info("Local author loaded");
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			cachedAuthor =
+					db.transactionWithResult(true, this::loadLocalAuthor);
+			LOG.info("Local author loaded");
 		}
 		LocalAuthor cached = cachedAuthor;
 		if (cached == null) throw new AssertionError();

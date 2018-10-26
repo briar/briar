@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.jmock.lib.concurrent.DeterministicExecutor;
 import org.junit.Before;
@@ -35,6 +36,7 @@ import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 public class KeyManagerImplTest extends BrambleMockTestCase {
 
@@ -77,7 +79,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 				singletonList(pluginFactory);
 		int maxLatency = 1337;
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			oneOf(pluginConfig).getSimplexFactories();
 			will(returnValue(factories));
 			oneOf(pluginFactory).getId();
@@ -89,13 +91,10 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 					.createTransportKeyManager(transportId, maxLatency);
 			will(returnValue(transportKeyManager));
 			oneOf(pluginConfig).getDuplexFactories();
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			oneOf(transportKeyManager).start(txn);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		keyManager.startService();
@@ -121,25 +120,20 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGetStreamContextForInactiveContact() throws Exception {
-		assertEquals(null,
-				keyManager.getStreamContext(inactiveContactId, transportId));
+		assertNull(keyManager.getStreamContext(inactiveContactId, transportId));
 	}
 
 	@Test
 	public void testGetStreamContextForUnknownTransport() throws Exception {
-		assertEquals(null,
-				keyManager.getStreamContext(contactId, unknownTransportId));
+		assertNull(keyManager.getStreamContext(contactId, unknownTransportId));
 	}
 
 	@Test
 	public void testGetStreamContextForContact() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, contactId);
 			will(returnValue(streamContext));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		assertEquals(streamContext,
@@ -149,19 +143,15 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetStreamContextForTagAndUnknownTransport()
 			throws Exception {
-		assertEquals(null,
-				keyManager.getStreamContext(unknownTransportId, tag));
+		assertNull(keyManager.getStreamContext(unknownTransportId, tag));
 	}
 
 	@Test
 	public void testGetStreamContextForTag() throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, tag);
 			will(returnValue(streamContext));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		assertEquals(streamContext,
@@ -178,7 +168,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 
 		keyManager.eventOccurred(event);
 		executor.runUntilIdle();
-		assertEquals(null, keyManager.getStreamContext(contactId, transportId));
+		assertNull(keyManager.getStreamContext(contactId, transportId));
 	}
 
 	@Test
@@ -186,13 +176,10 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 		ContactStatusChangedEvent event =
 				new ContactStatusChangedEvent(inactiveContactId, true);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, inactiveContactId);
 			will(returnValue(streamContext));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		keyManager.eventOccurred(event);

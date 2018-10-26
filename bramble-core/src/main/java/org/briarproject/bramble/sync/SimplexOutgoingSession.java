@@ -1,11 +1,11 @@
 package org.briarproject.bramble.sync;
 
+import org.briarproject.bramble.api.Maybe;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -47,7 +47,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(SimplexOutgoingSession.class.getName());
 
-	private static final ThrowingRunnable<IOException> CLOSE = () -> {};
+	private static final ThrowingRunnable<IOException> CLOSE = () -> {
+	};
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
@@ -128,18 +129,13 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Ack a;
-				Transaction txn = db.startTransaction(false);
-				try {
-					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				Maybe<Ack> a = db.transactionWithResult(false,
+						txn -> new Maybe<>(db.generateAck(txn, contactId,
+								MAX_MESSAGE_IDS)));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated ack: " + (a != null));
-				if (a == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteAck(a));
+					LOG.info("Generated ack: " + a.isPresent());
+				if (a.isPresent()) writerTasks.add(new WriteAck(a.get()));
+				else decrementOutstandingQueries();
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -172,19 +168,13 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Collection<Message> b;
-				Transaction txn = db.startTransaction(false);
-				try {
-					b = db.generateBatch(txn, contactId,
-							MAX_RECORD_PAYLOAD_BYTES, maxLatency);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				Maybe<Collection<Message>> b = db.transactionWithResult(false,
+						txn -> new Maybe<>(db.generateBatch(txn, contactId,
+								MAX_RECORD_PAYLOAD_BYTES, maxLatency)));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated batch: " + (b != null));
-				if (b == null) decrementOutstandingQueries();
-				else writerTasks.add(new WriteBatch(b));
+					LOG.info("Generated batch: " + b.isPresent());
+				if (b.isPresent()) writerTasks.add(new WriteBatch(b.get()));
+				else decrementOutstandingQueries();
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();

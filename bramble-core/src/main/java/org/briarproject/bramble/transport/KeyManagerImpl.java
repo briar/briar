@@ -72,8 +72,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories())
 			transports.put(f.getId(), f.getMaxLatency());
 		try {
-			Transaction txn = db.startTransaction(false);
-			try {
+			db.transaction(false, txn -> {
 				for (Contact c : db.getContacts(txn))
 					if (c.isActive()) activeContacts.put(c.getId(), true);
 				for (Entry<TransportId, Integer> e : transports.entrySet())
@@ -85,10 +84,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 					managers.put(e.getKey(), m);
 					m.start(txn);
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			});
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}
@@ -141,15 +137,8 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		StreamContext ctx;
-		Transaction txn = db.startTransaction(false);
-		try {
-			ctx = m.getStreamContext(txn, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return ctx;
+		return db.transactionWithResult(false,
+				txn -> m.getStreamContext(txn, c));
 	}
 
 	@Override
@@ -160,15 +149,8 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		StreamContext ctx;
-		Transaction txn = db.startTransaction(false);
-		try {
-			ctx = m.getStreamContext(txn, tag);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return ctx;
+		return db.transactionWithResult(false,
+				txn -> m.getStreamContext(txn, tag));
 	}
 
 	@Override
