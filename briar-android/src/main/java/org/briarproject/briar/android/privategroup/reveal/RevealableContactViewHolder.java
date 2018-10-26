@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import static org.briarproject.briar.android.privategroup.VisibilityHelper.getVisibilityIcon;
 import static org.briarproject.briar.android.privategroup.VisibilityHelper.getVisibilityString;
 import static org.briarproject.briar.android.util.UiUtils.GREY_OUT;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
 @NotNullByDefault
@@ -36,7 +37,7 @@ class RevealableContactViewHolder
 		icon.setImageResource(getVisibilityIcon(item.getVisibility()));
 		info.setText(
 				getVisibilityString(info.getContext(), item.getVisibility(),
-						item.getContact().getAuthor().getName()));
+						getContactDisplayName(item.getContact())));
 	}
 
 	@Override

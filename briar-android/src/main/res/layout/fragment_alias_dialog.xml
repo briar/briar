@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:orientation="vertical">
+
+	<TextView
+		android:id="@+id/titleView"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="16dp"
+		android:text="@string/set_contact_alias"
+		android:textColor="?android:attr/textColorPrimary"
+		android:textSize="@dimen/text_size_large"
+		android:textStyle="bold"/>
+
+	<EditText
+		android:id="@+id/aliasEditText"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:layout_marginLeft="16dp"
+		android:layout_marginRight="16dp"
+		android:hint="@string/set_contact_alias_hint"
+		android:inputType="textPersonName"
+		android:textColor="?android:attr/textColorPrimary"
+		android:textSize="@dimen/text_size_medium"/>
+
+	<LinearLayout
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:paddingLeft="16dp"
+		android:paddingRight="16dp"
+		android:orientation="horizontal">
+
+		<Button
+			android:id="@+id/cancelButton"
+			style="@style/BriarButtonFlat.Negative"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/cancel"/>
+
+		<Button
+			android:id="@+id/setButton"
+			style="@style/BriarButtonFlat.Positive"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_weight="1"
+			android:text="@string/set_alias"/>
+
+	</LinearLayout>
+
+</LinearLayout>

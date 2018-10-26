@@ -1,7 +1,8 @@
 package org.briarproject.briar.android.contact;
 
-import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +24,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
@@ -34,7 +34,6 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
@@ -131,8 +130,8 @@ public class ConversationActivity extends BriarActivity
 	Executor cryptoExecutor;
 
 	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
-	private final MutableLiveData<String> contactName = new MutableLiveData<>();
 
+	private ConversationViewModel viewModel;
 	private ConversationVisitor visitor;
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
@@ -166,8 +165,6 @@ public class ConversationActivity extends BriarActivity
 
 	private volatile ContactId contactId;
 	@Nullable
-	private volatile AuthorId contactAuthorId;
-	@Nullable
 	private volatile GroupId messagingGroupId;
 
 	@SuppressWarnings("ConstantConditions")
@@ -175,6 +172,9 @@ public class ConversationActivity extends BriarActivity
 	public void onCreate(@Nullable Bundle state) {
 		setSceneTransitionAnimation();
 		super.onCreate(state);
+
+		viewModel =
+				ViewModelProviders.of(this).get(ConversationViewModel.class);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
@@ -185,16 +185,29 @@ public class ConversationActivity extends BriarActivity
 
 		// Custom Toolbar
 		toolbar = setUpCustomToolbar(true);
-		if (toolbar != null) {
-			toolbarAvatar = toolbar.findViewById(R.id.contactAvatar);
-			toolbarStatus = toolbar.findViewById(R.id.contactStatus);
-			toolbarTitle = toolbar.findViewById(R.id.contactName);
-		}
+		toolbarAvatar = toolbar.findViewById(R.id.contactAvatar);
+		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
+		toolbarTitle = toolbar.findViewById(R.id.contactName);
+
+		viewModel.getContactAuthorId().observe(this, authorId -> {
+			toolbarAvatar.setImageDrawable(
+					new IdenticonDrawable(authorId.getBytes()));
+			// we only need this once
+			viewModel.getContactAuthorId().removeObservers(this);
+		});
+		viewModel.getContactDisplayName().observe(this, contactName -> {
+			toolbarTitle.setText(contactName);
+		});
+		viewModel.isContactDeleted().observe(this, deleted -> {
+			if (deleted != null && deleted) finish();
+		});
+		viewModel.loadContactDetails(contactId);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
 
-		visitor = new ConversationVisitor(this, this, contactName);
+		visitor = new ConversationVisitor(this, this,
+				viewModel.getContactDisplayName());
 		adapter = new ConversationAdapter(this, this);
 		list = findViewById(R.id.conversationView);
 		list.setLayoutManager(new LinearLayoutManager(this));
@@ -229,7 +242,19 @@ public class ConversationActivity extends BriarActivity
 		notificationManager.blockContactNotification(contactId);
 		notificationManager.clearContactNotification(contactId);
 		displayContactOnlineStatus();
-		loadContactDetailsAndMessages();
+		LiveData<String> contactName = viewModel.getContactDisplayName();
+		if (contactName.getValue() == null) {
+			// wait for contact name to be initialized
+			contactName.observe(this, new Observer<String>() {
+				@Override
+				public void onChanged(@Nullable String cName) {
+					if (cName != null) {
+						loadMessages();
+						contactName.removeObserver(this);
+					}
+				}
+			});
+		} else loadMessages();
 		list.startPeriodicUpdate();
 	}
 
@@ -266,42 +291,16 @@ public class ConversationActivity extends BriarActivity
 				intent.putExtra(CONTACT_ID, contactId.getInt());
 				startActivityForResult(intent, REQUEST_INTRODUCTION);
 				return true;
+			case R.id.action_set_alias:
+				AliasDialogFragment.newInstance(contactId).show(
+						getSupportFragmentManager(), AliasDialogFragment.TAG);
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
 			default:
 				return super.onOptionsItemSelected(item);
 		}
-	}
-
-	private void loadContactDetailsAndMessages() {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				if (contactAuthorId == null) {
-					Contact contact = contactManager.getContact(contactId);
-					contactName.postValue(contact.getAuthor().getName());
-					contactAuthorId = contact.getAuthor().getId();
-				}
-				logDuration(LOG, "Loading contact", start);
-				loadMessages();
-				displayContactDetails();
-			} catch (NoSuchContactException e) {
-				finishOnUiThread();
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	// contactAuthorId and contactName are expected to be set
-	private void displayContactDetails() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			//noinspection ConstantConditions
-			toolbarAvatar.setImageDrawable(
-					new IdenticonDrawable(contactAuthorId.getBytes()));
-			toolbarTitle.setText(contactName.getValue());
-		});
 	}
 
 	private void displayContactOnlineStatus() {
@@ -453,15 +452,17 @@ public class ConversationActivity extends BriarActivity
 	private void onNewPrivateMessage(PrivateMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
-				String cName = contactName.getValue();
+				String cName = viewModel.getContactDisplayName().getValue();
 				if (cName == null) {
 					// Wait for the contact name to be loaded
-					contactName.observe(this, new Observer<String>() {
+					viewModel.getContactDisplayName()
+							.observe(this, new Observer<String>() {
 						@Override
 						public void onChanged(@Nullable String cName) {
 							if (cName != null) {
 								addConversationItem(h.accept(visitor));
-								contactName.removeObserver(this);
+								viewModel.getContactDisplayName()
+										.removeObserver(this);
 							}
 						}
 					});

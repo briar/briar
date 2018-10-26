@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.briar.android.contact.ConversationViewModel;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.reporting.BriarReportSender;
 import org.briarproject.briar.android.view.TextInputView;
@@ -163,6 +164,8 @@ public interface AndroidComponent
 	void inject(NotificationCleanupService notificationCleanupService);
 
 	void inject(TextInputView textInputView);
+
+	void inject(ConversationViewModel conversationViewModel);
 
 	// Eager singleton load
 	void inject(AppModule.EagerSingletons init);

@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.contact;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.View;
 
 import org.briarproject.bramble.api.contact.ContactId;
@@ -9,6 +10,7 @@ import org.briarproject.briar.android.util.BriarAdapter;
 import javax.annotation.Nullable;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 public abstract class BaseContactListAdapter<I extends ContactItem, VH extends ContactItemViewHolder<I>>
 		extends BriarAdapter<I, VH> {
@@ -23,15 +25,15 @@ public abstract class BaseContactListAdapter<I extends ContactItem, VH extends C
 	}
 
 	@Override
-	public void onBindViewHolder(VH ui, int position) {
+	public void onBindViewHolder(@NonNull VH ui, int position) {
 		I item = items.get(position);
 		ui.bind(item, listener);
 	}
 
 	@Override
 	public int compare(I c1, I c2) {
-		return c1.getContact().getAuthor().getName()
-				.compareTo(c2.getContact().getAuthor().getName());
+		return getContactDisplayName(c1.getContact())
+				.compareTo(getContactDisplayName(c2.getContact()));
 	}
 
 	@Override

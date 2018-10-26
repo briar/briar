@@ -127,6 +127,9 @@
 	<string name="date_no_private_messages">No messages.</string>
 	<string name="no_private_messages">No messages to show</string>
 	<string name="message_hint">Type message</string>
+	<string name="set_contact_alias">Set alias name</string>
+	<string name="set_contact_alias_hint">Contact alias</string>
+	<string name="set_alias">Set Alias</string>
 	<string name="delete_contact">Delete contact</string>
 	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
 	<string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>

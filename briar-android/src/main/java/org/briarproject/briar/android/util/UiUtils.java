@@ -33,6 +33,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import org.acra.ACRA;
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -73,6 +74,13 @@ public class UiUtils {
 	public static final long MIN_DATE_RESOLUTION = MINUTE_IN_MILLIS;
 	public static final int TEASER_LENGTH = 320;
 	public static final float GREY_OUT = 0.5f;
+
+	public static String getContactDisplayName(Contact c) {
+		String name = c.getAuthor().getName();
+		String alias = c.getAlias();
+		if (alias == null) return name;
+		else return String.format("%s (%s)", alias, name);
+	}
 
 	public static void setError(TextInputLayout til, @Nullable String error,
 			boolean set) {
