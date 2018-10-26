@@ -312,10 +312,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Logger.getLogger(JdbcDatabase.class.getName());
 
 	// Different database libraries use different names for certain types
-	private final String hashType, secretType, binaryType;
-	private final String counterType, stringType;
 	private final MessageFactory messageFactory;
 	private final Clock clock;
+	private final DatabaseTypes dbTypes;
 
 	// Locking: connectionsLock
 	private final LinkedList<Connection> connections = new LinkedList<>();
@@ -330,14 +329,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final Lock connectionsLock = new ReentrantLock();
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
-	JdbcDatabase(String hashType, String secretType, String binaryType,
-			String counterType, String stringType,
-			MessageFactory messageFactory, Clock clock) {
-		this.hashType = hashType;
-		this.secretType = secretType;
-		this.binaryType = binaryType;
-		this.counterType = counterType;
-		this.stringType = stringType;
+	JdbcDatabase(DatabaseTypes databaseTypes, MessageFactory messageFactory,
+			Clock clock) {
+		this.dbTypes = databaseTypes;
 		this.messageFactory = messageFactory;
 		this.clock = clock;
 	}
@@ -432,7 +426,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		return Arrays.asList(
 				new Migration38_39(),
 				new Migration39_40(),
-				new Migration40_41()
+				new Migration40_41(dbTypes)
 		);
 	}
 
@@ -492,20 +486,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Statement s = null;
 		try {
 			s = txn.createStatement();
-			s.executeUpdate(insertTypeNames(CREATE_SETTINGS));
-			s.executeUpdate(insertTypeNames(CREATE_LOCAL_AUTHORS));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUP_METADATA));
-			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
-			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
-			s.executeUpdate(insertTypeNames(CREATE_MESSAGE_METADATA));
-			s.executeUpdate(insertTypeNames(CREATE_MESSAGE_DEPENDENCIES));
-			s.executeUpdate(insertTypeNames(CREATE_OFFERS));
-			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
-			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
-			s.executeUpdate(insertTypeNames(CREATE_OUTGOING_KEYS));
-			s.executeUpdate(insertTypeNames(CREATE_INCOMING_KEYS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_SETTINGS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_LOCAL_AUTHORS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_CONTACTS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUPS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_METADATA));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_VISIBILITIES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_METADATA));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_DEPENDENCIES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_OFFERS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_STATUSES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_TRANSPORTS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_OUTGOING_KEYS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_INCOMING_KEYS));
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s);
@@ -528,15 +522,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(s);
 			throw new DbException(e);
 		}
-	}
-
-	private String insertTypeNames(String s) {
-		s = s.replaceAll("_HASH", hashType);
-		s = s.replaceAll("_SECRET", secretType);
-		s = s.replaceAll("_BINARY", binaryType);
-		s = s.replaceAll("_COUNTER", counterType);
-		s = s.replaceAll("_STRING", stringType);
-		return s;
 	}
 
 	@Override

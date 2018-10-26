@@ -17,6 +17,12 @@ class Migration40_41 implements Migration<Connection> {
 
 	private static final Logger LOG = getLogger(Migration40_41.class.getName());
 
+	private final DatabaseTypes dbTypes;
+
+	public Migration40_41(DatabaseTypes databaseTypes) {
+		this.dbTypes = databaseTypes;
+	}
+
 	@Override
 	public int getStartVersion() {
 		return 40;
@@ -33,8 +39,7 @@ class Migration40_41 implements Migration<Connection> {
 		try {
 			s = txn.createStatement();
 			s.execute("ALTER TABLE contacts"
-					// TODO how to insertTypeNames _STRING ?
-					+ " ADD alias VARCHAR");
+					+ dbTypes.replaceTypes(" ADD alias VARCHAR"));
 		} catch (SQLException e) {
 			tryToClose(s);
 			throw new DbException(e);

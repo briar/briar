@@ -30,6 +30,8 @@ class H2Database extends JdbcDatabase {
 	private static final String BINARY_TYPE = "BINARY";
 	private static final String COUNTER_TYPE = "INT NOT NULL AUTO_INCREMENT";
 	private static final String STRING_TYPE = "VARCHAR";
+	private static final DatabaseTypes dbTypes = new DatabaseTypes(HASH_TYPE,
+			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE);
 
 	private final DatabaseConfig config;
 	private final String url;
@@ -40,8 +42,7 @@ class H2Database extends JdbcDatabase {
 	@Inject
 	H2Database(DatabaseConfig config, MessageFactory messageFactory,
 			Clock clock) {
-		super(HASH_TYPE, SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
-				messageFactory, clock);
+		super(dbTypes, messageFactory, clock);
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();

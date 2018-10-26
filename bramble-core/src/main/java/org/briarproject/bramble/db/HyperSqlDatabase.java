@@ -30,6 +30,8 @@ class HyperSqlDatabase extends JdbcDatabase {
 	private static final String COUNTER_TYPE =
 			"INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1)";
 	private static final String STRING_TYPE = "VARCHAR";
+	private static final DatabaseTypes dbTypes = new DatabaseTypes(HASH_TYPE,
+			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE);
 
 	private final DatabaseConfig config;
 	private final String url;
@@ -40,8 +42,7 @@ class HyperSqlDatabase extends JdbcDatabase {
 	@Inject
 	HyperSqlDatabase(DatabaseConfig config, MessageFactory messageFactory,
 			Clock clock) {
-		super(HASH_TYPE, SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE,
-				messageFactory, clock);
+		super(dbTypes, messageFactory, clock);
 		this.config = config;
 		File dir = config.getDatabaseDirectory();
 		String path = new File(dir, "db").getAbsolutePath();
@@ -78,7 +79,7 @@ class HyperSqlDatabase extends JdbcDatabase {
 	}
 
 	@Override
-	public long getFreeSpace() throws DbException {
+	public long getFreeSpace() {
 		File dir = config.getDatabaseDirectory();
 		long maxSize = config.getMaxSize();
 		long free = dir.getFreeSpace();
