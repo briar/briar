@@ -73,8 +73,7 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 				if (data.length == size.width * size.height * 3 / 2) {
 					CameraInfo info = new CameraInfo();
 					Camera.getCameraInfo(cameraIndex, info);
-					new DecoderTask(data, size.width, size.height,
-							info.orientation).execute();
+					new DecoderTask(data, size.width, size.height).execute();
 				} else {
 					// Camera parameters have changed - ask for a new preview
 					LOG.info("Preview size does not match camera parameters");
@@ -91,19 +90,18 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private class DecoderTask extends AsyncTask<Void, Void, Void> {
 
 		private final byte[] data;
-		private final int width, height, orientation;
+		private final int width;
+		private final int height;
 
-		private DecoderTask(byte[] data, int width, int height,
-				int orientation) {
+		private DecoderTask(byte[] data, int width, int height) {
 			this.data = data;
 			this.width = width;
 			this.height = height;
-			this.orientation = orientation;
 		}
 
 		@Override
 		protected Void doInBackground(Void... params) {
-			BinaryBitmap bitmap = binarize(data, width, height, orientation);
+			BinaryBitmap bitmap = binarize(data, width, height);
 			Result result;
 			try {
 				result = reader.decode(bitmap,
@@ -127,16 +125,9 @@ public class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 		}
 	}
 
-	private static BinaryBitmap binarize(byte[] data, int width, int height,
-			int orientation) {
-		// Crop to a square at the top (portrait) or left (landscape) of the
-		// screen - this will be faster to decode and should include
-		// everything visible in the viewfinder
-		int crop = Math.min(width, height);
-		int left = orientation >= 180 ? width - crop : 0;
-		int top = orientation >= 180 ? height - crop : 0;
+	private static BinaryBitmap binarize(byte[] data, int width, int height) {
 		LuminanceSource src = new PlanarYUVLuminanceSource(data, width,
-				height, left, top, crop, crop, false);
+				height, 0, 0, width, height, false);
 		return new BinaryBitmap(new HybridBinarizer(src));
 	}
 
