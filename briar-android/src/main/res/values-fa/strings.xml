@@ -474,7 +474,6 @@
   <string name="permission_camera_denied_body">شما دسترسی به دوربین را رد کرده اید، اما افزودن مخاطب نیاز به دوربین دارد.
 
 لطفا اجازه دسترسی را بدهید.</string>
-  <string name="permission_camera_denied_toast">اجازه دسترسی به دوربین پذیرفته نشد</string>
   <string name="qr_code">کد QR</string>
   <string name="show_qr_code_fullscreen">نمایش کد QR به صورت فول اسکرین</string>
   <!--App Locking-->

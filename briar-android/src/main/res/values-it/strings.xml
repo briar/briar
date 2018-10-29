@@ -48,6 +48,7 @@
   <string name="download_briar_button">Scarica Briar 1.0</string>
   <string name="startup_open_database">Decrittazione database...</string>
   <string name="startup_migrate_database">Aggiornamento database...</string>
+  <string name="startup_compact_database">Compattazione database…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Apri la barra di navigazione</string>
   <string name="nav_drawer_close_description">Chiudi la barra di navigazione</string>
@@ -435,7 +436,6 @@
   <string name="permission_camera_title">Autorizzazione fotocamera</string>
   <string name="permission_camera_request_body">Per scansionare il codice QR, Briar deve accedere alla fotocamera.</string>
   <string name="permission_camera_denied_body">Hai negato l\'accesso alla fotocamera, ma questa serve per aggiungere i contatti.\n\nConsidera la possibilità di concedere l\'accesso.</string>
-  <string name="permission_camera_denied_toast">Autorizzazione fotocamera non concessa</string>
   <string name="qr_code">Codice QR</string>
   <string name="show_qr_code_fullscreen">Mostra codice QR a tutto schermo</string>
   <!--App Locking-->

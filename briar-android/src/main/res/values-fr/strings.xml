@@ -132,7 +132,7 @@
   <string name="qr_code_invalid">Le code QR est invalide</string>
   <string name="qr_code_too_old">Le code QR que vous avez lu provient d’une version plus ancienne de %s.\n\nVeuillez demander à votre contact de passer à la version la plus récente, puis ressayez.</string>
   <string name="qr_code_too_new">Le code QR que vous avez lu provient d’une version plus récente de %s.\n\nVeuillez passer à la version la plus récente, puis ressayez.</string>
-  <string name="camera_error">Erreur de la caméra</string>
+  <string name="camera_error">Erreur de l’appareil photo</string>
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
   <string name="connection_error_title">Impossible de se connecter à votre contact</string>
@@ -433,10 +433,13 @@
   <string name="screen_filter_body">Une autre appli s’affiche par-dessus Briar. Pour protéger votre sécurité, Briar ne répondra pas au toucher si une autre appli s’affiche par-dessus.\n\nLes applis suivantes pourraient s’afficher par-dessus Briar : \n\n%1$s</string>
   <string name="screen_filter_allow">Permettre à ces applis de s’afficher par-dessus</string>
   <!--Permission Requests-->
-  <string name="permission_camera_title">Accès à la caméra</string>
-  <string name="permission_camera_request_body">Pour lire le code QR, Briar doit accéder à la caméra.</string>
+  <string name="permission_camera_title">Accès à l’appareil photo</string>
+  <string name="permission_camera_request_body">Afin de lire le code QR, Briar doit accéder à l’appareil photo.</string>
+  <string name="permission_location_title">Autorisation d’accès à la position</string>
+  <string name="permission_location_request_body">Afin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
+  <string name="permission_camera_location_title">Appareil photo et position</string>
+  <string name="permission_camera_location_request_body">Afin de lire le code QR, Briar doit accéder à l’appareil photo.\n\nAfin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
   <string name="permission_camera_denied_body">Vous avez refusé l’accès à la caméra, mais l’ajout de contacts exige l’utilisation de celle-ci.\n\nVeuillez envisager d’y accorder l’accès.</string>
-  <string name="permission_camera_denied_toast">L’accès à la caméra n’a pas été accordé</string>
   <string name="qr_code">Code QR</string>
   <string name="show_qr_code_fullscreen">Afficher le code QR en plein écran</string>
   <!--App Locking-->

@@ -471,7 +471,6 @@
   <string name="permission_camera_title">إذن الكاميرا</string>
   <string name="permission_camera_request_body">للتمكن من مسح رمز QR، يحتاج Briar (براير) إلى إستعمال الكاميرا.</string>
   <string name="permission_camera_denied_body">قد رفضت إعطاء إذن الكاميرا، لكن إضافة جهات إتصال يتطلب إستعمال الكاميرا.\n\nالرجاء منح الإذن.</string>
-  <string name="permission_camera_denied_toast">لم يتم منح الإذن بإستعمال الكاميرا</string>
   <string name="qr_code">رمز QR</string>
   <string name="show_qr_code_fullscreen">اظهار رمز QR بوضع ملء الشاشة</string>
   <!--App Locking-->

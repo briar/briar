@@ -53,6 +53,7 @@
   <string name="download_briar_button">הורד את Briar 1.0</string>
   <string name="startup_open_database">מפענח מסד נתונים...</string>
   <string name="startup_migrate_database">משדרג מסד נתונים...</string>
+  <string name="startup_compact_database">מכווץ מסד נתונים...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">פתח את מגירת הניווט</string>
   <string name="nav_drawer_close_description">סגור את מגירת הניווט</string>
@@ -317,6 +318,7 @@
   <string name="blogs_remove_blog_ok">הסר</string>
   <string name="blogs_blog_removed">בלוג הוסר</string>
   <string name="blogs_reblog_comment_hint">הוסף תגובה (רשותי)</string>
+  <string name="blogs_reblog_button">פרסם מחדש</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">שתף בלוג</string>
   <string name="blogs_sharing_error">הייתה שגיאה בשיתוף בלוג זה.</string>
@@ -461,11 +463,12 @@
   <string name="progress_title_logout">מתנתק מן Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">ציפוי מסך התגלה</string>
+  <string name="screen_filter_body">יישום אחר מציירת מעל Briar. כדי להגן על אבטחתך, Briar לא יגיב לנגיעות כאשר יישום אחר מצייר מעל.\n\nהיישומים הבאים יכולים לצייר מעל:\n\n%1$s</string>
+  <string name="screen_filter_allow">התר ליישומים אלו לצייר מעל</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">הרשאת מצלמה</string>
   <string name="permission_camera_request_body">כדי לסרוק את קוד ה־QR, היישום Briar צריך גישה אל המצלמה.</string>
   <string name="permission_camera_denied_body">דחית גישה אל המצלמה, אבל הוספת אנשי קשר דורשת שימוש במצלמה.\n\nאנא שקול הענקת גישה.</string>
-  <string name="permission_camera_denied_toast">הרשאת מצלמה לא הוענקה</string>
   <string name="qr_code">קוד QR</string>
   <string name="show_qr_code_fullscreen">הראה קוד QR במסך מלא</string>
   <!--App Locking-->

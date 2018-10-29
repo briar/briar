@@ -466,7 +466,6 @@ Slijedeće aplikacije mogu precrtavati preko:
   <string name="permission_camera_denied_body">Uskratili ste pristup kameri, ali dodavanje kontakata zahtijeva pristup kameri.
 
 Molim vas da uzmete u obzir odobravanja pristupa.</string>
-  <string name="permission_camera_denied_toast">Dozvola kameri nije odobrena</string>
   <string name="qr_code">QR kod</string>
   <string name="show_qr_code_fullscreen">Prikazi QR kod na puni ekran</string>
   <!--App Locking-->

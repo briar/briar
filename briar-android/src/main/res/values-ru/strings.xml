@@ -452,7 +452,6 @@
   <string name="permission_camera_title">Доступ к камере</string>
   <string name="permission_camera_request_body">Для сканирования QR-кода Briar необходим доступ к камере.</string>
   <string name="permission_camera_denied_body">Вы отказали в доступе к камере. Для добавления контактов необходимо использовать камеру.\n\nРассмотрите возможность предоставления доступа.</string>
-  <string name="permission_camera_denied_toast">Доступ к камере предоставлен не был</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
   <!--App Locking-->

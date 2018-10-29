@@ -446,7 +446,6 @@
   <string name="permission_camera_title">Permisiune de acces la camera foto</string>
   <string name="permission_camera_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.</string>
   <string name="permission_camera_denied_body">Ați refuzat accesul la camera foto, dar pentru a adăuga contacte este necesară folosirea camerei foto.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
-  <string name="permission_camera_denied_toast">Permisiunea de acces la camera foto nu a fost acordată</string>
   <string name="qr_code">Cod QR</string>
   <string name="show_qr_code_fullscreen">Arată codul QR pe tot ecranul</string>
   <!--App Locking-->

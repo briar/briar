@@ -430,7 +430,6 @@
   <string name="permission_camera_title">Kameran käyttöoikeus</string>
   <string name="permission_camera_request_body">Skannatakseen QR koodin, Briar tarvitsee luvan käyttää kameraa.</string>
   <string name="permission_camera_denied_body">Olet kieltänyt käyttämästä kameraa, mutta yhteyshenkilöiden lisääminen vaatii kameran käyttöä.\n\nOle hyvä ja harkitse kameraluvan myöntämistä.</string>
-  <string name="permission_camera_denied_toast">Kameran käyttöoikeutta ei myönnetty</string>
   <string name="qr_code">QR-koodi</string>
   <string name="show_qr_code_fullscreen">Näytä QR-koodi koko näytöllä</string>
   <!--App Locking-->

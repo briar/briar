@@ -436,7 +436,6 @@
   <string name="permission_camera_title">Permiso da cámara</string>
   <string name="permission_camera_request_body">Para escanear códigos QR, Briar precisa acceso a cámara.</string>
   <string name="permission_camera_denied_body">Denegou o permiso de acceso a cámara, pero é necesario para engadir contactos.\n\nPor favor, considere conceder o permiso.</string>
-  <string name="permission_camera_denied_toast">Non concedeu o acceso a cámara</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Amosar o código QR a pantalla completa</string>
   <!--App Locking-->

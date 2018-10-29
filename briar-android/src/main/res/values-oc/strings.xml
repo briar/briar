@@ -440,7 +440,6 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="permission_camera_title">Permission de la camèra</string>
   <string name="permission_camera_request_body">Per numerizar lo còdi QR cal que Briar aja l’accès a la camèra.</string>
   <string name="permission_camera_denied_body">Avètz regetat l’accès a la camèra, mas per ajustar de contacte cal utilizar la camèra.\n\n Mercés de li donar l’accès</string>
-  <string name="permission_camera_denied_toast">La permission a la camèra es pas estada donada</string>
   <string name="qr_code">Còdi QR</string>
   <string name="show_qr_code_fullscreen">Mostrar lo còdi QR en ecran complèt</string>
   <!--App Locking-->

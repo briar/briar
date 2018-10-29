@@ -48,6 +48,7 @@
   <string name="download_briar_button">Deskargatu Briar 1.0</string>
   <string name="startup_open_database">Datu-basea deszifratzen...</string>
   <string name="startup_migrate_database">Datu-basea eguneratzen...</string>
+  <string name="startup_compact_database">Datu-basea trinkotzen…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Ireki nabigazio-tiradera</string>
   <string name="nav_drawer_close_description">Itxi nabigazio-tiradera</string>
@@ -435,7 +436,6 @@
   <string name="permission_camera_title">Kamera erabiltzeko baimena</string>
   <string name="permission_camera_request_body">QR kodea eskaneatzeko Briar-ek kamera atzitu behar du.</string>
   <string name="permission_camera_denied_body">Kamera atzitzeko baimena ukatu duzu, baina kontaktuak gehitzeko kamera erabili behar da.\n\nMesedez baimendu kamera atzitzea.</string>
-  <string name="permission_camera_denied_toast">Ez da kamera erabiltzeko baimenik eman</string>
   <string name="qr_code">QR kodea</string>
   <string name="show_qr_code_fullscreen">Erakutsi QR kodea pantaila osoan</string>
   <!--App Locking-->
