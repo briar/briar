@@ -3,14 +3,14 @@ package org.briarproject.briar.android.view;
 import android.content.Context;
 import android.support.annotation.UiThread;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageView;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo.Status;
 import org.briarproject.briar.R;
 
 @UiThread
-public class TrustIndicatorView extends ImageView {
+public class TrustIndicatorView extends AppCompatImageView {
 
 	public TrustIndicatorView(Context context) {
 		super(context);

@@ -3,6 +3,7 @@ package org.briarproject.briar.blog;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
@@ -12,8 +13,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -49,6 +50,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
@@ -68,17 +70,19 @@ import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		ContactHook, Client {
 
+	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
 	private final BlogFactory blogFactory;
 	private final BlogPostFactory blogPostFactory;
 	private final List<RemoveBlogHook> removeHooks;
 
 	@Inject
-	BlogManagerImpl(DatabaseComponent db, IdentityManager identityManager,
-			ClientHelper clientHelper, MetadataParser metadataParser,
-			BlogFactory blogFactory, BlogPostFactory blogPostFactory) {
+	BlogManagerImpl(DatabaseComponent db, ContactManager contactManager,
+			IdentityManager identityManager, ClientHelper clientHelper,
+			MetadataParser metadataParser, BlogFactory blogFactory,
+			BlogPostFactory blogPostFactory) {
 		super(db, clientHelper, metadataParser);
-
+		this.contactManager = contactManager;
 		this.identityManager = identityManager;
 		this.blogFactory = blogFactory;
 		this.blogPostFactory = blogPostFactory;
@@ -501,25 +505,24 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 					new HashMap<>(metadata1.size() + metadata2.size());
 			metadata.putAll(metadata1);
 			metadata.putAll(metadata2);
-			// get all authors we need to get the status for
+			// get all authors we need to get the information for
 			Set<AuthorId> authors = new HashSet<>();
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfList authorList = entry.getValue().getList(KEY_AUTHOR);
 				Author a = clientHelper.parseAndValidateAuthor(authorList);
 				authors.add(a.getId());
 			}
-			// get statuses for all authors
-			Map<AuthorId, Status> authorStatuses = new HashMap<>();
+			// get information for all authors
+			Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 			for (AuthorId authorId : authors) {
-				authorStatuses.put(authorId,
-						identityManager.getAuthorStatus(txn, authorId));
+				authorInfos.put(authorId,
+						contactManager.getAuthorInfo(txn, authorId));
 			}
 			// get post headers
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
 				BdfDictionary meta = entry.getValue();
-				BlogPostHeader h =
-						getPostHeaderFromMetadata(txn, g, entry.getKey(), meta,
-								authorStatuses);
+				BlogPostHeader h = getPostHeaderFromMetadata(txn, g,
+						entry.getKey(), meta, authorInfos);
 				headers.add(h);
 			}
 			db.commitTransaction(txn);
@@ -563,7 +566,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 
 	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,
 			GroupId groupId, MessageId id, BdfDictionary meta,
-			Map<AuthorId, Status> authorStatuses)
+			Map<AuthorId, AuthorInfo> authorInfos)
 			throws DbException, FormatException {
 
 		MessageType type = getMessageType(meta);
@@ -574,13 +577,13 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		BdfList authorList = meta.getList(KEY_AUTHOR);
 		Author author = clientHelper.parseAndValidateAuthor(authorList);
 		boolean isFeedPost = meta.getBoolean(KEY_RSS_FEED, false);
-		Status authorStatus;
+		AuthorInfo authorInfo;
 		if (isFeedPost) {
-			authorStatus = Status.NONE;
-		} else if (authorStatuses.containsKey(author.getId())) {
-			authorStatus = authorStatuses.get(author.getId());
+			authorInfo = new AuthorInfo(NONE);
+		} else if (authorInfos.containsKey(author.getId())) {
+			authorInfo = authorInfos.get(author.getId());
 		} else {
-			authorStatus = identityManager.getAuthorStatus(txn, author.getId());
+			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
 		}
 
 		boolean read = meta.getBoolean(KEY_READ, false);
@@ -591,10 +594,10 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			BlogPostHeader parent =
 					getPostHeaderFromMetadata(txn, groupId, parentId);
 			return new BlogCommentHeader(type, groupId, comment, parent, id,
-					timestamp, timeReceived, author, authorStatus, read);
+					timestamp, timeReceived, author, authorInfo, read);
 		} else {
 			return new BlogPostHeader(type, groupId, id, timestamp,
-					timeReceived, author, authorStatus, isFeedPost, read);
+					timeReceived, author, authorInfo, isFeedPost, read);
 		}
 	}
 

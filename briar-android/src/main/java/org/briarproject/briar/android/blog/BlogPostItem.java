@@ -3,7 +3,7 @@ package org.briarproject.briar.android.blog;
 import android.support.annotation.NonNull;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.blog.BlogPostHeader;
@@ -15,6 +15,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 public class BlogPostItem implements Comparable<BlogPostItem> {
 
 	private final BlogPostHeader header;
+	@Nullable
 	protected String text;
 	private boolean read;
 
@@ -40,10 +41,11 @@ public class BlogPostItem implements Comparable<BlogPostItem> {
 		return header.getAuthor();
 	}
 
-	Status getAuthorStatus() {
-		return header.getAuthorStatus();
+	AuthorInfo getAuthorInfo() {
+		return header.getAuthorInfo();
 	}
 
+	@Nullable
 	public String getText() {
 		return text;
 	}

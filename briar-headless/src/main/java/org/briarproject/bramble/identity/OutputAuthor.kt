@@ -1,6 +1,7 @@
 package org.briarproject.bramble.identity
 
 import org.briarproject.bramble.api.identity.Author
+import org.briarproject.bramble.api.identity.AuthorInfo
 import org.briarproject.briar.headless.json.JsonDict
 
 fun Author.output() = JsonDict(
@@ -10,4 +11,4 @@ fun Author.output() = JsonDict(
     "publicKey" to publicKey
 )
 
-fun Author.Status.output() = name.toLowerCase()
+fun AuthorInfo.Status.output() = name.toLowerCase()

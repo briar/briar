@@ -9,7 +9,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.BaseThreadItemViewHolder;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 
-import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 
 @UiThread
 @NotNullByDefault
@@ -49,7 +49,7 @@ class JoinMessageItemViewHolder
 			textView.setText(ctx.getString(R.string.groups_member_created,
 					item.getAuthor().getName()));
 		} else {
-			if (item.getStatus() == OURSELVES) {
+			if (item.getAuthorInfo().getStatus() == OURSELVES) {
 				textView.setText(R.string.groups_member_joined_you);
 			} else {
 				textView.setText(ctx.getString(R.string.groups_member_joined,

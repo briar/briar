@@ -8,7 +8,7 @@ import org.briarproject.briar.headless.json.JsonDict
 internal fun BlogPostHeader.output(text: String) = JsonDict(
         "text" to text,
         "author" to author.output(),
-        "authorStatus" to authorStatus.output(),
+        "authorStatus" to authorInfo.status.output(),
         "type" to type.output(),
         "id" to id.bytes,
         "parentId" to parentId?.bytes,

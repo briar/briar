@@ -1,7 +1,8 @@
 package org.briarproject.briar.api.client;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.bramble.api.identity.AuthorInfo.Status;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 
@@ -17,16 +18,16 @@ public abstract class PostHeader {
 	private final MessageId parentId;
 	private final long timestamp;
 	private final Author author;
-	private final Status authorStatus;
+	private final AuthorInfo authorInfo;
 	private final boolean read;
 
 	public PostHeader(MessageId id, @Nullable MessageId parentId,
-			long timestamp, Author author, Status authorStatus, boolean read) {
+			long timestamp, Author author, AuthorInfo authorInfo, boolean read) {
 		this.id = id;
 		this.parentId = parentId;
 		this.timestamp = timestamp;
 		this.author = author;
-		this.authorStatus = authorStatus;
+		this.authorInfo = authorInfo;
 		this.read = read;
 	}
 
@@ -39,7 +40,11 @@ public abstract class PostHeader {
 	}
 
 	public Status getAuthorStatus() {
-		return authorStatus;
+		return authorInfo.getStatus();
+	}
+
+	public AuthorInfo getAuthorInfo() {
+		return authorInfo;
 	}
 
 	public long getTimestamp() {

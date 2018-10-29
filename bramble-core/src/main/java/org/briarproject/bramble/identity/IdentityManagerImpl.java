@@ -1,29 +1,21 @@
 package org.briarproject.bramble.identity;
 
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Author.Status;
 import org.briarproject.bramble.api.identity.AuthorFactory;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
-import static org.briarproject.bramble.api.identity.Author.Status.UNKNOWN;
-import static org.briarproject.bramble.api.identity.Author.Status.UNVERIFIED;
-import static org.briarproject.bramble.api.identity.Author.Status.VERIFIED;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
 
@@ -116,28 +108,6 @@ class IdentityManagerImpl implements IdentityManager {
 
 	private LocalAuthor loadLocalAuthor(Transaction txn) throws DbException {
 		return db.getLocalAuthors(txn).iterator().next();
-	}
-
-	@Override
-	public Status getAuthorStatus(AuthorId authorId) throws DbException {
-		Transaction txn = db.startTransaction(true);
-		try {
-			return getAuthorStatus(txn, authorId);
-		} finally {
-			db.endTransaction(txn);
-		}
-	}
-
-	@Override
-	public Status getAuthorStatus(Transaction txn, AuthorId authorId)
-			throws DbException {
-		if (getLocalAuthor(txn).getId().equals(authorId)) return OURSELVES;
-		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
-		if (contacts.isEmpty()) return UNKNOWN;
-		for (Contact c : contacts) {
-			if (c.isVerified()) return VERIFIED;
-		}
-		return UNVERIFIED;
 	}
 
 }

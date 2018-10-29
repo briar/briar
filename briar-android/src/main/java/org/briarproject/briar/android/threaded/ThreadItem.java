@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.threaded;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTree.MessageNode;
@@ -21,19 +21,19 @@ public abstract class ThreadItem implements MessageNode {
 	private final String text;
 	private final long timestamp;
 	private final Author author;
-	private final Status status;
+	private final AuthorInfo authorInfo;
 	private int level = UNDEFINED;
 	private boolean isRead, highlighted;
 
 	public ThreadItem(MessageId messageId, @Nullable MessageId parentId,
-			String text, long timestamp, Author author, Status status,
+			String text, long timestamp, Author author, AuthorInfo authorInfo,
 			boolean isRead) {
 		this.messageId = messageId;
 		this.parentId = parentId;
 		this.text = text;
 		this.timestamp = timestamp;
 		this.author = author;
-		this.status = status;
+		this.authorInfo = authorInfo;
 		this.isRead = isRead;
 		this.highlighted = false;
 	}
@@ -66,8 +66,8 @@ public abstract class ThreadItem implements MessageNode {
 		return author;
 	}
 
-	public Status getStatus() {
-		return status;
+	public AuthorInfo getAuthorInfo() {
+		return authorInfo;
 	}
 
 	@Override

@@ -4,7 +4,7 @@ import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
@@ -22,14 +22,14 @@ class GroupMessageItem extends ThreadItem {
 
 	private GroupMessageItem(MessageId messageId, GroupId groupId,
 			@Nullable MessageId parentId, String text, long timestamp,
-			Author author, Status status, boolean isRead) {
+			Author author, AuthorInfo status, boolean isRead) {
 		super(messageId, parentId, text, timestamp, author, status, isRead);
 		this.groupId = groupId;
 	}
 
 	GroupMessageItem(GroupMessageHeader h, String text) {
 		this(h.getId(), h.getGroupId(), h.getParentId(), text, h.getTimestamp(),
-				h.getAuthor(), h.getAuthorStatus(), h.isRead());
+				h.getAuthor(), h.getAuthorInfo(), h.isRead());
 	}
 
 	public GroupId getGroupId() {

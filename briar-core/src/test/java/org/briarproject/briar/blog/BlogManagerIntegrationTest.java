@@ -1,6 +1,5 @@
 package org.briarproject.briar.blog;
 
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
@@ -23,6 +22,7 @@ import java.util.Iterator;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
@@ -424,7 +424,7 @@ public class BlogManagerIntegrationTest
 		assertEquals(1, headers.size());
 		BlogPostHeader header = headers.iterator().next();
 		assertEquals(POST, header.getType());
-		assertEquals(Author.Status.NONE, header.getAuthorStatus());
+		assertEquals(NONE, header.getAuthorStatus());
 		assertTrue(header.isRssFeed());
 	}
 

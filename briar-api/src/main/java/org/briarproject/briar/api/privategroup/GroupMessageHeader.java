@@ -1,7 +1,7 @@
 package org.briarproject.briar.api.privategroup;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -18,8 +18,8 @@ public class GroupMessageHeader extends PostHeader {
 
 	public GroupMessageHeader(GroupId groupId, MessageId id,
 			@Nullable MessageId parentId, long timestamp,
-			Author author, Status authorStatus, boolean read) {
-		super(id, parentId, timestamp, author, authorStatus, read);
+			Author author, AuthorInfo authorInfo, boolean read) {
+		super(id, parentId, timestamp, author, authorInfo, read);
 		this.groupId = groupId;
 	}
 

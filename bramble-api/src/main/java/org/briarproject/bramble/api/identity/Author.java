@@ -16,10 +16,6 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 @NotNullByDefault
 public class Author implements Nameable {
 
-	public enum Status {
-		NONE, ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED, OURSELVES
-	}
-
 	/**
 	 * The current version of the author structure.
 	 */

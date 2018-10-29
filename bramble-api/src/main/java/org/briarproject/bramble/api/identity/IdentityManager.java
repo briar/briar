@@ -3,7 +3,6 @@ package org.briarproject.bramble.api.identity;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Author.Status;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
@@ -36,15 +35,5 @@ public interface IdentityManager {
 	 * Returns the cached local identity or loads it from the database.
 	 */
 	LocalAuthor getLocalAuthor(Transaction txn) throws DbException;
-
-	/**
-	 * Returns the {@link Status} of the given author.
-	 */
-	Status getAuthorStatus(AuthorId a) throws DbException;
-
-	/**
-	 * Returns the {@link Status} of the given author.
-	 */
-	Status getAuthorStatus(Transaction txn, AuthorId a) throws DbException;
 
 }

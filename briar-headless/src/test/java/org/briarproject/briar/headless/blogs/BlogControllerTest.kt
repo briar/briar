@@ -6,7 +6,8 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import org.briarproject.bramble.api.identity.Author.Status.OURSELVES
+import org.briarproject.bramble.api.identity.AuthorInfo
+import org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES
 import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.identity.output
 import org.briarproject.bramble.util.StringUtils.getRandomString
@@ -30,8 +31,16 @@ internal class BlogControllerTest : ControllerTest() {
     private val rssFeed = false
     private val read = true
     private val header = BlogPostHeader(
-        POST, group.id, message.id, parentId, message.timestamp, timestamp, author, OURSELVES,
-        rssFeed, read
+        POST,
+        group.id,
+        message.id,
+        parentId,
+        message.timestamp,
+        timestamp,
+        author,
+        AuthorInfo(OURSELVES),
+        rssFeed,
+        read
     )
 
     @Test

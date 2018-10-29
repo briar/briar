@@ -14,7 +14,7 @@ public class JoinMessageHeader extends GroupMessageHeader {
 	public JoinMessageHeader(GroupMessageHeader h, Visibility visibility,
 			boolean isInitial) {
 		super(h.getGroupId(), h.getId(), h.getParentId(), h.getTimestamp(),
-				h.getAuthor(), h.getAuthorStatus(), h.isRead());
+				h.getAuthor(), h.getAuthorInfo(), h.isRead());
 		this.visibility = visibility;
 		this.isInitial = isInitial;
 	}

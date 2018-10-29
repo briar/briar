@@ -2,7 +2,8 @@ package org.briarproject.briar.android.privategroup.memberlist;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.bramble.api.identity.AuthorInfo.Status;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.privategroup.GroupMember;
 
@@ -25,8 +26,12 @@ class MemberListItem {
 		return groupMember.getAuthor();
 	}
 
+	AuthorInfo getAuthorInfo() {
+		return groupMember.getAuthorInfo();
+	}
+
 	Status getStatus() {
-		return groupMember.getStatus();
+		return groupMember.getAuthorInfo().getStatus();
 	}
 
 	boolean isCreator() {
