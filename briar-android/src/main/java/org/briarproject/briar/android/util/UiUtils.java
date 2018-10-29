@@ -35,6 +35,7 @@ import android.widget.TextView;
 import org.acra.ACRA;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
@@ -75,11 +76,15 @@ public class UiUtils {
 	public static final int TEASER_LENGTH = 320;
 	public static final float GREY_OUT = 0.5f;
 
-	public static String getContactDisplayName(Contact c) {
-		String name = c.getAuthor().getName();
-		String alias = c.getAlias();
+	public static String getContactDisplayName(Author author,
+			@Nullable String alias) {
+		String name = author.getName();
 		if (alias == null) return name;
 		else return String.format("%s (%s)", alias, name);
+	}
+
+	public static String getContactDisplayName(Contact c) {
+		return getContactDisplayName(c.getAuthor(), c.getAlias());
 	}
 
 	public static void setError(TextInputLayout til, @Nullable String error,
@@ -135,7 +140,9 @@ public class UiUtils {
 		return builder;
 	}
 
-	public static Spanned getSpanned(String s) {
+	public static Spanned getSpanned(@Nullable String s) {
+		// TODO move to HtmlCompat
+		// https://commonsware.com/blog/2018/05/29/at-last-htmlcompat.html
 		return Html.fromHtml(s);
 	}
 
