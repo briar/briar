@@ -7,6 +7,9 @@ import io.javalin.json.JavalinJson.toJson
 import io.mockk.*
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.db.NoSuchContactException
+import org.briarproject.bramble.api.identity.AuthorInfo
+import org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED
+import org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
@@ -61,7 +64,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun listIntroductionRequest() {
         val request = IntroductionRequest(
             message.id, group.id, timestamp, true, true, false, true, sessionId, author, text,
-            false, false
+            false, AuthorInfo(UNVERIFIED)
         )
 
         expectGetContact()
@@ -200,7 +203,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     fun testIntroductionRequestWithNullText() {
         val request = IntroductionRequest(
             message.id, group.id, timestamp, true, true, false, true, sessionId, author, null,
-            false, false
+            false, AuthorInfo(VERIFIED)
         )
         val json = """
             {

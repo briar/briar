@@ -15,6 +15,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -39,6 +41,7 @@ import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -408,6 +411,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
 			List<PrivateMessageHeader> messages =
 					new ArrayList<>(results.size());
+			Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
 				MessageMetadata meta =
@@ -419,15 +423,17 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				if (type == REQUEST) {
 					messages.add(
 							parseInvitationRequest(txn, contactGroupId, m,
-									meta, status, ss.bdfSession));
+									meta, status, ss.bdfSession, authorInfos));
 				} else if (type == ACCEPT) {
 					messages.add(
-							parseInvitationResponse(contactGroupId, m, meta,
-									status, ss.bdfSession, true));
+							parseInvitationResponse(txn, contactGroupId, m,
+									meta, status, ss.bdfSession, authorInfos,
+									true));
 				} else if (type == DECLINE) {
 					messages.add(
-							parseInvitationResponse(contactGroupId, m, meta,
-									status, ss.bdfSession, false));
+							parseInvitationResponse(txn, contactGroupId, m,
+									meta, status, ss.bdfSession, authorInfos,
+									false));
 				}
 			}
 			return messages;
@@ -438,7 +444,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	private IntroductionRequest parseInvitationRequest(Transaction txn,
 			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, BdfDictionary bdfSession)
+			MessageStatus status, BdfDictionary bdfSession,
+			Map<AuthorId, AuthorInfo> authorInfos)
 			throws DbException, FormatException {
 		Role role = sessionParser.getRole(bdfSession);
 		SessionId sessionId;
@@ -462,19 +469,22 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		BdfList body = clientHelper.toList(msg);
 		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
 		String text = rm.getText();
-		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-		boolean contactExists = contactManager
-				.contactExists(txn, rm.getAuthor().getId(),
-						localAuthor.getId());
+		AuthorInfo authorInfo = authorInfos.get(author.getId());
+		if (authorInfo == null) {
+			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
+			authorInfos.put(author.getId(), authorInfo);
+		}
 		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
 				sessionId, author, text, !meta.isAvailableToAnswer(),
-				contactExists);
+				authorInfo);
 	}
 
-	private IntroductionResponse parseInvitationResponse(GroupId contactGroupId,
-			MessageId m, MessageMetadata meta, MessageStatus status,
-			BdfDictionary bdfSession, boolean accept) throws FormatException {
+	private IntroductionResponse parseInvitationResponse(Transaction txn,
+			GroupId contactGroupId, MessageId m, MessageMetadata meta,
+			MessageStatus status, BdfDictionary bdfSession,
+			Map<AuthorId, AuthorInfo> authorInfos, boolean accept)
+			throws FormatException, DbException {
 		Role role = sessionParser.getRole(bdfSession);
 		SessionId sessionId;
 		Author author;
@@ -493,9 +503,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			sessionId = session.getSessionId();
 			author = session.getRemote().author;
 		} else throw new AssertionError();
+		AuthorInfo authorInfo = authorInfos.get(author.getId());
+		if (authorInfo == null) {
+			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
+			authorInfos.put(author.getId(), authorInfo);
+		}
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
-				sessionId, accept, author, role);
+				sessionId, accept, author, authorInfo, role);
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,
