@@ -20,6 +20,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_NAME;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -60,8 +61,9 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		name.setText(group.getName());
 
 		// Creator
-		creator.setText(ctx.getString(R.string.groups_created_by,
-				group.getCreator().getName()));
+		String creatorName = getContactDisplayName(group.getCreator(),
+				group.getCreatorInfo().getAlias());
+		creator.setText(ctx.getString(R.string.groups_created_by, creatorName));
 
 		if (!group.isDissolved()) {
 			// full visibility
