@@ -26,6 +26,7 @@ import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
 
 @UiThread
@@ -70,16 +71,12 @@ public class AuthorView extends ConstraintLayout {
 		this(context, null);
 	}
 
-	public void setAuthor(Author author) {
-		authorName.setText(author.getName());
+	public void setAuthor(Author author, AuthorInfo authorInfo) {
+		authorName
+				.setText(getContactDisplayName(author, authorInfo.getAlias()));
 		IdenticonDrawable d = new IdenticonDrawable(author.getId().getBytes());
 		avatar.setImageDrawable(d);
 
-		invalidate();
-		requestLayout();
-	}
-
-	public void setAuthorInfo(AuthorInfo authorInfo) {
 		if (authorInfo.getStatus() != NONE) {
 			trustIndicator.setTrustLevel(authorInfo.getStatus());
 			trustIndicator.setVisibility(VISIBLE);
@@ -123,7 +120,7 @@ public class AuthorView extends ConstraintLayout {
 	 *
 	 * Attention: RSS_FEED and RSS_FEED_REBLOGGED change the avatar
 	 *            and override the one set by
-	 *            {@link AuthorView#setAuthor(Author)}.
+	 *            {@link AuthorView#setAuthor(Author, AuthorInfo)}.
 	 */
 	public void setPersona(int persona) {
 		switch (persona) {

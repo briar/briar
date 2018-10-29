@@ -31,8 +31,7 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 
 	protected void bind(MemberListItem item) {
 		// member name, avatar and author info
-		author.setAuthor(item.getMember());
-		author.setAuthorInfo(item.getAuthorInfo());
+		author.setAuthor(item.getMember(), item.getAuthorInfo());
 
 		// online status of visible contacts
 		if (item.getContactId() != null) {

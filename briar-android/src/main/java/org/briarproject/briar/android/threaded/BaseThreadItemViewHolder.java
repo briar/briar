@@ -43,9 +43,8 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 	public void bind(I item, ThreadItemListener<I> listener) {
 		textView.setText(StringUtils.trim(item.getText()));
 
-		author.setAuthor(item.getAuthor());
+		author.setAuthor(item.getAuthor(), item.getAuthorInfo());
 		author.setDate(item.getTimestamp());
-		author.setAuthorInfo(item.getAuthorInfo());
 
 		if (item.isHighlighted()) {
 			layout.setActivated(true);
