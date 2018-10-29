@@ -107,7 +107,7 @@ public class AppModule {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth =
 				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
-						appContext, random, eventBus, backoffFactory);
+						appContext, random, eventBus, clock, backoffFactory);
 		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
 				scheduler, appContext, networkManager, locationUtils, eventBus,
 				torSocketFactory, backoffFactory, resourceProvider,

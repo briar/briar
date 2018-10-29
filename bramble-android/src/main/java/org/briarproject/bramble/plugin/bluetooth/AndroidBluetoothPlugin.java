@@ -16,18 +16,27 @@ import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.AndroidUtils;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_FINISHED;
+import static android.bluetooth.BluetoothAdapter.ACTION_DISCOVERY_STARTED;
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.ACTION_STATE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
@@ -37,8 +46,13 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERA
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
+import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
+import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -47,8 +61,11 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private static final Logger LOG =
 			Logger.getLogger(AndroidBluetoothPlugin.class.getName());
 
+	private static final int MAX_DISCOVERY_MS = 10_000;
+
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
+	private final Clock clock;
 
 	private volatile boolean wasEnabledByUs = false;
 	private volatile BluetoothStateReceiver receiver = null;
@@ -58,12 +75,13 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, AndroidExecutor androidExecutor,
-			Context appContext, SecureRandom secureRandom, Backoff backoff,
-			DuplexPluginCallback callback, int maxLatency) {
+			Context appContext, SecureRandom secureRandom, Clock clock,
+			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
 		super(connectionLimiter, ioExecutor, secureRandom, backoff, callback,
 				maxLatency);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
+		this.clock = clock;
 	}
 
 	@Override
@@ -182,6 +200,74 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		}
 	}
 
+	@Override
+	@Nullable
+	DuplexTransportConnection discoverAndConnect(String uuid) {
+		if (adapter == null) return null;
+		for (String address : discoverDevices()) {
+			try {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Connecting to " + scrubMacAddress(address));
+				return connectTo(address, uuid);
+			} catch (IOException e) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Could not connect to "
+							+ scrubMacAddress(address));
+				}
+			}
+		}
+		LOG.info("Could not connect to any devices");
+		return null;
+	}
+
+	private Collection<String> discoverDevices() {
+		List<String> addresses = new ArrayList<>();
+		BlockingQueue<Intent> intents = new LinkedBlockingQueue<>();
+		DiscoveryReceiver receiver = new DiscoveryReceiver(intents);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_DISCOVERY_STARTED);
+		filter.addAction(ACTION_DISCOVERY_FINISHED);
+		filter.addAction(ACTION_FOUND);
+		appContext.registerReceiver(receiver, filter);
+		try {
+			if (adapter.startDiscovery()) {
+				long now = clock.currentTimeMillis();
+				long end = now + MAX_DISCOVERY_MS;
+				while (now < end) {
+					Intent i = intents.poll(end - now, MILLISECONDS);
+					if (i == null) break;
+					String action = i.getAction();
+					if (ACTION_DISCOVERY_STARTED.equals(action)) {
+						LOG.info("Discovery started");
+					} else if (ACTION_DISCOVERY_FINISHED.equals(action)) {
+						LOG.info("Discovery finished");
+						break;
+					} else if (ACTION_FOUND.equals(action)) {
+						BluetoothDevice d = i.getParcelableExtra(EXTRA_DEVICE);
+						String address = d.getAddress();
+						if (LOG.isLoggable(INFO))
+							LOG.info("Discovered " + scrubMacAddress(address));
+						if (!addresses.contains(address))
+							addresses.add(address);
+					}
+					now = clock.currentTimeMillis();
+				}
+			} else {
+				LOG.info("Could not start discovery");
+			}
+		} catch (InterruptedException e) {
+			LOG.info("Interrupted while discovering devices");
+			Thread.currentThread().interrupt();
+		} finally {
+			LOG.info("Cancelling discovery");
+			adapter.cancelDiscovery();
+			appContext.unregisterReceiver(receiver);
+		}
+		// Shuffle the addresses so we don't always try the same one first
+		Collections.shuffle(addresses);
+		return addresses;
+	}
+
 	private void tryToClose(@Nullable Closeable c) {
 		try {
 			if (c != null) c.close();
@@ -205,6 +291,20 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			} else if (scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 				LOG.info("Scan mode: Discoverable");
 			}
+		}
+	}
+
+	private static class DiscoveryReceiver extends BroadcastReceiver {
+
+		private final BlockingQueue<Intent> intents;
+
+		private DiscoveryReceiver(BlockingQueue<Intent> intents) {
+			this.intents = intents;
+		}
+
+		@Override
+		public void onReceive(Context ctx, Intent intent) {
+			intents.add(intent);
 		}
 	}
 }

@@ -108,6 +108,12 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 		return wrapSocket((StreamConnection) Connector.open(url));
 	}
 
+	@Override
+	@Nullable
+	DuplexTransportConnection discoverAndConnect(String uuid) {
+		return null; // TODO
+	}
+
 	private String makeUrl(String address, String uuid) {
 		return "btspp://" + address + ":" + uuid + ";name=RFCOMM";
 	}

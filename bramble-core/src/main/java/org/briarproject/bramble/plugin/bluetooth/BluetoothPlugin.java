@@ -23,7 +23,6 @@ import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
 import java.security.SecureRandom;
@@ -46,6 +45,9 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.macToBytes;
+import static org.briarproject.bramble.util.StringUtils.macToString;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -95,6 +97,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	abstract DuplexTransportConnection connectTo(String address, String uuid)
 			throws IOException;
+
+	@Nullable
+	abstract DuplexTransportConnection discoverAndConnect(String uuid);
 
 	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, SecureRandom secureRandom,
@@ -193,7 +198,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			address = getBluetoothAddress();
 			if (LOG.isLoggable(INFO))
 				LOG.info("Local address " + scrubMacAddress(address));
-			if (!StringUtils.isNullOrEmpty(address)) {
+			if (!isNullOrEmpty(address)) {
 				p.put(PROP_ADDRESS, address);
 				changed = true;
 			}
@@ -256,9 +261,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		// Try to connect to known devices in parallel
 		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
 			String address = e.getValue().get(PROP_ADDRESS);
-			if (StringUtils.isNullOrEmpty(address)) continue;
+			if (isNullOrEmpty(address)) continue;
 			String uuid = e.getValue().get(PROP_UUID);
-			if (StringUtils.isNullOrEmpty(uuid)) continue;
+			if (isNullOrEmpty(uuid)) continue;
 			ContactId c = e.getKey();
 			ioExecutor.execute(() -> {
 				if (!isRunning() || !shouldAllowContactConnections()) return;
@@ -309,9 +314,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		if (!isRunning() || !shouldAllowContactConnections()) return null;
 		if (!connectionLimiter.canOpenContactConnection()) return null;
 		String address = p.get(PROP_ADDRESS);
-		if (StringUtils.isNullOrEmpty(address)) return null;
+		if (isNullOrEmpty(address)) return null;
 		String uuid = p.get(PROP_UUID);
-		if (StringUtils.isNullOrEmpty(uuid)) return null;
+		if (isNullOrEmpty(uuid)) return null;
 		DuplexTransportConnection conn = connect(address, uuid);
 		if (conn == null) return null;
 		// TODO: Why don't we reset the backoff here?
@@ -326,9 +331,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		if (!isRunning()) return null;
-		// There's no point listening if we can't discover our own address
-		String address = getBluetoothAddress();
-		if (address == null) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
@@ -346,7 +348,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 		BdfList descriptor = new BdfList();
 		descriptor.add(TRANSPORT_ID_BLUETOOTH);
-		descriptor.add(StringUtils.macToBytes(address));
+		String address = getBluetoothAddress();
+		if (address != null) descriptor.add(macToBytes(address));
 		return new BluetoothKeyAgreementListener(descriptor, ss);
 	}
 
@@ -354,18 +357,25 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
 		if (!isRunning()) return null;
-		String address;
-		try {
-			address = parseAddress(descriptor);
-		} catch (FormatException e) {
-			LOG.info("Invalid address in key agreement descriptor");
-			return null;
-		}
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
-		if (LOG.isLoggable(INFO))
-			LOG.info("Connecting to key agreement UUID " + uuid);
-		DuplexTransportConnection conn = connect(address, uuid);
+		DuplexTransportConnection conn;
+		if (descriptor.size() == 1) {
+			if (LOG.isLoggable(INFO))
+				LOG.info("Discovering address for key agreement UUID " + uuid);
+			conn = discoverAndConnect(uuid);
+		} else {
+			String address;
+			try {
+				address = parseAddress(descriptor);
+			} catch (FormatException e) {
+				LOG.info("Invalid address in key agreement descriptor");
+				return null;
+			}
+			if (LOG.isLoggable(INFO))
+				LOG.info("Connecting to key agreement UUID " + uuid);
+			conn = connect(address, uuid);
+		}
 		if (conn != null) connectionLimiter.keyAgreementConnectionOpened(conn);
 		return conn;
 	}
@@ -373,7 +383,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private String parseAddress(BdfList descriptor) throws FormatException {
 		byte[] mac = descriptor.getRaw(1);
 		if (mac.length != 6) throw new FormatException();
-		return StringUtils.macToString(mac);
+		return macToString(mac);
 	}
 
 	@Override
