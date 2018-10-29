@@ -224,7 +224,28 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testGetAuthorStatus() throws DbException {
+	public void testGetAuthorStatus() throws Exception {
+		Transaction txn = new Transaction(null, true);
+		Collection<Contact> contacts = singletonList(
+				new Contact(new ContactId(1), remote, localAuthor.getId(),
+						alias, false, true));
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(equal(true)),
+					withDbCallable(txn));
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			oneOf(db).getContactsByAuthorId(txn, remote.getId());
+			will(returnValue(contacts));
+		}});
+		AuthorInfo authorInfo =
+				contactManager.getAuthorInfo(txn, remote.getId());
+		assertEquals(UNVERIFIED, authorInfo.getStatus());
+		assertEquals(alias, contact.getAlias());
+	}
+
+	@Test
+	public void testGetAuthorStatusTransaction() throws DbException {
 		Transaction txn = new Transaction(null, true);
 
 		// check unknown author

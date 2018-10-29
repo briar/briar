@@ -117,6 +117,11 @@ public interface ContactManager {
 	/**
 	 * Returns the {@link AuthorInfo} for the given author.
 	 */
+	AuthorInfo getAuthorInfo(AuthorId a) throws DbException;
+
+	/**
+	 * Returns the {@link AuthorInfo} for the given author.
+	 */
 	AuthorInfo getAuthorInfo(Transaction txn, AuthorId a) throws DbException;
 
 	interface ContactHook {

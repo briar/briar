@@ -202,6 +202,11 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	public AuthorInfo getAuthorInfo(AuthorId a) throws DbException {
+		return db.transactionWithResult(true, txn -> getAuthorInfo(txn, a));
+	}
+
+	@Override
 	public AuthorInfo getAuthorInfo(Transaction txn, AuthorId authorId)
 			throws DbException {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
