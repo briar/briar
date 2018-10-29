@@ -52,7 +52,6 @@ constructor(
             .event(SERVER_START_FAILED) {serverStopped() }
             .event(SERVER_STOPPED) { serverStopped() }
         if (debug) app.enableDebugLogging()
-        app.start()
 
         app.accessManager { handler, ctx, _ ->
             if (ctx.header(AUTHORIZATION) == "Bearer $authToken") {
@@ -102,6 +101,7 @@ constructor(
                 webSocketController.sessions.remove(session)
             }
         }
+        app.start()
     }
 
     private fun serverStopped() {
