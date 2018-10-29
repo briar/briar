@@ -476,7 +476,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		try {
 			return decoder.decode(buffer).toString();
 		} catch (CharacterCodingException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 }

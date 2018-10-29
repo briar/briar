@@ -47,7 +47,7 @@ public class StringUtils {
 		try {
 			return s.getBytes("UTF-8");
 		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
@@ -63,7 +63,7 @@ public class StringUtils {
 		try {
 			return decoder.decode(buffer).toString();
 		} catch (CharacterCodingException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
