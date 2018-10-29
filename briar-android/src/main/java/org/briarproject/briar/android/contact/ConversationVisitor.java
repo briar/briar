@@ -24,6 +24,7 @@ import static org.briarproject.briar.android.contact.ConversationRequestItem.Req
 import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.FORUM;
 import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.GROUP;
 import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.INTRODUCTION;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
 @NotNullByDefault
@@ -188,33 +189,36 @@ class ConversationVisitor implements PrivateMessageVisitor<ConversationItem> {
 
 	@Override
 	public ConversationItem visitIntroductionRequest(IntroductionRequest r) {
+		String name = getContactDisplayName(r.getNameable(), r.getAlias());
 		if (r.isLocal()) {
 			String text = ctx.getString(R.string.introduction_request_sent,
-					contactName.getValue(), r.getName());
+					contactName.getValue(), name);
 			return new ConversationNoticeOutItem(text, r);
 		} else {
 			String text = ctx.getString(R.string.introduction_request_received,
-					contactName.getValue(), r.getName());
+					contactName.getValue(), name);
 			return new ConversationRequestItem(text, INTRODUCTION, r);
 		}
 	}
 
 	@Override
 	public ConversationItem visitIntroductionResponse(IntroductionResponse r) {
+		String introducedAuthor =
+				getContactDisplayName(r.getIntroducedAuthor(),
+						r.getIntroducedAuthorInfo().getAlias());
 		if (r.isLocal()) {
 			String text;
 			if (r.wasAccepted()) {
-				String introducee = r.getIntroducedAuthor().getName();
 				text = ctx.getString(
 						R.string.introduction_response_accepted_sent,
-						introducee)
+						introducedAuthor)
 						+ "\n\n" + ctx.getString(
 						R.string.introduction_response_accepted_sent_info,
-						introducee);
+						introducedAuthor);
 			} else {
 				text = ctx.getString(
 						R.string.introduction_response_declined_sent,
-						r.getIntroducedAuthor().getName());
+						introducedAuthor);
 			}
 			return new ConversationNoticeOutItem(text, r);
 		} else {
@@ -223,17 +227,17 @@ class ConversationVisitor implements PrivateMessageVisitor<ConversationItem> {
 				text = ctx.getString(
 						R.string.introduction_response_accepted_received,
 						contactName.getValue(),
-						r.getIntroducedAuthor().getName());
+						introducedAuthor);
 			} else if (r.isIntroducer()) {
 				text = ctx.getString(
 						R.string.introduction_response_declined_received,
 						contactName.getValue(),
-						r.getIntroducedAuthor().getName());
+						introducedAuthor);
 			} else {
 				text = ctx.getString(
 						R.string.introduction_response_declined_received_by_introducee,
 						contactName.getValue(),
-						r.getIntroducedAuthor().getName());
+						introducedAuthor);
 			}
 			return new ConversationNoticeInItem(text, r);
 		}

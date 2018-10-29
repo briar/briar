@@ -10,7 +10,11 @@ import javax.annotation.concurrent.Immutable;
 public class AuthorInfo {
 
 	public enum Status {
-		NONE, ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED, OURSELVES
+		NONE, ANONYMOUS, UNKNOWN, UNVERIFIED, VERIFIED, OURSELVES;
+
+		public boolean isContact() {
+			return this == UNVERIFIED || this == VERIFIED;
+		}
 	}
 
 	private final Status status;
