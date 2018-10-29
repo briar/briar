@@ -13,6 +13,7 @@ import org.briarproject.briar.android.view.AuthorView;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
 @NotNullByDefault
@@ -51,9 +52,10 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 			if (item.getStatus() == OURSELVES) {
 				creator.setText(R.string.groups_member_created_you);
 			} else {
+				String name = getContactDisplayName(item.getMember(),
+						item.getAuthorInfo().getAlias());
 				creator.setText(creator.getContext()
-						.getString(R.string.groups_member_created,
-								item.getMember().getName()));
+						.getString(R.string.groups_member_created, name));
 			}
 		} else {
 			creator.setVisibility(GONE);
