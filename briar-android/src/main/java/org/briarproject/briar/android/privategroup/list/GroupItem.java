@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.privategroup.list;
 
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
@@ -12,12 +13,15 @@ import org.briarproject.briar.api.privategroup.PrivateGroup;
 class GroupItem {
 
 	private final PrivateGroup privateGroup;
+	private final AuthorInfo authorInfo;
 	private int messageCount, unreadCount;
 	private long timestamp;
 	private boolean dissolved;
 
-	GroupItem(PrivateGroup privateGroup, GroupCount count, boolean dissolved) {
+	GroupItem(PrivateGroup privateGroup, AuthorInfo authorInfo,
+			GroupCount count, boolean dissolved) {
 		this.privateGroup = privateGroup;
+		this.authorInfo = authorInfo;
 		this.messageCount = count.getMsgCount();
 		this.unreadCount = count.getUnreadCount();
 		this.timestamp = count.getLatestMsgTime();
@@ -44,6 +48,10 @@ class GroupItem {
 
 	Author getCreator() {
 		return privateGroup.getCreator();
+	}
+
+	AuthorInfo getCreatorInfo() {
+		return authorInfo;
 	}
 
 	String getName() {
