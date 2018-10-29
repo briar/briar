@@ -10,6 +10,10 @@ import org.briarproject.bramble.api.system.Clock;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
+import java.nio.charset.CharacterCodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.CharsetDecoder;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.Condition;
@@ -22,6 +26,7 @@ import javax.annotation.Nullable;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 
+import static java.nio.charset.CodingErrorAction.IGNORE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -35,6 +40,8 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ModemImpl.class.getName());
+
+	private static final Charset US_ASCII = Charset.forName("US-ASCII");
 	private static final int MAX_LINE_LENGTH = 256;
 	private static final int[] BAUD_RATES = {
 		256000, 128000, 115200, 57600, 38400, 19200, 14400, 9600, 4800, 1200
@@ -106,7 +113,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				throw e;
 			}
 			// Wait for the event thread to receive "OK"
-			boolean success = false;
+			boolean success;
 			try {
 				lock.lock();
 				try {
@@ -353,8 +360,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		for (int i = 0; i < b.length; i++) {
 			line[lineLen] = b[i];
 			if (b[i] == '\n') {
-				// FIXME: Use CharsetDecoder to catch invalid ASCII
-				String s = new String(line, 0, lineLen, "US-ASCII").trim();
+				String s = toAscii(line, lineLen).trim();
 				lineLen = 0;
 				if (LOG.isLoggable(INFO)) LOG.info("Modem status: " + s);
 				if (s.startsWith("CONNECT")) {
@@ -436,7 +442,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 				throw e;
 			}
 			// Wait for the event thread to receive "CONNECT"
-			boolean success = false;
+			boolean success;
 			try {
 				lock.lock();
 				try {
@@ -459,6 +465,18 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 			else hangUpInner();
 		} finally {
 			stateChange.release();
+		}
+	}
+
+	private String toAscii(byte[] bytes, int len) {
+		CharsetDecoder decoder = US_ASCII.newDecoder();
+		decoder.onMalformedInput(IGNORE);
+		decoder.onUnmappableCharacter(IGNORE);
+		ByteBuffer buffer = ByteBuffer.wrap(bytes, 0, len);
+		try {
+			return decoder.decode(buffer).toString();
+		} catch (CharacterCodingException e) {
+			throw new RuntimeException(e);
 		}
 	}
 }
