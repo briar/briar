@@ -77,6 +77,7 @@ import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -99,6 +100,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final Group group;
 	private final Author author;
 	private final LocalAuthor localAuthor;
+	private final String alias;
 	private final Message message, message1;
 	private final MessageId messageId, messageId1;
 	private final Metadata metadata;
@@ -115,6 +117,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
+		alias = getRandomString(5);
 		message = getMessage(groupId);
 		message1 = getMessage(groupId);
 		messageId = message.getId();
@@ -124,7 +127,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		transportId = getTransportId();
 		maxLatency = Integer.MAX_VALUE;
 		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, localAuthor.getId(),
+		contact = new Contact(contactId, author, localAuthor.getId(), alias,
 				true, true);
 		keySetId = new KeySetId(345);
 	}
@@ -288,11 +291,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(16).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(16).of(database).containsContact(txn, contactId);
+			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(16).of(database).abortTransaction(txn);
+			exactly(17).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				shutdown);
@@ -443,6 +446,16 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		transaction = db.startTransaction(false);
 		try {
 			db.setContactActive(transaction, contactId, true);
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		} finally {
+			db.endTransaction(transaction);
+		}
+
+		transaction = db.startTransaction(false);
+		try {
+			db.setContactAlias(transaction, contactId, alias);
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected

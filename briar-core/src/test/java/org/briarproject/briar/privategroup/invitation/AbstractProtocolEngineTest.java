@@ -83,7 +83,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			BdfDictionary.of(new BdfEntry("me", "ta"));
 	final ContactId contactId = new ContactId(5);
 	final Contact contact = new Contact(contactId, author,
-			new AuthorId(getRandomId()), true, true);
+			new AuthorId(getRandomId()), getRandomString(5), true, true);
 
 	final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,

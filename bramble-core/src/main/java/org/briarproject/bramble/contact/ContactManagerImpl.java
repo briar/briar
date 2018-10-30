@@ -18,8 +18,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
+
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @ThreadSafe
 @NotNullByDefault
@@ -146,6 +150,17 @@ class ContactManagerImpl implements ContactManager {
 	public void setContactActive(Transaction txn, ContactId c, boolean active)
 			throws DbException {
 		db.setContactActive(txn, c, active);
+	}
+
+	@Override
+	public void setContactAlias(ContactId c, @Nullable String alias)
+			throws DbException {
+		if (alias != null) {
+			int aliasLength = toUtf8(alias).length;
+			if (aliasLength == 0 || aliasLength > MAX_AUTHOR_NAME_LENGTH)
+				throw new IllegalArgumentException();
+		}
+		db.transaction(false, txn -> db.setContactAlias(txn, c, alias));
 	}
 
 	@Override

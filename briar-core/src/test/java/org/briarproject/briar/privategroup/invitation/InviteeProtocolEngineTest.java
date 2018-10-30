@@ -331,7 +331,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						signature);
 		Author notCreator = getAuthor();
 		Contact notCreatorContact = new Contact(contactId, notCreator,
-				localAuthor.getId(), true, true);
+				localAuthor.getId(), getRandomString(5), true, true);
 
 		expectGetContactId();
 		context.checking(new Expectations() {{

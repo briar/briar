@@ -124,7 +124,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 		ContactId contactId = new ContactId(0);
 		Contact contact = new Contact(contactId, blog2.getAuthor(),
-				blog1.getAuthor().getId(), true, true);
+				blog1.getAuthor().getId(), getRandomString(5), true, true);
 
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());
@@ -146,7 +146,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 		ContactId contactId = new ContactId(0);
 		Contact contact = new Contact(contactId, blog2.getAuthor(),
-				blog1.getAuthor().getId(), true, true);
+				blog1.getAuthor().getId(), getRandomString(5), true, true);
 
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());

@@ -56,6 +56,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static java.sql.Types.INTEGER;
+import static java.sql.Types.VARCHAR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
@@ -83,7 +84,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 40;
+	static final int CODE_SCHEMA_VERSION = 41;
 
 	// Rotation period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -113,6 +114,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " authorId _HASH NOT NULL,"
 					+ " formatVersion INT NOT NULL,"
 					+ " name _STRING NOT NULL,"
+					+ " alias _STRING," // Null if no alias exists
 					+ " publicKey _BINARY NOT NULL,"
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
@@ -310,10 +312,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			Logger.getLogger(JdbcDatabase.class.getName());
 
 	// Different database libraries use different names for certain types
-	private final String hashType, secretType, binaryType;
-	private final String counterType, stringType;
 	private final MessageFactory messageFactory;
 	private final Clock clock;
+	private final DatabaseTypes dbTypes;
 
 	// Locking: connectionsLock
 	private final LinkedList<Connection> connections = new LinkedList<>();
@@ -328,14 +329,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final Lock connectionsLock = new ReentrantLock();
 	private final Condition connectionsChanged = connectionsLock.newCondition();
 
-	JdbcDatabase(String hashType, String secretType, String binaryType,
-			String counterType, String stringType,
-			MessageFactory messageFactory, Clock clock) {
-		this.hashType = hashType;
-		this.secretType = secretType;
-		this.binaryType = binaryType;
-		this.counterType = counterType;
-		this.stringType = stringType;
+	JdbcDatabase(DatabaseTypes databaseTypes, MessageFactory messageFactory,
+			Clock clock) {
+		this.dbTypes = databaseTypes;
 		this.messageFactory = messageFactory;
 		this.clock = clock;
 	}
@@ -427,7 +423,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
-		return Arrays.asList(new Migration38_39(), new Migration39_40());
+		return Arrays.asList(
+				new Migration38_39(),
+				new Migration39_40(),
+				new Migration40_41(dbTypes)
+		);
 	}
 
 	private boolean isCompactionDue(Settings s) {
@@ -486,20 +486,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Statement s = null;
 		try {
 			s = txn.createStatement();
-			s.executeUpdate(insertTypeNames(CREATE_SETTINGS));
-			s.executeUpdate(insertTypeNames(CREATE_LOCAL_AUTHORS));
-			s.executeUpdate(insertTypeNames(CREATE_CONTACTS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUPS));
-			s.executeUpdate(insertTypeNames(CREATE_GROUP_METADATA));
-			s.executeUpdate(insertTypeNames(CREATE_GROUP_VISIBILITIES));
-			s.executeUpdate(insertTypeNames(CREATE_MESSAGES));
-			s.executeUpdate(insertTypeNames(CREATE_MESSAGE_METADATA));
-			s.executeUpdate(insertTypeNames(CREATE_MESSAGE_DEPENDENCIES));
-			s.executeUpdate(insertTypeNames(CREATE_OFFERS));
-			s.executeUpdate(insertTypeNames(CREATE_STATUSES));
-			s.executeUpdate(insertTypeNames(CREATE_TRANSPORTS));
-			s.executeUpdate(insertTypeNames(CREATE_OUTGOING_KEYS));
-			s.executeUpdate(insertTypeNames(CREATE_INCOMING_KEYS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_SETTINGS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_LOCAL_AUTHORS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_CONTACTS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUPS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_METADATA));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_GROUP_VISIBILITIES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_METADATA));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_DEPENDENCIES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_OFFERS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_STATUSES));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_TRANSPORTS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_OUTGOING_KEYS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_INCOMING_KEYS));
 			s.close();
 		} catch (SQLException e) {
 			tryToClose(s);
@@ -522,15 +522,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			tryToClose(s);
 			throw new DbException(e);
 		}
-	}
-
-	private String insertTypeNames(String s) {
-		s = s.replaceAll("_HASH", hashType);
-		s = s.replaceAll("_SECRET", secretType);
-		s = s.replaceAll("_BINARY", binaryType);
-		s = s.replaceAll("_COUNTER", counterType);
-		s = s.replaceAll("_STRING", stringType);
-		return s;
 	}
 
 	@Override
@@ -1258,8 +1249,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT authorId, formatVersion, name, publicKey,"
-					+ " localAuthorId, verified, active"
+			String sql = "SELECT authorId, formatVersion, name, alias,"
+					+ " publicKey, localAuthorId, verified, active"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1269,15 +1260,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 			AuthorId authorId = new AuthorId(rs.getBytes(1));
 			int formatVersion = rs.getInt(2);
 			String name = rs.getString(3);
-			byte[] publicKey = rs.getBytes(4);
-			AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-			boolean verified = rs.getBoolean(6);
-			boolean active = rs.getBoolean(7);
+			String alias = rs.getString(4);
+			byte[] publicKey = rs.getBytes(5);
+			AuthorId localAuthorId = new AuthorId(rs.getBytes(6));
+			boolean verified = rs.getBoolean(7);
+			boolean active = rs.getBoolean(8);
 			rs.close();
 			ps.close();
 			Author author =
 					new Author(authorId, formatVersion, name, publicKey);
-			return new Contact(c, author, localAuthorId, verified, active);
+			return new Contact(c, author, localAuthorId, alias, verified,
+					active);
 		} catch (SQLException e) {
 			tryToClose(rs);
 			tryToClose(ps);
@@ -1292,7 +1285,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, formatVersion, name,"
-					+ " publicKey, localAuthorId, verified, active"
+					+ " alias, publicKey, localAuthorId, verified, active"
 					+ " FROM contacts";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1302,14 +1295,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId authorId = new AuthorId(rs.getBytes(2));
 				int formatVersion = rs.getInt(3);
 				String name = rs.getString(4);
-				byte[] publicKey = rs.getBytes(5);
+				String alias = rs.getString(5);
+				byte[] publicKey = rs.getBytes(6);
 				Author author =
 						new Author(authorId, formatVersion, name, publicKey);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(6));
-				boolean verified = rs.getBoolean(7);
-				boolean active = rs.getBoolean(8);
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
+				boolean verified = rs.getBoolean(8);
+				boolean active = rs.getBoolean(9);
 				contacts.add(new Contact(contactId, author, localAuthorId,
-						verified, active));
+						alias, verified, active));
 			}
 			rs.close();
 			ps.close();
@@ -1350,8 +1344,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT contactId, formatVersion, name, publicKey,"
-					+ " localAuthorId, verified, active"
+			String sql = "SELECT contactId, formatVersion, name, alias,"
+					+ " publicKey, localAuthorId, verified, active"
 					+ " FROM contacts"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1362,14 +1356,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ContactId c = new ContactId(rs.getInt(1));
 				int formatVersion = rs.getInt(2);
 				String name = rs.getString(3);
-				byte[] publicKey = rs.getBytes(4);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(5));
-				boolean verified = rs.getBoolean(6);
-				boolean active = rs.getBoolean(7);
+				String alias = rs.getString(4);
+				byte[] publicKey = rs.getBytes(5);
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(6));
+				boolean verified = rs.getBoolean(7);
+				boolean active = rs.getBoolean(8);
 				Author author =
 						new Author(remote, formatVersion, name, publicKey);
-				contacts.add(new Contact(c, author, localAuthorId, verified,
-						active));
+				contacts.add(new Contact(c, author, localAuthorId, alias,
+						verified, active));
 			}
 			rs.close();
 			ps.close();
@@ -2784,6 +2779,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE contacts SET active = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, active);
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setContactAlias(Connection txn, ContactId c,
+			@Nullable String alias) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE contacts SET alias = ? WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			if (alias == null) ps.setNull(1, VARCHAR);
+			else ps.setString(1, alias);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();

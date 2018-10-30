@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 @NotNullByDefault
 public interface ContactManager {
 
@@ -91,6 +93,12 @@ public interface ContactManager {
 	 * Marks a contact as active or inactive.
 	 */
 	void setContactActive(Transaction txn, ContactId c, boolean active)
+			throws DbException;
+
+	/**
+	 * Sets an alias name for the contact or unsets it if alias is null.
+	 */
+	void setContactAlias(ContactId c, @Nullable String alias)
 			throws DbException;
 
 	/**
