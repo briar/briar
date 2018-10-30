@@ -18,8 +18,8 @@ class ForumItem extends ThreadItem {
 	}
 
 	ForumItem(MessageId messageId, @Nullable MessageId parentId, String text,
-			long timestamp, Author author, AuthorInfo status) {
-		super(messageId, parentId, text, timestamp, author, status, true);
+			long timestamp, Author author, AuthorInfo authorInfo) {
+		super(messageId, parentId, text, timestamp, author, authorInfo, true);
 	}
 
 }

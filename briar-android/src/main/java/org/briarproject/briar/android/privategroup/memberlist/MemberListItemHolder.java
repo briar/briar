@@ -30,7 +30,7 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 	}
 
 	protected void bind(MemberListItem item) {
-		// member name, avatar and status
+		// member name, avatar and author info
 		author.setAuthor(item.getMember());
 		author.setAuthorInfo(item.getAuthorInfo());
 

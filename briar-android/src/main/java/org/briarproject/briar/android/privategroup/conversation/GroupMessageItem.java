@@ -22,8 +22,8 @@ class GroupMessageItem extends ThreadItem {
 
 	private GroupMessageItem(MessageId messageId, GroupId groupId,
 			@Nullable MessageId parentId, String text, long timestamp,
-			Author author, AuthorInfo status, boolean isRead) {
-		super(messageId, parentId, text, timestamp, author, status, isRead);
+			Author author, AuthorInfo authorInfo, boolean isRead) {
+		super(messageId, parentId, text, timestamp, author, authorInfo, isRead);
 		this.groupId = groupId;
 	}
 

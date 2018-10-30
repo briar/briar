@@ -19,10 +19,10 @@ public class GroupMember {
 	private final ContactId contactId;
 	private final Visibility visibility;
 
-	public GroupMember(Author author, AuthorInfo status, boolean isCreator,
+	public GroupMember(Author author, AuthorInfo authorInfo, boolean isCreator,
 			@Nullable ContactId contactId, Visibility visibility) {
 		this.author = author;
-		this.authorInfo = status;
+		this.authorInfo = authorInfo;
 		this.isCreator = isCreator;
 		this.contactId = contactId;
 		this.visibility = visibility;
