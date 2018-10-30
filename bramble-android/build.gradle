@@ -43,9 +43,26 @@ dependencies {
 	testImplementation "org.hamcrest:hamcrest-core:1.3"
 }
 
-project.afterEvaluate {
-	copy {
-		from configurations.tor.collect { zipTree(it) }
-		into 'src/main/res/raw'
+def torBinariesDir = 'src/main/res/raw'
+
+task unpackTorBinaries {
+	outputs.dir torBinariesDir
+	doLast {
+		copy {
+			from configurations.tor.collect { zipTree(it) }
+			into torBinariesDir
+		}
 	}
 }
+
+tasks.withType(JavaCompile) {
+	dependsOn unpackTorBinaries
+}
+
+task cleanTorBinaries {
+	doLast {
+		delete fileTree(torBinariesDir) { include '*.zip' }
+	}
+}
+
+clean.dependsOn cleanTorBinaries

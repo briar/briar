@@ -32,12 +32,29 @@ dependencies {
 	testApt 'com.google.dagger:dagger-compiler:2.0.2'
 }
 
-project.afterEvaluate {
-	copy {
-		from configurations.tor.collect { zipTree(it) }
-		into 'src/main/resources'
+def torBinariesDir = 'src/main/resources'
+
+task unpackTorBinaries {
+	outputs.dir torBinariesDir
+	doLast {
+		copy {
+			from configurations.tor.collect { zipTree(it) }
+			into torBinariesDir
+		}
 	}
 }
+
+tasks.withType(JavaCompile) {
+	dependsOn unpackTorBinaries
+}
+
+task cleanTorBinaries {
+	doLast {
+		delete fileTree(torBinariesDir) { include '*.zip' }
+	}
+}
+
+clean.dependsOn cleanTorBinaries
 
 tasks.withType(Test) {
 	systemProperty 'java.library.path', 'libs'
