@@ -10,7 +10,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.AuthorView;
 
-import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 
 @UiThread
 @NotNullByDefault
@@ -28,25 +30,25 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 	}
 
 	protected void bind(MemberListItem item) {
-		// member name, avatar and status
+		// member name, avatar and author info
 		author.setAuthor(item.getMember());
-		author.setAuthorStatus(item.getStatus());
+		author.setAuthorInfo(item.getAuthorInfo());
 
 		// online status of visible contacts
 		if (item.getContactId() != null) {
-			bulb.setVisibility(View.VISIBLE);
+			bulb.setVisibility(VISIBLE);
 			if (item.isOnline()) {
 				bulb.setImageResource(R.drawable.contact_connected);
 			} else {
 				bulb.setImageResource(R.drawable.contact_disconnected);
 			}
 		} else {
-			bulb.setVisibility(View.GONE);
+			bulb.setVisibility(GONE);
 		}
 
 		// text shown for creator
 		if (item.isCreator()) {
-			creator.setVisibility(View.VISIBLE);
+			creator.setVisibility(VISIBLE);
 			if (item.getStatus() == OURSELVES) {
 				creator.setText(R.string.groups_member_created_you);
 			} else {
@@ -55,7 +57,7 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 								item.getMember().getName()));
 			}
 		} else {
-			creator.setVisibility(View.GONE);
+			creator.setVisibility(GONE);
 		}
 	}
 

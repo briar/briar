@@ -100,7 +100,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 		BlogPostHeader post = item.getPostHeader();
 		Author a = post.getAuthor();
 		author.setAuthor(a);
-		author.setAuthorStatus(post.getAuthorStatus());
+		author.setAuthorInfo(post.getAuthorInfo());
 		author.setDate(post.getTimestamp());
 		author.setPersona(
 				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
@@ -144,7 +144,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private void onBindComment(BlogCommentItem item) {
 		// reblogger
 		reblogger.setAuthor(item.getAuthor());
-		reblogger.setAuthorStatus(item.getAuthorStatus());
+		reblogger.setAuthorInfo(item.getAuthorInfo());
 		reblogger.setDate(item.getTimestamp());
 		if (!fullText) {
 			reblogger.setAuthorClickable(v -> listener.onAuthorClick(item));
@@ -166,7 +166,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			TextView text = v.findViewById(R.id.textView);
 
 			author.setAuthor(c.getAuthor());
-			author.setAuthorStatus(c.getAuthorStatus());
+			author.setAuthorInfo(c.getAuthorInfo());
 			author.setDate(c.getTimestamp());
 			// TODO make author clickable #624
 

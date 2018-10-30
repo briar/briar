@@ -2,7 +2,7 @@ package org.briarproject.briar.api.privategroup;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
@@ -13,16 +13,16 @@ import javax.annotation.concurrent.Immutable;
 public class GroupMember {
 
 	private final Author author;
-	private final Status status;
+	private final AuthorInfo authorInfo;
 	private final boolean isCreator;
 	@Nullable
 	private final ContactId contactId;
 	private final Visibility visibility;
 
-	public GroupMember(Author author, Status status, boolean isCreator,
+	public GroupMember(Author author, AuthorInfo authorInfo, boolean isCreator,
 			@Nullable ContactId contactId, Visibility visibility) {
 		this.author = author;
-		this.status = status;
+		this.authorInfo = authorInfo;
 		this.isCreator = isCreator;
 		this.contactId = contactId;
 		this.visibility = visibility;
@@ -32,8 +32,8 @@ public class GroupMember {
 		return author;
 	}
 
-	public Status getStatus() {
-		return status;
+	public AuthorInfo getAuthorInfo() {
+		return authorInfo;
 	}
 
 	public boolean isCreator() {

@@ -5,10 +5,14 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
@@ -21,12 +25,20 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Random;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 public class ContactManagerImplTest extends BrambleMockTestCase {
@@ -34,17 +46,20 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final Mockery context = new Mockery();
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final KeyManager keyManager = context.mock(KeyManager.class);
+	private final IdentityManager identityManager =
+			context.mock(IdentityManager.class);
 	private final ContactManager contactManager;
 	private final ContactId contactId = new ContactId(42);
 	private final Author remote = getAuthor();
 	private final AuthorId local = new AuthorId(getRandomId());
+	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final String alias = getRandomString(MAX_AUTHOR_NAME_LENGTH);
 	private final boolean verified = false, active = true;
 	private final Contact contact =
 			new Contact(contactId, remote, local, alias, verified, active);
 
 	public ContactManagerImplTest() {
-		contactManager = new ContactManagerImpl(db, keyManager);
+		contactManager = new ContactManagerImpl(db, keyManager, identityManager);
 	}
 
 	@Test
@@ -109,7 +124,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getContactsByAuthorId(txn, remote.getId());
-			will(returnValue(Collections.emptyList()));
+			will(returnValue(emptyList()));
 			oneOf(db).endTransaction(txn);
 		}});
 
@@ -206,6 +221,81 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		assertTrue(contactManager.contactExists(remote.getId(), local));
+	}
+
+	@Test
+	public void testGetAuthorStatus() throws Exception {
+		Transaction txn = new Transaction(null, true);
+		Collection<Contact> contacts = singletonList(
+				new Contact(new ContactId(1), remote, localAuthor.getId(),
+						alias, false, true));
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(equal(true)),
+					withDbCallable(txn));
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			oneOf(db).getContactsByAuthorId(txn, remote.getId());
+			will(returnValue(contacts));
+		}});
+		AuthorInfo authorInfo =
+				contactManager.getAuthorInfo(txn, remote.getId());
+		assertEquals(UNVERIFIED, authorInfo.getStatus());
+		assertEquals(alias, contact.getAlias());
+	}
+
+	@Test
+	public void testGetAuthorStatusTransaction() throws DbException {
+		Transaction txn = new Transaction(null, true);
+
+		// check unknown author
+		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			oneOf(db).getContactsByAuthorId(txn, remote.getId());
+			will(returnValue(emptyList()));
+		}});
+		AuthorInfo authorInfo =
+				contactManager.getAuthorInfo(txn, remote.getId());
+		assertEquals(UNKNOWN, authorInfo.getStatus());
+		assertNull(authorInfo.getAlias());
+
+		// check unverified contact
+		Collection<Contact> contacts = singletonList(
+				new Contact(new ContactId(1), remote, localAuthor.getId(),
+						alias, false, true));
+		checkAuthorStatusContext(txn, remote.getId(), contacts);
+		authorInfo = contactManager.getAuthorInfo(txn, remote.getId());
+		assertEquals(UNVERIFIED, authorInfo.getStatus());
+		assertEquals(alias, contact.getAlias());
+
+		// check verified contact
+		contacts = singletonList(new Contact(new ContactId(1), remote,
+				localAuthor.getId(), alias, true, true));
+		checkAuthorStatusContext(txn, remote.getId(), contacts);
+		authorInfo = contactManager.getAuthorInfo(txn, remote.getId());
+		assertEquals(VERIFIED, authorInfo.getStatus());
+		assertEquals(alias, contact.getAlias());
+
+		// check ourselves
+		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			never(db).getContactsByAuthorId(txn, remote.getId());
+		}});
+		authorInfo = contactManager.getAuthorInfo(txn, localAuthor.getId());
+		assertEquals(OURSELVES, authorInfo.getStatus());
+		assertNull(authorInfo.getAlias());
+	}
+
+	private void checkAuthorStatusContext(Transaction txn, AuthorId authorId,
+			Collection<Contact> contacts) throws DbException {
+		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
+			oneOf(db).getContactsByAuthorId(txn, authorId);
+			will(returnValue(contacts));
+		}});
 	}
 
 }

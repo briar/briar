@@ -1,7 +1,7 @@
 package org.briarproject.briar.api.blog;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.Author.Status;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -23,10 +23,10 @@ public class BlogCommentHeader extends BlogPostHeader {
 	public BlogCommentHeader(MessageType type, GroupId groupId,
 			@Nullable String comment, BlogPostHeader parent, MessageId id,
 			long timestamp, long timeReceived, Author author,
-			Status authorStatus, boolean read) {
+			AuthorInfo authorInfo, boolean read) {
 
 		super(type, groupId, id, parent.getId(), timestamp,
-				timeReceived, author, authorStatus, false, read);
+				timeReceived, author, authorInfo, false, read);
 
 		if (type != COMMENT && type != WRAPPED_COMMENT)
 			throw new IllegalArgumentException("Incompatible Message Type");

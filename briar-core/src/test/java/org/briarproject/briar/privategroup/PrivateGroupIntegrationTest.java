@@ -24,7 +24,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.bramble.api.identity.Author.Status.OURSELVES;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_CONTACT;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_US;
@@ -92,7 +92,8 @@ public class PrivateGroupIntegrationTest
 		Collection<GroupMember> members = groupManager0.getMembers(groupId0);
 		assertEquals(1, members.size());
 		assertEquals(author0, members.iterator().next().getAuthor());
-		assertEquals(OURSELVES, members.iterator().next().getStatus());
+		assertEquals(OURSELVES,
+				members.iterator().next().getAuthorInfo().getStatus());
 
 		sync0To1(1, true);
 		groupInvitationManager1
@@ -107,7 +108,7 @@ public class PrivateGroupIntegrationTest
 		members = groupManager0.getMembers(groupId0);
 		assertEquals(2, members.size());
 		for (GroupMember m : members) {
-			if (m.getStatus() == OURSELVES) {
+			if (m.getAuthorInfo().getStatus() == OURSELVES) {
 				assertEquals(author0.getId(), m.getAuthor().getId());
 			} else {
 				assertEquals(author1.getId(), m.getAuthor().getId());
@@ -117,7 +118,7 @@ public class PrivateGroupIntegrationTest
 		members = groupManager1.getMembers(groupId0);
 		assertEquals(2, members.size());
 		for (GroupMember m : members) {
-			if (m.getStatus() == OURSELVES) {
+			if (m.getAuthorInfo().getStatus() == OURSELVES) {
 				assertEquals(author1.getId(), m.getAuthor().getId());
 			} else {
 				assertEquals(author0.getId(), m.getAuthor().getId());

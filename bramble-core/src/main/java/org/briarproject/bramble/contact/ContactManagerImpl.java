@@ -10,6 +10,9 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.KeyManager;
 
@@ -23,6 +26,10 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
+import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @ThreadSafe
@@ -31,12 +38,15 @@ class ContactManagerImpl implements ContactManager {
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
+	private final IdentityManager identityManager;
 	private final List<ContactHook> hooks;
 
 	@Inject
-	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager) {
+	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager,
+			IdentityManager identityManager) {
 		this.db = db;
 		this.keyManager = keyManager;
+		this.identityManager = identityManager;
 		hooks = new CopyOnWriteArrayList<>();
 	}
 
@@ -189,6 +199,25 @@ class ContactManagerImpl implements ContactManager {
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.removingContact(txn, contact);
 		db.removeContact(txn, c);
+	}
+
+	@Override
+	public AuthorInfo getAuthorInfo(AuthorId a) throws DbException {
+		return db.transactionWithResult(true, txn -> getAuthorInfo(txn, a));
+	}
+
+	@Override
+	public AuthorInfo getAuthorInfo(Transaction txn, AuthorId authorId)
+			throws DbException {
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		if (localAuthor.getId().equals(authorId))
+			return new AuthorInfo(OURSELVES);
+		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
+		if (contacts.isEmpty()) return new AuthorInfo(UNKNOWN);
+		if (contacts.size() > 1) throw new AssertionError();
+		Contact c = contacts.iterator().next();
+		if (c.isVerified()) return new AuthorInfo(VERIFIED, c.getAlias());
+		else return new AuthorInfo(UNVERIFIED, c.getAlias());
 	}
 
 }

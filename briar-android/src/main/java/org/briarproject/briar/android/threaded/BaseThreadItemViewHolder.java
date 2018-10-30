@@ -45,7 +45,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 
 		author.setAuthor(item.getAuthor());
 		author.setDate(item.getTimestamp());
-		author.setAuthorStatus(item.getStatus());
+		author.setAuthorInfo(item.getAuthorInfo());
 
 		if (item.isHighlighted()) {
 			layout.setActivated(true);
