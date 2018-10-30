@@ -56,6 +56,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -67,6 +68,7 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 @MethodsNotNullByDefault
@@ -122,6 +124,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	// objects accessed from background threads need to be volatile
 	private volatile Waiter validationWaiter;
 	private volatile Waiter deliveryWaiter;
+	private volatile AtomicInteger messageCounter = new AtomicInteger(0);
 
 	protected final static int TIMEOUT = 15000;
 	protected C c0, c1, c2;
@@ -218,11 +221,13 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 				if (!event.isLocal()) {
 					if (event.getState() == DELIVERED) {
 						LOG.info("Delivered new message");
+						messageCounter.addAndGet(1);
 						deliveryWaiter.resume();
 					} else if (event.getState() == INVALID ||
 							event.getState() == PENDING) {
 						LOG.info("Validated new " + event.getState().name() +
 								" message");
+						messageCounter.addAndGet(1);
 						validationWaiter.resume();
 					}
 				}
@@ -341,7 +346,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		String to = "0";
 		if (toSync == sync1) to = "1";
 		else if (toSync == sync2) to = "2";
-		LOG.info("TEST: Sending message from " + from + " to " + to);
+		LOG.info("TEST: Sending " + num + " message(s) from " + from + " to " +
+				to);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamWriter streamWriter = new TestStreamWriter(out);
@@ -364,6 +370,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		} else {
 			validationWaiter.await(TIMEOUT, num);
 		}
+		assertEquals("Messages delivered", num, messageCounter.getAndSet(0));
 	}
 
 	protected void removeAllContacts() throws DbException {
