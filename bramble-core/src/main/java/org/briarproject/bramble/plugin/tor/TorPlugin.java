@@ -102,7 +102,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
 	private final int maxLatency, maxIdleTime, socketTimeout;
-	private final File torDirectory, torFile, geoIpFile, configFile;
+	private final File torDirectory, torFile, geoIpFile, obfs4File, configFile;
 	private final File doneFile, cookieFile;
 	private final ConnectionStatus connectionStatus;
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -142,6 +142,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.torDirectory = torDirectory;
 		torFile = new File(torDirectory, "tor");
 		geoIpFile = new File(torDirectory, "geoip");
+		obfs4File = new File(torDirectory, "obfs4proxy");
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
@@ -284,6 +285,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			in = getGeoIpInputStream();
 			out = new FileOutputStream(geoIpFile);
 			IoUtils.copyAndClose(in, out);
+			// Unzip the Obfs4 proxy to the filesystem
+			in = getObfs4InputStream();
+			out = new FileOutputStream(obfs4File);
+			IoUtils.copyAndClose(in, out);
+			// Make the Obfs4 proxy executable
+			if (!obfs4File.setExecutable(true, true)) throw new IOException();
 			// Copy the config file to the filesystem
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
@@ -309,6 +316,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private InputStream getGeoIpInputStream() throws IOException {
 		InputStream in = resourceProvider.getResourceInputStream("geoip",
 				".zip");
+		ZipInputStream zin = new ZipInputStream(in);
+		if (zin.getNextEntry() == null) throw new IOException();
+		return zin;
+	}
+
+	private InputStream getObfs4InputStream() throws IOException {
+		if (LOG.isLoggable(INFO))
+			LOG.info("Installing obfs4proxy binary for " + architecture);
+		InputStream in = resourceProvider
+				.getResourceInputStream("obfs4proxy_" + architecture, ".zip");
 		ZipInputStream zin = new ZipInputStream(in);
 		if (zin.getNextEntry() == null) throw new IOException();
 		return zin;
@@ -472,6 +489,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (enable) {
 			Collection<String> conf = new ArrayList<>();
 			conf.add("UseBridges 1");
+			conf.add("ClientTransportPlugin obfs4 exec " +
+					obfs4File.getAbsolutePath());
 			conf.addAll(circumventionProvider.getBridges());
 			controlConnection.setConf(conf);
 		} else {
