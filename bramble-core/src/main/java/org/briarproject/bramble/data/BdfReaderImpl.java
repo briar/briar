@@ -29,6 +29,7 @@ import static org.briarproject.bramble.data.Types.STRING_16;
 import static org.briarproject.bramble.data.Types.STRING_32;
 import static org.briarproject.bramble.data.Types.STRING_8;
 import static org.briarproject.bramble.data.Types.TRUE;
+import static org.briarproject.bramble.util.StringUtils.fromUtf8;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -253,7 +254,7 @@ class BdfReaderImpl implements BdfReader {
 		if (length < 0 || length > maxBufferSize) throw new FormatException();
 		if (length == 0) return "";
 		readIntoBuffer(length);
-		return new String(buf, 0, length, "UTF-8");
+		return fromUtf8(buf, 0, length);
 	}
 
 	private int readStringLength() throws IOException {
