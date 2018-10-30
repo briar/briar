@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.messaging;
+package org.briarproject.briar.api.conversation;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.util.Collection;
 
@@ -27,7 +28,7 @@ public interface ConversationManager {
 	 * Only {@link MessagingManager} returns only headers.
 	 * The others also return the message text.
 	 */
-	Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
+	Collection<ConversationMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException;
 
 	/**
@@ -40,7 +41,7 @@ public interface ConversationManager {
 
 		Group getContactGroup(Contact c);
 
-		Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
+		Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn,
 				ContactId contactId) throws DbException;
 
 		GroupCount getGroupCount(Transaction txn, ContactId c)

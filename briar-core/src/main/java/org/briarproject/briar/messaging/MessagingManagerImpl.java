@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
@@ -116,8 +117,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 		PrivateMessageHeader header = new PrivateMessageHeader(
 				m.getId(), groupId, timestamp, local, read, false, false);
 		ContactId contactId = getContactId(txn, groupId);
-		PrivateMessageReceivedEvent<PrivateMessageHeader> event =
-				new PrivateMessageReceivedEvent<>(header, contactId);
+		PrivateMessageReceivedEvent event =
+				new PrivateMessageReceivedEvent(header, contactId);
 		txn.attach(event);
 		messageTracker.trackIncomingMessage(txn, m);
 
@@ -178,8 +179,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
-			ContactId c) throws DbException {
+	public Collection<ConversationMessageHeader> getMessageHeaders(
+			Transaction txn, ContactId c) throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;
 		GroupId g;
@@ -190,7 +191,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-		Collection<PrivateMessageHeader> headers = new ArrayList<>();
+		Collection<ConversationMessageHeader> headers = new ArrayList<>();
 		for (MessageStatus s : statuses) {
 			MessageId id = s.getMessageId();
 			BdfDictionary meta = metadata.get(id);

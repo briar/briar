@@ -2,16 +2,16 @@ package org.briarproject.briar.headless.messaging
 
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.api.blog.BlogInvitationRequest
+import org.briarproject.briar.api.conversation.ConversationMessageHeader
+import org.briarproject.briar.api.conversation.ConversationRequest
 import org.briarproject.briar.api.forum.ForumInvitationRequest
 import org.briarproject.briar.api.introduction.IntroductionRequest
-import org.briarproject.briar.api.messaging.PrivateMessageHeader
-import org.briarproject.briar.api.messaging.PrivateRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.sharing.InvitationRequest
 import org.briarproject.briar.headless.json.JsonDict
 
-internal fun PrivateRequest<*>.output(contactId: ContactId): JsonDict {
-    val dict = (this as PrivateMessageHeader).output(contactId, text)
+internal fun ConversationRequest<*>.output(contactId: ContactId): JsonDict {
+    val dict = (this as ConversationMessageHeader).output(contactId, text)
     dict.putAll(
         "sessionId" to sessionId.bytes,
         "name" to name,
@@ -21,7 +21,7 @@ internal fun PrivateRequest<*>.output(contactId: ContactId): JsonDict {
 }
 
 internal fun IntroductionRequest.output(contactId: ContactId): JsonDict {
-    val dict = (this as PrivateRequest<*>).output(contactId)
+    val dict = (this as ConversationRequest<*>).output(contactId)
     dict.putAll(
         "type" to "IntroductionRequest",
         "alreadyContact" to isContact
@@ -30,7 +30,7 @@ internal fun IntroductionRequest.output(contactId: ContactId): JsonDict {
 }
 
 internal fun InvitationRequest<*>.output(contactId: ContactId): JsonDict {
-    val dict = (this as PrivateRequest<*>).output(contactId)
+    val dict = (this as ConversationRequest<*>).output(contactId)
     dict["canBeOpened"] = canBeOpened()
     return dict
 }

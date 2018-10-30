@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
@@ -129,11 +130,12 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 
 		// invitee has one invitation message from sharer
-		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
-				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> list =
+				db1.transactionWithResult(true, txn -> forumSharingManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the forum message
-		for (PrivateMessageHeader m : list) {
+		for (ConversationMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
 				assertTrue(invitation.wasAnswered());
@@ -185,11 +187,12 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, forumSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
-				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> list =
+				db1.transactionWithResult(true, txn -> forumSharingManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the forum message
-		for (PrivateMessageHeader m : list) {
+		for (ConversationMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				ForumInvitationRequest invitation = (ForumInvitationRequest) m;
 				assertEquals(forum0, invitation.getNameable());
@@ -733,9 +736,9 @@ public class ForumSharingIntegrationTest
 
 		// get invitation MessageId for later
 		MessageId invitationId = null;
-		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
+		Collection<ConversationMessageHeader> list = db1.transactionWithResult(true,
 				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
-		for (PrivateMessageHeader m : list) {
+		for (ConversationMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				invitationId = m.getId();
 			}

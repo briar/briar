@@ -63,15 +63,16 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.PrivateRequest;
-import org.briarproject.briar.api.messaging.PrivateResponse;
+import org.briarproject.briar.api.conversation.ConversationRequest;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
@@ -326,7 +327,7 @@ public class ConversationActivity extends BriarActivity
 		runOnDbThread(() -> {
 			try {
 				long start = now();
-				Collection<PrivateMessageHeader> headers =
+				Collection<ConversationMessageHeader> headers =
 						conversationManager.getMessageHeaders(contactId);
 				logDuration(LOG, "Loading messages", start);
 				displayMessages(revision, headers);
@@ -339,7 +340,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void displayMessages(int revision,
-			Collection<PrivateMessageHeader> headers) {
+			Collection<ConversationMessageHeader> headers) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
@@ -363,9 +364,10 @@ public class ConversationActivity extends BriarActivity
 	 */
 	@SuppressWarnings("ConstantConditions")
 	private List<ConversationItem> createItems(
-			Collection<PrivateMessageHeader> headers) {
+			Collection<ConversationMessageHeader> headers) {
 		List<ConversationItem> items = new ArrayList<>(headers.size());
-		for (PrivateMessageHeader h : headers) items.add(h.accept(visitor));
+		for (ConversationMessageHeader h : headers)
+			items.add(h.accept(visitor));
 		return items;
 	}
 
@@ -449,9 +451,10 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void onNewPrivateMessage(PrivateMessageHeader h) {
+	private void onNewPrivateMessage(ConversationMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
+			if (h instanceof ConversationRequest ||
+					h instanceof ConversationResponse) {
 				// contact name might not have been loaded
 				observeOnce(viewModel.getContactDisplayName(), this,
 						name -> addConversationItem(h.accept(visitor)));

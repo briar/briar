@@ -15,13 +15,17 @@ import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.blog.BlogInvitationRequest
 import org.briarproject.briar.api.blog.BlogInvitationResponse
+import org.briarproject.briar.api.conversation.ConversationManager
+import org.briarproject.briar.api.conversation.ConversationMessageVisitor
+import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent
 import org.briarproject.briar.api.forum.ForumInvitationRequest
 import org.briarproject.briar.api.forum.ForumInvitationResponse
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.introduction.IntroductionResponse
-import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
-import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
+import org.briarproject.briar.api.messaging.MessagingManager
+import org.briarproject.briar.api.messaging.PrivateMessageFactory
+import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
 import org.briarproject.briar.headless.event.WebSocketController
@@ -34,7 +38,7 @@ import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-internal const val EVENT_PRIVATE_MESSAGE = "PrivateMessageReceivedEvent"
+internal const val EVENT_PRIVATE_MESSAGE = "ConversationMessageReceivedEvent"
 
 @Immutable
 @Singleton
@@ -77,7 +81,7 @@ constructor(
 
     override fun eventOccurred(e: Event) {
         when (e) {
-            is PrivateMessageReceivedEvent<*> -> dbExecutor.execute {
+            is ConversationMessageReceivedEvent<*> -> dbExecutor.execute {
                 val text = messagingManager.getMessageText(e.messageHeader.id)
                 webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, e.output(text))
             }
@@ -97,7 +101,7 @@ constructor(
 private class JsonVisitor(
     private val contactId: ContactId,
     private val messagingManager: MessagingManager
-) : PrivateMessageVisitor<JsonDict> {
+) : ConversationMessageVisitor<JsonDict> {
 
     override fun visitPrivateMessageHeader(h: PrivateMessageHeader) =
         h.output(contactId, messagingManager.getMessageText(h.id))

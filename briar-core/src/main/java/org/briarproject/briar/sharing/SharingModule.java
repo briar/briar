@@ -17,7 +17,7 @@ import org.briarproject.briar.api.forum.ForumFactory;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
-import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

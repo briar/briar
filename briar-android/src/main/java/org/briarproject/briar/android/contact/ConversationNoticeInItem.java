@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
-import org.briarproject.briar.api.messaging.PrivateResponse;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -24,7 +24,7 @@ class ConversationNoticeInItem extends ConversationItem {
 		this.msgText = msgText;
 	}
 
-	ConversationNoticeInItem(String text, PrivateResponse r) {
+	ConversationNoticeInItem(String text, ConversationResponse r) {
 		super(r.getId(), r.getGroupId(), text, r.getTimestamp(), r.isRead());
 		this.msgText = null;
 	}

@@ -6,8 +6,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.PrivateMessageVisitor;
-import org.briarproject.briar.api.messaging.PrivateResponse;
+import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -15,7 +15,7 @@ import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
 
 @Immutable
 @NotNullByDefault
-public class IntroductionResponse extends PrivateResponse {
+public class IntroductionResponse extends ConversationResponse {
 
 	private final Author introducedAuthor;
 	private final AuthorInfo introducedAuthorInfo;
@@ -45,7 +45,7 @@ public class IntroductionResponse extends PrivateResponse {
 	}
 
 	@Override
-	public <T> T accept(PrivateMessageVisitor<T> v) {
+	public <T> T accept(ConversationMessageVisitor<T> v) {
 		return v.visitIntroductionResponse(this);
 	}
 }

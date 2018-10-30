@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.PrivateRequest;
+import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.sharing.InvitationRequest;
 import org.briarproject.briar.api.sharing.Shareable;
 
@@ -26,7 +26,7 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 	private final boolean canBeOpened;
 	private boolean answered;
 
-	ConversationRequestItem(String text, RequestType type, PrivateRequest r) {
+	ConversationRequestItem(String text, RequestType type, ConversationRequest r) {
 		super(r.getId(), r.getGroupId(), text, r.getText(),
 				r.getTimestamp(), r.isRead());
 		this.requestType = type;

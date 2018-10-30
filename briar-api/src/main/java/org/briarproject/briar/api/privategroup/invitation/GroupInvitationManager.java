@@ -8,7 +8,7 @@ import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 
 import java.util.Collection;

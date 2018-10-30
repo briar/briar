@@ -14,6 +14,7 @@ import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.client.SessionId
+import org.briarproject.briar.api.conversation.ConversationManager
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH

@@ -65,7 +65,7 @@ internal class WebSocketControllerTest : ControllerTest() {
         val json = """
         {
             "type": "event",
-            "name": "PrivateMessageReceivedEvent",
+            "name": "ConversationMessageReceivedEvent",
             "data": ${toJson(header.output(contact.id, text))}
         }
         """

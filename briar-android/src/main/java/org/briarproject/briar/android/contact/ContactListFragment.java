@@ -36,7 +36,7 @@ import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 

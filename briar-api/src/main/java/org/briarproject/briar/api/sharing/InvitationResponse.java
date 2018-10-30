@@ -3,9 +3,9 @@ package org.briarproject.briar.api.sharing;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.PrivateResponse;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 
-public abstract class InvitationResponse extends PrivateResponse {
+public abstract class InvitationResponse extends ConversationResponse {
 
 	private final GroupId shareableId;
 

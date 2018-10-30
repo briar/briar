@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 
 @NotNullByDefault
 public interface MessagingManager extends ConversationClient {

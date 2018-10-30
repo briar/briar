@@ -26,7 +26,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -368,7 +368,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
+	public Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn,
 			ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
@@ -376,7 +376,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			List<PrivateMessageHeader> messages =
+			List<ConversationMessageHeader> messages =
 					new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();

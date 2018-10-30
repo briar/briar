@@ -6,8 +6,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.messaging.ConversationManager;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -38,9 +38,9 @@ class ConversationManagerImpl implements ConversationManager {
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessageHeaders(ContactId c)
+	public Collection<ConversationMessageHeader> getMessageHeaders(ContactId c)
 			throws DbException {
-		List<PrivateMessageHeader> messages = new ArrayList<>();
+		List<ConversationMessageHeader> messages = new ArrayList<>();
 		Transaction txn = db.startTransaction(true);
 		try {
 			for (ConversationClient client : clients) {

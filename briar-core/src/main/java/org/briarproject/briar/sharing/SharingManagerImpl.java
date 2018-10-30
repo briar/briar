@@ -26,8 +26,8 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.PrivateRequest;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.sharing.InvitationResponse;
 import org.briarproject.briar.api.sharing.Shareable;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
@@ -321,15 +321,15 @@ abstract class SharingManagerImpl<S extends Shareable>
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
-			ContactId c) throws DbException {
+	public Collection<ConversationMessageHeader> getMessageHeaders(
+			Transaction txn, ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			Collection<PrivateMessageHeader> messages =
+			Collection<ConversationMessageHeader> messages =
 					new ArrayList<>(results.size());
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
 				MessageId m = e.getKey();
@@ -354,7 +354,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 		}
 	}
 
-	private PrivateRequest<S> parseInvitationRequest(Transaction txn,
+	private ConversationRequest<S> parseInvitationRequest(Transaction txn,
 			ContactId c, MessageId m, MessageMetadata meta,
 			MessageStatus status) throws DbException, FormatException {
 		// Look up the invite message to get the details of the private group

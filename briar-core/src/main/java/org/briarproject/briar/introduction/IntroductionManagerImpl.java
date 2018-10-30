@@ -31,11 +31,11 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.Role;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.client.ConversationClientImpl;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 
@@ -401,15 +401,15 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
-			ContactId c) throws DbException {
+	public Collection<ConversationMessageHeader> getMessageHeaders(
+			Transaction txn, ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
 			GroupId contactGroupId = getContactGroup(contact).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
-			List<PrivateMessageHeader> messages =
+			List<ConversationMessageHeader> messages =
 					new ArrayList<>(results.size());
 			Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 			for (Entry<MessageId, BdfDictionary> e : results.entrySet()) {
