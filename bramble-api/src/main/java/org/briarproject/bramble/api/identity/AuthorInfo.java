@@ -35,4 +35,18 @@ public class AuthorInfo {
 		return alias;
 	}
 
+	@Override
+	public int hashCode() {
+		int hashCode = status.ordinal();
+		if (alias != null) hashCode += alias.hashCode();
+		return hashCode;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (!(o instanceof AuthorInfo)) return false;
+		AuthorInfo info = (AuthorInfo) o;
+		return status == info.status &&
+				(alias == null ? info.alias == null : alias.equals(info.alias));
+	}
 }
