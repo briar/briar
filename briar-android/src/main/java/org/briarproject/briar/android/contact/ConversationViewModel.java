@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
 
 import org.briarproject.bramble.api.contact.Contact;
@@ -38,11 +39,13 @@ public class ConversationViewModel extends AndroidViewModel {
 	@Inject
 	ContactManager contactManager;
 
-	private final MutableLiveData<AuthorId> contactAuthorId =
-			new MutableLiveData<>();
+	private final MutableLiveData<Contact> contact = new MutableLiveData<>();
+	private final LiveData<AuthorId> contactAuthorId =
+			Transformations.map(contact, c -> c.getAuthor().getId());
+	private final LiveData<String> contactName =
+			Transformations.map(contact, UiUtils::getContactDisplayName);
 	private final MutableLiveData<Boolean> contactDeleted =
 			new MutableLiveData<>();
-	private final MutableLiveData<String> contactName = new MutableLiveData<>();
 
 	public ConversationViewModel(@NonNull Application application) {
 		super(application);
@@ -52,13 +55,11 @@ public class ConversationViewModel extends AndroidViewModel {
 		contactDeleted.setValue(false);
 	}
 
-	void loadContactDetails(ContactId contactId) {
+	void loadContact(ContactId contactId) {
 		dbExecutor.execute(() -> {
 			try {
 				long start = now();
-				Contact contact = contactManager.getContact(contactId);
-				contactAuthorId.postValue(contact.getAuthor().getId());
-				contactName.postValue(UiUtils.getContactDisplayName(contact));
+				contact.postValue(contactManager.getContact(contactId));
 				logDuration(LOG, "Loading contact", start);
 			} catch (NoSuchContactException e) {
 				contactDeleted.postValue(true);
@@ -73,23 +74,27 @@ public class ConversationViewModel extends AndroidViewModel {
 			try {
 				contactManager.setContactAlias(contactId,
 						alias.isEmpty() ? null : alias);
-				loadContactDetails(contactId);
+				loadContact(contactId);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
 	}
 
+	LiveData<Contact> getContact() {
+		return contact;
+	}
+
 	LiveData<AuthorId> getContactAuthorId() {
 		return contactAuthorId;
 	}
 
-	LiveData<Boolean> isContactDeleted() {
-		return contactDeleted;
-	}
-
 	LiveData<String> getContactDisplayName() {
 		return contactName;
+	}
+
+	LiveData<Boolean> isContactDeleted() {
+		return contactDeleted;
 	}
 
 }

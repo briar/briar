@@ -11,8 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.TextView;
+import android.widget.EditText;
 
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.R;
 
@@ -24,7 +25,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 	private ConversationViewModel viewModel;
 	private ContactId contactId;
-	private TextView aliasEditText;
+	private EditText aliasEditText;
 
 	public static AliasDialogFragment newInstance(ContactId id) {
 		AliasDialogFragment f = new AliasDialogFragment();
@@ -59,6 +60,10 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 				false);
 
 		aliasEditText = v.findViewById(R.id.aliasEditText);
+		Contact contact = viewModel.getContact().getValue();
+		String alias = contact == null ? null : contact.getAlias();
+		aliasEditText.setText(alias);
+		if (alias != null) aliasEditText.setSelection(alias.length());
 
 		Button setButton = v.findViewById(R.id.setButton);
 		setButton.setOnClickListener(v1 -> {

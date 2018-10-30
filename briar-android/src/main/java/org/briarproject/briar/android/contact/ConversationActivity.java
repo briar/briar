@@ -201,7 +201,7 @@ public class ConversationActivity extends BriarActivity
 		viewModel.isContactDeleted().observe(this, deleted -> {
 			if (deleted != null && deleted) finish();
 		});
-		viewModel.loadContactDetails(contactId);
+		viewModel.loadContact(contactId);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
