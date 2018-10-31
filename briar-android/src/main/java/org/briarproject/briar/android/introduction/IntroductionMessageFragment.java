@@ -38,6 +38,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
 public class IntroductionMessageFragment extends BaseFragment
@@ -148,8 +149,8 @@ public class IntroductionMessageFragment extends BaseFragment
 					c2.getAuthor().getId().getBytes()));
 
 			// set contact names
-			ui.contactName1.setText(c1.getAuthor().getName());
-			ui.contactName2.setText(c2.getAuthor().getName());
+			ui.contactName1.setText(getContactDisplayName(c1));
+			ui.contactName2.setText(getContactDisplayName(c2));
 
 			// hide progress bar
 			ui.progressBar.setVisibility(GONE);
