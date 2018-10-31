@@ -422,7 +422,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				MessageType type = meta.getMessageType();
 				if (type == REQUEST) {
 					messages.add(parseInvitationRequest(txn, contactGroupId, m,
-							meta, status, ss.bdfSession, authorInfos));
+							meta, status, meta.getSessionId(), authorInfos));
 				} else if (type == ACCEPT) {
 					messages.add(parseInvitationResponse(txn, contactGroupId, m,
 							meta, status, ss.bdfSession, authorInfos, true));
@@ -439,20 +439,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	private IntroductionRequest parseInvitationRequest(Transaction txn,
 			GroupId contactGroupId, MessageId m, MessageMetadata meta,
-			MessageStatus status, BdfDictionary bdfSession,
+			MessageStatus status, SessionId sessionId,
 			Map<AuthorId, AuthorInfo> authorInfos)
 			throws DbException, FormatException {
-		Role role = sessionParser.getRole(bdfSession);
-		SessionId sessionId;
-		if (role == INTRODUCER) {
-			IntroducerSession session =
-					sessionParser.parseIntroducerSession(bdfSession);
-			sessionId = session.getSessionId();
-		} else if (role == INTRODUCEE) {
-			IntroduceeSession session = sessionParser
-					.parseIntroduceeSession(contactGroupId, bdfSession);
-			sessionId = session.getSessionId();
-		} else throw new AssertionError();
 		Message msg = clientHelper.getMessage(txn, m);
 		BdfList body = clientHelper.toList(msg);
 		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
