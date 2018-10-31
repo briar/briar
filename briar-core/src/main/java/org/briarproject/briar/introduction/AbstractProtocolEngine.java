@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -149,11 +150,13 @@ abstract class AbstractProtocolEngine<S extends Session>
 			throws DbException {
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c = contactManager.getContact(txn, sender, localAuthorId);
+		AuthorInfo otherAuthorInfo =
+				contactManager.getAuthorInfo(txn, otherAuthor.getId());
 		IntroductionResponse response =
 				new IntroductionResponse(m.getMessageId(), m.getGroupId(),
 						m.getTimestamp(), false, false, false, false,
 						s.getSessionId(), m instanceof AcceptMessage,
-						otherAuthor, s.getRole());
+						otherAuthor, otherAuthorInfo, s.getRole());
 		IntroductionResponseReceivedEvent e =
 				new IntroductionResponseReceivedEvent(response, c.getId());
 		txn.attach(e);

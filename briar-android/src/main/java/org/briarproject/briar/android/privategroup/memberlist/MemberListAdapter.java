@@ -1,12 +1,15 @@
 package org.briarproject.briar.android.privategroup.memberlist;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
+
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 class MemberListAdapter extends
 		BriarAdapter<MemberListItem, MemberListItemHolder> {
@@ -15,8 +18,9 @@ class MemberListAdapter extends
 		super(context, MemberListItem.class);
 	}
 
+	@NonNull
 	@Override
-	public MemberListItemHolder onCreateViewHolder(ViewGroup viewGroup,
+	public MemberListItemHolder onCreateViewHolder(@NonNull ViewGroup viewGroup,
 			int i) {
 		View v = LayoutInflater.from(ctx).inflate(
 				R.layout.list_item_group_member, viewGroup, false);
@@ -24,13 +28,18 @@ class MemberListAdapter extends
 	}
 
 	@Override
-	public void onBindViewHolder(MemberListItemHolder ui, int position) {
+	public void onBindViewHolder(@NonNull MemberListItemHolder ui,
+			int position) {
 		ui.bind(items.get(position));
 	}
 
 	@Override
 	public int compare(MemberListItem m1, MemberListItem m2) {
-		return m1.getMember().getName().compareTo(m2.getMember().getName());
+		String n1 = getContactDisplayName(m1.getMember(),
+				m1.getAuthorInfo().getAlias());
+		String n2 = getContactDisplayName(m2.getMember(),
+				m2.getAuthorInfo().getAlias());
+		return n1.compareTo(n2);
 	}
 
 	@Override

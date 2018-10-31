@@ -10,6 +10,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UNDEFINED;
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -68,6 +69,13 @@ public abstract class ThreadItem implements MessageNode {
 
 	public AuthorInfo getAuthorInfo() {
 		return authorInfo;
+	}
+
+	/**
+	 * Returns the author's name, with an alias if one exists.
+	 */
+	public String getAuthorName() {
+		return getContactDisplayName(author, authorInfo.getAlias());
 	}
 
 	@Override

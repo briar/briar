@@ -204,7 +204,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testSetContactAliasTooLong() throws Exception {
-		contactManager.setContactAlias(contactId,
+		Transaction txn = new Transaction(null, false);
+		contactManager.setContactAlias(txn, contactId,
 				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1));
 	}
 

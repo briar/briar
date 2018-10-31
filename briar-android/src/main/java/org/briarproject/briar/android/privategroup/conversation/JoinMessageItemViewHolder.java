@@ -36,24 +36,25 @@ class JoinMessageItemViewHolder
 		if (item.isInitial()) {
 			textView.setText(R.string.groups_member_created_you);
 		} else {
-			textView.setText(
-					getContext().getString(R.string.groups_member_joined,
-							item.getAuthor().getName()));
+			String name = item.getAuthorName();
+			textView.setText(getContext()
+					.getString(R.string.groups_member_joined, name));
 		}
 	}
 
 	private void bind(JoinMessageItem item) {
 		Context ctx = getContext();
+		String name = item.getAuthorName();
 
 		if (item.isInitial()) {
-			textView.setText(ctx.getString(R.string.groups_member_created,
-					item.getAuthor().getName()));
+			textView.setText(
+					ctx.getString(R.string.groups_member_created, name));
 		} else {
 			if (item.getAuthorInfo().getStatus() == OURSELVES) {
 				textView.setText(R.string.groups_member_joined_you);
 			} else {
-				textView.setText(ctx.getString(R.string.groups_member_joined,
-						item.getAuthor().getName()));
+				textView.setText(
+						ctx.getString(R.string.groups_member_joined, name));
 			}
 		}
 	}

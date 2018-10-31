@@ -2,12 +2,15 @@ package org.briarproject.briar.android.privategroup.list;
 
 import android.support.annotation.CallSuper;
 
+import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -30,7 +33,9 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -52,6 +57,7 @@ class GroupListControllerImpl extends DbControllerImpl
 
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
+	private final ContactManager contactManager;
 	private final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
 
@@ -61,10 +67,12 @@ class GroupListControllerImpl extends DbControllerImpl
 	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
 			GroupInvitationManager groupInvitationManager,
+			ContactManager contactManager,
 			AndroidNotificationManager notificationManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
+		this.contactManager = contactManager;
 		this.notificationManager = notificationManager;
 		this.eventBus = eventBus;
 	}
@@ -153,12 +161,22 @@ class GroupListControllerImpl extends DbControllerImpl
 				Collection<PrivateGroup> groups =
 						groupManager.getPrivateGroups();
 				List<GroupItem> items = new ArrayList<>(groups.size());
+				Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 				for (PrivateGroup g : groups) {
 					try {
 						GroupId id = g.getId();
+						AuthorId authorId = g.getCreator().getId();
+						AuthorInfo authorInfo;
+						if (authorInfos.containsKey(authorId)) {
+							authorInfo = authorInfos.get(authorId);
+						} else {
+							authorInfo = contactManager.getAuthorInfo(authorId);
+							authorInfos.put(authorId, authorInfo);
+						}
 						GroupCount count = groupManager.getGroupCount(id);
 						boolean dissolved = groupManager.isDissolved(id);
-						items.add(new GroupItem(g, count, dissolved));
+						items.add(
+								new GroupItem(g, authorInfo, count, dissolved));
 					} catch (NoSuchGroupException e) {
 						// Continue
 					}

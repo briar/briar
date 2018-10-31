@@ -14,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.AuthorView;
@@ -98,9 +97,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 		// author and date
 		BlogPostHeader post = item.getPostHeader();
-		Author a = post.getAuthor();
-		author.setAuthor(a);
-		author.setAuthorInfo(post.getAuthorInfo());
+		author.setAuthor(post.getAuthor(), post.getAuthorInfo());
 		author.setDate(post.getTimestamp());
 		author.setPersona(
 				item.isRssFeed() ? AuthorView.RSS_FEED : AuthorView.NORMAL);
@@ -143,8 +140,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	private void onBindComment(BlogCommentItem item) {
 		// reblogger
-		reblogger.setAuthor(item.getAuthor());
-		reblogger.setAuthorInfo(item.getAuthorInfo());
+		reblogger.setAuthor(item.getAuthor(), item.getAuthorInfo());
 		reblogger.setDate(item.getTimestamp());
 		if (!fullText) {
 			reblogger.setAuthorClickable(v -> listener.onAuthorClick(item));
@@ -165,8 +161,7 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 			AuthorView author = v.findViewById(R.id.authorView);
 			TextView text = v.findViewById(R.id.textView);
 
-			author.setAuthor(c.getAuthor());
-			author.setAuthorInfo(c.getAuthorInfo());
+			author.setAuthor(c.getAuthor(), c.getAuthorInfo());
 			author.setDate(c.getTimestamp());
 			// TODO make author clickable #624
 

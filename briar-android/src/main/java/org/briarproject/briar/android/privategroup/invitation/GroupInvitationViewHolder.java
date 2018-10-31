@@ -9,6 +9,8 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
+
 class GroupInvitationViewHolder
 		extends InvitationViewHolder<GroupInvitationItem> {
 
@@ -24,7 +26,7 @@ class GroupInvitationViewHolder
 
 		sharedBy.setText(
 				sharedBy.getContext().getString(R.string.groups_created_by,
-						item.getCreator().getAuthor().getName()));
+						getContactDisplayName(item.getCreator())));
 	}
 
 }

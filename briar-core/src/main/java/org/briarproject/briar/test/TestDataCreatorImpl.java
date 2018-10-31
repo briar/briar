@@ -174,6 +174,10 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			ContactId contactId = contactManager
 					.addContact(txn, author, localAuthorId, secretKey,
 							timestamp, true, verified, true);
+			if (random.nextBoolean()) {
+				contactManager
+						.setContactAlias(txn, contactId, getRandomAuthorName());
+			}
 			transportPropertyManager.addRemoteProperties(txn, contactId, props);
 			contact = db.getContact(txn, contactId);
 			db.commitTransaction(txn);
@@ -202,10 +206,13 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		return authorFactory.createLocalAuthor(name, publicKey, privateKey);
 	}
 
-	private LocalAuthor getRandomAuthor() {
+	private String getRandomAuthorName() {
 		int i = random.nextInt(AUTHOR_NAMES.length);
-		String authorName = AUTHOR_NAMES[i];
-		return getAuthor(authorName);
+		return AUTHOR_NAMES[i];
+	}
+
+	private LocalAuthor getRandomAuthor() {
+		return getAuthor(getRandomAuthorName());
 	}
 
 	private SecretKey getSecretKey() {

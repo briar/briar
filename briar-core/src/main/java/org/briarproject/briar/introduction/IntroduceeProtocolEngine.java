@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -251,12 +252,12 @@ class IntroduceeProtocolEngine
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		Contact c = contactManager.getContact(txn, s.getIntroducer().getId(),
 				localAuthor.getId());
-		boolean contactExists = contactManager
-				.contactExists(txn, m.getAuthor().getId(), localAuthor.getId());
+		AuthorInfo authorInfo =
+				contactManager.getAuthorInfo(txn, m.getAuthor().getId());
 		IntroductionRequest request = new IntroductionRequest(m.getMessageId(),
 				m.getGroupId(), m.getTimestamp(), false, false, false, false,
 				s.getSessionId(), m.getAuthor(), m.getText(), false,
-				contactExists);
+				authorInfo);
 		IntroductionRequestReceivedEvent e =
 				new IntroductionRequestReceivedEvent(request, c.getId());
 		txn.attach(e);

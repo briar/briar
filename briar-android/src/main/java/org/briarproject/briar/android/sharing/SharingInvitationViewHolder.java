@@ -13,6 +13,8 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
+
 class SharingInvitationViewHolder
 		extends InvitationViewHolder<SharingInvitationItem> {
 
@@ -28,7 +30,7 @@ class SharingInvitationViewHolder
 
 		Collection<String> names = new ArrayList<>();
 		for (Contact c : item.getNewSharers())
-			names.add(c.getAuthor().getName());
+			names.add(getContactDisplayName(c));
 		sharedBy.setText(
 				sharedBy.getContext().getString(R.string.shared_by_format,
 						StringUtils.join(names, ", ")));
