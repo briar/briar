@@ -44,7 +44,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 import androidx.core.content.ContextCompat;
-import androidx.core.text.TextUtilsCompat;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.Preference.OnPreferenceChangeListener;
@@ -70,7 +69,6 @@ import static android.provider.Settings.EXTRA_APP_PACKAGE;
 import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.widget.Toast.LENGTH_SHORT;
-import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -296,10 +294,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Locale locale = Localizer.getLocaleFromTag(tag);
 			if (locale == null)
 				throw new IllegalStateException();
-			// Exclude RTL locales on API < 17, they won't be laid out correctly
-			if (SDK_INT < 17 && !isLeftToRight(locale)) {
+			// Check if the locale is supported on this device
+			if (!Localizer.isLocaleSupported(locale)) {
 				if (LOG.isLoggable(INFO))
-					LOG.info("Skipping RTL locale " + tag);
+					LOG.info("Skipping unsupported locale " + tag);
 				continue;
 			}
 			String nativeName = locale.getDisplayName(locale);
@@ -319,13 +317,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		language.setEntryValues(entryValues.toArray(new CharSequence[0]));
 	}
 
-	private boolean isLeftToRight(Locale locale) {
-		// TextUtilsCompat returns the wrong direction for Hebrew on some phones
-		String language = locale.getLanguage();
-		if (language.equals("iw") || language.equals("he")) return false;
-		int direction = TextUtilsCompat.getLayoutDirectionFromLocale(locale);
-		return direction == LAYOUT_DIRECTION_LTR;
-	}
 
 	private void setTorNetworkSummary(int torNetworkSetting) {
 		if (torNetworkSetting != PREF_TOR_NETWORK_AUTOMATIC) {

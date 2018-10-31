@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
+import android.support.v4.text.TextUtilsCompat;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -12,6 +13,7 @@ import java.util.Locale;
 import javax.annotation.Nullable;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
 
 @NotNullByDefault
@@ -91,6 +93,7 @@ public class Localizer {
 
 	private void setLocaleAndSystemConfiguration() {
 		Locale.setDefault(locale);
+		if (SDK_INT >= 23) return;
 		Configuration systemConfiguration =
 				Resources.getSystem().getConfiguration();
 		updateConfiguration(systemConfiguration, locale);
@@ -98,4 +101,27 @@ public class Localizer {
 		Resources.getSystem().updateConfiguration(systemConfiguration,
 				Resources.getSystem().getDisplayMetrics());
 	}
+
+	// Indicates whether the language represented by locale
+	// should be offered to the user on this device.
+	// * Android doesn't pick up Asturian on API < 21
+	// * Android can't render Devanagari characters on API 15.
+	// * RTL languages are supported since API >= 17
+	public static boolean isLocaleSupported(Locale locale) {
+		if (SDK_INT >= 21) return true;
+		if (locale.getLanguage().equals("ast")) return false;
+		if (SDK_INT == 15 && locale.getLanguage().equals("hi")) return false;
+		if (SDK_INT >= 17) return true;
+		return isLeftToRight(locale);
+	}
+
+	// Exclude RTL locales on API < 17, they won't be laid out correctly
+	private static boolean isLeftToRight(Locale locale) {
+		// TextUtilsCompat returns the wrong direction for Hebrew on some phones
+		String language = locale.getLanguage();
+		if (language.equals("iw") || language.equals("he")) return false;
+		int direction = TextUtilsCompat.getLayoutDirectionFromLocale(locale);
+		return direction == LAYOUT_DIRECTION_LTR;
+	}
+
 }
