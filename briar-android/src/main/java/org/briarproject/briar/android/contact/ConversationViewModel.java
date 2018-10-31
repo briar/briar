@@ -77,7 +77,6 @@ public class ConversationViewModel extends AndroidViewModel {
 			try {
 				contactManager.setContactAlias(contactId,
 						alias.isEmpty() ? null : alias);
-				// TODO also reload the conversation
 				loadContact(contactId);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);

@@ -203,6 +203,7 @@ public class ConversationActivity extends BriarActivity
 			if (deleted) finish();
 		});
 		viewModel.loadContact(contactId);
+		viewModel.getContactDisplayName().observe(this, name -> loadMessages());
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
@@ -243,8 +244,8 @@ public class ConversationActivity extends BriarActivity
 		notificationManager.blockContactNotification(contactId);
 		notificationManager.clearContactNotification(contactId);
 		displayContactOnlineStatus();
-		observeOnce(viewModel.getContactDisplayName(), this,
-				name -> loadMessages());
+		if (viewModel.getContactDisplayName().getValue() != null)
+			loadMessages();
 		list.startPeriodicUpdate();
 	}
 
