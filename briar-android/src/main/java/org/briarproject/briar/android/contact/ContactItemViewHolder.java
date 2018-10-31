@@ -16,6 +16,8 @@ import javax.annotation.Nullable;
 
 import im.delight.android.identicons.IdenticonDrawable;
 
+import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
+
 @UiThread
 @NotNullByDefault
 public class ContactItemViewHolder<I extends ContactItem>
@@ -41,8 +43,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 		Author author = item.getContact().getAuthor();
 		avatar.setImageDrawable(
 				new IdenticonDrawable(author.getId().getBytes()));
-		String contactName = author.getName();
-		name.setText(contactName);
+		name.setText(getContactDisplayName(item.getContact()));
 
 		if (bulb != null) {
 			// online/offline
