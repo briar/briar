@@ -141,7 +141,7 @@ public class UiUtils {
 	}
 
 	public static Spanned getSpanned(@Nullable String s) {
-		// TODO move to HtmlCompat
+		// TODO move to HtmlCompat #1435
 		// https://commonsware.com/blog/2018/05/29/at-last-htmlcompat.html
 		return Html.fromHtml(s);
 	}

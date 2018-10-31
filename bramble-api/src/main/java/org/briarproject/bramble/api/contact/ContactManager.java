@@ -99,6 +99,12 @@ public interface ContactManager {
 	/**
 	 * Sets an alias name for the contact or unsets it if alias is null.
 	 */
+	void setContactAlias(Transaction txn, ContactId c, @Nullable String alias)
+			throws DbException;
+
+	/**
+	 * Sets an alias name for the contact or unsets it if alias is null.
+	 */
 	void setContactAlias(ContactId c, @Nullable String alias)
 			throws DbException;
 

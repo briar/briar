@@ -421,19 +421,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				if (ss == null) throw new AssertionError();
 				MessageType type = meta.getMessageType();
 				if (type == REQUEST) {
-					messages.add(
-							parseInvitationRequest(txn, contactGroupId, m,
-									meta, status, ss.bdfSession, authorInfos));
+					messages.add(parseInvitationRequest(txn, contactGroupId, m,
+							meta, status, ss.bdfSession, authorInfos));
 				} else if (type == ACCEPT) {
-					messages.add(
-							parseInvitationResponse(txn, contactGroupId, m,
-									meta, status, ss.bdfSession, authorInfos,
-									true));
+					messages.add(parseInvitationResponse(txn, contactGroupId, m,
+							meta, status, ss.bdfSession, authorInfos, true));
 				} else if (type == DECLINE) {
-					messages.add(
-							parseInvitationResponse(txn, contactGroupId, m,
-									meta, status, ss.bdfSession, authorInfos,
-									false));
+					messages.add(parseInvitationResponse(txn, contactGroupId, m,
+							meta, status, ss.bdfSession, authorInfos, false));
 				}
 			}
 			return messages;

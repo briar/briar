@@ -163,14 +163,20 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void setContactAlias(ContactId c, @Nullable String alias)
-			throws DbException {
+	public void setContactAlias(Transaction txn, ContactId c,
+			@Nullable String alias) throws DbException {
 		if (alias != null) {
 			int aliasLength = toUtf8(alias).length;
 			if (aliasLength == 0 || aliasLength > MAX_AUTHOR_NAME_LENGTH)
 				throw new IllegalArgumentException();
 		}
-		db.transaction(false, txn -> db.setContactAlias(txn, c, alias));
+		db.setContactAlias(txn, c, alias);
+	}
+
+	@Override
+	public void setContactAlias(ContactId c, @Nullable String alias)
+			throws DbException {
+		db.transaction(false, txn -> setContactAlias(txn, c, alias));
 	}
 
 	@Override

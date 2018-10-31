@@ -10,7 +10,6 @@ import org.briarproject.briar.android.threaded.BaseThreadItemViewHolder;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
-import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
 @NotNullByDefault
@@ -37,8 +36,7 @@ class JoinMessageItemViewHolder
 		if (item.isInitial()) {
 			textView.setText(R.string.groups_member_created_you);
 		} else {
-			String name = getContactDisplayName(item.getAuthor(),
-					item.getAuthorInfo().getAlias());
+			String name = item.getAuthorName();
 			textView.setText(getContext()
 					.getString(R.string.groups_member_joined, name));
 		}
@@ -46,8 +44,7 @@ class JoinMessageItemViewHolder
 
 	private void bind(JoinMessageItem item) {
 		Context ctx = getContext();
-		String name = getContactDisplayName(item.getAuthor(),
-				item.getAuthorInfo().getAlias());
+		String name = item.getAuthorName();
 
 		if (item.isInitial()) {
 			textView.setText(
