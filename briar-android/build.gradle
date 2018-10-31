@@ -117,7 +117,7 @@ dependencies {
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.12.4'
 	implementation 'com.vanniktech:emoji-google:0.5.1'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.19'
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
@@ -137,7 +137,7 @@ dependencies {
 	androidTestImplementation "com.android.support.test.espresso:espresso-core:$espressoVersion"
 	androidTestImplementation "com.android.support.test.espresso:espresso-contrib:$espressoVersion"
 	androidTestImplementation "com.android.support.test.espresso:espresso-intents:$espressoVersion"
-	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.0.2"
+	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.19"
 	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
 	androidTestImplementation 'junit:junit:4.12'
 	androidTestScreenshotImplementation "tools.fastlane:screengrab:1.2.0"
