@@ -1,23 +1,18 @@
 package org.briarproject.briar.android.contact;
 
 import android.arch.lifecycle.ViewModelProviders;
-import android.graphics.Point;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatDialogFragment;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.R;
-
-import static android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 
 public class AliasDialogFragment extends AppCompatDialogFragment {
 
@@ -77,19 +72,4 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 		return v;
 	}
-
-	@Override
-	public void onResume() {
-		Window window = getDialog().getWindow();
-		if (window == null) {
-			super.onResume();
-			return;
-		}
-		Point size = new Point();
-		Display display = window.getWindowManager().getDefaultDisplay();
-		display.getSize(size);
-		window.setLayout((int) (size.x * 0.75), WRAP_CONTENT);
-		super.onResume();
-	}
-
 }
