@@ -319,18 +319,17 @@ public class UiUtils {
 	}
 
 	/**
-	 * Observes the given {@link LiveData<T>} until the first change.
-	 * If the LiveData's value is available,
-	 * the {@link Runnable<T>} will be executed right away.
+	 * Observes the given {@link LiveData} until the first change.
+	 * If the LiveData's value is available, the {@link Observer} will be
+	 * called right away.
 	 */
 	@MainThread
 	public static <T> void observeOnce(LiveData<T> liveData,
-			LifecycleOwner owner,
-			Runnable<T> function) {
+			LifecycleOwner owner, Observer<T> observer) {
 		liveData.observe(owner, new Observer<T>() {
 			@Override
 			public void onChanged(@Nullable T t) {
-				function.run(t);
+				observer.onChanged(t);
 				liveData.removeObserver(this);
 			}
 		});
