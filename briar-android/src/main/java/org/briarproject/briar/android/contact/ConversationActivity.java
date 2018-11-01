@@ -589,9 +589,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void enableAliasActionIfAvailable(MenuItem item) {
-		observeOnce(viewModel.getContact(), this, c -> {
-			item.setEnabled(true);
-		});
+		observeOnce(viewModel.getContact(), this, c -> item.setEnabled(true));
 	}
 
 	private void enableIntroductionAction(MenuItem item) {
