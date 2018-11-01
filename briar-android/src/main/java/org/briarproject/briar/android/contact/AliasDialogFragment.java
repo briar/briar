@@ -52,6 +52,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
 
+		if (getActivity() == null) return;
 		((BriarActivity) getActivity()).getActivityComponent().inject(this);
 		viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
 				.get(ConversationViewModel.class);
