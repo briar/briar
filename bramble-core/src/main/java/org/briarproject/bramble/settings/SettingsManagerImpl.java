@@ -23,8 +23,8 @@ class SettingsManagerImpl implements SettingsManager {
 
 	@Override
 	public Settings getSettings(String namespace) throws DbException {
-		return db.transactionWithResult(true,
-				txn -> db.getSettings(txn, namespace));
+		return db.transactionWithResult(true, txn ->
+				db.getSettings(txn, namespace));
 	}
 
 	@Override

@@ -137,8 +137,9 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = db0.transactionWithResult(true, txn -> groupInvitationManager0
-				.getMessageHeaders(txn, contactId1From0));
+		messages = db0.transactionWithResult(true, txn ->
+				groupInvitationManager0
+						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
@@ -191,8 +192,9 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = db1.transactionWithResult(true, txn -> groupInvitationManager0
-				.getMessageHeaders(txn, contactId1From0));
+		messages = db1.transactionWithResult(true, txn ->
+				groupInvitationManager0
+						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
@@ -227,10 +229,9 @@ public class GroupInvitationIntegrationTest
 		// 1 has one unread message
 		Group g0 = groupInvitationManager1.getContactGroup(contact0From1);
 		assertGroupCount(messageTracker1, g0.getId(), 1, 1, timestamp);
-		ConversationMessageHeader m = db1.transactionWithResult(true,
-				txn -> groupInvitationManager1
-						.getMessageHeaders(txn, contactId0From1).iterator()
-						.next());
+		ConversationMessageHeader m = db1.transactionWithResult(true, txn ->
+				groupInvitationManager1.getMessageHeaders(txn, contactId0From1)
+						.iterator().next());
 
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);

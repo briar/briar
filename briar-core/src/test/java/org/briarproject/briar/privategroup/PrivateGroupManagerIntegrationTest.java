@@ -497,8 +497,8 @@ public class PrivateGroupManagerIntegrationTest
 		assertFalse(groupManager1.isDissolved(groupId0));
 
 		// creator dissolves group
-		db1.transaction(false,
-				txn -> groupManager1.markGroupDissolved(txn, groupId0));
+		db1.transaction(false, txn ->
+				groupManager1.markGroupDissolved(txn, groupId0));
 
 		// group is dissolved now
 		assertTrue(groupManager1.isDissolved(groupId0));

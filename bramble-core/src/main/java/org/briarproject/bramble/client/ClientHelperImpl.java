@@ -144,8 +144,8 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public BdfDictionary getMessageMetadataAsDictionary(MessageId m)
 			throws DbException, FormatException {
-		return db.transactionWithResult(true,
-				txn -> getMessageMetadataAsDictionary(txn, m));
+		return db.transactionWithResult(true, txn ->
+				getMessageMetadataAsDictionary(txn, m));
 	}
 
 	@Override
@@ -158,8 +158,8 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
 			GroupId g) throws DbException, FormatException {
-		return db.transactionWithResult(true,
-				txn -> getMessageMetadataAsDictionary(txn, g));
+		return db.transactionWithResult(true, txn ->
+				getMessageMetadataAsDictionary(txn, g));
 	}
 
 	@Override
@@ -176,8 +176,8 @@ class ClientHelperImpl implements ClientHelper {
 	public Map<MessageId, BdfDictionary> getMessageMetadataAsDictionary(
 			GroupId g, BdfDictionary query) throws DbException,
 			FormatException {
-		return db.transactionWithResult(true,
-				txn -> getMessageMetadataAsDictionary(txn, g, query));
+		return db.transactionWithResult(true, txn ->
+				getMessageMetadataAsDictionary(txn, g, query));
 	}
 
 	@Override

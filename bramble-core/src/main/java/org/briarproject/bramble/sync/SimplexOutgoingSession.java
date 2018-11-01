@@ -129,8 +129,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Maybe<Ack> a = db.transactionWithResult(false,
-						txn -> new Maybe<>(db.generateAck(txn, contactId,
+				Maybe<Ack> a = db.transactionWithResult(false, txn ->
+						new Maybe<>(db.generateAck(txn, contactId,
 								MAX_MESSAGE_IDS)));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + a.isPresent());

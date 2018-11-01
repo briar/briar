@@ -230,8 +230,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			if (!generateAckQueued.getAndSet(false)) throw new AssertionError();
 			try {
-				Maybe<Ack> a = db.transactionWithResult(false,
-						txn -> new Maybe<>(db.generateAck(txn, contactId,
+				Maybe<Ack> a = db.transactionWithResult(false, txn ->
+						new Maybe<>(db.generateAck(txn, contactId,
 								MAX_MESSAGE_IDS)));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + a.isPresent());
@@ -357,8 +357,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateRequestQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Maybe<Request> r = db.transactionWithResult(false,
-						txn -> new Maybe<>(db.generateRequest(txn, contactId,
+				Maybe<Request> r = db.transactionWithResult(false, txn ->
+						new Maybe<>(db.generateRequest(txn, contactId,
 								MAX_MESSAGE_IDS)));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated request: " + r.isPresent());

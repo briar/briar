@@ -434,8 +434,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void loadGroupAndValidate(Message m) {
 		try {
-			Group g = db.transactionWithResult(true,
-					txn -> db.getGroup(txn, m.getGroupId()));
+			Group g = db.transactionWithResult(true, txn ->
+					db.getGroup(txn, m.getGroupId()));
 			validateMessageAsync(m, g);
 		} catch (NoSuchGroupException e) {
 			LOG.info("Group removed before validation");

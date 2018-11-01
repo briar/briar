@@ -79,8 +79,8 @@ class ContactManagerImpl implements ContactManager {
 	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
 			long timestamp, boolean alice, boolean verified, boolean active)
 			throws DbException {
-		return db.transactionWithResult(false,
-				txn -> addContact(txn, remote, local, master, timestamp, alice,
+		return db.transactionWithResult(false, txn ->
+				addContact(txn, remote, local, master, timestamp, alice,
 						verified, active));
 	}
 
@@ -92,8 +92,8 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException {
-		return db.transactionWithResult(true,
-				txn -> getContact(txn, remoteAuthorId, localAuthorId));
+		return db.transactionWithResult(true, txn ->
+				getContact(txn, remoteAuthorId, localAuthorId));
 	}
 
 	@Override
@@ -155,8 +155,8 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public boolean contactExists(AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException {
-		return db.transactionWithResult(true,
-				txn -> contactExists(txn, remoteAuthorId, localAuthorId));
+		return db.transactionWithResult(true, txn ->
+				contactExists(txn, remoteAuthorId, localAuthorId));
 	}
 
 	@Override

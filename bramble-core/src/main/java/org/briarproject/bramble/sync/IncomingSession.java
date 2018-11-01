@@ -119,8 +119,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				db.transaction(false,
-						txn -> db.receiveAck(txn, contactId, ack));
+				db.transaction(false, txn ->
+						db.receiveAck(txn, contactId, ack));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -140,8 +140,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				db.transaction(false,
-						txn -> db.receiveMessage(txn, contactId, message));
+				db.transaction(false, txn ->
+						db.receiveMessage(txn, contactId, message));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -161,8 +161,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				db.transaction(false,
-						txn -> db.receiveOffer(txn, contactId, offer));
+				db.transaction(false, txn ->
+						db.receiveOffer(txn, contactId, offer));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -182,8 +182,8 @@ class IncomingSession implements SyncSession, EventListener {
 		@Override
 		public void run() {
 			try {
-				db.transaction(false,
-						txn -> db.receiveRequest(txn, contactId, request));
+				db.transaction(false, txn ->
+						db.receiveRequest(txn, contactId, request));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();

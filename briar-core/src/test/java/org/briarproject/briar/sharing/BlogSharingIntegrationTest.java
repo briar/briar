@@ -242,8 +242,8 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, db0.transactionWithResult(true,
-				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+		assertEquals(2, db0.transactionWithResult(true, txn ->
+				blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can not be shared again
 		assertFalse(blogSharingManager0.canBeShared(rssBlog.getId(),
@@ -304,8 +304,8 @@ public class BlogSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, db0.transactionWithResult(true,
-				txn -> blogSharingManager0.getMessageHeaders(txn, contactId1From0))
+		assertEquals(2, db0.transactionWithResult(true, txn ->
+				blogSharingManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		// blog can be shared again
 		assertTrue(

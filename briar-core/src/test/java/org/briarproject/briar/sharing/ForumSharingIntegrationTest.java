@@ -152,7 +152,8 @@ public class ForumSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2, db0.transactionWithResult(true, txn ->
-				forumSharingManager0.getMessageHeaders(txn, contactId1From0)).size());
+				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
+				.size());
 		// forum can not be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertFalse(forumSharingManager0.canBeShared(forum0.getId(), c1));
@@ -209,7 +210,8 @@ public class ForumSharingIntegrationTest
 		}
 		// sharer has own invitation message and response
 		assertEquals(2, db0.transactionWithResult(true, txn ->
-				forumSharingManager0.getMessageHeaders(txn, contactId1From0)).size());
+				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
+				.size());
 		// forum can be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertTrue(forumSharingManager0.canBeShared(forum0.getId(), c1));
@@ -736,8 +738,9 @@ public class ForumSharingIntegrationTest
 
 		// get invitation MessageId for later
 		MessageId invitationId = null;
-		Collection<ConversationMessageHeader> list = db1.transactionWithResult(true,
-				txn -> forumSharingManager1.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> list =
+				db1.transactionWithResult(true, txn -> forumSharingManager1
+						.getMessageHeaders(txn, contactId0From1));
 		for (ConversationMessageHeader m : list) {
 			if (m instanceof ForumInvitationRequest) {
 				invitationId = m.getId();

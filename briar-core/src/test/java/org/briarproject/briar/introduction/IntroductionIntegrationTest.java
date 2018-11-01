@@ -303,17 +303,17 @@ public class IntroductionIntegrationTest
 						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
-		messages = db0.transactionWithResult(true,
-				txn -> introductionManager0.getMessageHeaders(txn, contactId2From0));
+		messages = db0.transactionWithResult(true, txn ->
+				introductionManager0.getMessageHeaders(txn, contactId2From0));
 		assertEquals(2, messages.size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-		messages = db1.transactionWithResult(true,
-				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1));
+		messages = db1.transactionWithResult(true, txn ->
+				introductionManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 		// introducee2 should also have the decline response of introducee1
-		messages = db2.transactionWithResult(true,
-				txn -> introductionManager2.getMessageHeaders(txn, contactId0From2));
+		messages = db2.transactionWithResult(true, txn ->
+				introductionManager2.getMessageHeaders(txn, contactId0From2));
 		assertEquals(3, messages.size());
 		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
@@ -368,17 +368,14 @@ public class IntroductionIntegrationTest
 				db0.transactionWithResult(true, txn -> introductionManager0
 						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
-		messages = db0.transactionWithResult(true,
-				txn -> introductionManager0
-						.getMessageHeaders(txn, contactId2From0));
+		messages = db0.transactionWithResult(true, txn ->
+				introductionManager0.getMessageHeaders(txn, contactId2From0));
 		assertEquals(2, messages.size());
-		messages = db1.transactionWithResult(true,
-				txn -> introductionManager1
-						.getMessageHeaders(txn, contactId0From1));
+		messages = db1.transactionWithResult(true, txn ->
+				introductionManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(3, messages.size());
-		messages = db2.transactionWithResult(true,
-				txn -> introductionManager2
-						.getMessageHeaders(txn, contactId0From2));
+		messages = db2.transactionWithResult(true, txn ->
+				introductionManager2.getMessageHeaders(txn, contactId0From2));
 		assertEquals(3, messages.size());
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
@@ -525,20 +522,20 @@ public class IntroductionIntegrationTest
 
 		Group g1 = introductionManager0.getContactGroup(introducee1);
 		Group g2 = introductionManager0.getContactGroup(introducee2);
-		assertEquals(2, db0.transactionWithResult(true,
-				txn -> introductionManager0.getMessageHeaders(txn, contactId1From0))
+		assertEquals(2, db0.transactionWithResult(true, txn ->
+				introductionManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
-		assertEquals(2, db0.transactionWithResult(true,
-				txn -> introductionManager0.getMessageHeaders(txn, contactId2From0))
+		assertEquals(2, db0.transactionWithResult(true, txn ->
+				introductionManager0.getMessageHeaders(txn, contactId2From0))
 				.size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-		assertEquals(3, db1.transactionWithResult(true,
-				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1))
+		assertEquals(3, db1.transactionWithResult(true, txn ->
+				introductionManager1.getMessageHeaders(txn, contactId0From1))
 				.size());
 		assertGroupCount(messageTracker1, g1.getId(), 3, 2);
-		assertEquals(3, db2.transactionWithResult(true,
-				txn -> introductionManager2.getMessageHeaders(txn, contactId0From2))
+		assertEquals(3, db2.transactionWithResult(true, txn ->
+				introductionManager2.getMessageHeaders(txn, contactId0From2))
 				.size());
 		assertGroupCount(messageTracker2, g2.getId(), 3, 2);
 
@@ -563,8 +560,8 @@ public class IntroductionIntegrationTest
 		assertFalse(listener1.requestReceived);
 
 		// make really sure we don't have that request
-		assertTrue(db1.transactionWithResult(true,
-				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1))
+		assertTrue(db1.transactionWithResult(true, txn ->
+				introductionManager1.getMessageHeaders(txn, contactId0From1))
 				.isEmpty());
 
 		// The message was invalid, so no abort message was sent
@@ -1104,23 +1101,23 @@ public class IntroductionIntegrationTest
 
 	private void assertDefaultUiMessages() throws DbException {
 		Collection<ConversationMessageHeader> messages =
-				db0.transactionWithResult(true, txn -> introductionManager0
-						.getMessageHeaders(txn, contactId1From0));
+				db0.transactionWithResult(true, txn ->
+						introductionManager0.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = db0.transactionWithResult(true, txn -> introductionManager0
-				.getMessageHeaders(txn, contactId2From0));
+		messages = db0.transactionWithResult(true, txn ->
+				introductionManager0.getMessageHeaders(txn, contactId2From0));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = db1.transactionWithResult(true, txn -> introductionManager1
-				.getMessageHeaders(txn, contactId0From1));
+		messages = db1.transactionWithResult(true, txn ->
+				introductionManager1.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = db2.transactionWithResult(true, txn -> introductionManager2
-				.getMessageHeaders(txn, contactId0From2));
+		messages = db2.transactionWithResult(true, txn ->
+				introductionManager2.getMessageHeaders(txn, contactId0From2));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 	}
@@ -1303,8 +1300,9 @@ public class IntroductionIntegrationTest
 	private IntroductionRequest getIntroductionRequest(DatabaseComponent db,
 			IntroductionManager manager, ContactId contactId)
 			throws DbException {
-		Collection<ConversationMessageHeader> messages = db.transactionWithResult(
-				true, txn -> manager.getMessageHeaders(txn, contactId));
+		Collection<ConversationMessageHeader> messages =
+				db.transactionWithResult(true, txn ->
+						manager.getMessageHeaders(txn, contactId));
 		for (ConversationMessageHeader im : messages) {
 			if (im instanceof IntroductionRequest) {
 				return (IntroductionRequest) im;
