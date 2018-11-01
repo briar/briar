@@ -5,7 +5,7 @@ targetCompatibility = 1.8
 apply plugin: 'idea'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
-apply from: '../gradle/dagger.gradle'
+apply from: '../dagger.gradle'
 
 configurations {
 	tor

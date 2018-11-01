@@ -6,7 +6,7 @@ apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'idea'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
-apply from: '../gradle/dagger.gradle'
+apply from: '../dagger.gradle'
 
 dependencies {
 	implementation project(path: ':bramble-api', configuration: 'default')
