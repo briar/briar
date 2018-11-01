@@ -1,0 +1,14 @@
+sourceSets.configureEach { sourceSet ->
+	tasks.named(sourceSet.compileJavaTaskName).configure {
+		options.annotationProcessorGeneratedSourcesDirectory = file("$buildDir/generated/source/apt/${sourceSet.name}")
+	}
+}
+
+idea {
+	module {
+		sourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
+		generatedSourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
+		testSourceDirs += compileTestJava.options.annotationProcessorGeneratedSourcesDirectory
+		generatedSourceDirs += compileTestJava.options.annotationProcessorGeneratedSourcesDirectory
+	}
+}

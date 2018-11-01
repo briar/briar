@@ -2,7 +2,7 @@ dependencyVerification {
     verify = [
         'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
         'com.google.code.findbugs:jsr305:3.0.2:jsr305-3.0.2.jar:766ad2a0783f2687962c8ad74ceecc38a28b9f72a2d085ee438b7813e928d0c7',
-        'com.google.dagger:dagger:2.0.2:dagger-2.0.2.jar:84c0282ed8be73a29e0475d639da030b55dee72369e58dd35ae7d4fe6243dcf9',
+        'com.google.dagger:dagger:2.19:dagger-2.19.jar:514b6f1e0727c6572e1d65cb27e4ae668b7aeaeb93a29515182965265b609939',
         'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
         'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
         'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',

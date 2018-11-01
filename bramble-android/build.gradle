@@ -31,7 +31,7 @@ dependencies {
 	tor 'org.briarproject:tor-android:0.3.4.8@zip'
 	tor 'org.briarproject:obfs4proxy-android:0.0.7@zip'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.0.2'
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.19'
 
 	compileOnly 'javax.annotation:jsr250-api:1.0'
 
