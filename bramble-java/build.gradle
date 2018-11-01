@@ -5,6 +5,7 @@ targetCompatibility = 1.8
 apply plugin: 'idea'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
+apply from: '../gradle/dagger.gradle'
 
 configurations {
 	tor
@@ -30,21 +31,6 @@ dependencies {
 	testImplementation "org.hamcrest:hamcrest-core:1.3"
 
 	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.19'
-}
-
-sourceSets.configureEach { sourceSet ->
-	tasks.named(sourceSet.compileJavaTaskName).configure {
-		options.annotationProcessorGeneratedSourcesDirectory = file("$buildDir/generated/source/apt/${sourceSet.name}")
-	}
-}
-
-idea {
-	module {
-		sourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
-		generatedSourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
-		testSourceDirs += compileTestJava.options.annotationProcessorGeneratedSourcesDirectory
-		generatedSourceDirs += compileTestJava.options.annotationProcessorGeneratedSourcesDirectory
-	}
 }
 
 def torBinariesDir = 'src/main/resources'

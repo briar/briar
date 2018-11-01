@@ -6,6 +6,7 @@ apply plugin: 'ru.vyarus.animalsniffer'
 apply plugin: 'idea'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
+apply from: '../gradle/dagger.gradle'
 
 dependencies {
 	implementation project(path: ':briar-api', configuration: 'default')
@@ -30,19 +31,4 @@ dependencies {
 	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.19'
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
-}
-
-sourceSets.configureEach { sourceSet ->
-	tasks.named(sourceSet.compileJavaTaskName).configure {
-		options.annotationProcessorGeneratedSourcesDirectory = file("$buildDir/generated/source/apt/${sourceSet.name}")
-	}
-}
-
-idea {
-	module {
-		sourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
-		generatedSourceDirs += compileJava.options.annotationProcessorGeneratedSourcesDirectory
-		testSourceDirs += compileTestJava.options.annotationProcessorGeneratedSourcesDirectory
-		generatedSourceDirs += compileTestJava.options.annotationProcessorGeneratedSourcesDirectory
-	}
 }
