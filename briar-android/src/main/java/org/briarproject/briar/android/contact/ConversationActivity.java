@@ -94,6 +94,7 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptSt
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -169,7 +170,6 @@ public class ConversationActivity extends BriarActivity
 	@Nullable
 	private volatile GroupId messagingGroupId;
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		setSceneTransitionAnimation();
@@ -193,13 +193,16 @@ public class ConversationActivity extends BriarActivity
 		toolbarTitle = toolbar.findViewById(R.id.contactName);
 
 		observeOnce(viewModel.getContactAuthorId(), this, authorId -> {
+			requireNonNull(authorId);
 			toolbarAvatar.setImageDrawable(
 					new IdenticonDrawable(authorId.getBytes()));
 		});
 		viewModel.getContactDisplayName().observe(this, contactName -> {
+			requireNonNull(contactName);
 			toolbarTitle.setText(contactName);
 		});
 		viewModel.isContactDeleted().observe(this, deleted -> {
+			requireNonNull(deleted);
 			if (deleted) finish();
 		});
 		viewModel.loadContact(contactId);
