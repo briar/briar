@@ -178,7 +178,7 @@ public class UiUtils {
 	 * <p>
 	 * Attention: This assumes that there's only <b>one</b> link in the text.
 	 */
-	public static void onSingleLinkClick(TextView textView, java.lang.Runnable runnable) {
+	public static void onSingleLinkClick(TextView textView, Runnable runnable) {
 		SpannableStringBuilder ssb =
 				new SpannableStringBuilder(textView.getText());
 		ClickableSpan[] spans =
