@@ -23,6 +23,8 @@
 		android:textColor="?android:attr/textColorPrimary"
 		app:layout_constraintBottom_toTopOf="@+id/time"
 		app:layout_constraintEnd_toEndOf="@+id/time"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:text="Short message"/>
 
@@ -33,6 +35,8 @@
 		android:layout_height="wrap_content"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="1.0"
+		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/text"
 		tools:text="Dec 24, 13:37"/>
 
