@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -36,6 +37,8 @@ public class ConversationViewModel extends AndroidViewModel {
 	private final Executor dbExecutor;
 	private final ContactManager contactManager;
 
+	@Nullable
+	private ContactId contactId = null;
 	private final MutableLiveData<Contact> contact = new MutableLiveData<>();
 	private final LiveData<AuthorId> contactAuthorId =
 			Transformations.map(contact, c -> c.getAuthor().getId());
@@ -54,7 +57,19 @@ public class ConversationViewModel extends AndroidViewModel {
 		contactDeleted.setValue(false);
 	}
 
-	void loadContact(ContactId contactId) {
+	void setContactId(ContactId contactId) {
+		if (this.contactId == null) {
+			this.contactId = contactId;
+			loadContact(contactId);
+		} else if (!contactId.equals(this.contactId)) {
+			throw new IllegalStateException();
+		}
+	}
+
+	private void loadContact(ContactId contactId) {
+		if (!contactId.equals(this.contactId)) {
+			throw new IllegalStateException();
+		}
 		dbExecutor.execute(() -> {
 			try {
 				long start = now();
@@ -69,6 +84,9 @@ public class ConversationViewModel extends AndroidViewModel {
 	}
 
 	void setContactAlias(ContactId contactId, String alias) {
+		if (!contactId.equals(this.contactId)) {
+			throw new IllegalStateException();
+		}
 		dbExecutor.execute(() -> {
 			try {
 				contactManager.setContactAlias(contactId,

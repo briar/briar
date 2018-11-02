@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
@@ -170,23 +171,29 @@ public class ConversationActivity extends BriarActivity
 	@Nullable
 	private volatile GroupId messagingGroupId;
 
+	private final Observer<String> contactNameObserver = name -> {
+		requireNonNull(name);
+		loadMessages();
+	};
+
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		setSceneTransitionAnimation();
 		super.onCreate(state);
-
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(ConversationViewModel.class);
 
 		Intent i = getIntent();
 		int id = i.getIntExtra(CONTACT_ID, -1);
 		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
 
+		viewModel = ViewModelProviders.of(this, viewModelFactory)
+				.get(ConversationViewModel.class);
+		viewModel.setContactId(contactId);
+
 		setContentView(R.layout.activity_conversation);
 
 		// Custom Toolbar
-		toolbar = setUpCustomToolbar(true);
+		toolbar = requireNonNull(setUpCustomToolbar(true));
 		if (toolbar == null) throw new AssertionError();
 		toolbarAvatar = toolbar.findViewById(R.id.contactAvatar);
 		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
@@ -205,8 +212,6 @@ public class ConversationActivity extends BriarActivity
 			requireNonNull(deleted);
 			if (deleted) finish();
 		});
-		viewModel.loadContact(contactId);
-		viewModel.getContactDisplayName().observe(this, name -> loadMessages());
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
@@ -247,8 +252,7 @@ public class ConversationActivity extends BriarActivity
 		notificationManager.blockContactNotification(contactId);
 		notificationManager.clearContactNotification(contactId);
 		displayContactOnlineStatus();
-		if (viewModel.getContactDisplayName().getValue() != null)
-			loadMessages();
+		viewModel.getContactDisplayName().observe(this, contactNameObserver);
 		list.startPeriodicUpdate();
 	}
 
@@ -257,6 +261,7 @@ public class ConversationActivity extends BriarActivity
 		super.onStop();
 		eventBus.removeListener(this);
 		notificationManager.unblockContactNotification(contactId);
+		viewModel.getContactDisplayName().removeObserver(contactNameObserver);
 		list.stopPeriodicUpdate();
 	}
 
