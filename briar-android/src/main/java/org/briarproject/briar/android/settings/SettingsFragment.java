@@ -300,13 +300,21 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					LOG.info("Skipping unsupported locale " + tag);
 				continue;
 			}
-			String nativeName = locale.getDisplayName(locale);
-			// Fallback to English if the name is unknown in both native and
-			// current locale.
-			if (nativeName.equals(tag)) {
-				String tmp = locale.getDisplayLanguage(Locale.ENGLISH);
-				if (!tmp.isEmpty() && !tmp.equals(nativeName))
-					nativeName = tmp;
+			String nativeName;
+			// Unsupported languages won't be translated to their native name.
+			if (locale.getLanguage().equals("ast")) {
+				nativeName = "Asturianu";
+			} else if (locale.getLanguage().equals("oc")) {
+				nativeName = "Occitan";
+			} else {
+				nativeName = locale.getDisplayName(locale);
+				// Fallback to English if the name is unknown in both native and
+				// current locale.
+				if (nativeName.equals(tag)) {
+					String tmp = locale.getDisplayLanguage(Locale.ENGLISH);
+					if (!tmp.isEmpty() && !tmp.equals(nativeName))
+						nativeName = tmp;
+				}
 			}
 			// Prefix with LRM marker to prevent any RTL direction
 			entries.add("\u200E" + nativeName.substring(0, 1).toUpperCase()
