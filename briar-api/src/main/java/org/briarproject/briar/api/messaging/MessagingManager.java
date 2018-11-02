@@ -46,4 +46,9 @@ public interface MessagingManager extends ConversationClient {
 	 */
 	String getMessageText(MessageId m) throws DbException;
 
+	/**
+	 * Returns the attachment with the given ID.
+	 */
+	Attachment getAttachment(MessageId m) throws DbException;
+
 }
