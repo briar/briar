@@ -309,6 +309,11 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	protected void addContacts1And2() throws Exception {
+		addContacts1And2(false);
+	}
+
+	protected void addContacts1And2(boolean haveTransportProperties)
+			throws Exception {
 		contactId2From1 = contactManager1
 				.addContact(author2, author1.getId(), getSecretKey(),
 						clock.currentTimeMillis(), true, true, true);
@@ -319,7 +324,10 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// Sync initial client versioning updates
 		sync1To2(1, true);
 		sync2To1(1, true);
-		sync1To2(1, true);
+		sync1To2(haveTransportProperties ? 2 : 1, true);
+		if (haveTransportProperties) {
+			sync2To1(1, true);
+		}
 	}
 
 	@After

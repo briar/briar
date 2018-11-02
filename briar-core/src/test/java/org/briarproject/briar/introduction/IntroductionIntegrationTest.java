@@ -595,7 +595,7 @@ public class IntroductionIntegrationTest
 	@Test
 	public void testIntroductionToExistingContact() throws Exception {
 		// let contact1 and contact2 add each other already
-		addContacts1And2();
+		addContacts1And2(true);
 		assertNotNull(contactId2From1);
 		assertNotNull(contactId1From2);
 
@@ -650,7 +650,7 @@ public class IntroductionIntegrationTest
 	@Test
 	public void testIntroductionToRemovedContact() throws Exception {
 		// let contact1 and contact2 add each other
-		addContacts1And2();
+		addContacts1And2(true);
 		assertNotNull(contactId2From1);
 		assertNotNull(contactId1From2);
 
