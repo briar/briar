@@ -61,6 +61,7 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -76,6 +77,7 @@ import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -86,6 +88,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarIntegrationTest.class.getName());
+	private static final boolean DEBUG = false;
 
 	@Nullable
 	protected ContactId contactId1From2, contactId2From1;
@@ -135,6 +138,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	protected C c0, c1, c2;
 
 	private final Semaphore messageSemaphore = new Semaphore(0);
+	private final AtomicInteger messageCounter = new AtomicInteger(0);
 	private final File testDir = TestUtils.getTestDirectory();
 	private final String AUTHOR0 = "Author 0";
 	private final String AUTHOR1 = "Author 1";
@@ -237,12 +241,14 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 					if (event.getState() == DELIVERED) {
 						LOG.info("Delivered new message "
 								+ event.getMessageId());
+						messageCounter.addAndGet(1);
 						loadAndLogMessage(event.getMessageId());
 						deliveryWaiter.resume();
 					} else if (event.getState() == INVALID ||
 							event.getState() == PENDING) {
 						LOG.info("Validated new " + event.getState().name() +
 								" message " + event.getMessageId());
+						messageCounter.addAndGet(1);
 						loadAndLogMessage(event.getMessageId());
 						validationWaiter.resume();
 					}
@@ -252,12 +258,14 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 		private void loadAndLogMessage(MessageId id) {
 			executor.execute(() -> {
-				try {
-					BdfList body = clientHelper.getMessageAsList(id);
-					LOG.info("Contents of " + id + ":\n"
-							+ BdfStringUtils.toString(body));
-				} catch (DbException | FormatException e) {
-					logException(LOG, WARNING, e);
+				if (DEBUG) {
+					try {
+						BdfList body = clientHelper.getMessageAsList(id);
+						LOG.info("Contents of " + id + ":\n"
+								+ BdfStringUtils.toString(body));
+					} catch (DbException | FormatException e) {
+						logException(LOG, WARNING, e);
+					}
 				}
 				messageSemaphore.release();
 			});
@@ -399,6 +407,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		} else {
 			validationWaiter.await(TIMEOUT, num);
 		}
+		assertEquals("Messages delivered", num, messageCounter.getAndSet(0));
 		try {
 			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
 		} catch (InterruptedException e) {
