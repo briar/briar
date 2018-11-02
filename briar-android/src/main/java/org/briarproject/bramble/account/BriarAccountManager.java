@@ -25,7 +25,7 @@ class BriarAccountManager extends AndroidAccountManager {
 	public void deleteAccount() {
 		synchronized (stateChangeLock) {
 			super.deleteAccount();
-			Localizer.reinitialize();
+			Localizer.reinitialize(appContext);
 			UiUtils.setTheme(appContext,
 					appContext.getString(R.string.pref_theme_light_value));
 		}

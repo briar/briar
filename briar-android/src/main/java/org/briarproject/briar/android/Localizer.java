@@ -44,9 +44,11 @@ public class Localizer {
 	}
 
 	// Reinstantiate the Localizer with the system locale
-	public static synchronized void reinitialize() {
-		if (INSTANCE != null)
+	public static synchronized void reinitialize(Context appContext) {
+		if (INSTANCE != null) {
 			INSTANCE = new Localizer(INSTANCE.systemLocale, null);
+			INSTANCE.forceLocale(appContext);
+		}
 	}
 
 	// Get the current instance.
@@ -82,6 +84,18 @@ public class Localizer {
 		// Use the old API on < 17
 		res.updateConfiguration(conf, res.getDisplayMetrics());
 		return context;
+	}
+
+	// Forces the update of the resources through the deprecated API.
+	// Necessary on API >= 17 to update the foreground notification if the
+	// account was deleted.
+	public void forceLocale(Context context) {
+		Resources res = context.getResources();
+		Configuration conf = res.getConfiguration();
+		updateConfiguration(conf, locale);
+		//noinspection deprecation
+		// Use the old API on < 17
+		res.updateConfiguration(conf, res.getDisplayMetrics());
 	}
 
 	private void updateConfiguration(Configuration conf, Locale locale) {
