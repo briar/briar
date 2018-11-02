@@ -5,7 +5,8 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="wrap_content">
+	android:layout_height="wrap_content"
+	android:background="@drawable/list_item_thread_background">
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/text"
@@ -24,8 +25,8 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/margin_medium"
-		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/text"
 		app:persona="commenter"/>
 
