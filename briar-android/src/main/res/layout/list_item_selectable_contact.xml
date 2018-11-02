@@ -35,6 +35,7 @@
 		app:layout_constraintStart_toEndOf="@+id/avatarView"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_chainStyle="packed"
+		app:layout_goneMarginBottom="@dimen/listitem_horizontal_margin"
 		tools:text="This is a name of a contact with a long name"/>
 
 	<TextView
