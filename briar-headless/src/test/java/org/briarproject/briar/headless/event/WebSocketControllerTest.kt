@@ -21,7 +21,7 @@ internal class WebSocketControllerTest : ControllerTest() {
     private val controller = WebSocketControllerImpl(ImmediateExecutor())
 
     private val header =
-        PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true)
+        PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true, emptyList())
     private val event = PrivateMessageReceivedEvent(header, contact.id)
     private val outputEvent = OutputEvent(EVENT_PRIVATE_MESSAGE, event.output(text))
 

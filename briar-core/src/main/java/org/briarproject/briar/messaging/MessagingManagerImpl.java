@@ -37,6 +37,7 @@ import java.util.Map;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -114,8 +115,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 		long timestamp = meta.getLong("timestamp");
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
-		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), groupId, timestamp, local, read, false, false);
+		PrivateMessageHeader header =
+				new PrivateMessageHeader(m.getId(), groupId, timestamp, local,
+						read, false, false, emptyList());
 		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event =
 				new PrivateMessageReceivedEvent(header, contactId);
@@ -201,7 +203,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
 				headers.add(new PrivateMessageHeader(id, g, timestamp, local,
-						read, s.isSent(), s.isSeen()));
+						read, s.isSent(), s.isSeen(), emptyList()));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}

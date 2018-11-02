@@ -16,8 +16,11 @@ import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.client.SessionId
 import org.briarproject.briar.api.conversation.ConversationManager
 import org.briarproject.briar.api.introduction.IntroductionRequest
-import org.briarproject.briar.api.messaging.*
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
+import org.briarproject.briar.api.messaging.MessagingManager
+import org.briarproject.briar.api.messaging.PrivateMessage
+import org.briarproject.briar.api.messaging.PrivateMessageFactory
+import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.event.WebSocketController
@@ -47,7 +50,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     )
 
     private val header =
-        PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true)
+        PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true, emptyList())
     private val sessionId = SessionId(getRandomId())
     private val privateMessage = PrivateMessage(message)
 
@@ -76,10 +79,10 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
-    fun emptyList() {
+    fun testEmptyList() {
         every { ctx.pathParam("contactId") } returns contact.id.int.toString()
         every { contactManager.getContact(contact.id) } returns contact
-        every { conversationManager.getMessageHeaders(contact.id) } returns emptyList<PrivateMessageHeader>()
+        every { conversationManager.getMessageHeaders(contact.id) } returns emptyList()
         every { ctx.json(emptyList<Any>()) } returns ctx
 
         controller.list(ctx)

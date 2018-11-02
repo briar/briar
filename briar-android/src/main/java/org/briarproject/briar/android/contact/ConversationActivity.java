@@ -63,16 +63,16 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationRequest;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.conversation.ConversationRequest;
-import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
@@ -96,6 +96,7 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptSt
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -534,7 +535,8 @@ public class ConversationActivity extends BriarActivity
 				Message message = m.getMessage();
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, false, false, false);
+						message.getTimestamp(), true, false, false, false,
+						emptyList());
 				textCache.put(message.getId(), text);
 				addConversationItem(h.accept(visitor));
 			} catch (DbException e) {
