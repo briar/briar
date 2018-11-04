@@ -18,8 +18,7 @@ import org.briarproject.bramble.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -40,7 +39,7 @@ class RecentEmojiImpl implements RecentEmoji, Client {
 	private static final int EMOJI_LRU_SIZE = 50;
 
 	// UI thread
-	private final LinkedHashSet<Emoji> recentlyUsed = new LinkedHashSet<>();
+	private final LinkedList<Emoji> recentlyUsed = new LinkedList<>();
 
 	private final Executor dbExecutor;
 	private final AndroidExecutor androidExecutor;
@@ -62,13 +61,9 @@ class RecentEmojiImpl implements RecentEmoji, Client {
 	@Override
 	public void addEmoji(Emoji emoji) {
 		recentlyUsed.remove(emoji);
-		recentlyUsed.add(emoji);
+		recentlyUsed.add(0, emoji);
 
-		if (recentlyUsed.size() > EMOJI_LRU_SIZE) {
-			Iterator<Emoji> iterator = recentlyUsed.iterator();
-			iterator.next();
-			iterator.remove();
-		}
+		if (recentlyUsed.size() > EMOJI_LRU_SIZE) recentlyUsed.removeLast();
 	}
 
 	@Override
