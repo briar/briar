@@ -32,11 +32,11 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -44,7 +44,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -219,8 +219,18 @@ class MessagingManagerImpl extends ConversationClientImpl
 				long timestamp = meta.getLong("timestamp");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
+				// TODO replace fake attachments by real ones
+				int num = (int) (timestamp % 5);
+				boolean hasText = num == 0 || id.hashCode() % 2 == 0;
+				List<AttachmentHeader> attachments = new ArrayList<>(num);
+				for (int i = 0; i < num; i++) {
+					byte[] aIdBytes = id.getBytes().clone();
+					aIdBytes[0] = (byte) i;
+					MessageId aId = new MessageId(aIdBytes);
+					attachments.add(new AttachmentHeader(aId, "image/jpeg"));
+				}
 				headers.add(new PrivateMessageHeader(id, g, timestamp, local,
-						read, s.isSent(), s.isSeen(), true, emptyList()));
+						read, s.isSent(), s.isSeen(), hasText, attachments));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -241,11 +251,30 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public Attachment getAttachment(MessageId m) {
 		// TODO add real implementation
-		byte[] bytes = fromHexString("89504E470D0A1A0A0000000D49484452" +
-				"000000010000000108060000001F15C4" +
-				"890000000A49444154789C6300010000" +
-				"0500010D0A2DB40000000049454E44AE426082");
-		return new Attachment(new ByteArrayInputStream(bytes));
+		String[] files = new String[] {
+//				"error_animated.gif",
+//				"error_high.jpg",
+//				"error_wide.jpg",
+//				"error_huge.gif",
+//				"error_large.gif",
+//				"error_malformed.jpg",
+//				"wide.jpg",
+//				"high.jpg",
+//				"small.png",
+				"kitten1.jpg",
+				"kitten2.jpg",
+				"kitten3.gif",
+				"kitten4.jpg",
+				"kitten5.jpg",
+				"kitten6.png",
+		};
+		int index = Math.abs(m.hashCode() % files.length);
+		String file = files[index];
+		getLogger(MessagingManagerImpl.class.getName())
+				.warning("Loading file: " + file);
+
+		InputStream is = getClass().getClassLoader().getResourceAsStream(file);
+		return new Attachment(is);
 	}
 
 }
