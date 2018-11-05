@@ -7,7 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 
@@ -98,16 +100,16 @@ class ConversationAdapter
 		return messages;
 	}
 
-	SparseArray<ConversationMessageItem> getMessageItems() {
-		SparseArray<ConversationMessageItem> messages = new SparseArray<>();
-
+	@Nullable
+	Pair<Integer, ConversationMessageItem> getMessageItem(MessageId messageId) {
 		for (int i = 0; i < items.size(); i++) {
 			ConversationItem item = items.get(i);
-			if (item instanceof ConversationMessageItem) {
-				messages.put(i, (ConversationMessageItem) item);
+			if (item instanceof ConversationMessageItem &&
+					item.getId().equals(messageId)) {
+				return new Pair<>(i, (ConversationMessageItem) item);
 			}
 		}
-		return messages;
+		return null;
 	}
 
 }

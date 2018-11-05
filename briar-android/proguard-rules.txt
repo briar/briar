@@ -30,3 +30,6 @@
 
 # Emoji
 -keep class com.vanniktech.emoji.**
+
+# Glide
+-dontwarn com.bumptech.glide.load.engine.cache.DiskLruCacheWrapper

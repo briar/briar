@@ -1,0 +1,43 @@
+package org.briarproject.briar.android.conversation.glide;
+
+import android.content.Context;
+
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.GlideBuilder;
+import com.bumptech.glide.Registry;
+import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.module.AppGlideModule;
+
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.BriarApplication;
+import org.briarproject.briar.android.conversation.AttachmentItem;
+
+import java.io.InputStream;
+
+import static android.util.Log.DEBUG;
+import static android.util.Log.WARN;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
+
+@GlideModule
+@NotNullByDefault
+public final class BriarGlideModule extends AppGlideModule {
+
+	@Override
+	public void registerComponents(Context context, Glide glide,
+			Registry registry) {
+		BriarModelLoaderFactory factory =
+				new BriarModelLoaderFactory((BriarApplication) context);
+		registry.prepend(AttachmentItem.class, InputStream.class, factory);
+	}
+
+	@Override
+	public void applyOptions(Context context, GlideBuilder builder) {
+		builder.setLogLevel(IS_DEBUG_BUILD ? DEBUG : WARN);
+	}
+
+	@Override
+	public boolean isManifestParsingEnabled() {
+		return false;
+	}
+
+}

@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
@@ -51,6 +52,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
+import org.briarproject.briar.android.conversation.ConversationVisitor.AttachmentCache;
 import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
@@ -69,6 +71,8 @@ import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
+import org.briarproject.briar.api.messaging.Attachment;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -116,7 +120,7 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
 		implements EventListener, ConversationListener, TextInputListener,
-		TextCache {
+		TextCache, AttachmentCache {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -134,6 +138,7 @@ public class ConversationActivity extends BriarActivity
 	Executor cryptoExecutor;
 
 	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
+	private AttachmentController attachmentController;
 
 	private ConversationViewModel viewModel;
 	private ConversationVisitor visitor;
@@ -191,6 +196,7 @@ public class ConversationActivity extends BriarActivity
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(ConversationViewModel.class);
 		viewModel.setContactId(contactId);
+		attachmentController = viewModel.getAttachmentController();
 
 		setContentView(R.layout.activity_conversation);
 
@@ -217,7 +223,7 @@ public class ConversationActivity extends BriarActivity
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
 
-		visitor = new ConversationVisitor(this, this,
+		visitor = new ConversationVisitor(this, this, this,
 				viewModel.getContactDisplayName());
 		adapter = new ConversationAdapter(this, this);
 		list = findViewById(R.id.conversationView);
@@ -340,14 +346,30 @@ public class ConversationActivity extends BriarActivity
 					// If the latest header is a private message, eagerly load
 					// its text so we can set the scroll position correctly
 					ConversationMessageHeader latest = sorted.get(0);
-					if (latest instanceof PrivateMessageHeader &&
-							((PrivateMessageHeader) latest).hasText()) {
+					if (latest instanceof PrivateMessageHeader) {
 						MessageId id = latest.getId();
-						String text = textCache.get(id);
-						if (text == null) {
-							LOG.info("Eagerly loading text of latest message");
-							text = messagingManager.getMessageText(id);
-							textCache.put(id, text);
+						PrivateMessageHeader h = (PrivateMessageHeader) latest;
+						if (h.hasText()) {
+							String text = textCache.get(id);
+							if (text == null) {
+								LOG.info(
+										"Eagerly loading text of latest message");
+								text = messagingManager.getMessageText(id);
+								textCache.put(id, text);
+							}
+						}
+						if (!h.getAttachmentHeaders().isEmpty()) {
+							List<AttachmentItem> items =
+									attachmentController.get(id);
+							if (items == null) {
+								LOG.info(
+										"Eagerly loading image size for latest message");
+								items = attachmentController.getAttachmentItems(
+										attachmentController
+												.getMessageAttachments(
+														h.getAttachmentHeaders()));
+								attachmentController.put(id, items);
+							}
 						}
 					}
 				}
@@ -408,16 +430,40 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessageText(MessageId m, String text) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			textCache.put(m, text);
-			SparseArray<ConversationMessageItem> messages =
-					adapter.getMessageItems();
-			for (int i = 0; i < messages.size(); i++) {
-				ConversationItem item = messages.valueAt(i);
-				if (item.getId().equals(m)) {
-					item.setText(text);
-					adapter.notifyItemChanged(messages.keyAt(i));
-					list.scrollToPosition(adapter.getItemCount() - 1);
-					return;
-				}
+			Pair<Integer, ConversationMessageItem> pair =
+					adapter.getMessageItem(m);
+			if (pair != null) {
+				pair.getSecond().setText(text);
+				adapter.notifyItemChanged(pair.getFirst());
+				list.scrollToPosition(adapter.getItemCount() - 1);
+			}
+		});
+	}
+
+	private void loadMessageAttachments(MessageId messageId,
+			List<AttachmentHeader> headers) {
+		runOnDbThread(() -> {
+			try {
+				displayMessageAttachments(messageId,
+						attachmentController.getMessageAttachments(headers));
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	private void displayMessageAttachments(MessageId m,
+			List<Pair<AttachmentHeader, Attachment>> attachments) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			List<AttachmentItem> items =
+					attachmentController.getAttachmentItems(attachments);
+			attachmentController.put(m, items);
+			Pair<Integer, ConversationMessageItem> pair =
+					adapter.getMessageItem(m);
+			if (pair != null) {
+				pair.getSecond().setAttachments(items);
+				adapter.notifyItemChanged(pair.getFirst());
+				list.scrollToPosition(adapter.getItemCount() - 1);
 			}
 		});
 	}
@@ -781,5 +827,14 @@ public class ConversationActivity extends BriarActivity
 		String text = textCache.get(m);
 		if (text == null) loadMessageText(m);
 		return text;
+	}
+
+	@Nullable
+	@Override
+	public List<AttachmentItem> getAttachmentItems(MessageId m,
+			List<AttachmentHeader> headers) {
+		List<AttachmentItem> attachments = attachmentController.get(m);
+		if (attachments == null) loadMessageAttachments(m, headers);
+		return attachments;
 	}
 }
