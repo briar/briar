@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.contact;
+package org.briarproject.briar.android.conversation;
 
 import android.support.annotation.UiThread;
 import android.view.View;
@@ -6,7 +6,7 @@ import android.widget.Button;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
+import org.briarproject.briar.android.conversation.ConversationAdapter.ConversationListener;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

@@ -9,7 +9,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
-import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
+import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
 public class IntroductionActivity extends BriarActivity
 		implements BaseFragmentListener {

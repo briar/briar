@@ -30,7 +30,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
+import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
 public class ContactChooserFragment extends BaseFragment {
 

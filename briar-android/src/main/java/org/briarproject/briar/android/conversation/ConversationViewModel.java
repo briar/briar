@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.contact;
+package org.briarproject.briar.android.conversation;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;

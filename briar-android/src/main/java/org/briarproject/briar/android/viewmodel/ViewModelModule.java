@@ -3,7 +3,7 @@ package org.briarproject.briar.android.viewmodel;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
-import org.briarproject.briar.android.contact.ConversationViewModel;
+import org.briarproject.briar.android.conversation.ConversationViewModel;
 
 import javax.inject.Singleton;
 

@@ -31,6 +31,7 @@ import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
+import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
@@ -54,7 +55,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
+import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

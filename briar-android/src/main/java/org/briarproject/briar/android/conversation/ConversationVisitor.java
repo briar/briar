@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.contact;
+package org.briarproject.briar.android.conversation;
 
 import android.arch.lifecycle.LiveData;
 import android.content.Context;
@@ -20,10 +20,10 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRespons
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.BLOG;
-import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.FORUM;
-import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.GROUP;
-import static org.briarproject.briar.android.contact.ConversationRequestItem.RequestType.INTRODUCTION;
+import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.BLOG;
+import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.FORUM;
+import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.GROUP;
+import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.INTRODUCTION;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
