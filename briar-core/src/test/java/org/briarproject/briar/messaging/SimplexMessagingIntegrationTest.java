@@ -41,6 +41,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 
+import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
@@ -121,7 +122,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		PrivateMessageFactory privateMessageFactory =
 				device.getPrivateMessageFactory();
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, System.currentTimeMillis(), "Hi!");
+				groupId, System.currentTimeMillis(), "Hi!", emptyList());
 		messagingManager.addLocalMessage(message);
 	}
 

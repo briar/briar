@@ -110,7 +110,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
             privateMessageFactory.createPrivateMessage(
                 group.id,
                 timestamp,
-                text
+                text,
+                emptyList()
             )
         } returns privateMessage
         every { messagingManager.addLocalMessage(privateMessage) } just runs

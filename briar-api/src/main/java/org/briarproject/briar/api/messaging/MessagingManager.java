@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 
+import java.nio.ByteBuffer;
+
 @NotNullByDefault
 public interface MessagingManager extends ConversationClient {
 
@@ -30,6 +32,12 @@ public interface MessagingManager extends ConversationClient {
 	 * Stores a local private message.
 	 */
 	void addLocalMessage(PrivateMessage m) throws DbException;
+
+	/**
+	 * Stores a local attachment message.
+	 */
+	AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
+			String contentType, ByteBuffer data) throws DbException;
 
 	/**
 	 * Returns the ID of the contact with the given private conversation.

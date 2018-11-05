@@ -519,7 +519,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				//noinspection ConstantConditions init in loadGroupId()
 				storeMessage(privateMessageFactory.createPrivateMessage(
-						messagingGroupId, timestamp, text), text);
+						messagingGroupId, timestamp, text, emptyList()), text);
 			} catch (FormatException e) {
 				throw new RuntimeException(e);
 			}

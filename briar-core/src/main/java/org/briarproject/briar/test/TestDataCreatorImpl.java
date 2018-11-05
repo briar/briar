@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
@@ -327,7 +328,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private void createPrivateMessage(GroupId groupId, String text,
 			long timestamp, boolean local) throws DbException, FormatException {
 		PrivateMessage m = privateMessageFactory
-				.createPrivateMessage(groupId, timestamp, text);
+				.createPrivateMessage(groupId, timestamp, text, emptyList());
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("timestamp", timestamp);
 		meta.put("local", local);

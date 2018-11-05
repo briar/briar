@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVer
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.Attachment;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
@@ -148,6 +149,15 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} finally {
 			db.endTransaction(txn);
 		}
+	}
+
+	@Override
+	public AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
+			String contentType, ByteBuffer data) {
+		// TODO add real implementation
+		byte[] b = new byte[MessageId.LENGTH];
+		new Random().nextBytes(b);
+		return new AttachmentHeader(new MessageId(b), "image/png");
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId g)
