@@ -1,6 +1,7 @@
 package org.briarproject.briar.messaging;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
@@ -32,11 +33,12 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
-import java.io.ByteArrayInputStream;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -44,7 +46,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -219,8 +221,26 @@ class MessagingManagerImpl extends ConversationClientImpl
 				long timestamp = meta.getLong("timestamp");
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
+				// TODO replace fake attachments by real ones
+				boolean hasText;
+				List<AttachmentHeader> attachments;
+				Random random = new Random(id.hashCode());
+				if (random.nextBoolean()) {
+					hasText = random.nextBoolean();
+					attachments = new ArrayList<>();
+					int numAttachments = random.nextInt(10) + 1;
+					for (int i = 0; i < numAttachments; i++) {
+						byte[] b = new byte[UniqueId.LENGTH];
+						random.nextBytes(b);
+						attachments.add(new AttachmentHeader(new MessageId(b),
+								"image/jpeg"));
+					}
+				} else {
+					hasText = true;
+					attachments = emptyList();
+				}
 				headers.add(new PrivateMessageHeader(id, g, timestamp, local,
-						read, s.isSent(), s.isSeen(), true, emptyList()));
+						read, s.isSent(), s.isSeen(), hasText, attachments));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -241,11 +261,30 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public Attachment getAttachment(MessageId m) {
 		// TODO add real implementation
-		byte[] bytes = fromHexString("89504E470D0A1A0A0000000D49484452" +
-				"000000010000000108060000001F15C4" +
-				"890000000A49444154789C6300010000" +
-				"0500010D0A2DB40000000049454E44AE426082");
-		return new Attachment(new ByteArrayInputStream(bytes));
+		String[] files = new String[] {
+//				"error_animated.gif",
+//				"error_high.jpg",
+//				"error_wide.jpg",
+//				"error_huge.gif",
+//				"error_large.gif",
+//				"error_malformed.jpg",
+//				"wide.jpg",
+//				"high.jpg",
+//				"small.png",
+				"kitten1.jpg",
+				"kitten2.jpg",
+				"kitten3.gif",
+				"kitten4.jpg",
+				"kitten5.jpg",
+				"kitten6.png",
+		};
+		int index = Math.abs(m.hashCode() % files.length);
+		String file = files[index];
+		getLogger(MessagingManagerImpl.class.getName())
+				.warning("Loading file: " + file);
+
+		InputStream is = getClass().getClassLoader().getResourceAsStream(file);
+		return new Attachment(new BufferedInputStream(is));
 	}
 
 	@Override
