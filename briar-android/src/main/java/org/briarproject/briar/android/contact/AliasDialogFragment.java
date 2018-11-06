@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
 
@@ -28,27 +27,15 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private ConversationViewModel viewModel;
-	private ContactId contactId;
 	private EditText aliasEditText;
 
-	public static AliasDialogFragment newInstance(ContactId id) {
-		AliasDialogFragment f = new AliasDialogFragment();
-
-		Bundle args = new Bundle();
-		args.putInt("contactId", id.getInt());
-		f.setArguments(args);
-
-		return f;
+	public static AliasDialogFragment newInstance() {
+		return new AliasDialogFragment();
 	}
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		if (getArguments() == null) throw new IllegalArgumentException();
-		int contactIdInt = getArguments().getInt("contactId", -1);
-		if (contactIdInt == -1) throw new IllegalArgumentException();
-		contactId = new ContactId(contactIdInt);
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
 
@@ -73,8 +60,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 		Button setButton = v.findViewById(R.id.setButton);
 		setButton.setOnClickListener(v1 -> {
-			viewModel.setContactAlias(contactId,
-					aliasEditText.getText().toString());
+			viewModel.setContactAlias(aliasEditText.getText().toString());
 			getDialog().dismiss();
 		});
 

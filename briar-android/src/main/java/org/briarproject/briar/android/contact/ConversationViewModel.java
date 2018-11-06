@@ -22,6 +22,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -60,20 +61,19 @@ public class ConversationViewModel extends AndroidViewModel {
 	void setContactId(ContactId contactId) {
 		if (this.contactId == null) {
 			this.contactId = contactId;
-			loadContact(contactId);
+			loadContact();
 		} else if (!contactId.equals(this.contactId)) {
 			throw new IllegalStateException();
 		}
 	}
 
-	private void loadContact(ContactId contactId) {
-		if (!contactId.equals(this.contactId)) {
-			throw new IllegalStateException();
-		}
+	private void loadContact() {
 		dbExecutor.execute(() -> {
 			try {
 				long start = now();
-				contact.postValue(contactManager.getContact(contactId));
+				Contact c =
+						contactManager.getContact(requireNonNull(contactId));
+				contact.postValue(c);
 				logDuration(LOG, "Loading contact", start);
 			} catch (NoSuchContactException e) {
 				contactDeleted.postValue(true);
@@ -83,15 +83,12 @@ public class ConversationViewModel extends AndroidViewModel {
 		});
 	}
 
-	void setContactAlias(ContactId contactId, String alias) {
-		if (!contactId.equals(this.contactId)) {
-			throw new IllegalStateException();
-		}
+	void setContactAlias(String alias) {
 		dbExecutor.execute(() -> {
 			try {
-				contactManager.setContactAlias(contactId,
+				contactManager.setContactAlias(requireNonNull(contactId),
 						alias.isEmpty() ? null : alias);
-				loadContact(contactId);
+				loadContact();
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}

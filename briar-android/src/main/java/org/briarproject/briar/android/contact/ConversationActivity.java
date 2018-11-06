@@ -293,7 +293,7 @@ public class ConversationActivity extends BriarActivity
 				startActivityForResult(intent, REQUEST_INTRODUCTION);
 				return true;
 			case R.id.action_set_alias:
-				AliasDialogFragment.newInstance(contactId).show(
+				AliasDialogFragment.newInstance().show(
 						getSupportFragmentManager(), AliasDialogFragment.TAG);
 				return true;
 			case R.id.action_social_remove_person:
