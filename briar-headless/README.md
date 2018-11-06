@@ -171,7 +171,8 @@ You can test connecting to the websocket with curl:
            --header "Upgrade: websocket" \
            --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
            --header "Sec-WebSocket-Version: 13" \
-           http://DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk=@127.0.0.1:7000/v1/ws
+           --user "DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk="
+           http://127.0.0.1:7000/v1/ws
 
 The headers are only required when testing with curl.
 Your websocket client will most likely add these headers automatically.
