@@ -18,11 +18,11 @@ public abstract class ViewModelModule {
 	@IntoMap
 	@ViewModelKey(ConversationViewModel.class)
 	abstract ViewModel bindConversationViewModel(
-			ConversationViewModel userViewModel);
+			ConversationViewModel conversationViewModel);
 
 	@Binds
 	@Singleton
 	abstract ViewModelProvider.Factory bindViewModelFactory(
-			ViewModelFactory factory);
+			ViewModelFactory viewModelFactory);
 
 }

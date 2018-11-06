@@ -5,7 +5,6 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.contact.Contact;
@@ -15,6 +14,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.concurrent.Executor;
@@ -29,6 +29,7 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
+@NotNullByDefault
 public class ConversationViewModel extends AndroidViewModel {
 
 	private static Logger LOG =
@@ -49,7 +50,7 @@ public class ConversationViewModel extends AndroidViewModel {
 			new MutableLiveData<>();
 
 	@Inject
-	ConversationViewModel(@NonNull Application application,
+	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			ContactManager contactManager) {
 		super(application);

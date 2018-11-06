@@ -194,7 +194,6 @@ public class ConversationActivity extends BriarActivity
 
 		// Custom Toolbar
 		toolbar = requireNonNull(setUpCustomToolbar(true));
-		if (toolbar == null) throw new AssertionError();
 		toolbarAvatar = toolbar.findViewById(R.id.contactAvatar);
 		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
 		toolbarTitle = toolbar.findViewById(R.id.contactName);
