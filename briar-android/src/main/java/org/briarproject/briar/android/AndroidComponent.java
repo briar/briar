@@ -1,5 +1,7 @@
 package org.briarproject.briar.android;
 
+import android.arch.lifecycle.ViewModelProvider;
+
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
@@ -153,6 +155,8 @@ public interface AndroidComponent
 	LocationUtils locationUtils();
 
 	CircumventionProvider circumventionProvider();
+
+	ViewModelProvider.Factory viewModelFactory();
 
 	void inject(SignInReminderReceiver briarService);
 

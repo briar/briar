@@ -3,6 +3,7 @@ dependencyVerification {
         'android.arch.core:common:1.1.1:common-1.1.1.jar:3a616a32f433e9e23f556b38575c31b013613d3ae85206263b7625fe1f4c151a',
         'android.arch.core:runtime:1.1.1:runtime-1.1.1.aar:c3215aa5873311b3f88a6f4e4a3c25ad89971bc127de8c3e1291c57f93a05c39',
         'android.arch.lifecycle:common:1.1.1:common-1.1.1.jar:8d378e88ebd5189e09eef623414812c868fd90aa519d6160e2311fb8b81cff56',
+        'android.arch.lifecycle:extensions:1.1.1:extensions-1.1.1.aar:429426b2feec2245ffc5e75b3b5309bedb36159cf06dc71843ae43526ac289b6',
         'android.arch.lifecycle:livedata-core:1.1.1:livedata-core-1.1.1.aar:d6fdd8b985d6178d7ea2f16986a24e83f1bee936b74d43167c69e08d3cc12c50',
         'android.arch.lifecycle:livedata:1.1.1:livedata-1.1.1.aar:50ab0490c1ff1a7cfb4e554032998b080888946d0dd424f39900efc4a1bcd750',
         'android.arch.lifecycle:runtime:1.1.1:runtime-1.1.1.aar:c4e4be66c1b2f0abec593571454e1de14013f7e0f96bf2a9f212931a48cae550',

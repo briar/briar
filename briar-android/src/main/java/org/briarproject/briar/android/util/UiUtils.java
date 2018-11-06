@@ -3,6 +3,9 @@ package org.briarproject.briar.android.util;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.KeyguardManager;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -11,6 +14,7 @@ import android.os.PowerManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
@@ -312,6 +316,23 @@ public class UiUtils {
 				keyEvent != null &&
 				keyEvent.getAction() == ACTION_DOWN &&
 				keyEvent.getKeyCode() == KEYCODE_ENTER;
+	}
+
+	/**
+	 * Observes the given {@link LiveData} until the first change.
+	 * If the LiveData's value is available, the {@link Observer} will be
+	 * called right away.
+	 */
+	@MainThread
+	public static <T> void observeOnce(LiveData<T> liveData,
+			LifecycleOwner owner, Observer<T> observer) {
+		liveData.observe(owner, new Observer<T>() {
+			@Override
+			public void onChanged(@Nullable T t) {
+				observer.onChanged(t);
+				liveData.removeObserver(this);
+			}
+		});
 	}
 
 }
