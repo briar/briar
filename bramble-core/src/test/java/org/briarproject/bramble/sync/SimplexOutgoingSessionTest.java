@@ -49,12 +49,12 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// No acks to send
-			oneOf(db).transactionWithResult(with(false),
+			oneOf(db).transactionWithNullableResult(with(false),
 					withDbCallable(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
 			// No messages to send
-			oneOf(db).transactionWithResult(with(false),
+			oneOf(db).transactionWithNullableResult(with(false),
 					withDbCallable(noMsgTxn));
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(MAX_LATENCY));
@@ -83,25 +83,25 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// One ack to send
-			oneOf(db).transactionWithResult(with(false),
+			oneOf(db).transactionWithNullableResult(with(false),
 					withDbCallable(ackTxn));
 			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(ack));
 			oneOf(recordWriter).writeAck(ack);
 			// One message to send
-			oneOf(db).transactionWithResult(with(false),
+			oneOf(db).transactionWithNullableResult(with(false),
 					withDbCallable(msgTxn));
 			oneOf(db).generateBatch(with(msgTxn), with(contactId),
 					with(any(int.class)), with(MAX_LATENCY));
 			will(returnValue(singletonList(message)));
 			oneOf(recordWriter).writeMessage(message);
 			// No more acks
-			oneOf(db).transactionWithResult(with(false),
+			oneOf(db).transactionWithNullableResult(with(false),
 					withDbCallable(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
 			// No more messages
-			oneOf(db).transactionWithResult(with(false),
+			oneOf(db).transactionWithNullableResult(with(false),
 					withDbCallable(noMsgTxn));
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(MAX_LATENCY));
