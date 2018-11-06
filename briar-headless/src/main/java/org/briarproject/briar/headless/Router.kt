@@ -41,7 +41,7 @@ constructor(
     private val logger = getLogger(Router::javaClass.name)
     private val stopped = AtomicBoolean(false)
 
-    fun start(authToken: String, port: Int, debug: Boolean) {
+    internal fun start(authToken: String, port: Int, debug: Boolean) : Javalin {
         briarService.start()
         getRuntime().addShutdownHook(Thread(this::stop))
 
@@ -104,7 +104,7 @@ constructor(
                 webSocketController.sessions.remove(session)
             }
         }
-        app.start()
+        return app.start()
     }
 
     private fun serverStopped() {
@@ -112,7 +112,7 @@ constructor(
         exit(1)
     }
 
-    private fun stop() {
+    internal fun stop() {
         if (!stopped.getAndSet(true)) {
             briarService.stop()
         }
