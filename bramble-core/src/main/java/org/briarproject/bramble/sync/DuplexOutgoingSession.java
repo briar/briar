@@ -1,6 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.api.Maybe;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -230,12 +229,11 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			if (!generateAckQueued.getAndSet(false)) throw new AssertionError();
 			try {
-				Maybe<Ack> a = db.transactionWithResult(false, txn ->
-						new Maybe<>(db.generateAck(txn, contactId,
-								MAX_MESSAGE_IDS)));
+				Ack a = db.transactionWithNullableResult(false, txn ->
+						db.generateAck(txn, contactId, MAX_MESSAGE_IDS));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated ack: " + a.isPresent());
-				if (a.isPresent()) writerTasks.add(new WriteAck(a.get()));
+					LOG.info("Generated ack: " + (a != null));
+				if (a != null) writerTasks.add(new WriteAck(a));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -270,16 +268,18 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateBatchQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Maybe<Collection<Message>>
-						b = db.transactionWithResult(false, txn -> {
-					Collection<Message> batch = db.generateRequestedBatch(txn,
-							contactId, MAX_RECORD_PAYLOAD_BYTES, maxLatency);
-					setNextSendTime(db.getNextSendTime(txn, contactId));
-					return new Maybe<>(batch);
-				});
+				Collection<Message> b =
+						db.transactionWithNullableResult(false, txn -> {
+							Collection<Message> batch =
+									db.generateRequestedBatch(txn, contactId,
+											MAX_RECORD_PAYLOAD_BYTES,
+											maxLatency);
+							setNextSendTime(db.getNextSendTime(txn, contactId));
+							return batch;
+						});
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated batch: " + b.isPresent());
-				if (b.isPresent()) writerTasks.add(new WriteBatch(b.get()));
+					LOG.info("Generated batch: " + (b != null));
+				if (b != null) writerTasks.add(new WriteBatch(b));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -314,15 +314,15 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateOfferQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Maybe<Offer> o = db.transactionWithResult(false, txn -> {
+				Offer o = db.transactionWithNullableResult(false, txn -> {
 					Offer offer = db.generateOffer(txn, contactId,
 							MAX_MESSAGE_IDS, maxLatency);
 					setNextSendTime(db.getNextSendTime(txn, contactId));
-					return new Maybe<>(offer);
+					return offer;
 				});
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated offer: " + o.isPresent());
-				if (o.isPresent()) writerTasks.add(new WriteOffer(o.get()));
+					LOG.info("Generated offer: " + (o != null));
+				if (o != null) writerTasks.add(new WriteOffer(o));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -357,12 +357,11 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (!generateRequestQueued.getAndSet(false))
 				throw new AssertionError();
 			try {
-				Maybe<Request> r = db.transactionWithResult(false, txn ->
-						new Maybe<>(db.generateRequest(txn, contactId,
-								MAX_MESSAGE_IDS)));
+				Request r = db.transactionWithNullableResult(false, txn ->
+						db.generateRequest(txn, contactId, MAX_MESSAGE_IDS));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated request: " + r.isPresent());
-				if (r.isPresent()) writerTasks.add(new WriteRequest(r.get()));
+					LOG.info("Generated request: " + (r != null));
+				if (r != null) writerTasks.add(new WriteRequest(r));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();

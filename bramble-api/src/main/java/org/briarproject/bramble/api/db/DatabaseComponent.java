@@ -90,6 +90,14 @@ public interface DatabaseComponent {
 			DbCallable<R, E> task) throws DbException, E;
 
 	/**
+	 * Runs the given task within a transaction and returns the result of the
+	 * task, which may be null.
+	 */
+	@Nullable
+	<R, E extends Exception> R transactionWithNullableResult(boolean readOnly,
+			DbCallable<R, E> task) throws DbException, E;
+
+	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */

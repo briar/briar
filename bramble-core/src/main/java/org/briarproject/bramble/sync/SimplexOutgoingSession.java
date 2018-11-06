@@ -1,6 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.api.Maybe;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -129,12 +128,11 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Maybe<Ack> a = db.transactionWithResult(false, txn ->
-						new Maybe<>(db.generateAck(txn, contactId,
-								MAX_MESSAGE_IDS)));
+				Ack a = db.transactionWithNullableResult(false, txn ->
+						db.generateAck(txn, contactId, MAX_MESSAGE_IDS));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated ack: " + a.isPresent());
-				if (a.isPresent()) writerTasks.add(new WriteAck(a.get()));
+					LOG.info("Generated ack: " + (a != null));
+				if (a != null) writerTasks.add(new WriteAck(a));
 				else decrementOutstandingQueries();
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -168,12 +166,13 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Maybe<Collection<Message>> b = db.transactionWithResult(false,
-						txn -> new Maybe<>(db.generateBatch(txn, contactId,
-								MAX_RECORD_PAYLOAD_BYTES, maxLatency)));
+				Collection<Message> b =
+						db.transactionWithNullableResult(false, txn ->
+								db.generateBatch(txn, contactId,
+										MAX_RECORD_PAYLOAD_BYTES, maxLatency));
 				if (LOG.isLoggable(INFO))
-					LOG.info("Generated batch: " + b.isPresent());
-				if (b.isPresent()) writerTasks.add(new WriteBatch(b.get()));
+					LOG.info("Generated batch: " + (b != null));
+				if (b != null) writerTasks.add(new WriteBatch(b));
 				else decrementOutstandingQueries();
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
