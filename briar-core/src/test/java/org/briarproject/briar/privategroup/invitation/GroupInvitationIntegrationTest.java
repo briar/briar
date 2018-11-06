@@ -423,7 +423,13 @@ public class GroupInvitationIntegrationTest
 				.respondToInvitation(contactId0From1, privateGroup0, true);
 		assertEquals(1, groupManager1.getPrivateGroups().size());
 
-		// Invitee's join message is delivered to creator
+		// Invitee's (sharing) join message is delivered to creator
+		sync1To0(1, true);
+
+		// Creator's (sharing and group) join messages are delivered to invitee
+		sync0To1(2, true);
+
+		// Invitee's (group) join message is delivered to creator
 		sync1To0(1, true);
 
 		// Creator leaves group

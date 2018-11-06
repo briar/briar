@@ -2,23 +2,26 @@ package org.briarproject.briar.test;
 
 import net.jodah.concurrentunit.Waiter;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.data.BdfStringUtils;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
@@ -55,19 +58,28 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.concurrent.Executors.newSingleThreadExecutor;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.WARNING;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
 import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -76,6 +88,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	private static final Logger LOG =
 			Logger.getLogger(BriarIntegrationTest.class.getName());
+	private static final boolean DEBUG = false;
 
 	@Nullable
 	protected ContactId contactId1From2, contactId2From1;
@@ -101,8 +114,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	@Inject
 	protected ClientHelper clientHelper;
 	@Inject
-	protected AuthorFactory authorFactory;
-	@Inject
 	protected MessageFactory messageFactory;
 	@Inject
 	protected ContactGroupFactory contactGroupFactory;
@@ -126,6 +137,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	protected final static int TIMEOUT = 15000;
 	protected C c0, c1, c2;
 
+	private final Semaphore messageSemaphore = new Semaphore(0);
+	private final AtomicInteger messageCounter = new AtomicInteger(0);
 	private final File testDir = TestUtils.getTestDirectory();
 	private final String AUTHOR0 = "Author 0";
 	private final String AUTHOR1 = "Author 1";
@@ -202,31 +215,60 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	private void listenToEvents() {
-		Listener listener0 = new Listener();
+		Listener listener0 = new Listener(c0);
 		c0.getEventBus().addListener(listener0);
-		Listener listener1 = new Listener();
+		Listener listener1 = new Listener(c1);
 		c1.getEventBus().addListener(listener1);
-		Listener listener2 = new Listener();
+		Listener listener2 = new Listener(c2);
 		c2.getEventBus().addListener(listener2);
 	}
 
 	private class Listener implements EventListener {
+
+		private final ClientHelper clientHelper;
+		private final Executor executor;
+
+		private Listener(C c) {
+			clientHelper = c.getClientHelper();
+			executor = newSingleThreadExecutor();
+		}
+
 		@Override
 		public void eventOccurred(Event e) {
 			if (e instanceof MessageStateChangedEvent) {
 				MessageStateChangedEvent event = (MessageStateChangedEvent) e;
 				if (!event.isLocal()) {
 					if (event.getState() == DELIVERED) {
-						LOG.info("Delivered new message");
+						LOG.info("Delivered new message "
+								+ event.getMessageId());
+						messageCounter.addAndGet(1);
+						loadAndLogMessage(event.getMessageId());
 						deliveryWaiter.resume();
 					} else if (event.getState() == INVALID ||
 							event.getState() == PENDING) {
 						LOG.info("Validated new " + event.getState().name() +
-								" message");
+								" message " + event.getMessageId());
+						messageCounter.addAndGet(1);
+						loadAndLogMessage(event.getMessageId());
 						validationWaiter.resume();
 					}
 				}
 			}
+		}
+
+		private void loadAndLogMessage(MessageId id) {
+			executor.execute(() -> {
+				if (DEBUG) {
+					try {
+						BdfList body = clientHelper.getMessageAsList(id);
+						LOG.info("Contents of " + id + ":\n"
+								+ BdfStringUtils.toString(body));
+					} catch (DbException | FormatException e) {
+						logException(LOG, WARNING, e);
+					}
+				}
+				messageSemaphore.release();
+			});
 		}
 	}
 
@@ -267,6 +309,11 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	protected void addContacts1And2() throws Exception {
+		addContacts1And2(false);
+	}
+
+	protected void addContacts1And2(boolean haveTransportProperties)
+			throws Exception {
 		contactId2From1 = contactManager1
 				.addContact(author2, author1.getId(), getSecretKey(),
 						clock.currentTimeMillis(), true, true, true);
@@ -277,7 +324,10 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// Sync initial client versioning updates
 		sync1To2(1, true);
 		sync2To1(1, true);
-		sync1To2(1, true);
+		sync1To2(haveTransportProperties ? 2 : 1, true);
+		if (haveTransportProperties) {
+			sync2To1(1, true);
+		}
 	}
 
 	@After
@@ -341,7 +391,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		String to = "0";
 		if (toSync == sync1) to = "1";
 		else if (toSync == sync2) to = "2";
-		LOG.info("TEST: Sending message from " + from + " to " + to);
+		LOG.info("TEST: Sending " + num + " message(s) from " + from + " to " +
+				to);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamWriter streamWriter = new TestStreamWriter(out);
@@ -363,6 +414,14 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 			deliveryWaiter.await(TIMEOUT, num);
 		} else {
 			validationWaiter.await(TIMEOUT, num);
+		}
+		assertEquals("Messages delivered", num, messageCounter.getAndSet(0));
+		try {
+			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
+		} catch (InterruptedException e) {
+			LOG.info("Interrupted while waiting for messages");
+			Thread.currentThread().interrupt();
+			fail();
 		}
 	}
 
