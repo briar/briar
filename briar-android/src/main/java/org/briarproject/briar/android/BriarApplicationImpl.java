@@ -81,6 +81,7 @@ public class BriarApplicationImpl extends Application
 		rootLogger.setLevel(IS_DEBUG_BUILD ? FINE : INFO);
 
 		LOG.info("Created");
+		Localizer.getInstance().setLocaleLegacy(this);
 
 		EmojiManager.install(new GoogleEmojiProvider());
 	}
@@ -104,7 +105,8 @@ public class BriarApplicationImpl extends Application
 	@Override
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		Localizer.getInstance().setLocale(this);
+		Localizer.getInstance()
+				.applicationConfigurationChanged(this);
 	}
 
 	private void setTheme(Context ctx, SharedPreferences prefs) {

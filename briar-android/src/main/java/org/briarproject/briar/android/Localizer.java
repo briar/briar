@@ -23,6 +23,7 @@ public class Localizer {
 	@Nullable
 	private static Localizer INSTANCE;
 	private final Locale systemLocale;
+	@Nullable
 	private final Locale locale;
 
 	private Localizer(SharedPreferences sharedPreferences) {
@@ -32,10 +33,16 @@ public class Localizer {
 
 	private Localizer(Locale systemLocale, @Nullable Locale userLocale) {
 		this.systemLocale = systemLocale;
-		if (userLocale == null) locale = systemLocale;
-		else locale = userLocale;
-		setLocaleAndSystemConfiguration();
+		locale = userLocale;
+		setLocaleAndSystemConfiguration(locale);
 	}
+
+	private Localizer(Locale systemLocale) {
+		this.systemLocale = systemLocale;
+		locale = null;
+		setLocaleAndSystemConfiguration(systemLocale);
+	}
+
 
 	// Instantiate the Localizer.
 	public static synchronized void initialize(SharedPreferences prefs) {
@@ -45,9 +52,9 @@ public class Localizer {
 
 	// Reinstantiate the Localizer with the system locale
 	public static synchronized void reinitialize(Context appContext) {
-		if (INSTANCE != null) {
-			INSTANCE = new Localizer(INSTANCE.systemLocale, null);
-			INSTANCE.forceLocale(appContext);
+		if (INSTANCE != null && INSTANCE.locale != null) {
+			INSTANCE = new Localizer(INSTANCE.systemLocale);
+			INSTANCE.forceLocale(appContext, INSTANCE.systemLocale);
 		}
 	}
 
@@ -75,26 +82,25 @@ public class Localizer {
 
 	// Returns the localized version of context
 	public Context setLocale(Context context) {
+		if (locale == null || SDK_INT < 17) return context;
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
 		updateConfiguration(conf, locale);
-		if (SDK_INT >= 17)
-			return context.createConfigurationContext(conf);
-		//noinspection deprecation
-		// Use the old API on < 17
-		res.updateConfiguration(conf, res.getDisplayMetrics());
-		return context;
+		return context.createConfigurationContext(conf);
+	}
+
+	// For API < 17 only.
+	public void setLocaleLegacy(Context appContext) {
+		if (SDK_INT >= 17 || locale == null) return;
+		forceLocale(appContext, locale);
 	}
 
 	// Forces the update of the resources through the deprecated API.
-	// Necessary on API >= 17 to update the foreground notification if the
-	// account was deleted.
-	public void forceLocale(Context context) {
+	private void forceLocale(Context context, Locale locale) {
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
 		updateConfiguration(conf, locale);
 		//noinspection deprecation
-		// Use the old API on < 17
 		res.updateConfiguration(conf, res.getDisplayMetrics());
 	}
 
@@ -105,7 +111,8 @@ public class Localizer {
 			conf.locale = locale;
 	}
 
-	private void setLocaleAndSystemConfiguration() {
+	private void setLocaleAndSystemConfiguration(@Nullable Locale locale) {
+		if (locale == null) return;
 		Locale.setDefault(locale);
 		if (SDK_INT >= 23) return;
 		Configuration systemConfiguration =
@@ -114,6 +121,11 @@ public class Localizer {
 		// DateUtils uses the system resources, so we need to update them too.
 		Resources.getSystem().updateConfiguration(systemConfiguration,
 				Resources.getSystem().getDisplayMetrics());
+	}
+
+	public void applicationConfigurationChanged(Context appContext) {
+		setLocaleAndSystemConfiguration(locale);
+		if (SDK_INT < 17) setLocaleLegacy(appContext);
 	}
 
 	// Indicates whether the language represented by locale
