@@ -2,6 +2,7 @@ package org.briarproject.briar.android.forum;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
@@ -244,25 +245,23 @@ public class ForumListFragment extends BaseEventFragment implements
 		}
 	}
 
+	@UiThread
 	private void updateItem(GroupId g, ForumPostHeader m) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			adapter.incrementRevision();
-			int position = adapter.findItemPosition(g);
-			ForumListItem item = adapter.getItemAt(position);
-			if (item != null) {
-				item.addHeader(m);
-				adapter.updateItemAt(position, item);
-			}
-		});
+		adapter.incrementRevision();
+		int position = adapter.findItemPosition(g);
+		ForumListItem item = adapter.getItemAt(position);
+		if (item != null) {
+			item.addHeader(m);
+			adapter.updateItemAt(position, item);
+		}
 	}
 
+	@UiThread
 	private void removeForum(GroupId g) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			adapter.incrementRevision();
-			int position = adapter.findItemPosition(g);
-			ForumListItem item = adapter.getItemAt(position);
-			if (item != null) adapter.remove(item);
-		});
+		adapter.incrementRevision();
+		int position = adapter.findItemPosition(g);
+		ForumListItem item = adapter.getItemAt(position);
+		if (item != null) adapter.remove(item);
 	}
 
 	@Override

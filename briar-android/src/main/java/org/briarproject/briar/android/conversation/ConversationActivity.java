@@ -398,22 +398,17 @@ public class ConversationActivity extends BriarActivity
 		}
 	}
 
+	@UiThread
 	private void displayContactOnlineStatus() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			if (connectionRegistry.isConnected(contactId)) {
-				toolbarStatus.setImageDrawable(ContextCompat
-						.getDrawable(ConversationActivity.this,
-								R.drawable.contact_online));
-				toolbarStatus
-						.setContentDescription(getString(R.string.online));
-			} else {
-				toolbarStatus.setImageDrawable(ContextCompat
-						.getDrawable(ConversationActivity.this,
-								R.drawable.contact_offline));
-				toolbarStatus
-						.setContentDescription(getString(R.string.offline));
-			}
-		});
+		if (connectionRegistry.isConnected(contactId)) {
+			toolbarStatus.setImageDrawable(ContextCompat.getDrawable(
+					ConversationActivity.this, R.drawable.contact_online));
+			toolbarStatus.setContentDescription(getString(R.string.online));
+		} else {
+			toolbarStatus.setImageDrawable(ContextCompat.getDrawable(
+					ConversationActivity.this, R.drawable.contact_offline));
+			toolbarStatus.setContentDescription(getString(R.string.offline));
+		}
 	}
 
 	private void loadMessages() {
@@ -583,7 +578,7 @@ public class ConversationActivity extends BriarActivity
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) {
 				LOG.info("Contact removed");
-				finishOnUiThread();
+				supportFinishAfterTransition();
 			}
 		} else if (e instanceof ConversationMessageReceivedEvent) {
 			ConversationMessageReceivedEvent p =
@@ -619,47 +614,43 @@ public class ConversationActivity extends BriarActivity
 		}
 	}
 
+	@UiThread
 	private void addConversationItem(ConversationItem item) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			adapter.incrementRevision();
-			adapter.add(item);
-			// When adding a new message, scroll to the bottom if the
-			// conversation is visible, even if we're not currently at
-			// the bottom
-			if (getLifecycle().getCurrentState().isAtLeast(STARTED))
-				scrollToBottom();
-		});
+		adapter.incrementRevision();
+		adapter.add(item);
+		// When adding a new message, scroll to the bottom if the conversation
+		// is visible, even if we're not currently at the bottom
+		if (getLifecycle().getCurrentState().isAtLeast(STARTED))
+			scrollToBottom();
 	}
 
+	@UiThread
 	private void onNewConversationMessage(ConversationMessageHeader h) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			if (h instanceof ConversationRequest ||
-					h instanceof ConversationResponse) {
-				// contact name might not have been loaded
-				observeOnce(viewModel.getContactDisplayName(), this,
-						name -> addConversationItem(h.accept(visitor)));
-			} else {
-				// visitor also loads message text (if existing)
-				addConversationItem(h.accept(visitor));
-			}
-		});
+		if (h instanceof ConversationRequest ||
+				h instanceof ConversationResponse) {
+			// contact name might not have been loaded
+			observeOnce(viewModel.getContactDisplayName(), this,
+					name -> addConversationItem(h.accept(visitor)));
+		} else {
+			// visitor also loads message text (if existing)
+			addConversationItem(h.accept(visitor));
+		}
 	}
 
+	@UiThread
 	private void markMessages(Collection<MessageId> messageIds, boolean sent,
 			boolean seen) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			adapter.incrementRevision();
-			Set<MessageId> messages = new HashSet<>(messageIds);
-			SparseArray<ConversationItem> list = adapter.getOutgoingMessages();
-			for (int i = 0; i < list.size(); i++) {
-				ConversationItem item = list.valueAt(i);
-				if (messages.contains(item.getId())) {
-					item.setSent(sent);
-					item.setSeen(seen);
-					adapter.notifyItemChanged(list.keyAt(i));
-				}
+		adapter.incrementRevision();
+		Set<MessageId> messages = new HashSet<>(messageIds);
+		SparseArray<ConversationItem> list = adapter.getOutgoingMessages();
+		for (int i = 0; i < list.size(); i++) {
+			ConversationItem item = list.valueAt(i);
+			if (messages.contains(item.getId())) {
+				item.setSent(sent);
+				item.setSeen(seen);
+				adapter.notifyItemChanged(list.keyAt(i));
 			}
-		});
+		}
 	}
 
 	@Override

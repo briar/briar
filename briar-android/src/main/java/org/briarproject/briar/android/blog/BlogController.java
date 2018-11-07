@@ -16,6 +16,7 @@ public interface BlogController extends BaseController {
 
 	void setGroupId(GroupId g);
 
+	@UiThread
 	void setBlogSharingListener(BlogSharingListener listener);
 
 	void loadBlogPosts(

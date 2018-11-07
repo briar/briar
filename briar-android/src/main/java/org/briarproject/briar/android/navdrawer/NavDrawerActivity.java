@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
 import android.support.v4.app.ActivityCompat;
@@ -435,17 +436,16 @@ public class NavDrawerActivity extends BriarActivity implements
 		};
 	}
 
+	@UiThread
 	private void setTransport(TransportId id, boolean enabled) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			if (transports == null || transportsAdapter == null) return;
-			for (Transport t : transports) {
-				if (t.id.equals(id)) {
-					t.enabled = enabled;
-					transportsAdapter.notifyDataSetChanged();
-					break;
-				}
+		if (transports == null || transportsAdapter == null) return;
+		for (Transport t : transports) {
+			if (t.id.equals(id)) {
+				t.enabled = enabled;
+				transportsAdapter.notifyDataSetChanged();
+				break;
 			}
-		});
+		}
 	}
 
 	private void updateTransports() {

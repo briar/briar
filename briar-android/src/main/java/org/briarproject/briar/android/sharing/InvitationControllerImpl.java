@@ -39,6 +39,8 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 			Logger.getLogger(InvitationControllerImpl.class.getName());
 
 	private final EventBus eventBus;
+
+	// UI thread
 	protected InvitationListener listener;
 
 	public InvitationControllerImpl(@DatabaseExecutor Executor dbExecutor,

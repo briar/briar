@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.blog.BlogPostHeader;
@@ -36,10 +35,11 @@ interface BaseController {
 	void repeatPost(BlogPostItem item, @Nullable String comment,
 			ExceptionHandler<DbException> handler);
 
+	@UiThread
 	void setBlogListener(BlogListener listener);
 
 	@NotNullByDefault
-	interface BlogListener extends DestroyableContext {
+	interface BlogListener {
 
 		@UiThread
 		void onBlogPostAdded(BlogPostHeader header, boolean local);

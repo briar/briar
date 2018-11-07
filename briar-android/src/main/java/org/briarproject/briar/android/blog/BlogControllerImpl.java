@@ -49,8 +49,11 @@ class BlogControllerImpl extends BaseControllerImpl
 			Logger.getLogger(BlogControllerImpl.class.getName());
 
 	private final BlogSharingManager blogSharingManager;
+
+	// UI thread
+	private BlogSharingListener listener;
+
 	private volatile GroupId groupId = null;
-	private volatile BlogSharingListener listener;
 
 	@Inject
 	BlogControllerImpl(@DatabaseExecutor Executor dbExecutor,
@@ -102,7 +105,7 @@ class BlogControllerImpl extends BaseControllerImpl
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			if (b.getGroupId().equals(groupId)) {
 				LOG.info("Blog post added");
-				onBlogPostAdded(b.getHeader(), b.isLocal());
+				listener.onBlogPostAdded(b.getHeader(), b.isLocal());
 			}
 		} else if (e instanceof BlogInvitationResponseReceivedEvent) {
 			BlogInvitationResponseReceivedEvent b =
@@ -110,30 +113,21 @@ class BlogControllerImpl extends BaseControllerImpl
 			BlogInvitationResponse r = b.getMessageHeader();
 			if (r.getShareableId().equals(groupId) && r.wasAccepted()) {
 				LOG.info("Blog invitation accepted");
-				onBlogInvitationAccepted(b.getContactId());
+				listener.onBlogInvitationAccepted(b.getContactId());
 			}
 		} else if (e instanceof ContactLeftShareableEvent) {
 			ContactLeftShareableEvent s = (ContactLeftShareableEvent) e;
 			if (s.getGroupId().equals(groupId)) {
 				LOG.info("Blog left by contact");
-				onBlogLeft(s.getContactId());
+				listener.onBlogLeft(s.getContactId());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getId().equals(groupId)) {
 				LOG.info("Blog removed");
-				onBlogRemoved();
+				listener.onBlogRemoved();
 			}
 		}
-	}
-
-	private void onBlogInvitationAccepted(ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.onBlogInvitationAccepted(c));
-	}
-
-	private void onBlogLeft(ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(() -> listener.onBlogLeft(c));
 	}
 
 	@Override

@@ -2,6 +2,7 @@ package org.briarproject.briar.android.navdrawer;
 
 import android.app.Activity;
 import android.content.Context;
+import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -53,7 +54,8 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	private final SettingsManager settingsManager;
 	private final EventBus eventBus;
 
-	private volatile TransportStateListener listener;
+	// UI thread
+	private TransportStateListener listener;
 
 	@Inject
 	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
@@ -102,9 +104,9 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 		}
 	}
 
+	@UiThread
 	private void transportStateUpdate(TransportId id, boolean enabled) {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.stateUpdate(id, enabled));
+		listener.stateUpdate(id, enabled);
 	}
 
 	@Override

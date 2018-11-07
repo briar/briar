@@ -104,9 +104,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private ContactId blockedContact = null;
 	private GroupId blockedGroup = null;
 	private boolean blockSignInReminder = false;
-	private boolean blockContacts = false, blockGroups = false;
-	private boolean blockForums = false, blockBlogs = false;
-	private boolean blockIntroductions = false;
+	private boolean blockBlogs = false;
 	private long lastSound = 0;
 
 	private volatile Settings settings = new Settings();
@@ -237,7 +235,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		}
 	}
 
-
 	@UiThread
 	@Override
 	public Notification getForegroundNotification() {
@@ -278,13 +275,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		notificationManager.notify(ONGOING_NOTIFICATION_ID, n);
 	}
 
+	@UiThread
 	private void showContactNotification(ContactId c) {
-		androidExecutor.runOnUiThread(() -> {
-			if (blockContacts) return;
-			if (c.equals(blockedContact)) return;
-			contactCounts.add(c);
-			updateContactNotification(true);
-		});
+		if (c.equals(blockedContact)) return;
+		contactCounts.add(c);
+		updateContactNotification(true);
 	}
 
 	@Override
@@ -381,12 +376,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void showGroupMessageNotification(GroupId g) {
-		androidExecutor.runOnUiThread(() -> {
-			if (blockGroups) return;
-			if (g.equals(blockedGroup)) return;
-			groupCounts.add(g);
-			updateGroupMessageNotification(true);
-		});
+		if (g.equals(blockedGroup)) return;
+		groupCounts.add(g);
+		updateGroupMessageNotification(true);
 	}
 
 	@Override
@@ -452,12 +444,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void showForumPostNotification(GroupId g) {
-		androidExecutor.runOnUiThread(() -> {
-			if (blockForums) return;
-			if (g.equals(blockedGroup)) return;
-			forumCounts.add(g);
-			updateForumPostNotification(true);
-		});
+		if (g.equals(blockedGroup)) return;
+		forumCounts.add(g);
+		updateForumPostNotification(true);
 	}
 
 	@Override
@@ -522,12 +511,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void showBlogPostNotification(GroupId g) {
-		androidExecutor.runOnUiThread(() -> {
-			if (blockBlogs) return;
-			if (g.equals(blockedGroup)) return;
-			blogCounts.add(g);
-			updateBlogPostNotification(true);
-		});
+		if (blockBlogs) return;
+		if (g.equals(blockedGroup)) return;
+		blogCounts.add(g);
+		updateBlogPostNotification(true);
 	}
 
 	@Override
@@ -575,12 +562,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				(Runnable) this::clearBlogPostNotification);
 	}
 
+	@UiThread
 	private void showIntroductionNotification() {
-		androidExecutor.runOnUiThread(() -> {
-			if (blockIntroductions) return;
-			introductionTotal++;
-			updateIntroductionNotification();
-		});
+		introductionTotal++;
+		updateIntroductionNotification();
 	}
 
 	@UiThread

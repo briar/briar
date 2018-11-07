@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
@@ -52,7 +51,7 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 		void onInvitationAccepted(ContactId c);
 	}
 
-	interface ThreadListDataSource extends DestroyableContext {
+	interface ThreadListDataSource {
 
 		@UiThread @Nullable
 		MessageId getFirstVisibleMessageId();

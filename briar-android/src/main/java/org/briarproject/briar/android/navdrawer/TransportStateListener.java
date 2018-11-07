@@ -1,9 +1,11 @@
 package org.briarproject.briar.android.navdrawer;
 
+import android.support.annotation.UiThread;
+
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.briar.android.DestroyableContext;
 
-interface TransportStateListener extends DestroyableContext {
+interface TransportStateListener {
 
+	@UiThread
 	void stateUpdate(TransportId id, boolean enabled);
 }

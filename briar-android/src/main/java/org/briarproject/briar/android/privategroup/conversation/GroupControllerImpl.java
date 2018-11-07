@@ -84,31 +84,26 @@ class GroupControllerImpl extends
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			if (!g.isLocal() && g.getGroupId().equals(getGroupId())) {
 				LOG.info("Group message received, adding...");
-				GroupMessageItem item = buildItem(g.getHeader(), g.getText());
-				listener.runOnUiThreadUnlessDestroyed(
-						() -> listener.onItemReceived(item));
+				listener.onItemReceived(buildItem(g.getHeader(), g.getText()));
 			}
 		} else if (e instanceof ContactRelationshipRevealedEvent) {
 			ContactRelationshipRevealedEvent c =
 					(ContactRelationshipRevealedEvent) e;
 			if (getGroupId().equals(c.getGroupId())) {
-				listener.runOnUiThreadUnlessDestroyed(() ->
-						listener.onContactRelationshipRevealed(c.getMemberId(),
-								c.getContactId(), c.getVisibility()));
+				listener.onContactRelationshipRevealed(c.getMemberId(),
+						c.getContactId(), c.getVisibility());
 			}
 		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
 			GroupInvitationResponseReceivedEvent g =
 					(GroupInvitationResponseReceivedEvent) e;
 			GroupInvitationResponse r = g.getMessageHeader();
 			if (getGroupId().equals(r.getShareableId()) && r.wasAccepted()) {
-				listener.runOnUiThreadUnlessDestroyed(
-						() -> listener.onInvitationAccepted(g.getContactId()));
+				listener.onInvitationAccepted(g.getContactId());
 			}
 		} else if (e instanceof GroupDissolvedEvent) {
 			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
 			if (getGroupId().equals(g.getGroupId())) {
-				listener.runOnUiThreadUnlessDestroyed(
-						() -> listener.onGroupDissolved());
+				listener.onGroupDissolved();
 			}
 		}
 	}

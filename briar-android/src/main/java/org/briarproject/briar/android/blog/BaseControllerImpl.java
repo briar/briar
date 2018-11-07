@@ -86,15 +86,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		this.listener = listener;
 	}
 
-	void onBlogPostAdded(BlogPostHeader h, boolean local) {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.onBlogPostAdded(h, local));
-	}
-
-	void onBlogRemoved() {
-		listener.runOnUiThreadUnlessDestroyed(() -> listener.onBlogRemoved());
-	}
-
 	@Override
 	public void loadBlogPosts(GroupId groupId,
 			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler) {
