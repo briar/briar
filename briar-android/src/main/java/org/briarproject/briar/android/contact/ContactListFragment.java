@@ -37,8 +37,8 @@ import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -242,15 +242,16 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed, removing item");
 			removeItem(((ContactRemovedEvent) e).getContactId());
-		} else if (e instanceof PrivateMessageReceivedEvent) {
-			LOG.info("Private message received, updating item");
-			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
-			PrivateMessageHeader h = p.getMessageHeader();
+		} else if (e instanceof ConversationMessageReceivedEvent) {
+			LOG.info("Conversation message received, updating item");
+			ConversationMessageReceivedEvent p =
+					(ConversationMessageReceivedEvent) e;
+			ConversationMessageHeader h = p.getMessageHeader();
 			updateItem(p.getContactId(), h);
 		}
 	}
 
-	private void updateItem(ContactId c, PrivateMessageHeader h) {
+	private void updateItem(ContactId c, ConversationMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			int position = adapter.findItemPosition(c);

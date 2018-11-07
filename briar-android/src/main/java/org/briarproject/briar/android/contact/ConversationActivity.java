@@ -67,13 +67,13 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
 import java.util.ArrayList;
@@ -410,11 +410,12 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact removed");
 				finishOnUiThread();
 			}
-		} else if (e instanceof PrivateMessageReceivedEvent) {
-			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
+		} else if (e instanceof ConversationMessageReceivedEvent) {
+			ConversationMessageReceivedEvent p =
+					(ConversationMessageReceivedEvent) e;
 			if (p.getContactId().equals(contactId)) {
 				LOG.info("Message received, adding");
-				onNewPrivateMessage(p.getMessageHeader());
+				onNewConversationMessage(p.getMessageHeader());
 			}
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
@@ -452,7 +453,7 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void onNewPrivateMessage(ConversationMessageHeader h) {
+	private void onNewConversationMessage(ConversationMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (h instanceof ConversationRequest ||
 					h instanceof ConversationResponse) {

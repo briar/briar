@@ -3,7 +3,7 @@ package org.briarproject.briar.android.contact;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
@@ -23,7 +23,7 @@ public class ContactListItem extends ContactItem {
 		this.timestamp = count.getLatestMsgTime();
 	}
 
-	void addMessage(PrivateMessageHeader h) {
+	void addMessage(ConversationMessageHeader h) {
 		empty = false;
 		if (h.getTimestamp() > timestamp) timestamp = h.getTimestamp();
 		if (!h.isRead()) unread++;

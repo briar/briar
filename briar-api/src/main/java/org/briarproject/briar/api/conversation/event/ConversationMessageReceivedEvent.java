@@ -12,7 +12,7 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @NotNullByDefault
-public class ConversationMessageReceivedEvent<H extends ConversationMessageHeader>
+public abstract class ConversationMessageReceivedEvent<H extends ConversationMessageHeader>
 		extends Event {
 
 	private final H messageHeader;

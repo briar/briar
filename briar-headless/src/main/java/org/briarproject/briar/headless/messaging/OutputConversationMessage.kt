@@ -3,10 +3,10 @@ package org.briarproject.briar.headless.messaging
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.api.conversation.ConversationMessageHeader
 import org.briarproject.briar.api.messaging.PrivateMessage
+import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.headless.json.JsonDict
 
 internal fun ConversationMessageHeader.output(contactId: ContactId) = JsonDict(
-    "type" to "PrivateMessage",
     "contactId" to contactId.int,
     "timestamp" to timestamp,
     "read" to isRead,
@@ -20,6 +20,14 @@ internal fun ConversationMessageHeader.output(contactId: ContactId) = JsonDict(
 internal fun ConversationMessageHeader.output(contactId: ContactId, text: String?): JsonDict {
     val dict = output(contactId)
     dict["text"] = text
+    return dict
+}
+
+internal fun PrivateMessageHeader.output(contactId: ContactId, text: String?): JsonDict {
+    val dict = (this as ConversationMessageHeader).output(contactId, text)
+    dict.putAll(
+        "type" to "PrivateMessage"
+    )
     return dict
 }
 

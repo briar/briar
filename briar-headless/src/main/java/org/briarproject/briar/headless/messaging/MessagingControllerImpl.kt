@@ -38,7 +38,7 @@ import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-internal const val EVENT_PRIVATE_MESSAGE = "ConversationMessageReceivedEvent"
+internal const val EVENT_CONVERSATION_MESSAGE = "ConversationMessageReceivedEvent"
 
 @Immutable
 @Singleton
@@ -82,8 +82,13 @@ constructor(
     override fun eventOccurred(e: Event) {
         when (e) {
             is ConversationMessageReceivedEvent<*> -> dbExecutor.execute {
-                val text = messagingManager.getMessageText(e.messageHeader.id)
-                webSocketController.sendEvent(EVENT_PRIVATE_MESSAGE, e.output(text))
+                val h = e.messageHeader
+                if (h is PrivateMessageHeader) {
+                    val text = messagingManager.getMessageText(h.id)
+                    webSocketController.sendEvent(EVENT_CONVERSATION_MESSAGE, e.output(text))
+                } else {
+                    webSocketController.sendEvent(EVENT_CONVERSATION_MESSAGE, e.output())
+                }
             }
         }
     }
