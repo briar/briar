@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.tor;
 import android.content.Context;
 import android.os.Build;
 
+import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -48,6 +49,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 	private final ResourceProvider resourceProvider;
 	private final CircumventionProvider circumventionProvider;
+	private final BatteryManager batteryManager;
 	private final Clock clock;
 
 	public AndroidTorPluginFactory(Executor ioExecutor,
@@ -55,7 +57,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			NetworkManager networkManager, LocationUtils locationUtils,
 			EventBus eventBus, SocketFactory torSocketFactory,
 			BackoffFactory backoffFactory, ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider, Clock clock) {
+			CircumventionProvider circumventionProvider,
+			BatteryManager batteryManager, Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.appContext = appContext;
@@ -66,6 +69,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.backoffFactory = backoffFactory;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
+		this.batteryManager = batteryManager;
 		this.clock = clock;
 	}
 
@@ -104,8 +108,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor, scheduler,
 				appContext, networkManager, locationUtils, torSocketFactory,
-				clock, resourceProvider, circumventionProvider, backoff,
-				callback, architecture, MAX_LATENCY, MAX_IDLE_TIME);
+				clock, resourceProvider, circumventionProvider, batteryManager,
+				backoff, callback, architecture, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

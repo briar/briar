@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
+import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -44,6 +45,7 @@ public class LinuxTorPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 	private final ResourceProvider resourceProvider;
 	private final CircumventionProvider circumventionProvider;
+	private final BatteryManager batteryManager;
 	private final Clock clock;
 	private final File torDirectory;
 
@@ -51,8 +53,8 @@ public class LinuxTorPluginFactory implements DuplexPluginFactory {
 			NetworkManager networkManager, LocationUtils locationUtils,
 			EventBus eventBus, SocketFactory torSocketFactory,
 			BackoffFactory backoffFactory, ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider, Clock clock,
-			File torDirectory) {
+			CircumventionProvider circumventionProvider,
+			BatteryManager batteryManager, Clock clock, File torDirectory) {
 		this.ioExecutor = ioExecutor;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
@@ -61,6 +63,7 @@ public class LinuxTorPluginFactory implements DuplexPluginFactory {
 		this.backoffFactory = backoffFactory;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
+		this.batteryManager = batteryManager;
 		this.clock = clock;
 		this.torDirectory = torDirectory;
 	}
@@ -92,11 +95,10 @@ public class LinuxTorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		LinuxTorPlugin plugin =
-				new LinuxTorPlugin(ioExecutor, networkManager, locationUtils,
-						torSocketFactory, clock, resourceProvider,
-						circumventionProvider, backoff, callback, architecture,
-						MAX_LATENCY, MAX_IDLE_TIME, torDirectory);
+		LinuxTorPlugin plugin = new LinuxTorPlugin(ioExecutor, networkManager,
+				locationUtils, torSocketFactory, clock, resourceProvider,
+				circumventionProvider, batteryManager, backoff, callback,
+				architecture, MAX_LATENCY, MAX_IDLE_TIME, torDirectory);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.PowerManager;
 
+import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -41,17 +42,18 @@ class AndroidTorPlugin extends TorPlugin {
 			Context appContext, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider, Backoff backoff,
+			CircumventionProvider circumventionProvider,
+			BatteryManager batteryManager, Backoff backoff,
 			DuplexPluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
-				clock, resourceProvider, circumventionProvider, backoff,
-				callback, architecture, maxLatency, maxIdleTime,
+				clock, resourceProvider, circumventionProvider, batteryManager,
+				backoff, callback, architecture, maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
 		PowerManager pm = (PowerManager)
 				appContext.getSystemService(POWER_SERVICE);
-		assert pm != null;
+		if (pm == null) throw new AssertionError();
 		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
 				WAKE_LOCK_TAG, 1, MINUTES);
 	}

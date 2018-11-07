@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
+import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -23,12 +24,14 @@ class LinuxTorPlugin extends TorPlugin {
 	LinuxTorPlugin(Executor ioExecutor, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider, Backoff backoff,
+			CircumventionProvider circumventionProvider,
+			BatteryManager batteryManager, Backoff backoff,
 			DuplexPluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, File torDirectory) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
-				clock, resourceProvider, circumventionProvider, backoff,
-				callback, architecture, maxLatency, maxIdleTime, torDirectory);
+				clock, resourceProvider, circumventionProvider, batteryManager,
+				backoff, callback, architecture, maxLatency, maxIdleTime,
+				torDirectory);
 	}
 
 	@Override

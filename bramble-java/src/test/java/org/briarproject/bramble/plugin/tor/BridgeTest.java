@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
+import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -58,6 +59,8 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	CircumventionProvider circumventionProvider;
 	@Inject
+	BatteryManager batteryManager;
+	@Inject
 	EventBus eventBus;
 	@Inject
 	BackoffFactory backoffFactory;
@@ -107,7 +110,8 @@ public class BridgeTest extends BrambleTestCase {
 		};
 		factory = new LinuxTorPluginFactory(ioExecutor, networkManager,
 				locationUtils, eventBus, torSocketFactory, backoffFactory,
-				resourceProvider, bridgeProvider, clock, torDir);
+				resourceProvider, bridgeProvider, batteryManager, clock,
+				torDir);
 	}
 
 	@After
