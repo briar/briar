@@ -14,8 +14,6 @@ dependencies {
 	testImplementation "org.jmock:jmock:2.8.2"
 	testImplementation "org.jmock:jmock-junit4:2.8.2"
 	testImplementation "org.jmock:jmock-legacy:2.8.2"
-	testImplementation "org.hamcrest:hamcrest-library:1.3"
-	testImplementation "org.hamcrest:hamcrest-core:1.3"
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
