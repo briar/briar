@@ -19,8 +19,7 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_N
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, application = TestBriarApplication.class,
-		packageName = "org.briarproject.briar")
+@Config(sdk = 21, application = TestBriarApplication.class)
 public class SetupActivityTest {
 
 	private SetupActivity setupActivity;

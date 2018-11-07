@@ -35,8 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, application = TestBriarApplication.class,
-		packageName = "org.briarproject.briar")
+@Config(sdk = 21, application = TestBriarApplication.class)
 public class ForumActivityTest {
 
 	private final static MessageId[] MESSAGE_IDS = new MessageId[6];
