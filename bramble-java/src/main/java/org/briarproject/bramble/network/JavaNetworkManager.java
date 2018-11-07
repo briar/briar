@@ -1,10 +1,7 @@
 package org.briarproject.bramble.network;
 
-import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
-import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 
@@ -23,25 +20,13 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class JavaNetworkManager implements NetworkManager, Service {
+class JavaNetworkManager implements NetworkManager {
 
 	private static final Logger LOG =
 			Logger.getLogger(JavaNetworkManager.class.getName());
 
-	private final EventBus eventBus;
-
 	@Inject
-	JavaNetworkManager(EventBus eventBus) {
-		this.eventBus = eventBus;
-	}
-
-	@Override
-	public void startService() {
-		eventBus.broadcast(new NetworkStatusEvent(getNetworkStatus()));
-	}
-
-	@Override
-	public void stopService() {
+	JavaNetworkManager() {
 	}
 
 	@Override
