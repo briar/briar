@@ -24,6 +24,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -297,7 +298,7 @@ public class IntroductionIntegrationTest
 
 		Group g1 = introductionManager0.getContactGroup(introducee1);
 		Group g2 = introductionManager0.getContactGroup(introducee2);
-		Collection<PrivateMessageHeader> messages =
+		Collection<ConversationMessageHeader> messages =
 				db0.transactionWithResult(true, txn -> introductionManager0
 						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
@@ -363,7 +364,7 @@ public class IntroductionIntegrationTest
 		assertFalse(contactManager2
 				.contactExists(author1.getId(), author2.getId()));
 
-		Collection<PrivateMessageHeader> messages =
+		Collection<ConversationMessageHeader> messages =
 				db0.transactionWithResult(true, txn -> introductionManager0
 						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
@@ -1102,31 +1103,31 @@ public class IntroductionIntegrationTest
 	}
 
 	private void assertDefaultUiMessages() throws DbException {
-		Collection<PrivateMessageHeader> messages =
+		Collection<ConversationMessageHeader> messages =
 				db0.transactionWithResult(true, txn -> introductionManager0
 						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = db0.transactionWithResult(true,
-				txn -> introductionManager0.getMessageHeaders(txn, contactId2From0));
+		messages = db0.transactionWithResult(true, txn -> introductionManager0
+				.getMessageHeaders(txn, contactId2From0));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = db1.transactionWithResult(true,
-				txn -> introductionManager1.getMessageHeaders(txn, contactId0From1));
+		messages = db1.transactionWithResult(true, txn -> introductionManager1
+				.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 
-		messages = db2.transactionWithResult(true,
-				txn -> introductionManager2.getMessageHeaders(txn, contactId0From2));
+		messages = db2.transactionWithResult(true, txn -> introductionManager2
+				.getMessageHeaders(txn, contactId0From2));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 	}
 
 	private void assertMessagesAreAcked(
-			Collection<PrivateMessageHeader> messages) {
-		for (PrivateMessageHeader msg : messages) {
+			Collection<ConversationMessageHeader> messages) {
+		for (ConversationMessageHeader msg : messages) {
 			if (msg.isLocal()) assertTrue(msg.isSeen());
 		}
 	}
@@ -1302,9 +1303,9 @@ public class IntroductionIntegrationTest
 	private IntroductionRequest getIntroductionRequest(DatabaseComponent db,
 			IntroductionManager manager, ContactId contactId)
 			throws DbException {
-		Collection<PrivateMessageHeader> messages = db.transactionWithResult(
+		Collection<ConversationMessageHeader> messages = db.transactionWithResult(
 				true, txn -> manager.getMessageHeaders(txn, contactId));
-		for (PrivateMessageHeader im : messages) {
+		for (ConversationMessageHeader im : messages) {
 			if (im instanceof IntroductionRequest) {
 				return (IntroductionRequest) im;
 			}

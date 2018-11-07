@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.messaging;
+package org.briarproject.briar.api.conversation;
 
 import org.briarproject.bramble.api.Nameable;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -11,7 +11,8 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
+public abstract class ConversationRequest<N extends Nameable>
+		extends ConversationMessageHeader {
 
 	private final SessionId sessionId;
 	private final N nameable;
@@ -19,7 +20,7 @@ public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
 	private final String text;
 	private final boolean answered;
 
-	public PrivateRequest(MessageId messageId, GroupId groupId, long time,
+	public ConversationRequest(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
 			SessionId sessionId, N nameable, @Nullable String text,
 			boolean answered) {
@@ -50,4 +51,5 @@ public class PrivateRequest<N extends Nameable> extends PrivateMessageHeader {
 	public boolean wasAnswered() {
 		return answered;
 	}
+
 }

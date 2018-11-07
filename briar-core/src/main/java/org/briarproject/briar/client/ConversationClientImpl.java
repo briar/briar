@@ -12,7 +12,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.messaging.ConversationManager.ConversationClient;
+import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 
 import javax.annotation.concurrent.Immutable;
 

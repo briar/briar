@@ -23,19 +23,26 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.messaging.Attachment;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Random;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -113,11 +120,12 @@ class MessagingManagerImpl extends ConversationClientImpl
 		long timestamp = meta.getLong("timestamp");
 		boolean local = meta.getBoolean("local");
 		boolean read = meta.getBoolean(MSG_KEY_READ);
-		PrivateMessageHeader header = new PrivateMessageHeader(
-				m.getId(), groupId, timestamp, local, read, false, false);
+		PrivateMessageHeader header =
+				new PrivateMessageHeader(m.getId(), groupId, timestamp, local,
+						read, false, false, emptyList());
 		ContactId contactId = getContactId(txn, groupId);
-		PrivateMessageReceivedEvent<PrivateMessageHeader> event =
-				new PrivateMessageReceivedEvent<>(header, contactId);
+		PrivateMessageReceivedEvent event =
+				new PrivateMessageReceivedEvent(header, contactId);
 		txn.attach(event);
 		messageTracker.trackIncomingMessage(txn, m);
 
@@ -141,6 +149,15 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} finally {
 			db.endTransaction(txn);
 		}
+	}
+
+	@Override
+	public AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
+			String contentType, ByteBuffer data) {
+		// TODO add real implementation
+		byte[] b = new byte[MessageId.LENGTH];
+		new Random().nextBytes(b);
+		return new AttachmentHeader(new MessageId(b), "image/png");
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId g)
@@ -178,8 +195,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<PrivateMessageHeader> getMessageHeaders(Transaction txn,
-			ContactId c) throws DbException {
+	public Collection<ConversationMessageHeader> getMessageHeaders(
+			Transaction txn, ContactId c) throws DbException {
 		Map<MessageId, BdfDictionary> metadata;
 		Collection<MessageStatus> statuses;
 		GroupId g;
@@ -190,7 +207,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-		Collection<PrivateMessageHeader> headers = new ArrayList<>();
+		Collection<ConversationMessageHeader> headers = new ArrayList<>();
 		for (MessageStatus s : statuses) {
 			MessageId id = s.getMessageId();
 			BdfDictionary meta = metadata.get(id);
@@ -200,7 +217,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
 				headers.add(new PrivateMessageHeader(id, g, timestamp, local,
-						read, s.isSent(), s.isSeen()));
+						read, s.isSent(), s.isSeen(), emptyList()));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -216,6 +233,15 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	@Override
+	public Attachment getAttachment(MessageId m) {
+		// TODO add real implementation
+		// TODO return actual random/fake image before real implementation is done
+		byte[] b = new byte[MAX_MESSAGE_BODY_LENGTH];
+		new Random().nextBytes(b);
+		return new Attachment(ByteBuffer.wrap(b));
 	}
 
 }

@@ -195,7 +195,7 @@ it will send a JSON object to connected websocket clients:
         "timestamp": 1537389146088,
         "type": "PrivateMessage"
     },
-    "name": "PrivateMessageReceivedEvent",
+    "name": "ConversationMessageReceivedEvent",
     "type": "event"
 }
 ```

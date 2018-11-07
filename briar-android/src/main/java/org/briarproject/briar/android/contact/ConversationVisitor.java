@@ -14,7 +14,7 @@ import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.PrivateMessageVisitor;
+import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
@@ -28,7 +28,8 @@ import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
 @NotNullByDefault
-class ConversationVisitor implements PrivateMessageVisitor<ConversationItem> {
+class ConversationVisitor implements
+		ConversationMessageVisitor<ConversationItem> {
 
 	private final Context ctx;
 	private final TextCache textCache;

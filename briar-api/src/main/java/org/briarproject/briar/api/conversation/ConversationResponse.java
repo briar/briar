@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.messaging;
+package org.briarproject.briar.api.conversation;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -9,12 +9,12 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public abstract class PrivateResponse extends PrivateMessageHeader {
+public abstract class ConversationResponse extends ConversationMessageHeader {
 
 	private final SessionId sessionId;
 	private final boolean accepted;
 
-	public PrivateResponse(MessageId id, GroupId groupId, long time,
+	public ConversationResponse(MessageId id, GroupId groupId, long time,
 			boolean local, boolean sent, boolean seen, boolean read,
 			SessionId sessionId, boolean accepted) {
 		super(id, groupId, time, local, sent, seen, read);

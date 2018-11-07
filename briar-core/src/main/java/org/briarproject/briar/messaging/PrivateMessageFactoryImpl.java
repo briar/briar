@@ -6,8 +6,11 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+
+import java.util.List;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -28,7 +31,8 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 
 	@Override
 	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
-			String text) throws FormatException {
+			String text, List<AttachmentHeader> attachments)
+			throws FormatException {
 		// Validate the arguments
 		if (utf8IsTooLong(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
 			throw new IllegalArgumentException();

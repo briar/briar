@@ -63,16 +63,17 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationRequest;
+import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.messaging.ConversationManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.PrivateRequest;
-import org.briarproject.briar.api.messaging.PrivateResponse;
-import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
 import java.util.ArrayList;
@@ -95,6 +96,7 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptSt
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -326,7 +328,7 @@ public class ConversationActivity extends BriarActivity
 		runOnDbThread(() -> {
 			try {
 				long start = now();
-				Collection<PrivateMessageHeader> headers =
+				Collection<ConversationMessageHeader> headers =
 						conversationManager.getMessageHeaders(contactId);
 				logDuration(LOG, "Loading messages", start);
 				displayMessages(revision, headers);
@@ -339,7 +341,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void displayMessages(int revision,
-			Collection<PrivateMessageHeader> headers) {
+			Collection<ConversationMessageHeader> headers) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
@@ -363,9 +365,10 @@ public class ConversationActivity extends BriarActivity
 	 */
 	@SuppressWarnings("ConstantConditions")
 	private List<ConversationItem> createItems(
-			Collection<PrivateMessageHeader> headers) {
+			Collection<ConversationMessageHeader> headers) {
 		List<ConversationItem> items = new ArrayList<>(headers.size());
-		for (PrivateMessageHeader h : headers) items.add(h.accept(visitor));
+		for (ConversationMessageHeader h : headers)
+			items.add(h.accept(visitor));
 		return items;
 	}
 
@@ -407,11 +410,12 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact removed");
 				finishOnUiThread();
 			}
-		} else if (e instanceof PrivateMessageReceivedEvent) {
-			PrivateMessageReceivedEvent p = (PrivateMessageReceivedEvent) e;
+		} else if (e instanceof ConversationMessageReceivedEvent) {
+			ConversationMessageReceivedEvent p =
+					(ConversationMessageReceivedEvent) e;
 			if (p.getContactId().equals(contactId)) {
 				LOG.info("Message received, adding");
-				onNewPrivateMessage(p.getMessageHeader());
+				onNewConversationMessage(p.getMessageHeader());
 			}
 		} else if (e instanceof MessagesSentEvent) {
 			MessagesSentEvent m = (MessagesSentEvent) e;
@@ -449,9 +453,10 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void onNewPrivateMessage(PrivateMessageHeader h) {
+	private void onNewConversationMessage(ConversationMessageHeader h) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			if (h instanceof PrivateRequest || h instanceof PrivateResponse) {
+			if (h instanceof ConversationRequest ||
+					h instanceof ConversationResponse) {
 				// contact name might not have been loaded
 				observeOnce(viewModel.getContactDisplayName(), this,
 						name -> addConversationItem(h.accept(visitor)));
@@ -515,7 +520,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				//noinspection ConstantConditions init in loadGroupId()
 				storeMessage(privateMessageFactory.createPrivateMessage(
-						messagingGroupId, timestamp, text), text);
+						messagingGroupId, timestamp, text, emptyList()), text);
 			} catch (FormatException e) {
 				throw new RuntimeException(e);
 			}
@@ -531,7 +536,8 @@ public class ConversationActivity extends BriarActivity
 				Message message = m.getMessage();
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, false, false, false);
+						message.getTimestamp(), true, false, false, false,
+						emptyList());
 				textCache.put(message.getId(), text);
 				addConversationItem(h.accept(visitor));
 			} catch (DbException e) {

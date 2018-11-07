@@ -8,7 +8,7 @@ import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

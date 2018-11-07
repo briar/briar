@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.api.blog.BlogSharingManager;
-import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;

@@ -20,7 +20,7 @@ import org.briarproject.briar.android.contact.ContactListItem;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.messaging.ConversationManager;
+import org.briarproject.briar.api.conversation.ConversationManager;
 
 import java.util.ArrayList;
 import java.util.List;

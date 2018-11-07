@@ -3,16 +3,16 @@ package org.briarproject.briar.headless.messaging
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.identity.output
 import org.briarproject.briar.api.blog.BlogInvitationResponse
+import org.briarproject.briar.api.conversation.ConversationMessageHeader
+import org.briarproject.briar.api.conversation.ConversationResponse
 import org.briarproject.briar.api.forum.ForumInvitationResponse
 import org.briarproject.briar.api.introduction.IntroductionResponse
-import org.briarproject.briar.api.messaging.PrivateMessageHeader
-import org.briarproject.briar.api.messaging.PrivateResponse
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse
 import org.briarproject.briar.api.sharing.InvitationResponse
 import org.briarproject.briar.headless.json.JsonDict
 
-internal fun PrivateResponse.output(contactId: ContactId): JsonDict {
-    val dict = (this as PrivateMessageHeader).output(contactId)
+internal fun ConversationResponse.output(contactId: ContactId): JsonDict {
+    val dict = (this as ConversationMessageHeader).output(contactId)
     dict.putAll(
         "sessionId" to sessionId.bytes,
         "accepted" to wasAccepted()
@@ -21,7 +21,7 @@ internal fun PrivateResponse.output(contactId: ContactId): JsonDict {
 }
 
 internal fun IntroductionResponse.output(contactId: ContactId): JsonDict {
-    val dict = (this as PrivateResponse).output(contactId)
+    val dict = (this as ConversationResponse).output(contactId)
     dict.putAll(
         "type" to "IntroductionResponse",
         "introducedAuthor" to introducedAuthor.output(),
@@ -31,7 +31,7 @@ internal fun IntroductionResponse.output(contactId: ContactId): JsonDict {
 }
 
 internal fun InvitationResponse.output(contactId: ContactId): JsonDict {
-    val dict = (this as PrivateResponse).output(contactId)
+    val dict = (this as ConversationResponse).output(contactId)
     dict["shareableId"] = shareableId.bytes
     return dict
 }

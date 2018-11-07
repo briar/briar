@@ -6,15 +6,15 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.PrivateMessageVisitor;
-import org.briarproject.briar.api.messaging.PrivateRequest;
+import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
+import org.briarproject.briar.api.conversation.ConversationRequest;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class IntroductionRequest extends PrivateRequest<Author> {
+public class IntroductionRequest extends ConversationRequest<Author> {
 
 	private final AuthorInfo authorInfo;
 
@@ -37,7 +37,7 @@ public class IntroductionRequest extends PrivateRequest<Author> {
 	}
 
 	@Override
-	public <T> T accept(PrivateMessageVisitor<T> v) {
+	public <T> T accept(ConversationMessageVisitor<T> v) {
 		return v.visitIntroductionRequest(this);
 	}
 }

@@ -18,7 +18,7 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -146,12 +146,12 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(blog2));
 
 		// invitee has one invitation message from sharer
-		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
-				txn -> blogSharingManager1
+		Collection<ConversationMessageHeader> list =
+				db1.transactionWithResult(true, txn -> blogSharingManager1
 						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
-		for (PrivateMessageHeader m : list) {
+		for (ConversationMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertEquals(blog2, invitation.getNameable());
@@ -220,11 +220,12 @@ public class BlogSharingIntegrationTest
 		assertTrue(blogManager1.getBlogs().contains(rssBlog));
 
 		// invitee has one invitation message from sharer
-		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
-				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> list =
+				db1.transactionWithResult(true, txn -> blogSharingManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check other things are alright with the message
-		for (PrivateMessageHeader m : list) {
+		for (ConversationMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertEquals(rssBlog, invitation.getNameable());
@@ -282,11 +283,12 @@ public class BlogSharingIntegrationTest
 		assertEquals(0, blogSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		Collection<PrivateMessageHeader> list = db1.transactionWithResult(true,
-				txn -> blogSharingManager1.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> list =
+				db1.transactionWithResult(true, txn -> blogSharingManager1
+						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, list.size());
 		// check things are alright with the  message
-		for (PrivateMessageHeader m : list) {
+		for (ConversationMessageHeader m : list) {
 			if (m instanceof BlogInvitationRequest) {
 				BlogInvitationRequest invitation = (BlogInvitationRequest) m;
 				assertEquals(blog2, invitation.getNameable());
@@ -389,7 +391,7 @@ public class BlogSharingIntegrationTest
 		assertTrue(contacts.contains(contact0From1));
 
 		// make sure 1 knows that they have blog2 already
-		Collection<PrivateMessageHeader> messages =
+		Collection<ConversationMessageHeader> messages =
 				db1.transactionWithResult(true, txn -> blogSharingManager1
 						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());

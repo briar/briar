@@ -24,7 +24,7 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -696,10 +696,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageStatus(txn, contactId, messageId2);
 		}});
 
-		Collection<PrivateMessageHeader> messages =
+		Collection<ConversationMessageHeader> messages =
 				groupInvitationManager.getMessageHeaders(txn, contactId);
 		assertEquals(2, messages.size());
-		for (PrivateMessageHeader m : messages) {
+		for (ConversationMessageHeader m : messages) {
 			assertEquals(contactGroup.getId(), m.getGroupId());
 			if (m.getId().equals(message.getId())) {
 				assertTrue(m instanceof GroupInvitationRequest);
