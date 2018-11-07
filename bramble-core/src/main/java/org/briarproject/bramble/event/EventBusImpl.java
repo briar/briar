@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.ThreadSafe;
 
@@ -16,6 +17,11 @@ class EventBusImpl implements EventBus {
 
 	private final Collection<EventListener> listeners =
 			new CopyOnWriteArrayList<>();
+	private final Executor eventExecutor;
+
+	EventBusImpl(Executor eventExecutor) {
+		this.eventExecutor = eventExecutor;
+	}
 
 	@Override
 	public void addListener(EventListener l) {
@@ -29,6 +35,8 @@ class EventBusImpl implements EventBus {
 
 	@Override
 	public void broadcast(Event e) {
-		for (EventListener l : listeners) l.eventOccurred(e);
+		eventExecutor.execute(() -> {
+			for (EventListener l : listeners) l.eventOccurred(e);
+		});
 	}
 }

@@ -2,6 +2,7 @@ package org.briarproject.bramble.test;
 
 import org.briarproject.bramble.BrambleJavaModule;
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule;
+import org.briarproject.bramble.event.DefaultEventExecutorModule;
 import org.briarproject.bramble.event.EventModule;
 import org.briarproject.bramble.plugin.PluginModule;
 import org.briarproject.bramble.plugin.tor.BridgeTest;
@@ -17,8 +18,9 @@ import dagger.Component;
 		BrambleJavaModule.class,
 		TestLifecycleModule.class,
 		DefaultBatteryManagerModule.class,
-		PluginModule.class,  // needed for BackoffFactory
+		DefaultEventExecutorModule.class,
 		EventModule.class,
+		PluginModule.class,  // needed for BackoffFactory
 		SystemModule.class,
 })
 public interface BrambleJavaIntegrationTestComponent {

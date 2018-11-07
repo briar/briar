@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.api.system.LocationUtils
 import org.briarproject.bramble.api.system.ResourceProvider
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule
+import org.briarproject.bramble.event.DefaultEventExecutorModule
 import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.CircumventionProvider
@@ -47,6 +48,7 @@ import javax.net.SocketFactory
         JavaSystemModule::class,
         CircumventionModule::class,
         DefaultBatteryManagerModule::class,
+        DefaultEventExecutorModule::class,
         HeadlessBlogModule::class,
         HeadlessContactModule::class,
         HeadlessEventModule::class,
