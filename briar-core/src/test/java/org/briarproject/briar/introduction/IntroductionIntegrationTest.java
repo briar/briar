@@ -32,7 +32,6 @@ import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -1101,8 +1100,8 @@ public class IntroductionIntegrationTest
 
 	private void assertDefaultUiMessages() throws DbException {
 		Collection<ConversationMessageHeader> messages =
-				db0.transactionWithResult(true, txn ->
-						introductionManager0.getMessageHeaders(txn, contactId1From0));
+				db0.transactionWithResult(true, txn -> introductionManager0
+						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		assertMessagesAreAcked(messages);
 

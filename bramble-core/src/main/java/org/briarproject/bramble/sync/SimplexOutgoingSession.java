@@ -132,8 +132,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 						db.generateAck(txn, contactId, MAX_MESSAGE_IDS));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
-				if (a != null) writerTasks.add(new WriteAck(a));
-				else decrementOutstandingQueries();
+				if (a == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteAck(a));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
@@ -172,8 +172,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 										MAX_RECORD_PAYLOAD_BYTES, maxLatency));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
-				if (b != null) writerTasks.add(new WriteBatch(b));
-				else decrementOutstandingQueries();
+				if (b == null) decrementOutstandingQueries();
+				else writerTasks.add(new WriteBatch(b));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();
