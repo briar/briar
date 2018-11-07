@@ -69,8 +69,6 @@ internal class WebSocketControllerTest : ControllerTest() {
 
     @Test
     fun testIntroductionRequestEvent() {
-        val sessionId = SessionId(getRandomId())
-        val authorInfo = AuthorInfo(VERIFIED)
         val introductionRequest = IntroductionRequest(
             message.id,
             group.id,
@@ -79,11 +77,11 @@ internal class WebSocketControllerTest : ControllerTest() {
             true,
             true,
             true,
-            sessionId,
+            SessionId(getRandomId()),
             author,
             text,
             false,
-            authorInfo
+            AuthorInfo(VERIFIED)
         )
         val introductionRequestEvent =
             IntroductionRequestReceivedEvent(introductionRequest, contact.id)

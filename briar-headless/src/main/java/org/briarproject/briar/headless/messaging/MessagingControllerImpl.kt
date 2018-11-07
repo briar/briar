@@ -81,9 +81,9 @@ constructor(
 
     override fun eventOccurred(e: Event) {
         when (e) {
-            is ConversationMessageReceivedEvent<*> -> dbExecutor.execute {
+            is ConversationMessageReceivedEvent<*> -> {
                 val h = e.messageHeader
-                if (h is PrivateMessageHeader) {
+                if (h is PrivateMessageHeader) dbExecutor.execute {
                     val text = messagingManager.getMessageText(h.id)
                     webSocketController.sendEvent(EVENT_CONVERSATION_MESSAGE, e.output(text))
                 } else {
