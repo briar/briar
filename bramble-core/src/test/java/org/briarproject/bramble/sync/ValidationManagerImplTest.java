@@ -18,16 +18,16 @@ import org.briarproject.bramble.api.sync.ValidationManager.MessageValidator;
 import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Executor;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -83,28 +83,19 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn1 = new Transaction(null, true);
 		Transaction txn2 = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// validateOutstandingMessages()
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// deliverOutstandingMessages()
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn1));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
 			oneOf(db).getPendingMessages(txn1);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// shareOutstandingMessages()
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn2));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn2));
 			oneOf(db).getMessagesToShare(txn2);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 		}});
 
 		vm.startService();
@@ -121,29 +112,22 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn5 = new Transaction(null, true);
 		Transaction txn6 = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Get messages to validate
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessagesToValidate(txn);
-			will(returnValue(Arrays.asList(messageId, messageId1)));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
+			will(returnValue(asList(messageId, messageId1)));
 			// Load the first raw message and group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn1));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
 			oneOf(db).getMessage(txn1, messageId);
 			will(returnValue(message));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Validate the first message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResult));
 			// Store the validation result for the first message
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn2));
+			oneOf(db).transaction(with(false), withDbRunnable(txn2));
 			oneOf(db).mergeMessageMetadata(txn2, messageId, metadata);
 			// Deliver the first message
 			oneOf(hook).incomingMessage(txn2, message, metadata);
@@ -152,23 +136,17 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 			// Load the second raw message and group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn3));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn3));
 			oneOf(db).getMessage(txn3, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
 			will(throwException(new InvalidMessageException()));
 			// Store the validation result for the second message
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn4));
+			oneOf(db).transaction(with(false), withDbRunnable(txn4));
 			oneOf(db).getMessageState(txn4, messageId1);
 			will(returnValue(UNKNOWN));
 			oneOf(db).setMessageState(txn4, messageId1, INVALID);
@@ -177,22 +155,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Recursively invalidate any dependents
 			oneOf(db).getMessageDependents(txn4, messageId1);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn4);
-			oneOf(db).endTransaction(txn4);
 			// Get pending messages to deliver
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn5));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn5));
 			oneOf(db).getPendingMessages(txn5);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn5);
-			oneOf(db).endTransaction(txn5);
 			// Get messages to share
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn6));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn6));
 			oneOf(db).getMessagesToShare(txn6);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn6);
-			oneOf(db).endTransaction(txn6);
 		}});
 
 		vm.startService();
@@ -206,24 +176,17 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn3 = new Transaction(null, false);
 		Transaction txn4 = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Get messages to validate
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Get pending messages to deliver
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn1));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
 			oneOf(db).getPendingMessages(txn1);
 			will(returnValue(singletonList(messageId)));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Check whether the message is ready to deliver
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn2));
+			oneOf(db).transaction(with(false), withDbRunnable(txn2));
 			oneOf(db).getMessageState(txn2, messageId);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn2, messageId);
@@ -242,11 +205,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn2, messageId);
 			will(returnValue(singletonMap(messageId2, PENDING)));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 			// Check whether the dependent is ready to deliver
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn3));
+			oneOf(db).transaction(with(false), withDbRunnable(txn3));
 			oneOf(db).getMessageState(txn3, messageId2);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn3, messageId2);
@@ -265,16 +225,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn3, messageId2);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
 
 			// Get messages to share
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn4));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn4));
 			oneOf(db).getMessagesToShare(txn4);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn4);
-			oneOf(db).endTransaction(txn4);
 		}});
 
 		vm.startService();
@@ -288,45 +243,30 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn3 = new Transaction(null, false);
 		Transaction txn4 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// No messages to validate
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessagesToValidate(txn);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// No pending messages to deliver
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn1));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
 			oneOf(db).getPendingMessages(txn1);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 
 			// Get messages to share
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn2));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn2));
 			oneOf(db).getMessagesToShare(txn2);
 			will(returnValue(singletonList(messageId)));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 			// Share message and get dependencies
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn3));
+			oneOf(db).transaction(with(false), withDbRunnable(txn3));
 			oneOf(db).setMessageShared(txn3, messageId);
 			oneOf(db).getMessageDependencies(txn3, messageId);
 			will(returnValue(singletonMap(messageId2, DELIVERED)));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
 			// Share dependency
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn4));
+			oneOf(db).transaction(with(false), withDbRunnable(txn4));
 			oneOf(db).setMessageShared(txn4, messageId2);
 			oneOf(db).getMessageDependencies(txn4, messageId2);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn4);
-			oneOf(db).endTransaction(txn4);
 		}});
 
 		vm.startService();
@@ -338,20 +278,16 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn1 = new Transaction(null, false);
 		Transaction txn2 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResultWithDependencies));
 			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).addMessageDependencies(txn1, message,
 					validResultWithDependencies.getDependencies());
 			oneOf(db).getMessageDependencies(txn1, messageId);
@@ -366,16 +302,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(emptyMap()));
 			// Share message
 			oneOf(db).setMessageShared(txn1, messageId);
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Share dependencies
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn2));
+			oneOf(db).transaction(with(false), withDbRunnable(txn2));
 			oneOf(db).setMessageShared(txn2, messageId1);
 			oneOf(db).getMessageDependencies(txn2, messageId1);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -391,36 +322,26 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn4 = new Transaction(null, true);
 		Transaction txn5 = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Get messages to validate
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessagesToValidate(txn);
-			will(returnValue(Arrays.asList(messageId, messageId1)));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
+			will(returnValue(asList(messageId, messageId1)));
 			// Load the first raw message - *gasp* it's gone!
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn1));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
 			oneOf(db).getMessage(txn1, messageId);
 			will(throwException(new NoSuchMessageException()));
-			never(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Load the second raw message and group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn2));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn2));
 			oneOf(db).getMessage(txn2, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
 			will(throwException(new InvalidMessageException()));
 			// Invalidate the second message
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn3));
+			oneOf(db).transaction(with(false), withDbRunnable(txn3));
 			oneOf(db).getMessageState(txn3, messageId1);
 			will(returnValue(UNKNOWN));
 			oneOf(db).setMessageState(txn3, messageId1, INVALID);
@@ -429,22 +350,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn3, messageId1);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
 			// Get pending messages to deliver
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn4));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn4));
 			oneOf(db).getPendingMessages(txn4);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn4);
-			oneOf(db).endTransaction(txn4);
 			// Get messages to share
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn5));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn5));
 			oneOf(db).getMessagesToShare(txn5);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn5);
-			oneOf(db).endTransaction(txn5);
 		}});
 
 		vm.startService();
@@ -460,39 +373,29 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn4 = new Transaction(null, true);
 		Transaction txn5 = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Get messages to validate
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessagesToValidate(txn);
-			will(returnValue(Arrays.asList(messageId, messageId1)));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
+			will(returnValue(asList(messageId, messageId1)));
 			// Load the first raw message
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn1));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
 			oneOf(db).getMessage(txn1, messageId);
 			will(returnValue(message));
 			// Load the group - *gasp* it's gone!
 			oneOf(db).getGroup(txn1, groupId);
 			will(throwException(new NoSuchGroupException()));
-			never(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Load the second raw message and group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn2));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn2));
 			oneOf(db).getMessage(txn2, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 			// Validate the second message: invalid
 			oneOf(validator).validateMessage(message1, group);
 			will(throwException(new InvalidMessageException()));
 			// Store the validation result for the second message
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn3));
+			oneOf(db).transaction(with(false), withDbRunnable(txn3));
 			oneOf(db).getMessageState(txn3, messageId1);
 			will(returnValue(UNKNOWN));
 			oneOf(db).setMessageState(txn3, messageId1, INVALID);
@@ -501,22 +404,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn3, messageId1);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
 			// Get pending messages to deliver
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn4));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn4));
 			oneOf(db).getPendingMessages(txn4);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn4);
-			oneOf(db).endTransaction(txn4);
 			// Get messages to share
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn5));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn5));
 			oneOf(db).getMessagesToShare(txn5);
 			will(returnValue(emptyList()));
-			oneOf(db).commitTransaction(txn5);
-			oneOf(db).endTransaction(txn5);
 		}});
 
 		vm.startService();
@@ -527,20 +422,16 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, true);
 		Transaction txn1 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResult));
 			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
@@ -549,8 +440,6 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -567,28 +456,22 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, true);
 		Transaction txn1 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResultWithDependencies));
 			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).addMessageDependencies(txn1, message,
 					validResultWithDependencies.getDependencies());
 			oneOf(db).getMessageDependencies(txn1, messageId);
 			will(returnValue(singletonMap(messageId1, UNKNOWN)));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			oneOf(db).setMessageState(txn1, messageId, PENDING);
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -600,20 +483,16 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, true);
 		Transaction txn1 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResultWithDependencies));
 			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).addMessageDependencies(txn1, message,
 					validResultWithDependencies.getDependencies());
 			oneOf(db).getMessageDependencies(txn1, messageId);
@@ -626,8 +505,6 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -640,20 +517,16 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn1 = new Transaction(null, false);
 		Transaction txn2 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResultWithDependencies));
 			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).addMessageDependencies(txn1, message,
 					validResultWithDependencies.getDependencies());
 			// Check for invalid dependencies
@@ -668,11 +541,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Recursively invalidate dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(singletonMap(messageId2, UNKNOWN)));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Invalidate dependent in a new transaction
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn2));
+			oneOf(db).transaction(with(false), withDbRunnable(txn2));
 			oneOf(db).getMessageState(txn2, messageId2);
 			will(returnValue(UNKNOWN));
 			oneOf(db).setMessageState(txn2, messageId2, INVALID);
@@ -680,8 +550,6 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).deleteMessageMetadata(txn2, messageId2);
 			oneOf(db).getMessageDependents(txn2, messageId2);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -702,20 +570,16 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn5 = new Transaction(null, false);
 		Transaction txn6 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: invalid
 			oneOf(validator).validateMessage(message, group);
 			will(throwException(new InvalidMessageException()));
 			// Invalidate the message
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).getMessageState(txn1, messageId);
 			will(returnValue(UNKNOWN));
 			oneOf(db).setMessageState(txn1, messageId, INVALID);
@@ -724,11 +588,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// The message has two dependents: 1 and 2
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(twoDependents));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Invalidate message 1
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn2));
+			oneOf(db).transaction(with(false), withDbRunnable(txn2));
 			oneOf(db).getMessageState(txn2, messageId1);
 			will(returnValue(PENDING));
 			oneOf(db).setMessageState(txn2, messageId1, INVALID);
@@ -737,11 +598,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 1 has one dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
 			will(returnValue(singletonMap(messageId3, PENDING)));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 			// Invalidate message 2
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn3));
+			oneOf(db).transaction(with(false), withDbRunnable(txn3));
 			oneOf(db).getMessageState(txn3, messageId2);
 			will(returnValue(PENDING));
 			oneOf(db).setMessageState(txn3, messageId2, INVALID);
@@ -750,11 +608,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 2 has one dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
 			will(returnValue(singletonMap(messageId3, PENDING)));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
 			// Invalidate message 3 (via 1)
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn4));
+			oneOf(db).transaction(with(false), withDbRunnable(txn4));
 			oneOf(db).getMessageState(txn4, messageId3);
 			will(returnValue(PENDING));
 			oneOf(db).setMessageState(txn4, messageId3, INVALID);
@@ -763,18 +618,12 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 3 has one dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
 			will(returnValue(singletonMap(messageId4, PENDING)));
-			oneOf(db).commitTransaction(txn4);
-			oneOf(db).endTransaction(txn4);
 			// Invalidate message 3 (again, via 2)
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn5));
+			oneOf(db).transaction(with(false), withDbRunnable(txn5));
 			oneOf(db).getMessageState(txn5, messageId3);
 			will(returnValue(INVALID)); // Already invalidated
-			oneOf(db).commitTransaction(txn5);
-			oneOf(db).endTransaction(txn5);
 			// Invalidate message 4 (via 1 and 3)
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn6));
+			oneOf(db).transaction(with(false), withDbRunnable(txn6));
 			oneOf(db).getMessageState(txn6, messageId4);
 			will(returnValue(PENDING));
 			oneOf(db).setMessageState(txn6, messageId4, INVALID);
@@ -783,8 +632,6 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 4 has no dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn6);
-			oneOf(db).endTransaction(txn6);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -810,20 +657,16 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn5 = new Transaction(null, false);
 		Transaction txn6 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResult));
 			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
@@ -832,11 +675,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// The message has two pending dependents: 1 and 2
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(twoDependents));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Check whether message 1 is ready to be delivered
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn2));
+			oneOf(db).transaction(with(false), withDbRunnable(txn2));
 			oneOf(db).getMessageState(txn2, messageId1);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn2, messageId1);
@@ -855,11 +695,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 1 has one pending dependent: 3
 			oneOf(db).getMessageDependents(txn2, messageId1);
 			will(returnValue(singletonMap(messageId3, PENDING)));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 			// Check whether message 2 is ready to be delivered
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn3));
+			oneOf(db).transaction(with(false), withDbRunnable(txn3));
 			oneOf(db).getMessageState(txn3, messageId2);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn3, messageId2);
@@ -878,11 +715,8 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 2 has one pending dependent: 3 (same dependent as 1)
 			oneOf(db).getMessageDependents(txn3, messageId2);
 			will(returnValue(singletonMap(messageId3, PENDING)));
-			oneOf(db).commitTransaction(txn3);
-			oneOf(db).endTransaction(txn3);
 			// Check whether message 3 is ready to be delivered (via 1)
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn4));
+			oneOf(db).transaction(with(false), withDbRunnable(txn4));
 			oneOf(db).getMessageState(txn4, messageId3);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn4, messageId3);
@@ -900,18 +734,12 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 3 has one pending dependent: 4
 			oneOf(db).getMessageDependents(txn4, messageId3);
 			will(returnValue(singletonMap(messageId4, PENDING)));
-			oneOf(db).commitTransaction(txn4);
-			oneOf(db).endTransaction(txn4);
 			// Check whether message 3 is ready to be delivered (again, via 2)
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn5));
+			oneOf(db).transaction(with(false), withDbRunnable(txn5));
 			oneOf(db).getMessageState(txn5, messageId3);
 			will(returnValue(DELIVERED)); // Already delivered
-			oneOf(db).commitTransaction(txn5);
-			oneOf(db).endTransaction(txn5);
 			// Check whether message 4 is ready to be delivered (via 1 and 3)
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn6));
+			oneOf(db).transaction(with(false), withDbRunnable(txn6));
 			oneOf(db).getMessageState(txn6, messageId4);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn6, messageId4);
@@ -930,8 +758,6 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Message 4 has no pending dependents
 			oneOf(db).getMessageDependents(txn6, messageId4);
 			will(returnValue(emptyMap()));
-			oneOf(db).commitTransaction(txn6);
-			oneOf(db).endTransaction(txn6);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));
@@ -946,20 +772,16 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Transaction txn1 = new Transaction(null, false);
 		Transaction txn2 = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Load the group
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 			// Validate the message: valid
 			oneOf(validator).validateMessage(message, group);
 			will(returnValue(validResult));
 			// Store the validation result
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn1));
+			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			oneOf(db).mergeMessageMetadata(txn1, messageId, metadata);
 			// Deliver the message
 			oneOf(hook).incomingMessage(txn1, message, metadata);
@@ -968,17 +790,12 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			// Get any pending dependents
 			oneOf(db).getMessageDependents(txn1, messageId);
 			will(returnValue(singletonMap(messageId1, PENDING)));
-			oneOf(db).commitTransaction(txn1);
-			oneOf(db).endTransaction(txn1);
 			// Check whether the pending dependent is ready to be delivered
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn2));
+			oneOf(db).transaction(with(false), withDbRunnable(txn2));
 			oneOf(db).getMessageState(txn2, messageId1);
 			will(returnValue(PENDING));
 			oneOf(db).getMessageDependencies(txn2, messageId1);
 			will(returnValue(twoDependencies));
-			oneOf(db).commitTransaction(txn2);
-			oneOf(db).endTransaction(txn2);
 		}});
 
 		vm.eventOccurred(new MessageAddedEvent(message, contactId));

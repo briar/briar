@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
-import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -137,8 +136,9 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = db0.transactionWithResult(true, txn -> groupInvitationManager0
-				.getMessageHeaders(txn, contactId1From0));
+		messages = db0.transactionWithResult(true, txn ->
+				groupInvitationManager0
+						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
@@ -191,8 +191,9 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = db1.transactionWithResult(true, txn -> groupInvitationManager0
-				.getMessageHeaders(txn, contactId1From0));
+		messages = db1.transactionWithResult(true, txn ->
+				groupInvitationManager0
+						.getMessageHeaders(txn, contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
@@ -227,10 +228,9 @@ public class GroupInvitationIntegrationTest
 		// 1 has one unread message
 		Group g0 = groupInvitationManager1.getContactGroup(contact0From1);
 		assertGroupCount(messageTracker1, g0.getId(), 1, 1, timestamp);
-		ConversationMessageHeader m = db1.transactionWithResult(true,
-				txn -> groupInvitationManager1
-						.getMessageHeaders(txn, contactId0From1).iterator()
-						.next());
+		ConversationMessageHeader m = db1.transactionWithResult(true, txn ->
+				groupInvitationManager1.getMessageHeaders(txn, contactId0From1)
+						.iterator().next());
 
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);

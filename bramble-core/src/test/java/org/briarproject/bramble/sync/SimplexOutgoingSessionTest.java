@@ -11,8 +11,8 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
-import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.util.concurrent.Executor;
@@ -45,24 +45,20 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 		Transaction noAckTxn = new Transaction(null, false);
 		Transaction noMsgTxn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// No acks to send
-			oneOf(db).startTransaction(false);
-			will(returnValue(noAckTxn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withDbCallable(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
-			oneOf(db).commitTransaction(noAckTxn);
-			oneOf(db).endTransaction(noAckTxn);
 			// No messages to send
-			oneOf(db).startTransaction(false);
-			will(returnValue(noMsgTxn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withDbCallable(noMsgTxn));
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(MAX_LATENCY));
 			will(returnValue(null));
-			oneOf(db).commitTransaction(noMsgTxn);
-			oneOf(db).endTransaction(noMsgTxn);
 			// Send the end of stream marker
 			oneOf(streamWriter).sendEndOfStream();
 			// Remove listener
@@ -83,41 +79,33 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 		Transaction msgTxn = new Transaction(null, false);
 		Transaction noMsgTxn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
 			// One ack to send
-			oneOf(db).startTransaction(false);
-			will(returnValue(ackTxn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withDbCallable(ackTxn));
 			oneOf(db).generateAck(ackTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(ack));
-			oneOf(db).commitTransaction(ackTxn);
-			oneOf(db).endTransaction(ackTxn);
 			oneOf(recordWriter).writeAck(ack);
 			// One message to send
-			oneOf(db).startTransaction(false);
-			will(returnValue(msgTxn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withDbCallable(msgTxn));
 			oneOf(db).generateBatch(with(msgTxn), with(contactId),
 					with(any(int.class)), with(MAX_LATENCY));
 			will(returnValue(singletonList(message)));
-			oneOf(db).commitTransaction(msgTxn);
-			oneOf(db).endTransaction(msgTxn);
 			oneOf(recordWriter).writeMessage(message);
 			// No more acks
-			oneOf(db).startTransaction(false);
-			will(returnValue(noAckTxn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withDbCallable(noAckTxn));
 			oneOf(db).generateAck(noAckTxn, contactId, MAX_MESSAGE_IDS);
 			will(returnValue(null));
-			oneOf(db).commitTransaction(noAckTxn);
-			oneOf(db).endTransaction(noAckTxn);
 			// No more messages
-			oneOf(db).startTransaction(false);
-			will(returnValue(noMsgTxn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withDbCallable(noMsgTxn));
 			oneOf(db).generateBatch(with(noMsgTxn), with(contactId),
 					with(any(int.class)), with(MAX_LATENCY));
 			will(returnValue(null));
-			oneOf(db).commitTransaction(noMsgTxn);
-			oneOf(db).endTransaction(noMsgTxn);
 			// Send the end of stream marker
 			oneOf(streamWriter).sendEndOfStream();
 			// Remove listener

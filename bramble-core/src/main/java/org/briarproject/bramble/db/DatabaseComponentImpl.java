@@ -183,6 +183,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Override
 	public <R, E extends Exception> R transactionWithResult(boolean readOnly,
 			DbCallable<R, E> task) throws DbException, E {
+		R result = transactionWithNullableResult(readOnly, task);
+		if (result == null) throw new NullPointerException();
+		return result;
+	}
+
+	@Override
+	public <R, E extends Exception> R transactionWithNullableResult(
+			boolean readOnly, DbCallable<R, E> task) throws DbException, E {
 		Transaction txn = startTransaction(readOnly);
 		try {
 			R result = task.call(txn);
@@ -861,7 +869,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void setContactAlias(Transaction transaction, ContactId c,
-			String alias) throws DbException {
+			@Nullable String alias) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))

@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
@@ -85,14 +86,11 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		boolean shared = new Random().nextBoolean();
 		Transaction txn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(metadata));
 			oneOf(db).addLocalMessage(txn, message, metadata, shared);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		clientHelper.addLocalMessage(message, dictionary, shared);
@@ -116,13 +114,10 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		Transaction txn = new Transaction(null, true);
 
 		expectToList(true);
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessage(txn, messageId);
 			will(returnValue(message));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		clientHelper.getMessageAsList(messageId);
@@ -133,15 +128,12 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	public void testGetGroupMetadataAsDictionary() throws Exception {
 		Transaction txn = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getGroupMetadata(txn, groupId);
 			will(returnValue(metadata));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		assertEquals(dictionary,
@@ -153,15 +145,12 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	public void testGetMessageMetadataAsDictionary() throws Exception {
 		Transaction txn = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessageMetadata(txn, messageId);
 			will(returnValue(metadata));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		assertEquals(dictionary,
@@ -175,15 +164,12 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		map.put(messageId, dictionary);
 		Transaction txn = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessageMetadata(txn, groupId);
 			will(returnValue(Collections.singletonMap(messageId, metadata)));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		assertEquals(map, clientHelper.getMessageMetadataAsDictionary(groupId));
@@ -200,17 +186,14 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		queryMetadata.put("query", getRandomBytes(42));
 		Transaction txn = new Transaction(null, true);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(metadataEncoder).encode(query);
 			will(returnValue(queryMetadata));
 			oneOf(db).getMessageMetadata(txn, groupId, queryMetadata);
 			will(returnValue(Collections.singletonMap(messageId, metadata)));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		assertEquals(map,
@@ -222,14 +205,11 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	public void testMergeGroupMetadata() throws Exception {
 		Transaction txn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(metadata));
 			oneOf(db).mergeGroupMetadata(txn, groupId, metadata);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		clientHelper.mergeGroupMetadata(groupId, dictionary);
@@ -240,14 +220,11 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	public void testMergeMessageMetadata() throws Exception {
 		Transaction txn = new Transaction(null, false);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(metadata));
 			oneOf(db).mergeMessageMetadata(txn, messageId, metadata);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		clientHelper.mergeMessageMetadata(messageId, dictionary);

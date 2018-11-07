@@ -1,5 +1,6 @@
 package org.briarproject.bramble.sync;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -97,14 +98,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void validateOutstandingMessages() {
 		try {
-			Queue<MessageId> unvalidated = new LinkedList<>();
-			Transaction txn = db.startTransaction(true);
-			try {
-				unvalidated.addAll(db.getMessagesToValidate(txn));
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			Queue<MessageId> unvalidated = new LinkedList<>(
+					db.transactionWithResult(true, db::getMessagesToValidate));
 			validateNextMessageAsync(unvalidated);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
@@ -119,18 +114,14 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void validateNextMessage(Queue<MessageId> unvalidated) {
 		try {
-			Message m;
-			Group g;
-			Transaction txn = db.startTransaction(true);
-			try {
+			Pair<Message, Group> mg = db.transactionWithResult(true, txn -> {
 				MessageId id = unvalidated.poll();
-				m = db.getMessage(txn, id);
-				g = db.getGroup(txn, m.getGroupId());
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
-			validateMessageAsync(m, g);
+				if (id == null) throw new AssertionError();
+				Message m = db.getMessage(txn, id);
+				Group g = db.getGroup(txn, m.getGroupId());
+				return new Pair<>(m, g);
+			});
+			validateMessageAsync(mg.getFirst(), mg.getSecond());
 			validateNextMessageAsync(unvalidated);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Message removed before validation");
@@ -150,14 +141,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void deliverOutstandingMessages() {
 		try {
-			Queue<MessageId> pending = new LinkedList<>();
-			Transaction txn = db.startTransaction(true);
-			try {
-				pending.addAll(db.getPendingMessages(txn));
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			Queue<MessageId> pending = new LinkedList<>(
+					db.transactionWithResult(true, db::getPendingMessages));
 			deliverNextPendingMessageAsync(pending);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
@@ -172,12 +157,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void deliverNextPendingMessage(Queue<MessageId> pending) {
 		try {
-			boolean anyInvalid = false, allDelivered = true;
-			Queue<MessageId> toShare = null;
-			Queue<MessageId> invalidate = null;
-			Transaction txn = db.startTransaction(false);
-			try {
+			Queue<MessageId> toShare = new LinkedList<>();
+			Queue<MessageId> invalidate = new LinkedList<>();
+			db.transaction(false, txn -> {
+				boolean anyInvalid = false, allDelivered = true;
 				MessageId id = pending.poll();
+				if (id == null) throw new AssertionError();
 				// Check if message is still pending
 				if (db.getMessageState(txn, id) == PENDING) {
 					// Check if dependencies are valid and delivered
@@ -189,7 +174,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 					}
 					if (anyInvalid) {
 						invalidateMessage(txn, id);
-						invalidate = getDependentsToInvalidate(txn, id);
+						addDependentsToInvalidate(txn, id, invalidate);
 					} else if (allDelivered) {
 						Message m = db.getMessage(txn, id);
 						Group g = db.getGroup(txn, m.getGroupId());
@@ -200,22 +185,19 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						DeliveryResult result =
 								deliverMessage(txn, m, c, majorVersion, meta);
 						if (result.valid) {
-							pending.addAll(getPendingDependents(txn, id));
+							addPendingDependents(txn, id, pending);
 							if (result.share) {
 								db.setMessageShared(txn, id);
-								toShare = new LinkedList<>(states.keySet());
+								toShare.addAll(states.keySet());
 							}
 						} else {
-							invalidate = getDependentsToInvalidate(txn, id);
+							addDependentsToInvalidate(txn, id, invalidate);
 						}
 					}
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
-			if (invalidate != null) invalidateNextMessageAsync(invalidate);
-			if (toShare != null) shareNextMessageAsync(toShare);
+			});
+			if (!invalidate.isEmpty()) invalidateNextMessageAsync(invalidate);
+			if (!toShare.isEmpty()) shareNextMessageAsync(toShare);
 			deliverNextPendingMessageAsync(pending);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Message removed before delivery");
@@ -264,12 +246,11 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			MessageContext context) {
 		try {
 			MessageId id = m.getId();
-			boolean anyInvalid = false, allDelivered = true;
-			Queue<MessageId> invalidate = null;
-			Queue<MessageId> pending = null;
-			Queue<MessageId> toShare = null;
-			Transaction txn = db.startTransaction(false);
-			try {
+			Queue<MessageId> invalidate = new LinkedList<>();
+			Queue<MessageId> pending = new LinkedList<>();
+			Queue<MessageId> toShare = new LinkedList<>();
+			db.transaction(false, txn -> {
+				boolean anyInvalid = false, allDelivered = true;
 				// Check if message has any dependencies
 				Collection<MessageId> dependencies = context.getDependencies();
 				if (!dependencies.isEmpty()) {
@@ -285,7 +266,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				if (anyInvalid) {
 					if (db.getMessageState(txn, id) != INVALID) {
 						invalidateMessage(txn, id);
-						invalidate = getDependentsToInvalidate(txn, id);
+						addDependentsToInvalidate(txn, id, invalidate);
 					}
 				} else {
 					Metadata meta = context.getMetadata();
@@ -294,25 +275,22 @@ class ValidationManagerImpl implements ValidationManager, Service,
 						DeliveryResult result =
 								deliverMessage(txn, m, c, majorVersion, meta);
 						if (result.valid) {
-							pending = getPendingDependents(txn, id);
+							addPendingDependents(txn, id, pending);
 							if (result.share) {
 								db.setMessageShared(txn, id);
-								toShare = new LinkedList<>(dependencies);
+								toShare.addAll(dependencies);
 							}
 						} else {
-							invalidate = getDependentsToInvalidate(txn, id);
+							addDependentsToInvalidate(txn, id, invalidate);
 						}
 					} else {
 						db.setMessageState(txn, id, PENDING);
 					}
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
-			if (invalidate != null) invalidateNextMessageAsync(invalidate);
-			if (pending != null) deliverNextPendingMessageAsync(pending);
-			if (toShare != null) shareNextMessageAsync(toShare);
+			});
+			if (!invalidate.isEmpty()) invalidateNextMessageAsync(invalidate);
+			if (!pending.isEmpty()) deliverNextPendingMessageAsync(pending);
+			if (!toShare.isEmpty()) shareNextMessageAsync(toShare);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Message removed during validation");
 		} catch (NoSuchGroupException e) {
@@ -342,14 +320,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@DatabaseExecutor
-	private Queue<MessageId> getPendingDependents(Transaction txn, MessageId m)
-			throws DbException {
-		Queue<MessageId> pending = new LinkedList<>();
+	private void addPendingDependents(Transaction txn, MessageId m,
+			Queue<MessageId> pending) throws DbException {
 		Map<MessageId, State> states = db.getMessageDependents(txn, m);
 		for (Entry<MessageId, State> e : states.entrySet()) {
 			if (e.getValue() == PENDING) pending.add(e.getKey());
 		}
-		return pending;
 	}
 
 	private void shareOutstandingMessagesAsync() {
@@ -359,14 +335,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void shareOutstandingMessages() {
 		try {
-			Queue<MessageId> toShare = new LinkedList<>();
-			Transaction txn = db.startTransaction(true);
-			try {
-				toShare.addAll(db.getMessagesToShare(txn));
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			Queue<MessageId> toShare = new LinkedList<>(
+					db.transactionWithResult(true, db::getMessagesToShare));
 			shareNextMessageAsync(toShare);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
@@ -387,15 +357,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void shareNextMessage(Queue<MessageId> toShare) {
 		try {
-			Transaction txn = db.startTransaction(false);
-			try {
+			db.transaction(false, txn -> {
 				MessageId id = toShare.poll();
+				if (id == null) throw new AssertionError();
 				db.setMessageShared(txn, id);
 				toShare.addAll(db.getMessageDependencies(txn, id).keySet());
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			});
 			shareNextMessageAsync(toShare);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Message removed before sharing");
@@ -416,17 +383,14 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void invalidateNextMessage(Queue<MessageId> invalidate) {
 		try {
-			Transaction txn = db.startTransaction(false);
-			try {
+			db.transaction(false, txn -> {
 				MessageId id = invalidate.poll();
+				if (id == null) throw new AssertionError();
 				if (db.getMessageState(txn, id) != INVALID) {
 					invalidateMessage(txn, id);
-					invalidate.addAll(getDependentsToInvalidate(txn, id));
+					addDependentsToInvalidate(txn, id, invalidate);
 				}
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			});
 			invalidateNextMessageAsync(invalidate);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Message removed before invalidation");
@@ -445,14 +409,12 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	}
 
 	@DatabaseExecutor
-	private Queue<MessageId> getDependentsToInvalidate(Transaction txn,
-			MessageId m) throws DbException {
-		Queue<MessageId> invalidate = new LinkedList<>();
+	private void addDependentsToInvalidate(Transaction txn,
+			MessageId m, Queue<MessageId> invalidate) throws DbException {
 		Map<MessageId, State> states = db.getMessageDependents(txn, m);
 		for (Entry<MessageId, State> e : states.entrySet()) {
 			if (e.getValue() != INVALID) invalidate.add(e.getKey());
 		}
-		return invalidate;
 	}
 
 	@Override
@@ -472,14 +434,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void loadGroupAndValidate(Message m) {
 		try {
-			Group g;
-			Transaction txn = db.startTransaction(true);
-			try {
-				g = db.getGroup(txn, m.getGroupId());
-				db.commitTransaction(txn);
-			} finally {
-				db.endTransaction(txn);
-			}
+			Group g = db.transactionWithResult(true, txn ->
+					db.getGroup(txn, m.getGroupId()));
 			validateMessageAsync(m, g);
 		} catch (NoSuchGroupException e) {
 			LOG.info("Group removed before validation");

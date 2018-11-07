@@ -21,16 +21,18 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
@@ -351,14 +353,11 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry("local", true)
 		));
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -386,9 +385,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		));
 		BdfList fooUpdate = BdfList.of("foo", 1, fooPropertiesDict);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(messageMetadata));
@@ -397,8 +395,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
 			will(returnValue(fooProperties));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -413,8 +409,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Contact contact1 = getContact(false);
 		Contact contact2 = getContact(true);
 		Contact contact3 = getContact(true);
-		List<Contact> contacts =
-				Arrays.asList(contact1, contact2, contact3);
+		List<Contact> contacts = asList(contact1, contact2, contact3);
 		Group contactGroup2 = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Group contactGroup3 = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Map<MessageId, BdfDictionary> messageMetadata3 =
@@ -442,9 +437,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		));
 		BdfList fooUpdate = BdfList.of("foo", 1, fooPropertiesDict);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(true);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			// First contact: skipped because not active
@@ -467,8 +461,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
 			will(returnValue(fooProperties));
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -485,17 +477,16 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 		MessageId updateId = new MessageId(getRandomId());
-		Map<MessageId, BdfDictionary> messageMetadata =
-				Collections.singletonMap(updateId, BdfDictionary.of(
+		Map<MessageId, BdfDictionary> messageMetadata = singletonMap(updateId,
+				BdfDictionary.of(
 						new BdfEntry("transportId", "foo"),
 						new BdfEntry("version", 1),
 						new BdfEntry("local", true)
 				));
 		BdfList update = BdfList.of("foo", 1, fooPropertiesDict);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Merge the new properties with the existing properties
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
@@ -506,8 +497,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 					fooPropertiesDict);
 			will(returnValue(fooProperties));
 			// Properties are unchanged so we're done
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -520,9 +509,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Contact contact = getContact(true);
 		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// There are no existing properties to merge with
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
@@ -541,8 +529,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.emptyMap()));
 			expectStoreMessage(txn, contactGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, true);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -561,10 +547,10 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		);
 		MessageId localGroupUpdateId = new MessageId(getRandomId());
 		Map<MessageId, BdfDictionary> localGroupMessageMetadata =
-				Collections.singletonMap(localGroupUpdateId, oldMetadata);
+				singletonMap(localGroupUpdateId, oldMetadata);
 		MessageId contactGroupUpdateId = new MessageId(getRandomId());
 		Map<MessageId, BdfDictionary> contactGroupMessageMetadata =
-				Collections.singletonMap(contactGroupUpdateId, oldMetadata);
+				singletonMap(contactGroupUpdateId, oldMetadata);
 		TransportProperties oldProperties = new TransportProperties();
 		oldProperties.put("fooKey1", "oldFooValue1");
 		BdfDictionary oldPropertiesDict = BdfDictionary.of(
@@ -572,9 +558,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		);
 		BdfList oldUpdate = BdfList.of("foo", 1, oldPropertiesDict);
 
-		context.checking(new Expectations() {{
-			oneOf(db).startTransaction(false);
-			will(returnValue(txn));
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// Merge the new properties with the existing properties
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
@@ -602,8 +587,6 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 					fooPropertiesDict, 2, true, true);
 			// Delete the previous update
 			oneOf(db).removeMessage(txn, contactGroupUpdateId);
-			oneOf(db).commitTransaction(txn);
-			oneOf(db).endTransaction(txn);
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();

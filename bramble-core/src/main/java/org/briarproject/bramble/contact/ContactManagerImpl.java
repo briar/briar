@@ -79,42 +79,21 @@ class ContactManagerImpl implements ContactManager {
 	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
 			long timestamp, boolean alice, boolean verified, boolean active)
 			throws DbException {
-		ContactId c;
-		Transaction txn = db.startTransaction(false);
-		try {
-			c = addContact(txn, remote, local, master, timestamp, alice,
-					verified, active);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return c;
+		return db.transactionWithResult(false, txn ->
+				addContact(txn, remote, local, master, timestamp, alice,
+						verified, active));
 	}
 
 	@Override
 	public Contact getContact(ContactId c) throws DbException {
-		Contact contact;
-		Transaction txn = db.startTransaction(true);
-		try {
-			contact = db.getContact(txn, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return contact;
+		return db.transactionWithResult(true, txn -> db.getContact(txn, c));
 	}
 
 	@Override
 	public Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException {
-		Transaction txn = db.startTransaction(true);
-		try {
-			Contact c = getContact(txn, remoteAuthorId, localAuthorId);
-			db.commitTransaction(txn);
-			return c;
-		} finally {
-			db.endTransaction(txn);
-		}
+		return db.transactionWithResult(true, txn ->
+				getContact(txn, remoteAuthorId, localAuthorId));
 	}
 
 	@Override
@@ -132,14 +111,8 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public Collection<Contact> getActiveContacts() throws DbException {
-		Collection<Contact> contacts;
-		Transaction txn = db.startTransaction(true);
-		try {
-			contacts = db.getContacts(txn);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		Collection<Contact> contacts =
+				db.transactionWithResult(true, db::getContacts);
 		List<Contact> active = new ArrayList<>(contacts.size());
 		for (Contact c : contacts) if (c.isActive()) active.add(c);
 		return active;
@@ -147,13 +120,7 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public void removeContact(ContactId c) throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			removeContact(txn, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
+		db.transaction(false, txn -> removeContact(txn, c));
 	}
 
 	@Override
@@ -188,15 +155,8 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public boolean contactExists(AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException {
-		boolean exists;
-		Transaction txn = db.startTransaction(true);
-		try {
-			exists = contactExists(txn, remoteAuthorId, localAuthorId);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return exists;
+		return db.transactionWithResult(true, txn ->
+				contactExists(txn, remoteAuthorId, localAuthorId));
 	}
 
 	@Override

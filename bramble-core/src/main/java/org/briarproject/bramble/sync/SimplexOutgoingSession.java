@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -47,7 +46,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	private static final Logger LOG =
 			Logger.getLogger(SimplexOutgoingSession.class.getName());
 
-	private static final ThrowingRunnable<IOException> CLOSE = () -> {};
+	private static final ThrowingRunnable<IOException> CLOSE = () -> {
+	};
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
@@ -128,14 +128,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Ack a;
-				Transaction txn = db.startTransaction(false);
-				try {
-					a = db.generateAck(txn, contactId, MAX_MESSAGE_IDS);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				Ack a = db.transactionWithNullableResult(false, txn ->
+						db.generateAck(txn, contactId, MAX_MESSAGE_IDS));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated ack: " + (a != null));
 				if (a == null) decrementOutstandingQueries();
@@ -172,15 +166,10 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		public void run() {
 			if (interrupted) return;
 			try {
-				Collection<Message> b;
-				Transaction txn = db.startTransaction(false);
-				try {
-					b = db.generateBatch(txn, contactId,
-							MAX_RECORD_PAYLOAD_BYTES, maxLatency);
-					db.commitTransaction(txn);
-				} finally {
-					db.endTransaction(txn);
-				}
+				Collection<Message> b =
+						db.transactionWithNullableResult(false, txn ->
+								db.generateBatch(txn, contactId,
+										MAX_RECORD_PAYLOAD_BYTES, maxLatency));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
 				if (b == null) decrementOutstandingQueries();
