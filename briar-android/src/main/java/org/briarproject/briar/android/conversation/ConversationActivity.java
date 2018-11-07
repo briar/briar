@@ -388,8 +388,8 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessageText(MessageId m, String text) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			textCache.put(m, text);
-			SparseArray<ConversationItem> messages =
-					adapter.getPrivateMessages();
+			SparseArray<ConversationMessageItem> messages =
+					adapter.getMessageItems();
 			for (int i = 0; i < messages.size(); i++) {
 				ConversationItem item = messages.valueAt(i);
 				if (item.getId().equals(m)) {
@@ -472,10 +472,9 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.incrementRevision();
 			Set<MessageId> messages = new HashSet<>(messageIds);
-			SparseArray<ConversationOutItem> list =
-					adapter.getOutgoingMessages();
+			SparseArray<ConversationItem> list = adapter.getOutgoingMessages();
 			for (int i = 0; i < list.size(); i++) {
-				ConversationOutItem item = list.valueAt(i);
+				ConversationItem item = list.valueAt(i);
 				if (messages.contains(item.getId())) {
 					item.setSent(sent);
 					item.setSeen(seen);

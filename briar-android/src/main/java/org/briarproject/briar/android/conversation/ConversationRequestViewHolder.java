@@ -13,23 +13,21 @@ import static android.view.View.VISIBLE;
 
 @UiThread
 @NotNullByDefault
-class ConversationRequestViewHolder extends ConversationNoticeInViewHolder {
+class ConversationRequestViewHolder
+		extends ConversationNoticeViewHolder<ConversationRequestItem> {
 
 	private final Button acceptButton;
 	private final Button declineButton;
 
-	ConversationRequestViewHolder(View v) {
-		super(v);
+	ConversationRequestViewHolder(View v, boolean isIncoming) {
+		super(v, isIncoming);
 		acceptButton = v.findViewById(R.id.acceptButton);
 		declineButton = v.findViewById(R.id.declineButton);
 	}
 
-	void bind(ConversationItem conversationItem,
+	void bind(ConversationRequestItem item,
 			ConversationListener listener) {
-		super.bind(conversationItem);
-
-		ConversationRequestItem item =
-				(ConversationRequestItem) conversationItem;
+		super.bind(item);
 
 		if (item.wasAnswered() && item.canBeOpened()) {
 			acceptButton.setVisibility(VISIBLE);

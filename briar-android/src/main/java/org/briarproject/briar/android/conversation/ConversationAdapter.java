@@ -14,6 +14,7 @@ import org.briarproject.briar.android.util.BriarAdapter;
 
 import javax.annotation.Nullable;
 
+@NotNullByDefault
 class ConversationAdapter
 		extends BriarAdapter<ConversationItem, ConversationItemViewHolder> {
 
@@ -38,15 +39,15 @@ class ConversationAdapter
 				type, viewGroup, false);
 		switch (type) {
 			case R.layout.list_item_conversation_msg_in:
-				return new ConversationItemViewHolder(v);
+				return new ConversationMessageViewHolder(v, true);
 			case R.layout.list_item_conversation_msg_out:
-				return new ConversationMessageOutViewHolder(v);
+				return new ConversationMessageViewHolder(v, false);
 			case R.layout.list_item_conversation_notice_in:
-				return new ConversationNoticeInViewHolder(v);
+				return new ConversationNoticeViewHolder(v, true);
 			case R.layout.list_item_conversation_notice_out:
-				return new ConversationNoticeOutViewHolder(v);
+				return new ConversationNoticeViewHolder(v, false);
 			case R.layout.list_item_conversation_request:
-				return new ConversationRequestViewHolder(v);
+				return new ConversationRequestViewHolder(v, true);
 			default:
 				throw new IllegalArgumentException("Unknown ConversationItem");
 		}
@@ -56,21 +57,18 @@ class ConversationAdapter
 	public void onBindViewHolder(ConversationItemViewHolder ui, int position) {
 		ConversationItem item = items.get(position);
 		if (item instanceof ConversationRequestItem) {
-			((ConversationRequestViewHolder) ui).bind(item, listener);
+			((ConversationRequestViewHolder) ui)
+					.bind((ConversationRequestItem) item, listener);
 		} else {
+			//noinspection unchecked
 			ui.bind(item);
 		}
 		listener.onItemVisible(item);
 	}
 
 	@Override
-	public int compare(ConversationItem c1,
-			ConversationItem c2) {
-		long time1 = c1.getTime();
-		long time2 = c2.getTime();
-		if (time1 < time2) return -1;
-		if (time1 > time2) return 1;
-		return 0;
+	public int compare(ConversationItem c1, ConversationItem c2) {
+		return Long.compare(c1.getTime(), c2.getTime());
 	}
 
 	@Override
@@ -94,39 +92,25 @@ class ConversationAdapter
 		}
 	}
 
-	SparseArray<ConversationItem> getIncomingMessages() {
+	SparseArray<ConversationItem> getOutgoingMessages() {
 		SparseArray<ConversationItem> messages = new SparseArray<>();
 
 		for (int i = 0; i < items.size(); i++) {
 			ConversationItem item = items.get(i);
-			if (item.isIncoming()) {
+			if (!item.isIncoming()) {
 				messages.put(i, item);
 			}
 		}
 		return messages;
 	}
 
-	SparseArray<ConversationOutItem> getOutgoingMessages() {
-		SparseArray<ConversationOutItem> messages = new SparseArray<>();
+	SparseArray<ConversationMessageItem> getMessageItems() {
+		SparseArray<ConversationMessageItem> messages = new SparseArray<>();
 
 		for (int i = 0; i < items.size(); i++) {
 			ConversationItem item = items.get(i);
-			if (item instanceof ConversationOutItem) {
-				messages.put(i, (ConversationOutItem) item);
-			}
-		}
-		return messages;
-	}
-
-	SparseArray<ConversationItem> getPrivateMessages() {
-		SparseArray<ConversationItem> messages = new SparseArray<>();
-
-		for (int i = 0; i < items.size(); i++) {
-			ConversationItem item = items.get(i);
-			if (item instanceof ConversationMessageInItem) {
-				messages.put(i, item);
-			} else if (item instanceof ConversationMessageOutItem) {
-				messages.put(i, item);
+			if (item instanceof ConversationMessageItem) {
+				messages.put(i, (ConversationMessageItem) item);
 			}
 		}
 		return messages;

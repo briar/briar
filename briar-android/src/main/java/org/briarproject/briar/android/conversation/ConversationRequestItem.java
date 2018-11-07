@@ -4,7 +4,6 @@ import android.support.annotation.LayoutRes;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.briar.R;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.sharing.InvitationRequest;
@@ -15,7 +14,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
 @NotNullByDefault
-class ConversationRequestItem extends ConversationNoticeInItem {
+class ConversationRequestItem extends ConversationNoticeItem {
 
 	enum RequestType {INTRODUCTION, FORUM, BLOG, GROUP}
 
@@ -26,9 +25,9 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 	private final boolean canBeOpened;
 	private boolean answered;
 
-	ConversationRequestItem(String text, RequestType type, ConversationRequest r) {
-		super(r.getId(), r.getGroupId(), text, r.getText(),
-				r.getTimestamp(), r.isRead());
+	ConversationRequestItem(@LayoutRes int layoutRes, String text,
+			RequestType type, ConversationRequest r) {
+		super(layoutRes, text, r);
 		this.requestType = type;
 		this.sessionId = r.getSessionId();
 		this.answered = r.wasAnswered();
@@ -66,9 +65,4 @@ class ConversationRequestItem extends ConversationNoticeInItem {
 		return canBeOpened;
 	}
 
-	@LayoutRes
-	@Override
-	public int getLayout() {
-		return R.layout.list_item_conversation_request;
-	}
 }
