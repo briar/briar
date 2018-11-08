@@ -33,20 +33,6 @@ dependencies {
 
 def torBinariesDir = 'src/main/resources'
 
-task unpackTorBinaries {
-	outputs.dir torBinariesDir
-	doLast {
-		copy {
-			from configurations.tor.collect { zipTree(it) }
-			into torBinariesDir
-		}
-	}
-}
-
-tasks.withType(JavaCompile) {
-	dependsOn unpackTorBinaries
-}
-
 task cleanTorBinaries {
 	doLast {
 		delete fileTree(torBinariesDir) { include '*.zip' }
@@ -54,6 +40,21 @@ task cleanTorBinaries {
 }
 
 clean.dependsOn cleanTorBinaries
+
+task unpackTorBinaries {
+	doLast {
+		copy {
+			from configurations.tor.collect { zipTree(it) }
+			into torBinariesDir
+		}
+	}
+	dependsOn cleanTorBinaries
+}
+
+processResources {
+	inputs.dir torBinariesDir
+	dependsOn unpackTorBinaries
+}
 
 tasks.withType(Test) {
 	systemProperty 'java.library.path', 'libs'
