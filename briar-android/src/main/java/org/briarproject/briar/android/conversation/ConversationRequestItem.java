@@ -49,7 +49,7 @@ class ConversationRequestItem extends ConversationNoticeItem {
 	}
 
 	@Nullable
-	public GroupId getRequestedGroupId() {
+	GroupId getRequestedGroupId() {
 		return requestedGroupId;
 	}
 
@@ -61,7 +61,7 @@ class ConversationRequestItem extends ConversationNoticeItem {
 		this.answered = true;
 	}
 
-	public boolean canBeOpened() {
+	boolean canBeOpened() {
 		return canBeOpened;
 	}
 

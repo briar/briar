@@ -37,7 +37,7 @@ abstract class ConversationItem {
 	}
 
 	@LayoutRes
-	public int getLayout() {
+	int getLayout() {
 		return layoutRes;
 	}
 
@@ -54,7 +54,7 @@ abstract class ConversationItem {
 	}
 
 	@Nullable
-	public String getText() {
+	String getText() {
 		return text;
 	}
 
@@ -65,7 +65,7 @@ abstract class ConversationItem {
 	/**
 	 * Only useful for incoming messages.
 	 */
-	public boolean isRead() {
+	boolean isRead() {
 		return read;
 	}
 
@@ -97,7 +97,7 @@ abstract class ConversationItem {
 		this.seen = seen;
 	}
 
-	public boolean isIncoming() {
+	boolean isIncoming() {
 		return isIncoming;
 	}
 

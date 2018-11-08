@@ -10,14 +10,14 @@ import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.conversation.ConversationAdapter.ConversationListener;
 
 import static org.briarproject.bramble.util.StringUtils.trim;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
 @UiThread
 @NotNullByDefault
-abstract class ConversationItemViewHolder<T extends ConversationItem>
-		extends ViewHolder {
+abstract class ConversationItemViewHolder extends ViewHolder {
 
 	protected final ViewGroup layout;
 	@Nullable
@@ -34,7 +34,7 @@ abstract class ConversationItemViewHolder<T extends ConversationItem>
 	}
 
 	@CallSuper
-	void bind(T item) {
+	void bind(ConversationItem item, ConversationListener listener) {
 		if (item.getText() == null) {
 			text.setText("\u2026");
 		} else {
@@ -47,7 +47,7 @@ abstract class ConversationItemViewHolder<T extends ConversationItem>
 		if (outViewHolder != null) outViewHolder.bind(item);
 	}
 
-	protected boolean isIncoming() {
+	boolean isIncoming() {
 		return outViewHolder == null;
 	}
 

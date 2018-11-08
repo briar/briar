@@ -13,8 +13,7 @@ import static android.view.View.VISIBLE;
 
 @UiThread
 @NotNullByDefault
-class ConversationRequestViewHolder
-		extends ConversationNoticeViewHolder<ConversationRequestItem> {
+class ConversationRequestViewHolder extends ConversationNoticeViewHolder {
 
 	private final Button acceptButton;
 	private final Button declineButton;
@@ -25,17 +24,18 @@ class ConversationRequestViewHolder
 		declineButton = v.findViewById(R.id.declineButton);
 	}
 
-	void bind(ConversationRequestItem item,
-			ConversationListener listener) {
-		super.bind(item);
+	@Override
+	void bind(ConversationItem item, ConversationListener listener) {
+		ConversationRequestItem request = (ConversationRequestItem) item;
+		super.bind(request, listener);
 
-		if (item.wasAnswered() && item.canBeOpened()) {
+		if (request.wasAnswered() && request.canBeOpened()) {
 			acceptButton.setVisibility(VISIBLE);
 			acceptButton.setText(R.string.open);
 			acceptButton.setOnClickListener(
-					v -> listener.openRequestedShareable(item));
+					v -> listener.openRequestedShareable(request));
 			declineButton.setVisibility(GONE);
-		} else if (item.wasAnswered()) {
+		} else if (request.wasAnswered()) {
 			acceptButton.setVisibility(GONE);
 			declineButton.setVisibility(GONE);
 		} else {
@@ -44,13 +44,13 @@ class ConversationRequestViewHolder
 			acceptButton.setOnClickListener(v -> {
 				acceptButton.setEnabled(false);
 				declineButton.setEnabled(false);
-				listener.respondToRequest(item, true);
+				listener.respondToRequest(request, true);
 			});
 			declineButton.setVisibility(VISIBLE);
 			declineButton.setOnClickListener(v -> {
 				acceptButton.setEnabled(false);
 				declineButton.setEnabled(false);
-				listener.respondToRequest(item, false);
+				listener.respondToRequest(request, false);
 			});
 		}
 	}

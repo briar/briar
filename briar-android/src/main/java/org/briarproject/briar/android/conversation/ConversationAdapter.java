@@ -20,7 +20,8 @@ class ConversationAdapter
 
 	private ConversationListener listener;
 
-	ConversationAdapter(Context ctx, ConversationListener conversationListener) {
+	ConversationAdapter(Context ctx,
+			ConversationListener conversationListener) {
 		super(ctx, ConversationItem.class);
 		listener = conversationListener;
 	}
@@ -56,13 +57,7 @@ class ConversationAdapter
 	@Override
 	public void onBindViewHolder(ConversationItemViewHolder ui, int position) {
 		ConversationItem item = items.get(position);
-		if (item instanceof ConversationRequestItem) {
-			((ConversationRequestViewHolder) ui)
-					.bind((ConversationRequestItem) item, listener);
-		} else {
-			//noinspection unchecked
-			ui.bind(item);
-		}
+		ui.bind(item, listener);
 		listener.onItemVisible(item);
 	}
 

@@ -1,11 +1,13 @@
 package org.briarproject.briar.android.conversation;
 
+import android.support.annotation.CallSuper;
 import android.support.annotation.UiThread;
 import android.view.View;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.conversation.ConversationAdapter.ConversationListener;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -14,8 +16,7 @@ import static org.briarproject.bramble.util.StringUtils.trim;
 
 @UiThread
 @NotNullByDefault
-class ConversationNoticeViewHolder<T extends ConversationNoticeItem>
-		extends ConversationItemViewHolder<T> {
+class ConversationNoticeViewHolder extends ConversationItemViewHolder {
 
 	private final TextView msgText;
 
@@ -25,10 +26,12 @@ class ConversationNoticeViewHolder<T extends ConversationNoticeItem>
 	}
 
 	@Override
-	void bind(T item) {
-		super.bind(item);
+	@CallSuper
+	void bind(ConversationItem item, ConversationListener listener) {
+		ConversationNoticeItem notice = (ConversationNoticeItem) item;
+		super.bind(notice, listener);
 
-		String text = item.getMsgText();
+		String text = notice.getMsgText();
 		if (isNullOrEmpty(text)) {
 			msgText.setVisibility(GONE);
 			layout.setBackgroundResource(isIncoming() ? R.drawable.notice_in :
