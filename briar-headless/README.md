@@ -161,21 +161,18 @@ The Briar peer uses a websocket to notify a connected API client about new event
 
 `WS /v1/ws`
 
-The websocket request must use basic auth,
-with the authentication token as the username and a blank password.
+Immediately after making the connection,
+you must send the authentication token as a message to the websocket.
+If you fail to do this, you will not receive messages on that socket.
 
-You can test connecting to the websocket with curl:
+In JavaScript, it would look like this:
 
-    $ curl --no-buffer \
-           --header "Connection: Upgrade" \
-           --header "Upgrade: websocket" \
-           --header "Sec-WebSocket-Key: SGVsbG8sIHdvcmxkIQ==" \
-           --header "Sec-WebSocket-Version: 13" \
-           --user "DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk="
-           http://127.0.0.1:7000/v1/ws
-
-The headers are only required when testing with curl.
-Your websocket client will most likely add these headers automatically.
+```javascript
+var token = "DZbfoUie8sjap7CSDR9y6cgJCojV+xUITTIFbgtAgqk=";
+var socket = new WebSocket("ws://localhost:7000/v1/ws");
+socket.onopen = function(event) { socket.send(token); };
+socket.onmessage = function(event) { console.log(event.data); }
+```
 
 ### Receiving new private messages
 
