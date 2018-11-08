@@ -2,7 +2,6 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
-import android.support.annotation.UiThread;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -109,18 +108,6 @@ class ConversationAdapter
 			}
 		}
 		return messages;
-	}
-
-	@UiThread
-	@NotNullByDefault
-	interface ConversationListener {
-
-		void onItemVisible(ConversationItem item);
-
-		void respondToRequest(ConversationRequestItem item, boolean accept);
-
-		void openRequestedShareable(ConversationRequestItem item);
-
 	}
 
 }
