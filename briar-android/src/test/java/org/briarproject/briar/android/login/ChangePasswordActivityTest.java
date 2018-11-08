@@ -33,8 +33,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, application = TestBriarApplication.class,
-		packageName = "org.briarproject.briar")
+@Config(sdk = 21, application = TestBriarApplication.class)
 public class ChangePasswordActivityTest {
 
 	private TestChangePasswordActivity changePasswordActivity;

@@ -28,8 +28,7 @@ import static org.mockito.Mockito.when;
 import static org.robolectric.shadows.support.v4.SupportFragmentTestUtil.startFragment;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, application = TestBriarApplication.class,
-		packageName = "org.briarproject.briar")
+@Config(sdk = 21, application = TestBriarApplication.class)
 public class PasswordFragmentTest {
 
 	private PasswordFragment passwordFragment = new PasswordFragment();
