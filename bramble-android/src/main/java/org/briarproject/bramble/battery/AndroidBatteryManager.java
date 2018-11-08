@@ -30,9 +30,6 @@ class AndroidBatteryManager implements BatteryManager, Service {
 	private static final Logger LOG =
 			getLogger(AndroidBatteryManager.class.getName());
 
-	private static final IntentFilter BATTERY_FILTER =
-			new IntentFilter(ACTION_BATTERY_CHANGED);
-
 	private final Context appContext;
 	private final EventBus eventBus;
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -48,7 +45,8 @@ class AndroidBatteryManager implements BatteryManager, Service {
 	@Override
 	public boolean isCharging() {
 		// Get the sticky intent for ACTION_BATTERY_CHANGED
-		Intent i = appContext.registerReceiver(null, BATTERY_FILTER);
+		IntentFilter filter = new IntentFilter(ACTION_BATTERY_CHANGED);
+		Intent i = appContext.registerReceiver(null, filter);
 		if (i == null) return false;
 		int status = i.getIntExtra(EXTRA_STATUS, -1);
 		return status == BATTERY_STATUS_CHARGING ||
