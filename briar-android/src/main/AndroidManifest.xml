@@ -102,7 +102,7 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.contact.ConversationActivity"
+			android:name="org.briarproject.briar.android.conversation.ConversationActivity"
 			android:label="@string/app_name"
 			android:theme="@style/BriarTheme.NoActionBar"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
@@ -190,10 +190,10 @@
 		<activity
 			android:name="org.briarproject.briar.android.sharing.BlogInvitationActivity"
 			android:label="@string/blogs_sharing_invitations_title"
-			android:parentActivityName="org.briarproject.briar.android.contact.ConversationActivity">
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.contact.ConversationActivity"
+				android:value="org.briarproject.briar.android.conversation.ConversationActivity"
 				/>
 		</activity>
 
@@ -327,11 +327,11 @@
 		<activity
 			android:name="org.briarproject.briar.android.introduction.IntroductionActivity"
 			android:label="@string/introduction_activity_title"
-			android:parentActivityName="org.briarproject.briar.android.contact.ConversationActivity"
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity"
 			android:windowSoftInputMode="stateHidden|adjustResize">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
-				android:value="org.briarproject.briar.android.contact.ConversationActivity"
+				android:value="org.briarproject.briar.android.conversation.ConversationActivity"
 				/>
 		</activity>
 

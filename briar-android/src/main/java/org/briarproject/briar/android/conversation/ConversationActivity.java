@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.contact;
+package org.briarproject.briar.android.conversation;
 
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
@@ -51,8 +51,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
-import org.briarproject.briar.android.contact.ConversationAdapter.ConversationListener;
-import org.briarproject.briar.android.contact.ConversationVisitor.TextCache;
+import org.briarproject.briar.android.conversation.ConversationAdapter.ConversationListener;
+import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;

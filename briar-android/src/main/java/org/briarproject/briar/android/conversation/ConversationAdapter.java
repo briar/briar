@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.contact;
+package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
