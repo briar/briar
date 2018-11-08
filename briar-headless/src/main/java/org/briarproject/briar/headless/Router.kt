@@ -9,7 +9,6 @@ import io.javalin.JavalinEvent.SERVER_START_FAILED
 import io.javalin.JavalinEvent.SERVER_STOPPED
 import io.javalin.NotFoundResponse
 import io.javalin.apibuilder.ApiBuilder.*
-import io.javalin.core.util.ContextUtil
 import io.javalin.core.util.Header.AUTHORIZATION
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.headless.blogs.BlogController
@@ -20,6 +19,7 @@ import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime
 import java.lang.System.exit
 import java.util.concurrent.atomic.AtomicBoolean
+import java.util.logging.Level
 import java.util.logging.Logger.getLogger
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
@@ -85,13 +85,16 @@ constructor(
             }
         }
         app.ws("/v1/ws") { ws ->
-            ws.onConnect { session ->
-                val authHeader = session.header(AUTHORIZATION)
-                val token = ContextUtil.getBasicAuthCredentials(authHeader)?.username
-                if (authToken == token) {
-                    logger.info("Adding websocket session with ${session.remoteAddress}")
+            if (logger.isLoggable(Level.INFO)) ws.onConnect { session ->
+                logger.info("Received websocket connection from ${session.remoteAddress}")
+                logger.info("Waiting for authentication")
+            }
+            ws.onMessage { session, msg ->
+                if (msg == authToken && !webSocketController.sessions.contains(session)) {
+                    logger.info("Authenticated websocket session with ${session.remoteAddress}")
                     webSocketController.sessions.add(session)
                 } else {
+                    logger.info("Invalid message received: $msg")
                     logger.info("Closing websocket connection with ${session.remoteAddress}")
                     session.close(1008, "Invalid Authentication Token")
                 }
