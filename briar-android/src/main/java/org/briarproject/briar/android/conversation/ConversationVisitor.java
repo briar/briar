@@ -45,8 +45,13 @@ class ConversationVisitor implements
 	@Override
 	public ConversationItem visitPrivateMessageHeader(PrivateMessageHeader h) {
 		ConversationItem item;
-		if (h.isLocal()) item = new ConversationMessageOutItem(h);
-		else item = new ConversationMessageInItem(h);
+		if (h.isLocal()) {
+			item = new ConversationMessageItem(
+					R.layout.list_item_conversation_msg_out, h);
+		} else {
+			item = new ConversationMessageItem(
+					R.layout.list_item_conversation_msg_in, h);
+		}
 		String text = textCache.getText(h.getId());
 		if (text != null) item.setText(text);
 		return item;
@@ -58,12 +63,14 @@ class ConversationVisitor implements
 		if (r.isLocal()) {
 			String text = ctx.getString(R.string.blogs_sharing_invitation_sent,
 					r.getName(), contactName.getValue());
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text = ctx.getString(
 					R.string.blogs_sharing_invitation_received,
 					contactName.getValue(), r.getName());
-			return new ConversationRequestItem(text, BLOG, r);
+			return new ConversationRequestItem(
+					R.layout.list_item_conversation_request, text, BLOG, r);
 		}
 	}
 
@@ -81,7 +88,8 @@ class ConversationVisitor implements
 						R.string.blogs_sharing_response_declined_sent,
 						contactName.getValue());
 			}
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -93,7 +101,8 @@ class ConversationVisitor implements
 						R.string.blogs_sharing_response_declined_received,
 						contactName.getValue());
 			}
-			return new ConversationNoticeInItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_in, text, r);
 		}
 	}
 
@@ -103,12 +112,14 @@ class ConversationVisitor implements
 		if (r.isLocal()) {
 			String text = ctx.getString(R.string.forum_invitation_sent,
 					r.getName(), contactName.getValue());
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text = ctx.getString(
 					R.string.forum_invitation_received,
 					contactName.getValue(), r.getName());
-			return new ConversationRequestItem(text, FORUM, r);
+			return new ConversationRequestItem(
+					R.layout.list_item_conversation_request, text, FORUM, r);
 		}
 	}
 
@@ -126,7 +137,8 @@ class ConversationVisitor implements
 						R.string.forum_invitation_response_declined_sent,
 						contactName.getValue());
 			}
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -138,7 +150,8 @@ class ConversationVisitor implements
 						R.string.forum_invitation_response_declined_received,
 						contactName.getValue());
 			}
-			return new ConversationNoticeInItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_in, text, r);
 		}
 	}
 
@@ -149,12 +162,14 @@ class ConversationVisitor implements
 			String text = ctx.getString(
 					R.string.groups_invitations_invitation_sent,
 					contactName.getValue(), r.getName());
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text = ctx.getString(
 					R.string.groups_invitations_invitation_received,
 					contactName.getValue(), r.getName());
-			return new ConversationRequestItem(text, GROUP, r);
+			return new ConversationRequestItem(
+					R.layout.list_item_conversation_request, text, GROUP, r);
 		}
 	}
 
@@ -172,7 +187,8 @@ class ConversationVisitor implements
 						R.string.groups_invitations_response_declined_sent,
 						contactName.getValue());
 			}
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -184,7 +200,8 @@ class ConversationVisitor implements
 						R.string.groups_invitations_response_declined_received,
 						contactName.getValue());
 			}
-			return new ConversationNoticeInItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_in, text, r);
 		}
 	}
 
@@ -194,11 +211,14 @@ class ConversationVisitor implements
 		if (r.isLocal()) {
 			String text = ctx.getString(R.string.introduction_request_sent,
 					contactName.getValue(), name);
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text = ctx.getString(R.string.introduction_request_received,
 					contactName.getValue(), name);
-			return new ConversationRequestItem(text, INTRODUCTION, r);
+			return new ConversationRequestItem(
+					R.layout.list_item_conversation_request, text, INTRODUCTION,
+					r);
 		}
 	}
 
@@ -221,7 +241,8 @@ class ConversationVisitor implements
 						R.string.introduction_response_declined_sent,
 						introducedAuthor);
 			}
-			return new ConversationNoticeOutItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text;
 			if (r.wasAccepted()) {
@@ -240,7 +261,8 @@ class ConversationVisitor implements
 						contactName.getValue(),
 						introducedAuthor);
 			}
-			return new ConversationNoticeInItem(text, r);
+			return new ConversationNoticeItem(
+					R.layout.list_item_conversation_notice_in, text, r);
 		}
 	}
 

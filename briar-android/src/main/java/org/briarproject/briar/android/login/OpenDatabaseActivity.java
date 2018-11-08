@@ -12,19 +12,19 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
 
-@ParametersAreNonnullByDefault
+@ParametersNotNullByDefault
 public class OpenDatabaseActivity extends BriarActivity
 		implements EventListener {
 

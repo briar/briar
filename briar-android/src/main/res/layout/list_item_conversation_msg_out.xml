@@ -27,6 +27,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:textColor="@color/briar_text_primary_inverse"
+			app:layout_constraintBottom_toTopOf="@+id/time"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
@@ -52,7 +53,7 @@
 			app:layout_constraintStart_toEndOf="@+id/time"
 			app:layout_constraintTop_toTopOf="@+id/time"
 			tools:ignore="ContentDescription"
-			tools:src="@drawable/message_delivered_white"/>
+			tools:src="@drawable/message_delivered"/>
 
 	</android.support.constraint.ConstraintLayout>
 

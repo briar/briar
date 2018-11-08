@@ -5,6 +5,7 @@ import android.support.annotation.LayoutRes;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
@@ -13,20 +14,31 @@ import javax.annotation.concurrent.NotThreadSafe;
 @NotNullByDefault
 abstract class ConversationItem {
 
+	@LayoutRes
+	private final int layoutRes;
 	@Nullable
 	protected String text;
 	private final MessageId id;
 	private final GroupId groupId;
 	private final long time;
-	private boolean read;
+	private final boolean isIncoming;
+	private boolean read, sent, seen;
 
-	ConversationItem(MessageId id, GroupId groupId, @Nullable String text,
-			long time, boolean read) {
-		this.id = id;
-		this.groupId = groupId;
-		this.text = text;
-		this.time = time;
-		this.read = read;
+	ConversationItem(@LayoutRes int layoutRes, ConversationMessageHeader h) {
+		this.layoutRes = layoutRes;
+		this.text = null;
+		this.id = h.getId();
+		this.groupId = h.getGroupId();
+		this.time = h.getTimestamp();
+		this.read = h.isRead();
+		this.sent = h.isSent();
+		this.seen = h.isSeen();
+		this.isIncoming = !h.isLocal();
+	}
+
+	@LayoutRes
+	int getLayout() {
+		return layoutRes;
 	}
 
 	MessageId getId() {
@@ -42,7 +54,7 @@ abstract class ConversationItem {
 	}
 
 	@Nullable
-	public String getText() {
+	String getText() {
 		return text;
 	}
 
@@ -50,12 +62,43 @@ abstract class ConversationItem {
 		return time;
 	}
 
-	public boolean isRead() {
+	/**
+	 * Only useful for incoming messages.
+	 */
+	boolean isRead() {
 		return read;
 	}
 
-	abstract public boolean isIncoming();
+	/**
+	 * Only useful for outgoing messages.
+	 */
+	boolean isSent() {
+		return sent;
+	}
 
-	@LayoutRes
-	abstract public int getLayout();
+	/**
+	 * Only useful for outgoing messages.
+	 */
+	void setSent(boolean sent) {
+		this.sent = sent;
+	}
+
+	/**
+	 * Only useful for outgoing messages.
+	 */
+	boolean isSeen() {
+		return seen;
+	}
+
+	/**
+	 * Only useful for outgoing messages.
+	 */
+	void setSeen(boolean seen) {
+		this.seen = seen;
+	}
+
+	boolean isIncoming() {
+		return isIncoming;
+	}
+
 }

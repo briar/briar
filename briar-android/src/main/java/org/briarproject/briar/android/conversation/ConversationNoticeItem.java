@@ -3,7 +3,6 @@ package org.briarproject.briar.android.conversation;
 import android.support.annotation.LayoutRes;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.R;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.conversation.ConversationResponse;
 
@@ -12,20 +11,22 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
 @NotNullByDefault
-class ConversationNoticeOutItem extends ConversationOutItem {
+class ConversationNoticeItem extends ConversationItem {
 
 	@Nullable
 	private final String msgText;
 
-	ConversationNoticeOutItem(String text, ConversationRequest r) {
-		super(r.getId(), r.getGroupId(), text, r.getTimestamp(), r.isSent(),
-				r.isSeen());
+	ConversationNoticeItem(@LayoutRes int layoutRes, String text,
+			ConversationRequest r) {
+		super(layoutRes, r);
+		this.text = text;
 		this.msgText = r.getText();
 	}
 
-	ConversationNoticeOutItem(String text, ConversationResponse r) {
-		super(r.getId(), r.getGroupId(), text, r.getTimestamp(), r.isSent(),
-				r.isSeen());
+	ConversationNoticeItem(@LayoutRes int layoutRes, String text,
+			ConversationResponse r) {
+		super(layoutRes, r);
+		this.text = text;
 		this.msgText = null;
 	}
 
@@ -34,9 +35,4 @@ class ConversationNoticeOutItem extends ConversationOutItem {
 		return msgText;
 	}
 
-	@LayoutRes
-	@Override
-	public int getLayout() {
-		return R.layout.list_item_conversation_notice_out;
-	}
 }
