@@ -23,13 +23,10 @@ internal fun ConversationMessageHeader.output(contactId: ContactId, text: String
     return dict
 }
 
-internal fun PrivateMessageHeader.output(contactId: ContactId, text: String?): JsonDict {
-    val dict = (this as ConversationMessageHeader).output(contactId, text)
-    dict.putAll(
-        "type" to "PrivateMessage"
-    )
-    return dict
-}
+internal fun PrivateMessageHeader.output(contactId: ContactId, text: String?) =
+    (this as ConversationMessageHeader).output(contactId, text).apply {
+        put("type", "PrivateMessage")
+    }
 
 /**
  * Use only for outgoing messages that were just sent
