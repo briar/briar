@@ -11,14 +11,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
-import java.util.logging.Logger;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.os.Build.VERSION.SDK_INT;
 
 public class AndroidUtils {
-
-	private static final Logger LOG =
-			Logger.getLogger(AndroidUtils.class.getName());
 
 	// Fake Bluetooth address returned by BluetoothAdapter on API 23 and later
 	private static final String FAKE_BLUETOOTH_ADDRESS = "02:00:00:00:00:00";
@@ -28,7 +25,7 @@ public class AndroidUtils {
 	@SuppressWarnings("deprecation")
 	public static Collection<String> getSupportedArchitectures() {
 		List<String> abis = new ArrayList<>();
-		if (Build.VERSION.SDK_INT >= 21) {
+		if (SDK_INT >= 21) {
 			abis.addAll(Arrays.asList(Build.SUPPORTED_ABIS));
 		} else {
 			abis.add(Build.CPU_ABI);

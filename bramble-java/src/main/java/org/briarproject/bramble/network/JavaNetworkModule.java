@@ -1,6 +1,5 @@
 package org.briarproject.bramble.network;
 
-import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 
 import javax.inject.Singleton;
@@ -13,9 +12,7 @@ public class JavaNetworkModule {
 
 	@Provides
 	@Singleton
-	NetworkManager provideNetworkManager(LifecycleManager lifecycleManager,
-			JavaNetworkManager networkManager) {
-		lifecycleManager.registerService(networkManager);
+	NetworkManager provideNetworkManager(JavaNetworkManager networkManager) {
 		return networkManager;
 	}
 }

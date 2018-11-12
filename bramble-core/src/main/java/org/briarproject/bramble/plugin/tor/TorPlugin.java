@@ -4,6 +4,8 @@ import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
 import org.briarproject.bramble.PoliteExecutor;
+import org.briarproject.bramble.api.battery.BatteryManager;
+import org.briarproject.bramble.api.battery.event.BatteryEvent;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
@@ -96,6 +98,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final LocationUtils locationUtils;
 	private final SocketFactory torSocketFactory;
 	private final Clock clock;
+	private final BatteryManager batteryManager;
 	private final Backoff backoff;
 	private final DuplexPluginCallback callback;
 	private final String architecture;
@@ -121,7 +124,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	TorPlugin(Executor ioExecutor, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider, Backoff backoff,
+			CircumventionProvider circumventionProvider,
+			BatteryManager batteryManager, Backoff backoff,
 			DuplexPluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, File torDirectory) {
 		this.ioExecutor = ioExecutor;
@@ -131,6 +135,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.clock = clock;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
+		this.batteryManager = batteryManager;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.architecture = architecture;
@@ -261,7 +266,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			throw new PluginException(e);
 		}
 		// Check whether we're online
-		updateConnectionStatus(networkManager.getNetworkStatus());
+		updateConnectionStatus(networkManager.getNetworkStatus(),
+				batteryManager.isCharging());
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
 	}
@@ -628,7 +634,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			LOG.info("OR connection " + status + " " + orName);
 		if (status.equals("CLOSED") || status.equals("FAILED")) {
 			// Check whether we've lost connectivity
-			updateConnectionStatus(networkManager.getNetworkStatus());
+			updateConnectionStatus(networkManager.getNetworkStatus(),
+					batteryManager.isCharging());
 		}
 	}
 
@@ -666,10 +673,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				// Works around a bug introduced in Tor 0.3.4.8. Could be
 				// replaced with callback.transportDisabled() when fixed.
 				disableNetwork();
-				updateConnectionStatus(networkManager.getNetworkStatus());
+				updateConnectionStatus(networkManager.getNetworkStatus(),
+						batteryManager.isCharging());
 			}
 		} else if (e instanceof NetworkStatusEvent) {
-			updateConnectionStatus(((NetworkStatusEvent) e).getStatus());
+			updateConnectionStatus(((NetworkStatusEvent) e).getStatus(),
+					batteryManager.isCharging());
+		} else if (e instanceof BatteryEvent) {
+			updateConnectionStatus(networkManager.getNetworkStatus(),
+					((BatteryEvent) e).isCharging());
 		}
 	}
 
@@ -683,7 +695,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		});
 	}
 
-	private void updateConnectionStatus(NetworkStatus status) {
+	private void updateConnectionStatus(NetworkStatus status,
+			boolean charging) {
 		connectionStatusExecutor.execute(() -> {
 			if (!running) return;
 			boolean online = status.isConnected();
@@ -701,6 +714,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Online: " + online + ", wifi: " + wifi);
 				if ("".equals(country)) LOG.info("Country code unknown");
 				else LOG.info("Country code: " + country);
+				LOG.info("Charging: " + charging);
 			}
 
 			try {
@@ -724,10 +738,22 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					enableBridges(false);
 					enableNetwork(true);
 				}
+				if (online && wifi && charging) {
+					LOG.info("Enabling connection padding");
+					enableConnectionPadding(true);
+				} else {
+					LOG.info("Disabling connection padding");
+					enableConnectionPadding(false);
+				}
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	private void enableConnectionPadding(boolean enable) throws IOException {
+		if (!running) return;
+		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
 	}
 
 	// TODO remove when sufficient time has passed. Added 2018-08-15

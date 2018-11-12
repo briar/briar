@@ -3,6 +3,7 @@ package org.briarproject.briar.headless
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
+import org.briarproject.bramble.api.battery.BatteryManager
 import org.briarproject.bramble.api.crypto.CryptoComponent
 import org.briarproject.bramble.api.crypto.PublicKey
 import org.briarproject.bramble.api.db.DatabaseConfig
@@ -19,6 +20,7 @@ import org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.api.system.LocationUtils
 import org.briarproject.bramble.api.system.ResourceProvider
+import org.briarproject.bramble.battery.DefaultBatteryManagerModule
 import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.CircumventionProvider
@@ -42,6 +44,7 @@ import javax.net.SocketFactory
         JavaNetworkModule::class,
         JavaSystemModule::class,
         CircumventionModule::class,
+        DefaultBatteryManagerModule::class,
         HeadlessBlogModule::class,
         HeadlessContactModule::class,
         HeadlessEventModule::class,
@@ -63,16 +66,13 @@ internal class HeadlessModule(private val appDir: File) {
     internal fun providePluginConfig(
         @IoExecutor ioExecutor: Executor, torSocketFactory: SocketFactory,
         backoffFactory: BackoffFactory, networkManager: NetworkManager,
-        locationUtils: LocationUtils, eventBus: EventBus,
-        resourceProvider: ResourceProvider,
-        circumventionProvider: CircumventionProvider, clock: Clock
+        locationUtils: LocationUtils, eventBus: EventBus, resourceProvider: ResourceProvider,
+        circumventionProvider: CircumventionProvider, batteryManager: BatteryManager, clock: Clock
     ): PluginConfig {
         val torDirectory = File(appDir, "tor")
         val tor = LinuxTorPluginFactory(
-            ioExecutor,
-            networkManager, locationUtils, eventBus, torSocketFactory,
-            backoffFactory, resourceProvider, circumventionProvider, clock,
-            torDirectory
+            ioExecutor, networkManager, locationUtils, eventBus, torSocketFactory, backoffFactory,
+            resourceProvider, circumventionProvider, batteryManager, clock, torDirectory
         )
         val duplex = listOf<DuplexPluginFactory>(tor)
         return object : PluginConfig {

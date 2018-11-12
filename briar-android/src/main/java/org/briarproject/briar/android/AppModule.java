@@ -7,6 +7,7 @@ import android.os.StrictMode;
 
 import com.vanniktech.emoji.RecentEmoji;
 
+import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
@@ -104,7 +105,8 @@ public class AppModule {
 			Application app, NetworkManager networkManager,
 			LocationUtils locationUtils, EventBus eventBus,
 			ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider, Clock clock) {
+			CircumventionProvider circumventionProvider,
+			BatteryManager batteryManager, Clock clock) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth =
 				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
@@ -112,7 +114,7 @@ public class AppModule {
 		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
 				scheduler, appContext, networkManager, locationUtils, eventBus,
 				torSocketFactory, backoffFactory, resourceProvider,
-				circumventionProvider, clock);
+				circumventionProvider, batteryManager, clock);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				eventBus, backoffFactory, appContext);
 		Collection<DuplexPluginFactory> duplex = asList(bluetooth, tor, lan);
