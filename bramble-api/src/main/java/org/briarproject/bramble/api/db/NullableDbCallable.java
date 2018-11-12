@@ -2,8 +2,11 @@ package org.briarproject.bramble.api.db;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-@NotNullByDefault
-public interface DbCallable<R, E extends Exception> {
+import javax.annotation.Nullable;
 
+@NotNullByDefault
+public interface NullableDbCallable<R, E extends Exception> {
+
+	@Nullable
 	R call(Transaction txn) throws DbException, E;
 }

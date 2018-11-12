@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
+import org.briarproject.bramble.api.db.NullableDbCallable;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -183,14 +184,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Override
 	public <R, E extends Exception> R transactionWithResult(boolean readOnly,
 			DbCallable<R, E> task) throws DbException, E {
-		R result = transactionWithNullableResult(readOnly, task);
-		if (result == null) throw new NullPointerException();
-		return result;
+		Transaction txn = startTransaction(readOnly);
+		try {
+			R result = task.call(txn);
+			commitTransaction(txn);
+			return result;
+		} finally {
+			endTransaction(txn);
+		}
 	}
 
 	@Override
 	public <R, E extends Exception> R transactionWithNullableResult(
-			boolean readOnly, DbCallable<R, E> task) throws DbException, E {
+			boolean readOnly, NullableDbCallable<R, E> task)
+			throws DbException, E {
 		Transaction txn = startTransaction(readOnly);
 		try {
 			R result = task.call(txn);
