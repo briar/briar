@@ -25,7 +25,8 @@ public class DbExpectations extends Expectations {
 	protected <R, E extends Exception> NullableDbCallable<R, E> withNullableDbCallable(
 			Transaction txn) {
 		addParameterMatcher(any(NullableDbCallable.class));
-		currentBuilder().setAction(new RunTransactionWithResultAction(txn));
+		currentBuilder().setAction(
+				new RunTransactionWithNullableResultAction(txn));
 		return null;
 	}
 
