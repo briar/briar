@@ -131,7 +131,8 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetStreamContextForContact() throws Exception {
 		context.checking(new DbExpectations() {{
-			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, contactId);
 			will(returnValue(streamContext));
 		}});
@@ -149,7 +150,8 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetStreamContextForTag() throws Exception {
 		context.checking(new DbExpectations() {{
-			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, tag);
 			will(returnValue(streamContext));
 		}});
@@ -177,7 +179,8 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 				new ContactStatusChangedEvent(inactiveContactId, true);
 
 		context.checking(new DbExpectations() {{
-			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, inactiveContactId);
 			will(returnValue(streamContext));
 		}});
