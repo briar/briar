@@ -52,8 +52,10 @@ class ConversationVisitor implements
 			item = new ConversationMessageItem(
 					R.layout.list_item_conversation_msg_in, h);
 		}
-		String text = textCache.getText(h.getId());
-		if (text != null) item.setText(text);
+		if (h.hasText()) {
+			String text = textCache.getText(h.getId());
+			if (text != null) item.setText(text);
+		}
 		return item;
 	}
 

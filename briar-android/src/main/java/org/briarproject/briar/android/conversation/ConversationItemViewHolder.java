@@ -34,9 +34,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 
 	@CallSuper
 	void bind(ConversationItem item, ConversationListener listener) {
-		if (item.getText() == null) {
-			text.setText("\u2026");
-		} else {
+		if (item.getText() != null) {
 			text.setText(trim(item.getText()));
 		}
 

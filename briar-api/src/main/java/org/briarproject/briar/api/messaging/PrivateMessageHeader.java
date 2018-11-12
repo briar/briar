@@ -14,13 +14,19 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class PrivateMessageHeader extends ConversationMessageHeader {
 
+	private final boolean hasText;
 	private final List<AttachmentHeader> attachmentHeaders;
 
 	public PrivateMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean read, boolean sent, boolean seen,
-			List<AttachmentHeader> attachmentHeaders) {
+			boolean hasText, List<AttachmentHeader> attachmentHeaders) {
 		super(id, groupId, timestamp, local, read, sent, seen);
+		this.hasText = hasText;
 		this.attachmentHeaders = attachmentHeaders;
+	}
+
+	public boolean hasText() {
+		return hasText;
 	}
 
 	public List<AttachmentHeader> getAttachmentHeaders() {

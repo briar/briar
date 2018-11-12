@@ -122,7 +122,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 		PrivateMessageHeader header =
 				new PrivateMessageHeader(m.getId(), groupId, timestamp, local,
-						read, false, false, emptyList());
+						read, false, false, true, emptyList());
 		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event =
 				new PrivateMessageReceivedEvent(header, contactId);
@@ -217,7 +217,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 				boolean local = meta.getBoolean("local");
 				boolean read = meta.getBoolean("read");
 				headers.add(new PrivateMessageHeader(id, g, timestamp, local,
-						read, s.isSent(), s.isSeen(), emptyList()));
+						read, s.isSent(), s.isSeen(), true, emptyList()));
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
