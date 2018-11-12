@@ -95,7 +95,7 @@ public interface DatabaseComponent {
 	 */
 	@Nullable
 	<R, E extends Exception> R transactionWithNullableResult(boolean readOnly,
-			DbCallable<R, E> task) throws DbException, E;
+			NullableDbCallable<R, E> task) throws DbException, E;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,

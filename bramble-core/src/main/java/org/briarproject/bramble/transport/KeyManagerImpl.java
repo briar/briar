@@ -137,7 +137,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		return db.transactionWithResult(false, txn ->
+		return db.transactionWithNullableResult(false, txn ->
 				m.getStreamContext(txn, c));
 	}
 
@@ -149,7 +149,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
 			return null;
 		}
-		return db.transactionWithResult(false, txn ->
+		return db.transactionWithNullableResult(false, txn ->
 				m.getStreamContext(txn, tag));
 	}
 
