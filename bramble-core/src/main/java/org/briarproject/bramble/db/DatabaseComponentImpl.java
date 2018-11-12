@@ -7,11 +7,14 @@ import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.contact.event.ContactVerifiedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.CommitAction;
+import org.briarproject.bramble.api.db.CommitAction.Visitor;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbCallable;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.DbRunnable;
+import org.briarproject.bramble.api.db.EventAction;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -20,9 +23,10 @@ import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
 import org.briarproject.bramble.api.db.NullableDbCallable;
+import org.briarproject.bramble.api.db.TaskAction;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -64,6 +68,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.logging.Logger;
@@ -92,25 +97,29 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	private final Database<T> db;
 	private final Class<T> txnClass;
 	private final EventBus eventBus;
-	private final ShutdownManager shutdown;
+	private final Executor eventExecutor;
+	private final ShutdownManager shutdownManager;
 	private final AtomicBoolean closed = new AtomicBoolean(false);
 	private final ReentrantReadWriteLock lock =
 			new ReentrantReadWriteLock(true);
+	private final Visitor visitor = new CommitActionVisitor();
 
 	@Inject
 	DatabaseComponentImpl(Database<T> db, Class<T> txnClass, EventBus eventBus,
-			ShutdownManager shutdown) {
+			@EventExecutor Executor eventExecutor,
+			ShutdownManager shutdownManager) {
 		this.db = db;
 		this.txnClass = txnClass;
 		this.eventBus = eventBus;
-		this.shutdown = shutdown;
+		this.eventExecutor = eventExecutor;
+		this.shutdownManager = shutdownManager;
 	}
 
 	@Override
 	public boolean open(SecretKey key, @Nullable MigrationListener listener)
 			throws DbException {
 		boolean reopened = db.open(key, listener);
-		shutdown.addShutdownHook(() -> {
+		shutdownManager.addShutdownHook(() -> {
 			try {
 				close();
 			} catch (DbException e) {
@@ -161,7 +170,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		try {
 			T txn = txnClass.cast(transaction.unbox());
 			if (transaction.isCommitted()) {
-				for (Event e : transaction.getEvents()) eventBus.broadcast(e);
+				for (CommitAction a : transaction.getActions())
+					a.accept(visitor);
 			} else {
 				db.abortTransaction(txn);
 			}
@@ -974,6 +984,19 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			TransportId t = ks.getTransportKeys().getTransportId();
 			if (db.containsTransport(txn, t))
 				db.updateTransportKeys(txn, ks);
+		}
+	}
+
+	private class CommitActionVisitor implements Visitor {
+
+		@Override
+		public void visit(EventAction a) {
+			eventBus.broadcast(a.getEvent());
+		}
+
+		@Override
+		public void visit(TaskAction a) {
+			eventExecutor.execute(a.getTask());
 		}
 	}
 }

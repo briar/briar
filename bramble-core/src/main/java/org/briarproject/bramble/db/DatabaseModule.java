@@ -3,11 +3,13 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 
 import java.sql.Connection;
+import java.util.concurrent.Executor;
 
 import javax.inject.Singleton;
 
@@ -27,8 +29,9 @@ public class DatabaseModule {
 	@Provides
 	@Singleton
 	DatabaseComponent provideDatabaseComponent(Database<Connection> db,
-			EventBus eventBus, ShutdownManager shutdown) {
+			EventBus eventBus, @EventExecutor Executor eventExecutor,
+			ShutdownManager shutdownManager) {
 		return new DatabaseComponentImpl<>(db, Connection.class, eventBus,
-				shutdown);
+				eventExecutor, shutdownManager);
 	}
 }
