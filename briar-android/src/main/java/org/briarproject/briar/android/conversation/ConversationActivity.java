@@ -460,8 +460,8 @@ public class ConversationActivity extends BriarActivity
 				observeOnce(viewModel.getContactDisplayName(), this,
 						name -> addConversationItem(h.accept(visitor)));
 			} else {
+				// visitor also loads message text (if existing)
 				addConversationItem(h.accept(visitor));
-				loadMessageText(h.getId());
 			}
 		});
 	}
@@ -535,7 +535,7 @@ public class ConversationActivity extends BriarActivity
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, false, false, false,
-						emptyList());
+						true, emptyList());
 				textCache.put(message.getId(), text);
 				addConversationItem(h.accept(visitor));
 			} catch (DbException e) {

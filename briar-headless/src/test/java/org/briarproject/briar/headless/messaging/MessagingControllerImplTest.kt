@@ -50,7 +50,17 @@ internal class MessagingControllerImplTest : ControllerTest() {
     )
 
     private val header =
-        PrivateMessageHeader(message.id, group.id, timestamp, true, true, true, true, emptyList())
+        PrivateMessageHeader(
+            message.id,
+            group.id,
+            timestamp,
+            true,
+            true,
+            true,
+            true,
+            true,
+            emptyList()
+        )
     private val sessionId = SessionId(getRandomId())
     private val privateMessage = PrivateMessage(message)
 
