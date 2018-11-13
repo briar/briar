@@ -7,7 +7,7 @@ import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.bramble.test.TestUtils;
@@ -127,9 +127,9 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		component.inject(new FeedModule.EagerSingletons());
 		component.inject(new IdentityModule.EagerSingletons());
 		component.inject(new LifecycleModule.EagerSingletons());
-		component.inject(new SyncModule.EagerSingletons());
 		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
+		component.inject(new ValidationModule.EagerSingletons());
 		component.inject(new VersioningModule.EagerSingletons());
 	}
 

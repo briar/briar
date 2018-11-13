@@ -19,6 +19,7 @@ import org.briarproject.bramble.reporting.ReportingModule;
 import org.briarproject.bramble.settings.SettingsModule;
 import org.briarproject.bramble.socks.SocksModule;
 import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
@@ -47,6 +48,7 @@ import dagger.Module;
 		SyncModule.class,
 		SystemModule.class,
 		TransportModule.class,
+		ValidationModule.class,
 		VersioningModule.class
 })
 public class BrambleCoreModule {
@@ -60,9 +62,9 @@ public class BrambleCoreModule {
 		c.inject(new PluginModule.EagerSingletons());
 		c.inject(new PropertiesModule.EagerSingletons());
 		c.inject(new ReportingModule.EagerSingletons());
-		c.inject(new SyncModule.EagerSingletons());
 		c.inject(new SystemModule.EagerSingletons());
 		c.inject(new TransportModule.EagerSingletons());
+		c.inject(new ValidationModule.EagerSingletons());
 		c.inject(new VersioningModule.EagerSingletons());
 	}
 }

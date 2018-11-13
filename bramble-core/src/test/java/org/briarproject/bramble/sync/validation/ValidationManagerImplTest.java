@@ -1,4 +1,4 @@
-package org.briarproject.bramble.sync;
+package org.briarproject.bramble.sync.validation;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -13,10 +13,10 @@ import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
-import org.briarproject.bramble.api.sync.ValidationManager.MessageValidator;
-import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
+import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
+import org.briarproject.bramble.api.sync.validation.MessageState;
+import org.briarproject.bramble.api.sync.validation.MessageValidator;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
@@ -32,10 +32,10 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
+import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
+import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
@@ -559,7 +559,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 	public void testRecursiveInvalidation() throws Exception {
 		MessageId messageId3 = new MessageId(getRandomId());
 		MessageId messageId4 = new MessageId(getRandomId());
-		Map<MessageId, State> twoDependents = new LinkedHashMap<>();
+		Map<MessageId, MessageState> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
 		Transaction txn = new Transaction(null, true);
@@ -643,10 +643,10 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		Message message4 = getMessage(groupId);
 		MessageId messageId3 = message3.getId();
 		MessageId messageId4 = message4.getId();
-		Map<MessageId, State> twoDependents = new LinkedHashMap<>();
+		Map<MessageId, MessageState> twoDependents = new LinkedHashMap<>();
 		twoDependents.put(messageId1, PENDING);
 		twoDependents.put(messageId2, PENDING);
-		Map<MessageId, State> twoDependencies = new LinkedHashMap<>();
+		Map<MessageId, MessageState> twoDependencies = new LinkedHashMap<>();
 		twoDependencies.put(messageId1, DELIVERED);
 		twoDependencies.put(messageId2, DELIVERED);
 		Transaction txn = new Transaction(null, true);
@@ -765,7 +765,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testOnlyReadyPendingDependentsGetDelivered() throws Exception {
-		Map<MessageId, State> twoDependencies = new LinkedHashMap<>();
+		Map<MessageId, MessageState> twoDependencies = new LinkedHashMap<>();
 		twoDependencies.put(messageId, DELIVERED);
 		twoDependencies.put(messageId2, UNKNOWN);
 		Transaction txn = new Transaction(null, true);

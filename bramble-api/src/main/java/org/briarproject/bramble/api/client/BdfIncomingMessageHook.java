@@ -1,7 +1,6 @@
-package org.briarproject.briar.client;
+package org.briarproject.bramble.api.client;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
@@ -12,7 +11,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
-import org.briarproject.bramble.api.sync.ValidationManager.IncomingMessageHook;
+import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -62,5 +61,4 @@ public abstract class BdfIncomingMessageHook implements IncomingMessageHook {
 			throw new InvalidMessageException(e);
 		}
 	}
-
 }

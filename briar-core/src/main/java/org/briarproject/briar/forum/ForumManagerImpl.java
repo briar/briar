@@ -1,6 +1,7 @@
 package org.briarproject.briar.forum;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.BdfIncomingMessageHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -27,7 +28,6 @@ import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
-import org.briarproject.briar.client.BdfIncomingMessageHook;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;

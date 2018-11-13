@@ -10,7 +10,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
@@ -98,9 +98,9 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 		component.inject(new ForumModule.EagerSingletons());
 		component.inject(new IdentityModule.EagerSingletons());
 		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new SyncModule.EagerSingletons());
 		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
+		component.inject(new ValidationModule.EagerSingletons());
 		component.inject(new VersioningModule.EagerSingletons());
 	}
 }

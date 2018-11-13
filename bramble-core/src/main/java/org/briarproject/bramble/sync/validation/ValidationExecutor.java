@@ -1,4 +1,4 @@
-package org.briarproject.bramble.sync;
+package org.briarproject.bramble.sync.validation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;

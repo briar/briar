@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.ValidationManager.State;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.UTest;
 import org.junit.After;
@@ -33,7 +33,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.OFF;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
@@ -565,7 +565,8 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 				for (int k = 0; k < MESSAGES_PER_GROUP; k++) {
 					Message m = getMessage(g.getId());
 					messages.add(m);
-					State state = State.fromValue(random.nextInt(4));
+					MessageState state =
+							MessageState.fromValue(random.nextInt(4));
 					boolean shared = random.nextBoolean();
 					ContactId sender = random.nextBoolean() ? c : null;
 					db.addMessage(txn, m, state, shared, sender);

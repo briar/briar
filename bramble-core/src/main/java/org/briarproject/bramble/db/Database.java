@@ -22,7 +22,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
-import org.briarproject.bramble.api.sync.ValidationManager.State;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySet;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -106,7 +106,7 @@ interface Database<T> {
 	 * @param sender the contact from whom the message was received, or null
 	 * if the message was created locally.
 	 */
-	void addMessage(T txn, Message m, State state, boolean shared,
+	void addMessage(T txn, Message m, MessageState state, boolean shared,
 			@Nullable ContactId sender) throws DbException;
 
 	/**
@@ -114,7 +114,7 @@ interface Database<T> {
 	 * in the given state.
 	 */
 	void addMessageDependency(T txn, Message dependent, MessageId dependency,
-			State dependentState) throws DbException;
+			MessageState dependentState) throws DbException;
 
 	/**
 	 * Records that a message has been offered by the given contact.
@@ -310,11 +310,11 @@ interface Database<T> {
 	/**
 	 * Returns the IDs and states of all dependencies of the given message.
 	 * For missing dependencies and dependencies in other groups, the state
-	 * {@link State UNKNOWN} is returned.
+	 * {@link MessageState UNKNOWN} is returned.
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, State> getMessageDependencies(T txn, MessageId m)
+	Map<MessageId, MessageState> getMessageDependencies(T txn, MessageId m)
 			throws DbException;
 
 	/**
@@ -324,7 +324,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, State> getMessageDependents(T txn, MessageId m)
+	Map<MessageId, MessageState> getMessageDependents(T txn, MessageId m)
 			throws DbException;
 
 	/**
@@ -383,7 +383,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	State getMessageState(T txn, MessageId m) throws DbException;
+	MessageState getMessageState(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the status of all delivered messages in the given group with
@@ -637,7 +637,8 @@ interface Database<T> {
 	/**
 	 * Sets the validation and delivery state of the given message.
 	 */
-	void setMessageState(T txn, MessageId m, State state) throws DbException;
+	void setMessageState(T txn, MessageId m, MessageState state)
+			throws DbException;
 
 	/**
 	 * Sets the reordering window for the given key set and transport in the

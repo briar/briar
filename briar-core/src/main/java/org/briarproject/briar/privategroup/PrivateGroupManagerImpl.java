@@ -1,6 +1,7 @@
 package org.briarproject.briar.privategroup;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.client.BdfIncomingMessageHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -38,7 +39,6 @@ import org.briarproject.briar.api.privategroup.Visibility;
 import org.briarproject.briar.api.privategroup.event.ContactRelationshipRevealedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
-import org.briarproject.briar.client.BdfIncomingMessageHook;
 
 import java.util.ArrayList;
 import java.util.Collection;

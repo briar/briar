@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySet;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -27,8 +28,6 @@ import java.util.Collection;
 import java.util.Map;
 
 import javax.annotation.Nullable;
-
-import static org.briarproject.bramble.api.sync.ValidationManager.State;
 
 /**
  * Encapsulates the database implementation and exposes high-level operations
@@ -374,12 +373,12 @@ public interface DatabaseComponent {
 	/**
 	 * Returns the IDs and states of all dependencies of the given message.
 	 * For missing dependencies and dependencies in other groups, the state
-	 * {@link State UNKNOWN} is returned.
+	 * {@link MessageState UNKNOWN} is returned.
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, State> getMessageDependencies(Transaction txn, MessageId m)
-			throws DbException;
+	Map<MessageId, MessageState> getMessageDependencies(Transaction txn,
+			MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs and states of all dependents of the given message.
@@ -388,15 +387,16 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Map<MessageId, State> getMessageDependents(Transaction txn, MessageId m)
-			throws DbException;
+	Map<MessageId, MessageState> getMessageDependents(Transaction txn,
+			MessageId m) throws DbException;
 
 	/**
 	 * Gets the validation and delivery state of the given message.
 	 * <p/>
 	 * Read-only.
 	 */
-	State getMessageState(Transaction txn, MessageId m) throws DbException;
+	MessageState getMessageState(Transaction txn, MessageId m)
+			throws DbException;
 
 	/**
 	 * Returns the status of the given delivered message with respect to the
@@ -543,7 +543,7 @@ public interface DatabaseComponent {
 	/**
 	 * Sets the validation and delivery state of the given message.
 	 */
-	void setMessageState(Transaction txn, MessageId m, State state)
+	void setMessageState(Transaction txn, MessageId m, MessageState state)
 			throws DbException;
 
 	/**

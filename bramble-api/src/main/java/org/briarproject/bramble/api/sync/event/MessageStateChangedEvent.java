@@ -3,10 +3,9 @@ package org.briarproject.bramble.api.sync.event;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 
 import javax.annotation.concurrent.Immutable;
-
-import static org.briarproject.bramble.api.sync.ValidationManager.State;
 
 /**
  * An event that is broadcast when a message state changed.
@@ -17,10 +16,10 @@ public class MessageStateChangedEvent extends Event {
 
 	private final MessageId messageId;
 	private final boolean local;
-	private final State state;
+	private final MessageState state;
 
 	public MessageStateChangedEvent(MessageId messageId, boolean local,
-			State state) {
+			MessageState state) {
 		this.messageId = messageId;
 		this.local = local;
 		this.state = state;
@@ -34,7 +33,7 @@ public class MessageStateChangedEvent extends Event {
 		return local;
 	}
 
-	public State getState() {
+	public MessageState getState() {
 		return state;
 	}
 

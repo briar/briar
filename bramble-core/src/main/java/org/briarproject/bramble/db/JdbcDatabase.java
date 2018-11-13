@@ -24,7 +24,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
-import org.briarproject.bramble.api.sync.ValidationManager.State;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.KeySet;
@@ -64,9 +64,9 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
+import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
@@ -724,7 +724,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			while (rs.next()) {
 				MessageId id = new MessageId(rs.getBytes(1));
 				long timestamp = rs.getLong(2);
-				State state = State.fromValue(rs.getInt(3));
+				MessageState state = MessageState.fromValue(rs.getInt(3));
 				boolean messageShared = rs.getBoolean(4);
 				int length = rs.getInt(5);
 				boolean deleted = rs.getBoolean(6);
@@ -767,7 +767,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void addMessage(Connection txn, Message m, State state,
+	public void addMessage(Connection txn, Message m, MessageState state,
 			boolean messageShared, @Nullable ContactId sender)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -847,7 +847,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private void addStatus(Connection txn, MessageId m, ContactId c, GroupId g,
-			long timestamp, int length, State state, boolean groupShared,
+			long timestamp, int length, MessageState state, boolean groupShared,
 			boolean messageShared, boolean deleted, boolean seen)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -880,7 +880,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void addMessageDependency(Connection txn, Message dependent,
-			MessageId dependency, State dependentState) throws DbException {
+			MessageId dependency, MessageState dependentState)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -891,9 +892,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, dependency.getBytes());
 			ps.setBytes(2, dependent.getGroupId().getBytes());
 			rs = ps.executeQuery();
-			State dependencyState = null;
+			MessageState dependencyState = null;
 			if (rs.next()) {
-				dependencyState = State.fromValue(rs.getInt(1));
+				dependencyState = MessageState.fromValue(rs.getInt(1));
 				if (rs.next()) throw new DbStateException();
 			}
 			rs.close();
@@ -1813,7 +1814,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Map<MessageId, State> getMessageDependencies(Connection txn,
+	public Map<MessageId, MessageState> getMessageDependencies(Connection txn,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1824,10 +1825,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			Map<MessageId, State> dependencies = new HashMap<>();
+			Map<MessageId, MessageState> dependencies = new HashMap<>();
 			while (rs.next()) {
 				MessageId dependency = new MessageId(rs.getBytes(1));
-				State state = State.fromValue(rs.getInt(2));
+				MessageState state = MessageState.fromValue(rs.getInt(2));
 				if (rs.wasNull())
 					state = UNKNOWN; // Missing or in a different group
 				dependencies.put(dependency, state);
@@ -1843,7 +1844,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Map<MessageId, State> getMessageDependents(Connection txn,
+	public Map<MessageId, MessageState> getMessageDependents(Connection txn,
 			MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1857,10 +1858,10 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
-			Map<MessageId, State> dependents = new HashMap<>();
+			Map<MessageId, MessageState> dependents = new HashMap<>();
 			while (rs.next()) {
 				MessageId dependent = new MessageId(rs.getBytes(1));
-				State state = State.fromValue(rs.getInt(2));
+				MessageState state = MessageState.fromValue(rs.getInt(2));
 				dependents.put(dependent, state);
 			}
 			rs.close();
@@ -1874,7 +1875,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public State getMessageState(Connection txn, MessageId m)
+	public MessageState getMessageState(Connection txn, MessageId m)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1884,7 +1885,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, m.getBytes());
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
-			State state = State.fromValue(rs.getInt(1));
+			MessageState state = MessageState.fromValue(rs.getInt(1));
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -2032,7 +2033,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	private Collection<MessageId> getMessagesInState(Connection txn,
-			State state) throws DbException {
+			MessageState state) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2359,7 +2360,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
 			GroupId g = new GroupId(rs.getBytes(1));
-			State state = State.fromValue(rs.getInt(2));
+			MessageState state = MessageState.fromValue(rs.getInt(2));
 			rs.close();
 			ps.close();
 			// Insert any keys that don't already exist
@@ -2865,7 +2866,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void setMessageState(Connection txn, MessageId m, State state)
+	public void setMessageState(Connection txn, MessageId m, MessageState state)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
