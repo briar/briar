@@ -42,7 +42,6 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -238,10 +237,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public Attachment getAttachment(MessageId m) {
 		// TODO add real implementation
-		// TODO return actual random/fake image before real implementation is done
-		byte[] b = new byte[MAX_MESSAGE_BODY_LENGTH];
-		new Random().nextBytes(b);
-		return new Attachment(ByteBuffer.wrap(b));
+		throw new IllegalStateException("Not yet implemented");
 	}
 
 }
