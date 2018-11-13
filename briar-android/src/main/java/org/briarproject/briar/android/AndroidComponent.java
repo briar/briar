@@ -2,6 +2,7 @@ package org.briarproject.briar.android;
 
 import android.arch.lifecycle.ViewModelProvider;
 
+import org.briarproject.bramble.BrambleAndroidEagerSingletons;
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
@@ -39,11 +40,11 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
@@ -68,7 +69,8 @@ import dagger.Component;
 		AppModule.class
 })
 public interface AndroidComponent
-		extends BrambleCoreEagerSingletons, BriarCoreEagerSingletons {
+		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
+		BriarCoreEagerSingletons {
 
 	// Exposed objects
 	@CryptoExecutor
