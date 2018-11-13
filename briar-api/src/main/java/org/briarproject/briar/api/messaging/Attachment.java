@@ -1,17 +1,17 @@
 package org.briarproject.briar.api.messaging;
 
-import java.nio.ByteBuffer;
+import java.io.InputStream;
 
 public class Attachment {
 
-	private final ByteBuffer data;
+	private final InputStream stream;
 
-	public Attachment(ByteBuffer data) {
-		this.data = data;
+	public Attachment(InputStream stream) {
+		this.stream = stream;
 	}
 
-	public ByteBuffer getData() {
-		return data;
+	public InputStream getStream() {
+		return stream;
 	}
 
 }
