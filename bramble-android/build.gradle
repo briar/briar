@@ -1,3 +1,5 @@
+import com.android.build.gradle.tasks.MergeResources
+
 apply plugin: 'com.android.library'
 apply plugin: 'witness'
 apply from: 'witness.gradle'
@@ -44,20 +46,6 @@ dependencies {
 
 def torBinariesDir = 'src/main/res/raw'
 
-task unpackTorBinaries {
-	outputs.dir torBinariesDir
-	doLast {
-		copy {
-			from configurations.tor.collect { zipTree(it) }
-			into torBinariesDir
-		}
-	}
-}
-
-tasks.withType(JavaCompile) {
-	dependsOn unpackTorBinaries
-}
-
 task cleanTorBinaries {
 	doLast {
 		delete fileTree(torBinariesDir) { include '*.zip' }
@@ -65,3 +53,18 @@ task cleanTorBinaries {
 }
 
 clean.dependsOn cleanTorBinaries
+
+task unpackTorBinaries {
+	doLast {
+		copy {
+			from configurations.tor.collect { zipTree(it) }
+			into torBinariesDir
+		}
+	}
+	dependsOn cleanTorBinaries
+}
+
+tasks.withType(MergeResources) {
+	inputs.dir torBinariesDir
+	dependsOn unpackTorBinaries
+}
