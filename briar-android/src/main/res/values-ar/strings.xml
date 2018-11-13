@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">مرحبًا بك في Briar (براير)</string>
   <string name="setup_name_explanation">سيتم إظهار اسمك المستعار بجانب كل ما تنشره من محتوى. لا يمكنك تغيير الاسم بعد إنشاء حسابك.</string>
@@ -135,6 +135,8 @@
   <string name="date_no_private_messages">لا رسائل.</string>
   <string name="no_private_messages">لا رسائل للعرض.</string>
   <string name="message_hint">كتابة رسالة</string>
+  <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
+  <string name="set_alias_button">تغيير</string>
   <string name="delete_contact">حذف جهة الإتصال</string>
   <string name="dialog_title_delete_contact">تأكيد حذف جهة الإتصال</string>
   <string name="dialog_message_delete_contact">هل أنت متأكد/ة من أنك تريد حذف جهة الإتصال هذه وكل الرسائل المتبادلة بينكما؟</string>

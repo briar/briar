@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Köszöntjük a Briar-ban</string>
   <string name="setup_name_explanation">A beceneve fog megjelenni minden tartalom mellett amit Ön osztott meg. Nem tudja megváltoztatni a fiók létrehozása után.</string>
@@ -48,6 +48,7 @@
   <string name="download_briar_button">Briar 1.0 letöltése</string>
   <string name="startup_open_database">Adatbázis dekódolása...</string>
   <string name="startup_migrate_database">Adatbázis frissítése</string>
+  <string name="startup_compact_database">Adatbázis tömörítése...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigációs oldalablak megnyitása</string>
   <string name="nav_drawer_close_description">Navigációs oldalablak bezárása</string>
@@ -115,6 +116,7 @@
   <string name="date_no_private_messages">Nincs üzenet.</string>
   <string name="no_private_messages">Nincs megjeleníthető üzenet</string>
   <string name="message_hint">Üzenet írása</string>
+  <string name="set_alias_button">Módosítás</string>
   <string name="delete_contact">Kapcsolat törlése</string>
   <string name="dialog_title_delete_contact">Kapcsolat törlésének megerősítése</string>
   <string name="dialog_message_delete_contact">Biztosan eltávolítja ezt a kapcsolatot és minden vele történt üzenetváltását?</string>
@@ -129,6 +131,8 @@
   <string name="contact_added_toast">Kapcsolat hozzáadva: %s</string>
   <string name="contact_already_exists">%s kapcsolat már létezik</string>
   <string name="qr_code_invalid">A QR kód érvénytelen</string>
+  <string name="qr_code_too_old">A QR kód amit leolvasott egy korábbi %s  verzióhoz tartozik.\n\nKérje meg kapcsolatát, hogy frissítsen a legutolsó verzióra, majd próbálják újra.</string>
+  <string name="qr_code_too_new">A QR kód amit leolvasott egy újabb %s verzióhoz tartozik.\n\nKérjük, frissítsen a legutolsó verzióra, majd próbálják újra.</string>
   <string name="camera_error">Kamera hiba</string>
   <string name="connecting_to_device">Csatlakozás az eszközhöz\u2026</string>
   <string name="authenticating_with_device">Azonosítás az eszközzel\u2026</string>
@@ -340,8 +344,10 @@
   <string name="tor_mobile_data_title">Mobil adat használata</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Biztonság</string>
+  <string name="pref_lock_title">App zár</string>
   <string name="pref_lock_summary">Az eszköz képernyő zárának használata a Briar védelmére, ha be van jelentkezve</string>
   <string name="pref_lock_disabled_summary">Ahhoz, hogy használni tudja ezt az opciót, állítson be zárképernyőt az eszközén</string>
+  <string name="pref_lock_timeout_title">App zár inaktivítási idő</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Ha nem használja a Briar-t, automatikusan zárol %s után</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -370,6 +376,7 @@
   <string name="panic_app_setting_none">Egyik sem</string>
   <string name="dialog_title_connect_panic_app">Pánik alkalmazás megerősítése</string>
   <string name="dialog_message_connect_panic_app">Biztos benne, hogy szeretné, hogy %1$s kiválthasson destruktív pánik gomb műveleteket?</string>
+  <string name="panic_setting_destructive_action">Romboló műveletek</string>
   <string name="panic_setting_signout_title">Kijelentkezés</string>
   <string name="panic_setting_signout_summary">Kilépés a Briar-ból a pánik gomb megnyomásakor</string>
   <string name="purge_setting_title">Fiók törlése</string>
@@ -432,6 +439,10 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <!--Permission Requests-->
   <string name="permission_camera_title">Kamera jogosultságok</string>
   <string name="permission_camera_request_body">A QR kód olvasáshoz a Briar-nak szüksége van kamera hozzáférésre.</string>
+  <string name="permission_location_title">Hely engedélyek</string>
+  <string name="permission_location_request_body">A Bluetooth eszközök észleléséhez a Briar-nak szükségve van a lokációhoz hozzáférésre.\n\nA Briar nem tárolja lokációját vagy ossza meg bárkivel.</string>
+  <string name="permission_camera_location_title">Kamera és lokáció</string>
+  <string name="permission_camera_location_request_body">A QR kód beszkenneléséhez a Briar-nak szüksége van a Kamerához hozzáférésre.\n\nA Bluetooth eszközök észleléséhez a Briar-nak szükségve van a lokációhoz hozzáférésre.\n\nA Briar nem tárolja lokációját vagy ossza meg bárkivel.</string>
   <string name="permission_camera_denied_body">Megtiltotta hozzáférést a kamerához, de a kapcsolatok hozzáadásához szükséges a kamera.\n\nKérjük gondolja meg a jog megadását.</string>
   <string name="qr_code">QR kód</string>
   <string name="show_qr_code_fullscreen">A QR kód teljes képernyősen</string>
@@ -444,9 +455,15 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="lock_tap_to_unlock">Érintse meg a zárolás feloldásához</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Hi Bob!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Hi Alice! Köszönöm hogy említette nekem a Briar-t!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Szívesen, remélem tetszeni fog 😀</string>
 </resources>

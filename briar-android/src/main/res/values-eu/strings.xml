@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Ongi etorri Briar-era</string>
   <string name="setup_name_explanation">Zure ezizena argitaratzen dituzun eduki guztien ondoan agertuko da. Ezingo duzu aldatu, kontua sortu eta gero.</string>
@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">Ez dago mezurik.</string>
   <string name="no_private_messages">Ez dago erakusteko mezurik</string>
   <string name="message_hint">Idatzi mezua</string>
+  <string name="set_contact_alias">Aldatu kontaktuaren izena</string>
+  <string name="set_contact_alias_hint">Kontaktuaren izena</string>
+  <string name="set_alias_button">Aldatu</string>
   <string name="delete_contact">Ezabatu kontaktua</string>
   <string name="dialog_title_delete_contact">Baieztatu kontaktua ezabatzea</string>
   <string name="dialog_message_delete_contact">Ziur zaude kontaktu hau eta berarekin trukatutako mezu guztiak kendu nahi dituzula?</string>
@@ -435,6 +438,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Kamera erabiltzeko baimena</string>
   <string name="permission_camera_request_body">QR kodea eskaneatzeko Briar-ek kamera atzitu behar du.</string>
+  <string name="permission_location_title">Kokapen baimena</string>
+  <string name="permission_location_request_body">Bluetooth gailuak aurkitzeko, Briar aplikazioak zure kokapena atzitzeko baimena behar du.\n\n Briar-ek ez du zure kokapena gordetzen ezta inorekin partekatzen.</string>
+  <string name="permission_camera_location_title">Kamera eta kokapena</string>
+  <string name="permission_camera_location_request_body">QR kodea eskaneatzeko, Briar aplikazioak zure kamera atzitzeko baimena behar du.\n\nBluetooth gailuak aurkitzeko, Briar aplikazioak zure kokapena atzitzeko baimena behar du.\n\n Briar-ek ez du zure kokapena gordetzen ezta inorekin partekatzen.</string>
   <string name="permission_camera_denied_body">Kamera atzitzeko baimena ukatu duzu, baina kontaktuak gehitzeko kamera erabili behar da.\n\nMesedez baimendu kamera atzitzea.</string>
   <string name="qr_code">QR kodea</string>
   <string name="show_qr_code_fullscreen">Erakutsi QR kodea pantaila osoan</string>

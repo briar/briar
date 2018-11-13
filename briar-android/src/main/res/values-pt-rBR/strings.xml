@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Boas-vindas ao Briar</string>
   <string name="setup_name_explanation">Seu nome de usuária será mostrado próximo a qualquer conteúdo que você publicar. Você não pode mudá-lo depois que criar sua conta,</string>
@@ -48,6 +48,7 @@
   <string name="download_briar_button">Baixar Briar 1.0</string>
   <string name="startup_open_database">Descriptografando Banco de Dados...</string>
   <string name="startup_migrate_database">Atualizando Banco de Dados...</string>
+  <string name="startup_compact_database">Compactando Banco de Dados...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Abrir aba de navegação</string>
   <string name="nav_drawer_close_description">Fechar aba de navegação</string>
@@ -115,6 +116,8 @@
   <string name="date_no_private_messages">Sem Mensagens</string>
   <string name="no_private_messages">Nenhuma mensagem para ser exibida</string>
   <string name="message_hint">Digite a mensagem</string>
+  <string name="set_contact_alias_hint">Nome de contato</string>
+  <string name="set_alias_button">Trocar</string>
   <string name="delete_contact">Apagar contato</string>
   <string name="dialog_title_delete_contact">Confirmar remoção do contato</string>
   <string name="dialog_message_delete_contact">Você tem certeza que quer remover este contato e todas mensagens trocadas com ele?</string>
@@ -129,6 +132,8 @@
   <string name="contact_added_toast">Contato adicionado: %s</string>
   <string name="contact_already_exists">Contato %s já existe</string>
   <string name="qr_code_invalid">O código QR é inválido</string>
+  <string name="qr_code_too_old">O código QR que você escaneou está em uma versão mais antiga de %s.\n\nPor favor informe o seu contato para atualizar para a última versão e tente novamente.</string>
+  <string name="qr_code_too_new">O código QR que você escaneou está em uma versão mais recente de %s.\n\nPor favor atualize para a última versão e tente novamente.</string>
   <string name="camera_error">Erro da câmera</string>
   <string name="connecting_to_device">Conectando a device\u2026</string>
   <string name="authenticating_with_device">Autenticando com o dispositivo\u2026</string>
@@ -338,8 +343,10 @@
   <string name="tor_mobile_data_title">Usar dados moveis</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurança</string>
+  <string name="pref_lock_title">Bloqueio de app</string>
   <string name="pref_lock_summary">Use o bloqueio de tela do dispositivo para proteger o Briar enquanto estiver conectado</string>
   <string name="pref_lock_disabled_summary">Para usar esse recurso, configure um bloqueio de tela para seu dispositivo</string>
+  <string name="pref_lock_timeout_title">Bloqueio de app por tempo de inatividade</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Quando o briar não estiver sendo usando, bloquear automaticamente após %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -368,6 +375,7 @@
   <string name="panic_app_setting_none">Nenhum</string>
   <string name="dialog_title_connect_panic_app">Confirmar aplicativo de pânico</string>
   <string name="dialog_message_connect_panic_app">Você tem certeza que quer permitir que %1$s ative ações destrutivas do botão de pânico?</string>
+  <string name="panic_setting_destructive_action">Ações Destrutivas</string>
   <string name="panic_setting_signout_title">Desconectar</string>
   <string name="panic_setting_signout_summary">Desconectar do Briar se o botão de pânico for apertado</string>
   <string name="purge_setting_title">Apagar conta</string>
@@ -429,6 +437,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Permissão da câmera</string>
   <string name="permission_camera_request_body">O Briar precisa acessar a câmera para pode escanear o código QR.</string>
+  <string name="permission_location_title">Permissão para localização</string>
+  <string name="permission_location_request_body">Para encontrar dispositivos Bluetooth, Briar precisa de permissão para acessar sua localização.\n\nBriar não armazena sua localização ou a compartilha com qualquer pessoa.</string>
+  <string name="permission_camera_location_title">Câmera e localização</string>
+  <string name="permission_camera_location_request_body">Para escanear o código QR, Briar precisa de acesso a câmera.\n\nPara encontrar dispositivos Bluetooth, Briar precisa de permissão para acessar a localização.\n\nBriar não armazena seu localização ou a compartilhar com qualquer pessoa.</string>
   <string name="permission_camera_denied_body">Você negou acesso à câmera, mas para adicionar contatos você precisa da câmera.\n\nPor favor, pense em liberar o acesso a ela.</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar o código QR na tela cheia</string>
@@ -441,9 +453,15 @@
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Oi Bob!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Oi Alice! Obrigado por me informar sobre o Briar!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Sem problema, espero que goste 😀</string>
 </resources>

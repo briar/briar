@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Briar में आपका स्वागत है</string>
   <string name="setup_name_explanation">आपके उपनाम आप पोस्ट किसी भी सामग्री के बगल में दिखाया जाएगा। आप अपना खाता बनाने के बाद इसे बदल नहीं सकते</string>
@@ -48,6 +48,7 @@
   <string name="download_briar_button">Briar  1.0 डाउनलोड करें</string>
   <string name="startup_open_database">डेटाबेस डिक्रिप्ट कर रहा है ...</string>
   <string name="startup_migrate_database">डाटाबेस का उन्नयन ...</string>
+  <string name="startup_compact_database">डेटाबेस को कॉम्पैक्ट कर रहा है ...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">नेविगेशन ड्रॉवर खोलें</string>
   <string name="nav_drawer_close_description">नेविगेशन ड्रॉवर को बंद करें</string>
@@ -115,6 +116,9 @@
   <string name="date_no_private_messages">कोई संदेश नहीं।</string>
   <string name="no_private_messages">दिखाने के लिए कोई संदेश नहीं</string>
   <string name="message_hint">संदेश लिखें</string>
+  <string name="set_contact_alias">संपर्क नाम बदलें</string>
+  <string name="set_contact_alias_hint">संपर्क नाम</string>
+  <string name="set_alias_button">परिवर्तन</string>
   <string name="delete_contact">संपर्क मिटा दें</string>
   <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
   <string name="dialog_message_delete_contact">क्या आप निश्चित हैं कि आप इस संपर्क और सभी संदेशों को इस संपर्क से निकाला जाना चाहते हैं?</string>
@@ -129,6 +133,8 @@
   <string name="contact_added_toast">संपर्क जोड़ा गया:%s</string>
   <string name="contact_already_exists">संपर्क%s पहले से मौजूद है</string>
   <string name="qr_code_invalid">QR कोड अमान्य है</string>
+  <string name="qr_code_too_old">आपके द्वारा स्कैन किए गए क्यूआर कोड के पुराने संस्करण से आता है %s.\ n \ n कृपया अपने संपर्क से नवीनतम संस्करण में अपग्रेड करने के लिए कहें और फिर पुन: प्रयास करें।</string>
+  <string name="qr_code_too_new">आपके द्वारा स्कैन किए गए क्यूआर कोड के एक नए संस्करण से आता है %s.\ n \ n कृपया नवीनतम संस्करण में अपग्रेड करें और फिर पुन: प्रयास करें।</string>
   <string name="camera_error">कैमरा त्रुटि</string>
   <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
   <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
@@ -338,8 +344,10 @@
   <string name="tor_mobile_data_title">मोबाइल डेटा का प्रयोग करें</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">सुरक्षा</string>
+  <string name="pref_lock_title">एप्लिकेशन का लॉक</string>
   <string name="pref_lock_summary">साइन इन करते समय Briar की सुरक्षा के लिए डिवाइस के स्क्रीन लॉक का उपयोग करें</string>
   <string name="pref_lock_disabled_summary">इस सुविधा का उपयोग करने के लिए, अपने डिवाइस के लिए एक स्क्रीन लॉक सेट करें</string>
+  <string name="pref_lock_timeout_title">ऐप लॉक निष्क्रियता टाइमआउट</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar का उपयोग नहीं करते समय, इसे स्वचालित रूप से बाद में लॉक करें %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -368,6 +376,7 @@
   <string name="panic_app_setting_none">कुछ भी नहीं</string>
   <string name="dialog_title_connect_panic_app">आतंक ऐप की पुष्टि करें</string>
   <string name="dialog_message_connect_panic_app">क्या आप निश्चित हैं कि आप%1$s को विनाशकारी आतंक बटन क्रियाओं को ट्रिगर करने की अनुमति देना चाहते हैं?</string>
+  <string name="panic_setting_destructive_action">विनाशकारी क्रियाएँ</string>
   <string name="panic_setting_signout_title">साइन आउट</string>
   <string name="panic_setting_signout_summary">यदि कोई आतंक बटन दबाया जाता है तो Briar  से साइन आउट करें</string>
   <string name="purge_setting_title">खाता हटा दो</string>
@@ -429,6 +438,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">कैमरा अनुमति</string>
   <string name="permission_camera_request_body">QR कोड को स्कैन करने के लिए, Briar को कैमरे तक पहुंच की आवश्यकता है।</string>
+  <string name="permission_location_title">स्थान की अनुमति</string>
+  <string name="permission_location_request_body">ब्लूटूथ उपकरणों को खोजने के लिए, Briar को आपके स्थान तक पहुंचने की अनुमति की आवश्यकता है। \ N \ n Briar आपके स्थान को स्टोर नहीं करता है या इसे किसी के साथ साझा नहीं करता है।</string>
+  <string name="permission_camera_location_title">कैमरा और स्थान</string>
+  <string name="permission_camera_location_request_body">क्यूआर कोड को स्कैन करने के लिए, Briar को कैमरे तक पहुंच की आवश्यकता होती है। \ N \ n ब्लूटूथ डिवाइसों को खोजने के लिए, Briar को आपके स्थान तक पहुंचने की अनुमति की आवश्यकता होती है। \ n\n \ Briar आपके स्थान को स्टोर नहीं करता है या इसे किसी के साथ साझा नहीं करता है।</string>
   <string name="permission_camera_denied_body">आपने कैमरे तक पहुंच से वंचित किया है, लेकिन संपर्क जोड़ने के लिए कैमरे का उपयोग करने की आवश्यकता है। \ N \ n कृपया पहुंच प्रदान करने पर विचार करें।</string>
   <string name="qr_code">क्यूआर कोड</string>
   <string name="show_qr_code_fullscreen">क्यूआर कोड पूर्णस्क्रीन दिखाएं</string>
@@ -441,9 +454,15 @@
   <string name="lock_tap_to_unlock">अनलॉक करने के लिए टैप करें</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">ऐलिस</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">बॉब</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">कैरोल </string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">हाय बॉब!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">हाय ऐलिस! Briar के बारे में मुझे बताने के लिए धन्यवाद!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">कोई समस्या नहीं, आशा है कि आप इसे पसंद करेंगे 😀</string>
 </resources>

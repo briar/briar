@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Bienvenue à Briar</string>
   <string name="setup_name_explanation">Votre pseudonyme sera affiché à côté de tout contenu que vous publierez. Vous pourrez le modifier après avoir créé votre compte.</string>
@@ -116,6 +116,8 @@
   <string name="date_no_private_messages">Aucun message.</string>
   <string name="no_private_messages">Aucun message à afficher</string>
   <string name="message_hint">Rédiger le message</string>
+  <string name="set_contact_alias_hint">Nom du contact</string>
+  <string name="set_alias_button">Modifier</string>
   <string name="delete_contact">Supprimer le contact</string>
   <string name="dialog_title_delete_contact">Confirmer la suppression du contact</string>
   <string name="dialog_message_delete_contact">Voulez-vous vraiment supprimer ce contact et tous les messages associés ?</string>
@@ -433,7 +435,7 @@
   <string name="screen_filter_body">Une autre appli s’affiche par-dessus Briar. Pour protéger votre sécurité, Briar ne répondra pas au toucher si une autre appli s’affiche par-dessus.\n\nLes applis suivantes pourraient s’afficher par-dessus Briar : \n\n%1$s</string>
   <string name="screen_filter_allow">Permettre à ces applis de s’afficher par-dessus</string>
   <!--Permission Requests-->
-  <string name="permission_camera_title">Accès à l’appareil photo</string>
+  <string name="permission_camera_title">Autorisation d’accès à l’appareil photo</string>
   <string name="permission_camera_request_body">Afin de lire le code QR, Briar doit accéder à l’appareil photo.</string>
   <string name="permission_location_title">Autorisation d’accès à la position</string>
   <string name="permission_location_request_body">Afin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>

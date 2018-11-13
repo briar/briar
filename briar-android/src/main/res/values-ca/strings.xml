@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Benvingut a Briar</string>
   <string name="setup_name_explanation">El vostre sobrenom etiquetarà tot el que publiqueu. Després de crear el compte ja no podreu canviar el sobrenom.</string>
@@ -115,6 +115,8 @@
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
   <string name="message_hint">Escriviu un missatge</string>
+  <string name="set_contact_alias_hint">Nom del contacte</string>
+  <string name="set_alias_button">Canvia</string>
   <string name="delete_contact">Suprimeix aquest contacte</string>
   <string name="dialog_title_delete_contact">Confirmeu la supressió del contacte</string>
   <string name="dialog_message_delete_contact">Segur que voleu suprimir aquest contacte i tots els missatges que us heu intercanviat?</string>

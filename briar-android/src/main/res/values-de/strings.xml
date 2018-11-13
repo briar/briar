@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Willkommen bei Briar</string>
   <string name="setup_name_explanation">Dein Benutzername wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
@@ -115,6 +115,8 @@
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="no_private_messages">Keine Nachrichten vorhanden</string>
   <string name="message_hint">Nachricht eingeben</string>
+  <string name="set_contact_alias_hint">Name des Kontakts</string>
+  <string name="set_alias_button">Ändern</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>

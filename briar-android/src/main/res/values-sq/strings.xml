@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Mirë se vini në Briar</string>
   <string name="setup_name_explanation">Nofka juaj do të shfaqet në krah të çfarëdo gjëje që postoni. S\’mund ta ndryshoni më, pas krijimit të llogarisë tuaj.</string>
@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">S\’ka mesazhe.</string>
   <string name="no_private_messages">S’ka mesazhe për shfaqje</string>
   <string name="message_hint">Shtypni mesazhin</string>
+  <string name="set_contact_alias">Ndryshoni emër kontakti</string>
+  <string name="set_contact_alias_hint">Emër kontakti</string>
+  <string name="set_alias_button">Ndryshoje</string>
   <string name="delete_contact">Fshije kontaktin</string>
   <string name="dialog_title_delete_contact">Ripohoni Fshirje Kontakti</string>
   <string name="dialog_message_delete_contact">Jeni i sigurt se doni të hiqet ky kontakt dhe krejt mesazhet e shkëmbyer me këtë kontakt?</string>
@@ -217,7 +220,7 @@
   <string name="groups_reveal_visible">Marrëdhënia e kontaktit është e dukshme për grupin</string>
   <string name="groups_reveal_visible_revealed_by_us">Marrëdhënia e kontaktit është e dukshme për grupin (shfaqur nga ju)</string>
   <string name="groups_reveal_visible_revealed_by_contact">Marrëdhënia e kontaktit është e dukshme për grupin (shfaqur nga %s)</string>
-  <string name="groups_reveal_invisible">Marrëdhënia e kontaktit s\’është e dukshme për grupin</string>
+  <string name="groups_reveal_invisible">Marrëdhënia me kontaktin s\’është e dukshme për grupin</string>
   <!--Forums-->
   <string name="no_forums">S\’ka forume për shfaqje</string>
   <string name="no_forums_action">Prekni ikonën + që të krijoni një forum, ose kërkojuni kontakteve tuaj të ndajnë forume me ju</string>
@@ -435,6 +438,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Leje mbi kamerën</string>
   <string name="permission_camera_request_body">Që të skanojë kodin QR, Briar-i lypset të hyjë te kamera.</string>
+  <string name="permission_location_title">Leje vendi</string>
+  <string name="permission_location_request_body">Që të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
+  <string name="permission_camera_location_title">Kamera dhe vend</string>
+  <string name="permission_camera_location_request_body">Që të skanojë kodin QR, Briar-it i duhet të përdorë kamerën.\n\nQë të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
   <string name="permission_camera_denied_body">Keni mohuar hyrjen në kamera, por shtimi i kontakteve lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>

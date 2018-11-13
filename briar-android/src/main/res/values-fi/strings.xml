@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Tervetuloa Briariin</string>
   <string name="setup_name_explanation">Nimimerkkisi tulee näkymään julkaisemasi sisällön yhteydessä. Et voi muuttaa nimimerkkiä sen jälkeen kun olet luonut tilin.</string>
@@ -115,6 +115,8 @@
   <string name="date_no_private_messages">Ei viestejä.</string>
   <string name="no_private_messages">Ei viestejä</string>
   <string name="message_hint">Kirjoita viesti</string>
+  <string name="set_contact_alias_hint">Yhteystiedon nimi</string>
+  <string name="set_alias_button">Muuta</string>
   <string name="delete_contact">Poista yhteystieto</string>
   <string name="dialog_title_delete_contact">Vahvista yhteystiedon poistaminen</string>
   <string name="dialog_message_delete_contact">Oletko varma, että haluat poistaa tämän yhteyshenkilön ja kaikki hänen kanssa vaihdetut viestit?</string>

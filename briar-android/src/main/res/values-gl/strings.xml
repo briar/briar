@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Benvida a Briar</string>
   <string name="setup_name_explanation">O seu alcume mostrarase xunto a todas as mensaxes que publique. Pode cambialo tras crear a súa conta.</string>
@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">Sen mensaxes</string>
   <string name="no_private_messages">Sen mensaxes que amosar</string>
   <string name="message_hint">Esciba unha mensaxe</string>
+  <string name="set_contact_alias">Cambiar o nome do contacto</string>
+  <string name="set_contact_alias_hint">Nome do contacto</string>
+  <string name="set_alias_button">Cambiar</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirme a eliminación do contacto</string>
   <string name="dialog_message_delete_contact">Segura de querer eliminar este contacto e todas as mensaxes que intercambiaron?</string>
@@ -435,6 +438,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Permiso da cámara</string>
   <string name="permission_camera_request_body">Para escanear códigos QR, Briar precisa acceso a cámara.</string>
+  <string name="permission_location_title">Permiso de localización</string>
+  <string name="permission_location_request_body">Para descubrir dispositivos Bluetooth, Briar precisa permiso para acceder a súa localización.\n\nBriar non garda a súa localización nin a comparte con ninguén.</string>
+  <string name="permission_camera_location_title">Cámara e localización</string>
+  <string name="permission_camera_location_request_body">Para escanear o código QR, Briar precisa acceso a cámara.\n\nPara descubrir dispositivos Bluetooth, Briar precisa permiso a súa localización.\n\nBriar non garda a súa localización nin a comparte con ninguén.</string>
   <string name="permission_camera_denied_body">Denegou o permiso de acceso a cámara, pero é necesario para engadir contactos.\n\nPor favor, considere conceder o permiso.</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Amosar o código QR a pantalla completa</string>

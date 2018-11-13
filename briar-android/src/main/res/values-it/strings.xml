@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
-  <string name="setup_title">Benvenuti su Briar</string>
-  <string name="setup_name_explanation">Il tuo nickname verrà mostrato accanto ad ogni contenuto pubblicato. Non puoi cambiarlo dopo averlo creato.</string>
+  <string name="setup_title">Benvenuto su Briar</string>
+  <string name="setup_name_explanation">Il tuo nickname sarà accanto ad ogni contenuto pubblicato. Non potrai cambiarlo dopo aver creato l\'account.</string>
   <string name="setup_next">Avanti</string>
   <string name="setup_password_intro">Scegli una password</string>
   <string name="setup_password_explanation">Il tuo account Briar resta memorizzato cifrato nel tuo dispositivo, non nel cloud. Se dimentichi la password o disinstalli Briar, non c\'è modo di ripristinare l\'account.\n\nScegli una password lunga difficile da indovinare, come quattro parole casuali o dieci lettere, numeri e simboli a caso.</string>
@@ -19,7 +19,7 @@
   <string name="create_account_button">Creare Account</string>
   <string name="more_info">Ulteriori Informazioni</string>
   <string name="don_t_ask_again">Non chiedere più</string>
-  <string name="setup_huawei_text">Tocca il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
+  <string name="setup_huawei_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
   <string name="setup_huawei_button">Proteggi Briar</string>
   <string name="setup_huawei_help">Se Briar non viene aggiunto nell\'elenco di app protette, non potrà funzionare in background.</string>
   <string name="warning_dozed">%s non ha potuto funzionare in background</string>
@@ -30,7 +30,7 @@
   <string name="forgotten_password">Ho dimenticato la password</string>
   <string name="dialog_title_lost_password">Password persa</string>
   <string name="dialog_message_lost_password">Il tuo account Briar si trova cifrato sul tuo dispositivo e non nel cloud, quindi non possiamo resettarti la tua password. Vorresti cancellare il tuo account e partire di nuovo?\n\nAttenzione: Le tue identità, contatti e messaggi verranno persi permanentemente.</string>
-  <string name="startup_failed_notification_title">Briar non è riuscito a partire</string>
+  <string name="startup_failed_notification_title">Briar non è riuscito ad avviarsi</string>
   <string name="startup_failed_notification_text">Tocca per maggiori informazioni.</string>
   <string name="startup_failed_activity_title">Fallimento Avvio Briar</string>
   <string name="startup_failed_db_error">Per qualche motivo, il tuo database di Briar è danneggiato in modo irreparabile. Il tuo account, i tuoi dati e tutti i tuoi contatti sono perduti. Sfortunatamente devi reinstallare Briar o registrare un nuovo account scegliendo \'Ho dimenticato la password\'.</string>
@@ -46,9 +46,9 @@
   <string name="download_briar">Per continuare ad usare Briar, scarica la versione 1.0.</string>
   <string name="create_new_account">Avrai bisogno di creare un nuovo account, ma puoi usare lo stesso nickname.</string>
   <string name="download_briar_button">Scarica Briar 1.0</string>
-  <string name="startup_open_database">Decrittazione database...</string>
-  <string name="startup_migrate_database">Aggiornamento database...</string>
-  <string name="startup_compact_database">Compattazione database…</string>
+  <string name="startup_open_database">Decrittazione del database...</string>
+  <string name="startup_migrate_database">Aggiornamento del database...</string>
+  <string name="startup_compact_database">Compattazione del database…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Apri la barra di navigazione</string>
   <string name="nav_drawer_close_description">Chiudi la barra di navigazione</string>
@@ -67,7 +67,7 @@
   <!--Notifications-->
   <string name="reminder_notification_title">Uscito da Briar</string>
   <string name="reminder_notification_text">Tocca per riaccedere.</string>
-  <string name="reminder_notification_channel_title">Promemoria accesso a Briar</string>
+  <string name="reminder_notification_channel_title">Promemoria di accesso a Briar</string>
   <string name="reminder_notification_dismiss">Ignora</string>
   <string name="ongoing_notification_title">Entrato in Briar</string>
   <string name="ongoing_notification_text">Tocca per aprire Briar.</string>
@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">Nessun messaggio.</string>
   <string name="no_private_messages">Nessun messaggio da mostrare</string>
   <string name="message_hint">Scrivi un messaggio</string>
+  <string name="set_contact_alias">Cambia il nome del contatto</string>
+  <string name="set_contact_alias_hint">Nome contatto</string>
+  <string name="set_alias_button">Cambia</string>
   <string name="delete_contact">Elimina contatto</string>
   <string name="dialog_title_delete_contact">Conferma cancellazione contatto</string>
   <string name="dialog_message_delete_contact">Sei sicuro di voler rimuovere questo contatto e tutti i messaggi scambiati con esso?</string>
@@ -330,7 +333,7 @@
   <string name="network_settings_title">Reti</string>
   <string name="bluetooth_setting">Connessione attraverso Bluetooth</string>
   <string name="bluetooth_setting_enabled">Quando i contatti sono vicini</string>
-  <string name="bluetooth_setting_disabled">Solo con l\'aggiunta di contatti</string>
+  <string name="bluetooth_setting_disabled">Solo quando viene aggiunto un contatto</string>
   <string name="tor_network_setting">Connetti via internet (Tor)</string>
   <string name="tor_network_setting_automatic">Automatico basato sulla posizione</string>
   <string name="tor_network_setting_without_bridges">Usa Tor senza bridge</string>
@@ -344,9 +347,9 @@
   <string name="pref_lock_title">Blocco dell\'app</string>
   <string name="pref_lock_summary">Usa il blocco schermo del dispositivo per proteggere Briar mentre sei connesso</string>
   <string name="pref_lock_disabled_summary">Per usare questa funzione, imposta un blocco schermo per il dispositivo</string>
-  <string name="pref_lock_timeout_title">Tempo inattività per blocco app</string>
+  <string name="pref_lock_timeout_title">Tempo di inattività prima di bloccare l\'app</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">Quando non usi Briar, bloccalo automaticamente dopo %s</string>
+  <string name="pref_lock_timeout_summary">Quando non usi Briar, verrà bloccato automaticamente dopo %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 minuto</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -435,6 +438,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Autorizzazione fotocamera</string>
   <string name="permission_camera_request_body">Per scansionare il codice QR, Briar deve accedere alla fotocamera.</string>
+  <string name="permission_location_title">Autorizzazione geolocalizzazione</string>
+  <string name="permission_location_request_body">Per trovare dispositivi Bluetooth, Briar ha bisogno di accedere alla tua posizione.\n\nBriar non memorizza la tua posizione, nè la condivide con terzi.</string>
+  <string name="permission_camera_location_title">Fotocamera e geolocalizzazione</string>
+  <string name="permission_camera_location_request_body">Per scansionare il codice QR, Briar ha bisogno di accedere alla fotocamera.\n\nPer trovare dispositivi Bluetooth, Briar ha bisogno di accedere alla tua posizione.\n\nBriar non memorizza la tua posizione, nè la condivide con terzi.</string>
   <string name="permission_camera_denied_body">Hai negato l\'accesso alla fotocamera, ma questa serve per aggiungere i contatti.\n\nConsidera la possibilità di concedere l\'accesso.</string>
   <string name="qr_code">Codice QR</string>
   <string name="show_qr_code_fullscreen">Mostra codice QR a tutto schermo</string>

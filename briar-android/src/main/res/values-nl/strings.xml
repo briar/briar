@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Welkom bij Briar</string>
   <string name="setup_name_explanation">Je bijnaam wordt getoond bij alle content die je post. Nadat je account is aangemaakt is het niet mogelijk je bijnaam te wijzigen.</string>
@@ -48,6 +48,7 @@
   <string name="download_briar_button">Download Briar 1.0</string>
   <string name="startup_open_database">Database aan het ontsleutelen…</string>
   <string name="startup_migrate_database">Database aan het upgraden…</string>
+  <string name="startup_compact_database">Database comprimeren...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Open de navigatielade</string>
   <string name="nav_drawer_close_description">Sluit de navigatielade</string>
@@ -115,6 +116,8 @@
   <string name="date_no_private_messages">Geen berichten.</string>
   <string name="no_private_messages">Geen berichten om te tonen</string>
   <string name="message_hint">Schrijf een bericht</string>
+  <string name="set_contact_alias_hint">Contactnaam</string>
+  <string name="set_alias_button">Wijzigen</string>
   <string name="delete_contact">Verwijder bericht</string>
   <string name="dialog_title_delete_contact">Bevestig verwijderen contact</string>
   <string name="dialog_message_delete_contact">Weet je zeker dat je dit contact en alle berichten die met dit contact zijn uitgewisseld wil verwijderen?</string>
@@ -129,6 +132,8 @@
   <string name="contact_added_toast">Contact toegevoegd: %s</string>
   <string name="contact_already_exists">Contact %s bestaat al</string>
   <string name="qr_code_invalid">De QR-code is ongeldig</string>
+  <string name="qr_code_too_old">De QR-code die je hebt gescand komt van een oudere versie van %s.\n\nVraag aan je contact om de app bij de werken naar te laatste versie en probeer het daarna opnieuw.</string>
+  <string name="qr_code_too_new">De QR-code die je hebt gescand komt van een nieuwere versie van %s.\n\nWerk de app bij naar de laatste versie en probeer het daarna opnieuw.</string>
   <string name="camera_error">Camerafout</string>
   <string name="connecting_to_device">Aan het verbinden met apparaat\u2026</string>
   <string name="authenticating_with_device">Aan het authenticeren met apparaat\u2026</string>
@@ -338,8 +343,10 @@
   <string name="tor_mobile_data_title">Gebruik mobiele data</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Beveiliging</string>
+  <string name="pref_lock_title">App-vergrendeling</string>
   <string name="pref_lock_summary">Gebruik de schermvergrendeling van het apparaat om Briar te beschermen terwijl je bent ingelogd</string>
   <string name="pref_lock_disabled_summary">Stel een schermvergrendeling in op je apparaat om deze feature te gebruiken</string>
+  <string name="pref_lock_timeout_title">App-vergrendeling inactiviteitstime-out</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Als Briar niet wordt gebruikt, vergrendel automatisch na %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -429,6 +436,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Cameratoestemming</string>
   <string name="permission_camera_request_body">Om de QR-code te scannen moet Briar toegang hebben tot de camera.</string>
+  <string name="permission_location_title">Toegang tot locatie</string>
+  <string name="permission_location_request_body">Om Bluetooth-apparaten te ontdekken heeft Briar toestemming nodig tot je locatie.\n\nBriar slaat je locatie niet op en deelt het met niemand.</string>
+  <string name="permission_camera_location_title">Camera en locatie</string>
+  <string name="permission_camera_location_request_body">Om de QR-code in te scannen heeft Briar toegang nodig tot de camera.\n\nOm Bluetooth-apparaten te ontdekken heeft Briar toestemming nodig tot je locatie.\n\nBriar slaat je locatie niet op en deelt het met niemand.</string>
   <string name="permission_camera_denied_body">Je hebt toegang tot de camera niet vrijgegeven, terwijl het toevoegen van contacten de camera nodig heeft.\n\nOverweeg alsjeblieft toegang vrij te geven.</string>
   <string name="qr_code">QR-code</string>
   <string name="show_qr_code_fullscreen">Toon QR-code op volledig scherm</string>
@@ -441,9 +452,15 @@
   <string name="lock_tap_to_unlock">Tik om te ontgrendelen</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Veerle</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Soem</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Rob</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Hoi Soem!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Hoi Veerle! Bedankt dat je me Briar hebt laten zien!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Geen probleem, ik hoop dat je het handig vindt! 😀</string>
 </resources>

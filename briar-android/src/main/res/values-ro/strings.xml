@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Bine ai venit la Briar</string>
   <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimiteți. Nu îl veți putea schimba după crearea contului.</string>
@@ -70,7 +70,7 @@
   <string name="reminder_notification_text">Atingeți pentru autentificare.</string>
   <string name="reminder_notification_channel_title">Reamintire autentificare Briar</string>
   <string name="reminder_notification_dismiss">Renunță</string>
-  <string name="ongoing_notification_title">Autentificat în Briar</string>
+  <string name="ongoing_notification_title">Conectat(ă) în Briar</string>
   <string name="ongoing_notification_text">Atingeți pentru a deschide Briar</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Mesaj privat nou.</item>
@@ -121,6 +121,9 @@
   <string name="date_no_private_messages">Fără mesaje.</string>
   <string name="no_private_messages">Nici un mesaj de arătat</string>
   <string name="message_hint">Scrieți mesajul</string>
+  <string name="set_contact_alias">Schimbă nume contact</string>
+  <string name="set_contact_alias_hint">Nume contact</string>
+  <string name="set_alias_button">Modifică</string>
   <string name="delete_contact">Șterge contactul</string>
   <string name="dialog_title_delete_contact">Confirmare ștergere contact</string>
   <string name="dialog_message_delete_contact">Sigur doriți să ștergeți acest contact și toate mesajele schimbate?</string>
@@ -392,7 +395,7 @@
   <string name="uninstall_setting_summary">Aceasta necesită o confirmare manuală în timpul unui eveniment de panică</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificări</string>
-  <string name="notify_sign_in_title">Reamintește-mi să mă autentific</string>
+  <string name="notify_sign_in_title">Reamintește-mi să mă conectez</string>
   <string name="notify_sign_in_summary">Arată o notificare atunci când dispozitivul pornește sau aplicația a fost actualizată</string>
   <string name="notify_private_messages_setting_title">Mesaje private</string>
   <string name="notify_private_messages_setting_summary">Arată alerte pentru mesajele private</string>
@@ -445,6 +448,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Permisiune de acces la camera foto</string>
   <string name="permission_camera_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.</string>
+  <string name="permission_location_title">Permisiune de acces la locație</string>
+  <string name="permission_location_request_body">Pentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de a vă accesa locația.\n\nBriar nu vă stochează locația și nici nu o partajează cu nimeni.  </string>
+  <string name="permission_camera_location_title">Cameră foto și locație</string>
+  <string name="permission_camera_location_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.\n\nPentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de a vă accesa locația.\n\nBriar nu vă stochează locația și nici nu o partajează cu nimeni.  </string>
   <string name="permission_camera_denied_body">Ați refuzat accesul la camera foto, dar pentru a adăuga contacte este necesară folosirea camerei foto.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="qr_code">Cod QR</string>
   <string name="show_qr_code_fullscreen">Arată codul QR pe tot ecranul</string>

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Vítejte v Briar</string>
   <string name="setup_name_explanation">Vaše uživatelské jméno bude zobrazeno u jakéhokoli obsahu, který zveřejníte. Následná změna již nebude možná.</string>

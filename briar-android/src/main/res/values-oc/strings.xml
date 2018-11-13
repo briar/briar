@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">La benvenguda a Briar</string>
   <string name="setup_name_explanation">Vòstre escais-nom serà mostrat al costat de cada de vòstra publicacion. Poiretz pas lo cambiar aprèp la creacion del compte.</string>
@@ -50,6 +50,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="download_briar_button">Telecargar Briar 1.0</string>
   <string name="startup_open_database">Deschirament de la basa de donadas…</string>
   <string name="startup_migrate_database">Mesa a nivèl de la basa de donadas…</string>
+  <string name="startup_compact_database">Compression de la basa de donadas…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Dobrir lo panèl de navigacion</string>
   <string name="nav_drawer_close_description">Tampar lo panèl de navigacion</string>
@@ -117,6 +118,9 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="date_no_private_messages">Cap messatge</string>
   <string name="no_private_messages">Cap de messatge de mostrar</string>
   <string name="message_hint">Picatz lo messatge</string>
+  <string name="set_contact_alias">Cambiar lo nom del contacte</string>
+  <string name="set_contact_alias_hint">Nom del contacte</string>
+  <string name="set_alias_button">Cambiar</string>
   <string name="delete_contact">Suprimir lo contacte</string>
   <string name="dialog_title_delete_contact">Confirmatz la supression del contacte</string>
   <string name="dialog_message_delete_contact">Sètz segur de voler suprimir lo contacte e los messatges ligats a el ?</string>
@@ -439,6 +443,12 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <!--Permission Requests-->
   <string name="permission_camera_title">Permission de la camèra</string>
   <string name="permission_camera_request_body">Per numerizar lo còdi QR cal que Briar aja l’accès a la camèra.</string>
+  <string name="permission_location_title">Autorizacion de localizacion</string>
+  <string name="permission_location_request_body">Per trobar de periferics Bluetooth, Briar deu aver l’autorizacion 
+d’accedir a vòstra posicion.\n\n Briar garda pas vòstra posicion e la 
+parteja pas amb degun.</string>
+  <string name="permission_camera_location_title">Camèra e localizacion</string>
+  <string name="permission_camera_location_request_body">Per numerizar un còdi QR, Briar deu accedir a la camèra.\n\nPer trobar de periferics Bluetooth, Briar deu aver l’autorizacion d’accedir a vòstra posicion.\n\n Briar garda pas vòstra posicion e la parteja pas amb degun.</string>
   <string name="permission_camera_denied_body">Avètz regetat l’accès a la camèra, mas per ajustar de contacte cal utilizar la camèra.\n\n Mercés de li donar l’accès</string>
   <string name="qr_code">Còdi QR</string>
   <string name="show_qr_code_fullscreen">Mostrar lo còdi QR en ecran complèt</string>

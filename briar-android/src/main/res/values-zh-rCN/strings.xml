@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">欢迎来到 Briar</string>
   <string name="setup_name_explanation">您的昵称将显示在您发布的任何内容旁。昵称在创建帐户后无法更改。</string>

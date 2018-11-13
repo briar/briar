@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">ברוך הבא אל Briar</string>
   <string name="setup_name_explanation">כינויך יוראה ליד תוכן כלשהו שתכתוב. אינך יכול לשנות אותו לאחר יצירת חשבונך.</string>
@@ -129,6 +129,9 @@
   <string name="date_no_private_messages">אין הודעות.</string>
   <string name="no_private_messages">אין הודעות להראות</string>
   <string name="message_hint">הקלד הודעה</string>
+  <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
+  <string name="set_contact_alias_hint">שם איש הקשר</string>
+  <string name="set_alias_button">שַׁנֵּה</string>
   <string name="delete_contact">מחק איש קשר</string>
   <string name="dialog_title_delete_contact">אשר מחיקת איש קשר</string>
   <string name="dialog_message_delete_contact">האם אתה בטוח שאתה רוצה למחוק איש קשר זה ואת כל ההודעות שהוחלפו עם איש קשר זה?</string>
@@ -468,6 +471,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">הרשאת מצלמה</string>
   <string name="permission_camera_request_body">כדי לסרוק את קוד ה־QR, היישום Briar צריך גישה אל המצלמה.</string>
+  <string name="permission_location_title">הרשאת מיקום</string>
+  <string name="permission_location_request_body">כדי לגלות מכשירי שן־כחולה, Briar צריך הרשאה להשיג גישה אל מיקומך.\n\nBriar אינו מאחסן את מיקומך או משתף אותו עם אף אחד.</string>
+  <string name="permission_camera_location_title">מצלמה ומיקום</string>
+  <string name="permission_camera_location_request_body">כדי לסרוק את קוד ה־QR, היישום Briar צריך הרשאה אל המצלמה.\n\nכדי לגלות מכשירי שן־כחולה, Briar צריך הרשאה להשיג גישה אל מיקומך.\n\nBriar אינו מאחסן את מיקומך או משתף אותו עם אף אחד.</string>
   <string name="permission_camera_denied_body">דחית גישה אל המצלמה, אבל הוספת אנשי קשר דורשת שימוש במצלמה.\n\nאנא שקול הענקת גישה.</string>
   <string name="qr_code">קוד QR</string>
   <string name="show_qr_code_fullscreen">הראה קוד QR במסך מלא</string>

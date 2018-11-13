@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">به Briar (برایر) خوش آمدید</string>
   <string name="setup_name_explanation">نام مستعارتان کنار هر مطلب شما قرار خواهد گرفت و بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
@@ -121,6 +121,7 @@
   <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
   <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
   <string name="message_hint">نوشتن پیام</string>
+  <string name="set_alias_button">تغییر</string>
   <string name="delete_contact">حذف مخاطب</string>
   <string name="dialog_title_delete_contact">تایید حذف مخاطب</string>
   <string name="dialog_message_delete_contact">آیا مطمئن هستید که میخواهید این مخاطب و تمام پیام های تبادل شده با آن را حذف کنید؟</string>
