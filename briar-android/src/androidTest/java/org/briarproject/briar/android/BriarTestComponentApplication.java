@@ -1,5 +1,6 @@
 package org.briarproject.briar.android;
 
+import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
 
@@ -12,6 +13,7 @@ public class BriarTestComponentApplication extends BriarApplicationImpl {
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
 		BrambleCoreModule.initEagerSingletons(component);
+		BrambleAndroidModule.initEagerSingletons(component);
 		BriarCoreModule.initEagerSingletons(component);
 		AndroidEagerSingletons.initEagerSingletons(component);
 		return component;

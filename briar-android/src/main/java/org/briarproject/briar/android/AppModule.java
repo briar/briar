@@ -66,9 +66,13 @@ public class AppModule {
 		@Inject
 		AndroidNotificationManager androidNotificationManager;
 		@Inject
+		ScreenFilterMonitor screenFilterMonitor;
+		@Inject
 		NetworkUsageLogger networkUsageLogger;
 		@Inject
 		DozeWatchdog dozeWatchdog;
+		@Inject
+		LockManager lockManager;
 		@Inject
 		RecentEmoji recentEmoji;
 	}
