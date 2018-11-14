@@ -9,12 +9,12 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
+import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
@@ -216,11 +216,18 @@ class ConversationVisitor implements
 			return new ConversationNoticeItem(
 					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
-			String text = ctx.getString(R.string.introduction_request_received,
-					contactName.getValue(), name);
+			String text;
+			if (r.isContact()) {
+				text = ctx.getString(
+						R.string.introduction_request_exists_received,
+						contactName.getValue(), name);
+			} else {
+				text = ctx.getString(R.string.introduction_request_received,
+						contactName.getValue(), name);
+			}
 			return new ConversationRequestItem(
-					R.layout.list_item_conversation_request, text, INTRODUCTION,
-					r);
+					R.layout.list_item_conversation_request, text,
+					INTRODUCTION, r);
 		}
 	}
 
