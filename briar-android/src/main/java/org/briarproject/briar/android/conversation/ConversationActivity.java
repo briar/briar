@@ -96,6 +96,7 @@ import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -330,7 +331,27 @@ public class ConversationActivity extends BriarActivity
 				Collection<ConversationMessageHeader> headers =
 						conversationManager.getMessageHeaders(contactId);
 				logDuration(LOG, "Loading messages", start);
-				displayMessages(revision, headers);
+				// Sort headers by timestamp in *descending* order
+				List<ConversationMessageHeader> sorted =
+						new ArrayList<>(headers);
+				sort(sorted, (a, b) ->
+						Long.compare(b.getTimestamp(), a.getTimestamp()));
+				if (!sorted.isEmpty()) {
+					// If the latest header is a private message, eagerly load
+					// its text so we can set the scroll position correctly
+					ConversationMessageHeader latest = sorted.get(0);
+					if (latest instanceof PrivateMessageHeader &&
+							((PrivateMessageHeader) latest).hasText()) {
+						MessageId id = latest.getId();
+						String text = textCache.get(id);
+						if (text == null) {
+							LOG.info("Eagerly loading text of latest message");
+							text = messagingManager.getMessageText(id);
+							textCache.put(id, text);
+						}
+					}
+				}
+				displayMessages(revision, sorted);
 			} catch (NoSuchContactException e) {
 				finishOnUiThread();
 			} catch (DbException e) {
