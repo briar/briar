@@ -336,17 +336,19 @@ public class ConversationActivity extends BriarActivity
 						new ArrayList<>(headers);
 				sort(sorted, (a, b) ->
 						Long.compare(b.getTimestamp(), a.getTimestamp()));
-				// Eagerly load the text of the latest message to avoid jumping
-				for (ConversationMessageHeader h : sorted) {
-					if (h instanceof PrivateMessageHeader) {
-						MessageId id = h.getId();
+				if (!sorted.isEmpty()) {
+					// If the latest header is a private message, eagerly load
+					// its text so we can set the scroll position correctly
+					ConversationMessageHeader latest = sorted.get(0);
+					if (latest instanceof PrivateMessageHeader &&
+							((PrivateMessageHeader) latest).hasText()) {
+						MessageId id = latest.getId();
 						String text = textCache.get(id);
 						if (text == null) {
 							LOG.info("Eagerly loading text of latest message");
 							text = messagingManager.getMessageText(id);
 							textCache.put(id, text);
 						}
-						break;
 					}
 				}
 				displayMessages(revision, sorted);
