@@ -96,6 +96,7 @@ import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -330,7 +331,25 @@ public class ConversationActivity extends BriarActivity
 				Collection<ConversationMessageHeader> headers =
 						conversationManager.getMessageHeaders(contactId);
 				logDuration(LOG, "Loading messages", start);
-				displayMessages(revision, headers);
+				// Sort headers by timestamp in *descending* order
+				List<ConversationMessageHeader> sorted =
+						new ArrayList<>(headers);
+				sort(sorted, (a, b) ->
+						Long.compare(b.getTimestamp(), a.getTimestamp()));
+				// Eagerly load the text of the latest message to avoid jumping
+				for (ConversationMessageHeader h : sorted) {
+					if (h instanceof PrivateMessageHeader) {
+						MessageId id = h.getId();
+						String text = textCache.get(id);
+						if (text == null) {
+							LOG.info("Eagerly loading text of latest message");
+							text = messagingManager.getMessageText(id);
+							textCache.put(id, text);
+						}
+						break;
+					}
+				}
+				displayMessages(revision, sorted);
 			} catch (NoSuchContactException e) {
 				finishOnUiThread();
 			} catch (DbException e) {
