@@ -32,7 +32,7 @@ import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.properties.PropertiesModule;
-import org.briarproject.bramble.sync.SyncModule;
+import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
@@ -71,9 +71,9 @@ import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 import static junit.framework.Assert.assertNotNull;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
+import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -195,9 +195,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		component.inject(new PrivateGroupModule.EagerSingletons());
 		component.inject(new PropertiesModule.EagerSingletons());
 		component.inject(new SharingModule.EagerSingletons());
-		component.inject(new SyncModule.EagerSingletons());
 		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
+		component.inject(new ValidationModule.EagerSingletons());
 		component.inject(new VersioningModule.EagerSingletons());
 	}
 

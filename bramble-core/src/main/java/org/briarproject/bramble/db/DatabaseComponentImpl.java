@@ -43,7 +43,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
-import org.briarproject.bramble.api.sync.ValidationManager.State;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
@@ -55,6 +54,7 @@ import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySet;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -75,8 +75,8 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -579,7 +579,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public State getMessageState(Transaction transaction, MessageId m)
+	public MessageState getMessageState(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m))
@@ -619,8 +619,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Map<MessageId, State> getMessageDependencies(Transaction transaction,
-			MessageId m) throws DbException {
+	public Map<MessageId, MessageState> getMessageDependencies(
+			Transaction transaction, MessageId m) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
@@ -628,8 +628,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Map<MessageId, State> getMessageDependents(Transaction transaction,
-			MessageId m) throws DbException {
+	public Map<MessageId, MessageState> getMessageDependents(
+			Transaction transaction, MessageId m) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
@@ -918,7 +918,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void setMessageState(Transaction transaction, MessageId m,
-			State state) throws DbException {
+			MessageState state) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m))
@@ -935,10 +935,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, dependent.getId()))
 			throw new NoSuchMessageException();
-		State dependentState = db.getMessageState(txn, dependent.getId());
+		MessageState dependentState =
+				db.getMessageState(txn, dependent.getId());
 		for (MessageId dependency : dependencies) {
-			db.addMessageDependency(txn, dependent, dependency,
-					dependentState);
+			db.addMessageDependency(txn, dependent, dependency, dependentState);
 		}
 	}
 

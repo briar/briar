@@ -18,7 +18,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
-import org.briarproject.bramble.api.sync.ValidationManager.State;
+import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.KeySet;
@@ -58,10 +58,10 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.UNKNOWN;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
+import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
+import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
@@ -1309,7 +1309,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessageDependency(txn, message1, messageId3, PENDING);
 		db.addMessageDependency(txn, message2, messageId4, INVALID);
 
-		Map<MessageId, State> dependencies;
+		Map<MessageId, MessageState> dependencies;
 
 		// Retrieve dependencies for root
 		dependencies = db.getMessageDependencies(txn, messageId);
@@ -1333,7 +1333,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		dependencies = db.getMessageDependencies(txn, messageId4);
 		assertEquals(0, dependencies.size());
 
-		Map<MessageId, State> dependents;
+		Map<MessageId, MessageState> dependents;
 
 		// Root message does not have dependents
 		dependents = db.getMessageDependents(txn, messageId);
@@ -1408,7 +1408,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addMessageDependency(txn, message, messageId3, PENDING);
 
 		// Retrieve the dependencies for the root
-		Map<MessageId, State> dependencies;
+		Map<MessageId, MessageState> dependencies;
 		dependencies = db.getMessageDependencies(txn, messageId);
 
 		// The cross-group dependency should have state UNKNOWN
@@ -1421,7 +1421,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(DELIVERED, dependencies.get(messageId3));
 
 		// Retrieve the dependents for the message in the second group
-		Map<MessageId, State> dependents;
+		Map<MessageId, MessageState> dependents;
 		dependents = db.getMessageDependents(txn, messageId1);
 
 		// The cross-group dependent should be excluded

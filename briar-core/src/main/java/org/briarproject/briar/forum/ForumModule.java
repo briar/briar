@@ -2,7 +2,7 @@ package org.briarproject.briar.forum;
 
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.data.MetadataEncoder;
-import org.briarproject.bramble.api.sync.ValidationManager;
+import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.forum.ForumFactory;
 import org.briarproject.briar.api.forum.ForumManager;

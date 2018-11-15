@@ -1,4 +1,4 @@
-package org.briarproject.bramble.sync;
+package org.briarproject.bramble.sync.validation;
 
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -18,8 +18,11 @@ import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageContext;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.ValidationManager;
 import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
+import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
+import org.briarproject.bramble.api.sync.validation.MessageState;
+import org.briarproject.bramble.api.sync.validation.MessageValidator;
+import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.versioning.ClientMajorVersion;
 
 import java.util.Collection;
@@ -37,9 +40,9 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.DELIVERED;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.INVALID;
-import static org.briarproject.bramble.api.sync.ValidationManager.State.PENDING;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
+import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
+import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
@@ -166,9 +169,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				// Check if message is still pending
 				if (db.getMessageState(txn, id) == PENDING) {
 					// Check if dependencies are valid and delivered
-					Map<MessageId, State> states =
+					Map<MessageId, MessageState> states =
 							db.getMessageDependencies(txn, id);
-					for (Entry<MessageId, State> e : states.entrySet()) {
+					for (Entry<MessageId, MessageState> e : states.entrySet()) {
 						if (e.getValue() == INVALID) anyInvalid = true;
 						if (e.getValue() != DELIVERED) allDelivered = false;
 					}
@@ -256,9 +259,9 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				if (!dependencies.isEmpty()) {
 					db.addMessageDependencies(txn, m, dependencies);
 					// Check if dependencies are valid and delivered
-					Map<MessageId, State> states =
+					Map<MessageId, MessageState> states =
 							db.getMessageDependencies(txn, id);
-					for (Entry<MessageId, State> e : states.entrySet()) {
+					for (Entry<MessageId, MessageState> e : states.entrySet()) {
 						if (e.getValue() == INVALID) anyInvalid = true;
 						if (e.getValue() != DELIVERED) allDelivered = false;
 					}
@@ -322,8 +325,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void addPendingDependents(Transaction txn, MessageId m,
 			Queue<MessageId> pending) throws DbException {
-		Map<MessageId, State> states = db.getMessageDependents(txn, m);
-		for (Entry<MessageId, State> e : states.entrySet()) {
+		Map<MessageId, MessageState> states = db.getMessageDependents(txn, m);
+		for (Entry<MessageId, MessageState> e : states.entrySet()) {
 			if (e.getValue() == PENDING) pending.add(e.getKey());
 		}
 	}
@@ -411,8 +414,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 	@DatabaseExecutor
 	private void addDependentsToInvalidate(Transaction txn,
 			MessageId m, Queue<MessageId> invalidate) throws DbException {
-		Map<MessageId, State> states = db.getMessageDependents(txn, m);
-		for (Entry<MessageId, State> e : states.entrySet()) {
+		Map<MessageId, MessageState> states = db.getMessageDependents(txn, m);
+		for (Entry<MessageId, MessageState> e : states.entrySet()) {
 			if (e.getValue() != INVALID) invalidate.add(e.getKey());
 		}
 	}
