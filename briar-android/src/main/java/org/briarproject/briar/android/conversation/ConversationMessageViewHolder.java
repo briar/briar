@@ -9,21 +9,16 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.Transformation;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.conversation.glide.BriarImageTransformation;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
-
-import jp.wasabeef.glide.transformations.RoundedCornersTransformation;
 
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static jp.wasabeef.glide.transformations.RoundedCornersTransformation.CornerType.BOTTOM;
-import static jp.wasabeef.glide.transformations.RoundedCornersTransformation.CornerType.TOP_LEFT;
-import static jp.wasabeef.glide.transformations.RoundedCornersTransformation.CornerType.TOP_RIGHT;
+import static java.util.Objects.requireNonNull;
 
 @UiThread
 @NotNullByDefault
@@ -95,7 +90,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
 	private void bindImageItem(ConversationMessageItem item) {
 		// TODO show more than just the first image
-		AttachmentItem attachment = item.getAttachments().get(0);
+		AttachmentItem attachment =
+				requireNonNull(item.getAttachments()).get(0);
 
 		ConstraintSet constraintSet;
 		if (item.getText() == null) {
@@ -133,24 +129,10 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
 	private void loadImage(ConversationMessageItem item,
 			AttachmentItem attachment) {
-		// these transformations can be optimized by writing our own
-		Transformation<Bitmap> transformation;
-		if (item.getText() == null) {
-			transformation = new MultiTransformation<>(new CenterCrop(),
-					new RoundedCornersTransformation(radiusSmall, 0,
-							isIncoming() ? TOP_LEFT : TOP_RIGHT),
-					new RoundedCornersTransformation(radiusBig, 0,
-							isIncoming() ? TOP_RIGHT : TOP_LEFT),
-					new RoundedCornersTransformation(radiusBig, 0, BOTTOM)
-			);
-		} else {
-			transformation = new MultiTransformation<>(new CenterCrop(),
-					new RoundedCornersTransformation(radiusSmall, 0,
-							isIncoming() ? TOP_LEFT : TOP_RIGHT),
-					new RoundedCornersTransformation(radiusBig, 0,
-							isIncoming() ? TOP_RIGHT : TOP_LEFT)
-			);
-		}
+		boolean leftCornerSmall = isIncoming();
+		boolean bottomRound = item.getText() == null;
+		Transformation<Bitmap> transformation = new BriarImageTransformation(
+				radiusSmall, radiusBig, leftCornerSmall, bottomRound);
 
 		GlideApp.with(imageView)
 				.load(attachment)

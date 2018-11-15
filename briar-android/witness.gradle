@@ -130,7 +130,6 @@ dependencyVerification {
         'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
         'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',
         'javax.xml.bind:jaxb-api:2.2.12-b140109.1041:jaxb-api-2.2.12-b140109.1041.jar:b5e60cd8b7b5ff01ce4a74c5dd008f4fbd14ced3495d0b47b85cfedc182211f2',
-        'jp.wasabeef:glide-transformations:3.3.0:glide-transformations-3.3.0.aar:340c482364b84be768e7cb96975aa78b448b9f067913c8a23ae2339e0e908adf',
         'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
         'nekohtml:nekohtml:1.9.6.2:nekohtml-1.9.6.2.jar:fdff6cfa9ed9cc911c842a5d2395f209ec621ef1239d46810e9e495809d3ae09',
         'nekohtml:xercesMinimal:1.9.6.2:xercesMinimal-1.9.6.2.jar:95b8b357d19f63797dd7d67622fd3f18374d64acbc6584faba1c7759a31e8438',

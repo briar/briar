@@ -123,9 +123,6 @@ dependencies {
 		exclude group: 'com.android.support'
 		exclude module: 'disklrucache' // when there's no disk cache, we can't accidentally use it
 	}
-	implementation('jp.wasabeef:glide-transformations:3.3.0') {
-		exclude module: 'disklrucache' // this gets pulled in here otherwise
-	}
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.19'
 	annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
