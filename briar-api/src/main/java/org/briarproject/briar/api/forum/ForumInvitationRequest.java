@@ -15,10 +15,10 @@ import javax.annotation.concurrent.Immutable;
 public class ForumInvitationRequest extends InvitationRequest<Forum> {
 
 	public ForumInvitationRequest(MessageId id, GroupId groupId, long time,
-			boolean local, boolean sent, boolean seen, boolean read,
+			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, Forum forum, @Nullable String text,
 			boolean available, boolean canBeOpened) {
-		super(id, groupId, time, local, sent, seen, read, sessionId, forum,
+		super(id, groupId, time, local, read, sent, seen, sessionId, forum,
 				text, available, canBeOpened);
 	}
 

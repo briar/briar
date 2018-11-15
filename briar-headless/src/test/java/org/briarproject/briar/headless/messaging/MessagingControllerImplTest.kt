@@ -77,7 +77,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun listIntroductionRequest() {
         val request = IntroductionRequest(
-            message.id, group.id, timestamp, true, true, false, true, sessionId, author, text,
+            message.id, group.id, timestamp, true, true, true, false, sessionId, author, text,
             false, AuthorInfo(UNVERIFIED)
         )
 
@@ -217,7 +217,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
     @Test
     fun testIntroductionRequestWithNullText() {
         val request = IntroductionRequest(
-            message.id, group.id, timestamp, true, true, false, true, sessionId, author, null,
+            message.id, group.id, timestamp, true, true, true, false, sessionId, author, null,
             false, AuthorInfo(VERIFIED)
         )
         val json = """

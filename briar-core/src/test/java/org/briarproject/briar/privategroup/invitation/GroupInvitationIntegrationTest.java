@@ -163,14 +163,21 @@ public class GroupInvitationIntegrationTest
 		long timestamp = clock.currentTimeMillis();
 		sendInvitation(timestamp, null);
 
+		// check that invitation message state is correct
+		Collection<ConversationMessageHeader> messages =
+				db0.transactionWithResult(true, txn -> groupInvitationManager0
+						.getMessageHeaders(txn, contactId1From0));
+		assertEquals(1, messages.size());
+		assertMessageState(messages.iterator().next(), true, false, false);
+
 		sync0To1(1, true);
 		assertFalse(groupInvitationManager1.getInvitations().isEmpty());
 
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);
 
-		Collection<ConversationMessageHeader> messages =
-				db1.transactionWithResult(true, txn -> groupInvitationManager1
+		messages = db1.transactionWithResult(true,
+				txn -> groupInvitationManager1
 						.getMessageHeaders(txn, contactId0From1));
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
@@ -178,6 +185,7 @@ public class GroupInvitationIntegrationTest
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
+				assertMessageState(response, true, false, false);
 				assertEquals(privateGroup0.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 			} else {

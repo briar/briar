@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
@@ -114,10 +115,27 @@ public class ForumSharingIntegrationTest
 				.sendInvitation(forum0.getId(), contactId1From0, "Hi!",
 						clock.currentTimeMillis());
 
+		// check that request message state is correct
+		Collection<ConversationMessageHeader> messages =
+				db0.transactionWithResult(true, txn -> forumSharingManager0
+						.getMessageHeaders(txn, contactId1From0));
+		assertEquals(1, messages.size());
+		assertMessageState(messages.iterator().next(), true, false, false);
+
 		// sync first request message
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
+
+		// check that accept message state is correct
+		messages = db1.transactionWithResult(true, txn -> forumSharingManager1
+				.getMessageHeaders(txn, contactId0From1));
+		assertEquals(2, messages.size());
+		for (ConversationMessageHeader h : messages) {
+			if (h instanceof ConversationResponse) {
+				assertMessageState(h, true, false, false);
+			}
+		}
 
 		// sync response back
 		sync1To0(1, true);

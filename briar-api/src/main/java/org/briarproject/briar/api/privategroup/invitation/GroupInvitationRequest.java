@@ -16,10 +16,10 @@ import javax.annotation.concurrent.Immutable;
 public class GroupInvitationRequest extends InvitationRequest<PrivateGroup> {
 
 	public GroupInvitationRequest(MessageId id, GroupId groupId, long time,
-			boolean local, boolean sent, boolean seen, boolean read,
+			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, PrivateGroup shareable,
 			@Nullable String text, boolean available, boolean canBeOpened) {
-		super(id, groupId, time, local, sent, seen, read, sessionId, shareable,
+		super(id, groupId, time, local, read, sent, seen, sessionId, shareable,
 				text, available, canBeOpened);
 	}
 

@@ -23,7 +23,7 @@ public class ForumInvitationFactoryImpl
 			ContactId c, boolean available, boolean canBeOpened) {
 		SessionId sessionId = new SessionId(m.getShareableId().getBytes());
 		return new ForumInvitationRequest(m.getId(), m.getContactGroupId(),
-				m.getTimestamp(), local, sent, seen, read, sessionId,
+				m.getTimestamp(), local, read, sent, seen, sessionId,
 				m.getShareable(), m.getText(), available, canBeOpened);
 	}
 
@@ -33,7 +33,7 @@ public class ForumInvitationFactoryImpl
 			boolean seen, boolean read, boolean accept, GroupId shareableId) {
 		SessionId sessionId = new SessionId(shareableId.getBytes());
 		return new ForumInvitationResponse(id, contactGroupId, time, local,
-				sent, seen, read, sessionId, accept, shareableId);
+				read, sent, seen, sessionId, accept, shareableId);
 	}
 
 }

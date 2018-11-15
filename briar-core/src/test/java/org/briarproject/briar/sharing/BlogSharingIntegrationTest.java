@@ -19,6 +19,7 @@ import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -128,11 +129,28 @@ public class BlogSharingIntegrationTest
 				MAJOR_VERSION, contact1From0).getId();
 		assertGroupCount(messageTracker0, g, 1, 0);
 
+		// check that request message state is correct
+		Collection<ConversationMessageHeader> messages =
+				db0.transactionWithResult(true, txn -> blogSharingManager0
+						.getMessageHeaders(txn, contactId1From0));
+		assertEquals(1, messages.size());
+		assertMessageState(messages.iterator().next(), true, false, false);
+
 		// sync first request message
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertTrue(listener1.requestReceived);
 		assertGroupCount(messageTracker1, g, 2, 1);
+
+		// check that accept message state is correct
+		messages = db1.transactionWithResult(true, txn -> blogSharingManager1
+				.getMessageHeaders(txn, contactId0From1));
+		assertEquals(2, messages.size());
+		for (ConversationMessageHeader h : messages) {
+			if (h instanceof ConversationResponse) {
+				assertMessageState(h, true, false, false);
+			}
+		}
 
 		// sync response back
 		sync1To0(1, true);

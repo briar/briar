@@ -19,10 +19,10 @@ public class IntroductionRequest extends ConversationRequest<Author> {
 	private final AuthorInfo authorInfo;
 
 	public IntroductionRequest(MessageId messageId, GroupId groupId,
-			long time, boolean local, boolean sent, boolean seen, boolean read,
+			long time, boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, Author author, @Nullable String text,
 			boolean answered, AuthorInfo authorInfo) {
-		super(messageId, groupId, time, local, sent, seen, read, sessionId,
+		super(messageId, groupId, time, local, read, sent, seen, sessionId,
 				author, text, answered);
 		this.authorInfo = authorInfo;
 	}

@@ -23,7 +23,7 @@ public class BlogInvitationFactoryImpl
 			ContactId c, boolean available, boolean canBeOpened) {
 		SessionId sessionId = new SessionId(m.getShareableId().getBytes());
 		return new BlogInvitationRequest(m.getId(), m.getContactGroupId(),
-				m.getTimestamp(), local, sent, seen, read, sessionId,
+				m.getTimestamp(), local, read, sent, seen, sessionId,
 				m.getShareable(), m.getText(), available, canBeOpened);
 	}
 
@@ -32,8 +32,8 @@ public class BlogInvitationFactoryImpl
 			GroupId contactGroupId, long time, boolean local, boolean sent,
 			boolean seen, boolean read, boolean accept, GroupId shareableId) {
 		SessionId sessionId = new SessionId(shareableId.getBytes());
-		return new BlogInvitationResponse(id, contactGroupId, time, local, sent,
-				seen, read, sessionId, accept, shareableId);
+		return new BlogInvitationResponse(id, contactGroupId, time, local, read,
+				sent, seen, sessionId, accept, shareableId);
 	}
 
 }

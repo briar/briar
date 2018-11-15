@@ -10,9 +10,9 @@ public abstract class InvitationResponse extends ConversationResponse {
 	private final GroupId shareableId;
 
 	public InvitationResponse(MessageId id, GroupId groupId, long time,
-			boolean local, boolean sent, boolean seen, boolean read,
+			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, boolean accepted, GroupId shareableId) {
-		super(id, groupId, time, local, sent, seen, read, sessionId, accepted);
+		super(id, groupId, time, local, read, sent, seen, sessionId, accepted);
 		this.shareableId = shareableId;
 	}
 

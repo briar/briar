@@ -13,10 +13,10 @@ public abstract class InvitationRequest<S extends Shareable> extends
 	private final boolean canBeOpened;
 
 	public InvitationRequest(MessageId messageId, GroupId groupId, long time,
-			boolean local, boolean sent, boolean seen, boolean read,
+			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, S object, @Nullable String text,
 			boolean available, boolean canBeOpened) {
-		super(messageId, groupId, time, local, sent, seen, read, sessionId,
+		super(messageId, groupId, time, local, read, sent, seen, sessionId,
 				object, text, !available);
 		this.canBeOpened = canBeOpened;
 	}

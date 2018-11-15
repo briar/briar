@@ -40,6 +40,7 @@ import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -328,6 +329,13 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		if (haveTransportProperties) {
 			sync2To1(1, true);
 		}
+	}
+
+	protected void assertMessageState(ConversationMessageHeader h, boolean read,
+			boolean sent, boolean seen) {
+		assertEquals("read", read, h.isRead());
+		assertEquals("sent", sent, h.isSent());
+		assertEquals("seen", seen, h.isSeen());
 	}
 
 	@After
