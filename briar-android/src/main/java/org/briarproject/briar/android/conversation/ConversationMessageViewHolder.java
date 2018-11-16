@@ -85,7 +85,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		if (item.getAttachments().isEmpty()) {
 			bindTextItem();
 		} else {
-			bindImageItem(item);
+			bindImageItem(item, listener);
 		}
 	}
 
@@ -98,7 +98,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		textConstraints.applyTo(layout);
 	}
 
-	private void bindImageItem(ConversationMessageItem item) {
+	private void bindImageItem(ConversationMessageItem item,
+			ConversationListener listener) {
 		// TODO show more than just the first image
 		AttachmentItem attachment = item.getAttachments().get(0);
 
@@ -127,17 +128,18 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 			clearImage();
 			imageView.setImageResource(ERROR_RES);
 		} else {
-			loadImage(item, attachment);
+			loadImage(item, attachment, listener);
 		}
 	}
 
 	private void clearImage() {
 		GlideApp.with(imageView)
 				.clear(imageView);
+		imageView.setOnClickListener(null);
 	}
 
 	private void loadImage(ConversationMessageItem item,
-			AttachmentItem attachment) {
+			AttachmentItem attachment, ConversationListener listener) {
 		boolean leftCornerSmall =
 				(isIncoming() && !isRtl) || (!isIncoming() && isRtl);
 		boolean bottomRound = item.getText() == null;
@@ -152,6 +154,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 				.transition(withCrossFade())
 				.into(imageView)
 				.waitForLayout();
+		imageView.setOnClickListener(
+				view -> listener.onAttachmentClicked(view, item, attachment));
 	}
 
 }

@@ -134,6 +134,8 @@
 	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
 	<string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
 	<string name="contact_deleted_toast">Contact deleted</string>
+	<!-- This is shown in the action bar when opening an image in fullscreen that the user sent -->
+	<string name="you">You</string>
 
 	<!-- Adding Contacts -->
 	<string name="add_contact_title">Add a Contact</string>

@@ -2,12 +2,11 @@ package org.briarproject.briar.android.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
-import android.transition.Slide;
 import android.transition.Transition;
-import android.view.Gravity;
 import android.view.Window;
 import android.widget.CheckBox;
 
@@ -33,6 +32,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
+import static org.briarproject.briar.android.util.UiUtils.excludeSystemUi;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
@@ -111,21 +111,28 @@ public abstract class BriarActivity extends BaseActivity {
 		lockManager.onActivityStop();
 	}
 
-	public void setSceneTransitionAnimation() {
-		if (SDK_INT < 21) return;
+	/**
+	 * Sets the transition animations.
+	 * @param enterTransition used to move views into initial positions
+	 * @param exitTransition used to move views out when starting a <b>new</b> activity.
+	 * @param returnTransition used when window is closing, because the activity is finishing.
+	 */
+	@RequiresApi(api = 21)
+	public void setSceneTransitionAnimation(
+			@Nullable Transition enterTransition,
+			@Nullable Transition exitTransition,
+			@Nullable Transition returnTransition) {
 		// workaround for #1007
 		if (isSamsung7()) {
 			return;
 		}
-		Transition slide = new Slide(Gravity.RIGHT);
-		slide.excludeTarget(android.R.id.statusBarBackground, true);
-		slide.excludeTarget(android.R.id.navigationBarBackground, true);
+		if (enterTransition != null) excludeSystemUi(enterTransition);
+		if (exitTransition != null) excludeSystemUi(exitTransition);
+		if (returnTransition != null) excludeSystemUi(returnTransition);
 		Window window = getWindow();
-		window.requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
-		window.setExitTransition(slide);
-		window.setEnterTransition(slide);
-		window.setTransitionBackgroundFadeDuration(getResources()
-				.getInteger(android.R.integer.config_longAnimTime));
+		window.setEnterTransition(enterTransition);
+		window.setExitTransition(exitTransition);
+		window.setReturnTransition(returnTransition);
 	}
 
 	/**

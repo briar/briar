@@ -16,6 +16,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +32,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.URLSpan;
+import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -60,12 +62,16 @@ import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static android.support.v7.app.AppCompatDelegate.setDefaultNightMode;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
+import static android.text.format.DateUtils.FORMAT_ABBREV_ALL;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
 import static android.text.format.DateUtils.FORMAT_ABBREV_RELATIVE;
 import static android.text.format.DateUtils.FORMAT_ABBREV_TIME;
 import static android.text.format.DateUtils.FORMAT_SHOW_DATE;
+import static android.text.format.DateUtils.FORMAT_SHOW_TIME;
+import static android.text.format.DateUtils.FORMAT_SHOW_YEAR;
 import static android.text.format.DateUtils.MINUTE_IN_MILLIS;
 import static android.text.format.DateUtils.WEEK_IN_MILLIS;
+import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
@@ -115,6 +121,13 @@ public class UiUtils {
 		return DateUtils.getRelativeTimeSpanString(time,
 				System.currentTimeMillis(),
 				MIN_DATE_RESOLUTION, flags).toString();
+	}
+
+	public static String formatDateAbsolute(Context ctx, long time) {
+		int flags = FORMAT_SHOW_TIME | FORMAT_SHOW_DATE | FORMAT_ABBREV_ALL;
+		long diff = System.currentTimeMillis() - time;
+		if (diff >= YEAR_IN_MILLIS) flags |= FORMAT_SHOW_YEAR;
+		return DateUtils.formatDateTime(ctx, time, flags);
 	}
 
 	public static int getDaysUntilExpiry() {
@@ -316,6 +329,12 @@ public class UiUtils {
 				keyEvent != null &&
 				keyEvent.getAction() == ACTION_DOWN &&
 				keyEvent.getKeyCode() == KEYCODE_ENTER;
+	}
+
+	@RequiresApi(api = 21)
+	public static void excludeSystemUi(Transition transition) {
+		transition.excludeTarget(android.R.id.statusBarBackground, true);
+		transition.excludeTarget(android.R.id.navigationBarBackground, true);
 	}
 
 	/**

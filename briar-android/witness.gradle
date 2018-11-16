@@ -89,6 +89,7 @@ dependencyVerification {
         'com.github.bumptech.glide:compiler:4.8.0:compiler-4.8.0.jar:1fa93dd0cf7ef0b8b98a59a67a1ee84915416c2d677d83a771ea3e32ad15e6bf',
         'com.github.bumptech.glide:gifdecoder:4.8.0:gifdecoder-4.8.0.aar:b00c5454a023a9488ea49603930d9c25e09192e5ceaadf64977aa52946b3c1b4',
         'com.github.bumptech.glide:glide:4.8.0:glide-4.8.0.aar:5ddf08b12cc43332e812988f16c2c39e7fce49d1c4d94b7948dcde7f00bf49d6',
+        'com.github.chrisbanes:PhotoView:2.1.4:PhotoView-2.1.4.aar:04cb397fcb3df0757c8aed6927ebdd247930b5c78ee9acc59cd07dccdaaf3460',
         'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.0:accessibility-test-framework-2.0.jar:cdf16ef8f5b8023d003ce3cc1b0d51bda737762e2dab2fedf43d1c4292353f7f',
         'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.1:accessibility-test-framework-2.1.jar:7b0aa6ed7553597ce0610684a9f7eca8021eee218f2e2f427c04a7fbf5f920bd',
         'com.google.code.findbugs:jsr305:1.3.9:jsr305-1.3.9.jar:905721a0eea90a81534abb7ee6ef4ea2e5e645fa1def0a5cd88402df1b46c9ed',

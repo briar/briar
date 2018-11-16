@@ -5,6 +5,7 @@ allprojects {
 		jcenter()
 		mavenLocal()
 		google()
+		maven { url "https://jitpack.io" }
 	}
 	afterEvaluate {
 		tasks.withType(Test) {
