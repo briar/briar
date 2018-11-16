@@ -22,10 +22,10 @@ public class IntroductionResponse extends ConversationResponse {
 	private final Role ourRole;
 
 	public IntroductionResponse(MessageId messageId, GroupId groupId, long time,
-			boolean local, boolean sent, boolean seen, boolean read,
+			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, boolean accepted, Author author,
 			AuthorInfo introducedAuthorInfo, Role role) {
-		super(messageId, groupId, time, local, sent, seen, read, sessionId,
+		super(messageId, groupId, time, local, read, sent, seen, sessionId,
 				accepted);
 		this.introducedAuthor = author;
 		this.introducedAuthorInfo = introducedAuthorInfo;

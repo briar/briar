@@ -25,6 +25,7 @@ import org.briarproject.bramble.test.TestDatabaseModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.ConversationResponse;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -138,6 +139,18 @@ public class IntroductionIntegrationTest
 		assertGroupCount(messageTracker0, g1.getId(), 1, 0);
 		assertGroupCount(messageTracker0, g2.getId(), 1, 0);
 
+		// check that request message states are correct
+		Collection<ConversationMessageHeader> messages =
+				db0.transactionWithResult(true, txn -> introductionManager0
+						.getMessageHeaders(txn, contactId1From0));
+		assertEquals(1, messages.size());
+		assertMessageState(messages.iterator().next(), true, false, false);
+		messages =
+				db0.transactionWithResult(true, txn -> introductionManager0
+						.getMessageHeaders(txn, contactId2From0));
+		assertEquals(1, messages.size());
+		assertMessageState(messages.iterator().next(), true, false, false);
+
 		// sync first REQUEST message
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
@@ -145,6 +158,17 @@ public class IntroductionIntegrationTest
 		assertEquals(introducee2.getAuthor().getName(),
 				listener1.getRequest().getName());
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
+
+		// check that accept message state is correct
+		messages =
+				db1.transactionWithResult(true, txn -> introductionManager1
+						.getMessageHeaders(txn, contactId0From1));
+		assertEquals(2, messages.size());
+		for (ConversationMessageHeader h : messages) {
+			if (h instanceof ConversationResponse) {
+				assertMessageState(h, true, false, false);
+			}
+		}
 
 		// sync second REQUEST message
 		sync0To2(1, true);

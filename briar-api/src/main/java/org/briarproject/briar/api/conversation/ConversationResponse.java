@@ -15,9 +15,9 @@ public abstract class ConversationResponse extends ConversationMessageHeader {
 	private final boolean accepted;
 
 	public ConversationResponse(MessageId id, GroupId groupId, long time,
-			boolean local, boolean sent, boolean seen, boolean read,
+			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, boolean accepted) {
-		super(id, groupId, time, local, sent, seen, read);
+		super(id, groupId, time, local, read, sent, seen);
 		this.sessionId = sessionId;
 		this.accepted = accepted;
 	}

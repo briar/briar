@@ -414,8 +414,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		boolean canBeOpened = meta.wasAccepted() &&
 				db.containsGroup(txn, invite.getPrivateGroupId());
 		return new GroupInvitationRequest(m, contactGroupId,
-				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), sessionId, pg,
+				meta.getTimestamp(), meta.isLocal(), meta.isRead(),
+				status.isSent(), status.isSeen(), sessionId, pg,
 				invite.getText(), meta.isAvailableToAnswer(), canBeOpened);
 	}
 
@@ -424,10 +424,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			MessageStatus status, boolean accept) {
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		return new GroupInvitationResponse(m, contactGroupId,
-				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), sessionId, accept,
-				meta.getPrivateGroupId()
-		);
+				meta.getTimestamp(), meta.isLocal(), meta.isRead(),
+				status.isSent(), status.isSeen(), sessionId, accept,
+				meta.getPrivateGroupId());
 	}
 
 	@Override

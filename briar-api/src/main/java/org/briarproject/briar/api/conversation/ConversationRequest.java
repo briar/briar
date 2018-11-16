@@ -21,10 +21,10 @@ public abstract class ConversationRequest<N extends Nameable>
 	private final boolean answered;
 
 	public ConversationRequest(MessageId messageId, GroupId groupId, long time,
-			boolean local, boolean sent, boolean seen, boolean read,
+			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, N nameable, @Nullable String text,
 			boolean answered) {
-		super(messageId, groupId, time, local, sent, seen, read);
+		super(messageId, groupId, time, local, read, sent, seen);
 		this.sessionId = sessionId;
 		this.nameable = nameable;
 		this.text = text;

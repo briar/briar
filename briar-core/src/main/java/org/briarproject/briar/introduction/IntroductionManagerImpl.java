@@ -453,7 +453,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			authorInfos.put(author.getId(), authorInfo);
 		}
 		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
-				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
+				meta.isLocal(), meta.isRead(), status.isSent(), status.isSeen(),
 				sessionId, author, text, !meta.isAvailableToAnswer(),
 				authorInfo);
 	}
@@ -487,7 +487,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			authorInfos.put(author.getId(), authorInfo);
 		}
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
-				meta.isLocal(), status.isSent(), status.isSeen(), meta.isRead(),
+				meta.isLocal(), meta.isRead(), status.isSent(), status.isSeen(),
 				sessionId, accept, author, authorInfo, role);
 	}
 
