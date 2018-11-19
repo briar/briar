@@ -21,7 +21,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
-import static java.util.Objects.requireNonNull;
 
 @UiThread
 @NotNullByDefault
@@ -83,7 +82,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		super.bind(conversationItem, listener);
 		ConversationMessageItem item =
 				(ConversationMessageItem) conversationItem;
-		if (item.getAttachments() == null || item.getAttachments().isEmpty()) {
+		if (item.getAttachments().isEmpty()) {
 			bindTextItem();
 		} else {
 			bindImageItem(item);
@@ -101,8 +100,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
 	private void bindImageItem(ConversationMessageItem item) {
 		// TODO show more than just the first image
-		AttachmentItem attachment =
-				requireNonNull(item.getAttachments()).get(0);
+		AttachmentItem attachment = item.getAttachments().get(0);
 
 		ConstraintSet constraintSet;
 		if (item.getText() == null) {

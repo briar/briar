@@ -25,8 +25,9 @@ public final class BriarGlideModule extends AppGlideModule {
 	@Override
 	public void registerComponents(Context context, Glide glide,
 			Registry registry) {
-		BriarModelLoaderFactory factory =
-				new BriarModelLoaderFactory((BriarApplication) context);
+		BriarApplication app =
+				(BriarApplication) context.getApplicationContext();
+		BriarModelLoaderFactory factory = new BriarModelLoaderFactory(app);
 		registry.prepend(AttachmentItem.class, InputStream.class, factory);
 	}
 

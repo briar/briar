@@ -294,7 +294,6 @@ class ConversationVisitor implements
 	}
 
 	interface AttachmentCache {
-		@Nullable
 		List<AttachmentItem> getAttachmentItems(MessageId m,
 				List<AttachmentHeader> headers);
 	}

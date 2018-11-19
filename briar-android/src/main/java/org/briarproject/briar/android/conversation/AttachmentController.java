@@ -119,9 +119,14 @@ class AttachmentController {
 				is.reset();
 				size = getSizeFromBitmap(is);
 			}
-			is.close();
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
+		} finally {
+			try {
+				is.close();
+			} catch (IOException e) {
+				logException(LOG, WARNING, e);
+			}
 		}
 
 		// calculate thumbnail size
@@ -161,7 +166,7 @@ class AttachmentController {
 		BitmapFactory.Options options = new BitmapFactory.Options();
 		options.inJustDecodeBounds = true;
 		BitmapFactory.decodeStream(is, null, options);
-		if (options.outWidth == -1 || options.outHeight == -1)
+		if (options.outWidth < 1 || options.outHeight < 1)
 			return new Size();
 		return new Size(options.outWidth, options.outHeight);
 	}
@@ -178,9 +183,10 @@ class AttachmentController {
 	}
 
 	private static class Size {
-		private int width;
-		private int height;
-		private boolean error;
+
+		private final int width;
+		private final int height;
+		private final boolean error;
 
 		private Size(int width, int height) {
 			this.width = width;

@@ -444,8 +444,12 @@ public class ConversationActivity extends BriarActivity
 			List<AttachmentHeader> headers) {
 		runOnDbThread(() -> {
 			try {
-				displayMessageAttachments(messageId,
-						attachmentController.getMessageAttachments(headers));
+				List<Pair<AttachmentHeader, Attachment>> attachments =
+						attachmentController.getMessageAttachments(headers);
+				// TODO move getting the items off to the IoExecutor
+				List<AttachmentItem> items =
+						attachmentController.getAttachmentItems(attachments);
+				displayMessageAttachments(messageId, items);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -453,10 +457,8 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void displayMessageAttachments(MessageId m,
-			List<Pair<AttachmentHeader, Attachment>> attachments) {
+			List<AttachmentItem> items) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			List<AttachmentItem> items =
-					attachmentController.getAttachmentItems(attachments);
 			attachmentController.put(m, items);
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
@@ -829,12 +831,14 @@ public class ConversationActivity extends BriarActivity
 		return text;
 	}
 
-	@Nullable
 	@Override
 	public List<AttachmentItem> getAttachmentItems(MessageId m,
 			List<AttachmentHeader> headers) {
 		List<AttachmentItem> attachments = attachmentController.get(m);
-		if (attachments == null) loadMessageAttachments(m, headers);
+		if (attachments == null) {
+			loadMessageAttachments(m, headers);
+			return emptyList();
+		}
 		return attachments;
 	}
 }
