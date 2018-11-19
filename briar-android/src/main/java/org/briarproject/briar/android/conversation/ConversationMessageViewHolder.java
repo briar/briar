@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.UiThread;
@@ -16,6 +17,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.BriarImageTransformation;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static java.util.Objects.requireNonNull;
@@ -31,6 +34,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 	private final ViewGroup statusLayout;
 	private final int timeColor, timeColorBubble;
 	private final int radiusBig, radiusSmall;
+	private final boolean isRtl;
 	private final ConstraintSet textConstraints = new ConstraintSet();
 	private final ConstraintSet imageConstraints = new ConstraintSet();
 	private final ConstraintSet imageTextConstraints = new ConstraintSet();
@@ -48,6 +52,13 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		timeColor = time.getCurrentTextColor();
 		timeColorBubble =
 				ContextCompat.getColor(v.getContext(), R.color.briar_white);
+
+		// find out if we are showing a RTL language, Use the configuration,
+		// because getting the layout direction of views is not reliable
+		Configuration config =
+				imageView.getContext().getResources().getConfiguration();
+		isRtl = SDK_INT >= 17 &&
+				config.getLayoutDirection() == LAYOUT_DIRECTION_RTL;
 
 		// clone constraint sets from layout files
 		textConstraints
@@ -129,7 +140,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
 	private void loadImage(ConversationMessageItem item,
 			AttachmentItem attachment) {
-		boolean leftCornerSmall = isIncoming();
+		boolean leftCornerSmall =
+				(isIncoming() && !isRtl) || (!isIncoming() && isRtl);
 		boolean bottomRound = item.getText() == null;
 		Transformation<Bitmap> transformation = new BriarImageTransformation(
 				radiusSmall, radiusBig, leftCornerSmall, bottomRound);
