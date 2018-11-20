@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.threaded;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
@@ -33,6 +34,7 @@ import org.briarproject.briar.api.client.NamedGroup;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -348,8 +350,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	}
 
 	@Override
-	public void onSendClick(String text) {
-		if (text.trim().length() == 0)
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+		if (text == null || text.trim().length() == 0)
 			return;
 		if (utf8IsTooLong(text, getMaxTextLength())) {
 			displaySnackbar(R.string.text_too_long);

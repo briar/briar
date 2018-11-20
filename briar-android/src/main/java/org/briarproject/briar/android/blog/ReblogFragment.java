@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.blog;
 
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,8 @@ import org.briarproject.briar.android.controller.handler.UiResultExceptionHandle
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+
+import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -118,10 +121,9 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 	}
 
 	@Override
-	public void onSendClick(String text) {
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
 		ui.input.hideSoftKeyboard();
-		String comment = getComment();
-		feedController.repeatPost(item, comment,
+		feedController.repeatPost(item, text,
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
@@ -129,12 +131,6 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 					}
 				});
 		finish();
-	}
-
-	@Nullable
-	private String getComment() {
-		if (ui.input.getText().length() == 0) return null;
-		return ui.input.getText().toString();
 	}
 
 	private void showProgressBar() {

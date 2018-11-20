@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.introduction;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.LayoutInflater;
@@ -17,7 +17,8 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -25,6 +26,7 @@ import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -38,9 +40,12 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class IntroductionMessageFragment extends BaseFragment
 		implements TextInputListener {
 
@@ -84,8 +89,9 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater,
-			ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		// change toolbar text
 		ActionBar actionBar = introductionActivity.getSupportActionBar();
@@ -184,14 +190,14 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(@NonNull String text) {
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
 		// disable button to prevent accidental double invitations
 		ui.message.setSendButtonEnabled(false);
 
-		String txt = ui.message.getText().toString();
-		if (txt.isEmpty()) txt = null;
-		else txt = StringUtils.truncateUtf8(txt, MAX_INTRODUCTION_TEXT_LENGTH);
-		makeIntroduction(contact1, contact2, txt);
+		if (text != null) {
+			text = truncateUtf8(text, MAX_INTRODUCTION_TEXT_LENGTH);
+		}
+		makeIntroduction(contact1, contact2, text);
 
 		// don't wait for the introduction to be made before finishing activity
 		introductionActivity.hideSoftKeyboard(ui.message);

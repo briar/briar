@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -52,7 +53,6 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -64,6 +64,7 @@ import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
+import org.briarproject.briar.android.view.TextInputView.AttachImageListener;
 import org.briarproject.briar.android.view.TextInputView.TextInputListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -106,6 +107,7 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.view.Gravity.RIGHT;
+import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
@@ -115,6 +117,10 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_IMAGE_ATTACHMENTS;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT;
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
@@ -131,7 +137,7 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
 		implements EventListener, ConversationListener, TextInputListener,
-		TextCache, AttachmentCache {
+		TextCache, AttachmentCache, AttachImageListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -251,6 +257,9 @@ public class ConversationActivity extends BriarActivity
 
 		textInputView = findViewById(R.id.text_input_container);
 		textInputView.setListener(this);
+		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
+			textInputView.setAttachImageListener(this);
+		}
 	}
 
 	@Override
@@ -267,6 +276,8 @@ public class ConversationActivity extends BriarActivity
 					Snackbar.LENGTH_SHORT);
 			snackbar.getView().setBackgroundResource(R.color.briar_primary);
 			snackbar.show();
+		} else if (request == REQUEST_ATTACH_IMAGE && result == RESULT_OK) {
+			textInputView.onImageReceived(data);
 		}
 	}
 
@@ -573,9 +584,19 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(String text) {
-		if (text.isEmpty()) return;
-		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+	public void onAttachImage(Intent intent) {
+		startActivityForResult(intent, REQUEST_ATTACH_IMAGE);
+	}
+
+	@Override
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+		if (!imageUris.isEmpty()) {
+			Toast.makeText(this, "Not yet implemented.", LENGTH_LONG).show();
+			textInputView.setText("");
+			return;
+		}
+		if (isNullOrEmpty(text)) return;
+		text = truncateUtf8(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		if (messagingGroupId == null) loadGroupId(text, timestamp);

@@ -1,7 +1,9 @@
 package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -14,8 +16,9 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -27,6 +30,7 @@ import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 
 import java.security.GeneralSecurityException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -35,8 +39,12 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class WriteBlogPostActivity extends BriarActivity
 		implements OnEditorActionListener, TextInputListener {
 
@@ -58,9 +66,8 @@ public class WriteBlogPostActivity extends BriarActivity
 	@Inject
 	volatile BlogManager blogManager;
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		Intent i = getIntent();
@@ -128,17 +135,19 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	private void enableOrDisablePublishButton() {
-		input.setSendButtonEnabled(input.getText().length() > 0);
+		input.setSendButtonEnabled(!input.isEmpty());
 	}
 
 	@Override
-	public void onSendClick(String text) {
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+		if (isNullOrEmpty(text)) return;
+
 		// hide publish button, show progress bar
 		input.hideSoftKeyboard();
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
-		text = StringUtils.truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
+		text = truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
 		storePost(text);
 	}
 

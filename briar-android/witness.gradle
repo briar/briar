@@ -40,6 +40,7 @@ dependencyVerification {
         'com.android.support:interpolator:28.0.0:interpolator-28.0.0.aar:7bc7ee86a0db39a4b51956f3e89842d2bd962118d57d779eb6ed6b34ba0677ea',
         'com.android.support:loader:28.0.0:loader-28.0.0.aar:920b85efd72dc33e915b0f88a883fe73b88483c6df8751a741e17611f2460341',
         'com.android.support:localbroadcastmanager:28.0.0:localbroadcastmanager-28.0.0.aar:d287c823af5fdde72c099fcfc5f630efe9687af7a914343ae6fd92de32c8a806',
+        'com.android.support:palette-v7:28.0.0:palette-v7-28.0.0.aar:317202dddb953d152d0677dbd8bb3b9d8ef8dcd0bdee0da4f40c98826e4960e6',
         'com.android.support:preference-v14:28.0.0:preference-v14-28.0.0.aar:8133c6e19233fa51e036a341e6d3f4adeead3375cebf777efced0fe154c3267e',
         'com.android.support:preference-v7:28.0.0:preference-v7-28.0.0.aar:75eabe936d1fc3b178450a554c4d433466036f2be6d6dccdf971eac9590fdbf5',
         'com.android.support:print:28.0.0:print-28.0.0.aar:4be8a812d73e4a80e35b91ceae127def3f0bb9726bf3bc439aa0cc81503f5728',

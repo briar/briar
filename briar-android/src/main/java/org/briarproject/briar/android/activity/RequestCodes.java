@@ -14,5 +14,6 @@ public interface RequestCodes {
 	int REQUEST_BLUETOOTH_DISCOVERABLE = 10;
 	int REQUEST_UNLOCK = 11;
 	int REQUEST_KEYGUARD_UNLOCK = 12;
+	int REQUEST_ATTACH_IMAGE = 13;
 
 }

@@ -5,11 +5,42 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:animateLayoutChanges="true"
 	tools:showIn="@layout/activity_conversation">
 
 	<View
 		style="@style/Divider.Horizontal"
 		android:layout_alignParentTop="true"/>
+
+	<FrameLayout
+		android:id="@+id/imageLayout"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:visibility="gone"
+		tools:visibility="visible">
+
+		<ImageView
+			android:id="@+id/imageView"
+			android:layout_width="match_parent"
+			android:layout_height="@dimen/text_input_image_height"
+			tools:background="@color/msg_status_bubble_background"
+			tools:ignore="ContentDescription"
+			tools:srcCompat="@tools:sample/avatars"/>
+
+		<android.support.design.widget.FloatingActionButton
+			android:id="@+id/imageCancelButton"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_gravity="top|end"
+			android:layout_marginEnd="8dp"
+			android:layout_marginRight="8dp"
+			android:layout_marginTop="8dp"
+			android:src="@drawable/ic_close"
+			app:backgroundTint="@color/briar_red"
+			app:fabCustomSize="26dp"
+			app:maxImageSize="18dp"/>
+
+	</FrameLayout>
 
 	<LinearLayout
 		android:layout_width="match_parent"
@@ -42,20 +73,41 @@
 			tools:ignore="RtlSymmetry"
 			tools:text="Line 1\nLine 2\nLine 3"/>
 
-		<android.support.v7.widget.AppCompatImageButton
-			android:id="@+id/btn_send"
+		<FrameLayout
 			android:layout_width="@dimen/text_input_height"
 			android:layout_height="@dimen/text_input_height"
-			android:layout_gravity="bottom"
-			android:background="?attr/selectableItemBackground"
-			android:clickable="true"
-			android:contentDescription="@string/send"
-			android:enabled="false"
-			android:focusable="true"
-			android:padding="4dp"
-			android:scaleType="center"
-			android:src="@drawable/social_send_now_white"
-			app:tint="@color/briar_accent"/>
+			android:layout_gravity="bottom">
+
+			<android.support.v7.widget.AppCompatImageButton
+				android:id="@+id/btn_send"
+				android:layout_width="@dimen/text_input_height"
+				android:layout_height="@dimen/text_input_height"
+				android:background="?attr/selectableItemBackground"
+				android:clickable="true"
+				android:contentDescription="@string/send"
+				android:enabled="false"
+				android:focusable="true"
+				android:padding="4dp"
+				android:scaleType="center"
+				android:src="@drawable/social_send_now_white"
+				app:tint="@color/briar_accent"/>
+
+			<android.support.v7.widget.AppCompatImageButton
+				android:id="@+id/imageButton"
+				android:layout_width="@dimen/text_input_height"
+				android:layout_height="@dimen/text_input_height"
+				android:background="?attr/selectableItemBackground"
+				android:clickable="true"
+				android:contentDescription="@string/image_attach"
+				android:enabled="false"
+				android:focusable="true"
+				android:padding="4dp"
+				android:scaleType="center"
+				android:src="@drawable/ic_image"
+				android:visibility="invisible"
+				app:tint="?attr/colorControlNormal"/>
+
+		</FrameLayout>
 
 	</LinearLayout>
 

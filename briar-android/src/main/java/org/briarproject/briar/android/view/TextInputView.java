@@ -2,10 +2,13 @@ package org.briarproject.briar.android.view;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
+import android.net.Uri;
 import android.os.IBinder;
 import android.support.annotation.CallSuper;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.AppCompatImageButton;
@@ -26,13 +29,16 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarApplication;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 
-import javax.annotation.Nullable;
+import java.util.List;
+
 import javax.inject.Inject;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static java.util.Collections.emptyList;
+import static java.util.Objects.requireNonNull;
 
 @UiThread
 @MethodsNotNullByDefault
@@ -44,6 +50,8 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 
 	@Nullable
 	TextInputListener listener;
+	@Nullable
+	TextInputAttachmentController attachmentController;
 
 	AppCompatImageButton emojiToggle;
 	EmojiEditText editText;
@@ -69,12 +77,12 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		setOrientation(VERTICAL);
 		setLayoutTransition(new LayoutTransition());
 		inflateLayout(context);
-		setUpViews(context, attrs);
+		if (!isInEditMode()) setUpViews(context, attrs);
 	}
 
 	protected void inflateLayout(Context context) {
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) requireNonNull(
+				context.getSystemService(LAYOUT_INFLATER_SERVICE));
 		inflater.inflate(R.layout.text_input_view, this, true);
 	}
 
@@ -96,18 +104,33 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		String hint = attributes.getString(R.styleable.TextInputView_hint);
 		attributes.recycle();
 
-		if (hint != null) editText.setHint(hint);
+		if (hint != null) setHint(hint);
 
 		emojiToggle.setOnClickListener(v -> emojiPopup.toggle());
 		editText.setOnClickListener(v -> showSoftKeyboard());
 		editText.setOnKeyListener((v, keyCode, event) -> {
 			if (keyCode == KEYCODE_ENTER && event.isCtrlPressed()) {
-				trySendMessage();
+				onSendButtonClicked();
 				return true;
 			}
 			return false;
 		});
-		sendButton.setOnClickListener(v -> trySendMessage());
+		sendButton.setOnClickListener(v -> onSendButtonClicked());
+	}
+
+	public void setListener(TextInputListener listener) {
+		this.listener = listener;
+	}
+
+	/**
+	 * Call this during onCreate() to enable image attachment support.
+	 * Do not call it twice!
+	 */
+	public void setAttachImageListener(AttachImageListener imageListener) {
+		if (attachmentController != null) throw new IllegalStateException();
+		attachmentController = new TextInputAttachmentController(getRootView(),
+				editText, sendButton, imageListener
+		);
 	}
 
 	private void showEmojiIcon() {
@@ -118,10 +141,23 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		emojiToggle.setImageResource(R.drawable.ic_keyboard);
 	}
 
-	private void trySendMessage() {
+	private void onSendButtonClicked() {
 		if (listener != null) {
-			listener.onSendClick(editText.getText().toString());
+			Editable editable = editText.getText();
+			String text = editable == null || editable.length() == 0 ?
+					null : editable.toString();
+			List<Uri> imageUris = attachmentController == null ? emptyList() :
+					attachmentController.getUris();
+			listener.onSendClick(text, imageUris);
 		}
+		if (attachmentController != null) {
+			attachmentController.afterSendButtonClicked();
+		}
+	}
+
+	public void onImageReceived(@Nullable Intent resultData) {
+		if (attachmentController == null) throw new IllegalStateException();
+		attachmentController.onImageReceived(resultData);
 	}
 
 	@Override
@@ -139,12 +175,17 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		editText.setText(text);
 	}
 
-	public Editable getText() {
-		return editText.getText();
+	public boolean isEmpty() {
+		return editText.getText() == null || editText.getText().length() == 0;
 	}
 
 	public void setHint(@StringRes int res) {
-		editText.setHint(res);
+		setHint(getContext().getString(res));
+	}
+
+	public void setHint(String hint) {
+		if (attachmentController != null) attachmentController.saveHint(hint);
+		editText.setHint(hint);
 	}
 
 	public void setSendButtonEnabled(boolean enabled) {
@@ -155,24 +196,26 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		editText.addTextChangedListener(watcher);
 	}
 
-	public void setListener(TextInputListener listener) {
-		this.listener = listener;
-	}
-
 	public void showSoftKeyboard() {
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).showSoftInput(editText, SHOW_IMPLICIT);
+		InputMethodManager imm = (InputMethodManager) requireNonNull(o);
+		imm.showSoftInput(editText, SHOW_IMPLICIT);
 	}
 
 	public void hideSoftKeyboard() {
 		if (emojiPopup.isShowing()) emojiPopup.dismiss();
 		IBinder token = editText.getWindowToken();
 		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
+		InputMethodManager imm = (InputMethodManager) requireNonNull(o);
+		imm.hideSoftInputFromWindow(token, 0);
+	}
+
+	public interface AttachImageListener {
+		void onAttachImage(Intent intent);
 	}
 
 	public interface TextInputListener {
-		void onSendClick(String text);
+		void onSendClick(@Nullable String text, List<Uri> imageUris);
 	}
 
 }
