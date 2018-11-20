@@ -35,17 +35,18 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	private final MessagingManager messagingManager;
 	@DatabaseExecutor
 	private final Executor dbExecutor;
+	private final AttachmentItem attachment;
 
 	@Nullable
-	private AttachmentItem attachment;
-	@Nullable
 	private volatile InputStream inputStream;
+	private volatile boolean cancel = false;
 
 	@Inject
 	public BriarDataFetcher(MessagingManager messagingManager,
-			@DatabaseExecutor Executor dbExecutor) {
+			@DatabaseExecutor Executor dbExecutor, AttachmentItem attachment) {
 		this.messagingManager = messagingManager;
 		this.dbExecutor = dbExecutor;
+		this.attachment = attachment;
 	}
 
 	@Override
@@ -53,6 +54,7 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 			DataCallback<? super InputStream> callback) {
 		MessageId id = requireNonNull(attachment).getMessageId();
 		dbExecutor.execute(() -> {
+			if (cancel) return;
 			try {
 				inputStream = messagingManager.getAttachment(id).getStream();
 				callback.onDataReady(inputStream);
@@ -76,7 +78,7 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 
 	@Override
 	public void cancel() {
-		// does it make sense to cancel a database load?
+		cancel = true;
 	}
 
 	@Override
@@ -87,10 +89,6 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	@Override
 	public DataSource getDataSource() {
 		return LOCAL;
-	}
-
-	public void setAttachment(AttachmentItem attachment) {
-		this.attachment = attachment;
 	}
 
 }

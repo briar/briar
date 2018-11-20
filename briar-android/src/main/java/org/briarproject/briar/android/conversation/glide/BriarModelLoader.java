@@ -19,21 +19,19 @@ import javax.inject.Inject;
 public final class BriarModelLoader
 		implements ModelLoader<AttachmentItem, InputStream> {
 
-	private final BriarApplication app;
-
 	@Inject
-	BriarDataFetcher dataFetcher;
+	BriarDataFetcherFactory dataFetcherFactory;
 
 	public BriarModelLoader(BriarApplication app) {
-		this.app = app;
+		app.getApplicationComponent().inject(this);
 	}
 
 	@Override
 	public LoadData<InputStream> buildLoadData(AttachmentItem model, int width,
 			int height, Options options) {
-		app.getApplicationComponent().inject(this);
 		ObjectKey key = new ObjectKey(model.getMessageId());
-		dataFetcher.setAttachment(model);
+		BriarDataFetcher dataFetcher =
+				dataFetcherFactory.createBriarDataFetcher(model);
 		return new LoadData<>(key, dataFetcher);
 	}
 
