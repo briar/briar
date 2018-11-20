@@ -116,7 +116,7 @@
 		<activity
 			android:name=".android.conversation.ImageActivity"
 			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity"
-			android:theme="@style/BriarTheme.NoActionBar">
+			android:theme="@style/BriarTheme.Transparent.NoActionBar">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.conversation.ConversationActivity"/>

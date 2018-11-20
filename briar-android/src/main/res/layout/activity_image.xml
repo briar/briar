@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<org.briarproject.briar.android.view.PullDownLayout
 	android:id="@+id/layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
@@ -7,6 +7,13 @@
 	android:layout_height="match_parent"
 	android:background="@color/briar_black"
 	tools:context=".android.conversation.ImageActivity">
+
+	<com.github.chrisbanes.photoview.PhotoView
+		android:id="@+id/photoView"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		tools:ignore="ContentDescription"
+		tools:srcCompat="@tools:sample/backgrounds/scenic"/>
 
 	<android.support.design.widget.AppBarLayout
 		android:id="@+id/appBarLayout"
@@ -51,11 +58,4 @@
 
 	</android.support.design.widget.AppBarLayout>
 
-	<com.github.chrisbanes.photoview.PhotoView
-		android:id="@+id/photoView"
-		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		tools:ignore="ContentDescription"
-		tools:srcCompat="@tools:sample/backgrounds/scenic"/>
-
-</android.support.constraint.ConstraintLayout>
+</org.briarproject.briar.android.view.PullDownLayout>

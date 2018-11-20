@@ -24,6 +24,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
+import org.briarproject.briar.android.view.PullDownLayout;
 
 import static android.graphics.Color.TRANSPARENT;
 import static android.os.Build.VERSION.SDK_INT;
@@ -37,12 +38,14 @@ import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 
-public class ImageActivity extends BriarActivity {
+public class ImageActivity extends BriarActivity
+		implements PullDownLayout.Callback {
 
 	final static String ATTACHMENT = "attachment";
 	final static String NAME = "name";
 	final static String DATE = "date";
 
+	private PullDownLayout layout;
 	private AppBarLayout appBarLayout;
 
 	@Override
@@ -64,6 +67,9 @@ public class ImageActivity extends BriarActivity {
 
 		// inflate layout
 		setContentView(R.layout.activity_image);
+		layout = findViewById(R.id.layout);
+		layout.getBackground().setAlpha(255);
+		layout.setCallback(this);
 
 		// Status Bar
 		if (SDK_INT >= 21) {
@@ -140,6 +146,30 @@ public class ImageActivity extends BriarActivity {
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public void onPullStart() {
+		appBarLayout.animate()
+				.alpha(0f)
+				.start();
+	}
+
+	@Override
+	public void onPull(float progress) {
+		layout.getBackground().setAlpha(Math.round((1 - progress) * 255));
+	}
+
+	@Override
+	public void onPullCancel() {
+		appBarLayout.animate()
+				.alpha(1f)
+				.start();
+	}
+
+	@Override
+	public void onPullComplete() {
+		supportFinishAfterTransition();
 	}
 
 	@RequiresApi(api = 16)
