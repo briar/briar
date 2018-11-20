@@ -98,14 +98,14 @@ class ImageCornerTransformation extends BitmapTransformation {
 
 	@Override
 	public int hashCode() {
-		return ID.hashCode() + smallRadius * 100 + radius * 10 +
-				(leftCornerSmall ? 9 : 8) + (bottomRound ? 7 : 6);
+		return ID.hashCode() + (smallRadius << 16) ^ (radius << 2) ^
+				(leftCornerSmall ? 2 : 0) ^ (bottomRound ? 1 : 0);
 	}
 
 	@Override
 	public void updateDiskCacheKey(@NonNull MessageDigest messageDigest) {
-		messageDigest.update((ID + smallRadius + radius + leftCornerSmall +
-				bottomRound).getBytes(CHARSET));
+		messageDigest.update((ID + '|' + smallRadius + '|' + radius + '|' +
+				leftCornerSmall + '|' + bottomRound).getBytes(CHARSET));
 	}
 
 }
