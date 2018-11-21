@@ -31,7 +31,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
 
 public class ContactQrCodeInputFragment extends BaseFragment
 		implements QrCodeDecoder.ResultCallback {
@@ -134,7 +134,7 @@ public class ContactQrCodeInputFragment extends BaseFragment
 	public void onRequestPermissionsResult(int requestCode,
 			@NonNull String[] permissions, @NonNull int[] grantResults) {
 		if (getContext() == null) return;
-		if (requestCode == REQUEST_PERMISSION_CAMERA) {
+		if (requestCode == REQUEST_PERMISSION_CAMERA_LOCATION) {
 			// If request is cancelled, the result arrays are empty.
 			if (grantResults.length > 0 &&
 					grantResults[0] == PERMISSION_GRANTED) {
@@ -154,7 +154,7 @@ public class ContactQrCodeInputFragment extends BaseFragment
 					builder.show();
 				} else {
 					Toast.makeText(getContext(),
-							R.string.permission_camera_denied_toast,
+							R.string.permission_camera_denied_body,
 							LENGTH_LONG).show();
 					cancel();
 				}
@@ -163,7 +163,7 @@ public class ContactQrCodeInputFragment extends BaseFragment
 	}
 
 	private void requestPermission() {
-		requestPermissions(new String[] {CAMERA}, REQUEST_PERMISSION_CAMERA);
+		requestPermissions(new String[] {CAMERA}, REQUEST_PERMISSION_CAMERA_LOCATION);
 	}
 
 	@Nullable

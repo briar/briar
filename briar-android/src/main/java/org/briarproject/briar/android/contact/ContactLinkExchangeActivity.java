@@ -7,8 +7,11 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -30,7 +33,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.SystemClock.elapsedRealtime;
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -51,6 +54,8 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 	LifecycleManager lifecycleManager;
 	@Inject
 	MessagingManager messagingManager;
+	@Inject
+	ConnectionRegistry connectionRegistry;
 	@Inject
 	Clock clock;
 
@@ -87,7 +92,7 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 				}
 			} else if ("addContact".equals(action)) {
 				removeFakeRequest(i.getStringExtra("name"),
-						i.getLongExtra("timestamp", 0));
+						i.getLongExtra("timestamp", 0), i.getLongExtra("addAt", 0));
 				setIntent(null);
 				finish();
 			}
@@ -126,26 +131,30 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 	}
 
 	void addFakeRequest(String name, String link) {
-		long timestamp = clock.currentTimeMillis();
-		try {
-			messagingManager.addNewPendingContact(name, timestamp);
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-		}
 
 		AlarmManager alarmManager =
 				(AlarmManager) requireNonNull(getSystemService(ALARM_SERVICE));
 		double random = getPseudoRandom(link, OUR_LINK.replace("briar://", ""));
-		long m = MINUTES.toMillis(1);
+		long m = SECONDS.toMillis(50);
 		long fromNow = (long) (-m * Math.log(random));
+		// it should take at least 30 seconds
+		if (fromNow < SECONDS.toMillis(30)) fromNow = SECONDS.toMillis(30);
 		LOG.info("Delay " + fromNow + " ms based on seed " + random);
 		long triggerAt = elapsedRealtime() + fromNow;
+
+		long timestamp = clock.currentTimeMillis();
+		try {
+			messagingManager.addNewPendingContact(name, timestamp, timestamp + fromNow);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
 
 		Intent i = new Intent(this, ContactLinkExchangeActivity.class);
 		i.setAction("addContact");
 		i.setFlags(FLAG_ACTIVITY_NEW_TASK);
 		i.putExtra("name", name);
 		i.putExtra("timestamp", timestamp);
+		i.putExtra("addAt", timestamp + fromNow);
 		PendingIntent pendingIntent =
 				PendingIntent.getActivity(this, (int) timestamp / 1000, i, 0);
 		alarmManager.set(ELAPSED_REALTIME, triggerAt, pendingIntent);
@@ -169,14 +178,17 @@ public class ContactLinkExchangeActivity extends BriarActivity implements
 		return hash / (1.0 + Integer.MAX_VALUE);
 	}
 
-	private void removeFakeRequest(String name, long timestamp) {
+	private void removeFakeRequest(String name, long timestamp, long addAt) {
 		if (lifecycleManager.getLifecycleState() != RUNNING) {
 			LOG.info("Lifecycle not started, not adding contact " + name);
 			return;
 		}
 		LOG.info("Adding Contact " + name);
 		try {
-			messagingManager.removePendingContact(name, timestamp);
+			ContactId c = messagingManager
+					.removePendingContact(name, timestamp, addAt);
+			// fake contact online status
+			connectionRegistry.registerConnection(c, TorConstants.ID, true);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 		}

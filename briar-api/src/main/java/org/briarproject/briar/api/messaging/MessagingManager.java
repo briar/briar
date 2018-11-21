@@ -16,21 +16,25 @@ import java.util.Collection;
 public interface MessagingManager extends ConversationClient {
 
 	// TODO remove (only for prototype)
-	void addNewPendingContact(String name, long timestamp) throws DbException;
-	void removePendingContact(String name, long timestamp) throws DbException;
+	void addNewPendingContact(String name, long timestamp, long addAt) throws DbException;
+	ContactId removePendingContact(String name, long timestamp, long addAt) throws DbException;
 	Collection<PendingContact> getPendingContacts() throws DbException;
 	class PendingContact {
 		private final String name;
-		private final long timestamp;
-		public PendingContact(String name, long timestamp) {
+		private final long timestamp, addAt;
+		public PendingContact(String name, long timestamp, long addAt) {
 			this.name = name;
 			this.timestamp = timestamp;
+			this.addAt = addAt;
 		}
 		public String getName() {
 			return name;
 		}
 		public long getTimestamp() {
 			return timestamp;
+		}
+		public long getAddAt() {
+			return addAt;
 		}
 	}
 

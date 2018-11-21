@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.contact;
 
 import android.support.v7.widget.RecyclerView.ViewHolder;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,6 +10,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.TextAvatarView;
 import org.briarproject.briar.api.messaging.MessagingManager.PendingContact;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
@@ -18,12 +20,14 @@ public class PendingRequestsViewHolder extends ViewHolder {
 	private final TextAvatarView avatar;
 	private final TextView name;
 	private final TextView time;
+	private final TextView status;
 
 	public PendingRequestsViewHolder(View v) {
 		super(v);
 		avatar = v.findViewById(R.id.avatar);
 		name = v.findViewById(R.id.name);
 		time = v.findViewById(R.id.time);
+		status = v.findViewById(R.id.status);
 	}
 
 	public void bind(PendingContact item) {
@@ -31,6 +35,15 @@ public class PendingRequestsViewHolder extends ViewHolder {
 		avatar.setBackgroundBytes(toUtf8(item.getName() + item.getTimestamp()));
 		name.setText(item.getName());
 		time.setText(formatDate(time.getContext(), item.getTimestamp()));
+		long diff = item.getAddAt() - System.currentTimeMillis();
+		Log.e("TEST", "diff: " + diff);
+		if (diff < SECONDS.toMillis(10)) {
+			status.setText("Adding contact…");
+		} else if (diff < SECONDS.toMillis(20)) {
+			status.setText("Connecting…");
+		} else if (diff < SECONDS.toMillis(30)) {
+			status.setText("Waiting for peer to come online…");
+		}
 	}
 
 }

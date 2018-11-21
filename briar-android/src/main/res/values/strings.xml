@@ -164,17 +164,17 @@
 	<string name="connection_error_explanation">Please check that you\'re both connected to the same Wi-Fi network.</string>
 	<string name="connection_error_feedback">If this problem persists, please <a href="feedback">send feedback</a> to help us improve the app.</string>
 
-	<string name="add_contact_nearby_title">Add Contact Nearby</string>
-	<string name="add_contact_remotely_title">Add Contact with Link</string>
-	<string name="contact_name_hint">Give contact a nickname</string>
-	<string name="contact_link_hint">Your contact\'s link</string>
+	<string name="add_contact_nearby_title">Add contact nearby</string>
+	<string name="add_contact_remotely_title">Add contact remotely</string>
+	<string name="contact_name_hint">Give peer a nickname</string>
+	<string name="contact_link_hint">Enter peer\'s link</string>
 	<string name="paste_button">Paste</string>
 	<string name="scan_qr_code_button">QR Code</string>
-	<string name="add_contact_button">Add Contact</string>
+	<string name="add_contact_button">Add peer as contact</string>
 	<string name="copy_button">Copy</string>
 	<string name="share_button">Share</string>
 	<string name="show_qr_code_button">QR Code</string>
-	<string name="send_link_instructions">Give this link to your contact:</string>
+	<string name="send_link_instructions">Exchange links with your peer!\n\nYour link:</string>
 	<string name="link_clip_label">Briar link</string>
 	<string name="link_copied_toast">Link copied</string>
 	<string name="pending_contact_requests_snackbar">"There are pending contact requests"</string>

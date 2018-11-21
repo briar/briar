@@ -28,6 +28,8 @@ public class BriarRecyclerView extends FrameLayout {
 
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
+	private long PERIODIC_UPDATE_MILLIS = MIN_DATE_RESOLUTION;
+
 	private RecyclerView recyclerView;
 	private Group emptyState;
 	private AppCompatImageView emptyImage;
@@ -215,9 +217,9 @@ public class BriarRecyclerView extends FrameLayout {
 		refresher = () -> {
 			Adapter adapter = recyclerView.getAdapter();
 			adapter.notifyItemRangeChanged(0, adapter.getItemCount());
-			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
+			handler.postDelayed(refresher, PERIODIC_UPDATE_MILLIS);
 		};
-		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
+		handler.postDelayed(refresher, PERIODIC_UPDATE_MILLIS);
 	}
 
 	public void stopPeriodicUpdate() {
@@ -225,6 +227,10 @@ public class BriarRecyclerView extends FrameLayout {
 			handler.removeCallbacks(refresher);
 			refresher = null;
 		}
+	}
+
+	public void setPERIODIC_UPDATE_MILLIS(long millis) {
+		PERIODIC_UPDATE_MILLIS = millis;
 	}
 
 }

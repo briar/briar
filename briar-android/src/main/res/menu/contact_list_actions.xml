@@ -5,7 +5,7 @@
 
 	<item
 		android:id="@+id/action_add_contact_nearby"
-		android:icon="@drawable/ic_add_nearby"
+		android:icon="@drawable/ic_nearby"
 		android:orderInCategory="3"
 		android:title="@string/add_contact_nearby_title"
 		app:showAsAction="never"/>

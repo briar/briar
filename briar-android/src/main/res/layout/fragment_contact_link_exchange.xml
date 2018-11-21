@@ -45,7 +45,7 @@
 			app:hintEnabled="false"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/copyButton">
+			app:layout_constraintTop_toBottomOf="@+id/divider">
 
 			<android.support.design.widget.TextInputEditText
 				android:id="@+id/linkInput"
@@ -104,6 +104,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_bias="0"
 			app:layout_constraintVertical_chainStyle="packed"/>
 
 		<TextView
@@ -177,13 +178,19 @@
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="8dp"
 			android:layout_marginTop="16dp"
-			android:enabled="false"
 			android:text="@string/add_contact_button"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"
-			tools:enabled="true"/>
+			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"/>
+
+		<View
+			android:id="@+id/divider"
+			style="@style/Divider.Horizontal"
+			android:layout_width="match_parent"
+			android:layout_height="1dp"
+			android:layout_marginTop="8dp"
+			app:layout_constraintTop_toBottomOf="@+id/copyButton"/>
 
 	</android.support.constraint.ConstraintLayout>
 </ScrollView>

@@ -24,6 +24,8 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 public class PendingRequestsActivity extends BriarActivity
 		implements EventListener {
 
@@ -57,12 +59,14 @@ public class PendingRequestsActivity extends BriarActivity
 		list = findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
+		list.setPERIODIC_UPDATE_MILLIS(SECONDS.toMillis(9));
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
+		list.startPeriodicUpdate();
 		runOnDbThread(() -> {
 			try {
 				Collection<PendingContact> contacts =
@@ -77,6 +81,7 @@ public class PendingRequestsActivity extends BriarActivity
 	@Override
 	protected void onStop() {
 		super.onStop();
+		list.stopPeriodicUpdate();
 		adapter.clear();
 	}
 

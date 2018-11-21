@@ -85,7 +85,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	private static final String PENDING_CONTACTS = "PENDING_CONTACTS";
 	@Override
-	public void addNewPendingContact(String name, long timestamp)
+	public void addNewPendingContact(String name, long timestamp, long addAt)
 			throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -93,6 +93,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			BdfDictionary contact = new BdfDictionary();
 			contact.put("name", name);
 			contact.put("timestamp", timestamp);
+			contact.put("addAt", addAt);
 			list.add(contact);
 
 			Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
@@ -109,7 +110,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		}
 	}
 	@Override
-	public void removePendingContact(String name, long timestamp) throws DbException {
+	public ContactId removePendingContact(String name, long timestamp, long addAt) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
 			BdfList list = getPendingContacts(txn);
@@ -117,6 +118,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			BdfDictionary contactDict = new BdfDictionary();
 			contactDict.put("name", name);
 			contactDict.put("timestamp", timestamp);
+			contactDict.put("addAt", addAt);
 			list.remove(contactDict);
 
 			Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
@@ -126,9 +128,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
 
 			AuthorId local = identityManager.getLocalAuthor(txn).getId();
-			Author remote = authorFactory
-					.createAuthor(name, new byte[MAX_PUBLIC_KEY_LENGTH]);
-			contactManager.addContact(txn, remote, local, false, true);
+			byte[] pubKey = new byte[MAX_PUBLIC_KEY_LENGTH];
+			new Random().nextBytes(pubKey);
+			Author remote = authorFactory.createAuthor(name, pubKey);
+			ContactId c =
+					contactManager.addContact(txn, remote, local, false, true);
 
 			Contact contact =
 					contactManager.getContact(txn, remote.getId(), local);
@@ -137,6 +141,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			txn.attach(event);
 
 			db.commitTransaction(txn);
+			return c;
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		} finally {
@@ -152,7 +157,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 			for (Object o : list) {
 				BdfDictionary d = (BdfDictionary) o;
 				contacts.add(new PendingContact(d.getString("name"),
-						d.getLong("timestamp")));
+						d.getLong("timestamp"), d.getLong("addAt")));
 			}
 			db.commitTransaction(txn);
 			return contacts;
