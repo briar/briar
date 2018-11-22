@@ -38,11 +38,11 @@ public class PendingRequestsViewHolder extends ViewHolder {
 		long diff = item.getAddAt() - System.currentTimeMillis();
 		Log.e("TEST", "diff: " + diff);
 		if (diff < SECONDS.toMillis(10)) {
-			status.setText("Adding contact…");
+			status.setText(R.string.adding_contact);
 		} else if (diff < SECONDS.toMillis(20)) {
-			status.setText("Connecting…");
+			status.setText(R.string.connecting);
 		} else if (diff < SECONDS.toMillis(30)) {
-			status.setText("Waiting for peer to come online…");
+			status.setText(R.string.waiting_for_contact_to_come_online);
 		}
 	}
 

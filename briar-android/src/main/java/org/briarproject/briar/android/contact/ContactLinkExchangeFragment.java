@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v4.app.ShareCompat.IntentBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,8 +25,6 @@ import java.util.regex.Matcher;
 import javax.annotation.Nullable;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
-import static android.content.Intent.ACTION_SEND;
-import static android.content.Intent.EXTRA_TEXT;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.graphics.drawable.DrawableCompat.setTint;
 import static android.support.v4.graphics.drawable.DrawableCompat.wrap;
@@ -34,7 +33,6 @@ import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.contact.ContactLinkExchangeActivity.LINK_REGEX;
 import static org.briarproject.briar.android.contact.ContactLinkExchangeActivity.OUR_LINK;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
-import static org.briarproject.briar.android.util.UiUtils.setError;
 
 public class ContactLinkExchangeFragment extends BaseFragment {
 
@@ -87,8 +85,7 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 		contactNameLayout = v.findViewById(R.id.contactNameLayout);
 		contactNameInput = v.findViewById(R.id.contactNameInput);
 		if (SDK_INT < 23) {
-			Drawable drawable =
-					wrap(contactNameInput.getCompoundDrawables()[0]);
+			Drawable drawable = wrap(contactNameInput.getCompoundDrawables()[0]);
 			setTint(drawable, color);
 			contactNameInput.setCompoundDrawables(drawable, null, null, null);
 		}
@@ -131,10 +128,10 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 
 		Button shareButton = v.findViewById(R.id.shareButton);
 		shareButton.setOnClickListener(view -> {
-			Intent i = new Intent(ACTION_SEND);
-			i.putExtra(EXTRA_TEXT, OUR_LINK);
-			i.setType("text/plain");
-			startActivity(i);
+			IntentBuilder.from(getActivity())
+					.setText(OUR_LINK)
+					.setType("text/plain")
+					.startChooser();
 		});
 
 		Button showCodeButton = v.findViewById(R.id.showCodeButton);
@@ -154,22 +151,24 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 	private boolean isInputError() {
 		boolean briarLink = isBriarLink(linkInput.getText());
 		if (!briarLink) {
-			linkInputLayout.setError("Invalid link");
+			linkInputLayout.setError(getString(R.string.invalid_link));
+			linkInput.requestFocus();
 			return true;
 		} else linkInputLayout.setError(null);
 		String link = getLink();
 		boolean isOurLink = link != null && OUR_LINK.equals("briar://" + link);
 		if (isOurLink) {
-			linkInputLayout.setError("Add your peer's link, not your own.");
+			linkInputLayout.setError(getString(R.string.own_link_error));
+			linkInput.requestFocus();
 			return true;
 		} else linkInputLayout.setError(null);
 		boolean validContactName = contactNameInput.getText() != null &&
 				contactNameInput.getText().length() > 0;
 		if (!validContactName) {
-			contactNameLayout.setError("Nickname is missing");
+			contactNameLayout.setError(getString(R.string.nickname_missing));
+			contactNameInput.requestFocus();
 			return true;
 		} else contactNameLayout.setError(null);
-		setError(linkInputLayout, null, false);
 		return false;
 	}
 

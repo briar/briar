@@ -46,7 +46,7 @@
 		android:layout_marginEnd="16dp"
 		android:layout_marginRight="16dp"
 		android:layout_marginTop="8dp"
-		android:text="Waiting for peer to come online…"
+		android:text="@string/waiting_for_contact_to_come_online"
 		app:layout_constrainedWidth="true"
 		app:layout_constraintBottom_toTopOf="@+id/divider"
 		app:layout_constraintEnd_toStartOf="@+id/time"

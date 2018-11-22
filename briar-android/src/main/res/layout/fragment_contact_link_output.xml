@@ -11,7 +11,7 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_margin="@dimen/margin_large"
-		android:text="@string/send_link_instructions"
+		android:text="@string/your_link"
 		android:textIsSelectable="true"
 		android:textSize="18sp"
 		app:layout_constraintBottom_toTopOf="@id/linkView"
