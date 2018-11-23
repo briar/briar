@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.login;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -15,6 +15,8 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -27,6 +29,8 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ChangePasswordActivity extends BriarActivity
 		implements OnClickListener, OnEditorActionListener {
 
@@ -44,7 +48,7 @@ public class ChangePasswordActivity extends BriarActivity
 	private ProgressBar progress;
 
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_change_password);
 
@@ -127,7 +131,7 @@ public class ChangePasswordActivity extends BriarActivity
 				newPassword.getText().toString(),
 				new UiResultHandler<Boolean>(this) {
 					@Override
-					public void onResultUi(@NonNull Boolean result) {
+					public void onResultUi(Boolean result) {
 						if (result) {
 							Toast.makeText(ChangePasswordActivity.this,
 									R.string.password_changed,

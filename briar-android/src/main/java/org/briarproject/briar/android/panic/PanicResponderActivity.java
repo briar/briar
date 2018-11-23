@@ -3,9 +3,12 @@ package org.briarproject.briar.android.panic;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -24,6 +27,8 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
@@ -35,7 +40,7 @@ public class PanicResponderActivity extends BriarActivity {
 	protected AndroidExecutor androidExecutor;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		TrustedIntents trustedIntents = TrustedIntents.get(this);

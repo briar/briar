@@ -52,6 +52,7 @@ class ReceiverInputStream extends InputStream {
 		return len;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean receive() throws IOException {
 		if (length != 0) throw new AssertionError();
 		if (data != null && data.isLastFrame()) {

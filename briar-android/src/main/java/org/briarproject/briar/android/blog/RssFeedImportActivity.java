@@ -5,14 +5,14 @@ import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -33,6 +33,8 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class RssFeedImportActivity extends BriarActivity {
 
 	private static final Logger LOG =
@@ -47,11 +49,10 @@ public class RssFeedImportActivity extends BriarActivity {
 	Executor ioExecutor;
 
 	@Inject
-	@SuppressWarnings("WeakerAccess")
 	volatile FeedManager feedManager;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_rss_feed_import);
@@ -78,16 +79,6 @@ public class RssFeedImportActivity extends BriarActivity {
 		importButton.setOnClickListener(v -> publish());
 
 		progressBar = findViewById(R.id.progressBar);
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

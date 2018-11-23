@@ -16,6 +16,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @ThreadSafe
 @NotNullByDefault
@@ -96,7 +97,7 @@ class Sender {
 			}
 			// If any older data frames are outstanding, retransmit the oldest
 			if (foundIndex > 0) {
-				fastRetransmit = outstanding.poll();
+				fastRetransmit = requireNonNull(outstanding.poll());
 				fastRetransmit.lastTransmitted = now;
 				fastRetransmit.retransmitted = true;
 				outstanding.add(fastRetransmit);
@@ -191,7 +192,7 @@ class Sender {
 		writeHandler.handleWrite(d.getBuffer());
 	}
 
-	void flush() throws IOException, InterruptedException {
+	void flush() throws InterruptedException {
 		windowLock.lock();
 		try {
 			while (dataWaiting || !outstanding.isEmpty())

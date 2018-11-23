@@ -59,6 +59,7 @@ public class SharingControllerImpl implements SharingController, EventListener {
 	}
 
 	private void setConnected(ContactId c) {
+		SharingListener listener = this.listener;
 		if (listener == null) return;
 		listener.runOnUiThreadUnlessDestroyed(() -> {
 			if (contacts.contains(c)) {

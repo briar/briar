@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.threaded;
 
-import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.VersionedAdapter;
@@ -19,6 +19,7 @@ import javax.annotation.Nullable;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 
 @UiThread
+@NotNullByDefault
 public class ThreadItemAdapter<I extends ThreadItem>
 		extends RecyclerView.Adapter<BaseThreadItemViewHolder<I>>
 		implements VersionedAdapter {
@@ -37,18 +38,16 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		this.layoutManager = layoutManager;
 	}
 
-	@NonNull
 	@Override
-	public BaseThreadItemViewHolder<I> onCreateViewHolder(@NonNull
-			ViewGroup parent, int viewType) {
+	public BaseThreadItemViewHolder<I> onCreateViewHolder(ViewGroup parent,
+			int viewType) {
 		View v = LayoutInflater.from(parent.getContext())
 				.inflate(R.layout.list_item_thread, parent, false);
 		return new ThreadPostViewHolder<>(v);
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull BaseThreadItemViewHolder<I> ui,
-			int position) {
+	public void onBindViewHolder(BaseThreadItemViewHolder<I> ui, int position) {
 		I item = items.get(position);
 		ui.bind(item, listener);
 	}
@@ -118,7 +117,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	void setHighlightedItem(@Nullable MessageId id) {
 		for (int i = 0; i < items.size(); i++) {
 			I item = items.get(i);
-			if (id != null && item.getId().equals(id)) {
+			if (item.getId().equals(id)) {
 				item.setHighlighted(true);
 				notifyItemChanged(i, item);
 			} else if (item.isHighlighted()) {

@@ -27,6 +27,7 @@ import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_CANCEL
 import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.hasKeyguardLock;
@@ -77,7 +78,7 @@ public class UnlockActivity extends BaseActivity {
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode,
-			Intent data) {
+			@Nullable Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (requestCode == REQUEST_KEYGUARD_UNLOCK) {
 			if (resultCode == RESULT_OK) unlock();
@@ -169,9 +170,8 @@ public class UnlockActivity extends BaseActivity {
 	}
 
 	private void requestKeyguardUnlock() {
-		KeyguardManager keyguardManager =
-				(KeyguardManager) getSystemService(KEYGUARD_SERVICE);
-		if (keyguardManager == null) throw new AssertionError();
+		KeyguardManager keyguardManager = (KeyguardManager)
+				requireNonNull(getSystemService(KEYGUARD_SERVICE));
 		Intent intent = keyguardManager.createConfirmDeviceCredentialIntent(
 				SDK_INT < 23 ? getString(R.string.lock_unlock_verbose) :
 						getString(R.string.lock_unlock), null);

@@ -101,6 +101,7 @@ class Receiver implements ReadHandler {
 		}
 	}
 
+	@SuppressWarnings("StatementWithEmptyBody")
 	private void handleData(byte[] b) throws IOException {
 		windowLock.lock();
 		try {
@@ -124,6 +125,7 @@ class Receiver implements ReadHandler {
 				finalSequenceNumber = sequenceNumber;
 				// Remove any data frames with higher sequence numbers
 				Iterator<Data> it = dataFrames.iterator();
+				//noinspection Java8CollectionRemoveIf
 				while (it.hasNext()) {
 					Data d1 = it.next();
 					if (d1.getSequenceNumber() >= finalSequenceNumber)
@@ -148,6 +150,7 @@ class Receiver implements ReadHandler {
 
 	private static class SequenceNumberComparator implements Comparator<Data> {
 
+		@SuppressWarnings("UseCompareMethod")
 		@Override
 		public int compare(Data d1, Data d2) {
 			long s1 = d1.getSequenceNumber(), s2 = d2.getSequenceNumber();

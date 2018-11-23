@@ -45,7 +45,7 @@ class SocksSocketFactory extends SocketFactory {
 
 	@Override
 	public Socket createSocket(InetAddress address, int port,
-			InetAddress localAddress, int localPort) throws IOException {
+			InetAddress localAddress, int localPort) {
 		throw new UnsupportedOperationException();
 	}
 }

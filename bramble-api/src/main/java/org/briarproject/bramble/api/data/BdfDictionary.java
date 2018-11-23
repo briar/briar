@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
 
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import javax.annotation.Nullable;
@@ -24,9 +23,9 @@ public class BdfDictionary extends TreeMap<String, Object> {
 	 * );
 	 * </pre>
 	 */
-	public static BdfDictionary of(Entry<String, ?>... entries) {
+	public static BdfDictionary of(BdfEntry... entries) {
 		BdfDictionary d = new BdfDictionary();
-		for (Entry<String, ?> e : entries) d.put(e.getKey(), e.getValue());
+		for (BdfEntry e : entries) d.put(e.getKey(), e.getValue());
 		return d;
 	}
 

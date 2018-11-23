@@ -1,11 +1,12 @@
 package org.briarproject.briar.android.reporting;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.android.AndroidComponent;
@@ -17,6 +18,8 @@ import javax.inject.Inject;
 
 import static org.acra.ReportField.REPORT_ID;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class BriarReportSender implements ReportSender {
 
 	private final AndroidComponent component;
@@ -29,8 +32,7 @@ public class BriarReportSender implements ReportSender {
 	}
 
 	@Override
-	public void send(@NonNull Context ctx,
-			@NonNull CrashReportData errorContent)
+	public void send(Context ctx, CrashReportData errorContent)
 			throws ReportSenderException {
 		component.inject(this);
 		String crashReport = errorContent.toJSON().toString();

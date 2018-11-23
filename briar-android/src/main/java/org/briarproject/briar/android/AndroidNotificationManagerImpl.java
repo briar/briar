@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.NotificationCompat;
@@ -21,8 +22,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -82,8 +82,7 @@ import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
 @ThreadSafe
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		Service, EventListener {
 
@@ -103,12 +102,12 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final Multiset<GroupId> blogCounts = new Multiset<>();
 	private int introductionTotal = 0;
 	private int nextRequestId = 0;
+	@Nullable
 	private ContactId blockedContact = null;
+	@Nullable
 	private GroupId blockedGroup = null;
 	private boolean blockSignInReminder = false;
-	private boolean blockContacts = false, blockGroups = false;
-	private boolean blockForums = false, blockBlogs = false;
-	private boolean blockIntroductions = false;
+	private boolean blockBlogs = false;
 	private long lastSound = 0;
 
 	private volatile Settings settings = new Settings();
@@ -283,7 +282,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private void showContactNotification(ContactId c) {
 		androidExecutor.runOnUiThread(() -> {
-			if (blockContacts) return;
 			if (c.equals(blockedContact)) return;
 			contactCounts.add(c);
 			updateContactNotification(true);
@@ -385,7 +383,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@UiThread
 	private void showGroupMessageNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
-			if (blockGroups) return;
 			if (g.equals(blockedGroup)) return;
 			groupCounts.add(g);
 			updateGroupMessageNotification(true);
@@ -456,7 +453,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@UiThread
 	private void showForumPostNotification(GroupId g) {
 		androidExecutor.runOnUiThread(() -> {
-			if (blockForums) return;
 			if (g.equals(blockedGroup)) return;
 			forumCounts.add(g);
 			updateForumPostNotification(true);
@@ -580,7 +576,6 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	private void showIntroductionNotification() {
 		androidExecutor.runOnUiThread(() -> {
-			if (blockIntroductions) return;
 			introductionTotal++;
 			updateIntroductionNotification();
 		});

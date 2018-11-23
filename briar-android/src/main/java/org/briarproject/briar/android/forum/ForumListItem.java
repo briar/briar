@@ -4,7 +4,9 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 
-// This class is NOT thread-safe
+import javax.annotation.concurrent.NotThreadSafe;
+
+@NotThreadSafe
 class ForumListItem {
 
 	private final Forum forum;

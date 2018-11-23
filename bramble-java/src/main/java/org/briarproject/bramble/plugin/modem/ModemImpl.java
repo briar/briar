@@ -22,6 +22,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
@@ -63,9 +64,12 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 	private final Condition connectedStateChanged = lock.newCondition();
 	private final Condition initialisedStateChanged = lock.newCondition();
 
-	// The following are locking: lock
+	@GuardedBy("lock")
 	private ReliabilityLayer reliability = null;
-	private boolean initialised = false, connected = false;
+	@GuardedBy("lock")
+	private boolean initialised = false;
+	@GuardedBy("lock")
+	private boolean connected = false;
 
 	private int lineLen = 0;
 

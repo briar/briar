@@ -1,5 +1,7 @@
 package org.briarproject.bramble.test;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -7,13 +9,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nonnull;
-
 import static java.util.Collections.sort;
 import static org.briarproject.bramble.test.UTest.Result.INCONCLUSIVE;
 import static org.briarproject.bramble.test.UTest.Result.LARGER;
 import static org.briarproject.bramble.test.UTest.Result.SMALLER;
 
+@NotNullByDefault
 public class UTest {
 
 	public enum Result {
@@ -158,8 +159,7 @@ public class UTest {
 	private static List<Double> readFile(String filename) {
 		List<Double> values = new ArrayList<>();
 		try {
-			BufferedReader in;
-			in = new BufferedReader(new FileReader(filename));
+			BufferedReader in = new BufferedReader(new FileReader(filename));
 			String s;
 			while ((s = in.readLine()) != null) values.add(new Double(s));
 			in.close();
@@ -185,8 +185,9 @@ public class UTest {
 			this.a = a;
 		}
 
+		@SuppressWarnings("UseCompareMethod")
 		@Override
-		public int compareTo(@Nonnull Value v) {
+		public int compareTo(Value v) {
 			if (value < v.value) return -1;
 			if (value > v.value) return 1;
 			return 0;

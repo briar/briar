@@ -23,7 +23,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 			new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 
 	@Test
-	public void testAgreementPublicKeyLength() throws Exception {
+	public void testAgreementPublicKeyLength() {
 		// Generate 10 agreement key pairs
 		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateAgreementKeyPair();
@@ -70,7 +70,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testAgreementKeyParserByFuzzing() throws Exception {
+	public void testAgreementKeyParserByFuzzing() {
 		KeyParser parser = crypto.getAgreementKeyParser();
 		// Generate a key pair to get the proper public key length
 		KeyPair p = crypto.generateAgreementKeyPair();
@@ -92,7 +92,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testSignaturePublicKeyLength() throws Exception {
+	public void testSignaturePublicKeyLength() {
 		// Generate 10 signature key pairs
 		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
@@ -159,7 +159,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testSignatureKeyParserByFuzzing() throws Exception {
+	public void testSignatureKeyParserByFuzzing() {
 		KeyParser parser = crypto.getSignatureKeyParser();
 		// Generate a key pair to get the proper public key length
 		KeyPair p = crypto.generateSignatureKeyPair();

@@ -25,7 +25,6 @@ public class ShareForumMessageFragment extends BaseMessageFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		setTitle(R.string.forum_share_button);
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}

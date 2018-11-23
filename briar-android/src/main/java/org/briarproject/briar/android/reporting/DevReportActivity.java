@@ -74,8 +74,9 @@ public class DevReportActivity extends BaseCrashReportDialog
 		requiredFields.add(STACK_TRACE);
 	}
 
+	private final Set<ReportField> excludedFields = new HashSet<>();
+
 	private AppCompatDelegate delegate;
-	private Set<ReportField> excludedFields = new HashSet<>();
 	private EditText userCommentView = null;
 	private EditText userEmailView = null;
 	private CheckBox includeDebugReport = null;

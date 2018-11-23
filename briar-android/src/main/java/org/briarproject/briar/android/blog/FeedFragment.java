@@ -96,7 +96,8 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode,
+			@Nullable Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		// The BlogPostAddedEvent arrives when the controller is not listening

@@ -3,6 +3,7 @@ package org.briarproject.briar.android.blog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -11,6 +12,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -30,6 +33,8 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class RssFeedManageActivity extends BriarActivity
 		implements RssFeedListener {
 
@@ -40,11 +45,10 @@ public class RssFeedManageActivity extends BriarActivity
 	private RssFeedAdapter adapter;
 
 	@Inject
-	@SuppressWarnings("WeakerAccess")
 	volatile FeedManager feedManager;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.activity_rss_feed_manage);

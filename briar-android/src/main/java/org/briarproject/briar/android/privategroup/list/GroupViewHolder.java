@@ -8,8 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
@@ -22,8 +21,7 @@ import static org.briarproject.briar.android.activity.BriarActivity.GROUP_NAME;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 class GroupViewHolder extends RecyclerView.ViewHolder {
 
 	private final static float ALPHA = 0.42f;

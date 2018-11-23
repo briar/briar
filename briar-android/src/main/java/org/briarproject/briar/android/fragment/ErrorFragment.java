@@ -11,6 +11,8 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
+import static java.util.Objects.requireNonNull;
+
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -38,9 +40,7 @@ public class ErrorFragment extends BaseFragment {
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
-		Bundle args = getArguments();
-		if (args == null) throw new AssertionError();
+		Bundle args = requireNonNull(getArguments());
 		errorMessage = args.getString(ERROR_MSG);
 	}
 
@@ -49,8 +49,7 @@ public class ErrorFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		View v = inflater
-				.inflate(R.layout.fragment_error, container, false);
+		View v = inflater.inflate(R.layout.fragment_error, container, false);
 		TextView msg = v.findViewById(R.id.errorMessage);
 		msg.setText(errorMessage);
 		return v;

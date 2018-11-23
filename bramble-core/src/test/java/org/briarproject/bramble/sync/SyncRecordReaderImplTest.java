@@ -165,7 +165,7 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 		return new Record(PROTOCOL_VERSION, ACK, createPayload());
 	}
 
-	private Record createEmptyAck() throws Exception {
+	private Record createEmptyAck() {
 		return new Record(PROTOCOL_VERSION, ACK, new byte[0]);
 	}
 
@@ -173,7 +173,7 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 		return new Record(PROTOCOL_VERSION, OFFER, createPayload());
 	}
 
-	private Record createEmptyOffer() throws Exception {
+	private Record createEmptyOffer() {
 		return new Record(PROTOCOL_VERSION, OFFER, new byte[0]);
 	}
 
@@ -181,7 +181,7 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 		return new Record(PROTOCOL_VERSION, REQUEST, createPayload());
 	}
 
-	private Record createEmptyRequest() throws Exception {
+	private Record createEmptyRequest() {
 		return new Record(PROTOCOL_VERSION, REQUEST, new byte[0]);
 	}
 

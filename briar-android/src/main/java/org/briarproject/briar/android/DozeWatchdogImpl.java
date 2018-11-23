@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.os.PowerManager;
 
 import org.briarproject.bramble.api.lifecycle.Service;
-import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.briar.api.android.DozeWatchdog;
 
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,6 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import static android.content.Context.POWER_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
+import static java.util.Objects.requireNonNull;
 
 class DozeWatchdogImpl implements DozeWatchdog, Service {
 
@@ -32,14 +32,14 @@ class DozeWatchdogImpl implements DozeWatchdog, Service {
 	}
 
 	@Override
-	public void startService() throws ServiceException {
+	public void startService() {
 		if (SDK_INT < 23) return;
 		IntentFilter filter = new IntentFilter(ACTION_DEVICE_IDLE_MODE_CHANGED);
 		appContext.registerReceiver(receiver, filter);
 	}
 
 	@Override
-	public void stopService() throws ServiceException {
+	public void stopService() {
 		if (SDK_INT < 23) return;
 		appContext.unregisterReceiver(receiver);
 	}
@@ -49,8 +49,8 @@ class DozeWatchdogImpl implements DozeWatchdog, Service {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (SDK_INT < 23) return;
-			PowerManager pm =
-					(PowerManager) appContext.getSystemService(POWER_SERVICE);
+			PowerManager pm = (PowerManager)
+					requireNonNull(appContext.getSystemService(POWER_SERVICE));
 			if (pm.isDeviceIdleMode()) dozed.set(true);
 		}
 	}

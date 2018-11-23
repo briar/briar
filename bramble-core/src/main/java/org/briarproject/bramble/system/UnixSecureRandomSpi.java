@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 public class UnixSecureRandomSpi extends SecureRandomSpi {
@@ -34,15 +35,16 @@ public class UnixSecureRandomSpi extends SecureRandomSpi {
 
 	@Override
 	protected void engineSetSeed(byte[] seed) {
+		DataOutputStream out = null;
 		try {
-			DataOutputStream out = new DataOutputStream(
-					new FileOutputStream(outputDevice));
+			out = new DataOutputStream(new FileOutputStream(outputDevice));
 			out.write(seed);
 			out.flush();
-			out.close();
 		} catch (IOException e) {
 			// On some devices /dev/urandom isn't writable - this isn't fatal
 			logException(LOG, WARNING, e);
+		} finally {
+			tryToClose(out, LOG, WARNING);
 		}
 	}
 

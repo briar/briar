@@ -6,8 +6,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -27,8 +26,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 class AccountManagerImpl implements AccountManager {
 
 	private static final Logger LOG =
@@ -104,7 +102,7 @@ class AccountManagerImpl implements AccountManager {
 	}
 
 	// Locking: stateChangeLock
-	protected boolean storeEncryptedDatabaseKey(String hex) {
+	boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
 		// Create the directory if necessary
 		if (databaseConfig.getDatabaseKeyDirectory().mkdirs())

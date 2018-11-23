@@ -16,8 +16,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.IOException;
 import java.util.List;
@@ -43,8 +42,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @SuppressWarnings("deprecation")
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		AutoFocusCallback, View.OnClickListener {
 
@@ -61,7 +59,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	@Nullable
 	private Camera camera = null;
 	private int cameraIndex = 0;
+	@Nullable
 	private PreviewConsumer previewConsumer = null;
+	@Nullable
 	private Surface surface = null;
 	private int displayOrientation = 0, surfaceWidth = 0, surfaceHeight = 0;
 	private boolean previewStarted = false;
@@ -126,6 +126,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		} catch (RuntimeException e) {
 			throw new CameraException(e);
 		}
+		requireNonNull(camera);
 		setDisplayOrientation(getScreenRotationDegrees());
 		// Use barcode scene mode if it's available
 		Parameters params = requireNonNull(camera).getParameters();
@@ -214,7 +215,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private void startConsumer() throws CameraException {
 		if (camera == null) throw new CameraException("Camera is null");
 		startAutoFocus();
-		previewConsumer.start(camera, cameraIndex);
+		requireNonNull(previewConsumer).start(camera, cameraIndex);
 	}
 
 	@UiThread
@@ -234,7 +235,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	private void stopConsumer() throws CameraException {
 		if (camera == null) throw new CameraException("Camera is null");
 		cancelAutoFocus();
-		previewConsumer.stop();
+		requireNonNull(previewConsumer).stop();
 	}
 
 	@UiThread

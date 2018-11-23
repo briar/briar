@@ -44,6 +44,7 @@ public class DevReportServer {
 		TokenBucket bucket = new TokenBucket();
 		bucket.start();
 		try {
+			//noinspection InfiniteLoopStatement
 			while (true) {
 				Socket s = ss.accept();
 				System.out.println("Incoming connection");
@@ -103,6 +104,7 @@ public class DevReportServer {
 		@Override
 		public void run() {
 			try {
+				//noinspection InfiniteLoopStatement
 				while (true) {
 					// If the bucket isn't full, add a token
 					if (semaphore.availablePermits() < MAX_TOKENS) {
@@ -134,6 +136,8 @@ public class DevReportServer {
 			try {
 				socket.setSoTimeout(SOCKET_TIMEOUT_MS);
 				in = getInputStream(socket);
+				// Directory may already exist
+				//noinspection ResultOfMethodCallIgnored
 				reportDir.mkdirs();
 				reportFile = createTempFile(FILE_PREFIX, FILE_SUFFIX,
 						reportDir);
@@ -153,7 +157,8 @@ public class DevReportServer {
 				System.out.println("Saved " + length + " bytes");
 			} catch (IOException e) {
 				e.printStackTrace();
-				if (reportFile != null) reportFile.delete();
+				if (reportFile != null && !reportFile.delete())
+					System.err.println("Failed to delete report");
 			} finally {
 				tryToClose(in);
 				tryToClose(out);

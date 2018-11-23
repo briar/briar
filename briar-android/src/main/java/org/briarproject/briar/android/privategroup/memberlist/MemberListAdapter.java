@@ -1,16 +1,17 @@
 package org.briarproject.briar.android.privategroup.memberlist;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
+@NotNullByDefault
 class MemberListAdapter extends
 		BriarAdapter<MemberListItem, MemberListItemHolder> {
 
@@ -18,18 +19,15 @@ class MemberListAdapter extends
 		super(context, MemberListItem.class);
 	}
 
-	@NonNull
 	@Override
-	public MemberListItemHolder onCreateViewHolder(@NonNull ViewGroup viewGroup,
-			int i) {
+	public MemberListItemHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
 		View v = LayoutInflater.from(ctx).inflate(
 				R.layout.list_item_group_member, viewGroup, false);
 		return new MemberListItemHolder(v);
 	}
 
 	@Override
-	public void onBindViewHolder(@NonNull MemberListItemHolder ui,
-			int position) {
+	public void onBindViewHolder(MemberListItemHolder ui, int position) {
 		ui.bind(items.get(position));
 	}
 
@@ -44,10 +42,9 @@ class MemberListAdapter extends
 
 	@Override
 	public boolean areContentsTheSame(MemberListItem m1, MemberListItem m2) {
-		if (m1.isOnline() != m2.isOnline()) return false;
-		if (m1.getContactId() != m2.getContactId()) return false;
-		if (m1.getStatus() != m2.getStatus()) return false;
-		return true;
+		return m1.isOnline() == m2.isOnline() &&
+				m1.getContactId() == m2.getContactId() &&
+				m1.getStatus() == m2.getStatus();
 	}
 
 	@Override

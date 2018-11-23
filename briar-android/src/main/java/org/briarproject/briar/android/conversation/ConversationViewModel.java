@@ -58,7 +58,7 @@ import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 @NotNullByDefault
 public class ConversationViewModel extends AndroidViewModel {
 
-	private static Logger LOG =
+	private static final Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
 	private static final String SHOW_ONBOARDING_IMAGE =
 			"showOnboardingImage";

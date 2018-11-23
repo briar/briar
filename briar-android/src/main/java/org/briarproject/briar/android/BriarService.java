@@ -44,6 +44,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -57,11 +58,11 @@ import static org.briarproject.briar.api.android.LockManager.ACTION_LOCK;
 
 public class BriarService extends Service {
 
-	public static String EXTRA_START_RESULT =
+	public static final String EXTRA_START_RESULT =
 			"org.briarproject.briar.START_RESULT";
-	public static String EXTRA_NOTIFICATION_ID =
+	public static final String EXTRA_NOTIFICATION_ID =
 			"org.briarproject.briar.FAILURE_NOTIFICATION_ID";
-	public static String EXTRA_STARTUP_FAILED =
+	public static final String EXTRA_STARTUP_FAILED =
 			"org.briarproject.briar.STARTUP_FAILED";
 
 	private static final Logger LOG = getLogger(BriarService.class.getName());
@@ -110,7 +111,7 @@ public class BriarService extends Service {
 		// Create notification channels
 		if (SDK_INT >= 26) {
 			NotificationManager nm = (NotificationManager)
-					getSystemService(NOTIFICATION_SERVICE);
+					requireNonNull(getSystemService(NOTIFICATION_SERVICE));
 			NotificationChannel ongoingChannel = new NotificationChannel(
 					ONGOING_CHANNEL_ID,
 					getString(R.string.ongoing_notification_title),
@@ -178,8 +179,8 @@ public class BriarService extends Service {
 			i.putExtra(EXTRA_NOTIFICATION_ID, FAILURE_NOTIFICATION_ID);
 			b.setContentIntent(PendingIntent.getActivity(BriarService.this,
 					0, i, FLAG_UPDATE_CURRENT));
-			Object o = getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
+			NotificationManager nm = (NotificationManager)
+					requireNonNull(getSystemService(NOTIFICATION_SERVICE));
 			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
 			// Bring the dashboard to the front to clear the back stack
 			i = new Intent(BriarService.this, NavDrawerActivity.class);

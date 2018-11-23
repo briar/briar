@@ -23,7 +23,6 @@ import org.robolectric.annotation.Config;
 
 import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -103,18 +102,18 @@ public class ForumActivityTest {
 		ThreadItemAdapter<ForumItem> adapter = forumActivity.getAdapter();
 		assertNotNull(adapter);
 		assertEquals(6, adapter.getItemCount());
-		assertTrue(dummyData.get(0).getText()
-				.equals(adapter.getItemAt(0).getText()));
-		assertTrue(dummyData.get(1).getText()
-				.equals(adapter.getItemAt(1).getText()));
-		assertTrue(dummyData.get(2).getText()
-				.equals(adapter.getItemAt(2).getText()));
-		assertTrue(dummyData.get(3).getText()
-				.equals(adapter.getItemAt(3).getText()));
-		assertTrue(dummyData.get(4).getText()
-				.equals(adapter.getItemAt(4).getText()));
-		assertTrue(dummyData.get(5).getText()
-				.equals(adapter.getItemAt(5).getText()));
+		assertEquals(dummyData.get(0).getText(),
+				adapter.getItemAt(0).getText());
+		assertEquals(dummyData.get(1).getText(),
+				adapter.getItemAt(1).getText());
+		assertEquals(dummyData.get(2).getText(),
+				adapter.getItemAt(2).getText());
+		assertEquals(dummyData.get(3).getText(),
+				adapter.getItemAt(3).getText());
+		assertEquals(dummyData.get(4).getText(),
+				adapter.getItemAt(4).getText());
+		assertEquals(dummyData.get(5).getText(),
+				adapter.getItemAt(5).getText());
 	}
 
 }

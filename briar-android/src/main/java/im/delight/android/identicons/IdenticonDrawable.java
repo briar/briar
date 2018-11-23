@@ -20,19 +20,22 @@ import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import static android.graphics.PixelFormat.OPAQUE;
 
 @UiThread
+@NotNullByDefault
 public class IdenticonDrawable extends Drawable {
 
 	private static final int HEIGHT = 200, WIDTH = 200;
 
 	private final Identicon identicon;
 
-	public IdenticonDrawable(@NonNull byte[] input) {
+	public IdenticonDrawable(byte[] input) {
 		super();
 		identicon = new Identicon(input);
 	}
@@ -48,7 +51,7 @@ public class IdenticonDrawable extends Drawable {
 	}
 
 	@Override
-	public void setBounds(@NonNull Rect bounds) {
+	public void setBounds(Rect bounds) {
 		super.setBounds(bounds);
 		identicon.updateSize(bounds.right - bounds.left,
 				bounds.bottom - bounds.top);
@@ -61,7 +64,7 @@ public class IdenticonDrawable extends Drawable {
 	}
 
 	@Override
-	public void draw(@NonNull Canvas canvas) {
+	public void draw(Canvas canvas) {
 		identicon.draw(canvas);
 	}
 
@@ -71,7 +74,7 @@ public class IdenticonDrawable extends Drawable {
 	}
 
 	@Override
-	public void setColorFilter(ColorFilter cf) {
+	public void setColorFilter(@Nullable ColorFilter cf) {
 
 	}
 

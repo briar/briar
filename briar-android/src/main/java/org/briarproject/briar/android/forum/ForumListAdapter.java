@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
@@ -21,6 +22,7 @@ import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_NAME;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
+@NotNullByDefault
 class ForumListAdapter
 		extends BriarAdapter<ForumListItem, ForumListAdapter.ForumViewHolder> {
 

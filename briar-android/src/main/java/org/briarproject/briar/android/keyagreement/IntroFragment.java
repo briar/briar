@@ -54,7 +54,6 @@ public class IntroFragment extends BaseFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		View v = inflater.inflate(R.layout.fragment_keyagreement_id, container,
 				false);
 		scrollView = v.findViewById(R.id.scrollView);

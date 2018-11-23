@@ -76,7 +76,8 @@ public class DozeFragment extends SetupFragment
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_DOZE_WHITELISTING) {
 			if (!dozeView.needsToBeShown() || secondAttempt) {

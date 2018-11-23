@@ -25,6 +25,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	private final List<T> roots = new ArrayList<>();
 	private final List<List<T>> unsortedLists = new ArrayList<>();
 
+	@SuppressWarnings("UseCompareMethod")
 	private Comparator<T> comparator = (o1, o2) ->
 			Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
 
@@ -71,6 +72,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 
 	private void sortUnsorted() {
 		for (List<T> list : unsortedLists) {
+			//noinspection Java8ListSort
 			sort(list, comparator);
 		}
 		unsortedLists.clear();
@@ -85,6 +87,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 		}
 	}
 
+	@SuppressWarnings("Java8ListSort")
 	@Override
 	public synchronized void setComparator(Comparator<T> comparator) {
 		this.comparator = comparator;

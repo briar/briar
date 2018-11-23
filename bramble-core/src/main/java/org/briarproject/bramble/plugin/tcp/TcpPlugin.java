@@ -85,6 +85,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	/**
 	 * Returns true if connections to the given address can be attempted.
 	 */
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
 	TcpPlugin(Executor ioExecutor, Backoff backoff,

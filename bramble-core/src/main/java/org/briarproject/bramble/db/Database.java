@@ -242,7 +242,7 @@ interface Database<T> {
 	 * bytes. This is based on the minimum of the space available on the device
 	 * where the database is stored and the database's configured size.
 	 */
-	long getFreeSpace() throws DbException;
+	long getFreeSpace();
 
 	/**
 	 * Returns the group with the given ID.

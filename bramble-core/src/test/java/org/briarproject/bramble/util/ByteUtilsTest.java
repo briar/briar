@@ -33,11 +33,13 @@ public class ByteUtilsTest extends BrambleTestCase {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadUint16ValidatesArguments1() {
+		//noinspection ResultOfMethodCallIgnored
 		readUint16(new byte[1], 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadUint16ValidatesArguments2() {
+		//noinspection ResultOfMethodCallIgnored
 		readUint16(new byte[2], 1);
 	}
 
@@ -55,11 +57,13 @@ public class ByteUtilsTest extends BrambleTestCase {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadUint32ValidatesArguments1() {
+		//noinspection ResultOfMethodCallIgnored
 		readUint32(new byte[3], 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadUint32ValidatesArguments2() {
+		//noinspection ResultOfMethodCallIgnored
 		readUint32(new byte[4], 1);
 	}
 
@@ -79,11 +83,13 @@ public class ByteUtilsTest extends BrambleTestCase {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadUint64ValidatesArguments1() {
+		//noinspection ResultOfMethodCallIgnored
 		readUint64(new byte[7], 0);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testReadUint64ValidatesArguments2() {
+		//noinspection ResultOfMethodCallIgnored
 		readUint64(new byte[8], 1);
 	}
 

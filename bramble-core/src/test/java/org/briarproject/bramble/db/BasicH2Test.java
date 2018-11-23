@@ -40,8 +40,7 @@ public class BasicH2Test extends BasicDatabaseTest {
 	}
 
 	@Override
-	protected void shutdownDatabase(File db, boolean encrypt)
-			throws SQLException {
+	protected void shutdownDatabase(File db, boolean encrypt) {
 		// The DB is closed automatically when the connection is closed
 	}
 }

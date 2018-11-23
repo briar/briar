@@ -54,9 +54,8 @@ abstract class BasePostFragment extends BaseFragment {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		// retrieve MessageId of blog post from arguments
-		byte[] p = requireNonNull(getArguments()).getByteArray(POST_ID);
-		if (p == null) throw new IllegalStateException("No post ID in args");
-		postId = new MessageId(p);
+		Bundle args = requireNonNull(getArguments());
+		postId = new MessageId(requireNonNull(args.getByteArray(POST_ID)));
 
 		View view = inflater.inflate(R.layout.fragment_blog_post, container,
 				false);

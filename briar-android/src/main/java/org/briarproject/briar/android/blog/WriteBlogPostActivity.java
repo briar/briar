@@ -36,6 +36,7 @@ import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -70,9 +71,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		super.onCreate(state);
 
 		Intent i = getIntent();
-		byte[] b = i.getByteArrayExtra(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No Group in intent.");
-		groupId = new GroupId(b);
+		groupId = new GroupId(requireNonNull(i.getByteArrayExtra(GROUP_ID)));
 
 		setContentView(R.layout.activity_write_blog_post);
 

@@ -3,9 +3,11 @@ package org.briarproject.briar.android.privategroup.invitation;
 import android.content.Context;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.sharing.InvitationAdapter;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationItem;
 
+@NotNullByDefault
 class GroupInvitationAdapter extends
 		InvitationAdapter<GroupInvitationItem, GroupInvitationViewHolder> {
 

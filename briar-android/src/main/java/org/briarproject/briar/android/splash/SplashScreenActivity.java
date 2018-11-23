@@ -3,10 +3,13 @@ package org.briarproject.briar.android.splash;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.preference.PreferenceManager;
 import android.transition.Fade;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -24,6 +27,8 @@ import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class SplashScreenActivity extends BaseActivity {
 
 	private static final Logger LOG =
@@ -37,7 +42,7 @@ public class SplashScreenActivity extends BaseActivity {
 	protected AndroidExecutor androidExecutor;
 
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		if (SDK_INT >= 21) {

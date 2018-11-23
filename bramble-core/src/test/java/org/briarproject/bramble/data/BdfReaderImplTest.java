@@ -557,10 +557,10 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test
 	public void testNestedListWithinDepthLimit() throws Exception {
 		// A list containing a list containing a list containing a list...
-		String lists = "";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists += "60";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists += "80";
-		setContents(lists);
+		StringBuilder lists = new StringBuilder();
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists.append("60");
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++) lists.append("80");
+		setContents(lists.toString());
 		r.readList();
 		assertTrue(r.eof());
 	}
@@ -568,23 +568,23 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test(expected = FormatException.class)
 	public void testNestedListOutsideDepthLimit() throws Exception {
 		// A list containing a list containing a list containing a list...
-		String lists = "";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists += "60";
-		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists += "80";
-		setContents(lists);
+		StringBuilder lists = new StringBuilder();
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists.append("60");
+		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++) lists.append("80");
+		setContents(lists.toString());
 		r.readList();
 	}
 
 	@Test
 	public void testNestedDictionaryWithinDepthLimit() throws Exception {
 		// A dictionary containing a dictionary containing a dictionary...
-		String dicts = "";
+		StringBuilder dicts = new StringBuilder();
 		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++)
-			dicts += "70" + "41" + "03" + "666F6F";
-		dicts += "11";
+			dicts.append("70" + "41" + "03" + "666F6F");
+		dicts.append("11");
 		for (int i = 1; i <= DEFAULT_NESTED_LIMIT; i++)
-			dicts += "80";
-		setContents(dicts);
+			dicts.append("80");
+		setContents(dicts.toString());
 		r.readDictionary();
 		assertTrue(r.eof());
 	}
@@ -592,13 +592,13 @@ public class BdfReaderImplTest extends BrambleTestCase {
 	@Test(expected = FormatException.class)
 	public void testNestedDictionaryOutsideDepthLimit() throws Exception {
 		// A dictionary containing a dictionary containing a dictionary...
-		String dicts = "";
+		StringBuilder dicts = new StringBuilder();
 		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++)
-			dicts += "70" + "41" + "03" + "666F6F";
-		dicts += "11";
+			dicts.append("70" + "41" + "03" + "666F6F");
+		dicts.append("11");
 		for (int i = 1; i <= DEFAULT_NESTED_LIMIT + 1; i++)
-			dicts += "80";
-		setContents(dicts);
+			dicts.append("80");
+		setContents(dicts.toString());
 		r.readDictionary();
 	}
 

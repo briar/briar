@@ -11,7 +11,7 @@ public class TransportId {
 	/**
 	 * The maximum length of a transport identifier in UTF-8 bytes.
 	 */
-	public static int MAX_TRANSPORT_ID_LENGTH = 100;
+	public static final int MAX_TRANSPORT_ID_LENGTH = 100;
 
 	private final String id;
 

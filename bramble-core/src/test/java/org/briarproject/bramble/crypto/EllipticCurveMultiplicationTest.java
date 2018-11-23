@@ -23,7 +23,7 @@ import static org.junit.Assert.assertEquals;
 public class EllipticCurveMultiplicationTest extends BrambleTestCase {
 
 	@Test
-	public void testMultiplierProducesSameResultsAsDefault() throws Exception {
+	public void testMultiplierProducesSameResultsAsDefault() {
 		// Instantiate the default implementation of the curve
 		X9ECParameters defaultX9Parameters =
 				TeleTrusTNamedCurves.getByName("brainpoolp256r1");

@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.widget.Toast.LENGTH_LONG;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -48,7 +49,8 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
-		getSupportActionBar().setTitle(R.string.add_contact_title);
+		requireNonNull(getSupportActionBar())
+				.setTitle(R.string.add_contact_title);
 	}
 
 	private void startContactExchange(KeyAgreementResult result) {
@@ -97,9 +99,8 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 
 	@Override
 	public void contactExchangeFailed() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			showErrorFragment(R.string.connection_error_explanation);
-		});
+		runOnUiThreadUnlessDestroyed(() ->
+				showErrorFragment(R.string.connection_error_explanation));
 	}
 
 	@UiThread

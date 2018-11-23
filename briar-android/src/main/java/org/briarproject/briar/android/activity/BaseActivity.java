@@ -212,14 +212,16 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	public void showSoftKeyboard(View view) {
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).showSoftInput(view, SHOW_IMPLICIT);
+		InputMethodManager im = (InputMethodManager)
+				getSystemService(INPUT_METHOD_SERVICE);
+		if (im != null) im.showSoftInput(view, SHOW_IMPLICIT);
 	}
 
 	public void hideSoftKeyboard(View view) {
 		IBinder token = view.getWindowToken();
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
+		InputMethodManager im = (InputMethodManager)
+				getSystemService(INPUT_METHOD_SERVICE);
+		if (im != null) im.hideSoftInputFromWindow(token, 0);
 	}
 
 	@UiThread

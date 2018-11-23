@@ -25,6 +25,7 @@ import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
@@ -49,8 +50,8 @@ public class AuthorView extends ConstraintLayout {
 	public AuthorView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) requireNonNull(
+				context.getSystemService(LAYOUT_INFLATER_SERVICE));
 		inflater.inflate(R.layout.author_view, this, true);
 
 		avatar = findViewById(R.id.avatar);

@@ -53,11 +53,8 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-
 		Bundle args = requireNonNull(getArguments());
-		byte[] b = args.getByteArray(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No GroupId");
-		groupId = new GroupId(b);
+		groupId = new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
 	}
 
 	@Override
@@ -65,7 +62,6 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		list = contentView.findViewById(R.id.list);

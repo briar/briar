@@ -8,7 +8,9 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 
-// This class is not thread-safe
+import javax.annotation.concurrent.NotThreadSafe;
+
+@NotThreadSafe
 @NotNullByDefault
 class GroupItem {
 

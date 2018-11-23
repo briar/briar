@@ -327,6 +327,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertEquals(0, comparator.compare(linkLocal, linkLocal));
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean systemHasLocalIpv4Address() throws Exception {
 		for (NetworkInterface i : list(getNetworkInterfaces())) {
 			for (InetAddress a : list(i.getInetAddresses())) {

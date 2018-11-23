@@ -40,6 +40,7 @@ public class GroupMessageAddedEvent extends Event {
 		return text;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isLocal() {
 		return local;
 	}

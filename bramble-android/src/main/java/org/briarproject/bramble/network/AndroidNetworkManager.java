@@ -13,8 +13,7 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Scheduler;
 
 import java.util.concurrent.Future;
@@ -34,13 +33,13 @@ import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 class AndroidNetworkManager implements NetworkManager, Service {
 
 	private static final Logger LOG =
@@ -57,6 +56,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
+	@Nullable
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	@Inject
@@ -90,9 +90,8 @@ class AndroidNetworkManager implements NetworkManager, Service {
 
 	@Override
 	public NetworkStatus getNetworkStatus() {
-		ConnectivityManager cm = (ConnectivityManager)
-				appContext.getSystemService(CONNECTIVITY_SERVICE);
-		if (cm == null) throw new AssertionError();
+		ConnectivityManager cm = (ConnectivityManager) requireNonNull(
+				appContext.getSystemService(CONNECTIVITY_SERVICE));
 		NetworkInfo net = cm.getActiveNetworkInfo();
 		boolean connected = net != null && net.isConnected();
 		boolean wifi = connected && net.getType() == TYPE_WIFI;

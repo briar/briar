@@ -63,6 +63,7 @@ public abstract class BaseFragment extends Fragment
 	}
 
 	public interface BaseFragmentListener {
+
 		@Deprecated
 		void runOnDbThread(Runnable runnable);
 

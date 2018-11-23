@@ -42,8 +42,7 @@ import org.acra.ACRA;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
@@ -76,11 +75,11 @@ import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 public class UiUtils {
 
 	public static final long MIN_DATE_RESOLUTION = MINUTE_IN_MILLIS;
@@ -242,9 +241,9 @@ public class UiUtils {
 
 	public static boolean needsDozeWhitelisting(Context ctx) {
 		if (SDK_INT < 23) return false;
-		PowerManager pm = (PowerManager) ctx.getSystemService(POWER_SERVICE);
+		PowerManager pm = (PowerManager)
+				requireNonNull(ctx.getSystemService(POWER_SERVICE));
 		String packageName = ctx.getPackageName();
-		if (pm == null) throw new AssertionError();
 		return !pm.isIgnoringBatteryOptimizations(packageName);
 	}
 

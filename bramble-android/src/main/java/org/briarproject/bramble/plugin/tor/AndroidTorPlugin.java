@@ -8,8 +8,7 @@ import android.os.PowerManager;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.system.Clock;
@@ -26,10 +25,10 @@ import javax.net.SocketFactory;
 import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.POWER_SERVICE;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 class AndroidTorPlugin extends TorPlugin {
 
 	// This tag may prevent Huawei's power manager from killing us
@@ -52,8 +51,7 @@ class AndroidTorPlugin extends TorPlugin {
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
 		PowerManager pm = (PowerManager)
-				appContext.getSystemService(POWER_SERVICE);
-		if (pm == null) throw new AssertionError();
+				requireNonNull(appContext.getSystemService(POWER_SERVICE));
 		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
 				WAKE_LOCK_TAG, 1, MINUTES);
 	}

@@ -84,6 +84,7 @@ abstract class PowerView extends ConstraintLayout {
 		setChecked(ss.value[0]);  // also calls listener
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public abstract boolean needsToBeShown();
 
 	public void setChecked(boolean checked) {

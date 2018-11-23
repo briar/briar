@@ -14,8 +14,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.Service;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
@@ -34,6 +33,7 @@ import static android.app.AlarmManager.ELAPSED_REALTIME;
 import static android.app.PendingIntent.getService;
 import static android.content.Context.ALARM_SERVICE;
 import static android.os.SystemClock.elapsedRealtime;
+import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -44,8 +44,7 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 
 @ThreadSafe
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 public class LockManagerImpl implements LockManager, Service, EventListener {
 
 	private static final Logger LOG =
@@ -79,19 +78,19 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 		this.settingsManager = settingsManager;
 		this.notificationManager = notificationManager;
 		this.dbExecutor = dbExecutor;
-		this.alarmManager =
-				(AlarmManager) appContext.getSystemService(ALARM_SERVICE);
+		alarmManager = (AlarmManager)
+				requireNonNull(appContext.getSystemService(ALARM_SERVICE));
 		Intent i =
 				new Intent(ACTION_LOCK, null, appContext, BriarService.class);
-		this.lockIntent = getService(appContext, 0, i, 0);
-		this.timeoutNever = Integer.valueOf(
+		lockIntent = getService(appContext, 0, i, 0);
+		timeoutNever = Integer.valueOf(
 				appContext.getString(R.string.pref_lock_timeout_value_never));
-		this.timeoutDefault = Integer.valueOf(
+		timeoutDefault = Integer.valueOf(
 				appContext.getString(R.string.pref_lock_timeout_value_default));
-		this.timeoutMinutes = timeoutNever;
+		timeoutMinutes = timeoutNever;
 
 		// setting this in the constructor makes #getValue() @NonNull
-		this.lockable.setValue(false);
+		lockable.setValue(false);
 	}
 
 	@Override
@@ -145,7 +144,7 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	@UiThread
 	@Override
 	public void checkIfLockable() {
-		boolean oldValue = lockable.getValue();
+		boolean oldValue = requireNonNull(lockable.getValue());
 		boolean newValue = hasScreenLock(appContext) && lockableSetting;
 		if (oldValue != newValue) {
 			this.lockable.setValue(newValue);
@@ -201,7 +200,8 @@ public class LockManagerImpl implements LockManager, Service, EventListener {
 	}
 
 	private boolean timeoutEnabled() {
-		return timeoutMinutes != timeoutNever && lockable.getValue();
+		return timeoutMinutes != timeoutNever
+				&& requireNonNull(lockable.getValue());
 	}
 
 	private boolean timedOut() {

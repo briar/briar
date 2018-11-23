@@ -14,8 +14,7 @@ class TestAuthenticatedCipher implements AuthenticatedCipher {
 	private boolean encrypt = false;
 
 	@Override
-	public void init(boolean encrypt, SecretKey key, byte[] iv)
-			throws GeneralSecurityException {
+	public void init(boolean encrypt, SecretKey key, byte[] iv) {
 		this.encrypt = encrypt;
 	}
 

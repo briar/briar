@@ -15,7 +15,7 @@ class AsciiArmour {
 		int length = wrapped.length();
 		for (int i = 0; i < length; i += lineLength) {
 			int end = Math.min(i + lineLength, length);
-			s.append(wrapped.substring(i, end));
+			s.append(wrapped, i, end);
 			s.append("\r\n");
 		}
 		return s.toString();

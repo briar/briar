@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.reporting;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
@@ -11,10 +12,10 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 
 import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.logging.BriefLogFormatter;
@@ -41,15 +42,17 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
+@SuppressLint("HardwareIds")
+@NotNullByDefault
 public class BriarReportPrimer implements ReportPrimer {
 
 	@Override
-	public void primeReport(@NonNull Context ctx,
-			@NonNull ReportBuilder builder) {
+	public void primeReport(Context ctx, ReportBuilder builder) {
 		CustomDataTask task = new CustomDataTask(ctx);
 		FutureTask<Map<String, String>> futureTask = new FutureTask<>(task);
 		// Use a new thread as the Android executor thread may have died
@@ -85,8 +88,8 @@ public class BriarReportPrimer implements ReportPrimer {
 			customData.put("Log", sb.toString());
 
 			// System memory
-			Object o = ctx.getSystemService(ACTIVITY_SERVICE);
-			ActivityManager am = (ActivityManager) o;
+			ActivityManager am = (ActivityManager)
+					requireNonNull(ctx.getSystemService(ACTIVITY_SERVICE));
 			ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 			am.getMemoryInfo(mem);
 			String systemMemory;
@@ -127,8 +130,8 @@ public class BriarReportPrimer implements ReportPrimer {
 			customData.put("External storage", external);
 
 			// Is mobile data available?
-			o = ctx.getSystemService(CONNECTIVITY_SERVICE);
-			ConnectivityManager cm = (ConnectivityManager) o;
+			ConnectivityManager cm = (ConnectivityManager)
+					requireNonNull(ctx.getSystemService(CONNECTIVITY_SERVICE));
 			NetworkInfo mobile = cm.getNetworkInfo(TYPE_MOBILE);
 			boolean mobileAvailable = mobile != null && mobile.isAvailable();
 			// Is mobile data enabled?
@@ -162,8 +165,8 @@ public class BriarReportPrimer implements ReportPrimer {
 			NetworkInfo wifi = cm.getNetworkInfo(TYPE_WIFI);
 			boolean wifiAvailable = wifi != null && wifi.isAvailable();
 			// Is wifi enabled?
-			o = ctx.getApplicationContext().getSystemService(WIFI_SERVICE);
-			WifiManager wm = (WifiManager) o;
+			WifiManager wm = (WifiManager)
+					ctx.getApplicationContext().getSystemService(WIFI_SERVICE);
 			boolean wifiEnabled = wm != null &&
 					wm.getWifiState() == WIFI_STATE_ENABLED;
 			// Is wifi connected?

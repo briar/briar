@@ -5,6 +5,7 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.AsyncTask;
+import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
 import com.google.zxing.BinaryBitmap;
@@ -16,9 +17,7 @@ import com.google.zxing.Result;
 import com.google.zxing.common.HybridBinarizer;
 import com.google.zxing.qrcode.QRCodeReader;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 
 import java.util.logging.Logger;
 
@@ -28,8 +27,7 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 
 @SuppressWarnings("deprecation")
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
 	private static final Logger LOG = getLogger(QrCodeDecoder.class.getName());
@@ -37,6 +35,7 @@ class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 	private final Reader reader = new QRCodeReader();
 	private final ResultCallback callback;
 
+	@Nullable
 	private Camera camera = null;
 	private int cameraIndex = 0;
 

@@ -18,6 +18,7 @@ import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
 
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 
 @MethodsNotNullByDefault
@@ -59,10 +60,7 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 
 		// set humanized error message
 		TextView explanation = v.findViewById(R.id.errorMessage);
-		Bundle args = getArguments();
-		if (args == null) {
-			throw new IllegalArgumentException("Use newInstance()");
-		}
+		Bundle args = requireNonNull(getArguments());
 		explanation.setText(args.getString(ERROR_MSG));
 
 		// make feedback link clickable

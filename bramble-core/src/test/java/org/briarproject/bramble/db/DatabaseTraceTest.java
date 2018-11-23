@@ -20,10 +20,11 @@ import javax.annotation.Nullable;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.junit.Assert.assertTrue;
 
 public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 
-	private SecretKey databaseKey = getSecretKey();
+	private final SecretKey databaseKey = getSecretKey();
 
 	abstract Database<Connection> createDatabase(DatabaseConfig databaseConfig,
 			MessageFactory messageFactory, Clock clock);
@@ -39,7 +40,8 @@ public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 		populateDatabase(db);
 		db.close();
 		File traceFile = getTraceFile();
-		if (traceFile != null) traceFile.delete();
+		if (traceFile != null && traceFile.exists())
+			assertTrue(traceFile.delete());
 		db = openDatabase();
 		task.run(db);
 		db.close();

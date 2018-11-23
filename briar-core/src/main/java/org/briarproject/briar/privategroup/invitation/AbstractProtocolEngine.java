@@ -90,10 +90,11 @@ abstract class AbstractProtocolEngine<S extends Session>
 		return group.getClientId().equals(PrivateGroupManager.CLIENT_ID);
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	boolean isValidDependency(S session, @Nullable MessageId dependency) {
 		MessageId expected = session.getLastRemoteMessageId();
 		if (dependency == null) return expected == null;
-		return expected != null && dependency.equals(expected);
+		return dependency.equals(expected);
 	}
 
 	void setPrivateGroupVisibility(Transaction txn, S session,

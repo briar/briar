@@ -53,7 +53,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 	protected final Clock clock = new SystemClock();
 
 	abstract Database<Connection> createDatabase(
-			List<Migration<Connection>> migrations) throws Exception;
+			List<Migration<Connection>> migrations);
 
 	@Before
 	public void setUp() {

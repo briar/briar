@@ -2,12 +2,15 @@ package org.briarproject.briar.android.test;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -18,6 +21,8 @@ import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class TestDataActivity extends BriarActivity {
 
 	@Inject
@@ -39,8 +44,8 @@ public class TestDataActivity extends BriarActivity {
 	private SeekBar forumPostsSeekBar;
 
 	@Override
-	public void onCreate(Bundle bundle) {
-		super.onCreate(bundle);
+	public void onCreate(@Nullable Bundle state) {
+		super.onCreate(state);
 
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {

@@ -14,6 +14,7 @@ import javax.annotation.concurrent.Immutable;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
@@ -43,15 +44,16 @@ class UnixSecureRandomProvider extends AbstractSecureRandomProvider {
 	}
 
 	protected void writeSeed() {
+		DataOutputStream out = null;
 		try {
-			DataOutputStream out = new DataOutputStream(
-					new FileOutputStream(outputDevice));
+			out = new DataOutputStream(new FileOutputStream(outputDevice));
 			writeToEntropyPool(out);
 			out.flush();
-			out.close();
 		} catch (IOException e) {
 			// On some devices /dev/urandom isn't writable - this isn't fatal
 			logException(LOG, WARNING, e);
+		} finally {
+			tryToClose(out, LOG, WARNING);
 		}
 	}
 

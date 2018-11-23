@@ -15,7 +15,10 @@ import org.mockito.MockitoAnnotations;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
+import static java.util.Objects.requireNonNull;
 import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.NONE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_STRONG;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
@@ -46,7 +49,7 @@ public class PasswordFragmentTest {
 		MockitoAnnotations.initMocks(this);
 		startFragment(passwordFragment, SetupActivity.class);
 
-		View v = passwordFragment.getView();
+		View v = requireNonNull(passwordFragment.getView());
 		passwordEntry = v.findViewById(R.id.password_entry);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);
 		passwordConfirmationWrapper =
@@ -67,7 +70,7 @@ public class PasswordFragmentTest {
 		passwordEntry.setText(safePass);
 		passwordConfirmation.setText(safePass);
 		// Confirm that the create account button is clickable
-		assertEquals(createAccountButton.isEnabled(), true);
+		assertTrue(createAccountButton.isEnabled());
 		createAccountButton.performClick();
 
 		// assert controller has been called properly
@@ -98,7 +101,7 @@ public class PasswordFragmentTest {
 		// Password mismatch
 		passwordEntry.setText("really.safe.password");
 		passwordConfirmation.setText("really.safe.pass");
-		assertEquals(createAccountButton.isEnabled(), false);
+		assertFalse(createAccountButton.isEnabled());
 		assertEquals(passwordConfirmationWrapper.getError(),
 				passwordFragment.getString(R.string.passwords_do_not_match));
 		// Button enabled
@@ -108,7 +111,7 @@ public class PasswordFragmentTest {
 		assertNotEquals(passwordConfirmationWrapper.getError(),
 				passwordFragment.getString(R.string.passwords_do_not_match));
 		// Passwords match, so button should be enabled
-		assertEquals(createAccountButton.isEnabled(), true);
+		assertTrue(createAccountButton.isEnabled());
 	}
 
 }

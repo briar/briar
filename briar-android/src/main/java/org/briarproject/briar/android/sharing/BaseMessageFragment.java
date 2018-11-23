@@ -40,7 +40,6 @@ public abstract class BaseMessageFragment extends BaseFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		// inflate view
 		View v = inflater.inflate(R.layout.fragment_message, container,
 				false);

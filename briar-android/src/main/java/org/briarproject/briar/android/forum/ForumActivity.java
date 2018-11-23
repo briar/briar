@@ -88,7 +88,8 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_SHARE_FORUM && result == RESULT_OK) {

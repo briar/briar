@@ -54,9 +54,7 @@ public class FeedPostFragment extends BasePostFragment {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		Bundle args = requireNonNull(getArguments());
-		byte[] b = args.getByteArray(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No group ID in args");
-		blogId = new GroupId(b);
+		blogId = new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
 
 		return super.onCreateView(inflater, container, savedInstanceState);
 	}

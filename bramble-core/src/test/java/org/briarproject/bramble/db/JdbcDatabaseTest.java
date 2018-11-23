@@ -92,7 +92,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	// All our transports use a maximum latency of 30 seconds
 	private static final int MAX_LATENCY = 30 * 1000;
 
-
 	private final SecretKey key = getSecretKey();
 	private final File testDir = getTestDirectory();
 	private final GroupId groupId;

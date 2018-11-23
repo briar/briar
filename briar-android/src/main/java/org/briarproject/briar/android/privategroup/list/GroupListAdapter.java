@@ -5,8 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
@@ -14,8 +13,7 @@ import org.briarproject.briar.android.util.BriarAdapter;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 class GroupListAdapter extends BriarAdapter<GroupItem, GroupViewHolder> {
 
 	private final OnGroupRemoveClickListener listener;

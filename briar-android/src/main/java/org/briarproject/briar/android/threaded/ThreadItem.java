@@ -83,6 +83,7 @@ public abstract class ThreadItem implements MessageNode {
 		this.level = level;
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	public boolean isRead() {
 		return isRead;
 	}

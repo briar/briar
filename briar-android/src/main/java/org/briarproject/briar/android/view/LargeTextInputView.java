@@ -7,8 +7,7 @@ import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.Button;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
 import javax.annotation.Nullable;
@@ -17,8 +16,7 @@ import static android.view.Gravity.BOTTOM;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 
 @UiThread
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 public class LargeTextInputView extends TextInputView {
 
 	public LargeTextInputView(Context context) {

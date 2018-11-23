@@ -73,7 +73,6 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		Bundle args = requireNonNull(getArguments());
 		GroupId blogId =
 				new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));

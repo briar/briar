@@ -44,8 +44,8 @@ public class StartupFailureActivity extends BaseActivity implements
 
 		// cancel notification
 		if (notificationId > -1) {
-			Object o = getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) requireNonNull(o);
+			NotificationManager nm = (NotificationManager)
+					requireNonNull(getSystemService(NOTIFICATION_SERVICE));
 			nm.cancel(notificationId);
 		}
 

@@ -13,7 +13,7 @@ abstract class Frame {
 
 	static final byte ACK_FLAG = (byte) 128, FIN_FLAG = 64;
 
-	protected final byte[] buf;
+	final byte[] buf;
 
 	Frame(byte[] buf) {
 		this.buf = buf;

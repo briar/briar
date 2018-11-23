@@ -29,7 +29,8 @@ public abstract class DatabasePerformanceComparisonTest
 	 * How many blocks of each condition to compare.
 	 */
 	private static final int COMPARISON_BLOCKS = 10;
-	private SecretKey databaseKey = getSecretKey();
+
+	private final SecretKey databaseKey = getSecretKey();
 
 	abstract Database<Connection> createDatabase(boolean conditionA,
 			DatabaseConfig databaseConfig, MessageFactory messageFactory,

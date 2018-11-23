@@ -25,7 +25,7 @@ public class TagEncodingTest extends BrambleMockTestCase {
 	private final long streamNumber = 1234567890;
 
 	@Test
-	public void testKeyAffectsTag() throws Exception {
+	public void testKeyAffectsTag() {
 		Set<Bytes> set = new HashSet<>();
 		for (int i = 0; i < 100; i++) {
 			byte[] tag = new byte[TAG_LENGTH];
@@ -37,7 +37,7 @@ public class TagEncodingTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testProtocolVersionAffectsTag() throws Exception {
+	public void testProtocolVersionAffectsTag() {
 		Set<Bytes> set = new HashSet<>();
 		for (int i = 0; i < 100; i++) {
 			byte[] tag = new byte[TAG_LENGTH];
@@ -48,7 +48,7 @@ public class TagEncodingTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testStreamNumberAffectsTag() throws Exception {
+	public void testStreamNumberAffectsTag() {
 		Set<Bytes> set = new HashSet<>();
 		for (int i = 0; i < 100; i++) {
 			byte[] tag = new byte[TAG_LENGTH];

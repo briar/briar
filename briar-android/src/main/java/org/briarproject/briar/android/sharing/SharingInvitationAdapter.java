@@ -3,8 +3,10 @@ package org.briarproject.briar.android.sharing;
 import android.content.Context;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.sharing.SharingInvitationItem;
 
+@NotNullByDefault
 class SharingInvitationAdapter extends
 		InvitationAdapter<SharingInvitationItem, SharingInvitationViewHolder> {
 
@@ -14,8 +16,7 @@ class SharingInvitationAdapter extends
 	}
 
 	@Override
-	public SharingInvitationViewHolder onCreateViewHolder(
-			ViewGroup parent,
+	public SharingInvitationViewHolder onCreateViewHolder(ViewGroup parent,
 			int viewType) {
 		return new SharingInvitationViewHolder(getView(parent));
 	}

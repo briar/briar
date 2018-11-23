@@ -33,6 +33,7 @@ public class BdfList extends ArrayList<Object> {
 		super(items);
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean isInRange(int index) {
 		return index >= 0 && index < size();
 	}

@@ -9,6 +9,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v14.preference.SwitchPreference;
 import android.support.v4.content.ContextCompat;
@@ -242,8 +243,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		ColorDrawable divider = new ColorDrawable(
 				ContextCompat.getColor(requireContext(), R.color.divider));
@@ -630,7 +632,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_RINGTONE && result == RESULT_OK) {
 			Settings s = new Settings();

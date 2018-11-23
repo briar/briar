@@ -2,7 +2,7 @@ package org.briarproject.briar.android.login;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
@@ -28,6 +30,8 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class PasswordActivity extends BaseActivity {
 
 	@Inject
@@ -48,7 +52,7 @@ public class PasswordActivity extends BaseActivity {
 	private EditText password;
 
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		// fade-in after splash screen instead of default animation
 		overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
@@ -146,7 +150,7 @@ public class PasswordActivity extends BaseActivity {
 		passwordController.validatePassword(password.getText().toString(),
 				new UiResultHandler<Boolean>(this) {
 					@Override
-					public void onResultUi(@NonNull Boolean result) {
+					public void onResultUi(Boolean result) {
 						if (result) {
 							setResult(RESULT_OK);
 							supportFinishAfterTransition();

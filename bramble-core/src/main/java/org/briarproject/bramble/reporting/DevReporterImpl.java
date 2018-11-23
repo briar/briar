@@ -111,17 +111,15 @@ class DevReporterImpl implements DevReporter, EventListener {
 		LOG.info("Sending reports to developers");
 		for (File f : reports) {
 			OutputStream out = null;
-			InputStream in = null;
 			try {
 				Socket s = connectToDevelopers();
 				out = getOutputStream(s);
-				in = new FileInputStream(f);
+				InputStream in = new FileInputStream(f);
 				copyAndClose(in, out);
-				f.delete();
+				if (!f.delete()) LOG.warning("Failed to delete report");
 			} catch (IOException e) {
 				LOG.log(WARNING, "Failed to send reports", e);
 				tryToClose(out, LOG, WARNING);
-				tryToClose(in, LOG, WARNING);
 				return;
 			}
 		}

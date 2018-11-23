@@ -80,6 +80,7 @@ class LanTcpPlugin extends TcpPlugin {
 				locals.add(new InetSocketAddress(local, 0));
 			}
 		}
+		//noinspection Java8ListSort
 		sort(locals, ADDRESS_COMPARATOR);
 		return locals;
 	}

@@ -2,7 +2,7 @@ package org.briarproject.bramble.keyagreement;
 
 class AbortException extends Exception {
 
-	boolean receivedAbort;
+	final boolean receivedAbort;
 
 	AbortException() {
 		this(false);

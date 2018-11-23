@@ -191,6 +191,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			streamWriter.sendEndOfStream();
 			// Skip any remaining records from the incoming stream
 			try {
+				//noinspection InfiniteLoopStatement
 				while (true) recordReader.readRecord();
 			} catch (EOFException expected) {
 				LOG.info("End of stream");

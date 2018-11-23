@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 import org.briarproject.briar.api.feed.Feed;
@@ -16,6 +17,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
+@NotNullByDefault
 class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 
 	private final RssFeedListener listener;
@@ -72,10 +74,7 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 	@Override
 	public int compare(Feed a, Feed b) {
 		if (a == b) return 0;
-		long aTime = a.getAdded(), bTime = b.getAdded();
-		if (aTime > bTime) return -1;
-		if (aTime < bTime) return 1;
-		return 0;
+		return Long.compare(b.getAdded(), a.getAdded());
 	}
 
 	@Override

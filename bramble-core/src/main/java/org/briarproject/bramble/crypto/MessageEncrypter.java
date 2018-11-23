@@ -159,6 +159,7 @@ public class MessageEncrypter {
 			printUsage();
 			System.exit(1);
 		}
+		//noinspection IfCanBeSwitch
 		if (args[0].equals("generate")) {
 			if (args.length != 3) {
 				printUsage();

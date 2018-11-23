@@ -7,7 +7,7 @@ public enum MessageType {
 	WRAPPED_POST(2),
 	WRAPPED_COMMENT(3);
 
-	int value;
+	final int value;
 
 	MessageType(int value) {
 		this.value = value;

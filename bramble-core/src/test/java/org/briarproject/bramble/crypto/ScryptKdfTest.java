@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 public class ScryptKdfTest extends BrambleTestCase {
 
 	@Test
-	public void testPasswordAffectsKey() throws Exception {
+	public void testPasswordAffectsKey() {
 		PasswordBasedKdf kdf = new ScryptKdf(new SystemClock());
 		byte[] salt = getRandomBytes(32);
 		Set<Bytes> keys = new HashSet<>();
@@ -31,7 +31,7 @@ public class ScryptKdfTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testSaltAffectsKey() throws Exception {
+	public void testSaltAffectsKey() {
 		PasswordBasedKdf kdf = new ScryptKdf(new SystemClock());
 		String password = getRandomString(16);
 		Set<Bytes> keys = new HashSet<>();
@@ -43,7 +43,7 @@ public class ScryptKdfTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testCostParameterAffectsKey() throws Exception {
+	public void testCostParameterAffectsKey() {
 		PasswordBasedKdf kdf = new ScryptKdf(new SystemClock());
 		String password = getRandomString(16);
 		byte[] salt = getRandomBytes(32);
@@ -55,7 +55,7 @@ public class ScryptKdfTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testCalibration() throws Exception {
+	public void testCalibration() {
 		Clock clock = new ArrayClock(
 				0, 50, // Duration for cost 256
 				0, 100, // Duration for cost 512
@@ -68,7 +68,7 @@ public class ScryptKdfTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testCalibrationChoosesMinCost() throws Exception {
+	public void testCalibrationChoosesMinCost() {
 		Clock clock = new ArrayClock(
 				0, 2000 // Duration for cost 256 is already too high
 		);

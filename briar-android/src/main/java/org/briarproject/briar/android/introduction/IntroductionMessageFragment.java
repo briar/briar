@@ -95,7 +95,6 @@ public class IntroductionMessageFragment extends BaseFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		// change toolbar text
 		ActionBar actionBar = introductionActivity.getSupportActionBar();
 		if (actionBar != null) {
@@ -124,11 +123,6 @@ public class IntroductionMessageFragment extends BaseFragment
 		prepareToSetUpViews(contactId1, contactId2);
 
 		return v;
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
 	}
 
 	@Override

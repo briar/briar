@@ -2,7 +2,6 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.view.ViewCompat;
@@ -14,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.AuthorView;
@@ -33,6 +33,7 @@ import static org.briarproject.briar.android.util.UiUtils.makeLinksClickable;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 
 @UiThread
+@NotNullByDefault
 class BlogPostViewHolder extends RecyclerView.ViewHolder {
 
 	private final Context ctx;
@@ -44,13 +45,12 @@ class BlogPostViewHolder extends RecyclerView.ViewHolder {
 	private final ViewGroup commentContainer;
 	private final boolean fullText;
 
-	@NonNull
 	private final OnBlogPostClickListener listener;
 	@Nullable
 	private final FragmentManager fragmentManager;
 
 	BlogPostViewHolder(View v, boolean fullText,
-			@NonNull OnBlogPostClickListener listener,
+			OnBlogPostClickListener listener,
 			@Nullable FragmentManager fragmentManager) {
 		super(v);
 		this.fullText = fullText;

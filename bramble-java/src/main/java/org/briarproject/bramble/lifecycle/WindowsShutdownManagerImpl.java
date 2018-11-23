@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
@@ -163,11 +164,13 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		}
 	}
 
+	@SuppressWarnings("UnusedReturnValue")
 	private interface User32 extends StdCallLibrary {
 
 		HWND CreateWindowEx(int styleEx, String className, String windowName,
-				int style, int x, int y, int width, int height, HWND parent,
-				HMENU menu, HINSTANCE instance, Pointer param);
+				int style, int x, int y, int width, int height,
+				@Nullable HWND parent, @Nullable HMENU menu,
+				@Nullable HINSTANCE instance, @Nullable Pointer param);
 
 		LRESULT DefWindowProc(HWND hwnd, int msg, WPARAM wp, LPARAM lp);
 
@@ -175,7 +178,8 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 		LRESULT SetWindowLongPtr(HWND hwnd, int index, WindowProc newProc);
 
-		int GetMessage(MSG msg, HWND hwnd, int filterMin, int filterMax);
+		int GetMessage(MSG msg, @Nullable HWND hwnd, int filterMin,
+				int filterMax);
 
 		boolean TranslateMessage(MSG msg);
 
@@ -184,6 +188,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	private interface WindowProc extends StdCallCallback {
 
+		@SuppressWarnings("UnusedReturnValue")
 		LRESULT callback(HWND hwnd, int msg, WPARAM wp, LPARAM lp);
 	}
 }

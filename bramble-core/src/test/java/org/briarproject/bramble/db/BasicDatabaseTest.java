@@ -28,6 +28,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings("TryFinallyCanBeTryWithResources")
 public abstract class BasicDatabaseTest extends BrambleTestCase {
 
 	private static final int BATCH_SIZE = 100;
@@ -47,7 +48,7 @@ public abstract class BasicDatabaseTest extends BrambleTestCase {
 
 	@Before
 	public void setUp() throws Exception {
-		testDir.mkdirs();
+		assertTrue(testDir.mkdirs());
 		Class.forName(getDriverName());
 	}
 

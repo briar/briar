@@ -29,7 +29,7 @@ import static org.junit.Assert.assertThat;
 public class KeyAgreementProtocolTest extends BrambleTestCase {
 
 	@Rule
-	public JUnitRuleMockery context = new JUnitRuleMockery() {{
+	public final JUnitRuleMockery context = new JUnitRuleMockery() {{
 		// So we can mock concrete classes like KeyAgreementTransport
 		setImposteriser(ClassImposteriser.INSTANCE);
 	}};

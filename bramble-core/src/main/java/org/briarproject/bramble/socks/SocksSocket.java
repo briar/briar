@@ -28,6 +28,7 @@ class SocksSocket extends Socket {
 			"Address type not supported"
 	};
 
+	@SuppressWarnings("MismatchedReadAndWriteOfArray")
 	private static final byte[] UNSPECIFIED_ADDRESS = new byte[4];
 
 	private final SocketAddress proxy;

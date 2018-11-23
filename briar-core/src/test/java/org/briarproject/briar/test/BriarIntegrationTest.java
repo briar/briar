@@ -148,9 +148,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	private final String AUTHOR1 = "Author 1";
 	private final String AUTHOR2 = "Author 2";
 
-	protected File t0Dir = new File(testDir, AUTHOR0);
-	protected File t1Dir = new File(testDir, AUTHOR1);
-	protected File t2Dir = new File(testDir, AUTHOR2);
+	protected final File t0Dir = new File(testDir, AUTHOR0);
+	protected final File t1Dir = new File(testDir, AUTHOR1);
+	protected final File t2Dir = new File(testDir, AUTHOR2);
 
 	@Before
 	public void setUp() throws Exception {

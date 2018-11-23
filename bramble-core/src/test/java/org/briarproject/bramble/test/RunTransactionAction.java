@@ -10,7 +10,6 @@ public class RunTransactionAction implements Action {
 
 	private final Transaction txn;
 
-	@SuppressWarnings("WeakerAccess")
 	public RunTransactionAction(Transaction txn) {
 		this.txn = txn;
 	}

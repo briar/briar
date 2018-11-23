@@ -17,7 +17,7 @@ public class ClientId implements Comparable<ClientId> {
 	/**
 	 * The maximum length of a client identifier in UTF-8 bytes.
 	 */
-	public static int MAX_CLIENT_ID_LENGTH = 100;
+	public static final int MAX_CLIENT_ID_LENGTH = 100;
 
 	private final String id;
 

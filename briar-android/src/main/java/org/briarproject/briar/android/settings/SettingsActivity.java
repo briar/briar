@@ -1,18 +1,23 @@
 package org.briarproject.briar.android.settings;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class SettingsActivity extends BriarActivity {
 
 	@Override
-	public void onCreate(Bundle bundle) {
-		super.onCreate(bundle);
+	public void onCreate(@Nullable Bundle state) {
+		super.onCreate(state);
 
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {

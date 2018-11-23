@@ -174,9 +174,9 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 	}
 
 	private int getDeviceRotation() {
-		WindowManager windowManager =
-				(WindowManager) getContext().getSystemService(WINDOW_SERVICE);
-		return requireNonNull(windowManager).getDefaultDisplay().getRotation();
+		WindowManager windowManager = (WindowManager) requireNonNull(
+				getContext().getSystemService(WINDOW_SERVICE));
+		return windowManager.getDefaultDisplay().getRotation();
 	}
 
 	private int getKeyboardLandscapeHeight() {

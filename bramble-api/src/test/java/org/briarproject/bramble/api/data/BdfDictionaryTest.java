@@ -68,7 +68,7 @@ public class BdfDictionaryTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testKeySetIteratorIsOrderedByKeys() throws Exception {
+	public void testKeySetIteratorIsOrderedByKeys() {
 		BdfDictionary d = new BdfDictionary();
 		d.put("a", 1);
 		d.put("d", 4);
@@ -87,7 +87,7 @@ public class BdfDictionaryTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testValuesIteratorIsOrderedByKeys() throws Exception {
+	public void testValuesIteratorIsOrderedByKeys() {
 		BdfDictionary d = new BdfDictionary();
 		d.put("a", 1);
 		d.put("d", 4);
@@ -106,7 +106,7 @@ public class BdfDictionaryTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testEntrySetIteratorIsOrderedByKeys() throws Exception {
+	public void testEntrySetIteratorIsOrderedByKeys() {
 		BdfDictionary d = new BdfDictionary();
 		d.put("a", 1);
 		d.put("d", 4);

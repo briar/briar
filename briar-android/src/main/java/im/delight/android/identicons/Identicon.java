@@ -19,12 +19,14 @@ package im.delight.android.identicons;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
 import android.support.annotation.UiThread;
+
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import static android.graphics.Paint.Style.FILL;
 
 @UiThread
+@NotNullByDefault
 class Identicon {
 
 	private static final int ROWS = 9, COLUMNS = 9;
@@ -36,7 +38,7 @@ class Identicon {
 
 	private int cellWidth, cellHeight;
 
-	Identicon(@NonNull byte[] input) {
+	Identicon(byte[] input) {
 		if (input.length == 0) throw new IllegalArgumentException();
 		this.input = input;
 

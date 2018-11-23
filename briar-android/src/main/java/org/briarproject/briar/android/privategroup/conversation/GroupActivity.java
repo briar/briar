@@ -172,7 +172,8 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		if (request == REQUEST_GROUP_INVITE && result == RESULT_OK) {
 			displaySnackbar(R.string.groups_invitation_sent);
 		} else super.onActivityResult(request, result, data);

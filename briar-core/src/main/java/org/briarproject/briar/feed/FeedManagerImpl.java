@@ -385,6 +385,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		long lastEntryTime = feed.getLastEntryTime();
 		Transaction txn = db.startTransaction(false);
 		try {
+			//noinspection Java8ListSort
 			sort(entries, getEntryComparator());
 			for (SyndEntry entry : entries) {
 				long entryTime;
@@ -453,6 +454,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		if (date == null) time = now;
 		else time = Math.max(0, Math.min(date.getTime(), now));
 		String text = getPostText(b.toString());
+		//noinspection TryWithIdenticalCatches
 		try {
 			// create and store post
 			LocalAuthor localAuthor = feed.getLocalAuthor();

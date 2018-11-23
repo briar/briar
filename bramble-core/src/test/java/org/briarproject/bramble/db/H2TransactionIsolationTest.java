@@ -20,6 +20,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
+@SuppressWarnings("TryFinallyCanBeTryWithResources")
 public class H2TransactionIsolationTest extends BrambleTestCase {
 
 	private static final String DROP_TABLE = "DROP TABLE foo IF EXISTS";
@@ -47,7 +48,7 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 	}
 
 	@After
-	public void tearDown() throws Exception {
+	public void tearDown() {
 		deleteTestDirectory(testDir);
 	}
 

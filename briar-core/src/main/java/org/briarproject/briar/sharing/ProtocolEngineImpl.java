@@ -627,7 +627,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			@Nullable MessageId dependency) {
 		MessageId expected = session.getLastRemoteMessageId();
 		if (dependency == null) return expected != null;
-		return expected == null || !dependency.equals(expected);
+		return !dependency.equals(expected);
 	}
 
 	private long getLocalTimestamp(Session session) {

@@ -32,6 +32,7 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
@@ -67,10 +68,8 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("AndroidLanTcpPlugin", ioExecutor, 1);
-		ConnectivityManager connectivityManager = (ConnectivityManager)
-				appContext.getSystemService(CONNECTIVITY_SERVICE);
-		if (connectivityManager == null) throw new AssertionError();
-		this.connectivityManager = connectivityManager;
+		connectivityManager = (ConnectivityManager) requireNonNull(
+				appContext.getSystemService(CONNECTIVITY_SERVICE));
 		wifiManager = (WifiManager) appContext.getApplicationContext()
 				.getSystemService(WIFI_SERVICE);
 		socketFactory = SocketFactory.getDefault();

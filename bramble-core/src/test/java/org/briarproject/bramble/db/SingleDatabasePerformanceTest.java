@@ -25,7 +25,7 @@ public abstract class SingleDatabasePerformanceTest
 	abstract Database<Connection> createDatabase(DatabaseConfig databaseConfig,
 			MessageFactory messageFactory, Clock clock);
 
-	private SecretKey databaseKey = getSecretKey();
+	private final SecretKey databaseKey = getSecretKey();
 
 	@Override
 	protected void benchmark(String name,

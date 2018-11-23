@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.blog;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
@@ -7,9 +8,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import javax.annotation.concurrent.NotThreadSafe;
+
 import static java.util.Collections.sort;
 
-// This class is not thread-safe
+@NotThreadSafe
+@NotNullByDefault
 class BlogCommentItem extends BlogPostItem {
 
 	private static final BlogCommentComparator COMPARATOR =

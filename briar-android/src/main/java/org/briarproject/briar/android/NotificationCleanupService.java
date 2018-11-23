@@ -38,6 +38,7 @@ public class NotificationCleanupService extends IntentService {
 	protected void onHandleIntent(@Nullable Intent i) {
 		if (i == null || i.getData() == null) return;
 		String uri = i.getData().toString();
+		//noinspection IfCanBeSwitch
 		if (uri.equals(CONTACT_URI)) {
 			notificationManager.clearAllContactNotifications();
 		} else if (uri.equals(GROUP_URI)) {

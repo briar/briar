@@ -17,7 +17,7 @@ class Migration40_41 implements Migration<Connection> {
 
 	private final DatabaseTypes dbTypes;
 
-	public Migration40_41(DatabaseTypes databaseTypes) {
+	Migration40_41(DatabaseTypes databaseTypes) {
 		this.dbTypes = databaseTypes;
 	}
 

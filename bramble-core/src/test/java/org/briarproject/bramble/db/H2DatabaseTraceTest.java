@@ -1,6 +1,7 @@
 package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.junit.Ignore;
@@ -8,9 +9,8 @@ import org.junit.Ignore;
 import java.io.File;
 import java.sql.Connection;
 
-import javax.annotation.Nonnull;
-
 @Ignore
+@NotNullByDefault
 public class H2DatabaseTraceTest extends DatabaseTraceTest {
 
 	@Override
@@ -18,7 +18,6 @@ public class H2DatabaseTraceTest extends DatabaseTraceTest {
 			MessageFactory messageFactory, Clock clock) {
 		return new H2Database(databaseConfig, messageFactory, clock) {
 			@Override
-			@Nonnull
 			String getUrl() {
 				return super.getUrl() + ";TRACE_LEVEL_FILE=3";
 			}

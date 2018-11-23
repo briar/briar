@@ -6,12 +6,15 @@ import android.support.v7.util.SortedList;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import java.util.Collection;
 
 import javax.annotation.Nullable;
 
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 
+@NotNullByDefault
 public abstract class BriarAdapter<T, V extends ViewHolder>
 		extends Adapter<V> implements VersionedAdapter {
 
