@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.IoUtils;
-import org.briarproject.bramble.util.OsUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +16,8 @@ import java.util.Set;
 
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.bramble.util.OsUtils.isLinux;
+import static org.briarproject.bramble.util.OsUtils.isMac;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +33,7 @@ public class UnixSecureRandomSpiTest extends BrambleTestCase {
 
 	@Before
 	public void setUp() {
-		assumeTrue(OsUtils.isLinux() || OsUtils.isMac());
+		assumeTrue(isLinux() || isMac());
 		assertTrue(testDir.mkdirs());
 	}
 

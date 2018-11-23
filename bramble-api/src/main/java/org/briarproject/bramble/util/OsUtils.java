@@ -10,8 +10,6 @@ public class OsUtils {
 	@Nullable
 	private static final String os = System.getProperty("os.name");
 	@Nullable
-	private static final String version = System.getProperty("os.version");
-	@Nullable
 	private static final String vendor = System.getProperty("java.vendor");
 
 	public static boolean isWindows() {
