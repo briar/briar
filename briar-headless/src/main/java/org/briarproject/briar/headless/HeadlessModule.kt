@@ -26,6 +26,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.CircumventionProvider
 import org.briarproject.bramble.plugin.tor.LinuxTorPluginFactory
 import org.briarproject.bramble.system.JavaSystemModule
+import org.briarproject.bramble.util.OsUtils
 import org.briarproject.bramble.util.StringUtils.fromHexString
 import org.briarproject.briar.headless.blogs.HeadlessBlogModule
 import org.briarproject.briar.headless.contact.HeadlessContactModule
@@ -70,11 +71,17 @@ internal class HeadlessModule(private val appDir: File) {
         circumventionProvider: CircumventionProvider, batteryManager: BatteryManager, clock: Clock
     ): PluginConfig {
         val torDirectory = File(appDir, "tor")
-        val tor = LinuxTorPluginFactory(
-            ioExecutor, networkManager, locationUtils, eventBus, torSocketFactory, backoffFactory,
-            resourceProvider, circumventionProvider, batteryManager, clock, torDirectory
-        )
-        val duplex = listOf<DuplexPluginFactory>(tor)
+        val duplex: List<DuplexPluginFactory>
+        if (OsUtils.isLinux()) {
+            val tor = LinuxTorPluginFactory(
+                ioExecutor, networkManager, locationUtils, eventBus,
+                torSocketFactory, backoffFactory, resourceProvider, circumventionProvider,
+                batteryManager, clock, torDirectory
+            )
+            duplex = listOf(tor)
+        } else {
+            duplex = emptyList()
+        }
         return object : PluginConfig {
             override fun getDuplexFactories(): Collection<DuplexPluginFactory> {
                 return duplex
