@@ -7,6 +7,7 @@ import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.IBinder;
+import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -77,6 +78,7 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		setOrientation(VERTICAL);
 		setLayoutTransition(new LayoutTransition());
 		inflateLayout(context);
+		setSaveEnabled(true);
 		if (!isInEditMode()) setUpViews(context, attrs);
 	}
 
@@ -116,6 +118,27 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 			return false;
 		});
 		sendButton.setOnClickListener(v -> onSendButtonClicked());
+	}
+
+	@Nullable
+	@Override
+	protected Parcelable onSaveInstanceState() {
+		Parcelable superState = super.onSaveInstanceState();
+		if (attachmentController != null) {
+			superState = attachmentController.onSaveInstanceState(superState);
+		}
+		return superState;
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Parcelable state) {
+		if (attachmentController != null) {
+			Parcelable outState =
+					attachmentController.onRestoreInstanceState(state);
+			super.onRestoreInstanceState(outState);
+		} else {
+			super.onRestoreInstanceState(state);
+		}
 	}
 
 	public void setListener(TextInputListener listener) {

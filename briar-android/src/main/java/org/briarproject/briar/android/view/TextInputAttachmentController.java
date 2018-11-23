@@ -4,9 +4,12 @@ import android.content.ClipData;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.view.AbsSavedState;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
@@ -35,6 +38,7 @@ import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
 import static android.graphics.Color.BLACK;
 import static android.graphics.Color.WHITE;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static android.support.v7.app.AppCompatDelegate.getDefaultNightMode;
 import static android.view.View.GONE;
@@ -92,15 +96,19 @@ class TextInputAttachmentController implements TextWatcher {
 		if (resultData == null) return;
 		if (resultData.getData() != null) {
 			imageUris = singletonList(resultData.getData());
+			onNewUris();
 		} else if (SDK_INT >= 18 && resultData.getClipData() != null) {
 			ClipData clipData = resultData.getClipData();
 			imageUris = new ArrayList<>(clipData.getItemCount());
 			for (int i = 0; i < clipData.getItemCount(); i++) {
 				imageUris.add(clipData.getItemAt(i).getUri());
 			}
-		} else {
-			return;
+			onNewUris();
 		}
+	}
+
+	private void onNewUris() {
+		if (imageUris.isEmpty()) return;
 		showImageButton(false);
 		editText.setHint(R.string.image_caption_hint);
 		imageLayout.setVisibility(VISIBLE);
@@ -206,6 +214,53 @@ class TextInputAttachmentController implements TextWatcher {
 		imageUris = emptyList();
 		// show the image button again, so images can get attached
 		showImageButton(true);
+	}
+
+	public Parcelable onSaveInstanceState(@Nullable Parcelable superState) {
+		SavedState state =
+				new SavedState(superState == null ? EMPTY_STATE : superState);
+		state.imageUris = imageUris;
+		return state;
+	}
+
+	@Nullable
+	public Parcelable onRestoreInstanceState(Parcelable inState) {
+		SavedState state = (SavedState) inState;
+		imageUris = state.imageUris;
+		onNewUris();
+		return state.getSuperState();
+	}
+
+	private static class SavedState extends AbsSavedState {
+		private List<Uri> imageUris;
+
+		private SavedState(Parcelable superState) {
+			super(superState);
+		}
+
+		private SavedState(Parcel in) {
+			super(in);
+			//noinspection unchecked
+			imageUris = in.readArrayList(Uri.class.getClassLoader());
+
+		}
+
+		@Override
+		public void writeToParcel(Parcel out, int flags) {
+			super.writeToParcel(out, flags);
+			out.writeList(imageUris);
+		}
+
+		public static final Parcelable.Creator<SavedState> CREATOR
+				= new Parcelable.Creator<SavedState>() {
+			public SavedState createFromParcel(Parcel in) {
+				return new SavedState(in);
+			}
+
+			public SavedState[] newArray(int size) {
+				return new SavedState[size];
+			}
+		};
 	}
 
 }
