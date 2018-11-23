@@ -14,7 +14,6 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;
 
@@ -26,6 +25,7 @@ import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.android.util.UiUtils.formatDate;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
 
@@ -95,7 +95,7 @@ public class AuthorView extends ConstraintLayout {
 	}
 
 	public void setDate(long date) {
-		this.date.setText(UiUtils.formatDate(getContext(), date));
+		this.date.setText(formatDate(getContext(), date));
 
 		invalidate();
 		requestLayout();

@@ -1,8 +1,6 @@
 package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.File;
 import java.sql.Connection;
@@ -10,9 +8,12 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
+
 public class BasicHyperSqlTest extends BasicDatabaseTest {
 
-	private final SecretKey key = TestUtils.getSecretKey();
+	private final SecretKey key = getSecretKey();
 
 	@Override
 	protected String getBinaryType() {
@@ -30,7 +31,7 @@ public class BasicHyperSqlTest extends BasicDatabaseTest {
 		String url = "jdbc:hsqldb:file:" + db.getAbsolutePath() +
 				";sql.enforce_size=false;allow_empty_batch=true";
 		if (encrypt) {
-			String hex = StringUtils.toHexString(key.getBytes());
+			String hex = toHexString(key.getBytes());
 			url += ";encrypt_lobs=true;crypt_type=AES;crypt_key=" + hex;
 		}
 		return DriverManager.getConnection(url);

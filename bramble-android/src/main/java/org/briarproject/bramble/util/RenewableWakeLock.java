@@ -14,13 +14,14 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 
 @ThreadSafe
 @NotNullByDefault
 public class RenewableWakeLock {
 
 	private static final Logger LOG =
-			Logger.getLogger(RenewableWakeLock.class.getName());
+			getLogger(RenewableWakeLock.class.getName());
 
 	/**
 	 * Automatically release the lock this many milliseconds after it's due

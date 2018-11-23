@@ -10,12 +10,14 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
+
 @Immutable
 @NotNullByDefault
 public class DbControllerImpl implements DbController {
 
 	private static final Logger LOG =
-			Logger.getLogger(DbControllerImpl.class.getName());
+			getLogger(DbControllerImpl.class.getName());
 
 	protected final Executor dbExecutor;
 	private final LifecycleManager lifecycleManager;

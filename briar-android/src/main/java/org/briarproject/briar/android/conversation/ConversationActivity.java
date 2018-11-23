@@ -114,6 +114,7 @@ import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -141,7 +142,7 @@ public class ConversationActivity extends BriarActivity
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
 	private static final Logger LOG =
-			Logger.getLogger(ConversationActivity.class.getName());
+			getLogger(ConversationActivity.class.getName());
 
 	private static final int TRANSITION_DURATION_MS = 500;
 	private static final int ONBOARDING_DELAY_MS = 250;

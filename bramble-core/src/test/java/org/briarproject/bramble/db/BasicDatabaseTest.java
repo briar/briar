@@ -1,8 +1,6 @@
 package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.sql.Types.BINARY;
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -30,7 +32,7 @@ public abstract class BasicDatabaseTest extends BrambleTestCase {
 
 	private static final int BATCH_SIZE = 100;
 
-	private final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = getTestDirectory();
 	private final File db = new File(testDir, "db");
 
 	protected abstract String getBinaryType();
@@ -56,9 +58,9 @@ public abstract class BasicDatabaseTest extends BrambleTestCase {
 			// Create the table
 			createTable(connection);
 			// Generate an ID and two names
-			byte[] id = TestUtils.getRandomId();
-			String oldName = StringUtils.getRandomString(50);
-			String newName = StringUtils.getRandomString(50);
+			byte[] id = getRandomId();
+			String oldName = getRandomString(50);
+			String newName = getRandomString(50);
 			// Insert the ID and old name into the table
 			insertRow(connection, id, oldName);
 			// Check that the old name can be retrieved using the ID
@@ -92,9 +94,9 @@ public abstract class BasicDatabaseTest extends BrambleTestCase {
 			String[] oldNames = new String[BATCH_SIZE];
 			String[] newNames = new String[BATCH_SIZE];
 			for (int i = 0; i < BATCH_SIZE; i++) {
-				ids[i] = TestUtils.getRandomId();
-				oldNames[i] = StringUtils.getRandomString(50);
-				newNames[i] = StringUtils.getRandomString(50);
+				ids[i] = getRandomId();
+				oldNames[i] = getRandomString(50);
+				newNames[i] = getRandomString(50);
 			}
 			// Insert the IDs and old names into the table as a batch
 			insertBatch(connection, ids, oldNames);
@@ -374,7 +376,7 @@ public abstract class BasicDatabaseTest extends BrambleTestCase {
 	}
 
 	@After
-	public void tearDown() throws Exception {
-		TestUtils.deleteTestDirectory(testDir);
+	public void tearDown() {
+		deleteTestDirectory(testDir);
 	}
 }

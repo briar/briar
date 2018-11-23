@@ -2,12 +2,12 @@ package org.briarproject.bramble.api.identity;
 
 import org.briarproject.bramble.api.Nameable;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 /**
  * A pseudonym for a user.
@@ -28,7 +28,7 @@ public class Author implements Nameable {
 
 	public Author(AuthorId id, int formatVersion, String name,
 			byte[] publicKey) {
-		int nameLength = StringUtils.toUtf8(name).length;
+		int nameLength = toUtf8(name).length;
 		if (nameLength == 0 || nameLength > MAX_AUTHOR_NAME_LENGTH)
 			throw new IllegalArgumentException();
 		if (publicKey.length == 0 || publicKey.length > MAX_PUBLIC_KEY_LENGTH)

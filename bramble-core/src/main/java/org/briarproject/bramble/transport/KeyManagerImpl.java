@@ -34,13 +34,13 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 
 @ThreadSafe
 @NotNullByDefault
 class KeyManagerImpl implements KeyManager, Service, EventListener {
 
-	private static final Logger LOG =
-			Logger.getLogger(KeyManagerImpl.class.getName());
+	private static final Logger LOG = getLogger(KeyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;

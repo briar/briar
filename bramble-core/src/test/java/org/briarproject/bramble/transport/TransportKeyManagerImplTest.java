@@ -16,7 +16,6 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.RunAction;
-import org.briarproject.bramble.test.TestUtils;
 import org.hamcrest.Description;
 import org.jmock.Expectations;
 import org.jmock.api.Action;
@@ -37,6 +36,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOC
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 import static org.junit.Assert.assertEquals;
@@ -62,9 +62,9 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	private final ContactId contactId1 = new ContactId(234);
 	private final KeySetId keySetId = new KeySetId(345);
 	private final KeySetId keySetId1 = new KeySetId(456);
-	private final SecretKey tagKey = TestUtils.getSecretKey();
-	private final SecretKey headerKey = TestUtils.getSecretKey();
-	private final SecretKey masterKey = TestUtils.getSecretKey();
+	private final SecretKey tagKey = getSecretKey();
+	private final SecretKey headerKey = getSecretKey();
+	private final SecretKey masterKey = getSecretKey();
 	private final Random random = new Random();
 
 	@Test

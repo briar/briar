@@ -13,7 +13,6 @@ import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.TestMessageFactory;
-import org.briarproject.bramble.test.TestUtils;
 import org.jmock.Expectations;
 import org.junit.After;
 import org.junit.Before;
@@ -29,7 +28,9 @@ import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPACE;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.JdbcDatabase.CODE_SCHEMA_VERSION;
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -37,7 +38,7 @@ import static org.junit.Assert.assertTrue;
 @NotNullByDefault
 public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 
-	private final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = getTestDirectory();
 	@SuppressWarnings("unchecked")
 	private final Migration<Connection> migration =
 			context.mock(Migration.class, "migration");
@@ -61,7 +62,7 @@ public abstract class DatabaseMigrationTest extends BrambleMockTestCase {
 
 	@After
 	public void tearDown() {
-		TestUtils.deleteTestDirectory(testDir);
+		deleteTestDirectory(testDir);
 	}
 
 	@Test

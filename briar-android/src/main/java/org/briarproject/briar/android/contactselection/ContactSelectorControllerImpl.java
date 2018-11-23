@@ -19,6 +19,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
@@ -28,7 +29,7 @@ public abstract class ContactSelectorControllerImpl
 		implements ContactSelectorController<SelectableContactItem> {
 
 	private static final Logger LOG =
-			Logger.getLogger(ContactSelectorControllerImpl.class.getName());
+			getLogger(ContactSelectorControllerImpl.class.getName());
 
 	private final ContactManager contactManager;
 

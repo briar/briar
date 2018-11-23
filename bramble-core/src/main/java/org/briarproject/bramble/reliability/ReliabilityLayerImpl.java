@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -25,7 +26,7 @@ class ReliabilityLayerImpl implements ReliabilityLayer, WriteHandler {
 	private static final int TICK_INTERVAL = 500; // Milliseconds
 
 	private static final Logger LOG =
-			Logger.getLogger(ReliabilityLayerImpl.class.getName());
+			getLogger(ReliabilityLayerImpl.class.getName());
 
 	private final Executor executor;
 	private final Clock clock;

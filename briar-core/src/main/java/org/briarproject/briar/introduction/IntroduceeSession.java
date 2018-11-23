@@ -17,9 +17,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_ACTIVATE;
 import static org.briarproject.briar.introduction.IntroduceeState.START;
-import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 
 @Immutable
 @NotNullByDefault

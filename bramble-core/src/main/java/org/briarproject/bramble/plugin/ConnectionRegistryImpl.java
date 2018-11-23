@@ -25,13 +25,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 
 @ThreadSafe
 @NotNullByDefault
 class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	private static final Logger LOG =
-			Logger.getLogger(ConnectionRegistryImpl.class.getName());
+			getLogger(ConnectionRegistryImpl.class.getName());
 
 	private final EventBus eventBus;
 	private final Lock lock = new ReentrantLock();

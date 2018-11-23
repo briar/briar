@@ -9,8 +9,6 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.api.reporting.DevReporter;
-import org.briarproject.bramble.util.IoUtils;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -30,14 +28,18 @@ import javax.inject.Inject;
 import javax.net.SocketFactory;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.bramble.util.IoUtils.getOutputStream;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @Immutable
 @NotNullByDefault
 class DevReporterImpl implements DevReporter, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(DevReporterImpl.class.getName());
+			getLogger(DevReporterImpl.class.getName());
 
 	private static final int SOCKET_TIMEOUT = 30 * 1000; // 30 seconds
 	private static final int LINE_LENGTH = 70;
@@ -73,7 +75,7 @@ class DevReporterImpl implements DevReporter, EventListener {
 	public void encryptReportToFile(File reportDir, String filename,
 			String report) throws FileNotFoundException {
 		LOG.info("Encrypting report to file");
-		byte[] plaintext = StringUtils.toUtf8(report);
+		byte[] plaintext = toUtf8(report);
 		byte[] ciphertext = crypto.encryptToKey(devConfig.getDevPublicKey(),
 				plaintext);
 		String armoured = crypto.asciiArmour(ciphertext, LINE_LENGTH);
@@ -112,9 +114,9 @@ class DevReporterImpl implements DevReporter, EventListener {
 			InputStream in = null;
 			try {
 				Socket s = connectToDevelopers();
-				out = IoUtils.getOutputStream(s);
+				out = getOutputStream(s);
 				in = new FileInputStream(f);
-				IoUtils.copyAndClose(in, out);
+				copyAndClose(in, out);
 				f.delete();
 			} catch (IOException e) {
 				LOG.log(WARNING, "Failed to send reports", e);

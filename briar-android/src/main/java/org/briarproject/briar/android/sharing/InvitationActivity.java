@@ -23,6 +23,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.sharing.InvitationAdapter.InvitationClickListener;
 
 @MethodsNotNullByDefault
@@ -32,7 +33,7 @@ public abstract class InvitationActivity<I extends InvitationItem>
 		implements InvitationListener, InvitationClickListener<I> {
 
 	protected static final Logger LOG =
-			Logger.getLogger(InvitationActivity.class.getName());
+			getLogger(InvitationActivity.class.getName());
 
 	private InvitationAdapter<I, ?> adapter;
 	private BriarRecyclerView list;

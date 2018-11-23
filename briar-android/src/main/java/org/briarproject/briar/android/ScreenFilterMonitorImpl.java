@@ -16,7 +16,6 @@ import android.support.annotation.UiThread;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
 import java.io.ByteArrayInputStream;
@@ -48,13 +47,15 @@ import static android.content.pm.PackageManager.GET_PERMISSIONS;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @NotNullByDefault
 class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 
 	private static final Logger LOG =
-			Logger.getLogger(ScreenFilterMonitorImpl.class.getName());
+			getLogger(ScreenFilterMonitorImpl.class.getName());
 
 	/*
  	 * Ignore Play Services if it uses this package name and public key - it's
@@ -187,7 +188,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 			X509Certificate cert =
 					(X509Certificate) certFactory.generateCertificate(in);
 			byte[] publicKeyBytes = cert.getPublicKey().getEncoded();
-			String publicKey = StringUtils.toHexString(publicKeyBytes);
+			String publicKey = toHexString(publicKeyBytes);
 			return PLAY_SERVICES_PUBLIC_KEY.equals(publicKey);
 		} catch (NameNotFoundException | CertificateException e) {
 			logException(LOG, WARNING, e);

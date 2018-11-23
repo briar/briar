@@ -15,12 +15,13 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static android.content.Context.TELEPHONY_SERVICE;
+import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
 class AndroidLocationUtils implements LocationUtils {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidLocationUtils.class.getName());
+			getLogger(AndroidLocationUtils.class.getName());
 
 	private final Context appContext;
 

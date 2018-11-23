@@ -21,14 +21,13 @@ import javax.annotation.Nullable;
 class ConversationAdapter
 		extends BriarAdapter<ConversationItem, ConversationItemViewHolder> {
 
-	private ConversationListener listener;
+	private final ConversationListener listener;
 	private final RecycledViewPool imageViewPool;
 	private final ImageItemDecoration imageItemDecoration;
 
-	ConversationAdapter(Context ctx,
-			ConversationListener conversationListener) {
+	ConversationAdapter(Context ctx, ConversationListener listener) {
 		super(ctx, ConversationItem.class);
-		listener = conversationListener;
+		this.listener = listener;
 		// This shares the same pool for view recycling between all image lists
 		imageViewPool = new RecycledViewPool();
 		// Share the item decoration as well

@@ -8,9 +8,10 @@ import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
-import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
+
+import static org.briarproject.briar.android.util.UiUtils.setTheme;
 
 class BriarAccountManager extends AndroidAccountManager {
 
@@ -26,7 +27,7 @@ class BriarAccountManager extends AndroidAccountManager {
 		synchronized (stateChangeLock) {
 			super.deleteAccount();
 			Localizer.reinitialize();
-			UiUtils.setTheme(appContext,
+			setTheme(appContext,
 					appContext.getString(R.string.pref_theme_light_value));
 		}
 	}

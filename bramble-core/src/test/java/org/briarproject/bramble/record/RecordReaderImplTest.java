@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.util.ByteUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -12,6 +11,7 @@ import java.io.EOFException;
 
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -36,7 +36,7 @@ public class RecordReaderImplTest extends BrambleTestCase {
 		// Version 1, type 2, payload length MAX_RECORD_PAYLOAD_BYTES
 		record[0] = 1;
 		record[1] = 2;
-		ByteUtils.writeUint16(MAX_RECORD_PAYLOAD_BYTES, record, 2);
+		writeUint16(MAX_RECORD_PAYLOAD_BYTES, record, 2);
 		ByteArrayInputStream in = new ByteArrayInputStream(record);
 		RecordReader reader = new RecordReaderImpl(in);
 		reader.readRecord();
@@ -57,7 +57,7 @@ public class RecordReaderImplTest extends BrambleTestCase {
 			throws Exception {
 		// Version 1, type 2, payload length MAX_RECORD_PAYLOAD_BYTES + 1
 		byte[] header = new byte[] {1, 2, 0, 0};
-		ByteUtils.writeUint16(MAX_RECORD_PAYLOAD_BYTES + 1, header, 2);
+		writeUint16(MAX_RECORD_PAYLOAD_BYTES + 1, header, 2);
 		ByteArrayInputStream in = new ByteArrayInputStream(header);
 		RecordReader reader = new RecordReaderImpl(in);
 		reader.readRecord();

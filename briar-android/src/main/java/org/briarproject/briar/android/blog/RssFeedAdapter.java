@@ -10,11 +10,11 @@ import android.widget.TextView;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.feed.Feed;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
 class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 
@@ -54,8 +54,8 @@ class RssFeedAdapter extends BriarAdapter<Feed, RssFeedAdapter.FeedViewHolder> {
 		}
 
 		// Imported and Last Updated
-		ui.imported.setText(UiUtils.formatDate(ctx, item.getAdded()));
-		ui.updated.setText(UiUtils.formatDate(ctx, item.getUpdated()));
+		ui.imported.setText(formatDate(ctx, item.getAdded()));
+		ui.updated.setText(formatDate(ctx, item.getUpdated()));
 
 		// Description
 		if (item.getDescription() != null) {

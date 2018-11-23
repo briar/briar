@@ -31,6 +31,7 @@ import static android.view.Surface.ROTATION_90;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 
 /**
  * RelativeLayout that, when a view container, will report back when it thinks
@@ -40,7 +41,7 @@ import static java.util.logging.Level.WARNING;
 public class KeyboardAwareLinearLayout extends LinearLayout {
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyboardAwareLinearLayout.class.getName());
+			getLogger(KeyboardAwareLinearLayout.class.getName());
 
 	private final Rect rect = new Rect();
 	private final Set<OnKeyboardShownListener> shownListeners = new HashSet<>();

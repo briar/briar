@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
@@ -38,7 +39,8 @@ class RevealContactsControllerImpl extends DbControllerImpl
 		implements RevealContactsController {
 
 	private static final Logger LOG =
-			Logger.getLogger(RevealContactsControllerImpl.class.getName());
+			getLogger(RevealContactsControllerImpl.class.getName());
+
 	private static final String SHOW_ONBOARDING_REVEAL_CONTACTS =
 			"showOnboardingRevealContacts";
 

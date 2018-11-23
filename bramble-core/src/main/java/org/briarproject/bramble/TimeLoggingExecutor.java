@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.FINE;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
@@ -22,7 +23,7 @@ public class TimeLoggingExecutor extends ThreadPoolExecutor {
 			RejectedExecutionHandler handler) {
 		super(corePoolSize, maxPoolSize, keepAliveTime, unit, workQueue,
 				handler);
-		log = Logger.getLogger(tag);
+		log = getLogger(tag);
 	}
 
 	@Override

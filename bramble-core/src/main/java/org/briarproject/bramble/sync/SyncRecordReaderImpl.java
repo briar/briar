@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
-import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -28,6 +27,7 @@ import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.util.ByteUtils.readUint64;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -127,7 +127,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 		if (payload.length <= MESSAGE_HEADER_LENGTH)
 			throw new FormatException();
 		// Validate timestamp
-		long timestamp = ByteUtils.readUint64(payload, UniqueId.LENGTH);
+		long timestamp = readUint64(payload, UniqueId.LENGTH);
 		if (timestamp < 0) throw new FormatException();
 		nextRecord = null;
 		return messageFactory.createMessage(payload);

@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -38,7 +39,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 	ConnectionRegistry connectionRegistry;
 
 	private static final Logger LOG =
-			Logger.getLogger(SharingStatusActivity.class.getName());
+			getLogger(SharingStatusActivity.class.getName());
 
 	private GroupId groupId;
 	private BriarRecyclerView list;

@@ -36,6 +36,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -46,7 +47,7 @@ class BlogControllerImpl extends BaseControllerImpl
 		implements ActivityLifecycleController, BlogController, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(BlogControllerImpl.class.getName());
+			getLogger(BlogControllerImpl.class.getName());
 
 	private final BlogSharingManager blogSharingManager;
 	private volatile GroupId groupId = null;

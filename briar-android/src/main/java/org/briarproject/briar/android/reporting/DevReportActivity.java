@@ -45,6 +45,7 @@ import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.acra.ACRAConstants.EXTRA_REPORT_FILE;
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APP_VERSION_CODE;
@@ -58,7 +59,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		implements CompoundButton.OnCheckedChangeListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(DevReportActivity.class.getName());
+			getLogger(DevReportActivity.class.getName());
 
 	private static final String STATE_REVIEWING = "reviewing";
 	private static final Set<ReportField> requiredFields = new HashSet<>();

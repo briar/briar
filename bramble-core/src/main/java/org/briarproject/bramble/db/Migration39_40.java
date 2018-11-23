@@ -8,12 +8,12 @@ import java.sql.Statement;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
 
 class Migration39_40 implements Migration<Connection> {
 
-	private static final Logger LOG =
-			Logger.getLogger(Migration39_40.class.getName());
+	private static final Logger LOG = getLogger(Migration39_40.class.getName());
 
 	@Override
 	public int getStartVersion() {

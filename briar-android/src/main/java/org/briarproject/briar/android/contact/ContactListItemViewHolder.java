@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
-import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.Locale;
 
@@ -16,6 +15,8 @@ import javax.annotation.Nullable;
 
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
+import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
+import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 
 @UiThread
 @NotNullByDefault
@@ -53,8 +54,8 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 		}
 
 		ContactId c = item.getContact().getId();
-		setTransitionName(avatar, UiUtils.getAvatarTransitionName(c));
-		setTransitionName(bulb, UiUtils.getBulbTransitionName(c));
+		setTransitionName(avatar, getAvatarTransitionName(c));
+		setTransitionName(bulb, getBulbTransitionName(c));
 	}
 
 }

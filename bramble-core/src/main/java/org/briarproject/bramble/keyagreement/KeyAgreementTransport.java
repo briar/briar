@@ -16,6 +16,7 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.ABORT;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.CONFIRM;
@@ -29,7 +30,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class KeyAgreementTransport {
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyAgreementTransport.class.getName());
+			getLogger(KeyAgreementTransport.class.getName());
 
 	private final KeyAgreementConnection kac;
 	private final RecordReader reader;

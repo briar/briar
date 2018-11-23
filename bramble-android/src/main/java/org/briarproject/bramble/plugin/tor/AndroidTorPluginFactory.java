@@ -26,12 +26,14 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 import javax.net.SocketFactory;
 
+import static java.util.logging.Logger.getLogger;
+
 @Immutable
 @NotNullByDefault
 public class AndroidTorPluginFactory implements DuplexPluginFactory {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidTorPluginFactory.class.getName());
+			getLogger(AndroidTorPluginFactory.class.getName());
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds

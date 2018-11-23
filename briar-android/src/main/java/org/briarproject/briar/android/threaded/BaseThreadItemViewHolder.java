@@ -13,12 +13,12 @@ import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
 
 import static android.support.v4.content.ContextCompat.getColor;
+import static org.briarproject.bramble.util.StringUtils.trim;
 
 @UiThread
 @NotNullByDefault
@@ -41,7 +41,7 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 
 	@CallSuper
 	public void bind(I item, ThreadItemListener<I> listener) {
-		textView.setText(StringUtils.trim(item.getText()));
+		textView.setText(trim(item.getText()));
 
 		author.setAuthor(item.getAuthor(), item.getAuthorInfo());
 		author.setDate(item.getTimestamp());

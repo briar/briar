@@ -21,6 +21,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
@@ -28,7 +29,7 @@ import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 public class BriarControllerImpl implements BriarController {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarControllerImpl.class.getName());
+			getLogger(BriarControllerImpl.class.getName());
 
 	public static final String DOZE_ASK_AGAIN = "dozeAskAgain";
 

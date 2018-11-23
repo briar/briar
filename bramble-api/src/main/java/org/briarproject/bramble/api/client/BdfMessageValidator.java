@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 
 @Immutable
@@ -23,7 +24,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOC
 public abstract class BdfMessageValidator implements MessageValidator {
 
 	protected static final Logger LOG =
-			Logger.getLogger(BdfMessageValidator.class.getName());
+			getLogger(BdfMessageValidator.class.getName());
 
 	protected final ClientHelper clientHelper;
 	protected final MetadataEncoder metadataEncoder;

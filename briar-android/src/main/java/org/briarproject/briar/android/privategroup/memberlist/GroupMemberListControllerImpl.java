@@ -19,13 +19,14 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 class GroupMemberListControllerImpl extends DbControllerImpl
 		implements GroupMemberListController {
 
 	private static final Logger LOG =
-			Logger.getLogger(GroupMemberListControllerImpl.class.getName());
+			getLogger(GroupMemberListControllerImpl.class.getName());
 
 	private final ConnectionRegistry connectionRegistry;
 	private final PrivateGroupManager privateGroupManager;

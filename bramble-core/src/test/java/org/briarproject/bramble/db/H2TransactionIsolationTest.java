@@ -1,7 +1,6 @@
 package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,6 +13,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,7 +33,7 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 	private static final String SET_COUNTER =
 			"UPDATE foo SET counter = ? WHERE key = 1";
 
-	private final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = getTestDirectory();
 	private final File db = new File(testDir, "db");
 	private final String withMvcc = "jdbc:h2:split:" + db.getAbsolutePath()
 			+ ";MV_STORE=TRUE;MVCC=TRUE";
@@ -47,7 +48,7 @@ public class H2TransactionIsolationTest extends BrambleTestCase {
 
 	@After
 	public void tearDown() throws Exception {
-		TestUtils.deleteTestDirectory(testDir);
+		deleteTestDirectory(testDir);
 	}
 
 	@Test

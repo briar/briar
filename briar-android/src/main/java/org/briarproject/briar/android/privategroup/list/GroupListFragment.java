@@ -38,6 +38,7 @@ import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -45,7 +46,8 @@ public class GroupListFragment extends BaseFragment implements
 		GroupListListener, OnGroupRemoveClickListener, OnClickListener {
 
 	public final static String TAG = GroupListFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+
+	private static final Logger LOG = getLogger(TAG);
 
 	public static GroupListFragment newInstance() {
 		return new GroupListFragment();

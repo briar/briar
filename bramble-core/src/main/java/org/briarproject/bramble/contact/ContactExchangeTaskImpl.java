@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -54,7 +55,7 @@ import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 	private static final Logger LOG =
-			Logger.getLogger(ContactExchangeTaskImpl.class.getName());
+			getLogger(ContactExchangeTaskImpl.class.getName());
 
 	private static final String SIGNING_LABEL_EXCHANGE =
 			"org.briarproject.briar.contact/EXCHANGE";

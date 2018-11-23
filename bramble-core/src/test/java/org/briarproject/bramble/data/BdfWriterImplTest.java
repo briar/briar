@@ -1,7 +1,6 @@
 package org.briarproject.bramble.data;
 
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.util.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,6 +12,9 @@ import java.util.List;
 import java.util.Map;
 
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 import static org.junit.Assert.assertArrayEquals;
 
 public class BdfWriterImplTest extends BrambleTestCase {
@@ -80,8 +82,8 @@ public class BdfWriterImplTest extends BrambleTestCase {
 
 	@Test
 	public void testWriteString8() throws IOException {
-		String longest = StringUtils.getRandomString(Byte.MAX_VALUE);
-		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
+		String longest = getRandomString(Byte.MAX_VALUE);
+		String longHex = toHexString(longest.getBytes("UTF-8"));
 		w.writeString("foo bar baz bam ");
 		w.writeString(longest);
 		// STRING_8 tag, length 16, UTF-8 bytes, STRING_8 tag, length 127,
@@ -92,10 +94,10 @@ public class BdfWriterImplTest extends BrambleTestCase {
 
 	@Test
 	public void testWriteString16() throws IOException {
-		String shortest = StringUtils.getRandomString(Byte.MAX_VALUE + 1);
-		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
-		String longest = StringUtils.getRandomString(Short.MAX_VALUE);
-		String longHex = StringUtils.toHexString(longest.getBytes("UTF-8"));
+		String shortest = getRandomString(Byte.MAX_VALUE + 1);
+		String shortHex = toHexString(shortest.getBytes("UTF-8"));
+		String longest = getRandomString(Short.MAX_VALUE);
+		String longHex = toHexString(longest.getBytes("UTF-8"));
 		w.writeString(shortest);
 		w.writeString(longest);
 		// STRING_16 tag, length 128, UTF-8 bytes, STRING_16 tag,
@@ -105,8 +107,8 @@ public class BdfWriterImplTest extends BrambleTestCase {
 
 	@Test
 	public void testWriteString32() throws IOException {
-		String shortest = StringUtils.getRandomString(Short.MAX_VALUE + 1);
-		String shortHex = StringUtils.toHexString(shortest.getBytes("UTF-8"));
+		String shortest = getRandomString(Short.MAX_VALUE + 1);
+		String shortHex = toHexString(shortest.getBytes("UTF-8"));
 		w.writeString(shortest);
 		// STRING_32 tag, length 2^15, UTF-8 bytes
 		checkContents("44" + "00008000" + shortHex);
@@ -115,7 +117,7 @@ public class BdfWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testWriteUtf8String() throws IOException {
 		String unicode = "\uFDD0\uFDD1\uFDD2\uFDD3";
-		String hex = StringUtils.toHexString(unicode.getBytes("UTF-8"));
+		String hex = toHexString(unicode.getBytes("UTF-8"));
 		w.writeString(unicode);
 		// STRING_8 tag, length 12, UTF-8 bytes
 		checkContents("41" + "0C" + hex);
@@ -124,7 +126,7 @@ public class BdfWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testWriteRaw8() throws IOException {
 		byte[] longest = new byte[Byte.MAX_VALUE];
-		String longHex = StringUtils.toHexString(longest);
+		String longHex = toHexString(longest);
 		w.writeRaw(new byte[] {1, 2, 3});
 		w.writeRaw(longest);
 		// RAW_8 tag, length 3, bytes, RAW_8 tag, length 127, bytes
@@ -134,9 +136,9 @@ public class BdfWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testWriteRaw16() throws IOException {
 		byte[] shortest = new byte[Byte.MAX_VALUE + 1];
-		String shortHex = StringUtils.toHexString(shortest);
+		String shortHex = toHexString(shortest);
 		byte[] longest = new byte[Short.MAX_VALUE];
-		String longHex = StringUtils.toHexString(longest);
+		String longHex = toHexString(longest);
 		w.writeRaw(shortest);
 		w.writeRaw(longest);
 		// RAW_16 tag, length 128, bytes, RAW_16 tag, length 2^15 - 1, bytes
@@ -146,7 +148,7 @@ public class BdfWriterImplTest extends BrambleTestCase {
 	@Test
 	public void testWriteRaw32() throws IOException {
 		byte[] shortest = new byte[Short.MAX_VALUE + 1];
-		String shortHex = StringUtils.toHexString(shortest);
+		String shortHex = toHexString(shortest);
 		w.writeRaw(shortest);
 		// RAW_32 tag, length 2^15, bytes
 		checkContents("54" + "00008000" + shortHex);
@@ -233,8 +235,8 @@ public class BdfWriterImplTest extends BrambleTestCase {
 	private void checkContents(String hex) throws IOException {
 		out.flush();
 		out.close();
-		byte[] expected = StringUtils.fromHexString(hex);
-		assertArrayEquals(StringUtils.toHexString(out.toByteArray()),
+		byte[] expected = fromHexString(hex);
+		assertArrayEquals(toHexString(out.toByteArray()),
 				expected, out.toByteArray());
 	}
 }

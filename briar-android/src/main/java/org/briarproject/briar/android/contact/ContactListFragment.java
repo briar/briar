@@ -53,6 +53,7 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -64,7 +65,8 @@ import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 public class ContactListFragment extends BaseFragment implements EventListener {
 
 	public static final String TAG = ContactListFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+
+	private static final Logger LOG = getLogger(TAG);
 
 	@Inject
 	ConnectionRegistry connectionRegistry;

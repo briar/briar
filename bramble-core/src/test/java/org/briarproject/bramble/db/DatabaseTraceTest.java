@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.TestMessageFactory;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -20,6 +19,7 @@ import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 
 public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 
@@ -58,7 +58,6 @@ public abstract class DatabaseTraceTest extends DatabasePerformanceTest {
 		if (!src.exists()) return;
 		String filename = getTestName() + "." + name + ".trace.txt";
 		File dest = new File(testDir.getParentFile(), filename);
-		IoUtils.copyAndClose(new FileInputStream(src),
-				new FileOutputStream(dest));
+		copyAndClose(new FileInputStream(src), new FileOutputStream(dest));
 	}
 }

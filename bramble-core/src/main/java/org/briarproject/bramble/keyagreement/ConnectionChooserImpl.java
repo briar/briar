@@ -20,13 +20,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
 @ThreadSafe
 class ConnectionChooserImpl implements ConnectionChooser {
 
 	private static final Logger LOG =
-			Logger.getLogger(ConnectionChooserImpl.class.getName());
+			getLogger(ConnectionChooserImpl.class.getName());
 
 	private final Clock clock;
 	private final Executor ioExecutor;

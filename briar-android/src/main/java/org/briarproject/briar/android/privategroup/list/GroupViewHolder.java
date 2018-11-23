@@ -13,13 +13,13 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.TextAvatarView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_NAME;
+import static org.briarproject.briar.android.util.UiUtils.formatDate;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @MethodsNotNullByDefault
@@ -86,7 +86,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 								messageCount));
 
 				long lastUpdate = group.getTimestamp();
-				date.setText(UiUtils.formatDate(ctx, lastUpdate));
+				date.setText(formatDate(ctx, lastUpdate));
 				date.setVisibility(VISIBLE);
 				status.setVisibility(GONE);
 			}

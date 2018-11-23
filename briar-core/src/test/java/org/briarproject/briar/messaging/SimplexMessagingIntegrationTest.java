@@ -24,7 +24,6 @@ import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -45,6 +44,7 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
@@ -184,7 +184,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	@After
 	public void tearDown() {
-		TestUtils.deleteTestDirectory(testDir);
+		deleteTestDirectory(testDir);
 	}
 
 	private static void injectEagerSingletons(

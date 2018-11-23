@@ -1,6 +1,5 @@
 package org.briarproject.bramble.socks;
 
-import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
@@ -11,6 +10,8 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
 import java.util.Arrays;
+
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
 
 class SocksSocket extends Socket {
 
@@ -108,7 +109,7 @@ class SocksSocket extends Socket {
 		connectRequest[4] = (byte) host.length(); // Length of domain name
 		for (int i = 0; i < host.length(); i++)
 			connectRequest[5 + i] = (byte) host.charAt(i);
-		ByteUtils.writeUint16(port, connectRequest, connectRequest.length - 2);
+		writeUint16(port, connectRequest, connectRequest.length - 2);
 		out.write(connectRequest);
 		out.flush();
 	}

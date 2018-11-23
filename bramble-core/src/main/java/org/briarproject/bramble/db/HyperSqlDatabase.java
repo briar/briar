@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.File;
 import java.sql.Connection;
@@ -22,6 +21,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 /**
  * Contains all the HSQLDB-specific code for the database.
@@ -114,7 +114,7 @@ class HyperSqlDatabase extends JdbcDatabase {
 	protected Connection createConnection() throws SQLException {
 		SecretKey key = this.key;
 		if (key == null) throw new IllegalStateException();
-		String hex = StringUtils.toHexString(key.getBytes());
+		String hex = toHexString(key.getBytes());
 		return DriverManager.getConnection(url + ";crypt_key=" + hex);
 	}
 

@@ -23,6 +23,7 @@ import javax.inject.Inject;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -31,7 +32,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 		ContactExchangeListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(ContactExchangeActivity.class.getName());
+			getLogger(ContactExchangeActivity.class.getName());
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject

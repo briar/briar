@@ -38,6 +38,7 @@ import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @SuppressWarnings("deprecation")
@@ -46,14 +47,13 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		AutoFocusCallback, View.OnClickListener {
 
+	private static final Logger LOG = getLogger(CameraView.class.getName());
+
 	// Heuristic for the ideal preview size - small previews don't have enough
 	// detail, large previews are slow to decode
 	private static final int IDEAL_PIXELS = 500 * 1000;
 
 	private static final int AUTO_FOCUS_RETRY_DELAY = 5000; // Milliseconds
-
-	private static final Logger LOG =
-			Logger.getLogger(CameraView.class.getName());
 
 	private final Runnable autoFocusRetry = this::retryAutoFocus;
 

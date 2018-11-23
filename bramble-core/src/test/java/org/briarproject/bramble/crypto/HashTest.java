@@ -3,12 +3,12 @@ package org.briarproject.bramble.crypto;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestSecureRandomProvider;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 
 import java.util.Arrays;
 
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -16,9 +16,9 @@ public class HashTest extends BrambleTestCase {
 
 	private final CryptoComponent crypto;
 
-	private final String label = StringUtils.getRandomString(42);
-	private final byte[] inputBytes = TestUtils.getRandomBytes(123);
-	private final byte[] inputBytes1 = TestUtils.getRandomBytes(234);
+	private final String label = getRandomString(42);
+	private final byte[] inputBytes = getRandomBytes(123);
+	private final byte[] inputBytes1 = getRandomBytes(234);
 	private final byte[] inputBytes2 = new byte[0];
 
 	public HashTest() {
@@ -41,7 +41,7 @@ public class HashTest extends BrambleTestCase {
 
 	@Test
 	public void testDifferentLabelsProduceDifferentHashes() {
-		String label2 = StringUtils.getRandomString(42);
+		String label2 = getRandomString(42);
 		byte[] hash1 = crypto.hash(label, inputBytes, inputBytes1, inputBytes2);
 		byte[] hash2 =
 				crypto.hash(label2, inputBytes, inputBytes1, inputBytes2);

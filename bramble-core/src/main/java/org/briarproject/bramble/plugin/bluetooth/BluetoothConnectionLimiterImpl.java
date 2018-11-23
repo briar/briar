@@ -13,6 +13,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -20,7 +21,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 
 	private static final Logger LOG =
-			Logger.getLogger(BluetoothConnectionLimiterImpl.class.getName());
+			getLogger(BluetoothConnectionLimiterImpl.class.getName());
 
 	private final Object lock = new Object();
 	// The following are locking: lock

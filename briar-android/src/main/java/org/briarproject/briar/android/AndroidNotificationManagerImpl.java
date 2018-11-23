@@ -29,7 +29,6 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
@@ -71,6 +70,8 @@ import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static android.support.v4.content.ContextCompat.getColor;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_BLOGS;
@@ -348,7 +349,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (currentTime - lastSound > SOUND_DELAY) {
 			boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
 			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri))
+			if (sound && !isNullOrEmpty(ringtoneUri))
 				b.setSound(Uri.parse(ringtoneUri));
 			b.setDefaults(getDefaults());
 			lastSound = currentTime;
@@ -360,7 +361,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		int defaults = DEFAULT_LIGHTS;
 		boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
 		String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-		if (sound && StringUtils.isNullOrEmpty(ringtoneUri))
+		if (sound && isNullOrEmpty(ringtoneUri))
 			defaults |= DEFAULT_SOUND;
 		if (settings.getBoolean(PREF_NOTIFY_VIBRATION, true))
 			defaults |= DEFAULT_VIBRATE;
@@ -422,7 +423,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				Intent i = new Intent(appContext, GroupActivity.class);
 				GroupId g = groups.iterator().next();
 				i.putExtra(GROUP_ID, g.getBytes());
-				String idHex = StringUtils.toHexString(g.getBytes());
+				String idHex = toHexString(g.getBytes());
 				i.setData(Uri.parse(GROUP_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
@@ -493,7 +494,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 				Intent i = new Intent(appContext, ForumActivity.class);
 				GroupId g = forums.iterator().next();
 				i.putExtra(GROUP_ID, g.getBytes());
-				String idHex = StringUtils.toHexString(g.getBytes());
+				String idHex = toHexString(g.getBytes());
 				i.setData(Uri.parse(FORUM_URI + "/" + idHex));
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);

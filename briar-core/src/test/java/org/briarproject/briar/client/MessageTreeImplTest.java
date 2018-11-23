@@ -2,7 +2,6 @@ package org.briarproject.briar.client;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTree;
 import org.junit.Test;
 
@@ -11,6 +10,7 @@ import java.util.Collections;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
 
 public class MessageTreeImplTest {
@@ -62,7 +62,7 @@ public class MessageTreeImplTest {
 	@NotNullByDefault
 	private class TestNode implements MessageTree.MessageNode {
 
-		private final MessageId id = new MessageId(TestUtils.getRandomId());
+		private final MessageId id = new MessageId(getRandomId());
 		@Nullable
 		private MessageId parentId;
 		private long timestamp;

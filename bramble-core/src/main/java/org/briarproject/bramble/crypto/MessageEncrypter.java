@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 import org.spongycastle.asn1.teletrust.TeleTrusTNamedCurves;
 import org.spongycastle.asn1.x9.X9ECParameters;
 import org.spongycastle.crypto.AsymmetricCipherKeyPair;
@@ -44,6 +43,9 @@ import java.security.SecureRandom;
 import java.util.Scanner;
 
 import javax.annotation.concurrent.Immutable;
+
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @Immutable
 @NotNullByDefault
@@ -210,11 +212,11 @@ public class MessageEncrypter {
 		MessageEncrypter encrypter = new MessageEncrypter(random);
 		KeyPair keyPair = encrypter.generateKeyPair();
 		PrintStream out = new PrintStream(new FileOutputStream(publicKeyFile));
-		out.print(StringUtils.toHexString(keyPair.getPublic().getEncoded()));
+		out.print(toHexString(keyPair.getPublic().getEncoded()));
 		out.flush();
 		out.close();
 		out = new PrintStream(new FileOutputStream(privateKeyFile));
-		out.print(StringUtils.toHexString(keyPair.getPrivate().getEncoded()));
+		out.print(toHexString(keyPair.getPrivate().getEncoded()));
 		out.flush();
 		out.close();
 	}
@@ -223,7 +225,7 @@ public class MessageEncrypter {
 		SecureRandom random = new SecureRandom();
 		MessageEncrypter encrypter = new MessageEncrypter(random);
 		InputStream in = new FileInputStream(publicKeyFile);
-		byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
+		byte[] keyBytes = fromHexString(readFully(in).trim());
 		PublicKey publicKey =
 				encrypter.getKeyParser().parsePublicKey(keyBytes);
 		String message = readFully(System.in);
@@ -236,7 +238,7 @@ public class MessageEncrypter {
 		SecureRandom random = new SecureRandom();
 		MessageEncrypter encrypter = new MessageEncrypter(random);
 		InputStream in = new FileInputStream(privateKeyFile);
-		byte[] keyBytes = StringUtils.fromHexString(readFully(in).trim());
+		byte[] keyBytes = fromHexString(readFully(in).trim());
 		PrivateKey privateKey =
 				encrypter.getKeyParser().parsePrivateKey(keyBytes);
 		byte[] ciphertext = AsciiArmour.unwrap(readFully(System.in));

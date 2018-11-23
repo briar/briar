@@ -30,12 +30,13 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 public class RssFeedImportActivity extends BriarActivity {
 
 	private static final Logger LOG =
-			Logger.getLogger(RssFeedImportActivity.class.getName());
+			getLogger(RssFeedImportActivity.class.getName());
 
 	private EditText urlInput;
 	private Button importButton;

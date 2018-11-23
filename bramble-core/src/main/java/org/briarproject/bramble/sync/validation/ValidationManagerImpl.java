@@ -40,6 +40,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
@@ -51,7 +52,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(ValidationManagerImpl.class.getName());
+			getLogger(ValidationManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor, validationExecutor;

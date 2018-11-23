@@ -33,6 +33,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -44,7 +45,7 @@ abstract class BaseControllerImpl extends DbControllerImpl
 		implements BaseController, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(BaseControllerImpl.class.getName());
+			getLogger(BaseControllerImpl.class.getName());
 
 	protected final EventBus eventBus;
 	protected final AndroidNotificationManager notificationManager;

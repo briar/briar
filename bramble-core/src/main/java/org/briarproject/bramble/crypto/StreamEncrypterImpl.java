@@ -3,7 +3,6 @@ package org.briarproject.bramble.crypto;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.StreamEncrypter;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -24,6 +23,8 @@ import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_H
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_PLAINTEXT_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
+import static org.briarproject.bramble.util.ByteUtils.writeUint64;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -118,9 +119,8 @@ class StreamEncrypterImpl implements StreamEncrypter {
 	private void writeStreamHeader() throws IOException {
 		// The header contains the protocol version, stream number and frame key
 		byte[] streamHeaderPlaintext = new byte[STREAM_HEADER_PLAINTEXT_LENGTH];
-		ByteUtils.writeUint16(PROTOCOL_VERSION, streamHeaderPlaintext, 0);
-		ByteUtils.writeUint64(streamNumber, streamHeaderPlaintext,
-				INT_16_BYTES);
+		writeUint16(PROTOCOL_VERSION, streamHeaderPlaintext, 0);
+		writeUint64(streamNumber, streamHeaderPlaintext, INT_16_BYTES);
 		System.arraycopy(frameKey.getBytes(), 0, streamHeaderPlaintext,
 				INT_16_BYTES + INT_64_BYTES, SecretKey.LENGTH);
 		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];

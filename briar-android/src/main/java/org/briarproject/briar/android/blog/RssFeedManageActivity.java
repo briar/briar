@@ -27,13 +27,14 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 public class RssFeedManageActivity extends BriarActivity
 		implements RssFeedListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(RssFeedManageActivity.class.getName());
+			getLogger(RssFeedManageActivity.class.getName());
 
 	private BriarRecyclerView list;
 	private RssFeedAdapter adapter;

@@ -6,11 +6,12 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.reliability.ReliabilityLayerFactory;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
+
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
 @NotNullByDefault
@@ -41,7 +42,7 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
 		// This plugin is not enabled by default
 		String enabled = callback.getSettings().get("enabled");
-		if (StringUtils.isNullOrEmpty(enabled)) return null;
+		if (isNullOrEmpty(enabled)) return null;
 		return new ModemPlugin(modemFactory, serialPortList, callback,
 				MAX_LATENCY);
 	}

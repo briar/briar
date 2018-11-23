@@ -6,11 +6,11 @@ import android.os.Bundle;
 import java.util.logging.Logger;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.logging.Logger.getLogger;
 
 public class ExitActivity extends Activity {
 
-	private static final Logger LOG =
-			Logger.getLogger(ExitActivity.class.getName());
+	private static final Logger LOG = getLogger(ExitActivity.class.getName());
 
 	@Override
 	public void onCreate(Bundle state) {

@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -36,7 +37,7 @@ class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
 		KeyAgreementProtocol.Callbacks, KeyAgreementConnector.Callbacks {
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyAgreementTaskImpl.class.getName());
+			getLogger(KeyAgreementTaskImpl.class.getName());
 
 	private final CryptoComponent crypto;
 	private final KeyAgreementCrypto keyAgreementCrypto;

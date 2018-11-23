@@ -27,6 +27,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
 import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.OsUtils.isWindows;
 
@@ -35,7 +36,7 @@ import static org.briarproject.bramble.util.OsUtils.isWindows;
 class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	private static final Logger LOG =
-			Logger.getLogger(WindowsShutdownManagerImpl.class.getName());
+			getLogger(WindowsShutdownManagerImpl.class.getName());
 
 	private static final int WM_QUERYENDSESSION = 17;
 	private static final int GWL_WNDPROC = -4;

@@ -42,6 +42,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -53,7 +54,7 @@ class GroupListControllerImpl extends DbControllerImpl
 		implements GroupListController, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(GroupListControllerImpl.class.getName());
+			getLogger(GroupListControllerImpl.class.getName());
 
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;

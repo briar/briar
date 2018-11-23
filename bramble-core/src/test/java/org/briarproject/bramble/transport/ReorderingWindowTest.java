@@ -1,7 +1,6 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.ReorderingWindow.Change;
 import org.junit.Test;
 
@@ -9,6 +8,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -19,7 +19,7 @@ public class ReorderingWindowTest extends BrambleTestCase {
 	@Test
 	public void testBitmapConversion() {
 		for (int i = 0; i < 1000; i++) {
-			byte[] bitmap = TestUtils.getRandomBytes(BITMAP_BYTES);
+			byte[] bitmap = getRandomBytes(BITMAP_BYTES);
 			ReorderingWindow window = new ReorderingWindow(0L, bitmap);
 			assertArrayEquals(bitmap, window.getBitmap());
 		}

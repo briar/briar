@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumFactory;
 
@@ -15,6 +14,7 @@ import java.security.SecureRandom;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
@@ -38,7 +38,7 @@ class ForumFactoryImpl implements ForumFactory {
 
 	@Override
 	public Forum createForum(String name) {
-		int length = StringUtils.toUtf8(name).length;
+		int length = toUtf8(name).length;
 		if (length == 0) throw new IllegalArgumentException();
 		if (length > MAX_FORUM_NAME_LENGTH)
 			throw new IllegalArgumentException();

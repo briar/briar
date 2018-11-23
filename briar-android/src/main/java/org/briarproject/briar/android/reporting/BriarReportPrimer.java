@@ -16,7 +16,6 @@ import android.support.annotation.NonNull;
 
 import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.logging.BriefLogFormatter;
@@ -44,6 +43,7 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 public class BriarReportPrimer implements ReportPrimer {
 
@@ -202,7 +202,7 @@ public class BriarReportPrimer implements ReportPrimer {
 			boolean btAvailable = bt != null;
 			// Is Bluetooth enabled?
 			boolean btEnabled = bt != null && bt.isEnabled() &&
-					!StringUtils.isNullOrEmpty(bt.getAddress());
+					!isNullOrEmpty(bt.getAddress());
 			// Is Bluetooth connectable?
 			boolean btConnectable = bt != null &&
 					(bt.getScanMode() == SCAN_MODE_CONNECTABLE ||

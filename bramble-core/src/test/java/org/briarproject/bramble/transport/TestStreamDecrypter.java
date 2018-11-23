@@ -2,7 +2,6 @@ package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -13,6 +12,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENG
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.readUint16;
 
 @NotNullByDefault
 class TestStreamDecrypter implements StreamDecrypter {
@@ -38,8 +38,8 @@ class TestStreamDecrypter implements StreamDecrypter {
 			offset += read;
 		}
 		finalFrame = (frame[0] & 0x80) == 0x80;
-		int payloadLength = ByteUtils.readUint16(frame, 0) & 0x7FFF;
-		int paddingLength = ByteUtils.readUint16(frame, INT_16_BYTES);
+		int payloadLength = readUint16(frame, 0) & 0x7FFF;
+		int paddingLength = readUint16(frame, INT_16_BYTES);
 		int frameLength = FRAME_HEADER_LENGTH + payloadLength + paddingLength
 				+ MAC_LENGTH;
 		while (offset < frameLength) {

@@ -1,12 +1,12 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.util.StringUtils;
 import org.junit.Test;
 import org.spongycastle.crypto.digests.Blake2bDigest;
 
 import java.util.Random;
 
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.junit.Assert.assertArrayEquals;
 
 public class Blake2bDigestTest extends BrambleTestCase {
@@ -49,9 +49,9 @@ public class Blake2bDigestTest extends BrambleTestCase {
 	@Test
 	public void testDigestWithKeyedTestVectors() {
 		for (String[] keyedTestVector : KEYED_TEST_VECTORS) {
-			byte[] input = StringUtils.fromHexString(keyedTestVector[0]);
-			byte[] key = StringUtils.fromHexString(keyedTestVector[1]);
-			byte[] expected = StringUtils.fromHexString(keyedTestVector[2]);
+			byte[] input = fromHexString(keyedTestVector[0]);
+			byte[] key = fromHexString(keyedTestVector[1]);
+			byte[] expected = fromHexString(keyedTestVector[2]);
 
 			Blake2bDigest digest = new Blake2bDigest(key);
 			digest.update(input, 0, input.length);
@@ -67,10 +67,10 @@ public class Blake2bDigestTest extends BrambleTestCase {
 		Random random = new Random();
 		for (int i = 0; i < 100; i++) {
 			for (String[] keyedTestVector : KEYED_TEST_VECTORS) {
-				byte[] input = StringUtils.fromHexString(keyedTestVector[0]);
+				byte[] input = fromHexString(keyedTestVector[0]);
 				if (input.length == 0) continue;
-				byte[] key = StringUtils.fromHexString(keyedTestVector[1]);
-				byte[] expected = StringUtils.fromHexString(keyedTestVector[2]);
+				byte[] key = fromHexString(keyedTestVector[1]);
+				byte[] expected = fromHexString(keyedTestVector[2]);
 
 				Blake2bDigest digest = new Blake2bDigest(key);
 
@@ -168,6 +168,6 @@ public class Blake2bDigestTest extends BrambleTestCase {
 
 		byte[] hash = new byte[32];
 		testDigest.doFinal(hash, 0);
-		assertArrayEquals(StringUtils.fromHexString(SELF_TEST_RESULT), hash);
+		assertArrayEquals(fromHexString(SELF_TEST_RESULT), hash);
 	}
 }

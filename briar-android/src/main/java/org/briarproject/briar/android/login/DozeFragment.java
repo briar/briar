@@ -15,12 +15,12 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.login.PowerView.OnCheckedChangedListener;
-import org.briarproject.briar.android.util.UiUtils;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
+import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
@@ -101,7 +101,7 @@ public class DozeFragment extends SetupFragment
 	@SuppressLint("BatteryLife")
 	private void askForDozeWhitelisting() {
 		if (getContext() == null) return;
-		Intent i = UiUtils.getDozeWhitelistingIntent(getContext());
+		Intent i = getDozeWhitelistingIntent(getContext());
 		startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
 	}
 

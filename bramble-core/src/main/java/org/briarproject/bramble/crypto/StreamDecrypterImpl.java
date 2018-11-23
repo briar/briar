@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.EOFException;
 import java.io.IOException;
@@ -26,6 +25,8 @@ import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_H
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_PLAINTEXT_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.readUint16;
+import static org.briarproject.bramble.util.ByteUtils.readUint64;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -145,12 +146,11 @@ class StreamDecrypterImpl implements StreamDecrypter {
 			throw new FormatException();
 		}
 		// Check the protocol version
-		int receivedProtocolVersion =
-				ByteUtils.readUint16(streamHeaderPlaintext, 0);
+		int receivedProtocolVersion = readUint16(streamHeaderPlaintext, 0);
 		if (receivedProtocolVersion != PROTOCOL_VERSION)
 			throw new FormatException();
 		// Check the stream number
-		long receivedStreamNumber = ByteUtils.readUint64(streamHeaderPlaintext,
+		long receivedStreamNumber = readUint64(streamHeaderPlaintext,
 				INT_16_BYTES);
 		if (receivedStreamNumber != streamNumber) throw new FormatException();
 		// Extract the frame key

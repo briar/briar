@@ -1,9 +1,11 @@
 package org.briarproject.bramble.reliability;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.ByteUtils;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import static org.briarproject.bramble.util.ByteUtils.readUint32;
+import static org.briarproject.bramble.util.ByteUtils.writeUint32;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -26,11 +28,11 @@ abstract class Frame {
 	}
 
 	long getChecksum() {
-		return ByteUtils.readUint32(buf, buf.length - 4);
+		return readUint32(buf, buf.length - 4);
 	}
 
 	void setChecksum(long checksum) {
-		ByteUtils.writeUint32(checksum, buf, buf.length - 4);
+		writeUint32(checksum, buf, buf.length - 4);
 	}
 
 	long calculateChecksum() {
@@ -38,11 +40,11 @@ abstract class Frame {
 	}
 
 	long getSequenceNumber() {
-		return ByteUtils.readUint32(buf, 1);
+		return readUint32(buf, 1);
 	}
 
 	void setSequenceNumber(long sequenceNumber) {
-		ByteUtils.writeUint32(sequenceNumber, buf, 1);
+		writeUint32(sequenceNumber, buf, 1);
 	}
 
 	@Override

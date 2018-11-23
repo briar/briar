@@ -1,9 +1,11 @@
 package org.briarproject.bramble.reliability;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.ByteUtils;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import static org.briarproject.bramble.util.ByteUtils.readUint16;
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -23,10 +25,10 @@ class Ack extends Frame {
 	}
 
 	int getWindowSize() {
-		return ByteUtils.readUint16(buf, 5);
+		return readUint16(buf, 5);
 	}
 
 	void setWindowSize(int windowSize) {
-		ByteUtils.writeUint16(windowSize, buf, 5);
+		writeUint16(windowSize, buf, 5);
 	}
 }

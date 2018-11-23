@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;
 
@@ -25,6 +24,7 @@ import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.briar.android.util.UiUtils.setError;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -100,10 +100,10 @@ public class PasswordFragment extends SetupFragment {
 		strengthMeter.setStrength(strength);
 		boolean strongEnough = strength >= QUITE_WEAK;
 
-		UiUtils.setError(passwordEntryWrapper,
+		setError(passwordEntryWrapper,
 				getString(R.string.password_too_weak),
 				password1.length() > 0 && !strongEnough);
-		UiUtils.setError(passwordConfirmationWrapper,
+		setError(passwordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
 				password2.length() > 0 && !passwordsMatch);
 

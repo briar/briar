@@ -25,6 +25,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -36,7 +37,7 @@ public abstract class InvitationControllerImpl<I extends InvitationItem>
 		implements InvitationController<I>, EventListener {
 
 	protected static final Logger LOG =
-			Logger.getLogger(InvitationControllerImpl.class.getName());
+			getLogger(InvitationControllerImpl.class.getName());
 
 	private final EventBus eventBus;
 	protected InvitationListener listener;

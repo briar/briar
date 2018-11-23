@@ -8,13 +8,14 @@ import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @NotNullByDefault
 class FileTransportWriter implements TransportConnectionWriter {
 
 	private static final Logger LOG =
-			Logger.getLogger(FileTransportWriter.class.getName());
+			getLogger(FileTransportWriter.class.getName());
 
 	private final File file;
 	private final OutputStream out;

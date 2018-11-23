@@ -17,6 +17,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 
@@ -25,8 +26,7 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 @ParametersNotNullByDefault
 class PortMapperImpl implements PortMapper {
 
-	private static final Logger LOG =
-			Logger.getLogger(PortMapperImpl.class.getName());
+	private static final Logger LOG = getLogger(PortMapperImpl.class.getName());
 
 	private final ShutdownManager shutdownManager;
 	private final AtomicBoolean started = new AtomicBoolean(false);

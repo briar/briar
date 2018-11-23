@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
 
@@ -24,7 +25,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class IdentityManagerImpl implements IdentityManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(IdentityManagerImpl.class.getName());
+			getLogger(IdentityManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;

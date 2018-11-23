@@ -16,6 +16,7 @@ import static java.net.NetworkInterface.getNetworkInterfaces;
 import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -23,7 +24,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class JavaNetworkManager implements NetworkManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(JavaNetworkManager.class.getName());
+			getLogger(JavaNetworkManager.class.getName());
 
 	@Inject
 	JavaNetworkManager() {

@@ -41,6 +41,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
@@ -56,7 +57,7 @@ class IntroduceeProtocolEngine
 		extends AbstractProtocolEngine<IntroduceeSession> {
 
 	private final static Logger LOG =
-			Logger.getLogger(IntroduceeProtocolEngine.class.getName());
+			getLogger(IntroduceeProtocolEngine.class.getName());
 
 	private final IntroductionCrypto crypto;
 	private final KeyManager keyManager;

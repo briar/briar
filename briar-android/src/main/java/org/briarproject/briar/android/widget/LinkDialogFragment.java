@@ -17,6 +17,9 @@ import org.briarproject.briar.R;
 
 import java.util.List;
 
+import static android.content.Intent.ACTION_VIEW;
+import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
+
 public class LinkDialogFragment extends DialogFragment {
 
 	private static final String TAG = LinkDialogFragment.class.getName();
@@ -53,10 +56,9 @@ public class LinkDialogFragment extends DialogFragment {
 		urlView.setText(url);
 
 		// prepare normal intent or intent chooser
-		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-		PackageManager packageManager = getContext().getPackageManager();
-		List activities = packageManager.queryIntentActivities(i,
-				PackageManager.MATCH_DEFAULT_ONLY);
+		Intent i = new Intent(ACTION_VIEW, Uri.parse(url));
+		PackageManager pm = getContext().getPackageManager();
+		List activities = pm.queryIntentActivities(i, MATCH_DEFAULT_ONLY);
 		boolean choice = activities.size() > 1;
 		Intent intent = choice ? Intent.createChooser(i,
 				getString(R.string.link_warning_open_link)) : i;

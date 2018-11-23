@@ -37,6 +37,7 @@ import javax.inject.Inject;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
@@ -47,7 +48,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		implements OnEditorActionListener, SendListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(WriteBlogPostActivity.class.getName());
+			getLogger(WriteBlogPostActivity.class.getName());
 
 	@Inject
 	AndroidNotificationManager notificationManager;

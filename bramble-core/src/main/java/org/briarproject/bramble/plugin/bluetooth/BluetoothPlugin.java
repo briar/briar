@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
@@ -54,7 +55,7 @@ import static org.briarproject.bramble.util.StringUtils.macToString;
 abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(BluetoothPlugin.class.getName());
+			getLogger(BluetoothPlugin.class.getName());
 
 	final BluetoothConnectionLimiter connectionLimiter;
 

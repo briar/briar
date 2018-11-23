@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
@@ -31,7 +32,7 @@ import static org.briarproject.bramble.util.StringUtils.toHexString;
 class AccountManagerImpl implements AccountManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(AccountManagerImpl.class.getName());
+			getLogger(AccountManagerImpl.class.getName());
 
 	private static final String DB_KEY_FILENAME = "db.key";
 	private static final String DB_KEY_BACKUP_FILENAME = "db.key.bak";

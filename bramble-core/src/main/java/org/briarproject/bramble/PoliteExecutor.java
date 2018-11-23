@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 
 import static java.util.logging.Level.FINE;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 /**
@@ -42,7 +43,7 @@ public class PoliteExecutor implements Executor {
 			int maxConcurrentTasks) {
 		this.delegate = delegate;
 		this.maxConcurrentTasks = maxConcurrentTasks;
-		log = Logger.getLogger(tag);
+		log = getLogger(tag);
 	}
 
 	@Override

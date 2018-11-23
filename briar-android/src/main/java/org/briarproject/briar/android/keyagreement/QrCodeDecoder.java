@@ -25,14 +25,14 @@ import java.util.logging.Logger;
 import static com.google.zxing.DecodeHintType.CHARACTER_SET;
 import static java.util.Collections.singletonMap;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 
 @SuppressWarnings("deprecation")
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class QrCodeDecoder implements PreviewConsumer, PreviewCallback {
 
-	private static final Logger LOG =
-			Logger.getLogger(QrCodeDecoder.class.getName());
+	private static final Logger LOG = getLogger(QrCodeDecoder.class.getName());
 
 	private final Reader reader = new QRCodeReader();
 	private final ResultCallback callback;

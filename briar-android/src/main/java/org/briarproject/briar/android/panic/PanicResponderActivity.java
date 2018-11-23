@@ -20,13 +20,14 @@ import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
 
 public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
-			Logger.getLogger(PanicResponderActivity.class.getName());
+			getLogger(PanicResponderActivity.class.getName());
 
 	@Inject
 	protected AccountManager accountManager;

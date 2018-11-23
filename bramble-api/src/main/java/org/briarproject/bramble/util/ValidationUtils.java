@@ -7,13 +7,15 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
+
 @NotNullByDefault
 public class ValidationUtils {
 
 	public static void checkLength(@Nullable String s, int minLength,
 			int maxLength) throws FormatException {
 		if (s != null) {
-			int length = StringUtils.toUtf8(s).length;
+			int length = toUtf8(s).length;
 			if (length < minLength) throw new FormatException();
 			if (length > maxLength) throw new FormatException();
 		}
@@ -21,7 +23,7 @@ public class ValidationUtils {
 
 	public static void checkLength(@Nullable String s, int length)
 			throws FormatException {
-		if (s != null && StringUtils.toUtf8(s).length != length)
+		if (s != null && toUtf8(s).length != length)
 			throw new FormatException();
 	}
 

@@ -3,7 +3,6 @@ package org.briarproject.bramble.transport;
 import org.briarproject.bramble.api.crypto.StreamDecrypter;
 import org.briarproject.bramble.api.crypto.StreamEncrypter;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -16,6 +15,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HE
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -24,10 +24,10 @@ public class StreamReaderWriterIntegrationTest extends BrambleTestCase {
 	@Test
 	public void testWriteAndRead() throws Exception {
 		// Generate a random tag
-		byte[] tag = TestUtils.getRandomBytes(TAG_LENGTH);
+		byte[] tag = getRandomBytes(TAG_LENGTH);
 		// Generate two frames with random payloads
-		byte[] payload1 = TestUtils.getRandomBytes(123);
-		byte[] payload2 = TestUtils.getRandomBytes(321);
+		byte[] payload1 = getRandomBytes(123);
+		byte[] payload2 = getRandomBytes(321);
 		// Write the tag and the frames
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		StreamEncrypter encrypter = new TestStreamEncrypter(out, tag);

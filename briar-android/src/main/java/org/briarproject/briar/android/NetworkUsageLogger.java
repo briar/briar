@@ -8,12 +8,13 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 class NetworkUsageLogger implements Service {
 
 	private static final Logger LOG =
-			Logger.getLogger(NetworkUsageLogger.class.getName());
+			getLogger(NetworkUsageLogger.class.getName());
 
 	private volatile long startTime, rxBytes, txBytes;
 

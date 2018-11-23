@@ -27,7 +27,6 @@ import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
 import org.briarproject.briar.android.reporting.DevReportActivity;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
@@ -48,6 +47,7 @@ import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
+import static org.briarproject.briar.android.util.UiUtils.setFilterTouchesWhenObscured;
 
 /**
  * Warning: Some activities don't extend {@link BaseActivity}.
@@ -249,7 +249,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		findToolbar();
 		if (toolbar != null) {
 			boolean filter = !screenFilterMonitor.getApps().isEmpty();
-			UiUtils.setFilterTouchesWhenObscured(toolbar, filter);
+			setFilterTouchesWhenObscured(toolbar, filter);
 		}
 	}
 

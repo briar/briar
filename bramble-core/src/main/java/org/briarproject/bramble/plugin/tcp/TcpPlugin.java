@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.util.IoUtils;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -41,17 +40,19 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 abstract class TcpPlugin implements DuplexPlugin {
 
+	private static final Logger LOG = getLogger(TcpPlugin.class.getName());
+
 	private static final Pattern DOTTED_QUAD =
 			Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-	private static final Logger LOG =
-			Logger.getLogger(TcpPlugin.class.getName());
 
 	protected final Executor ioExecutor, bindExecutor;
 	protected final Backoff backoff;
@@ -263,7 +264,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Nullable
 	InetSocketAddress parseSocketAddress(String ipPort) {
-		if (StringUtils.isNullOrEmpty(ipPort)) return null;
+		if (isNullOrEmpty(ipPort)) return null;
 		String[] split = ipPort.split(":");
 		if (split.length != 2) return null;
 		String addr = split[0], port = split[1];

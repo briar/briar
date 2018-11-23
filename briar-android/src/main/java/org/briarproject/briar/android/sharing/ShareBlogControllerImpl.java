@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
@@ -33,7 +34,7 @@ class ShareBlogControllerImpl extends ContactSelectorControllerImpl
 		implements ShareBlogController {
 
 	private final static Logger LOG =
-			Logger.getLogger(ShareBlogControllerImpl.class.getName());
+			getLogger(ShareBlogControllerImpl.class.getName());
 
 	private final ConversationManager conversationManager;
 	private final BlogSharingManager blogSharingManager;

@@ -27,6 +27,7 @@ import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_CANCEL
 import static android.hardware.biometrics.BiometricPrompt.BIOMETRIC_ERROR_USER_CANCELED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.View.INVISIBLE;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_KEYGUARD_UNLOCK;
 import static org.briarproject.briar.android.util.UiUtils.hasKeyguardLock;
 import static org.briarproject.briar.android.util.UiUtils.hasUsableFingerprint;
@@ -36,8 +37,8 @@ import static org.briarproject.briar.android.util.UiUtils.hasUsableFingerprint;
 @ParametersNotNullByDefault
 public class UnlockActivity extends BaseActivity {
 
-	private static final Logger LOG =
-			Logger.getLogger(UnlockActivity.class.getName());
+	private static final Logger LOG = getLogger(UnlockActivity.class.getName());
+
 	private static final String KEYGUARD_SHOWN = "keyguardShown";
 
 	@Inject

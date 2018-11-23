@@ -1,12 +1,13 @@
 package org.briarproject.bramble.api;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 /**
  * A wrapper around a byte array, to allow it to be stored in maps etc.
@@ -56,8 +57,7 @@ public class Bytes implements Comparable<Bytes> {
 
 	@Override
 	public String toString() {
-		return getClass().getSimpleName() +
-				"(" + StringUtils.toHexString(getBytes()) + ")";
+		return getClass().getSimpleName() + "(" + toHexString(getBytes()) + ")";
 	}
 
 	public static class BytesComparator implements Comparator<Bytes> {

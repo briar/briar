@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 
@@ -16,6 +15,7 @@ import java.security.SecureRandom;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
@@ -42,7 +42,7 @@ class PrivateGroupFactoryImpl implements PrivateGroupFactory {
 
 	@Override
 	public PrivateGroup createPrivateGroup(String name, Author creator) {
-		int length = StringUtils.toUtf8(name).length;
+		int length = toUtf8(name).length;
 		if (length == 0 || length > MAX_GROUP_NAME_LENGTH)
 			throw new IllegalArgumentException();
 		byte[] salt = new byte[GROUP_SALT_LENGTH];

@@ -34,7 +34,6 @@ import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogFactory;
@@ -71,12 +70,15 @@ import javax.inject.Inject;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -88,7 +90,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		extends BriarTestCase {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarIntegrationTest.class.getName());
+			getLogger(BriarIntegrationTest.class.getName());
+
 	private static final boolean DEBUG = false;
 
 	@Nullable
@@ -140,7 +143,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	private final Semaphore messageSemaphore = new Semaphore(0);
 	private final AtomicInteger messageCounter = new AtomicInteger(0);
-	private final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = getTestDirectory();
 	private final String AUTHOR0 = "Author 0";
 	private final String AUTHOR1 = "Author 1";
 	private final String AUTHOR2 = "Author 2";
@@ -341,7 +344,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	@After
 	public void tearDown() throws Exception {
 		stopLifecycles();
-		TestUtils.deleteTestDirectory(testDir);
+		deleteTestDirectory(testDir);
 	}
 
 	private void stopLifecycles() throws InterruptedException {

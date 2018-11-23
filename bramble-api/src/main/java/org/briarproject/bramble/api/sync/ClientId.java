@@ -1,9 +1,10 @@
 package org.briarproject.bramble.api.sync;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
+
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 /**
  * Type-safe wrapper for a namespaced string that uniquely identifies a sync
@@ -21,7 +22,7 @@ public class ClientId implements Comparable<ClientId> {
 	private final String id;
 
 	public ClientId(String id) {
-		int length = StringUtils.toUtf8(id).length;
+		int length = toUtf8(id).length;
 		if (length == 0 || length > MAX_CLIENT_ID_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;

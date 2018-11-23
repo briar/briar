@@ -13,7 +13,6 @@ import android.widget.Toast;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -30,9 +29,11 @@ import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 
@@ -41,7 +42,7 @@ import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LEN
 public class CreateForumActivity extends BriarActivity {
 
 	private static final Logger LOG =
-			Logger.getLogger(CreateForumActivity.class.getName());
+			getLogger(CreateForumActivity.class.getName());
 
 	private TextInputLayout nameEntryLayout;
 	private EditText nameEntry;
@@ -109,7 +110,7 @@ public class CreateForumActivity extends BriarActivity {
 
 	private boolean validateName() {
 		String name = nameEntry.getText().toString();
-		int length = StringUtils.toUtf8(name).length;
+		int length = toUtf8(name).length;
 		if (length > MAX_FORUM_NAME_LENGTH) {
 			nameEntryLayout.setError(getString(R.string.name_too_long));
 			return false;

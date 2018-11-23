@@ -59,6 +59,7 @@ import static java.sql.Types.INTEGER;
 import static java.sql.Types.VARCHAR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
@@ -309,8 +310,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE INDEX IF NOT EXISTS statusesByContactIdTimestamp"
 					+ " ON statuses (contactId, timestamp)";
 
-	private static final Logger LOG =
-			Logger.getLogger(JdbcDatabase.class.getName());
+	private static final Logger LOG = getLogger(JdbcDatabase.class.getName());
 
 	// Different database libraries use different names for certain types
 	private final MessageFactory messageFactory;

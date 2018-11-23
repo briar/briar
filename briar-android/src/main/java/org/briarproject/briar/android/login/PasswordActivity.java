@@ -18,7 +18,6 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import javax.inject.Inject;
@@ -27,6 +26,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
+import static org.briarproject.briar.android.util.UiUtils.setError;
 
 public class PasswordActivity extends BaseActivity {
 
@@ -81,7 +81,7 @@ public class PasswordActivity extends BaseActivity {
 			@Override
 			public void onTextChanged(CharSequence s, int start, int before,
 					int count) {
-				if (count > 0) UiUtils.setError(input, null, false);
+				if (count > 0) setError(input, null, false);
 			}
 
 			@Override
@@ -162,7 +162,7 @@ public class PasswordActivity extends BaseActivity {
 	}
 
 	private void tryAgain() {
-		UiUtils.setError(input, getString(R.string.try_again), true);
+		setError(input, getString(R.string.try_again), true);
 		signInButton.setVisibility(VISIBLE);
 		progress.setVisibility(INVISIBLE);
 		password.setText("");

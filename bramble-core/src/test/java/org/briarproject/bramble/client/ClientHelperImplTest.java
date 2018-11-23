@@ -23,7 +23,6 @@ import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DbExpectations;
-import org.briarproject.bramble.util.StringUtils;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
@@ -74,7 +73,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	private final long timestamp = message.getTimestamp();
 	private final Metadata metadata = new Metadata();
 	private final BdfList list = BdfList.of("Sign this!", getRandomBytes(42));
-	private final String label = StringUtils.getRandomString(5);
+	private final String label = getRandomString(5);
 	private final Author author = getAuthor();
 
 	private final ClientHelper clientHelper = new ClientHelperImpl(db,

@@ -30,6 +30,7 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
@@ -44,8 +45,7 @@ public abstract class BriarActivity extends BaseActivity {
 	public static final String GROUP_ID = "briar.GROUP_ID";
 	public static final String GROUP_NAME = "briar.GROUP_NAME";
 
-	private static final Logger LOG =
-			Logger.getLogger(BriarActivity.class.getName());
+	private static final Logger LOG = getLogger(BriarActivity.class.getName());
 
 	@Inject
 	BriarController briarController;

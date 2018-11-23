@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,7 +24,9 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.join;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
 @MethodsNotNullByDefault
@@ -33,7 +34,7 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 class RecentEmojiImpl implements RecentEmoji, Client {
 
 	private static final Logger LOG =
-			Logger.getLogger(RecentEmojiImpl.class.getName());
+			getLogger(RecentEmojiImpl.class.getName());
 
 	private static final String EMOJI_LRU_PREFERENCE = "pref_emoji_recent2";
 	private static final int EMOJI_LRU_SIZE = 50;
@@ -85,7 +86,7 @@ class RecentEmojiImpl implements RecentEmoji, Client {
 	private String serialize(Collection<Emoji> emojis) {
 		Collection<String> strings = new ArrayList<>(emojis.size());
 		for (Emoji emoji : emojis) strings.add(emoji.getUnicode());
-		return StringUtils.join(strings, "\t");
+		return join(strings, "\t");
 	}
 
 	private Collection<Emoji> deserialize(String serialized) {

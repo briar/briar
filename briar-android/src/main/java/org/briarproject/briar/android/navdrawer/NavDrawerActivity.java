@@ -59,6 +59,7 @@ import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
@@ -79,7 +80,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static final String INTENT_SIGN_OUT = "intent_sign_out";
 
 	private static final Logger LOG =
-			Logger.getLogger(NavDrawerActivity.class.getName());
+			getLogger(NavDrawerActivity.class.getName());
 
 	private ActionBarDrawerToggle drawerToggle;
 

@@ -14,12 +14,14 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
+
 @NotNullByDefault
 public class SetupControllerImpl extends PasswordControllerImpl
 		implements SetupController {
 
 	private static final Logger LOG =
-			Logger.getLogger(SetupControllerImpl.class.getName());
+			getLogger(SetupControllerImpl.class.getName());
 
 	@Nullable
 	private volatile SetupActivity setupActivity;

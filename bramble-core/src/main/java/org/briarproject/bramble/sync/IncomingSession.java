@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
@@ -37,7 +38,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class IncomingSession implements SyncSession, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(IncomingSession.class.getName());
+			getLogger(IncomingSession.class.getName());
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;

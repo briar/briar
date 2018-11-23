@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.util.ByteUtils;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -19,6 +18,8 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_L
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.readUint64;
+import static org.briarproject.bramble.util.ByteUtils.writeUint64;
 
 @Immutable
 @NotNullByDefault
@@ -47,7 +48,7 @@ class MessageFactoryImpl implements MessageFactory {
 		// There's only one block, so the root hash is the hash of the block
 		byte[] rootHash = crypto.hash(BLOCK_LABEL, FORMAT_VERSION_BYTES, body);
 		byte[] timeBytes = new byte[INT_64_BYTES];
-		ByteUtils.writeUint64(timestamp, timeBytes, 0);
+		writeUint64(timestamp, timeBytes, 0);
 		byte[] idHash = crypto.hash(ID_LABEL, FORMAT_VERSION_BYTES,
 				g.getBytes(), timeBytes, rootHash);
 		return new MessageId(idHash);
@@ -62,7 +63,7 @@ class MessageFactoryImpl implements MessageFactory {
 		byte[] groupId = new byte[UniqueId.LENGTH];
 		System.arraycopy(raw, 0, groupId, 0, UniqueId.LENGTH);
 		GroupId g = new GroupId(groupId);
-		long timestamp = ByteUtils.readUint64(raw, UniqueId.LENGTH);
+		long timestamp = readUint64(raw, UniqueId.LENGTH);
 		byte[] body = new byte[raw.length - MESSAGE_HEADER_LENGTH];
 		System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
 		MessageId id = getMessageId(g, timestamp, body);
@@ -74,7 +75,7 @@ class MessageFactoryImpl implements MessageFactory {
 		byte[] body = m.getBody();
 		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
 		System.arraycopy(m.getGroupId().getBytes(), 0, raw, 0, UniqueId.LENGTH);
-		ByteUtils.writeUint64(m.getTimestamp(), raw, UniqueId.LENGTH);
+		writeUint64(m.getTimestamp(), raw, UniqueId.LENGTH);
 		System.arraycopy(body, 0, raw, MESSAGE_HEADER_LENGTH, body.length);
 		return raw;
 	}

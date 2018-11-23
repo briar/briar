@@ -2,7 +2,6 @@ package org.briarproject.bramble.system;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.util.IoUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -15,6 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.util.OsUtils.isLinux;
 import static org.briarproject.bramble.util.OsUtils.isMac;
@@ -56,7 +56,7 @@ public class UnixSecureRandomSpiTest extends BrambleTestCase {
 		assertTrue(urandom.createNewFile());
 		assertEquals(0, urandom.length());
 		// Generate a seed
-		byte[] seed = TestUtils.getRandomBytes(SEED_BYTES);
+		byte[] seed = getRandomBytes(SEED_BYTES);
 		// Check that the engine writes the seed to the file
 		UnixSecureRandomSpi engine = new UnixSecureRandomSpi(RANDOM_DEVICE,
 				urandom);
@@ -72,7 +72,7 @@ public class UnixSecureRandomSpiTest extends BrambleTestCase {
 	@Test
 	public void testEngineNextBytesReadsFromRandomDevice() throws Exception {
 		// Generate some entropy
-		byte[] entropy = TestUtils.getRandomBytes(SEED_BYTES);
+		byte[] entropy = getRandomBytes(SEED_BYTES);
 		// Write the entropy to a file
 		File urandom = new File(testDir, "urandom");
 		if (urandom.exists()) assertTrue(urandom.delete());
@@ -93,7 +93,7 @@ public class UnixSecureRandomSpiTest extends BrambleTestCase {
 	@Test
 	public void testEngineGenerateSeedReadsFromRandomDevice() throws Exception {
 		// Generate some entropy
-		byte[] entropy = TestUtils.getRandomBytes(SEED_BYTES);
+		byte[] entropy = getRandomBytes(SEED_BYTES);
 		// Write the entropy to a file
 		File urandom = new File(testDir, "urandom");
 		if (urandom.exists()) assertTrue(urandom.delete());

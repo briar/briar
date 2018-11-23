@@ -30,6 +30,7 @@ import static java.nio.charset.CodingErrorAction.IGNORE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static jssc.SerialPort.PURGE_RXCLEAR;
 import static jssc.SerialPort.PURGE_TXCLEAR;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -38,8 +39,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 @ParametersNotNullByDefault
 class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 
-	private static final Logger LOG =
-			Logger.getLogger(ModemImpl.class.getName());
+	private static final Logger LOG = getLogger(ModemImpl.class.getName());
 
 	private static final Charset US_ASCII = Charset.forName("US-ASCII");
 	private static final int MAX_LINE_LENGTH = 256;

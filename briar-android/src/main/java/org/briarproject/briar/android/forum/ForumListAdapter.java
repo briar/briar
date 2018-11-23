@@ -11,7 +11,6 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
-import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.TextAvatarView;
 import org.briarproject.briar.api.forum.Forum;
 
@@ -20,6 +19,7 @@ import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_NAME;
+import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
 class ForumListAdapter
 		extends BriarAdapter<ForumListItem, ForumListAdapter.ForumViewHolder> {
@@ -63,7 +63,7 @@ class ForumListAdapter
 			ui.date.setVisibility(GONE);
 		} else {
 			long timestamp = item.getTimestamp();
-			ui.date.setText(UiUtils.formatDate(ctx, timestamp));
+			ui.date.setText(formatDate(ctx, timestamp));
 			ui.date.setVisibility(VISIBLE);
 		}
 

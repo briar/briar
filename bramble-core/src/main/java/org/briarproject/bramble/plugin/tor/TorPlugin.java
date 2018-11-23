@@ -60,6 +60,7 @@ import javax.net.SocketFactory;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
@@ -73,6 +74,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -81,8 +83,7 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @ParametersNotNullByDefault
 abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
-	private static final Logger LOG =
-			Logger.getLogger(TorPlugin.class.getName());
+	private static final Logger LOG = getLogger(TorPlugin.class.getName());
 
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
@@ -284,23 +285,23 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Unzip the Tor binary to the filesystem
 			in = getTorInputStream();
 			out = new FileOutputStream(torFile);
-			IoUtils.copyAndClose(in, out);
+			copyAndClose(in, out);
 			// Make the Tor binary executable
 			if (!torFile.setExecutable(true, true)) throw new IOException();
 			// Unzip the GeoIP database to the filesystem
 			in = getGeoIpInputStream();
 			out = new FileOutputStream(geoIpFile);
-			IoUtils.copyAndClose(in, out);
+			copyAndClose(in, out);
 			// Unzip the Obfs4 proxy to the filesystem
 			in = getObfs4InputStream();
 			out = new FileOutputStream(obfs4File);
-			IoUtils.copyAndClose(in, out);
+			copyAndClose(in, out);
 			// Make the Obfs4 proxy executable
 			if (!obfs4File.setExecutable(true, true)) throw new IOException();
 			// Copy the config file to the filesystem
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
-			IoUtils.copyAndClose(in, out);
+			copyAndClose(in, out);
 			doneFile.createNewFile();
 		} catch (IOException e) {
 			IoUtils.tryToClose(in, LOG, WARNING);

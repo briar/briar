@@ -37,13 +37,14 @@ import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class AndroidNetworkManager implements NetworkManager, Service {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidNetworkManager.class.getName());
+			getLogger(AndroidNetworkManager.class.getName());
 
 	// See android.net.wifi.WifiManager
 	private static final String WIFI_AP_STATE_CHANGED_ACTION =

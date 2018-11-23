@@ -7,8 +7,6 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.ByteUtils;
-import org.briarproject.bramble.util.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -16,6 +14,8 @@ import javax.inject.Inject;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorId.LABEL;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.writeUint32;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @Immutable
 @NotNullByDefault
@@ -58,8 +58,8 @@ class AuthorFactoryImpl implements AuthorFactory {
 
 	private AuthorId getId(int formatVersion, String name, byte[] publicKey) {
 		byte[] formatVersionBytes = new byte[INT_32_BYTES];
-		ByteUtils.writeUint32(formatVersion, formatVersionBytes, 0);
+		writeUint32(formatVersion, formatVersionBytes, 0);
 		return new AuthorId(crypto.hash(LABEL, formatVersionBytes,
-				StringUtils.toUtf8(name), publicKey));
+				toUtf8(name), publicKey));
 	}
 }

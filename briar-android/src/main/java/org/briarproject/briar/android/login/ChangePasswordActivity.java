@@ -19,13 +19,13 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
-import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.briar.android.util.UiUtils.setError;
 
 public class ChangePasswordActivity extends BriarActivity
 		implements OnClickListener, OnEditorActionListener {
@@ -101,10 +101,10 @@ public class ChangePasswordActivity extends BriarActivity
 		float strength =
 				passwordController.estimatePasswordStrength(firstPassword);
 		strengthMeter.setStrength(strength);
-		UiUtils.setError(newPasswordEntryWrapper,
+		setError(newPasswordEntryWrapper,
 				getString(R.string.password_too_weak),
 				firstPassword.length() > 0 && strength < QUITE_WEAK);
-		UiUtils.setError(newPasswordConfirmationWrapper,
+		setError(newPasswordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
 				secondPassword.length() > 0 && !passwordsMatch);
 		changePasswordButton.setEnabled(
@@ -142,7 +142,7 @@ public class ChangePasswordActivity extends BriarActivity
 	}
 
 	private void tryAgain() {
-		UiUtils.setError(currentPasswordEntryWrapper,
+		setError(currentPasswordEntryWrapper,
 				getString(R.string.try_again), true);
 		changePasswordButton.setVisibility(VISIBLE);
 		progress.setVisibility(INVISIBLE);

@@ -32,6 +32,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
@@ -43,7 +44,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(TransportKeyManagerImpl.class.getName());
+			getLogger(TransportKeyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final TransportCrypto transportCrypto;

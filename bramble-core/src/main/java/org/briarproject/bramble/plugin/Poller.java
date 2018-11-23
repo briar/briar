@@ -41,13 +41,14 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
 @NotNullByDefault
 class Poller implements EventListener {
 
-	private static final Logger LOG = Logger.getLogger(Poller.class.getName());
+	private static final Logger LOG = getLogger(Poller.class.getName());
 
 	private final Executor ioExecutor;
 	private final ScheduledExecutorService scheduler;

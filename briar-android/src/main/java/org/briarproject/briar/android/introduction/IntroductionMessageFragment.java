@@ -41,6 +41,7 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
@@ -52,7 +53,8 @@ public class IntroductionMessageFragment extends BaseFragment
 
 	public static final String TAG =
 			IntroductionMessageFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+
+	private static final Logger LOG = getLogger(TAG);
 
 	private final static String CONTACT_ID_1 = "contact1";
 	private final static String CONTACT_ID_2 = "contact2";

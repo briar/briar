@@ -28,6 +28,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_BETA_BUILD;
@@ -45,7 +46,8 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 		implements NavDrawerController, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(NavDrawerControllerImpl.class.getName());
+			getLogger(NavDrawerControllerImpl.class.getName());
+
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
 	private static final String EXPIRY_SHOW_UPDATE = "expiryShowUpdate";
 

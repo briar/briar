@@ -19,6 +19,7 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isValidMac;
 
@@ -27,7 +28,7 @@ import static org.briarproject.bramble.util.StringUtils.isValidMac;
 class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 
 	private static final Logger LOG =
-			Logger.getLogger(JavaBluetoothPlugin.class.getName());
+			getLogger(JavaBluetoothPlugin.class.getName());
 
 	// Non-null if the plugin started successfully
 	private volatile LocalDevice localDevice = null;

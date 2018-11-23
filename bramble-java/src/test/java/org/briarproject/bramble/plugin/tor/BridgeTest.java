@@ -30,6 +30,7 @@ import javax.net.SocketFactory;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
@@ -47,10 +48,9 @@ public class BridgeTest extends BrambleTestCase {
 		return component.getCircumventionProvider().getBridges();
 	}
 
-	private final static long TIMEOUT = SECONDS.toMillis(30);
+	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
-	private final static Logger LOG =
-			Logger.getLogger(BridgeTest.class.getName());
+	private final static long TIMEOUT = SECONDS.toMillis(30);
 
 	@Inject
 	NetworkManager networkManager;

@@ -3,11 +3,11 @@ package org.briarproject.bramble.crypto;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestSecureRandomProvider;
-import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
 import java.util.Random;
 
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertNull;
 
@@ -19,7 +19,7 @@ public class PasswordBasedEncryptionTest extends BrambleTestCase {
 
 	@Test
 	public void testEncryptionAndDecryption() {
-		byte[] input = TestUtils.getRandomBytes(1234);
+		byte[] input = getRandomBytes(1234);
 		String password = "password";
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
 		byte[] output = crypto.decryptWithPassword(ciphertext, password);
@@ -28,7 +28,7 @@ public class PasswordBasedEncryptionTest extends BrambleTestCase {
 
 	@Test
 	public void testInvalidCiphertextReturnsNull() {
-		byte[] input = TestUtils.getRandomBytes(1234);
+		byte[] input = getRandomBytes(1234);
 		String password = "password";
 		byte[] ciphertext = crypto.encryptWithPassword(input, password);
 		// Modify the ciphertext

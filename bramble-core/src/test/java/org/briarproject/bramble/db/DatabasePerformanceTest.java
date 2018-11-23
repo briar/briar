@@ -29,9 +29,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.logging.Logger;
 
 import static java.util.logging.Level.OFF;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
@@ -119,7 +119,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 
 	DatabasePerformanceTest() {
 		// Disable logging
-		Logger.getLogger("").setLevel(OFF);
+		getLogger("").setLevel(OFF);
 	}
 
 	@Before

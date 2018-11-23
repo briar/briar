@@ -39,6 +39,7 @@ import javax.inject.Inject;
 
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -47,7 +48,7 @@ class ForumControllerImpl extends
 		implements ForumController {
 
 	private static final Logger LOG =
-			Logger.getLogger(ForumControllerImpl.class.getName());
+			getLogger(ForumControllerImpl.class.getName());
 
 	private final ForumManager forumManager;
 	private final ForumSharingManager forumSharingManager;

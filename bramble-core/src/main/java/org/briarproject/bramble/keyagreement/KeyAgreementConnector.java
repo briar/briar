@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.CONNECTION_TIMEOUT;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
@@ -41,7 +42,7 @@ class KeyAgreementConnector {
 	}
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyAgreementConnector.class.getName());
+			getLogger(KeyAgreementConnector.class.getName());
 
 	private final Callbacks callbacks;
 	private final KeyAgreementCrypto keyAgreementCrypto;

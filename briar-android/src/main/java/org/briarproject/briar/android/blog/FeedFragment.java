@@ -36,6 +36,7 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
 
@@ -46,7 +47,8 @@ public class FeedFragment extends BaseFragment implements
 		OnBlogPostClickListener, FeedListener {
 
 	public final static String TAG = FeedFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+
+	private static final Logger LOG = getLogger(TAG);
 
 	@Inject
 	FeedController feedController;

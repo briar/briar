@@ -10,7 +10,6 @@ import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.Blog;
@@ -27,7 +26,9 @@ import org.junit.Test;
 import java.io.File;
 import java.util.Collection;
 
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -37,7 +38,7 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 	private LifecycleManager lifecycleManager;
 	private FeedManager feedManager;
 	private BlogManager blogManager;
-	private final File testDir = TestUtils.getTestDirectory();
+	private final File testDir = getTestDirectory();
 	private final File testFile = new File(testDir, "feedTest");
 
 	@Before
@@ -116,7 +117,7 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 	public void tearDown() throws Exception {
 		lifecycleManager.stopServices();
 		lifecycleManager.waitForShutdown();
-		TestUtils.deleteTestDirectory(testDir);
+		deleteTestDirectory(testDir);
 	}
 
 	protected void injectEagerSingletons(

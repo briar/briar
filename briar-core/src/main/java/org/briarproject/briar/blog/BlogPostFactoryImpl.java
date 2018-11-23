@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.MessageType;
@@ -20,6 +19,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_COMMENT_TEXT_LENGTH;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
@@ -46,7 +46,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 			throws FormatException, GeneralSecurityException {
 
 		// Validate the arguments
-		int textLength = StringUtils.toUtf8(text).length;
+		int textLength = toUtf8(text).length;
 		if (textLength > MAX_BLOG_POST_TEXT_LENGTH)
 			throw new IllegalArgumentException();
 
@@ -70,7 +70,7 @@ class BlogPostFactoryImpl implements BlogPostFactory {
 			throws FormatException, GeneralSecurityException {
 
 		if (comment != null) {
-			int commentLength = StringUtils.toUtf8(comment).length;
+			int commentLength = toUtf8(comment).length;
 			if (commentLength == 0) throw new IllegalArgumentException();
 			if (commentLength > MAX_BLOG_COMMENT_TEXT_LENGTH)
 				throw new IllegalArgumentException();

@@ -12,8 +12,6 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
-import org.briarproject.bramble.util.ByteUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.spongycastle.crypto.CryptoException;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.digests.Blake2bDigest;
@@ -31,15 +29,19 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.readUint32;
+import static org.briarproject.bramble.util.ByteUtils.writeUint32;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @NotNullByDefault
 class CryptoComponentImpl implements CryptoComponent {
 
 	private static final Logger LOG =
-			Logger.getLogger(CryptoComponentImpl.class.getName());
+			getLogger(CryptoComponentImpl.class.getName());
 
 	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 24; // 196 bits
@@ -216,26 +218,26 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	private void updateSignature(Signature signature, String label,
 			byte[] toSign) throws GeneralSecurityException {
-		byte[] labelBytes = StringUtils.toUtf8(label);
+		byte[] labelBytes = toUtf8(label);
 		byte[] length = new byte[INT_32_BYTES];
-		ByteUtils.writeUint32(labelBytes.length, length, 0);
+		writeUint32(labelBytes.length, length, 0);
 		signature.update(length);
 		signature.update(labelBytes);
-		ByteUtils.writeUint32(toSign.length, length, 0);
+		writeUint32(toSign.length, length, 0);
 		signature.update(length);
 		signature.update(toSign);
 	}
 
 	@Override
 	public byte[] hash(String label, byte[]... inputs) {
-		byte[] labelBytes = StringUtils.toUtf8(label);
+		byte[] labelBytes = toUtf8(label);
 		Digest digest = new Blake2bDigest(256);
 		byte[] length = new byte[INT_32_BYTES];
-		ByteUtils.writeUint32(labelBytes.length, length, 0);
+		writeUint32(labelBytes.length, length, 0);
 		digest.update(length, 0, length.length);
 		digest.update(labelBytes, 0, labelBytes.length);
 		for (byte[] input : inputs) {
-			ByteUtils.writeUint32(input.length, length, 0);
+			writeUint32(input.length, length, 0);
 			digest.update(length, 0, length.length);
 			digest.update(input, 0, input.length);
 		}
@@ -246,14 +248,14 @@ class CryptoComponentImpl implements CryptoComponent {
 
 	@Override
 	public byte[] mac(String label, SecretKey macKey, byte[]... inputs) {
-		byte[] labelBytes = StringUtils.toUtf8(label);
+		byte[] labelBytes = toUtf8(label);
 		Digest mac = new Blake2bDigest(macKey.getBytes(), 32, null, null);
 		byte[] length = new byte[INT_32_BYTES];
-		ByteUtils.writeUint32(labelBytes.length, length, 0);
+		writeUint32(labelBytes.length, length, 0);
 		mac.update(length, 0, length.length);
 		mac.update(labelBytes, 0, labelBytes.length);
 		for (byte[] input : inputs) {
-			ByteUtils.writeUint32(input.length, length, 0);
+			writeUint32(input.length, length, 0);
 			mac.update(length, 0, length.length);
 			mac.update(input, 0, input.length);
 		}
@@ -300,7 +302,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		System.arraycopy(salt, 0, output, outputOff, salt.length);
 		outputOff += salt.length;
 		// Cost parameter
-		ByteUtils.writeUint32(cost, output, outputOff);
+		writeUint32(cost, output, outputOff);
 		outputOff += INT_32_BYTES;
 		// IV
 		System.arraycopy(iv, 0, output, outputOff, iv.length);
@@ -336,7 +338,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		System.arraycopy(input, inputOff, salt, 0, salt.length);
 		inputOff += salt.length;
 		// Cost parameter
-		long cost = ByteUtils.readUint32(input, inputOff);
+		long cost = readUint32(input, inputOff);
 		inputOff += INT_32_BYTES;
 		if (cost < 2 || cost > Integer.MAX_VALUE)
 			return null; // Invalid cost parameter

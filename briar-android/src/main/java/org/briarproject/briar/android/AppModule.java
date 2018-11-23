@@ -31,7 +31,6 @@ import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.AndroidUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -58,6 +57,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 
 @Module(includes = ViewModelModule.class)
 public class AppModule {
@@ -153,7 +153,7 @@ public class AppModule {
 			public PublicKey getDevPublicKey() {
 				try {
 					return crypto.getMessageKeyParser().parsePublicKey(
-							StringUtils.fromHexString(DEV_PUBLIC_KEY_HEX));
+							fromHexString(DEV_PUBLIC_KEY_HEX));
 				} catch (GeneralSecurityException e) {
 					throw new RuntimeException(e);
 				}

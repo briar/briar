@@ -33,6 +33,7 @@ import javax.inject.Inject;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
@@ -42,7 +43,8 @@ import static org.briarproject.briar.android.conversation.ConversationActivity.C
 public class ContactChooserFragment extends BaseFragment {
 
 	public static final String TAG = ContactChooserFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
+
+	private static final Logger LOG = getLogger(TAG);
 
 	private BriarRecyclerView list;
 	private ContactListAdapter adapter;

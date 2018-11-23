@@ -8,11 +8,13 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
+
 @NotNullByDefault
 class JavaLocationUtils implements LocationUtils {
 
 	private static final Logger LOG =
-			Logger.getLogger(JavaLocationUtils.class.getName());
+			getLogger(JavaLocationUtils.class.getName());
 
 	@Inject
 	JavaLocationUtils() {

@@ -35,6 +35,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
@@ -43,7 +44,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		implements CreateGroupController {
 
 	private static final Logger LOG =
-			Logger.getLogger(CreateGroupControllerImpl.class.getName());
+			getLogger(CreateGroupControllerImpl.class.getName());
 
 	private final Executor cryptoExecutor;
 	private final ContactManager contactManager;

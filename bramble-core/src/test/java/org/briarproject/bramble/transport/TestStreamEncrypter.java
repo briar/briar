@@ -2,7 +2,6 @@ package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.crypto.StreamEncrypter;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -11,6 +10,7 @@ import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HE
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
 
 @NotNullByDefault
 class TestStreamEncrypter implements StreamEncrypter {
@@ -30,8 +30,8 @@ class TestStreamEncrypter implements StreamEncrypter {
 			int paddingLength, boolean finalFrame) throws IOException {
 		if (writeTagAndHeader) writeTagAndHeader();
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
-		ByteUtils.writeUint16(payloadLength, frameHeader, 0);
-		ByteUtils.writeUint16(paddingLength, frameHeader, INT_16_BYTES);
+		writeUint16(payloadLength, frameHeader, 0);
+		writeUint16(paddingLength, frameHeader, INT_16_BYTES);
 		if (finalFrame) frameHeader[0] |= 0x80;
 		out.write(frameHeader);
 		out.write(payload, 0, payloadLength);

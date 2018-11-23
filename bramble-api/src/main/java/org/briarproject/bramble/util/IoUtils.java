@@ -16,12 +16,13 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 public class IoUtils {
 
-	private static final Logger LOG = Logger.getLogger(IoUtils.class.getName());
+	private static final Logger LOG = getLogger(IoUtils.class.getName());
 
 	public static void deleteFileOrDir(File f) {
 		if (f.isFile()) {

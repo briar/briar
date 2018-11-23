@@ -3,6 +3,13 @@ package org.briarproject.bramble.util;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.bramble.util.StringUtils.fromUtf8;
+import static org.briarproject.bramble.util.StringUtils.macToBytes;
+import static org.briarproject.bramble.util.StringUtils.macToString;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
+import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
@@ -16,22 +23,22 @@ public class StringUtilsTest extends BrambleTestCase {
 				0x0A, 0x0B, 0x0C, 0x0D, 0x0E, (byte) 0xFF
 		};
 		String expected = "000102037F800A0B0C0D0EFF";
-		assertEquals(expected, StringUtils.toHexString(b));
+		assertEquals(expected, toHexString(b));
 	}
 
 	@Test
 	public void testToHexStringEmptyInput() {
-		assertEquals("", StringUtils.toHexString(new byte[0]));
+		assertEquals("", toHexString(new byte[0]));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testFromHexStringRejectsInvalidLength() {
-		StringUtils.fromHexString("12345");
+		fromHexString("12345");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testFromHexStringRejectsInvalidCharacter() {
-		StringUtils.fromHexString("ABCDEFGH");
+		fromHexString("ABCDEFGH");
 	}
 
 	@Test
@@ -41,7 +48,7 @@ public class StringUtilsTest extends BrambleTestCase {
 				0x00, 0x01, 0x02, 0x03, 0x7F, (byte) 0x80,
 				0x0A, 0x0B, 0x0C, 0x0D, 0x0E, (byte) 0xFF
 		};
-		assertArrayEquals(expected, StringUtils.fromHexString(s));
+		assertArrayEquals(expected, fromHexString(s));
 	}
 
 	@Test
@@ -51,12 +58,12 @@ public class StringUtilsTest extends BrambleTestCase {
 				0x00, 0x01, 0x02, 0x03, 0x7F, (byte) 0x80,
 				0x0A, 0x0B, 0x0C, 0x0D, 0x0E, (byte) 0xFF
 		};
-		assertArrayEquals(expected, StringUtils.fromHexString(s));
+		assertArrayEquals(expected, fromHexString(s));
 	}
 
 	@Test
 	public void testFromHexStringEmptyInput() {
-		assertArrayEquals(new byte[0], StringUtils.fromHexString(""));
+		assertArrayEquals(new byte[0], fromHexString(""));
 	}
 
 	@Test
@@ -64,7 +71,7 @@ public class StringUtilsTest extends BrambleTestCase {
 		// The Unicode null character should be encoded as a single null byte,
 		// not as two bytes as in CESU-8 and modified UTF-8
 		String s = "\u0000";
-		assertArrayEquals(new byte[1], StringUtils.toUtf8(s));
+		assertArrayEquals(new byte[1], toUtf8(s));
 	}
 
 	@Test
@@ -77,18 +84,18 @@ public class StringUtilsTest extends BrambleTestCase {
 				(byte) 0xC8, (byte) 0x85, // U+0205
 				(byte) 0xF0, (byte) 0x90, (byte) 0x90, (byte) 0x80 // U+10400
 		};
-		assertArrayEquals(expected, StringUtils.toUtf8(s));
+		assertArrayEquals(expected, toUtf8(s));
 	}
 
 	@Test
 	public void testToUtf8EmptyInput() {
-		assertArrayEquals(new byte[0], StringUtils.toUtf8(""));
+		assertArrayEquals(new byte[0], toUtf8(""));
 	}
 
 	@Test
 	public void testFromUtf8AcceptsNullCharacterUsingStandardUtf8() {
 		// The UTF-8 encoding of the null character is valid
-		assertEquals("\u0000", StringUtils.fromUtf8(new byte[1]));
+		assertEquals("\u0000", fromUtf8(new byte[1]));
 	}
 
 	@Test
@@ -100,7 +107,7 @@ public class StringUtilsTest extends BrambleTestCase {
 		};
 		// Conversion should ignore the invalid character and return the rest
 		String expected = "\u0205";
-		assertEquals(expected, StringUtils.fromUtf8(b));
+		assertEquals(expected, fromUtf8(b));
 	}
 
 	@Test
@@ -112,7 +119,7 @@ public class StringUtilsTest extends BrambleTestCase {
 				(byte) 0xC8, (byte) 0x85 // U+0205
 		};
 		String expected = "\uD801\uDC00\u0205"; // Surrogate pair
-		assertEquals(expected, StringUtils.fromUtf8(b));
+		assertEquals(expected, fromUtf8(b));
 	}
 
 	@Test
@@ -126,102 +133,102 @@ public class StringUtilsTest extends BrambleTestCase {
 		};
 		// Conversion should ignore the invalid character and return the rest
 		String expected = "\u0205";
-		assertEquals(expected, StringUtils.fromUtf8(b));
+		assertEquals(expected, fromUtf8(b));
 	}
 
 	@Test
 	public void testFromUtf8EmptyInput() {
-		assertEquals("", StringUtils.fromUtf8(new byte[0]));
+		assertEquals("", fromUtf8(new byte[0]));
 	}
 
 	@Test
 	public void testTruncateUtf8ReturnsArgumentIfNotTruncated() {
 		String s = "Hello";
-		assertSame(s, StringUtils.truncateUtf8(s, 5));
+		assertSame(s, truncateUtf8(s, 5));
 	}
 
 	@Test
 	public void testTruncateUtf8ChecksUtf8LengthNotStringLength() {
 		String s = "H\u0205llo";
 		assertEquals(5, s.length());
-		assertEquals(6, StringUtils.toUtf8(s).length);
+		assertEquals(6, toUtf8(s).length);
 		String expected = "H\u0205ll"; // Sixth byte removed
-		assertEquals(expected, StringUtils.truncateUtf8(s, 5));
+		assertEquals(expected, truncateUtf8(s, 5));
 	}
 
 	@Test
 	public void testTruncateUtf8RemovesTruncatedCharacter() {
 		String s = "\u0205\u0205"; // String requires four bytes
 		String expected = "\u0205"; // Partial character removed
-		String truncated = StringUtils.truncateUtf8(s, 3);
+		String truncated = truncateUtf8(s, 3);
 		assertEquals(expected, truncated);
 		// Converting the truncated string should not exceed the max length
-		assertEquals(2, StringUtils.toUtf8(truncated).length);
+		assertEquals(2, toUtf8(truncated).length);
 	}
 
 	@Test
 	public void testTruncateUtf8RemovesTruncatedSurrogatePair() {
 		String s = "\u0205\uD801\uDC00"; // String requires six bytes
 		String expected = "\u0205"; // Partial character removed
-		String truncated = StringUtils.truncateUtf8(s, 3);
+		String truncated = truncateUtf8(s, 3);
 		assertEquals(expected, truncated);
 		// Converting the truncated string should not exceed the max length
-		assertEquals(2, StringUtils.toUtf8(truncated).length);
+		assertEquals(2, toUtf8(truncated).length);
 	}
 
 	@Test
 	public void testTruncateUtf8EmptyInput() {
-		assertEquals("", StringUtils.truncateUtf8("", 123));
+		assertEquals("", truncateUtf8("", 123));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testMacToBytesRejectsShortMac() {
-		StringUtils.macToBytes("00:00:00:00:00");
+		macToBytes("00:00:00:00:00");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testMacToBytesRejectsLongMac() {
-		StringUtils.macToBytes("00:00:00:00:00:00:00");
+		macToBytes("00:00:00:00:00:00:00");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testMacToBytesRejectsInvalidCharacter() {
-		StringUtils.macToBytes("00:00:00:00:00:0g");
+		macToBytes("00:00:00:00:00:0g");
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testMacToBytesRejectsInvalidFormat() {
-		StringUtils.macToBytes("0:000:00:00:00:00");
+		macToBytes("0:000:00:00:00:00");
 	}
 
 	@Test
 	public void testMacToBytesUpperCase() {
 		byte[] expected = new byte[] {0x0A, 0x1B, 0x2C, 0x3D, 0x4E, 0x5F};
 		String mac = "0A:1B:2C:3D:4E:5F";
-		assertArrayEquals(expected, StringUtils.macToBytes(mac));
+		assertArrayEquals(expected, macToBytes(mac));
 	}
 
 	@Test
 	public void testMacToBytesLowerCase() {
 		byte[] expected = new byte[] {0x0A, 0x1B, 0x2C, 0x3D, 0x4E, 0x5F};
 		String mac = "0a:1b:2c:3d:4e:5f";
-		assertArrayEquals(expected, StringUtils.macToBytes(mac));
+		assertArrayEquals(expected, macToBytes(mac));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testMacToStringRejectsShortMac() {
-		StringUtils.macToString(new byte[5]);
+		macToString(new byte[5]);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
 	public void testMacToStringRejectsLongMac() {
-		StringUtils.macToString(new byte[7]);
+		macToString(new byte[7]);
 	}
 
 	@Test
 	public void testMacToString() {
 		byte[] mac = new byte[] {0x0a, 0x1b, 0x2c, 0x3d, 0x4e, 0x5f};
 		String expected = "0A:1B:2C:3D:4E:5F";
-		assertEquals(expected, StringUtils.macToString(mac));
+		assertEquals(expected, macToString(mac));
 	}
 }

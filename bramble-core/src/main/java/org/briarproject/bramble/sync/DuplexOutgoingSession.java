@@ -39,6 +39,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
@@ -55,7 +56,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class DuplexOutgoingSession implements SyncSession, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(DuplexOutgoingSession.class.getName());
+			getLogger(DuplexOutgoingSession.class.getName());
 
 	private static final ThrowingRunnable<IOException> CLOSE = () -> {
 	};

@@ -26,13 +26,14 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 class ConnectionManagerImpl implements ConnectionManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(ConnectionManagerImpl.class.getName());
+			getLogger(ConnectionManagerImpl.class.getName());
 
 	private final Executor ioExecutor;
 	private final KeyManager keyManager;

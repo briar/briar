@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.plugin;
 
-import org.briarproject.bramble.util.StringUtils;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 /**
  * Type-safe wrapper for a namespaced string that uniquely identifies a
@@ -16,7 +16,7 @@ public class TransportId {
 	private final String id;
 
 	public TransportId(String id) {
-		int length = StringUtils.toUtf8(id).length;
+		int length = toUtf8(id).length;
 		if (length == 0 || length > MAX_TRANSPORT_ID_LENGTH)
 			throw new IllegalArgumentException();
 		this.id = id;

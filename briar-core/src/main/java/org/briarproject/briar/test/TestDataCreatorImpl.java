@@ -56,6 +56,7 @@ import javax.inject.Inject;
 import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -66,7 +67,7 @@ import static org.briarproject.briar.test.TestData.GROUP_NAMES;
 public class TestDataCreatorImpl implements TestDataCreator {
 
 	private final Logger LOG =
-			Logger.getLogger(TestDataCreatorImpl.class.getName());
+			getLogger(TestDataCreatorImpl.class.getName());
 
 	private final AuthorFactory authorFactory;
 	private final Clock clock;

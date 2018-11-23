@@ -21,7 +21,6 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -648,7 +647,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetInvitationMessages() throws Exception {
 		BdfDictionary query = BdfDictionary.of(new BdfEntry("q", "u"));
-		MessageId messageId2 = new MessageId(TestUtils.getRandomId());
+		MessageId messageId2 = new MessageId(getRandomId());
 		BdfDictionary meta2 = BdfDictionary.of(new BdfEntry("m2", "e"));
 		Map<MessageId, BdfDictionary> results = new HashMap<>();
 		results.put(message.getId(), meta);

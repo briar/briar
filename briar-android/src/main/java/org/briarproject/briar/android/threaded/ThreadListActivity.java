@@ -45,6 +45,7 @@ import static android.support.design.widget.Snackbar.make;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCount;
 
@@ -58,7 +59,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	protected static final String KEY_REPLY_ID = "replyId";
 
 	private static final Logger LOG =
-			Logger.getLogger(ThreadListActivity.class.getName());
+			getLogger(ThreadListActivity.class.getName());
 
 	protected A adapter;
 	protected BriarRecyclerView list;

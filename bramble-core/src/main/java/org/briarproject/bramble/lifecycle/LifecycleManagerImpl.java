@@ -28,6 +28,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
@@ -49,7 +50,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(LifecycleManagerImpl.class.getName());
+			getLogger(LifecycleManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final EventBus eventBus;

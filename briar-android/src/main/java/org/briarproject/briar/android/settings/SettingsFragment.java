@@ -37,11 +37,9 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
-import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,6 +69,7 @@ import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
@@ -79,10 +78,12 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
+import static org.briarproject.briar.android.util.UiUtils.setTheme;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
@@ -116,7 +117,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			"pref_key_tor_only_when_charging";
 
 	private static final Logger LOG =
-			Logger.getLogger(SettingsFragment.class.getName());
+			getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
 	private ListPreference language;
@@ -190,7 +191,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		theme.setOnPreferenceChangeListener((preference, newValue) -> {
 			if (getActivity() != null) {
 				// activate new theme
-				UiUtils.setTheme(getActivity(), (String) newValue);
+				setTheme(getActivity(), (String) newValue);
 				// bring up parent activity, so it can change its theme as well
 				// upstream bug: https://issuetracker.google.com/issues/38352704
 				Intent intent =
@@ -397,7 +398,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				if (settings.getBoolean(PREF_NOTIFY_SOUND, true)) {
 					String ringtoneName =
 							settings.get(PREF_NOTIFY_RINGTONE_NAME);
-					if (StringUtils.isNullOrEmpty(ringtoneName)) {
+					if (isNullOrEmpty(ringtoneName)) {
 						text = getString(R.string.notify_sound_setting_default);
 					} else {
 						text = ringtoneName;
@@ -506,7 +507,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Uri uri;
 			String ringtoneUri =
 					settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (StringUtils.isNullOrEmpty(ringtoneUri))
+			if (isNullOrEmpty(ringtoneUri))
 				uri = DEFAULT_NOTIFICATION_URI;
 			else uri = Uri.parse(ringtoneUri);
 			i.putExtra(EXTRA_RINGTONE_EXISTING_URI, uri);

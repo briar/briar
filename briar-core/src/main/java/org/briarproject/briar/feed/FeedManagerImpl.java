@@ -29,7 +29,6 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
@@ -41,7 +40,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
@@ -61,9 +59,13 @@ import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+import static java.util.Collections.sort;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_DELAY_INITIAL;
 import static org.briarproject.briar.api.feed.FeedConstants.FETCH_INTERVAL;
@@ -79,7 +81,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		BlogManager.RemoveBlogHook {
 
 	private static final Logger LOG =
-			Logger.getLogger(FeedManagerImpl.class.getName());
+			getLogger(FeedManagerImpl.class.getName());
 
 	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
 
@@ -319,21 +321,18 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 			throw new IOException("Feed has no entries");
 
 		// clean title
-		String title =
-				StringUtils.isNullOrEmpty(f.getTitle()) ? null : f.getTitle();
+		String title = isNullOrEmpty(f.getTitle()) ? null : f.getTitle();
 		if (title != null) title = clean(title, STRIP_ALL);
 		f.setTitle(title);
 
 		// clean description
-		String description =
-				StringUtils.isNullOrEmpty(f.getDescription()) ? null :
-						f.getDescription();
+		String description = isNullOrEmpty(f.getDescription()) ? null :
+				f.getDescription();
 		if (description != null) description = clean(description, STRIP_ALL);
 		f.setDescription(description);
 
 		// clean author
-		String author =
-				StringUtils.isNullOrEmpty(f.getAuthor()) ? null : f.getAuthor();
+		String author = isNullOrEmpty(f.getAuthor()) ? null : f.getAuthor();
 		if (author != null) author = clean(author, STRIP_ALL);
 		f.setAuthor(author);
 
@@ -386,7 +385,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		long lastEntryTime = feed.getLastEntryTime();
 		Transaction txn = db.startTransaction(false);
 		try {
-			Collections.sort(entries, getEntryComparator());
+			sort(entries, getEntryComparator());
 			for (SyndEntry entry : entries) {
 				long entryTime;
 				if (entry.getPublishedDate() != null) {
@@ -416,7 +415,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		// build post text
 		StringBuilder b = new StringBuilder();
 
-		if (!StringUtils.isNullOrEmpty(entry.getTitle())) {
+		if (!isNullOrEmpty(entry.getTitle())) {
 			b.append("<h1>").append(entry.getTitle()).append("</h1>");
 		}
 		for (SyndContent content : entry.getContents()) {
@@ -429,7 +428,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 				b.append(entry.getDescription().getValue());
 		}
 		b.append("<p>");
-		if (!StringUtils.isNullOrEmpty(entry.getAuthor())) {
+		if (!isNullOrEmpty(entry.getAuthor())) {
 			b.append("-- ").append(entry.getAuthor());
 		}
 		if (entry.getPublishedDate() != null) {
@@ -441,7 +440,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 		}
 		b.append("</p>");
 		String link = entry.getLink();
-		if (!StringUtils.isNullOrEmpty(link)) {
+		if (!isNullOrEmpty(link)) {
 			b.append("<a href=\"").append(link).append("\">").append(link)
 					.append("</a>");
 		}
@@ -471,7 +470,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 
 	private String getPostText(String text) {
 		text = clean(text, ARTICLE);
-		return StringUtils.truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
+		return truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
 	}
 
 	private Comparator<SyndEntry> getEntryComparator() {

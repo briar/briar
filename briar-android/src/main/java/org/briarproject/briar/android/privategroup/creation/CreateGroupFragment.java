@@ -15,7 +15,6 @@ import android.widget.ProgressBar;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
@@ -23,6 +22,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 
@@ -109,7 +109,7 @@ public class CreateGroupFragment extends BaseFragment {
 
 	private boolean validateName() {
 		String name = nameEntry.getText().toString();
-		int length = StringUtils.toUtf8(name).length;
+		int length = toUtf8(name).length;
 		if (length > MAX_GROUP_NAME_LENGTH) {
 			nameLayout.setError(getString(R.string.name_too_long));
 			return false;

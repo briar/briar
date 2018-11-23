@@ -7,21 +7,22 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.jmock.Expectations;
-import org.junit.Assert;
 import org.junit.Test;
 
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.client.MessageTrackerConstants.GROUP_KEY_STORED_MESSAGE_ID;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 public class MessageTrackerTest extends BrambleMockTestCase {
 
-	protected final GroupId groupId = new GroupId(TestUtils.getRandomId());
+	protected final GroupId groupId = new GroupId(getRandomId());
 	protected final ClientHelper clientHelper =
 			context.mock(ClientHelper.class);
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
-	private final MessageId messageId = new MessageId(TestUtils.getRandomId());
+	private final MessageId messageId = new MessageId(getRandomId());
 	private final MessageTracker messageTracker =
 			new MessageTrackerImpl(db, clientHelper);
 	private final BdfDictionary dictionary = BdfDictionary.of(
@@ -43,8 +44,8 @@ public class MessageTrackerTest extends BrambleMockTestCase {
 			will(returnValue(dictionary));
 		}});
 		MessageId loadedId = messageTracker.loadStoredMessageId(groupId);
-		Assert.assertNotNull(loadedId);
-		Assert.assertTrue(messageId.equals(loadedId));
+		assertNotNull(loadedId);
+		assertEquals(messageId, loadedId);
 	}
 
 }

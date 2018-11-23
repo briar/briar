@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +22,9 @@ import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -32,8 +33,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	static final TransportId ID =
 			new TransportId("org.briarproject.bramble.modem");
 
-	private static final Logger LOG =
-			Logger.getLogger(ModemPlugin.class.getName());
+	private static final Logger LOG = getLogger(ModemPlugin.class.getName());
 
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
@@ -144,13 +144,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		if (!running) return null;
 		// Get the ISO 3166 code for the caller's country
 		String fromIso = callback.getLocalProperties().get("iso3166");
-		if (StringUtils.isNullOrEmpty(fromIso)) return null;
+		if (isNullOrEmpty(fromIso)) return null;
 		// Get the ISO 3166 code for the callee's country
 		String toIso = p.get("iso3166");
-		if (StringUtils.isNullOrEmpty(toIso)) return null;
+		if (isNullOrEmpty(toIso)) return null;
 		// Get the callee's phone number
 		String number = p.get("number");
-		if (StringUtils.isNullOrEmpty(number)) return null;
+		if (isNullOrEmpty(number)) return null;
 		// Convert the number into direct dialling form
 		number = CountryCodes.translate(number, fromIso, toIso);
 		if (number == null) return null;

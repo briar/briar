@@ -36,6 +36,7 @@ import static android.content.Context.ALARM_SERVICE;
 import static android.os.SystemClock.elapsedRealtime;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SettingsFragment.PREF_SCREEN_LOCK;
 import static org.briarproject.briar.android.settings.SettingsFragment.PREF_SCREEN_LOCK_TIMEOUT;
@@ -48,7 +49,7 @@ import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 public class LockManagerImpl implements LockManager, Service, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(LockManagerImpl.class.getName());
+			getLogger(LockManagerImpl.class.getName());
 
 	private final Context appContext;
 	private final SettingsManager settingsManager;

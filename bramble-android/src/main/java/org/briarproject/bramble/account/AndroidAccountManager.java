@@ -17,11 +17,13 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
+
 class AndroidAccountManager extends AccountManagerImpl
 		implements AccountManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidAccountManager.class.getName());
+			getLogger(AndroidAccountManager.class.getName());
 
 	private static final String PREF_DB_KEY = "key";
 

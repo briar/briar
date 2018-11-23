@@ -2,7 +2,6 @@ package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.util.StringUtils;
 import org.spongycastle.crypto.generators.SCrypt;
 
 import java.util.logging.Logger;
@@ -10,13 +9,14 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 class ScryptKdf implements PasswordBasedKdf {
 
-	private static final Logger LOG =
-			Logger.getLogger(ScryptKdf.class.getName());
+	private static final Logger LOG = getLogger(ScryptKdf.class.getName());
 
 	private static final int MIN_COST = 256; // Min parameter N
 	private static final int MAX_COST = 1024 * 1024; // Max parameter N
@@ -53,7 +53,7 @@ class ScryptKdf implements PasswordBasedKdf {
 	@Override
 	public SecretKey deriveKey(String password, byte[] salt, int cost) {
 		long start = now();
-		byte[] passwordBytes = StringUtils.toUtf8(password);
+		byte[] passwordBytes = toUtf8(password);
 		SecretKey k = new SecretKey(SCrypt.generate(passwordBytes, salt, cost,
 				BLOCK_SIZE, PARALLELIZATION, SecretKey.LENGTH));
 		logDuration(LOG, "Deriving key from password", start);

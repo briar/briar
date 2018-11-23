@@ -21,12 +21,13 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
 public class SplashScreenActivity extends BaseActivity {
 
 	private static final Logger LOG =
-			Logger.getLogger(SplashScreenActivity.class.getName());
+			getLogger(SplashScreenActivity.class.getName());
 
 	@Inject
 	protected AccountManager accountManager;

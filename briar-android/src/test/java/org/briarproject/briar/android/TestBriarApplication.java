@@ -16,6 +16,7 @@ import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
 import static java.util.Collections.emptyList;
+import static java.util.logging.Logger.getLogger;
 
 /**
  * This class only exists to avoid static initialisation of ACRA
@@ -24,7 +25,7 @@ public class TestBriarApplication extends Application
 		implements BriarApplication {
 
 	private static final Logger LOG =
-			Logger.getLogger(TestBriarApplication.class.getName());
+			getLogger(TestBriarApplication.class.getName());
 
 	private AndroidComponent applicationComponent;
 	private volatile SharedPreferences prefs;

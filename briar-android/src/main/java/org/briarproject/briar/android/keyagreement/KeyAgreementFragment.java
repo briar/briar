@@ -56,6 +56,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -65,7 +66,8 @@ public class KeyAgreementFragment extends BaseEventFragment
 
 	static final String TAG = KeyAgreementFragment.class.getName();
 
-	private static final Logger LOG = Logger.getLogger(TAG);
+	private static final Logger LOG = getLogger(TAG);
+
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
 	@Inject
@@ -332,7 +334,10 @@ public class KeyAgreementFragment extends BaseEventFragment
 			// Use ISO 8859-1 to encode bytes directly as a string
 			String content = new String(payloadBytes, ISO_8859_1);
 			Bitmap qrCode = QrCodeUtils.createQrCode(dm, content);
-			runOnUiThreadUnlessDestroyed(() -> qrCodeView.setQrCode(qrCode));
+			if (qrCode != null) {
+				runOnUiThreadUnlessDestroyed(() ->
+						qrCodeView.setQrCode(qrCode));
+			}
 		});
 	}
 

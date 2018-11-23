@@ -2,8 +2,6 @@ package org.briarproject.briar.android.forum;
 
 import android.content.Intent;
 
-import junit.framework.Assert;
-
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;
@@ -32,6 +30,7 @@ import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -103,7 +102,7 @@ public class ForumActivityTest {
 		verify(mc, times(1)).loadItems(rc.capture());
 		rc.getValue().onResult(dummyData);
 		ThreadItemAdapter<ForumItem> adapter = forumActivity.getAdapter();
-		Assert.assertNotNull(adapter);
+		assertNotNull(adapter);
 		assertEquals(6, adapter.getItemCount());
 		assertTrue(dummyData.get(0).getText()
 				.equals(adapter.getItemAt(0).getText()));

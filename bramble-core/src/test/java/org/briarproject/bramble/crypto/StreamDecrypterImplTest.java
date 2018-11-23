@@ -2,8 +2,6 @@ package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.ByteUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -16,7 +14,11 @@ import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENG
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_NONCE_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
+import static org.briarproject.bramble.util.ByteUtils.writeUint64;
 import static org.junit.Assert.assertArrayEquals;
 
 public class StreamDecrypterImplTest extends BrambleTestCase {
@@ -30,15 +32,14 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 
 	public StreamDecrypterImplTest() {
 		cipher = new TestAuthenticatedCipher(); // Null cipher
-		streamHeaderKey = TestUtils.getSecretKey();
-		frameKey = TestUtils.getSecretKey();
-		streamHeaderNonce =
-				TestUtils.getRandomBytes(STREAM_HEADER_NONCE_LENGTH);
+		streamHeaderKey = getSecretKey();
+		frameKey = getSecretKey();
+		streamHeaderNonce = getRandomBytes(STREAM_HEADER_NONCE_LENGTH);
 		protocolVersionBytes = new byte[2];
-		ByteUtils.writeUint16(PROTOCOL_VERSION, protocolVersionBytes, 0);
+		writeUint16(PROTOCOL_VERSION, protocolVersionBytes, 0);
 		streamNumberBytes = new byte[8];
-		ByteUtils.writeUint64(streamNumber, streamNumberBytes, 0);
-		payload = TestUtils.getRandomBytes(payloadLength);
+		writeUint64(streamNumber, streamNumberBytes, 0);
+		payload = getRandomBytes(payloadLength);
 	}
 
 	@Test
@@ -51,7 +52,7 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 		int payloadLength1 = 345, paddingLength1 = 456;
 		FrameEncoder.encodeHeader(frameHeader1, true, payloadLength1,
 				paddingLength1);
-		byte[] payload1 = TestUtils.getRandomBytes(payloadLength1);
+		byte[] payload1 = getRandomBytes(payloadLength1);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(streamHeaderNonce);
@@ -88,8 +89,7 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 	@Test(expected = IOException.class)
 	public void testWrongProtocolVersionThrowsException() throws Exception {
 		byte[] wrongProtocolVersionBytes = new byte[2];
-		ByteUtils.writeUint16(PROTOCOL_VERSION + 1, wrongProtocolVersionBytes,
-				0);
+		writeUint16(PROTOCOL_VERSION + 1, wrongProtocolVersionBytes, 0);
 
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
 		FrameEncoder.encodeHeader(frameHeader, false, payloadLength,
@@ -99,7 +99,7 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 		int payloadLength1 = 345, paddingLength1 = 456;
 		FrameEncoder.encodeHeader(frameHeader1, true, payloadLength1,
 				paddingLength1);
-		byte[] payload1 = TestUtils.getRandomBytes(payloadLength1);
+		byte[] payload1 = getRandomBytes(payloadLength1);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(streamHeaderNonce);
@@ -128,7 +128,7 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 	@Test(expected = IOException.class)
 	public void testWrongStreamNumberThrowsException() throws Exception {
 		byte[] wrongStreamNumberBytes = new byte[8];
-		ByteUtils.writeUint64(streamNumber + 1, wrongStreamNumberBytes, 0);
+		writeUint64(streamNumber + 1, wrongStreamNumberBytes, 0);
 
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
 		FrameEncoder.encodeHeader(frameHeader, false, payloadLength,
@@ -138,7 +138,7 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 		int payloadLength1 = 345, paddingLength1 = 456;
 		FrameEncoder.encodeHeader(frameHeader1, true, payloadLength1,
 				paddingLength1);
-		byte[] payload1 = TestUtils.getRandomBytes(payloadLength1);
+		byte[] payload1 = getRandomBytes(payloadLength1);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(streamHeaderNonce);
@@ -196,9 +196,9 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 		byte[] frameHeader = new byte[FRAME_HEADER_LENGTH];
 		// The payload length plus padding length is invalid
 		int payloadLength = MAX_PAYLOAD_LENGTH - 1, paddingLength = 2;
-		ByteUtils.writeUint16(payloadLength, frameHeader, 0);
-		ByteUtils.writeUint16(paddingLength, frameHeader, INT_16_BYTES);
-		byte[] payload = TestUtils.getRandomBytes(payloadLength);
+		writeUint16(payloadLength, frameHeader, 0);
+		writeUint16(paddingLength, frameHeader, INT_16_BYTES);
+		byte[] payload = getRandomBytes(payloadLength);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		out.write(streamHeaderNonce);

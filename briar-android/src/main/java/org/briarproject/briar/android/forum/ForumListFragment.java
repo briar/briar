@@ -46,6 +46,7 @@ import javax.inject.Inject;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -57,7 +58,8 @@ public class ForumListFragment extends BaseEventFragment implements
 		OnClickListener {
 
 	public final static String TAG = ForumListFragment.class.getName();
-	private final static Logger LOG = Logger.getLogger(TAG);
+
+	private final static Logger LOG = getLogger(TAG);
 
 	private BriarRecyclerView list;
 	private ForumListAdapter adapter;

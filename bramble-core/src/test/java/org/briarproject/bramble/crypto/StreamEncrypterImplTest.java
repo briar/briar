@@ -2,8 +2,6 @@ package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.util.ByteUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
@@ -16,6 +14,10 @@ import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.STREAM_HEADER_NONCE_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
+import static org.briarproject.bramble.util.ByteUtils.writeUint64;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
@@ -30,16 +32,15 @@ public class StreamEncrypterImplTest extends BrambleTestCase {
 
 	public StreamEncrypterImplTest() {
 		cipher = new TestAuthenticatedCipher(); // Null cipher
-		streamHeaderKey = TestUtils.getSecretKey();
-		frameKey = TestUtils.getSecretKey();
-		tag = TestUtils.getRandomBytes(TAG_LENGTH);
-		streamHeaderNonce =
-				TestUtils.getRandomBytes(STREAM_HEADER_NONCE_LENGTH);
+		streamHeaderKey = getSecretKey();
+		frameKey = getSecretKey();
+		tag = getRandomBytes(TAG_LENGTH);
+		streamHeaderNonce = getRandomBytes(STREAM_HEADER_NONCE_LENGTH);
 		protocolVersionBytes = new byte[2];
-		ByteUtils.writeUint16(PROTOCOL_VERSION, protocolVersionBytes, 0);
+		writeUint16(PROTOCOL_VERSION, protocolVersionBytes, 0);
 		streamNumberBytes = new byte[8];
-		ByteUtils.writeUint64(streamNumber, streamNumberBytes, 0);
-		payload = TestUtils.getRandomBytes(payloadLength);
+		writeUint64(streamNumber, streamNumberBytes, 0);
+		payload = getRandomBytes(payloadLength);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -318,7 +319,7 @@ public class StreamEncrypterImplTest extends BrambleTestCase {
 				streamNumber, tag, streamHeaderNonce, streamHeaderKey,
 				frameKey);
 		int payloadLength1 = 345, paddingLength1 = 456;
-		byte[] payload1 = TestUtils.getRandomBytes(payloadLength1);
+		byte[] payload1 = getRandomBytes(payloadLength1);
 
 		s.writeFrame(payload, payloadLength, paddingLength, false);
 		s.writeFrame(payload1, payloadLength1, paddingLength1, true);

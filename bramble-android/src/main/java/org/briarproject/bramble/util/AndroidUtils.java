@@ -14,6 +14,7 @@ import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 public class AndroidUtils {
 
@@ -49,7 +50,7 @@ public class AndroidUtils {
 	}
 
 	private static boolean isValidBluetoothAddress(String address) {
-		return !StringUtils.isNullOrEmpty(address)
+		return !isNullOrEmpty(address)
 				&& BluetoothAdapter.checkBluetoothAddress(address)
 				&& !address.equals(FAKE_BLUETOOTH_ADDRESS);
 	}

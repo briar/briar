@@ -73,6 +73,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
@@ -87,7 +88,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	private static final Logger LOG =
-			Logger.getLogger(DatabaseComponentImpl.class.getName());
+			getLogger(DatabaseComponentImpl.class.getName());
 
 	private final Database<T> db;
 	private final Class<T> txnClass;

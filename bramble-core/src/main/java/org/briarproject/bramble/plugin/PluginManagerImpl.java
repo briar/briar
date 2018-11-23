@@ -52,6 +52,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -61,7 +62,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class PluginManagerImpl implements PluginManager, Service {
 
 	private static final Logger LOG =
-			Logger.getLogger(PluginManagerImpl.class.getName());
+			getLogger(PluginManagerImpl.class.getName());
 
 	private final Executor ioExecutor;
 	private final ScheduledExecutorService scheduler;

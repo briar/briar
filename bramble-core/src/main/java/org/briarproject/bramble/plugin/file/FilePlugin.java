@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.FileConstants.PROP_PATH;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -21,8 +22,7 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @NotNullByDefault
 abstract class FilePlugin implements SimplexPlugin {
 
-	private static final Logger LOG =
-			Logger.getLogger(FilePlugin.class.getName());
+	private static final Logger LOG = getLogger(FilePlugin.class.getName());
 
 	protected final SimplexPluginCallback callback;
 	protected final int maxLatency;

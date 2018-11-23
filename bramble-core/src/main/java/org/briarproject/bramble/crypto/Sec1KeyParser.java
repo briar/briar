@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
 
@@ -28,8 +29,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 @NotNullByDefault
 class Sec1KeyParser implements KeyParser {
 
-	private static final Logger LOG =
-			Logger.getLogger(Sec1KeyParser.class.getName());
+	private static final Logger LOG = getLogger(Sec1KeyParser.class.getName());
 
 	private final ECDomainParameters params;
 	private final BigInteger modulus;

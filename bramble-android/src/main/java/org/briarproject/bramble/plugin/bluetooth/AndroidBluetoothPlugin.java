@@ -51,6 +51,7 @@ import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
@@ -58,7 +59,7 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidBluetoothPlugin.class.getName());
+			getLogger(AndroidBluetoothPlugin.class.getName());
 
 	private static final int MAX_DISCOVERY_MS = 10_000;
 

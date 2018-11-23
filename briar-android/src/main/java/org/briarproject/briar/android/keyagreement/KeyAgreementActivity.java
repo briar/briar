@@ -25,7 +25,6 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeenListener;
 import org.briarproject.briar.android.keyagreement.KeyAgreementFragment.KeyAgreementEventListener;
-import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.logging.Logger;
 
@@ -43,8 +42,10 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
+import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -61,7 +62,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyAgreementActivity.class.getName());
+			getLogger(KeyAgreementActivity.class.getName());
 
 	@Inject
 	EventBus eventBus;
@@ -249,7 +250,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 			builder.setTitle(R.string.permission_camera_title);
 			builder.setMessage(R.string.permission_camera_denied_body);
 			builder.setPositiveButton(R.string.ok,
-					UiUtils.getGoToSettingsListener(this));
+					getGoToSettingsListener(this));
 			builder.setNegativeButton(R.string.cancel,
 					(dialog, which) -> supportFinishAfterTransition());
 			builder.show();

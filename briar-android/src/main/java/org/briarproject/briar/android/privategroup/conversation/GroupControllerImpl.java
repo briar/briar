@@ -42,6 +42,7 @@ import javax.inject.Inject;
 
 import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -51,7 +52,7 @@ class GroupControllerImpl extends
 		implements GroupController {
 
 	private static final Logger LOG =
-			Logger.getLogger(GroupControllerImpl.class.getName());
+			getLogger(GroupControllerImpl.class.getName());
 
 	private final PrivateGroupManager privateGroupManager;
 	private final GroupMessageFactory groupMessageFactory;

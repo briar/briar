@@ -7,8 +7,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
-import org.briarproject.bramble.util.ByteUtils;
-import org.briarproject.bramble.util.StringUtils;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.digests.Blake2bDigest;
 
@@ -24,6 +22,9 @@ import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
+import static org.briarproject.bramble.util.ByteUtils.writeUint16;
+import static org.briarproject.bramble.util.ByteUtils.writeUint64;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 class TransportCryptoImpl implements TransportCrypto {
 
@@ -91,21 +92,21 @@ class TransportCryptoImpl implements TransportCrypto {
 
 	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
 		byte[] period = new byte[INT_64_BYTES];
-		ByteUtils.writeUint64(rotationPeriod, period, 0);
+		writeUint64(rotationPeriod, period, 0);
 		return crypto.deriveKey(ROTATE_LABEL, k, period);
 	}
 
 	private SecretKey deriveTagKey(SecretKey master, TransportId t,
 			boolean alice) {
 		String label = alice ? ALICE_TAG_LABEL : BOB_TAG_LABEL;
-		byte[] id = StringUtils.toUtf8(t.getString());
+		byte[] id = toUtf8(t.getString());
 		return crypto.deriveKey(label, master, id);
 	}
 
 	private SecretKey deriveHeaderKey(SecretKey master, TransportId t,
 			boolean alice) {
 		String label = alice ? ALICE_HEADER_LABEL : BOB_HEADER_LABEL;
-		byte[] id = StringUtils.toUtf8(t.getString());
+		byte[] id = toUtf8(t.getString());
 		return crypto.deriveKey(label, master, id);
 	}
 
@@ -125,10 +126,10 @@ class TransportCryptoImpl implements TransportCrypto {
 		// The input is the protocol version as a 16-bit integer, followed by
 		// the stream number as a 64-bit integer
 		byte[] protocolVersionBytes = new byte[INT_16_BYTES];
-		ByteUtils.writeUint16(protocolVersion, protocolVersionBytes, 0);
+		writeUint16(protocolVersion, protocolVersionBytes, 0);
 		prf.update(protocolVersionBytes, 0, protocolVersionBytes.length);
 		byte[] streamNumberBytes = new byte[INT_64_BYTES];
-		ByteUtils.writeUint64(streamNumber, streamNumberBytes, 0);
+		writeUint64(streamNumber, streamNumberBytes, 0);
 		prf.update(streamNumberBytes, 0, streamNumberBytes.length);
 		byte[] mac = new byte[macLength];
 		prf.doFinal(mac, 0);
