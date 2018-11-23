@@ -22,14 +22,15 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 import javax.net.SocketFactory;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.OsUtils.isLinux;
 
 @Immutable
 @NotNullByDefault
-public class LinuxTorPluginFactory implements DuplexPluginFactory {
+public class UnixTorPluginFactory implements DuplexPluginFactory {
 
 	private static final Logger LOG =
-			Logger.getLogger(LinuxTorPluginFactory.class.getName());
+			getLogger(UnixTorPluginFactory.class.getName());
 
 	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
 	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
@@ -49,7 +50,7 @@ public class LinuxTorPluginFactory implements DuplexPluginFactory {
 	private final Clock clock;
 	private final File torDirectory;
 
-	public LinuxTorPluginFactory(Executor ioExecutor,
+	public UnixTorPluginFactory(Executor ioExecutor,
 			NetworkManager networkManager, LocationUtils locationUtils,
 			EventBus eventBus, SocketFactory torSocketFactory,
 			BackoffFactory backoffFactory, ResourceProvider resourceProvider,
@@ -95,7 +96,7 @@ public class LinuxTorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		LinuxTorPlugin plugin = new LinuxTorPlugin(ioExecutor, networkManager,
+		UnixTorPlugin plugin = new UnixTorPlugin(ioExecutor, networkManager,
 				locationUtils, torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, backoff, callback,
 				architecture, MAX_LATENCY, MAX_IDLE_TIME, torDirectory);

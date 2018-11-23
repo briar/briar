@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.CodeSource;
@@ -19,9 +18,9 @@ import java.util.concurrent.Executor;
 import javax.net.SocketFactory;
 
 @NotNullByDefault
-class LinuxTorPlugin extends TorPlugin {
+abstract class JavaTorPlugin extends TorPlugin {
 
-	LinuxTorPlugin(Executor ioExecutor, NetworkManager networkManager,
+	JavaTorPlugin(Executor ioExecutor, NetworkManager networkManager,
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
@@ -32,17 +31,6 @@ class LinuxTorPlugin extends TorPlugin {
 				clock, resourceProvider, circumventionProvider, batteryManager,
 				backoff, callback, architecture, maxLatency, maxIdleTime,
 				torDirectory);
-	}
-
-	@Override
-	protected int getProcessId() {
-		try {
-			// Java 9: ProcessHandle.current().pid()
-			return Integer.parseInt(
-					new File("/proc/self").getCanonicalFile().getName());
-		} catch (IOException e) {
-			throw new AssertionError(e);
-		}
 	}
 
 	@Override
@@ -58,5 +46,4 @@ class LinuxTorPlugin extends TorPlugin {
 			throw new AssertionError(e);
 		}
 	}
-
 }
