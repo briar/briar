@@ -175,10 +175,18 @@ class AttachmentController {
 		float widthPercentage = maxWidth / (float) width;
 		float heightPercentage = maxHeight / (float) height;
 		float scaleFactor = Math.min(widthPercentage, heightPercentage);
+		if (scaleFactor > 1) scaleFactor = 1f;
 		int thumbnailWidth = (int) (width * scaleFactor);
 		int thumbnailHeight = (int) (height * scaleFactor);
-		if (thumbnailWidth < minWidth) thumbnailWidth = minWidth;
-		if (thumbnailHeight < minHeight) thumbnailHeight = minHeight;
+		if (thumbnailWidth < minWidth || thumbnailHeight < minHeight) {
+			widthPercentage = minWidth / (float) width;
+			heightPercentage = minHeight / (float) height;
+			scaleFactor = Math.max(widthPercentage, heightPercentage);
+			thumbnailWidth = (int) (width * scaleFactor);
+			thumbnailHeight = (int) (height * scaleFactor);
+			if (thumbnailWidth > maxWidth) thumbnailWidth = maxWidth;
+			if (thumbnailHeight > maxHeight) thumbnailHeight = maxHeight;
+		}
 		return new Size(thumbnailWidth, thumbnailHeight);
 	}
 

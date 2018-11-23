@@ -21,7 +21,6 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static com.bumptech.glide.load.DataSource.LOCAL;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -52,7 +51,7 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	@Override
 	public void loadData(Priority priority,
 			DataCallback<? super InputStream> callback) {
-		MessageId id = requireNonNull(attachment).getMessageId();
+		MessageId id = attachment.getMessageId();
 		dbExecutor.execute(() -> {
 			if (cancel) return;
 			try {
