@@ -15,15 +15,22 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
 
 /**
  * Contains all the H2-specific code for the database.
  */
 @NotNullByDefault
 class H2Database extends JdbcDatabase {
+
+	private static final Logger LOG = getLogger(H2Database.class.getName());
 
 	private static final String HASH_TYPE = "BINARY(32)";
 	private static final String SECRET_TYPE = "BINARY(32)";
@@ -121,8 +128,8 @@ class H2Database extends JdbcDatabase {
 			s.close();
 			c.close();
 		} catch (SQLException e) {
-			tryToClose(s);
-			tryToClose(c);
+			tryToClose(s, LOG, WARNING);
+			tryToClose(c, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}

@@ -4,12 +4,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @NotNullByDefault
 class FileTransportReader implements TransportConnectionReader {
@@ -34,11 +33,7 @@ class FileTransportReader implements TransportConnectionReader {
 
 	@Override
 	public void dispose(boolean exception, boolean recognised) {
-		try {
-			in.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
+		tryToClose(in, LOG, WARNING);
 		plugin.readerFinished(file, exception, recognised);
 	}
 }

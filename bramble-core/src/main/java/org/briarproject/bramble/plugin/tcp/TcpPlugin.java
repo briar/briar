@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
@@ -153,13 +154,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	protected void tryToClose(@Nullable ServerSocket ss) {
-		try {
-			if (ss != null) ss.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		} finally {
-			callback.transportDisabled();
-		}
+		IoUtils.tryToClose(ss, LOG, WARNING);
+		callback.transportDisabled();
 	}
 
 	String getIpPortString(InetSocketAddress a) {

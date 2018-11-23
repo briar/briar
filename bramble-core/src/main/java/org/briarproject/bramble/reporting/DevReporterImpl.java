@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.bramble.util.StringUtils;
 
-import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -26,13 +25,12 @@ import java.net.Socket;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @Immutable
 @NotNullByDefault
@@ -66,7 +64,7 @@ class DevReporterImpl implements DevReporter, EventListener {
 			s.setSoTimeout(SOCKET_TIMEOUT);
 			return s;
 		} catch (IOException e) {
-			tryToClose(s);
+			tryToClose(s, LOG, WARNING);
 			throw e;
 		}
 	}
@@ -88,8 +86,7 @@ class DevReporterImpl implements DevReporter, EventListener {
 			writer.append(armoured);
 			writer.flush();
 		} finally {
-			if (writer != null)
-				writer.close();
+			tryToClose(writer, LOG, WARNING);
 		}
 	}
 
@@ -121,27 +118,11 @@ class DevReporterImpl implements DevReporter, EventListener {
 				f.delete();
 			} catch (IOException e) {
 				LOG.log(WARNING, "Failed to send reports", e);
-				tryToClose(out);
-				tryToClose(in);
+				tryToClose(out, LOG, WARNING);
+				tryToClose(in, LOG, WARNING);
 				return;
 			}
 		}
 		LOG.info("Reports sent");
-	}
-
-	private void tryToClose(@Nullable Closeable c) {
-		try {
-			if (c != null) c.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
-	}
-
-	private void tryToClose(@Nullable Socket s) {
-		try {
-			if (s != null) s.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
 	}
 }

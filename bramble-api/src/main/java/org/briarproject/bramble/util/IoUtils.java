@@ -8,12 +8,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 public class IoUtils {
@@ -54,16 +57,35 @@ public class IoUtils {
 			out.flush();
 			out.close();
 		} catch (IOException e) {
-			tryToClose(in);
-			tryToClose(out);
+			tryToClose(in, LOG, WARNING);
+			tryToClose(out, LOG, WARNING);
 		}
 	}
 
-	private static void tryToClose(@Nullable Closeable c) {
+	public static void tryToClose(@Nullable Closeable c, Logger logger,
+			Level level) {
 		try {
 			if (c != null) c.close();
 		} catch (IOException e) {
-			// We did our best
+			logException(logger, level, e);
+		}
+	}
+
+	public static void tryToClose(@Nullable Socket s, Logger logger,
+			Level level) {
+		try {
+			if (s != null) s.close();
+		} catch (IOException e) {
+			logException(logger, level, e);
+		}
+	}
+
+	public static void tryToClose(@Nullable ServerSocket ss, Logger logger,
+			Level level) {
+		try {
+			if (ss != null) ss.close();
+		} catch (IOException e) {
+			logException(logger, level, e);
 		}
 	}
 

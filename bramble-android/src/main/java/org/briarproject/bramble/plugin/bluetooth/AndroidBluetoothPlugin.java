@@ -18,8 +18,8 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.AndroidUtils;
+import org.briarproject.bramble.util.IoUtils;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -51,7 +51,6 @@ import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
@@ -161,11 +160,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	@Override
 	void tryToClose(@Nullable BluetoothServerSocket ss) {
-		try {
-			if (ss != null) ss.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
+		IoUtils.tryToClose(ss, LOG, WARNING);
 	}
 
 	@Override
@@ -195,7 +190,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			s.connect();
 			return wrapSocket(s);
 		} catch (IOException e) {
-			tryToClose(s);
+			IoUtils.tryToClose(s, LOG, WARNING);
 			throw e;
 		}
 	}
@@ -266,14 +261,6 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		// Shuffle the addresses so we don't always try the same one first
 		Collections.shuffle(addresses);
 		return addresses;
-	}
-
-	private void tryToClose(@Nullable Closeable c) {
-		try {
-			if (c != null) c.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
