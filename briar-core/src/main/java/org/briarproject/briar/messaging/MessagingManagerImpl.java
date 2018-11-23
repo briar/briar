@@ -32,7 +32,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
-import java.nio.ByteBuffer;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -152,7 +152,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
-			String contentType, ByteBuffer data) {
+			String contentType, InputStream is) {
 		// TODO add real implementation
 		byte[] b = new byte[MessageId.LENGTH];
 		new Random().nextBytes(b);

@@ -29,7 +29,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -49,7 +48,6 @@ import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
@@ -83,7 +81,6 @@ import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
-import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
@@ -196,8 +193,6 @@ public class ConversationActivity extends BriarActivity
 	ViewModelProvider.Factory viewModelFactory;
 
 	private volatile ContactId contactId;
-	@Nullable
-	private volatile GroupId messagingGroupId;
 
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
@@ -245,6 +240,8 @@ public class ConversationActivity extends BriarActivity
 			requireNonNull(deleted);
 			if (deleted) finish();
 		});
+		viewModel.getAddedPrivateMessage()
+				.observe(this, this::onAddedPrivateMessage);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
@@ -600,16 +597,11 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
-		if (!imageUris.isEmpty()) {
-			Toast.makeText(this, "Not yet implemented.", LENGTH_LONG).show();
-			textInputView.clearText();
-			return;
-		}
-		if (isNullOrEmpty(text)) throw new AssertionError();
+		if (isNullOrEmpty(text) && imageUris.isEmpty())
+			throw new AssertionError();
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		if (messagingGroupId == null) loadGroupId(text, timestamp);
-		else createMessage(text, timestamp);
+		viewModel.sendMessage(text, imageUris, timestamp);
 		textInputView.clearText();
 	}
 
@@ -619,48 +611,10 @@ public class ConversationActivity extends BriarActivity
 		return item == null ? 0 : item.getTime() + 1;
 	}
 
-	private void loadGroupId(String text, long timestamp) {
-		runOnDbThread(() -> {
-			try {
-				messagingGroupId =
-						messagingManager.getConversationId(contactId);
-				createMessage(text, timestamp);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-
-		});
-	}
-
-	private void createMessage(String text, long timestamp) {
-		cryptoExecutor.execute(() -> {
-			try {
-				//noinspection ConstantConditions init in loadGroupId()
-				storeMessage(privateMessageFactory.createPrivateMessage(
-						messagingGroupId, timestamp, text, emptyList()), text);
-			} catch (FormatException e) {
-				throw new RuntimeException(e);
-			}
-		});
-	}
-
-	private void storeMessage(PrivateMessage m, String text) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				messagingManager.addLocalMessage(m);
-				logDuration(LOG, "Storing message", start);
-				Message message = m.getMessage();
-				PrivateMessageHeader h = new PrivateMessageHeader(
-						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, false, false, false,
-						true, emptyList());
-				textCache.put(message.getId(), text);
-				addConversationItem(h.accept(visitor));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+	private void onAddedPrivateMessage(@Nullable PrivateMessageHeader h) {
+		if (h == null) return;
+		addConversationItem(h.accept(visitor));
+		viewModel.onAddedPrivateMessageSeen();
 	}
 
 	private void askToRemoveContact() {

@@ -90,10 +90,16 @@ class AttachmentController {
 		return attachments;
 	}
 
+	/**
+	 * Creates {@link AttachmentItem}s from the passed headers and Attachments.
+	 * Note: This marks the {@link Attachment}'s {@link InputStream}
+	 * and closes the streams.
+	 */
 	List<AttachmentItem> getAttachmentItems(
 			List<Pair<AttachmentHeader, Attachment>> attachments) {
 		List<AttachmentItem> items = new ArrayList<>(attachments.size());
 		for (Pair<AttachmentHeader, Attachment> a : attachments) {
+			a.getSecond().getStream().mark(Integer.MAX_VALUE);
 			AttachmentItem item =
 					getAttachmentItem(a.getFirst(), a.getSecond());
 			items.add(item);
@@ -101,12 +107,18 @@ class AttachmentController {
 		return items;
 	}
 
-	private AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a) {
+	/**
+	 * Creates an {@link AttachmentItem} from the {@link Attachment}'s
+	 * {@link InputStream}.
+	 * Note: Requires a resettable InputStream
+	 *       with the beginning already marked.
+	 *       The stream will be closed when this method returns.
+	 */
+	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a) {
 		MessageId messageId = h.getMessageId();
 		Size size = new Size();
 
 		InputStream is = a.getStream();
-		is.mark(Integer.MAX_VALUE);
 		try {
 			// use exif to get size
 			if (h.getContentType().equals("image/jpeg")) {
@@ -176,6 +188,13 @@ class AttachmentController {
 			return new Size();
 		return new Size(options.outWidth, options.outHeight,
 				options.outMimeType);
+	}
+
+	static String getContentTypeFromBitmap(InputStream is) {
+		BitmapFactory.Options options = new BitmapFactory.Options();
+		options.inJustDecodeBounds = true;
+		BitmapFactory.decodeStream(is, null, options);
+		return options.outMimeType;
 	}
 
 	private Size getThumbnailSize(int width, int height, String mimeType) {

@@ -354,4 +354,22 @@ public class UiUtils {
 		});
 	}
 
+	/**
+	 * Same as {@link #observeOnce(LiveData, LifecycleOwner, Observer)},
+	 * but without a {@link LifecycleOwner}.
+	 *
+	 * Warning: Do NOT call from objects that have a lifecycle.
+	 */
+	@MainThread
+	public static <T> void observeForeverOnce(LiveData<T> liveData,
+			Observer<T> observer) {
+		liveData.observeForever(new Observer<T>() {
+			@Override
+			public void onChanged(@Nullable T t) {
+				observer.onChanged(t);
+				liveData.removeObserver(this);
+			}
+		});
+	}
+
 }
