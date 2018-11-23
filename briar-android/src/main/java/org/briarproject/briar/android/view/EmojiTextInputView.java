@@ -232,7 +232,9 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 	}
 
 	interface TextInputListener {
+
 		void onTextIsEmptyChanged(boolean isEmpty);
+
 		void onSendEvent();
 	}
 

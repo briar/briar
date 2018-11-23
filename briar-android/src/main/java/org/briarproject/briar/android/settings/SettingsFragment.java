@@ -328,7 +328,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		boolean blocked =
 				circumventionProvider.isTorProbablyBlocked(country);
 		boolean useBridges = circumventionProvider.doBridgesWork(country);
-		String setting = getString(R.string.tor_network_setting_without_bridges);
+		String setting =
+				getString(R.string.tor_network_setting_without_bridges);
 		if (blocked && useBridges) {
 			setting = getString(R.string.tor_network_setting_with_bridges);
 		} else if (blocked) {

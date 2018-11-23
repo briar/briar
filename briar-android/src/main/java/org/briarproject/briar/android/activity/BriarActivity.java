@@ -121,6 +121,7 @@ public abstract class BriarActivity extends BaseActivity {
 
 	/**
 	 * Sets the transition animations.
+	 *
 	 * @param enterTransition used to move views into initial positions
 	 * @param exitTransition used to move views out when starting a <b>new</b> activity.
 	 * @param returnTransition used when window is closing, because the activity is finishing.
@@ -169,12 +170,11 @@ public abstract class BriarActivity extends BaseActivity {
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		b.setMessage(message);
 		b.setView(R.layout.checkbox);
-		b.setPositiveButton(R.string.fix,
-				(dialog, which) -> {
-					Intent i = getDozeWhitelistingIntent(BriarActivity.this);
-					startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
-					dialog.dismiss();
-				});
+		b.setPositiveButton(R.string.fix, (dialog, which) -> {
+			Intent i = getDozeWhitelistingIntent(BriarActivity.this);
+			startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
+			dialog.dismiss();
+		});
 		b.setNegativeButton(R.string.cancel,
 				(dialog, which) -> dialog.dismiss());
 		b.setOnDismissListener(dialog -> {

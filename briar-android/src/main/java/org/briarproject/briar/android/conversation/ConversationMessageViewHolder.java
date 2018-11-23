@@ -42,8 +42,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		timeColorBubble = getColor(v.getContext(), R.color.briar_white);
 
 		// clone constraint sets from layout files
-		textConstraints
-				.clone(v.getContext(), R.layout.list_item_conversation_msg_in);
+		textConstraints.clone(v.getContext(),
+				R.layout.list_item_conversation_msg_in);
 		imageConstraints.clone(v.getContext(),
 				R.layout.list_item_conversation_msg_image);
 		imageTextConstraints.clone(v.getContext(),
