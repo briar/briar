@@ -14,6 +14,7 @@ public class AttachmentItem implements Parcelable {
 
 	private final MessageId messageId;
 	private final int width, height;
+	private final String mimeType;
 	private final int thumbnailWidth, thumbnailHeight;
 	private final boolean hasError;
 
@@ -30,11 +31,12 @@ public class AttachmentItem implements Parcelable {
 				}
 			};
 
-	AttachmentItem(MessageId messageId, int width, int height,
+	AttachmentItem(MessageId messageId, int width, int height, String mimeType,
 			int thumbnailWidth, int thumbnailHeight, boolean hasError) {
 		this.messageId = messageId;
 		this.width = width;
 		this.height = height;
+		this.mimeType = mimeType;
 		this.thumbnailWidth = thumbnailWidth;
 		this.thumbnailHeight = thumbnailHeight;
 		this.hasError = hasError;
@@ -46,6 +48,7 @@ public class AttachmentItem implements Parcelable {
 		messageId = new MessageId(messageIdByte);
 		width = in.readInt();
 		height = in.readInt();
+		mimeType = in.readString();
 		thumbnailWidth = in.readInt();
 		thumbnailHeight = in.readInt();
 		hasError = in.readByte() != 0;
@@ -61,6 +64,10 @@ public class AttachmentItem implements Parcelable {
 
 	int getHeight() {
 		return height;
+	}
+
+	String getMimeType() {
+		return mimeType;
 	}
 
 	int getThumbnailWidth() {
@@ -90,6 +97,7 @@ public class AttachmentItem implements Parcelable {
 		dest.writeByteArray(messageId.getBytes());
 		dest.writeInt(width);
 		dest.writeInt(height);
+		dest.writeString(mimeType);
 		dest.writeInt(thumbnailWidth);
 		dest.writeInt(thumbnailHeight);
 		dest.writeByte((byte) (hasError ? 1 : 0));

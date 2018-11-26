@@ -127,12 +127,14 @@ class AttachmentController {
 		}
 
 		// calculate thumbnail size
-		Size thumbnailSize = new Size(defaultSize, defaultSize);
+		Size thumbnailSize = new Size(defaultSize, defaultSize, size.mimeType);
 		if (!size.error) {
-			thumbnailSize = getThumbnailSize(size.width, size.height);
+			thumbnailSize =
+					getThumbnailSize(size.width, size.height, size.mimeType);
 		}
 		return new AttachmentItem(messageId, size.width, size.height,
-				thumbnailSize.width, thumbnailSize.height, size.error);
+				size.mimeType, thumbnailSize.width, thumbnailSize.height,
+				size.error);
 	}
 
 	/**
@@ -151,9 +153,9 @@ class AttachmentController {
 				orientation == ORIENTATION_TRANSVERSE ||
 				orientation == ORIENTATION_TRANSPOSE) {
 			//noinspection SuspiciousNameCombination
-			return new Size(height, width);
+			return new Size(height, width, "image/jpeg");
 		}
-		return new Size(width, height);
+		return new Size(width, height, "image/jpeg");
 	}
 
 	/**
@@ -165,10 +167,11 @@ class AttachmentController {
 		BitmapFactory.decodeStream(is, null, options);
 		if (options.outWidth < 1 || options.outHeight < 1)
 			return new Size();
-		return new Size(options.outWidth, options.outHeight);
+		return new Size(options.outWidth, options.outHeight,
+				options.outMimeType);
 	}
 
-	private Size getThumbnailSize(int width, int height) {
+	private Size getThumbnailSize(int width, int height, String mimeType) {
 		float widthPercentage = maxWidth / (float) width;
 		float heightPercentage = maxHeight / (float) height;
 		float scaleFactor = Math.min(widthPercentage, heightPercentage);
@@ -184,24 +187,27 @@ class AttachmentController {
 			if (thumbnailWidth > maxWidth) thumbnailWidth = maxWidth;
 			if (thumbnailHeight > maxHeight) thumbnailHeight = maxHeight;
 		}
-		return new Size(thumbnailWidth, thumbnailHeight);
+		return new Size(thumbnailWidth, thumbnailHeight, mimeType);
 	}
 
 	private static class Size {
 
 		private final int width;
 		private final int height;
+		private final String mimeType;
 		private final boolean error;
 
-		private Size(int width, int height) {
+		private Size(int width, int height, String mimeType) {
 			this.width = width;
 			this.height = height;
+			this.mimeType = mimeType;
 			this.error = false;
 		}
 
 		private Size() {
 			this.width = 0;
 			this.height = 0;
+			this.mimeType = "";
 			this.error = true;
 		}
 	}

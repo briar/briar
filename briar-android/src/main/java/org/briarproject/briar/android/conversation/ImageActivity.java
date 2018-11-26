@@ -1,14 +1,20 @@
 package org.briarproject.briar.android.conversation;
 
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
 import android.transition.Transition;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -20,14 +26,34 @@ import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.view.PullDownLayout;
+import org.briarproject.briar.api.messaging.Attachment;
+import org.briarproject.briar.api.messaging.MessagingManager;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+import java.util.concurrent.Executor;
+import java.util.logging.Logger;
+
+import javax.inject.Inject;
+
+import static android.content.Intent.ACTION_CREATE_DOCUMENT;
+import static android.content.Intent.CATEGORY_OPENABLE;
+import static android.content.Intent.EXTRA_TITLE;
 import static android.graphics.Color.TRANSPARENT;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.view.View.GONE;
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
@@ -37,18 +63,32 @@ import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 import static android.widget.ImageView.ScaleType.FIT_START;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 
 public class ImageActivity extends BriarActivity
 		implements PullDownLayout.Callback {
 
+	private final static Logger LOG = getLogger(ImageActivity.class.getName());
+
 	final static String ATTACHMENT = "attachment";
 	final static String NAME = "name";
 	final static String DATE = "date";
 
+	@Inject
+	MessagingManager messagingManager;
+	@Inject
+	@IoExecutor
+	Executor ioExecutor;
+
 	private PullDownLayout layout;
 	private AppBarLayout appBarLayout;
 	private PhotoView photoView;
+	private AttachmentItem attachment;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -88,7 +128,7 @@ public class ImageActivity extends BriarActivity
 		TextView dateView = toolbar.findViewById(R.id.dateView);
 
 		// Intent Extras
-		AttachmentItem attachment = getIntent().getParcelableExtra(ATTACHMENT);
+		attachment = getIntent().getParcelableExtra(ATTACHMENT);
 		String name = getIntent().getStringExtra(NAME);
 		long time = getIntent().getLongExtra(DATE, 0);
 		String date = formatDateAbsolute(this, time);
@@ -144,13 +184,33 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.image_actions, menu);
+		if (SDK_INT >= 19) {
+			menu.findItem(R.id.action_save_image).setVisible(true);
+		}
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				onBackPressed();
 				return true;
+			case R.id.action_save_image:
+				if (SDK_INT >= 19) startSaveImage();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int request, int result, Intent data) {
+		super.onActivityResult(request, result, data);
+		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK) {
+			saveImage(data.getData());
 		}
 	}
 
@@ -228,6 +288,68 @@ public class ImageActivity extends BriarActivity
 		int drawableTop = (photoView.getHeight() - realHeight) / 2;
 		return drawableTop < appBarLayout.getBottom() &&
 				drawableTop != appBarLayout.getTop();
+	}
+
+	@RequiresApi(api = 19)
+	private void startSaveImage() {
+		OnClickListener okListener = (dialog, which) -> {
+			Intent intent = getCreationIntent();
+			startActivityForResult(intent, REQUEST_SAVE_ATTACHMENT);
+		};
+		Builder builder = new Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.dialog_title_save_image));
+		builder.setMessage(getString(R.string.dialog_message_save_image));
+		builder.setIcon(R.drawable.emoji_google_1f6af);
+		builder.setPositiveButton(R.string.save_image, okListener);
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	@RequiresApi(api = 19)
+	private Intent getCreationIntent() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+				Locale.getDefault());
+		String fileName = sdf.format(new Date());
+		Intent intent = new Intent(ACTION_CREATE_DOCUMENT);
+		intent.addCategory(CATEGORY_OPENABLE);
+		intent.setType(attachment.getMimeType());
+		intent.putExtra(EXTRA_TITLE, fileName);
+		return intent;
+	}
+
+	private void saveImage(@Nullable Uri uri) {
+		if (uri == null) return;
+		MessageId messageId = attachment.getMessageId();
+		runOnDbThread(() -> {
+			try {
+				Attachment a = messagingManager.getAttachment(messageId);
+				copyImageFromDb(a, uri);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				onImageSaveError();
+			}
+		});
+	}
+
+	private void copyImageFromDb(Attachment a, Uri uri) {
+		ioExecutor.execute(() -> {
+			try {
+				InputStream is = a.getStream();
+				OutputStream os = getContentResolver().openOutputStream(uri);
+				if (os == null) throw new IOException();
+				copyAndClose(is, os);
+			} catch (IOException e) {
+				logException(LOG, WARNING, e);
+				onImageSaveError();
+			}
+		});
+	}
+
+	private void onImageSaveError() {
+		Snackbar s =
+				Snackbar.make(layout, R.string.save_image_error, LENGTH_LONG);
+		s.getView().setBackgroundResource(R.color.briar_red);
+		s.show();
 	}
 
 }

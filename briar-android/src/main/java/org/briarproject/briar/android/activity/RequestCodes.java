@@ -15,5 +15,6 @@ public interface RequestCodes {
 	int REQUEST_UNLOCK = 11;
 	int REQUEST_KEYGUARD_UNLOCK = 12;
 	int REQUEST_ATTACH_IMAGE = 13;
+	int REQUEST_SAVE_ATTACHMENT = 14;
 
 }
