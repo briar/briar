@@ -4,12 +4,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.OutputStream;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @NotNullByDefault
 class FileTransportWriter implements TransportConnectionWriter {
@@ -44,11 +43,7 @@ class FileTransportWriter implements TransportConnectionWriter {
 
 	@Override
 	public void dispose(boolean exception) {
-		try {
-			out.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
+		tryToClose(out, LOG, WARNING);
 		plugin.writerFinished(file, exception);
 	}
 }

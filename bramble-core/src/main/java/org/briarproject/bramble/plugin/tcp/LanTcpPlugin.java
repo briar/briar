@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
@@ -35,7 +36,6 @@ import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 
 @NotNullByDefault
@@ -293,11 +293,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 		@Override
 		public void close() {
-			try {
-				ss.close();
-			} catch (IOException e) {
-				logException(LOG, WARNING, e);
-			}
+			IoUtils.tryToClose(ss, LOG, WARNING);
 		}
 	}
 

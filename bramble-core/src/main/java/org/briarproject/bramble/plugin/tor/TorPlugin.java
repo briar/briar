@@ -31,7 +31,6 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.util.IoUtils;
 
-import java.io.Closeable;
 import java.io.EOFException;
 import java.io.File;
 import java.io.FileInputStream;
@@ -303,8 +302,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			IoUtils.copyAndClose(in, out);
 			doneFile.createNewFile();
 		} catch (IOException e) {
-			tryToClose(in);
-			tryToClose(out);
+			IoUtils.tryToClose(in, LOG, WARNING);
+			IoUtils.tryToClose(out, LOG, WARNING);
 			throw new PluginException(e);
 		}
 	}
@@ -341,22 +340,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		return getClass().getClassLoader().getResourceAsStream("torrc");
 	}
 
-	private void tryToClose(@Nullable Closeable c) {
-		try {
-			if (c != null) c.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
-	}
-
-	private void tryToClose(@Nullable Socket s) {
-		try {
-			if (s != null) s.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
-	}
-
 	private void listFiles(File f) {
 		if (f.isDirectory()) {
 			File[] children = f.listFiles();
@@ -378,7 +361,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 			return b;
 		} finally {
-			tryToClose(in);
+			IoUtils.tryToClose(in, LOG, WARNING);
 		}
 	}
 
@@ -418,13 +401,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void tryToClose(@Nullable ServerSocket ss) {
-		try {
-			if (ss != null) ss.close();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		} finally {
-			callback.transportDisabled();
-		}
+		IoUtils.tryToClose(ss, LOG, WARNING);
+		callback.transportDisabled();
 	}
 
 	private void publishHiddenService(String port) {
@@ -593,7 +571,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Could not connect to " + scrubOnion(bestOnion)
 						+ ": " + e.toString());
 			}
-			tryToClose(s);
+			IoUtils.tryToClose(s, LOG, WARNING);
 			return null;
 		}
 	}

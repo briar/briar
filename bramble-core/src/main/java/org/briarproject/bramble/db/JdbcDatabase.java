@@ -72,6 +72,7 @@ import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.db.DatabaseConstants.SCHEMA_VERSION_KEY;
 import static org.briarproject.bramble.db.ExponentialBackoff.calculateExpiry;
+import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -458,30 +459,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		mergeSettings(txn, s, DB_SETTINGS_NAMESPACE);
 	}
 
-	private void tryToClose(@Nullable ResultSet rs) {
-		try {
-			if (rs != null) rs.close();
-		} catch (SQLException e) {
-			logException(LOG, WARNING, e);
-		}
-	}
-
-	protected void tryToClose(@Nullable Statement s) {
-		try {
-			if (s != null) s.close();
-		} catch (SQLException e) {
-			logException(LOG, WARNING, e);
-		}
-	}
-
-	protected void tryToClose(@Nullable Connection c) {
-		try {
-			if (c != null) c.close();
-		} catch (SQLException e) {
-			logException(LOG, WARNING, e);
-		}
-	}
-
 	private void createTables(Connection txn) throws DbException {
 		Statement s = null;
 		try {
@@ -502,7 +479,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_INCOMING_KEYS));
 			s.close();
 		} catch (SQLException e) {
-			tryToClose(s);
+			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -519,7 +496,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
 			s.close();
 		} catch (SQLException e) {
-			tryToClose(s);
+			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -566,11 +543,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			// Try to close the connection
 			logException(LOG, WARNING, e);
-			try {
-				txn.close();
-			} catch (SQLException e1) {
-				logException(LOG, WARNING, e1);
-			}
+			tryToClose(txn, LOG, WARNING);
 			// Whatever happens, allow the database to close
 			connectionsLock.lock();
 			try {
@@ -659,8 +632,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return c;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -681,7 +654,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -704,7 +677,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Create a status row for each message in the group
 			addStatus(txn, c, g, groupShared);
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -735,8 +708,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -761,7 +734,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -810,7 +783,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -840,8 +813,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -873,7 +846,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -915,8 +888,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -935,7 +908,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1015,8 +988,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return keySetId;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1039,8 +1012,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return found;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1061,8 +1034,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return found;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1083,8 +1056,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return found;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1105,8 +1078,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return found;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1127,8 +1100,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return found;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1149,8 +1122,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return found;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1174,8 +1147,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return found;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1198,8 +1171,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return count;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1223,7 +1196,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1240,7 +1213,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1273,8 +1246,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			return new Contact(c, author, localAuthorId, alias, verified,
 					active);
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1310,8 +1283,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return contacts;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1333,8 +1306,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1371,8 +1344,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return contacts;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1395,8 +1368,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return new Group(g, clientId, majorVersion, descriptor);
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1423,8 +1396,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return groups;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1449,8 +1422,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return v;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1473,8 +1446,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return visible;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1505,8 +1478,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return localAuthor;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1537,8 +1510,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return authors;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1566,8 +1539,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
 			return new Message(m, g, timestamp, body);
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1590,8 +1563,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1628,8 +1601,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (intersection == null) throw new AssertionError();
 			return intersection;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1661,8 +1634,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return all;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1696,8 +1669,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return metadata;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1720,8 +1693,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return metadata;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1746,8 +1719,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return metadata;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1776,8 +1749,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return statuses;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1807,8 +1780,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return status;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1837,8 +1810,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return dependencies;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1868,8 +1841,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return dependents;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1891,8 +1864,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return state;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1916,8 +1889,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1950,8 +1923,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -1975,8 +1948,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2014,8 +1987,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2048,8 +2021,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2076,8 +2049,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2106,8 +2079,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return nextSendTime;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2145,8 +2118,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return ids;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2168,8 +2141,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return s;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2234,8 +2207,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return keys;
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2254,7 +2227,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2281,7 +2254,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2308,7 +2281,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2338,7 +2311,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2383,8 +2356,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2450,7 +2423,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			}
 			return added;
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2497,7 +2470,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2516,7 +2489,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2535,7 +2508,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2554,7 +2527,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2571,7 +2544,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2587,7 +2560,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2615,7 +2588,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2632,7 +2605,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2648,7 +2621,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2667,7 +2640,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			return affected == 1;
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2692,7 +2665,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2709,7 +2682,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2730,7 +2703,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2749,7 +2722,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2767,7 +2740,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2785,7 +2758,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2804,7 +2777,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2834,7 +2807,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2860,7 +2833,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2913,7 +2886,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2936,7 +2909,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2955,7 +2928,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2991,8 +2964,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(rs);
-			tryToClose(ps);
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -3059,7 +3032,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (rows < 0 || rows > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}

@@ -7,10 +7,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
-
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
 
 class Migration38_39 implements Migration<Connection> {
 
@@ -40,16 +38,8 @@ class Migration38_39 implements Migration<Connection> {
 					+ " ALTER COLUMN contactId"
 					+ " SET NOT NULL");
 		} catch (SQLException e) {
-			tryToClose(s);
+			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
-		}
-	}
-
-	private void tryToClose(@Nullable Statement s) {
-		try {
-			if (s != null) s.close();
-		} catch (SQLException e) {
-			logException(LOG, WARNING, e);
 		}
 	}
 }
