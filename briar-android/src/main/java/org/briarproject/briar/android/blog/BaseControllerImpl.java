@@ -221,7 +221,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			text = HtmlUtils.clean(blogManager.getPostText(m), ARTICLE);
 			textCache.put(m, text);
 		}
-		//noinspection ConstantConditions
 		return text;
 	}
 

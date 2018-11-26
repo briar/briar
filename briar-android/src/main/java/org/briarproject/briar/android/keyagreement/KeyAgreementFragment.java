@@ -53,7 +53,6 @@ import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -139,8 +138,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		requireNonNull(getActivity())
-				.setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
+		requireActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
 		cameraView.setPreviewConsumer(new QrCodeDecoder(this));
 	}
 
@@ -191,7 +189,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 	@UiThread
 	private void logCameraExceptionAndFinish(CameraException e) {
 		logException(LOG, WARNING, e);
-		Toast.makeText(getActivity(), R.string.camera_error,
+		Toast.makeText(requireActivity(), R.string.camera_error,
 				LENGTH_LONG).show();
 		finish();
 	}
@@ -262,7 +260,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 		} catch (IOException | IllegalArgumentException e) {
 			LOG.log(WARNING, "QR Code Invalid", e);
 			reset();
-			Toast.makeText(getActivity(), R.string.qr_code_invalid,
+			Toast.makeText(requireActivity(), R.string.qr_code_invalid,
 					LENGTH_LONG).show();
 		}
 	}
@@ -353,7 +351,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 
 	@Override
 	protected void finish() {
-		getActivity().getSupportFragmentManager().popBackStack();
+		requireActivity().getSupportFragmentManager().popBackStack();
 	}
 
 	@NotNullByDefault

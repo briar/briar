@@ -21,6 +21,7 @@ import java.security.GeneralSecurityException;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_ACTIVATE_MAC;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_ALICE_MAC_KEY;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.LABEL_AUTH_MAC;
@@ -71,13 +72,12 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public SecretKey deriveMasterKey(IntroduceeSession s)
 			throws GeneralSecurityException {
 		return deriveMasterKey(
-				s.getLocal().ephemeralPublicKey,
-				s.getLocal().ephemeralPrivateKey,
-				s.getRemote().ephemeralPublicKey,
+				requireNonNull(s.getLocal().ephemeralPublicKey),
+				requireNonNull(s.getLocal().ephemeralPrivateKey),
+				requireNonNull(s.getRemote().ephemeralPublicKey),
 				s.getLocal().alice
 		);
 	}
@@ -109,7 +109,6 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public byte[] authMac(SecretKey macKey, IntroduceeSession s,
 			AuthorId localAuthorId) {
 		// the macKey is not yet available in the session at this point
@@ -129,10 +128,9 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public void verifyAuthMac(byte[] mac, IntroduceeSession s,
 			AuthorId localAuthorId) throws GeneralSecurityException {
-		verifyAuthMac(mac, new SecretKey(s.getRemote().macKey),
+		verifyAuthMac(mac, new SecretKey(requireNonNull(s.getRemote().macKey)),
 				s.getIntroducer().getId(), localAuthorId, s.getLocal(),
 				s.getRemote().author.getId(), s.getRemote());
 	}
@@ -148,7 +146,6 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 		}
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	private byte[] getAuthMacInputs(AuthorId introducerId,
 			AuthorId localAuthorId, Common local, AuthorId remoteAuthorId,
 			Common remote) {
@@ -156,13 +153,15 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 				localAuthorId,
 				local.acceptTimestamp,
 				local.ephemeralPublicKey,
-				clientHelper.toDictionary(local.transportProperties)
+				clientHelper.toDictionary(requireNonNull(
+						local.transportProperties))
 		);
 		BdfList remoteInfo = BdfList.of(
 				remoteAuthorId,
 				remote.acceptTimestamp,
 				remote.ephemeralPublicKey,
-				clientHelper.toDictionary(remote.transportProperties)
+				clientHelper.toDictionary(requireNonNull(
+						remote.transportProperties))
 		);
 		BdfList macList = BdfList.of(
 				introducerId,
@@ -187,10 +186,9 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public void verifySignature(byte[] signature, IntroduceeSession s)
 			throws GeneralSecurityException {
-		SecretKey macKey = new SecretKey(s.getRemote().macKey);
+		SecretKey macKey = new SecretKey(requireNonNull(s.getRemote().macKey));
 		verifySignature(macKey, s.getRemote().author.getPublicKey(), signature);
 	}
 

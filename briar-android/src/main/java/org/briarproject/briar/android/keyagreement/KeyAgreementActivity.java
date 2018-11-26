@@ -42,6 +42,7 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
@@ -96,14 +97,13 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_fragment_container_toolbar);
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 		if (state == null) {
 			showInitialFragment(IntroFragment.newInstance());
 		}
@@ -202,7 +202,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		if (request == REQUEST_BLUETOOTH_DISCOVERABLE) {
 			if (result == RESULT_CANCELED) {
 				setBluetoothState(BluetoothState.REFUSED);

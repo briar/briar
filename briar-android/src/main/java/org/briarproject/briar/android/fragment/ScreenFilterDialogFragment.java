@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -25,6 +24,8 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -58,26 +59,20 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		Activity activity = getActivity();
-		if (activity == null) throw new IllegalStateException();
-		((BaseActivity) activity).getActivityComponent().inject(this);
+		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
 	@Override
 	public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-		Activity activity = getActivity();
-		if (activity == null) throw new IllegalStateException();
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity,
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(),
 				R.style.BriarDialogThemeNoFilter);
 		builder.setTitle(R.string.screen_filter_title);
-		Bundle args = getArguments();
-		if (args == null) throw new IllegalStateException();
-		ArrayList<String> appNames = args.getStringArrayList("appNames");
+		Bundle args = requireNonNull(getArguments());
+		ArrayList<String> appNames =
+				requireNonNull(args.getStringArrayList("appNames"));
 		ArrayList<String> packageNames =
-				args.getStringArrayList("packageNames");
-		if (appNames == null || packageNames == null)
-			throw new IllegalStateException();
-		LayoutInflater inflater = activity.getLayoutInflater();
+				requireNonNull(args.getStringArrayList("packageNames"));
+		LayoutInflater inflater = requireActivity().getLayoutInflater();
 		// See https://stackoverflow.com/a/24720976/6314875
 		@SuppressLint("InflateParams")
 		View dialogView = inflater.inflate(R.layout.dialog_screen_filter, null);

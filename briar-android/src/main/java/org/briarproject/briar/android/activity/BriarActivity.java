@@ -30,6 +30,7 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
@@ -177,8 +178,8 @@ public abstract class BriarActivity extends BaseActivity {
 		b.setNegativeButton(R.string.cancel,
 				(dialog, which) -> dialog.dismiss());
 		b.setOnDismissListener(dialog -> {
-			CheckBox checkBox =
-					((AlertDialog) dialog).findViewById(R.id.checkbox);
+			CheckBox checkBox = requireNonNull(
+					((AlertDialog) dialog).findViewById(R.id.checkbox));
 			if (checkBox.isChecked())
 				briarController.doNotAskAgainForDozeWhiteListing();
 		});

@@ -57,8 +57,7 @@ public class ImageFragment extends Fragment {
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		BaseActivity a = (BaseActivity) requireNonNull(getActivity());
-		a.getActivityComponent().inject(this);
+		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
 	@Override
@@ -78,8 +77,8 @@ public class ImageFragment extends Fragment {
 		View v = inflater.inflate(R.layout.fragment_image, container,
 				false);
 
-		viewModel = ViewModelProviders.of(requireNonNull(getActivity()),
-				viewModelFactory).get(ImageViewModel.class);
+		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
+				.get(ImageViewModel.class);
 
 		photoView = v.findViewById(R.id.photoView);
 		photoView.setScaleLevels(1, 2, 4);

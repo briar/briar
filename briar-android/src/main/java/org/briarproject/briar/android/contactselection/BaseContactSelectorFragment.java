@@ -69,11 +69,11 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		list = contentView.findViewById(R.id.list);
-		list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		list.setLayoutManager(new LinearLayoutManager(requireActivity()));
 		list.setEmptyImage(R.drawable.ic_empty_state_contact_list);
 		list.setEmptyText(getString(R.string.no_contacts_selector));
 		list.setEmptyAction(getString(R.string.no_contacts_selector_action));
-		adapter = getAdapter(requireNonNull(getContext()), this);
+		adapter = getAdapter(requireContext(), this);
 		list.setAdapter(adapter);
 
 		// restore selected contacts if available

@@ -76,7 +76,6 @@ public class ContactChooserFragment extends BaseFragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
@@ -85,11 +84,11 @@ public class ContactChooserFragment extends BaseFragment {
 					Contact c2 = item.getContact();
 					showMessageScreen(c1, c2);
 				};
-		adapter = new ContactListAdapter(requireNonNull(getActivity()),
+		adapter = new ContactListAdapter(requireActivity(),
 				onContactClickListener);
 
 		list = contentView.findViewById(R.id.list);
-		list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		list.setLayoutManager(new LinearLayoutManager(requireActivity()));
 		list.setAdapter(adapter);
 		list.setEmptyText(R.string.no_contacts);
 

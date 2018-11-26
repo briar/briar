@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.NavigationView.OnNavigationItemSelectedListener;
@@ -223,7 +222,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@Override
-	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+	public boolean onNavigationItemSelected(MenuItem item) {
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
 		if (item.getItemId() == R.id.nav_btn_lock) {
@@ -325,7 +324,6 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (item != null) item.setVisible(visible);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	private void showExpiryWarning(ExpiryWarning expiry) {
 		int daysUntilExpiry = getDaysUntilExpiry();
 		if (daysUntilExpiry < 0) signOut();

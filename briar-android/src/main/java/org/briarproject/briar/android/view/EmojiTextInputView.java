@@ -218,17 +218,17 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 	}
 
 	void showSoftKeyboard() {
-		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-		InputMethodManager imm = (InputMethodManager) requireNonNull(o);
-		imm.showSoftInput(editText, SHOW_IMPLICIT);
+		InputMethodManager imm = (InputMethodManager)
+				getContext().getSystemService(INPUT_METHOD_SERVICE);
+		if (imm != null) imm.showSoftInput(editText, SHOW_IMPLICIT);
 	}
 
 	void hideSoftKeyboard() {
 		if (emojiPopup.isShowing()) emojiPopup.dismiss();
 		IBinder token = editText.getWindowToken();
-		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-		InputMethodManager imm = (InputMethodManager) requireNonNull(o);
-		imm.hideSoftInputFromWindow(token, 0);
+		InputMethodManager imm = (InputMethodManager)
+				getContext().getSystemService(INPUT_METHOD_SERVICE);
+		if (imm != null) imm.hideSoftInputFromWindow(token, 0);
 	}
 
 	interface TextInputListener {

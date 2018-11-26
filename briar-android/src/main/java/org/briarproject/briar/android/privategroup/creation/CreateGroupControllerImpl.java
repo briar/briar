@@ -177,7 +177,6 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 						// Continue
 					}
 				}
-				//noinspection ConstantConditions
 				handler.onResult(null);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);

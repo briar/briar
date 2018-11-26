@@ -40,7 +40,7 @@ abstract class SetupFragment extends BaseFragment implements TextWatcher,
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_help) {
-			showOnboardingDialog(getContext(), getHelpText());
+			showOnboardingDialog(requireContext(), getHelpText());
 			return true;
 		} else {
 			return super.onOptionsItemSelected(item);

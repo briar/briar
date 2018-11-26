@@ -53,23 +53,23 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 	}
 
 	private void updatePreferences() {
-		pm = getActivity().getPackageManager();
+		pm = requireActivity().getPackageManager();
 
 		lockPref = (SwitchPreference) findPreference(KEY_LOCK);
 		panicAppPref = (ListPreference) findPreference(KEY_PANIC_APP);
 		purgePref = (SwitchPreference) findPreference(KEY_PURGE);
 
 		// check for connect/disconnect intents from panic trigger apps
-		if (checkForDisconnectIntent(getActivity())) {
+		if (checkForDisconnectIntent(requireActivity())) {
 			LOG.info("Received DISCONNECT intent from Panic Trigger App.");
 			// the necessary action should have been performed by the check
-			getActivity().finish();
+			requireActivity().finish();
 		} else {
 			// check if we got a connect intent from a not yet connected app
-			String packageName = getConnectIntentSender(getActivity());
+			String packageName = getConnectIntentSender(requireActivity());
 			if (!TextUtils.isEmpty((packageName)) &&
 					!TextUtils.equals(packageName,
-							getTriggerPackageName(getActivity()))) {
+							getTriggerPackageName(requireActivity()))) {
 
 				// A new panic trigger app asks us to connect
 				LOG.info("Received CONNECT intent from new Panic Trigger App.");
@@ -97,13 +97,13 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 		panicAppPref.setOnPreferenceChangeListener((preference, newValue) -> {
 			String packageName = (String) newValue;
-			setTriggerPackageName(getActivity(), packageName);
+			setTriggerPackageName(requireActivity(), packageName);
 			showPanicApp(packageName);
 
 			if (packageName.equals(PACKAGE_NAME_NONE)) {
 				purgePref.setChecked(false);
 				purgePref.setEnabled(false);
-				getActivity().setResult(RESULT_CANCELED);
+				requireActivity().setResult(RESULT_CANCELED);
 			} else {
 				purgePref.setEnabled(true);
 			}
@@ -117,8 +117,8 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 				intent.setData(Uri.parse(
 						"market://details?id=info.guardianproject.ripple"));
 				intent.addFlags(FLAG_ACTIVITY_NEW_TASK);
-				if (intent.resolveActivity(getActivity().getPackageManager())
-						!= null) {
+				PackageManager pm = requireActivity().getPackageManager();
+				if (intent.resolveActivity(pm) != null) {
 					startActivity(intent);
 				}
 				return true;
@@ -134,7 +134,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		getPreferenceScreen().getSharedPreferences()
 				.registerOnSharedPreferenceChangeListener(this);
 		updatePreferences();
-		showPanicApp(getTriggerPackageName(getActivity()));
+		showPanicApp(getTriggerPackageName(requireActivity()));
 	}
 
 	@Override
@@ -184,7 +184,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 				purgePref.setEnabled(true);
 			} catch (PackageManager.NameNotFoundException e) {
 				// revert back to no app, just to be safe
-				setTriggerPackageName(getActivity(), PACKAGE_NAME_NONE);
+				setTriggerPackageName(requireActivity(), PACKAGE_NAME_NONE);
 				showPanicApp(PACKAGE_NAME_NONE);
 			}
 		}
@@ -192,16 +192,16 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 	private void showOptInDialog() {
 		DialogInterface.OnClickListener okListener = (dialog, which) -> {
-			setTriggerPackageName(getActivity());
-			showPanicApp(getTriggerPackageName(getActivity()));
-			getActivity().setResult(RESULT_OK);
+			setTriggerPackageName(requireActivity());
+			showPanicApp(getTriggerPackageName(requireActivity()));
+			requireActivity().setResult(RESULT_OK);
 		};
 		DialogInterface.OnClickListener cancelListener = (dialog, which) -> {
-			getActivity().setResult(RESULT_CANCELED);
-			getActivity().finish();
+			requireActivity().setResult(RESULT_CANCELED);
+			requireActivity().finish();
 		};
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(getContext(),
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_connect_panic_app));
 
@@ -226,7 +226,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 
 	@Nullable
 	private String getCallingPackageName() {
-		ComponentName componentName = getActivity().getCallingActivity();
+		ComponentName componentName = requireActivity().getCallingActivity();
 		String packageName = null;
 		if (componentName != null) {
 			packageName = componentName.getPackageName();

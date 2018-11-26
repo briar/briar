@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @UiThread
@@ -42,13 +43,12 @@ abstract class PowerView extends ConstraintLayout {
 		this(context, attrs, 0);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	public PowerView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) requireNonNull(
+				context.getSystemService(LAYOUT_INFLATER_SERVICE));
 		View v = inflater.inflate(R.layout.power_view, this, true);
 
 		textView = v.findViewById(R.id.textView);

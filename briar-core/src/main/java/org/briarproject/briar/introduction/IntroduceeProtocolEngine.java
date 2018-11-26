@@ -42,6 +42,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_RESPONSES;
@@ -453,15 +454,13 @@ class IntroduceeProtocolEngine
 							localAuthor.getId());
 
 			// add the keys to the new contact
-			//noinspection ConstantConditions
-			keys = keyManager
-					.addContact(txn, c.getId(), new SecretKey(s.getMasterKey()),
-							timestamp, s.getLocal().alice, false);
+			keys = keyManager.addContact(txn, c.getId(),
+					new SecretKey(requireNonNull(s.getMasterKey())),
+					timestamp, s.getLocal().alice, false);
 
 			// add signed transport properties for the contact
-			//noinspection ConstantConditions
 			transportPropertyManager.addRemoteProperties(txn, c.getId(),
-					s.getRemote().transportProperties);
+					requireNonNull(s.getRemote().transportProperties));
 
 			// Broadcast IntroductionSucceededEvent, because contact got added
 			IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);

@@ -2,8 +2,11 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.view.MenuItem;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
@@ -13,11 +16,13 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 
 import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ReblogActivity extends BriarActivity implements
 		BaseFragmentListener {
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		Intent intent = getIntent();

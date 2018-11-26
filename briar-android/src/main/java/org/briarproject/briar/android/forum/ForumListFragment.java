@@ -44,7 +44,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -93,24 +92,23 @@ public class ForumListFragment extends BaseEventFragment implements
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
-		requireNonNull(getActivity()).setTitle(R.string.forums_button);
+		requireActivity().setTitle(R.string.forums_button);
 
 		View contentView =
 				inflater.inflate(R.layout.fragment_forum_list, container,
 						false);
 
-		adapter = new ForumListAdapter(getActivity());
+		adapter = new ForumListAdapter(requireActivity());
 
 		list = contentView.findViewById(R.id.forumList);
-		list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		list.setLayoutManager(new LinearLayoutManager(requireActivity()));
 		list.setAdapter(adapter);
 
 		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.setAction(R.string.show, this);
-		snackbar.setActionTextColor(ContextCompat
-				.getColor(getActivity(), R.color.briar_button_text_positive));
+		snackbar.setActionTextColor(ContextCompat.getColor(requireContext(),
+						R.color.briar_button_text_positive));
 
 		return contentView;
 	}
@@ -148,8 +146,8 @@ public class ForumListFragment extends BaseEventFragment implements
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_create_forum:
-				Intent intent =
-						new Intent(getContext(), CreateForumActivity.class);
+				Intent intent = new Intent(requireContext(),
+						CreateForumActivity.class);
 				startActivity(intent);
 				return true;
 			default:
@@ -270,7 +268,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onClick(View view) {
 		// snackbar click
-		Intent i = new Intent(getContext(), ForumInvitationActivity.class);
+		Intent i = new Intent(requireContext(), ForumInvitationActivity.class);
 		startActivity(i);
 	}
 }

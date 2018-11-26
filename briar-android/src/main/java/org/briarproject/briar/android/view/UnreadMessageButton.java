@@ -16,6 +16,9 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static java.util.Objects.requireNonNull;
+
 @UiThread
 @NotNullByDefault
 public class UnreadMessageButton extends FrameLayout {
@@ -37,8 +40,8 @@ public class UnreadMessageButton extends FrameLayout {
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
 
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) requireNonNull(
+				context.getSystemService(LAYOUT_INFLATER_SERVICE));
 		inflater.inflate(R.layout.unread_message_button, this, true);
 
 		fab = findViewById(R.id.fab);

@@ -77,7 +77,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 	@CallSuper
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 

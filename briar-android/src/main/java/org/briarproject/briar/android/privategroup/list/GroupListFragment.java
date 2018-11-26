@@ -37,7 +37,6 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 
 @MethodsNotNullByDefault
@@ -71,12 +70,11 @@ public class GroupListFragment extends BaseFragment implements
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
-		requireNonNull(getActivity()).setTitle(R.string.groups_button);
+		requireActivity().setTitle(R.string.groups_button);
 
 		View v = inflater.inflate(R.layout.list, container, false);
 
-		adapter = new GroupListAdapter(getActivity(), this);
+		adapter = new GroupListAdapter(requireActivity(), this);
 		list = v.findViewById(R.id.list);
 		list.setEmptyImage(R.drawable.ic_empty_state_group_list);
 		list.setEmptyText(R.string.groups_list_empty);
@@ -87,8 +85,8 @@ public class GroupListFragment extends BaseFragment implements
 		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.setAction(R.string.show, this);
-		snackbar.setActionTextColor(ContextCompat
-				.getColor(getActivity(), R.color.briar_button_text_positive));
+		snackbar.setActionTextColor(ContextCompat.getColor(requireContext(),
+				R.color.briar_button_text_positive));
 
 		return v;
 	}
@@ -121,7 +119,8 @@ public class GroupListFragment extends BaseFragment implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_add_group:
-				Intent i = new Intent(getContext(), CreateGroupActivity.class);
+				Intent i = new Intent(requireContext(),
+						CreateGroupActivity.class);
 				startActivity(i);
 				return true;
 			default:
@@ -239,7 +238,7 @@ public class GroupListFragment extends BaseFragment implements
 	 */
 	@Override
 	public void onClick(View v) {
-		Intent i = new Intent(getContext(), GroupInvitationActivity.class);
+		Intent i = new Intent(requireContext(), GroupInvitationActivity.class);
 		startActivity(i);
 	}
 

@@ -502,7 +502,6 @@ public class ConversationActivity extends BriarActivity
 	 * <p>
 	 * Attention: Call this only after contactName has been initialized.
 	 */
-	@SuppressWarnings("ConstantConditions")
 	private List<ConversationItem> createItems(
 			Collection<ConversationMessageHeader> headers) {
 		List<ConversationItem> items = new ArrayList<>(headers.size());

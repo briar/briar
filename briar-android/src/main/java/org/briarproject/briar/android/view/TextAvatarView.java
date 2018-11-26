@@ -18,6 +18,9 @@ import javax.annotation.Nullable;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static java.util.Objects.requireNonNull;
+
 @UiThread
 public class TextAvatarView extends FrameLayout {
 
@@ -28,8 +31,8 @@ public class TextAvatarView extends FrameLayout {
 	public TextAvatarView(Context context, @Nullable AttributeSet attrs) {
 		super(context, attrs);
 
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		LayoutInflater inflater = (LayoutInflater) requireNonNull(
+				context.getSystemService(LAYOUT_INFLATER_SERVICE));
 		inflater.inflate(R.layout.text_avatar_view, this, true);
 		character = findViewById(R.id.textAvatarView);
 		background = findViewById(R.id.avatarBackground);

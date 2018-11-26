@@ -50,9 +50,9 @@ public class CreateGroupFragment extends BaseFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		View v = inflater.inflate(R.layout.fragment_create_group, container,
 				false);
 		nameEntry = v.findViewById(R.id.name);

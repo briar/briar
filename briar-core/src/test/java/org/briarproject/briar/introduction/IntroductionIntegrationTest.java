@@ -1309,13 +1309,10 @@ public class IntroductionIntegrationTest
 		Message m = ch.getMessage(id);
 		BdfList body = ch.getMessageAsList(id);
 		if (type == ACCEPT) {
-			//noinspection ConstantConditions
 			return c0.getMessageParser().parseAcceptMessage(m, body);
 		} else if (type == DECLINE) {
-			//noinspection ConstantConditions
 			return c0.getMessageParser().parseDeclineMessage(m, body);
 		} else if (type == AUTH) {
-			//noinspection ConstantConditions
 			return c0.getMessageParser().parseAuthMessage(m, body);
 		} else throw new AssertionError("Not implemented");
 	}

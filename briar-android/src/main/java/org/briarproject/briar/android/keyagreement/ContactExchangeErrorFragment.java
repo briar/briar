@@ -71,9 +71,7 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 
 		// buttons
 		Button tryAgain = v.findViewById(R.id.tryAgainButton);
-		tryAgain.setOnClickListener(view -> {
-			if (getActivity() != null) getActivity().onBackPressed();
-		});
+		tryAgain.setOnClickListener(view -> requireActivity().onBackPressed());
 		Button cancel = v.findViewById(R.id.cancelButton);
 		cancel.setOnClickListener(view -> finish());
 		return v;

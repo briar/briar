@@ -120,7 +120,6 @@ public class PrivateGroupManagerIntegrationTest
 		addGroup();
 
 		// create and add test message with no previousMsgId
-		@SuppressWarnings("ConstantConditions")
 		GroupMessage msg = groupMessageFactory
 				.createGroupMessage(groupId0, clock.currentTimeMillis(), null,
 						author0, "test", null);

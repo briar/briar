@@ -14,7 +14,6 @@ import org.briarproject.briar.android.contactselection.SelectableContactItem;
 
 import javax.inject.Inject;
 
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
 @MethodsNotNullByDefault
@@ -42,7 +41,7 @@ public class GroupInviteFragment extends ContactSelectorFragment {
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requireNonNull(getActivity()).setTitle(R.string.groups_invite_members);
+		requireActivity().setTitle(R.string.groups_invite_members);
 	}
 
 	@Override

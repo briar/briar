@@ -67,6 +67,7 @@ import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Arrays.asList;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -189,21 +190,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		language.setOnPreferenceChangeListener(this);
 		theme.setOnPreferenceChangeListener((preference, newValue) -> {
-			if (getActivity() != null) {
-				// activate new theme
-				setTheme(getActivity(), (String) newValue);
-				// bring up parent activity, so it can change its theme as well
-				// upstream bug: https://issuetracker.google.com/issues/38352704
-				Intent intent =
-						new Intent(getActivity(), NavDrawerActivity.class);
-				intent.setFlags(
-						FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
-				startActivity(intent);
-				// bring this activity back to the foreground
-				intent = new Intent(getActivity(), getActivity().getClass());
-				startActivity(intent);
-				getActivity().finish();
-			}
+			// activate new theme
+			setTheme(requireActivity(), (String) newValue);
+			// bring up parent activity, so it can change its theme as well
+			// upstream bug: https://issuetracker.google.com/issues/38352704
+			Intent intent = new Intent(requireActivity(),
+					NavDrawerActivity.class);
+			intent.setFlags(FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
+			startActivity(intent);
+			// bring this activity back to the foreground
+			intent = new Intent(requireActivity(),
+					requireActivity().getClass());
+			startActivity(intent);
+			requireActivity().finish();
 			return true;
 		});
 		enableBluetooth.setOnPreferenceChangeListener(this);
@@ -247,7 +246,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		ColorDrawable divider = new ColorDrawable(
-				ContextCompat.getColor(getContext(), R.color.divider));
+				ContextCompat.getColor(requireContext(), R.color.divider));
 		setDivider(divider);
 		return view;
 	}
@@ -487,8 +486,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		pref.setWidgetLayoutResource(0);
 		pref.setSummary(summary);
 		pref.setOnPreferenceClickListener(clickedPref -> {
+			String packageName = requireContext().getPackageName();
 			Intent intent = new Intent(ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-					.putExtra(EXTRA_APP_PACKAGE, getContext().getPackageName())
+					.putExtra(EXTRA_APP_PACKAGE, packageName)
 					.putExtra(EXTRA_CHANNEL_ID, channelId);
 			startActivity(intent);
 			return true;
@@ -571,19 +571,18 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void languageChanged(String newValue) {
 		AlertDialog.Builder builder =
-				new AlertDialog.Builder(getActivity());
+				new AlertDialog.Builder(requireActivity());
 		builder.setTitle(R.string.pref_language_title);
 		builder.setMessage(R.string.pref_language_changed);
-		builder.setPositiveButton(R.string.sign_out_button,
-				(dialogInterface, i) -> {
-					language.setValue(newValue);
-					Intent intent = new Intent(getContext(),
-							NavDrawerActivity.class);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-					intent.putExtra(INTENT_SIGN_OUT, true);
-					getActivity().startActivity(intent);
-					getActivity().finish();
-				});
+		builder.setPositiveButton(R.string.sign_out_button, (dialog, i) -> {
+			language.setValue(newValue);
+			Intent intent = new Intent(requireContext(),
+					NavDrawerActivity.class);
+			intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+			intent.putExtra(INTENT_SIGN_OUT, true);
+			requireActivity().startActivity(intent);
+			requireActivity().finish();
+		});
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setCancelable(false);
 		builder.show();
@@ -634,7 +633,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_RINGTONE && result == RESULT_OK) {
 			Settings s = new Settings();
-			Uri uri = data.getParcelableExtra(EXTRA_RINGTONE_PICKED_URI);
+			Uri uri = requireNonNull(data).getParcelableExtra(
+					EXTRA_RINGTONE_PICKED_URI);
 			if (uri == null) {
 				// The user chose silence
 				s.putBoolean(PREF_NOTIFY_SOUND, false);
@@ -647,12 +647,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				s.put(PREF_NOTIFY_RINGTONE_URI, "");
 			} else {
 				// The user chose a ringtone other than the default
-				Ringtone r = RingtoneManager.getRingtone(getContext(), uri);
+				Ringtone r = RingtoneManager.getRingtone(requireContext(), uri);
 				if (r == null) {
-					Toast.makeText(getContext(), R.string.cannot_load_ringtone,
-							LENGTH_SHORT).show();
+					Toast.makeText(requireContext(),
+							R.string.cannot_load_ringtone, LENGTH_SHORT).show();
 				} else {
-					String name = r.getTitle(getContext());
+					String name = r.getTitle(requireContext());
 					s.putBoolean(PREF_NOTIFY_SOUND, true);
 					s.put(PREF_NOTIFY_RINGTONE_NAME, name);
 					s.put(PREF_NOTIFY_RINGTONE_URI, uri.toString());

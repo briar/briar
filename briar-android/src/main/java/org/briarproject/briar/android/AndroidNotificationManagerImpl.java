@@ -70,6 +70,7 @@ import static android.support.v4.app.NotificationCompat.PRIORITY_LOW;
 import static android.support.v4.app.NotificationCompat.PRIORITY_MIN;
 import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static android.support.v4.content.ContextCompat.getColor;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -119,8 +120,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		this.androidExecutor = androidExecutor;
 		this.clock = clock;
 		appContext = app.getApplicationContext();
-		notificationManager = (NotificationManager)
-				appContext.getSystemService(NOTIFICATION_SERVICE);
+		notificationManager = (NotificationManager) requireNonNull(
+				appContext.getSystemService(NOTIFICATION_SERVICE));
 	}
 
 	@Override

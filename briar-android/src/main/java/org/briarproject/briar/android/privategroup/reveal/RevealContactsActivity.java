@@ -43,7 +43,6 @@ public class RevealContactsActivity extends ContactSelectorActivity
 	}
 
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public void onCreate(@Nullable Bundle bundle) {
 		super.onCreate(bundle);
 

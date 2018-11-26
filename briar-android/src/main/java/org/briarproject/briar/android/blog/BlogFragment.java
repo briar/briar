@@ -92,13 +92,11 @@ public class BlogFragment extends BaseFragment
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		Bundle args = requireNonNull(getArguments());
-		byte[] b = args.getByteArray(GROUP_ID);
-		if (b == null) throw new IllegalStateException("No group ID in args");
-		groupId = new GroupId(b);
+		groupId = new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter = new BlogPostAdapter(requireNonNull(getActivity()), this,
+		adapter = new BlogPostAdapter(requireActivity(), this,
 				getFragmentManager());
 		list = v.findViewById(R.id.postList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
@@ -269,7 +267,7 @@ public class BlogFragment extends BaseFragment
 	}
 
 	private void setToolbarTitle(Author a) {
-		getActivity().setTitle(a.getName());
+		requireActivity().setTitle(a.getName());
 	}
 
 	private void loadSharedContacts() {
@@ -311,7 +309,7 @@ public class BlogFragment extends BaseFragment
 
 	private void setToolbarSubTitle(int total, int online) {
 		ActionBar actionBar =
-				((BriarActivity) getActivity()).getSupportActionBar();
+				((BriarActivity) requireActivity()).getSupportActionBar();
 		if (actionBar != null) {
 			actionBar.setSubtitle(
 					getString(R.string.shared_with, total, online));
@@ -336,9 +334,8 @@ public class BlogFragment extends BaseFragment
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		if (scroll) {
 			View.OnClickListener onClick = v -> list.smoothScrollToPosition(0);
-			snackbar.setActionTextColor(ContextCompat
-					.getColor(getContext(),
-							R.color.briar_button_text_positive));
+			snackbar.setActionTextColor(ContextCompat.getColor(requireContext(),
+					R.color.briar_button_text_positive));
 			snackbar.setAction(R.string.blogs_blog_post_scroll_to, onClick);
 		}
 		snackbar.show();
@@ -347,7 +344,7 @@ public class BlogFragment extends BaseFragment
 	private void showDeleteDialog() {
 		DialogInterface.OnClickListener okListener =
 				(dialog, which) -> deleteBlog();
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(),
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.blogs_remove_blog));
 		builder.setMessage(
@@ -362,7 +359,7 @@ public class BlogFragment extends BaseFragment
 				new UiResultExceptionHandler<Void, DbException>(this) {
 					@Override
 					public void onResultUi(Void result) {
-						Toast.makeText(getActivity(),
+						Toast.makeText(requireActivity(),
 								R.string.blogs_blog_removed, LENGTH_SHORT)
 								.show();
 						finish();

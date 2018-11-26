@@ -44,6 +44,7 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.acra.ACRAConstants.EXTRA_REPORT_FILE;
@@ -130,8 +131,7 @@ public class DevReportActivity extends BaseCrashReportDialog
 		report = findViewById(R.id.report_content);
 		progress = findViewById(R.id.progress_wheel);
 
-		//noinspection ConstantConditions
-		getDelegate().getSupportActionBar().setTitle(
+		requireNonNull(getDelegate().getSupportActionBar()).setTitle(
 				isFeedback() ? R.string.feedback_title :
 						R.string.crash_report_title);
 		userCommentView.setHint(isFeedback() ? R.string.enter_feedback :
@@ -152,8 +152,9 @@ public class DevReportActivity extends BaseCrashReportDialog
 			reviewing = true;
 			reportForm.setVisibility(VISIBLE);
 			requestReport.setVisibility(INVISIBLE);
-			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-					.showSoftInput(userCommentView, SHOW_FORCED);
+			InputMethodManager im = (InputMethodManager)
+					getSystemService(INPUT_METHOD_SERVICE);
+			if (im != null) im.showSoftInput(userCommentView, SHOW_FORCED);
 		});
 		findViewById(R.id.declineButton).setOnClickListener(v -> closeReport());
 		chevron.setOnClickListener(v -> {

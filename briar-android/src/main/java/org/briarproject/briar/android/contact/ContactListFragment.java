@@ -51,7 +51,6 @@ import javax.inject.Inject;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.getTransitionName;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -106,13 +105,13 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(R.string.contact_list_button);
+		requireActivity().setTitle(R.string.contact_list_button);
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
-					Intent i = new Intent(getActivity(),
+					Intent i = new Intent(requireActivity(),
 							ConversationActivity.class);
 					ContactId contactId = item.getContact().getId();
 					i.putExtra(CONTACT_ID, contactId.getInt());
@@ -130,16 +129,17 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 								Pair.create(holder.bulb,
 										getTransitionName(holder.bulb));
 						ActivityOptionsCompat options =
-								makeSceneTransitionAnimation(getActivity(),
+								makeSceneTransitionAnimation(requireActivity(),
 										avatar, bulb);
-						ActivityCompat.startActivity(getActivity(), i,
+						ActivityCompat.startActivity(requireActivity(), i,
 								options.toBundle());
 					} else {
 						// work-around for android bug #224270
 						startActivity(i);
 					}
 				};
-		adapter = new ContactListAdapter(getContext(), onContactClickListener);
+		adapter = new ContactListAdapter(requireContext(),
+				onContactClickListener);
 		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
@@ -161,8 +161,8 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		// Handle presses on the action bar items
 		switch (item.getItemId()) {
 			case R.id.action_add_contact:
-				Intent intent =
-						new Intent(getContext(), ContactExchangeActivity.class);
+				Intent intent = new Intent(requireContext(),
+						ContactExchangeActivity.class);
 				startActivity(intent);
 				return true;
 			default:

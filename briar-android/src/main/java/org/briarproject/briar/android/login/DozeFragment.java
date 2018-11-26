@@ -18,7 +18,6 @@ import org.briarproject.briar.android.login.PowerView.OnCheckedChangedListener;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
@@ -49,7 +48,7 @@ public class DozeFragment extends SetupFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(getString(R.string.setup_doze_title));
+		requireActivity().setTitle(getString(R.string.setup_doze_title));
 		setHasOptionsMenu(false);
 		View v = inflater.inflate(R.layout.fragment_setup_doze, container,
 						false);
@@ -100,8 +99,7 @@ public class DozeFragment extends SetupFragment
 
 	@SuppressLint("BatteryLife")
 	private void askForDozeWhitelisting() {
-		if (getContext() == null) return;
-		Intent i = getDozeWhitelistingIntent(getContext());
+		Intent i = getDozeWhitelistingIntent(requireContext());
 		startActivityForResult(i, REQUEST_DOZE_WHITELISTING);
 	}
 

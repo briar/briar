@@ -36,6 +36,7 @@ import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
 import static android.hardware.Camera.Parameters.SCENE_MODE_AUTO;
 import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -127,7 +128,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 		}
 		setDisplayOrientation(getScreenRotationDegrees());
 		// Use barcode scene mode if it's available
-		Parameters params = camera.getParameters();
+		Parameters params = requireNonNull(camera).getParameters();
 		params = setSceneMode(camera, params);
 		if (SCENE_MODE_BARCODE.equals(params.getSceneMode())) {
 			// If the scene mode enabled the flash, try to disable it
@@ -164,8 +165,9 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 	 * See {@link Camera#setDisplayOrientation(int)}.
 	 */
 	private int getScreenRotationDegrees() {
-		WindowManager wm =
-				(WindowManager) getContext().getSystemService(WINDOW_SERVICE);
+		WindowManager wm = (WindowManager)
+				getContext().getSystemService(WINDOW_SERVICE);
+		if (wm == null) return 0;
 		Display d = wm.getDefaultDisplay();
 		switch (d.getRotation()) {
 			case Surface.ROTATION_0:
