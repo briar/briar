@@ -3,9 +3,9 @@ package org.briarproject.briar.android.conversation;
 import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -18,11 +18,11 @@ import static org.briarproject.briar.android.util.UiUtils.formatDate;
 @NotNullByDefault
 abstract class ConversationItemViewHolder extends ViewHolder {
 
-	protected final ViewGroup layout;
+	protected final ConstraintLayout layout;
 	@Nullable
 	private final OutItemViewHolder outViewHolder;
 	private final TextView text;
-	private final TextView time;
+	protected final TextView time;
 
 	ConversationItemViewHolder(View v, boolean isIncoming) {
 		super(v);

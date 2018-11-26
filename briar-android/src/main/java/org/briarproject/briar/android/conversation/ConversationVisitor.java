@@ -14,12 +14,16 @@ import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
+import java.util.List;
+
 import javax.annotation.Nullable;
 
+import static java.util.Collections.emptyList;
 import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.BLOG;
 import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.FORUM;
 import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.GROUP;
@@ -33,24 +37,33 @@ class ConversationVisitor implements
 
 	private final Context ctx;
 	private final TextCache textCache;
+	private final AttachmentCache attachmentCache;
 	private final LiveData<String> contactName;
 
 	ConversationVisitor(Context ctx, TextCache textCache,
-			LiveData<String> contactName) {
+			AttachmentCache attachmentCache, LiveData<String> contactName) {
 		this.ctx = ctx;
 		this.textCache = textCache;
+		this.attachmentCache = attachmentCache;
 		this.contactName = contactName;
 	}
 
 	@Override
 	public ConversationItem visitPrivateMessageHeader(PrivateMessageHeader h) {
 		ConversationItem item;
+		List<AttachmentItem> attachments;
+		if (h.getAttachmentHeaders().isEmpty()) {
+			attachments = emptyList();
+		} else {
+			attachments = attachmentCache
+					.getAttachmentItems(h.getId(), h.getAttachmentHeaders());
+		}
 		if (h.isLocal()) {
 			item = new ConversationMessageItem(
-					R.layout.list_item_conversation_msg_out, h);
+					R.layout.list_item_conversation_msg_out, h, attachments);
 		} else {
 			item = new ConversationMessageItem(
-					R.layout.list_item_conversation_msg_in, h);
+					R.layout.list_item_conversation_msg_in, h, attachments);
 		}
 		if (h.hasText()) {
 			String text = textCache.getText(h.getId());
@@ -278,5 +291,10 @@ class ConversationVisitor implements
 	interface TextCache {
 		@Nullable
 		String getText(MessageId m);
+	}
+
+	interface AttachmentCache {
+		List<AttachmentItem> getAttachmentItems(MessageId m,
+				List<AttachmentHeader> headers);
 	}
 }

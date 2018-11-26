@@ -40,6 +40,7 @@
 	<color name="msg_stroke_light">#cbcbcb</color>
 	<color name="msg_stroke_dark">#333333</color>
 	<color name="msg_stroke">@color/msg_stroke_light</color>
+	<color name="msg_status_bubble_background">#66000000</color>
 
 	<!-- text colors -->
 	<color name="briar_text_link">@color/briar_blue_light</color>

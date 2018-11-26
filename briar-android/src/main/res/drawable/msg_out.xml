@@ -8,10 +8,10 @@
 		android:topLeftRadius="@dimen/message_bubble_radius_top_outer"
 		android:topRightRadius="@dimen/message_bubble_radius_top_inner"/>
 	<padding
-		android:bottom="@dimen/message_bubble_padding_bottom"
-		android:left="@dimen/message_bubble_padding_sides"
-		android:right="@dimen/message_bubble_padding_sides"
-		android:top="@dimen/message_bubble_padding_top"/>
+		android:bottom="@dimen/message_bubble_border"
+		android:left="@dimen/message_bubble_border"
+		android:right="@dimen/message_bubble_border"
+		android:top="@dimen/message_bubble_border"/>
 	<solid
 		android:color="@color/msg_out"/>
 	<stroke

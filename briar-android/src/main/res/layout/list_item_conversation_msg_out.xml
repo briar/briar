@@ -21,39 +21,68 @@
 		android:background="@drawable/msg_out"
 		android:elevation="@dimen/message_bubble_elevation">
 
+		<ImageView
+			android:id="@+id/imageView"
+			android:layout_width="@dimen/message_bubble_image_default"
+			android:layout_height="@dimen/message_bubble_image_default"
+			android:visibility="gone"
+			app:layout_constraintBottom_toTopOf="@+id/text"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			tools:ignore="ContentDescription"
+			tools:src="@drawable/alerts_and_states_error"/>
+
 		<com.vanniktech.emoji.EmojiTextView
 			android:id="@+id/text"
 			style="@style/TextMessage"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginBottom="@dimen/message_bubble_padding_bottom_inner"
+			android:layout_marginLeft="@dimen/message_bubble_padding_sides_inner"
+			android:layout_marginRight="@dimen/message_bubble_padding_sides_inner"
+			android:layout_marginTop="@dimen/message_bubble_padding_top_inner"
 			android:textColor="@color/briar_text_primary_inverse"
-			app:layout_constraintBottom_toTopOf="@+id/time"
+			app:layout_constrainedWidth="true"
+			app:layout_constraintBottom_toTopOf="@+id/statusLayout"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.0"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/imageView"
 			tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
 
-		<TextView
-			android:id="@+id/time"
-			style="@style/TextMessage.Timestamp"
+		<LinearLayout
+			android:id="@+id/statusLayout"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
-			android:textColor="@color/private_message_date_inverse"
+			android:layout_marginBottom="@dimen/message_bubble_padding_bottom_inner"
+			android:layout_marginLeft="@dimen/message_bubble_padding_sides_inner"
+			android:layout_marginRight="@dimen/message_bubble_padding_sides_inner"
+			android:orientation="horizontal"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.0"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/text"
-			tools:text="Dec 24, 13:37"/>
+			tools:ignore="UseCompoundDrawables">
 
-		<ImageView
-			android:id="@+id/status"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="@dimen/margin_medium"
-			android:layout_marginStart="@dimen/margin_medium"
-			app:layout_constraintBottom_toBottomOf="@+id/time"
-			app:layout_constraintStart_toEndOf="@+id/time"
-			app:layout_constraintTop_toTopOf="@+id/time"
-			tools:ignore="ContentDescription"
-			tools:src="@drawable/message_delivered"/>
+			<TextView
+				android:id="@+id/time"
+				style="@style/TextMessage.Timestamp"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_marginEnd="6dp"
+				android:layout_marginRight="6dp"
+				android:textColor="@color/private_message_date_inverse"
+				tools:text="Dec 24, 13:37"/>
+
+			<ImageView
+				android:id="@+id/status"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				tools:ignore="ContentDescription"
+				tools:src="@drawable/message_delivered"/>
+
+		</LinearLayout>
 
 	</android.support.constraint.ConstraintLayout>
 

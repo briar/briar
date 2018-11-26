@@ -19,11 +19,11 @@
 		android:id="@+id/imageView"
 		android:layout_width="@dimen/message_bubble_image_default"
 		android:layout_height="@dimen/message_bubble_image_default"
-		android:visibility="gone"
 		app:layout_constraintBottom_toTopOf="@+id/text"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:ignore="ContentDescription"/>
+		tools:ignore="ContentDescription"
+		tools:src="@drawable/alerts_and_states_error"/>
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/text"
@@ -35,9 +35,10 @@
 		android:layout_marginRight="@dimen/message_bubble_padding_sides_inner"
 		android:layout_marginTop="@dimen/message_bubble_padding_top_inner"
 		android:textColor="?android:attr/textColorPrimary"
+		android:visibility="gone"
 		app:layout_constrainedWidth="true"
 		app:layout_constraintBottom_toTopOf="@+id/statusLayout"
-		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintEnd_toEndOf="@+id/imageView"
 		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/imageView"
@@ -47,15 +48,15 @@
 		android:id="@+id/statusLayout"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="@dimen/message_bubble_padding_bottom_inner"
+		android:layout_marginBottom="@dimen/message_bubble_padding_top"
 		android:layout_marginLeft="@dimen/message_bubble_padding_sides_inner"
 		android:layout_marginRight="@dimen/message_bubble_padding_sides_inner"
+		android:background="@drawable/msg_status_bubble"
 		android:orientation="horizontal"
-		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintBottom_toBottomOf="@+id/imageView"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="1.0"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/text">
+		app:layout_constraintStart_toStartOf="parent">
 
 		<TextView
 			android:id="@+id/time"

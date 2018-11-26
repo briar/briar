@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -38,6 +39,7 @@ public class ConversationViewModel extends AndroidViewModel {
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 	private final ContactManager contactManager;
+	private final AttachmentController attachmentController;
 
 	@Nullable
 	private ContactId contactId = null;
@@ -52,10 +54,12 @@ public class ConversationViewModel extends AndroidViewModel {
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
-			ContactManager contactManager) {
+			ContactManager contactManager, MessagingManager messagingManager) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.contactManager = contactManager;
+		this.attachmentController = new AttachmentController(messagingManager,
+				application.getResources());
 		contactDeleted.setValue(false);
 	}
 
@@ -94,6 +98,10 @@ public class ConversationViewModel extends AndroidViewModel {
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	AttachmentController getAttachmentController() {
+		return attachmentController;
 	}
 
 	LiveData<Contact> getContact() {
