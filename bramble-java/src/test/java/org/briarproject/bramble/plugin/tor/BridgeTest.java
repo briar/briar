@@ -70,7 +70,7 @@ public class BridgeTest extends BrambleTestCase {
 	private final File torDir = getTestDirectory();
 	private final String bridge;
 
-	private LinuxTorPluginFactory factory;
+	private UnixTorPluginFactory factory;
 
 	public BridgeTest(String bridge) {
 		this.bridge = bridge;
@@ -108,7 +108,7 @@ public class BridgeTest extends BrambleTestCase {
 				return singletonList(bridge);
 			}
 		};
-		factory = new LinuxTorPluginFactory(ioExecutor, networkManager,
+		factory = new UnixTorPluginFactory(ioExecutor, networkManager,
 				locationUtils, eventBus, torSocketFactory, backoffFactory,
 				resourceProvider, bridgeProvider, batteryManager, clock,
 				torDir);
@@ -124,7 +124,7 @@ public class BridgeTest extends BrambleTestCase {
 		DuplexPlugin duplexPlugin =
 				factory.createPlugin(new TorPluginCallBack());
 		assertNotNull(duplexPlugin);
-		LinuxTorPlugin plugin = (LinuxTorPlugin) duplexPlugin;
+		UnixTorPlugin plugin = (UnixTorPlugin) duplexPlugin;
 
 		LOG.warning("Testing " + bridge);
 		try {

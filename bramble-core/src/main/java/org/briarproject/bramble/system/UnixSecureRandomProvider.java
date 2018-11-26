@@ -13,32 +13,33 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
 @NotNullByDefault
-class LinuxSecureRandomProvider extends AbstractSecureRandomProvider {
+class UnixSecureRandomProvider extends AbstractSecureRandomProvider {
 
 	private static final Logger LOG =
-			Logger.getLogger(LinuxSecureRandomProvider.class.getName());
+			getLogger(UnixSecureRandomProvider.class.getName());
 
 	private static final File RANDOM_DEVICE = new File("/dev/urandom");
 
 	private final AtomicBoolean seeded = new AtomicBoolean(false);
 	private final File outputDevice;
 
-	LinuxSecureRandomProvider() {
+	UnixSecureRandomProvider() {
 		this(RANDOM_DEVICE);
 	}
 
-	LinuxSecureRandomProvider(File outputDevice) {
+	UnixSecureRandomProvider(File outputDevice) {
 		this.outputDevice = outputDevice;
 	}
 
 	@Override
 	public Provider getProvider() {
 		if (!seeded.getAndSet(true)) writeSeed();
-		return new LinuxProvider();
+		return new UnixProvider();
 	}
 
 	protected void writeSeed() {
@@ -55,15 +56,15 @@ class LinuxSecureRandomProvider extends AbstractSecureRandomProvider {
 	}
 
 	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
-	private static class LinuxProvider extends Provider {
+	private static class UnixProvider extends Provider {
 
-		private LinuxProvider() {
-			super("LinuxPRNG", 1.1, "A Linux-specific PRNG using /dev/urandom");
+		private UnixProvider() {
+			super("UnixPRNG", 1.0, "A Unix-specific PRNG using /dev/urandom");
 			// Although /dev/urandom is not a SHA-1 PRNG, some callers
 			// explicitly request a SHA1PRNG SecureRandom and we need to
 			// prevent them from getting the default implementation whose
 			// output may have low entropy.
-			put("SecureRandom.SHA1PRNG", LinuxSecureRandomSpi.class.getName());
+			put("SecureRandom.SHA1PRNG", UnixSecureRandomSpi.class.getName());
 			put("SecureRandom.SHA1PRNG ImplementedIn", "Software");
 		}
 	}

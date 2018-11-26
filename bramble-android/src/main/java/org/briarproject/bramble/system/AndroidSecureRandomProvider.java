@@ -1,5 +1,6 @@
 package org.briarproject.bramble.system;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -26,7 +27,7 @@ import static android.provider.Settings.Secure.ANDROID_ID;
 
 @Immutable
 @NotNullByDefault
-class AndroidSecureRandomProvider extends LinuxSecureRandomProvider {
+class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 
 	private static final int SEED_LENGTH = 32;
 
@@ -37,6 +38,7 @@ class AndroidSecureRandomProvider extends LinuxSecureRandomProvider {
 		appContext = app.getApplicationContext();
 	}
 
+	@SuppressLint("HardwareIds")
 	@Override
 	protected void writeToEntropyPool(DataOutputStream out) throws IOException {
 		super.writeToEntropyPool(out);
@@ -49,12 +51,14 @@ class AndroidSecureRandomProvider extends LinuxSecureRandomProvider {
 		String id = Settings.Secure.getString(contentResolver, ANDROID_ID);
 		if (id != null) out.writeUTF(id);
 		Parcel parcel = Parcel.obtain();
-		WifiManager wm =
-				(WifiManager) appContext.getSystemService(WIFI_SERVICE);
-		List<WifiConfiguration> configs = wm.getConfiguredNetworks();
-		if (configs != null) {
-			for (WifiConfiguration config : configs)
-				parcel.writeParcelable(config, 0);
+		WifiManager wm = (WifiManager) appContext.getApplicationContext()
+				.getSystemService(WIFI_SERVICE);
+		if (wm != null) {
+			List<WifiConfiguration> configs = wm.getConfiguredNetworks();
+			if (configs != null) {
+				for (WifiConfiguration config : configs)
+					parcel.writeParcelable(config, 0);
+			}
 		}
 		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 		if (bt != null) {
@@ -77,13 +81,13 @@ class AndroidSecureRandomProvider extends LinuxSecureRandomProvider {
 
 	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
 	private void applyOpenSslFix() {
-		byte[] seed = new LinuxSecureRandomSpi().engineGenerateSeed(
+		byte[] seed = new UnixSecureRandomSpi().engineGenerateSeed(
 				SEED_LENGTH);
 		try {
 			// Seed the OpenSSL PRNG
 			Class.forName("org.apache.harmony.xnet.provider.jsse.NativeCrypto")
 					.getMethod("RAND_seed", byte[].class)
-					.invoke(null, seed);
+					.invoke(null, (Object) seed);
 			// Mix the output of the Linux PRNG into the OpenSSL PRNG
 			int bytesRead = (Integer) Class.forName(
 					"org.apache.harmony.xnet.provider.jsse.NativeCrypto")

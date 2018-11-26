@@ -15,7 +15,6 @@ import com.sun.jna.win32.W32APIFunctionMapper;
 import com.sun.jna.win32.W32APITypeMapper;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.OsUtils;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -29,6 +28,7 @@ import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
 import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.OsUtils.isWindows;
 
 @ThreadSafe
 @NotNullByDefault
@@ -71,7 +71,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	// Locking: lock
 	private void initialise() {
-		if (OsUtils.isWindows()) {
+		if (isWindows()) {
 			new EventLoop().start();
 		} else {
 			LOG.warning("Windows shutdown manager used on non-Windows OS");
@@ -111,7 +111,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		public void run() {
 			try {
 				// Load user32.dll
-				User32 user32 = (User32) Native.loadLibrary("user32",
+				User32 user32 = Native.loadLibrary("user32",
 						User32.class, options);
 				// Create a callback to handle the WM_QUERYENDSESSION message
 				WindowProc proc = (hwnd, msg, wp, lp) -> {

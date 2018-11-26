@@ -10,22 +10,24 @@ import java.security.SecureRandomSpi;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
-public class LinuxSecureRandomSpi extends SecureRandomSpi {
+public class UnixSecureRandomSpi extends SecureRandomSpi {
 
 	private static final Logger LOG =
-			Logger.getLogger(LinuxSecureRandomSpi.class.getName());
+			getLogger(UnixSecureRandomSpi.class.getName());
 
 	private static final File RANDOM_DEVICE = new File("/dev/urandom");
 
 	private final File inputDevice, outputDevice;
 
-	public LinuxSecureRandomSpi() {
+	@SuppressWarnings("WeakerAccess")
+	public UnixSecureRandomSpi() {
 		this(RANDOM_DEVICE, RANDOM_DEVICE);
 	}
 
-	LinuxSecureRandomSpi(File inputDevice, File outputDevice) {
+	UnixSecureRandomSpi(File inputDevice, File outputDevice) {
 		this.inputDevice = inputDevice;
 		this.outputDevice = outputDevice;
 	}
