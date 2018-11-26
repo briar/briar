@@ -1166,10 +1166,9 @@ public class IntroductionIntegrationTest
 	@ParametersNotNullByDefault
 	private abstract class IntroductionListener implements EventListener {
 
-		protected volatile boolean aborted = false;
-		protected volatile Event latestEvent;
+		volatile boolean aborted = false;
+		volatile Event latestEvent;
 
-		@SuppressWarnings("WeakerAccess")
 		IntroductionResponse getResponse() {
 			assertTrue(
 					latestEvent instanceof IntroductionResponseReceivedEvent);

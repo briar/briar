@@ -1393,7 +1393,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	@SuppressWarnings("unchecked")
 	public void testMessageDependencies() throws Exception {
 		int shutdownHandle = 12345;
 		MessageId messageId2 = new MessageId(getRandomId());

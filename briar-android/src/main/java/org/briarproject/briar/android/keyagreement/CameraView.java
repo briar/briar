@@ -431,17 +431,11 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
-		post(() -> {
-			try {
-				surfaceCreatedUi(holder);
-			} catch (CameraException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		post(() -> surfaceCreatedUi(holder));
 	}
 
 	@UiThread
-	private void surfaceCreatedUi(SurfaceHolder holder) throws CameraException {
+	private void surfaceCreatedUi(SurfaceHolder holder) {
 		LOG.info("Surface created");
 		if (surface != null && surface != holder.getSurface()) {
 			LOG.info("Releasing old surface");

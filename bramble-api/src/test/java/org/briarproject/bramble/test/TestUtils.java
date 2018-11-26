@@ -49,7 +49,9 @@ public class TestUtils {
 
 	public static void deleteTestDirectory(File testDir) {
 		deleteFileOrDir(testDir);
-		testDir.getParentFile().delete(); // Delete if empty
+		// Delete parent directory only if it's empty
+		//noinspection ResultOfMethodCallIgnored
+		testDir.getParentFile().delete();
 	}
 
 	public static byte[] getRandomBytes(int length) {

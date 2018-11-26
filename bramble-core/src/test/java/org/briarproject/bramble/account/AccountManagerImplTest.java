@@ -318,6 +318,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void storeDatabaseKey(File f, String hex) throws IOException {
+		// Create parent directory if it doesn't already exist
+		//noinspection ResultOfMethodCallIgnored
 		f.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(f);
 		out.write(hex.getBytes("UTF-8"));

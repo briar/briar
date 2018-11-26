@@ -85,7 +85,6 @@ public class Localizer {
 			context.createConfigurationContext(conf);
 		} else
 			conf.locale = locale;
-		//noinspection deprecation
 		res.updateConfiguration(conf, res.getDisplayMetrics());
 		return context;
 	}

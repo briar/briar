@@ -5,13 +5,19 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
+import java.util.Random;
+
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 public class BdfListTest extends BrambleTestCase {
+
+	private final Random random = new Random();
 
 	@Test
 	public void testConstructors() {
@@ -63,22 +69,21 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test
-	@SuppressWarnings("ConstantConditions")
-	public void testIndexOutOfBoundsReturnsDefaultValue() throws Exception {
+	public void testIndexOutOfBoundsReturnsDefaultValue() {
 		BdfList list = BdfList.of(1, 2, 3);
-		boolean defaultBoolean = true;
+		boolean defaultBoolean = random.nextBoolean();
 		assertEquals(defaultBoolean, list.getBoolean(-1, defaultBoolean));
 		assertEquals(defaultBoolean, list.getBoolean(3, defaultBoolean));
-		Long defaultLong = 123L;
+		Long defaultLong = random.nextLong();
 		assertEquals(defaultLong, list.getLong(-1, defaultLong));
 		assertEquals(defaultLong, list.getLong(3, defaultLong));
-		Double defaultDouble = 1.23;
+		Double defaultDouble = random.nextDouble();
 		assertEquals(defaultDouble, list.getDouble(-1, defaultDouble));
 		assertEquals(defaultDouble, list.getDouble(3, defaultDouble));
-		String defaultString = "123";
+		String defaultString = getRandomString(123);
 		assertEquals(defaultString, list.getString(-1, defaultString));
 		assertEquals(defaultString, list.getString(3, defaultString));
-		byte[] defaultBytes = new byte[] {1, 2, 3};
+		byte[] defaultBytes = getRandomBytes(123);
 		assertArrayEquals(defaultBytes, list.getRaw(-1, defaultBytes));
 		assertArrayEquals(defaultBytes, list.getRaw(3, defaultBytes));
 		BdfList defaultList = BdfList.of(1, 2, 3);
@@ -94,18 +99,17 @@ public class BdfListTest extends BrambleTestCase {
 	}
 
 	@Test
-	@SuppressWarnings("ConstantConditions")
-	public void testWrongTypeReturnsDefaultValue() throws Exception {
+	public void testWrongTypeReturnsDefaultValue() {
 		BdfList list = BdfList.of(1, 2, 3, true);
-		boolean defaultBoolean = true;
+		boolean defaultBoolean = random.nextBoolean();
 		assertEquals(defaultBoolean, list.getBoolean(0, defaultBoolean));
-		Long defaultLong = 123L;
+		Long defaultLong = random.nextLong();
 		assertEquals(defaultLong, list.getLong(3, defaultLong));
-		Double defaultDouble = 1.23;
+		Double defaultDouble = random.nextDouble();
 		assertEquals(defaultDouble, list.getDouble(0, defaultDouble));
-		String defaultString = "123";
+		String defaultString = getRandomString(123);
 		assertEquals(defaultString, list.getString(0, defaultString));
-		byte[] defaultBytes = new byte[] {1, 2, 3};
+		byte[] defaultBytes = getRandomBytes(123);
 		assertArrayEquals(defaultBytes, list.getRaw(0, defaultBytes));
 		BdfList defaultList = BdfList.of(1, 2, 3);
 		assertEquals(defaultList, list.getList(0, defaultList));

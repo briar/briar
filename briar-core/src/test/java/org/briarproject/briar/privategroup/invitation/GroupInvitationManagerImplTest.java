@@ -326,6 +326,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	private void expectParseMessageMetadata() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(messageParser).parseMetadata(meta);
@@ -351,6 +352,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		expectStoreSession(session, storageMessage.getId());
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	@Nullable
 	private Session expectHandleFirstMessage(Role role,
 			MessageMetadata messageMetadata, MessageType type)
@@ -363,23 +365,20 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}});
 		if (type == ABORT || type == LEAVE) return null;
 
-		AbstractProtocolEngine engine;
-		Session session;
 		if (type == INVITE) {
 			assertEquals(Role.INVITEE, role);
-			engine = inviteeEngine;
-			session = inviteeSession;
+			expectIndividualMessage(type, inviteeEngine, inviteeSession);
+			return inviteeSession;
 		} else if (type == JOIN) {
 			assertEquals(Role.PEER, role);
-			engine = peerEngine;
-			session = peerSession;
+			expectIndividualMessage(type, peerEngine, peerSession);
+			return peerSession;
 		} else {
 			throw new AssertionError();
 		}
-		expectIndividualMessage(type, engine, session);
-		return session;
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	@Nullable
 	private Session expectHandleMessage(Role role,
 			MessageMetadata messageMetadata, BdfDictionary state,
@@ -809,6 +808,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				.isInvitationAllowed(contact, privateGroup.getId()));
 	}
 
+	@SuppressWarnings("ResultOfMethodCallIgnored")
 	private void expectIsInvitationAllowed(CreatorState state)
 			throws Exception {
 		expectGetSession(oneResult, sessionId, contactGroup.getId());

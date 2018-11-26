@@ -25,7 +25,6 @@ public class AndroidUtils {
 
 	private static final String STORED_REPORTS = "dev-reports";
 
-	@SuppressWarnings("deprecation")
 	public static Collection<String> getSupportedArchitectures() {
 		List<String> abis = new ArrayList<>();
 		if (SDK_INT >= 21) {

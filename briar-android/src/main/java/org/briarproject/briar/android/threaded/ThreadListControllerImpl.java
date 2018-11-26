@@ -81,7 +81,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	}
 
 	@CallSuper
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onActivityCreate(Activity activity) {
 		listener = (L) activity;

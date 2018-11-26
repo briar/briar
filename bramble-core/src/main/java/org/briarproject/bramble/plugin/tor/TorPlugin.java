@@ -282,6 +282,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
+			// The done file may already exist from a previous installation
+			//noinspection ResultOfMethodCallIgnored
 			doneFile.delete();
 			// Unzip the Tor binary to the filesystem
 			in = getTorInputStream();
@@ -303,7 +305,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
 			copyAndClose(in, out);
-			doneFile.createNewFile();
+			if (!doneFile.createNewFile())
+				LOG.warning("Failed to create done file");
 		} catch (IOException e) {
 			IoUtils.tryToClose(in, LOG, WARNING);
 			IoUtils.tryToClose(out, LOG, WARNING);
