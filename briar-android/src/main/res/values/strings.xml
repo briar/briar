@@ -142,6 +142,7 @@
 	<string name="save_image">Save image</string>
 	<string name="dialog_title_save_image">Save Image?</string>
 	<string name="dialog_message_save_image">Saving this image will allow other apps to access it.\n\nAre you sure you want to save?</string>
+	<string name="save_image_success">Image was saved</string>
 	<string name="save_image_error">Could not save image</string>
 
 	<!-- Adding Contacts -->
