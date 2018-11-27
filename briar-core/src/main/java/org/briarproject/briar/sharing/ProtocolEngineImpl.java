@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -568,6 +569,11 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 						visibleInConversation, false, false);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true);
+			if (type != MessageType.INVITE) {
+				getLogger("TEST").warning("DELETED MESSAGE AND METADATA");
+				db.deleteMessage(txn, m.getId());
+				db.deleteMessageMetadata(txn, m.getId());
+			}
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}

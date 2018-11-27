@@ -29,6 +29,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
@@ -140,6 +141,11 @@ abstract class AbstractProtocolEngine<S extends Session>
 						visibleInConversation);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true);
+			if (type != MessageType.REQUEST) {
+				getLogger("TEST").warning("DELETED MESSAGE AND METADATA");
+				db.deleteMessage(txn, m.getId());
+				db.deleteMessageMetadata(txn, m.getId());
+			}
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
