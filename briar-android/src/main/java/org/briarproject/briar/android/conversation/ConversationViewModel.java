@@ -44,6 +44,7 @@ import javax.inject.Inject;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -197,13 +198,7 @@ public class ConversationViewModel extends AndroidViewModel {
 			logException(LOG, WARNING, e);
 			return null;
 		} finally {
-			if (is != null) {
-				try {
-					is.close();
-				} catch (IOException e) {
-					logException(LOG, WARNING, e);
-				}
-			}
+			if (is != null) tryToClose(is, LOG, WARNING);
 		}
 	}
 
