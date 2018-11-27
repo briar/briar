@@ -32,6 +32,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -42,6 +43,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -237,7 +239,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public Attachment getAttachment(MessageId m) {
 		// TODO add real implementation
-		throw new IllegalStateException("Not yet implemented");
+		byte[] bytes = fromHexString("89504E470D0A1A0A0000000D49484452" +
+				"000000010000000108060000001F15C4" +
+				"890000000A49444154789C6300010000" +
+				"0500010D0A2DB40000000049454E44AE426082");
+		return new Attachment(new ByteArrayInputStream(bytes));
 	}
 
 }
