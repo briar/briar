@@ -17,10 +17,12 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_DESCRIPTOR;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_MESSAGE_TYPE;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_PRIVATE_GROUP_ID;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_SIGNATURE;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_TIMESTAMP;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_VISIBLE_IN_UI;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
@@ -40,6 +42,25 @@ class MessageEncoderImpl implements MessageEncoder {
 			MessageFactory messageFactory) {
 		this.clientHelper = clientHelper;
 		this.messageFactory = messageFactory;
+	}
+
+	@Override
+	public BdfDictionary encodeInviteMetadata(GroupId privateGroupId,
+			byte[] descriptor, byte[] signature, long timestamp, boolean local,
+			boolean read, boolean visible, boolean available,
+			boolean accepted) {
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(MSG_KEY_MESSAGE_TYPE, INVITE.getValue());
+		meta.put(MSG_KEY_PRIVATE_GROUP_ID, privateGroupId);
+		meta.put(MSG_KEY_DESCRIPTOR, descriptor);
+		meta.put(MSG_KEY_SIGNATURE, signature);
+		meta.put(MSG_KEY_TIMESTAMP, timestamp);
+		meta.put(MSG_KEY_LOCAL, local);
+		meta.put(MSG_KEY_READ, read);
+		meta.put(MSG_KEY_VISIBLE_IN_UI, visible);
+		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, available);
+		meta.put(MSG_KEY_INVITATION_ACCEPTED, accepted);
+		return meta;
 	}
 
 	@Override

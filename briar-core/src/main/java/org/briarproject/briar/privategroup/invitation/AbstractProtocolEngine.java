@@ -32,6 +32,10 @@ import javax.annotation.concurrent.Immutable;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_DESCRIPTOR;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_PRIVATE_GROUP_ID;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_SIGNATURE;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_TIMESTAMP;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -196,18 +200,27 @@ abstract class AbstractProtocolEngine<S extends Session>
 
 	void subscribeToPrivateGroup(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException {
-		InviteMessage invite = messageParser.getInviteMessage(txn, inviteId);
-		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
-				invite.getGroupName(), invite.getCreator(), invite.getSalt());
+		BdfDictionary meta =
+				clientHelper.getMessageMetadataAsDictionary(txn, inviteId);
+		GroupId groupId = new GroupId(meta.getRaw(MSG_KEY_PRIVATE_GROUP_ID));
+		byte[] descriptor = meta.getRaw(MSG_KEY_DESCRIPTOR);
+		byte[] signature = meta.getRaw(MSG_KEY_SIGNATURE);
+		long inviteTimestamp = meta.getLong(MSG_KEY_TIMESTAMP);
+		Group g = getPrivateGroup(groupId, descriptor);
+		PrivateGroup privateGroup = privateGroupFactory.parsePrivateGroup(g);
 		long timestamp =
-				Math.max(clock.currentTimeMillis(), invite.getTimestamp() + 1);
+				Math.max(clock.currentTimeMillis(), inviteTimestamp + 1);
 		// TODO: Create the join message on the crypto executor
 		LocalAuthor member = identityManager.getLocalAuthor(txn);
 		GroupMessage joinMessage = groupMessageFactory.createJoinMessage(
-				privateGroup.getId(), timestamp, member, invite.getTimestamp(),
-				invite.getSignature());
+				privateGroup.getId(), timestamp, member, inviteTimestamp,
+				signature);
 		privateGroupManager
 				.addPrivateGroup(txn, privateGroup, joinMessage, false);
+	}
+
+	private Group getPrivateGroup(GroupId id, byte[] descriptor) {
+		return new Group(id, CLIENT_ID, MAJOR_VERSION, descriptor);
 	}
 
 	long getLocalTimestamp(S session) {

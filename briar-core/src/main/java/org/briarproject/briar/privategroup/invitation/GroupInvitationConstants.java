@@ -8,6 +8,8 @@ interface GroupInvitationConstants {
 	// Message metadata keys
 	String MSG_KEY_MESSAGE_TYPE = "messageType";
 	String MSG_KEY_PRIVATE_GROUP_ID = "privateGroupId";
+	String MSG_KEY_DESCRIPTOR = "descriptor";
+	String MSG_KEY_SIGNATURE = "signature";
 	String MSG_KEY_TIMESTAMP = "timestamp";
 	String MSG_KEY_LOCAL = "local";
 	String MSG_KEY_VISIBLE_IN_UI = "visibleInUi";

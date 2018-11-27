@@ -3,6 +3,8 @@ package org.briarproject.briar.sharing;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -13,18 +15,19 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.conversation.ConversationRequest;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
 import static org.briarproject.briar.api.forum.ForumManager.MAJOR_VERSION;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_DESCRIPTOR;
 
 @Immutable
 @NotNullByDefault
@@ -85,9 +88,10 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 	@Override
 	protected void addShareable(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException {
-		InviteMessage<Forum> invite =
-				messageParser.getInviteMessage(txn, inviteId);
-		forumManager.addForum(txn, invite.getShareable());
+		BdfDictionary meta =
+				clientHelper.getMessageMetadataAsDictionary(txn, inviteId);
+		BdfList descriptor = meta.getList(MSG_KEY_DESCRIPTOR);
+		forumManager.addForum(txn, messageParser.createShareable(descriptor));
 	}
 
 }

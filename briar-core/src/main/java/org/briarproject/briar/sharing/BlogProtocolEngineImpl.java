@@ -3,6 +3,8 @@ package org.briarproject.briar.sharing;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -25,6 +27,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_DESCRIPTOR;
 
 @Immutable
 @NotNullByDefault
@@ -84,9 +87,10 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 	@Override
 	protected void addShareable(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException {
-		InviteMessage<Blog> invite =
-				messageParser.getInviteMessage(txn, inviteId);
-		blogManager.addBlog(txn, invite.getShareable());
+		BdfDictionary meta =
+				clientHelper.getMessageMetadataAsDictionary(txn, inviteId);
+		BdfList descriptor = meta.getList(MSG_KEY_DESCRIPTOR);
+		blogManager.addBlog(txn, messageParser.createShareable(descriptor));
 	}
 
 }

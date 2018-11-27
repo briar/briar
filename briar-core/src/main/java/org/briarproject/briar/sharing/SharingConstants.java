@@ -10,6 +10,7 @@ interface SharingConstants {
 	// Message metadata keys
 	String MSG_KEY_MESSAGE_TYPE = "messageType";
 	String MSG_KEY_SHAREABLE_ID = "shareableId";
+	String MSG_KEY_DESCRIPTOR = "descriptor";
 	String MSG_KEY_TIMESTAMP = "timestamp";
 	String MSG_KEY_READ = MessageTrackerConstants.MSG_KEY_READ;
 	String MSG_KEY_LOCAL = "local";

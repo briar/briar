@@ -35,21 +35,24 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 	final SharingValidator validator = getValidator();
 
 	final MessageId previousMsgId = new MessageId(getRandomId());
+
 	private final BdfDictionary meta = new BdfDictionary();
 
 	abstract SharingValidator getValidator();
 
+	abstract BdfList getDescriptor();
+
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBodyForInvitation() throws Exception {
 		validator.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), previousMsgId, descriptor));
+				BdfList.of(INVITE.getValue(), previousMsgId, getDescriptor()));
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForInvitation() throws Exception {
 		validator.validateMessage(message, group,
-				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, null,
-						123));
+				BdfList.of(INVITE.getValue(), previousMsgId, getDescriptor(),
+						null, 123));
 	}
 
 	@Test
@@ -141,7 +144,15 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 				BdfList.of(ABORT.getValue(), groupId, previousMsgId, 123));
 	}
 
-	void expectEncodeMetadata(MessageType type) {
+	void expectEncodeInviteMetadata(BdfList descriptor) {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder).encodeInviteMetadata(groupId, descriptor,
+					timestamp, false, false, false, false, false);
+			will(returnValue(meta));
+		}});
+	}
+
+	private void expectEncodeMetadata(MessageType type) {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, groupId, timestamp,
 					false, false, false, false, false);

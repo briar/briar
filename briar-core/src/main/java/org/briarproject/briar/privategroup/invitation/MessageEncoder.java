@@ -12,6 +12,10 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 interface MessageEncoder {
 
+	BdfDictionary encodeInviteMetadata(GroupId privateGroupId,
+			byte[] descriptor, byte[] signature, long timestamp, boolean local,
+			boolean read, boolean visible, boolean available, boolean accepted);
+
 	BdfDictionary encodeMetadata(MessageType type, GroupId privateGroupId,
 			long timestamp, boolean local, boolean read, boolean visible,
 			boolean available, boolean accepted);

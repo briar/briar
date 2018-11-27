@@ -87,7 +87,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
-					privateGroupId, 0L, privateGroup.getName(),
+					privateGroupId, inviteTimestamp, privateGroup.getName(),
 					privateGroup.getCreator(), privateGroup.getSalt(),
 					getRandomString(MAX_GROUP_INVITATION_TEXT_LENGTH),
 					signature);

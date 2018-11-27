@@ -31,7 +31,6 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory.SIGNING_LABEL_INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
-import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
 import static org.briarproject.briar.privategroup.invitation.MessageType.LEAVE;
 
@@ -100,9 +99,9 @@ class GroupInvitationValidator extends BdfMessageValidator {
 			throw new FormatException();
 		}
 		// Create the metadata
-		BdfDictionary meta = messageEncoder.encodeMetadata(INVITE,
-				privateGroup.getId(), m.getTimestamp(), false, false, false,
-				false, false);
+		BdfDictionary meta = messageEncoder.encodeInviteMetadata(
+				privateGroup.getId(), privateGroup.getGroup().getDescriptor(),
+				signature, m.getTimestamp(), false, false, false, false, false);
 		return new BdfMessageContext(meta);
 	}
 

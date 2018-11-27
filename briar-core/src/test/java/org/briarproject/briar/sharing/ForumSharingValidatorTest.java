@@ -28,10 +28,15 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 				metadataEncoder, clock, forumFactory);
 	}
 
+	@Override
+	BdfList getDescriptor() {
+		return descriptor;
+	}
+
 	@Test
 	public void testAcceptsInvitationWithText() throws Exception {
 		expectCreateForum(forumName);
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, text));
 		assertExpectedContext(context, previousMsgId);
@@ -40,7 +45,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsInvitationWithNullText() throws Exception {
 		expectCreateForum(forumName);
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, null));
 		assertExpectedContext(context, previousMsgId);
@@ -49,7 +54,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsInvitationWithNullPreviousMsgId() throws Exception {
 		expectCreateForum(forumName);
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), null, descriptor, null));
 		assertExpectedContext(context, null);
@@ -84,7 +89,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 		String shortForumName = getRandomString(1);
 		BdfList validDescriptor = BdfList.of(shortForumName, salt);
 		expectCreateForum(shortForumName);
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(validDescriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, validDescriptor,
 						null));
@@ -144,7 +149,7 @@ public class ForumSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsMinLengthText() throws Exception {
 		expectCreateForum(forumName);
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, "1"));
 		assertExpectedContext(context, previousMsgId);

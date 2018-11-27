@@ -28,10 +28,15 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 				metadataEncoder, clock, blogFactory);
 	}
 
+	@Override
+	BdfList getDescriptor() {
+		return descriptor;
+	}
+
 	@Test
 	public void testAcceptsInvitationWithText() throws Exception {
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, text));
 		assertExpectedContext(context, previousMsgId);
@@ -40,7 +45,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsInvitationWithNullText() throws Exception {
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, null));
 		assertExpectedContext(context, previousMsgId);
@@ -49,7 +54,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsInvitationWithNullPreviousMsgId() throws Exception {
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), null, descriptor, text));
 		assertExpectedContext(context, null);
@@ -57,9 +62,9 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 
 	@Test
 	public void testAcceptsInvitationForRssBlog() throws Exception {
-		expectCreateRssBlog();
-		expectEncodeMetadata(INVITE);
 		BdfList rssDescriptor = BdfList.of(authorList, true);
+		expectCreateRssBlog();
+		expectEncodeInviteMetadata(rssDescriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, rssDescriptor,
 						text));
@@ -93,7 +98,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	public void testAcceptsMinLengthText() throws Exception {
 		String shortText = getRandomString(1);
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeInviteMetadata(descriptor);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
 						shortText));

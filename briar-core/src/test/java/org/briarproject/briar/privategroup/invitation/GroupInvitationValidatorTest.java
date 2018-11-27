@@ -261,9 +261,10 @@ public class GroupInvitationValidatorTest extends ValidatorTestCase {
 			if (exception) {
 				will(throwException(new GeneralSecurityException()));
 			} else {
-				oneOf(messageEncoder).encodeMetadata(INVITE,
-						message.getGroupId(), message.getTimestamp(), false,
-						false, false, false, false);
+				oneOf(messageEncoder).encodeInviteMetadata(message.getGroupId(),
+						group.getDescriptor(), signature,
+						message.getTimestamp(), false, false, false, false,
+						false);
 				will(returnValue(meta));
 			}
 		}});

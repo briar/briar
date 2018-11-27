@@ -15,14 +15,12 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 
-import java.util.Collections;
-
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
-import static org.briarproject.briar.sharing.MessageType.INVITE;
 
 @Immutable
 @NotNullByDefault
@@ -63,15 +61,14 @@ abstract class SharingValidator extends BdfMessageValidator {
 		String text = body.getOptionalString(3);
 		checkLength(text, 1, MAX_INVITATION_TEXT_LENGTH);
 
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(INVITE, shareableId, m.getTimestamp(), false,
-						false, false, false, false);
+		BdfDictionary meta = messageEncoder.encodeInviteMetadata(shareableId,
+				descriptor, m.getTimestamp(), false, false, false, false,
+				false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -86,15 +83,14 @@ abstract class SharingValidator extends BdfMessageValidator {
 		byte[] previousMessageId = body.getOptionalRaw(2);
 		checkLength(previousMessageId, UniqueId.LENGTH);
 
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(type, new GroupId(shareableId),
-						m.getTimestamp(), false, false, false, false, false);
+		BdfDictionary meta = messageEncoder.encodeMetadata(type,
+				new GroupId(shareableId), m.getTimestamp(), false, false,
+				false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 

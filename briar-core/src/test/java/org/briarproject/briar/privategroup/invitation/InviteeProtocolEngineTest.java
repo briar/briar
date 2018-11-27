@@ -22,6 +22,10 @@ import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_DESCRIPTOR;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_PRIVATE_GROUP_ID;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_SIGNATURE;
+import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_TIMESTAMP;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.DISSOLVED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ERROR;
@@ -135,6 +139,14 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		GroupMessage joinGroupMessage =
 				new GroupMessage(message, null, localAuthor);
 		BdfDictionary meta = new BdfDictionary();
+		BdfDictionary inviteMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_PRIVATE_GROUP_ID,
+						privateGroupId.getBytes()),
+				new BdfEntry(MSG_KEY_DESCRIPTOR,
+						privateGroupGroup.getDescriptor()),
+				new BdfEntry(MSG_KEY_SIGNATURE, signature),
+				new BdfEntry(MSG_KEY_TIMESTAMP, inviteTimestamp)
+		);
 
 		expectMarkMessageAvailableToAnswer(lastRemoteMessageId, false);
 		context.checking(new Expectations() {{
@@ -145,12 +157,10 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectSendJoinMessage(properJoinMessage, true);
 		context.checking(new Expectations() {{
 			oneOf(messageTracker).trackOutgoingMessage(txn, message);
-			oneOf(messageParser).getInviteMessage(txn, lastRemoteMessageId);
-			will(returnValue(inviteMessage));
-			oneOf(privateGroupFactory)
-					.createPrivateGroup(inviteMessage.getGroupName(),
-							inviteMessage.getCreator(),
-							inviteMessage.getSalt());
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					lastRemoteMessageId);
+			will(returnValue(inviteMeta));
+			oneOf(privateGroupFactory).parsePrivateGroup(privateGroupGroup);
 			will(returnValue(privateGroup));
 			oneOf(clock).currentTimeMillis();
 			will((returnValue(timestamp)));
