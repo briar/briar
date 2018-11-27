@@ -127,7 +127,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 				new PrivateMessageReceivedEvent(header, contactId);
 		txn.attach(event);
 		messageTracker.trackIncomingMessage(txn, m);
-
+		// FIXME
+		db.deleteMessage(txn, m.getId());
 		// don't share message
 		return false;
 	}

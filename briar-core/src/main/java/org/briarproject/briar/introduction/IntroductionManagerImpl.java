@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
@@ -200,6 +201,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		}
 		// Store the updated session
 		storeSession(txn, storageId, session);
+		// FIXME
+		db.deleteMessage(txn, m.getId());
 		return false;
 	}
 
@@ -420,15 +423,22 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				StoredSession ss = getSession(txn, meta.getSessionId());
 				if (ss == null) throw new AssertionError();
 				MessageType type = meta.getMessageType();
-				if (type == REQUEST) {
-					messages.add(parseInvitationRequest(txn, contactGroupId, m,
-							meta, status, meta.getSessionId(), authorInfos));
-				} else if (type == ACCEPT) {
-					messages.add(parseInvitationResponse(txn, contactGroupId, m,
-							meta, status, ss.bdfSession, authorInfos, true));
-				} else if (type == DECLINE) {
-					messages.add(parseInvitationResponse(txn, contactGroupId, m,
-							meta, status, ss.bdfSession, authorInfos, false));
+				try {
+					if (type == REQUEST) {
+						messages.add(parseInvitationRequest(txn,
+								contactGroupId, m, meta, status,
+								meta.getSessionId(), authorInfos));
+					} else if (type == ACCEPT) {
+						messages.add(parseInvitationResponse(txn,
+								contactGroupId, m, meta, status,
+								ss.bdfSession, authorInfos, true));
+					} else if (type == DECLINE) {
+						messages.add(parseInvitationResponse(txn,
+								contactGroupId, m, meta, status,
+								ss.bdfSession, authorInfos, false));
+					}
+				} catch (MessageDeletedException ex) {
+					// FIXME
 				}
 			}
 			return messages;

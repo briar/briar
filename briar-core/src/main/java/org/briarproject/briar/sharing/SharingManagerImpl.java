@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -152,6 +153,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		}
 		// Store the updated session
 		storeSession(txn, storageId, session);
+		// FIXME
+		db.deleteMessage(txn, m.getId());
 		return false;
 	}
 
@@ -337,15 +340,19 @@ abstract class SharingManagerImpl<S extends Shareable>
 						messageParser.parseMetadata(e.getValue());
 				MessageStatus status = db.getMessageStatus(txn, c, m);
 				MessageType type = meta.getMessageType();
-				if (type == INVITE) {
-					messages.add(parseInvitationRequest(txn, c, m,
-							meta, status));
-				} else if (type == ACCEPT) {
-					messages.add(parseInvitationResponse(contactGroupId, m,
-							meta, status, true));
-				} else if (type == DECLINE) {
-					messages.add(parseInvitationResponse(contactGroupId, m,
-							meta, status, false));
+				try {
+					if (type == INVITE) {
+						messages.add(parseInvitationRequest(txn, c, m,
+								meta, status));
+					} else if (type == ACCEPT) {
+						messages.add(parseInvitationResponse(contactGroupId, m,
+								meta, status, true));
+					} else if (type == DECLINE) {
+						messages.add(parseInvitationResponse(contactGroupId, m,
+								meta, status, false));
+					}
+				} catch (MessageDeletedException ex) {
+					// FIXME
 				}
 			}
 			return messages;
@@ -391,15 +398,19 @@ abstract class SharingManagerImpl<S extends Shareable>
 						clientHelper.getMessageMetadataAsDictionary(txn,
 								contactGroupId, query);
 				for (MessageId m : results.keySet()) {
-					InviteMessage<S> invite =
-							messageParser.getInviteMessage(txn, m);
-					S s = invite.getShareable();
-					if (sharers.containsKey(s)) {
-						sharers.get(s).add(c);
-					} else {
-						Collection<Contact> contacts = new ArrayList<>();
-						contacts.add(c);
-						sharers.put(s, contacts);
+					try {
+						InviteMessage<S> invite =
+								messageParser.getInviteMessage(txn, m);
+						S s = invite.getShareable();
+						if (sharers.containsKey(s)) {
+							sharers.get(s).add(c);
+						} else {
+							Collection<Contact> contacts = new ArrayList<>();
+							contacts.add(c);
+							sharers.put(s, contacts);
+						}
+					} catch (MessageDeletedException e) {
+						// FIXME
 					}
 				}
 			}

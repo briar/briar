@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
@@ -167,6 +168,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 		// Store the updated session
 		storeSession(txn, storageId, session);
+		// FIXME
+		db.deleteMessage(txn, m.getId());
 		return false;
 	}
 
@@ -384,15 +387,19 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 						messageParser.parseMetadata(e.getValue());
 				MessageStatus status = db.getMessageStatus(txn, c, m);
 				MessageType type = meta.getMessageType();
-				if (type == INVITE) {
-					messages.add(parseInvitationRequest(txn, contactGroupId, m,
-							meta, status));
-				} else if (type == JOIN) {
-					messages.add(parseInvitationResponse(contactGroupId, m,
-							meta, status, true));
-				} else if (type == LEAVE) {
-					messages.add(parseInvitationResponse(contactGroupId, m,
-							meta, status, false));
+				try {
+					if (type == INVITE) {
+						messages.add(parseInvitationRequest(txn,
+								contactGroupId, m, meta, status));
+					} else if (type == JOIN) {
+						messages.add(parseInvitationResponse(contactGroupId, m,
+								meta, status, true));
+					} else if (type == LEAVE) {
+						messages.add(parseInvitationResponse(contactGroupId, m,
+								meta, status, false));
+					}
+				} catch (MessageDeletedException ex) {
+					// FIXME
 				}
 			}
 			return messages;
@@ -441,8 +448,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				Map<MessageId, BdfDictionary> results =
 						clientHelper.getMessageMetadataAsDictionary(txn,
 								contactGroupId, query);
-				for (MessageId m : results.keySet())
-					items.add(parseGroupInvitationItem(txn, c, m));
+				for (MessageId m : results.keySet()) {
+					try {
+						items.add(parseGroupInvitationItem(txn, c, m));
+					} catch (MessageDeletedException e) {
+						// FIXME
+					}
+				}
 			}
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
