@@ -148,6 +148,7 @@ public class ConversationActivity extends BriarActivity
 	private ImageView toolbarStatus;
 	private TextView toolbarTitle;
 	private BriarRecyclerView list;
+	private LinearLayoutManager layoutManager;
 	private TextInputView textInputView;
 
 	// Fields that are accessed from background threads must be volatile
@@ -227,7 +228,8 @@ public class ConversationActivity extends BriarActivity
 				viewModel.getContactDisplayName());
 		adapter = new ConversationAdapter(this, this);
 		list = findViewById(R.id.conversationView);
-		list.setLayoutManager(new LinearLayoutManager(this));
+		layoutManager = new LinearLayoutManager(this);
+		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
 
@@ -434,8 +436,9 @@ public class ConversationActivity extends BriarActivity
 					adapter.getMessageItem(m);
 			if (pair != null) {
 				pair.getSecond().setText(text);
+				boolean bottom = adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				list.scrollToPosition(adapter.getItemCount() - 1);
+				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
 			}
 		});
 	}
@@ -464,8 +467,9 @@ public class ConversationActivity extends BriarActivity
 					adapter.getMessageItem(m);
 			if (pair != null) {
 				pair.getSecond().setAttachments(items);
+				boolean bottom = adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				list.scrollToPosition(adapter.getItemCount() - 1);
+				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
 			}
 		});
 	}
@@ -514,10 +518,10 @@ public class ConversationActivity extends BriarActivity
 
 	private void addConversationItem(ConversationItem item) {
 		runOnUiThreadUnlessDestroyed(() -> {
+			boolean bottom = adapter.isScrolledToBottom(layoutManager);
 			adapter.incrementRevision();
 			adapter.add(item);
-			// Scroll to the bottom
-			list.scrollToPosition(adapter.getItemCount() - 1);
+			if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
 		});
 	}
 

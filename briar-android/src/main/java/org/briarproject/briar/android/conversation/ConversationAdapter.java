@@ -2,6 +2,7 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.support.annotation.LayoutRes;
+import android.support.v7.widget.LinearLayoutManager;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -110,6 +111,10 @@ class ConversationAdapter
 			}
 		}
 		return null;
+	}
+
+	boolean isScrolledToBottom(LinearLayoutManager layoutManager) {
+		return layoutManager.findLastVisibleItemPosition() == items.size() - 1;
 	}
 
 }

@@ -27,7 +27,7 @@ import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOption
 class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
 	@DrawableRes
-	private static final int errorRes = R.drawable.ic_image_broken;
+	private static final int ERROR_RES = R.drawable.ic_image_broken;
 
 	private final ImageView imageView;
 	private final ViewGroup statusLayout;
@@ -125,7 +125,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
 		if (attachment.hasError()) {
 			clearImage();
-			imageView.setImageResource(errorRes);
+			imageView.setImageResource(ERROR_RES);
 		} else {
 			loadImage(item, attachment);
 		}
@@ -147,7 +147,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		GlideApp.with(imageView)
 				.load(attachment)
 				.diskCacheStrategy(NONE)
-				.error(errorRes)
+				.error(ERROR_RES)
 				.transform(transformation)
 				.transition(withCrossFade())
 				.into(imageView)

@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.conversation.AttachmentItem;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -23,7 +22,7 @@ import javax.inject.Inject;
 import static com.bumptech.glide.load.DataSource.LOCAL;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @NotNullByDefault
 class BriarDataFetcher implements DataFetcher<InputStream> {
@@ -65,14 +64,7 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 
 	@Override
 	public void cleanup() {
-		final InputStream stream = inputStream;
-		if (stream != null) {
-			try {
-				stream.close();
-			} catch (IOException e) {
-				logException(LOG, WARNING, e);
-			}
-		}
+		tryToClose(inputStream, LOG, WARNING);
 	}
 
 	@Override
