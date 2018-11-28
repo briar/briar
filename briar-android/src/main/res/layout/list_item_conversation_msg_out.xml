@@ -22,13 +22,17 @@
 		android:elevation="@dimen/message_bubble_elevation">
 
 		<android.support.v7.widget.RecyclerView
-			android:id="@+id/imageView"
+			android:id="@+id/imageList"
 			android:layout_width="@dimen/message_bubble_image_default"
 			android:layout_height="@dimen/message_bubble_image_default"
+			android:orientation="vertical"
 			android:visibility="gone"
+			app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
 			app:layout_constraintBottom_toTopOf="@+id/text"
+			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
+			app:spanCount="2"
 			tools:ignore="ContentDescription"
 			tools:src="@drawable/alerts_and_states_error"/>
 
@@ -47,7 +51,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHorizontal_bias="0.0"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/imageView"
+			app:layout_constraintTop_toBottomOf="@+id/imageList"
 			tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
 
 		<LinearLayout

@@ -23,6 +23,7 @@ class ConversationAdapter
 
 	private ConversationListener listener;
 	private final RecycledViewPool imageViewPool;
+	private final ImageItemDecoration imageItemDecoration;
 
 	ConversationAdapter(Context ctx,
 			ConversationListener conversationListener) {
@@ -30,6 +31,8 @@ class ConversationAdapter
 		listener = conversationListener;
 		// This shares the same pool for view recycling between all image lists
 		imageViewPool = new RecycledViewPool();
+		// Share the item decoration as well
+		imageItemDecoration = new ImageItemDecoration(ctx);
 	}
 
 	@LayoutRes
@@ -47,10 +50,10 @@ class ConversationAdapter
 		switch (type) {
 			case R.layout.list_item_conversation_msg_in:
 				return new ConversationMessageViewHolder(v, listener, true,
-						imageViewPool);
+						imageViewPool, imageItemDecoration);
 			case R.layout.list_item_conversation_msg_out:
 				return new ConversationMessageViewHolder(v, listener, false,
-						imageViewPool);
+						imageViewPool, imageItemDecoration);
 			case R.layout.list_item_conversation_notice_in:
 				return new ConversationNoticeViewHolder(v, listener, true);
 			case R.layout.list_item_conversation_notice_out:

@@ -2,8 +2,6 @@ package org.briarproject.briar.android.conversation;
 
 import android.support.annotation.UiThread;
 import android.support.constraint.ConstraintSet;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.RecycledViewPool;
 import android.view.View;
@@ -13,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
 import static android.support.constraint.ConstraintSet.WRAP_CONTENT;
+import static android.support.v4.content.ContextCompat.getColor;
 
 @UiThread
 @NotNullByDefault
@@ -26,21 +25,22 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 	private final ConstraintSet imageTextConstraints = new ConstraintSet();
 
 	ConversationMessageViewHolder(View v, ConversationListener listener,
-			boolean isIncoming, RecycledViewPool imageViewPool) {
+			boolean isIncoming, RecycledViewPool imageViewPool,
+			ImageItemDecoration imageItemDecoration) {
 		super(v, listener, isIncoming);
 		statusLayout = v.findViewById(R.id.statusLayout);
 
 		// image list
-		RecyclerView list = v.findViewById(R.id.imageView);
+		RecyclerView list = v.findViewById(R.id.imageList);
 		list.setRecycledViewPool(imageViewPool);
-		list.setLayoutManager(new GridLayoutManager(v.getContext(), 2));
-		adapter = new ImageAdapter(listener);
+		adapter =
+				new ImageAdapter(v.getContext(), imageItemDecoration, listener);
 		list.setAdapter(adapter);
+		list.addItemDecoration(imageItemDecoration);
 
 		// remember original status text color
 		timeColor = time.getCurrentTextColor();
-		timeColorBubble =
-				ContextCompat.getColor(v.getContext(), R.color.briar_white);
+		timeColorBubble = getColor(v.getContext(), R.color.briar_white);
 
 		// clone constraint sets from layout files
 		textConstraints
@@ -80,8 +80,7 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 	private void bindImageItem(ConversationMessageItem item) {
 		ConstraintSet constraintSet;
 		if (item.getText() == null) {
-			statusLayout
-					.setBackgroundResource(R.drawable.msg_status_bubble);
+			statusLayout.setBackgroundResource(R.drawable.msg_status_bubble);
 			time.setTextColor(timeColorBubble);
 			constraintSet = imageConstraints;
 		} else {
@@ -94,11 +93,12 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 			AttachmentItem attachment = item.getAttachments().get(0);
 			int width = attachment.getThumbnailWidth();
 			int height = attachment.getThumbnailHeight();
-			constraintSet.constrainWidth(R.id.imageView, width);
-			constraintSet.constrainHeight(R.id.imageView, height);
+			constraintSet.constrainWidth(R.id.imageList, width);
+			constraintSet.constrainHeight(R.id.imageList, height);
 		} else {
-			constraintSet.constrainWidth(R.id.imageView, WRAP_CONTENT);
-			constraintSet.constrainHeight(R.id.imageView, WRAP_CONTENT);
+			// bubble adapts to size of image list
+			constraintSet.constrainWidth(R.id.imageList, WRAP_CONTENT);
+			constraintSet.constrainHeight(R.id.imageList, WRAP_CONTENT);
 		}
 		constraintSet.applyTo(layout);
 		adapter.setConversationItem(item);
