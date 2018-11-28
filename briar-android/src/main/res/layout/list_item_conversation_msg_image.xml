@@ -15,7 +15,7 @@
 	android:background="@drawable/msg_in"
 	android:elevation="@dimen/message_bubble_elevation">
 
-	<ImageView
+	<android.support.v7.widget.RecyclerView
 		android:id="@+id/imageView"
 		android:layout_width="@dimen/message_bubble_image_default"
 		android:layout_height="@dimen/message_bubble_image_default"
@@ -23,6 +23,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:ignore="ContentDescription"
+		tools:listitem="@layout/list_item_image"
 		tools:src="@drawable/alerts_and_states_error"/>
 
 	<com.vanniktech.emoji.EmojiTextView

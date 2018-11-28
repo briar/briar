@@ -21,7 +21,7 @@
 		android:background="@drawable/msg_out"
 		android:elevation="@dimen/message_bubble_elevation">
 
-		<ImageView
+		<android.support.v7.widget.RecyclerView
 			android:id="@+id/imageView"
 			android:layout_width="@dimen/message_bubble_image_default"
 			android:layout_height="@dimen/message_bubble_image_default"

@@ -19,16 +19,17 @@ class ConversationNoticeViewHolder extends ConversationItemViewHolder {
 
 	private final TextView msgText;
 
-	ConversationNoticeViewHolder(View v, boolean isIncoming) {
-		super(v, isIncoming);
+	ConversationNoticeViewHolder(View v, ConversationListener listener,
+			boolean isIncoming) {
+		super(v, listener, isIncoming);
 		msgText = v.findViewById(R.id.msgText);
 	}
 
 	@Override
 	@CallSuper
-	void bind(ConversationItem item, ConversationListener listener) {
+	void bind(ConversationItem item) {
 		ConversationNoticeItem notice = (ConversationNoticeItem) item;
-		super.bind(notice, listener);
+		super.bind(notice);
 
 		String text = notice.getMsgText();
 		if (isNullOrEmpty(text)) {

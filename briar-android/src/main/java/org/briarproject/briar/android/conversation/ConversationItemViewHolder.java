@@ -18,14 +18,17 @@ import static org.briarproject.briar.android.util.UiUtils.formatDate;
 @NotNullByDefault
 abstract class ConversationItemViewHolder extends ViewHolder {
 
+	protected final ConversationListener listener;
 	protected final ConstraintLayout layout;
 	@Nullable
 	private final OutItemViewHolder outViewHolder;
 	private final TextView text;
 	protected final TextView time;
 
-	ConversationItemViewHolder(View v, boolean isIncoming) {
+	ConversationItemViewHolder(View v, ConversationListener listener,
+			boolean isIncoming) {
 		super(v);
+		this.listener = listener;
 		this.outViewHolder = isIncoming ? null : new OutItemViewHolder(v);
 		layout = v.findViewById(R.id.layout);
 		text = v.findViewById(R.id.text);
@@ -33,7 +36,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	}
 
 	@CallSuper
-	void bind(ConversationItem item, ConversationListener listener) {
+	void bind(ConversationItem item) {
 		if (item.getText() != null) {
 			text.setText(trim(item.getText()));
 		}

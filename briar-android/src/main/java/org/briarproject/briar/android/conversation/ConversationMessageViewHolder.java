@@ -1,63 +1,46 @@
 package org.briarproject.briar.android.conversation;
 
-import android.content.res.Configuration;
-import android.graphics.Bitmap;
-import android.support.annotation.DrawableRes;
 import android.support.annotation.UiThread;
 import android.support.constraint.ConstraintSet;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.RecyclerView.RecycledViewPool;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-
-import com.bumptech.glide.load.Transformation;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.conversation.glide.BriarImageTransformation;
-import org.briarproject.briar.android.conversation.glide.GlideApp;
 
-import static android.os.Build.VERSION.SDK_INT;
-import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_RTL;
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+import static android.support.constraint.ConstraintSet.WRAP_CONTENT;
 
 @UiThread
 @NotNullByDefault
 class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
-	@DrawableRes
-	private static final int ERROR_RES = R.drawable.ic_image_broken;
-
-	private final ImageView imageView;
+	private final ImageAdapter adapter;
 	private final ViewGroup statusLayout;
 	private final int timeColor, timeColorBubble;
-	private final int radiusBig, radiusSmall;
-	private final boolean isRtl;
 	private final ConstraintSet textConstraints = new ConstraintSet();
 	private final ConstraintSet imageConstraints = new ConstraintSet();
 	private final ConstraintSet imageTextConstraints = new ConstraintSet();
 
-	ConversationMessageViewHolder(View v, boolean isIncoming) {
-		super(v, isIncoming);
-		imageView = v.findViewById(R.id.imageView);
+	ConversationMessageViewHolder(View v, ConversationListener listener,
+			boolean isIncoming, RecycledViewPool imageViewPool) {
+		super(v, listener, isIncoming);
 		statusLayout = v.findViewById(R.id.statusLayout);
-		radiusBig = v.getContext().getResources()
-				.getDimensionPixelSize(R.dimen.message_bubble_radius_big);
-		radiusSmall = v.getContext().getResources()
-				.getDimensionPixelSize(R.dimen.message_bubble_radius_small);
+
+		// image list
+		RecyclerView list = v.findViewById(R.id.imageView);
+		list.setRecycledViewPool(imageViewPool);
+		list.setLayoutManager(new GridLayoutManager(v.getContext(), 2));
+		adapter = new ImageAdapter(listener);
+		list.setAdapter(adapter);
 
 		// remember original status text color
 		timeColor = time.getCurrentTextColor();
 		timeColorBubble =
 				ContextCompat.getColor(v.getContext(), R.color.briar_white);
-
-		// find out if we are showing a RTL language, Use the configuration,
-		// because getting the layout direction of views is not reliable
-		Configuration config =
-				imageView.getContext().getResources().getConfiguration();
-		isRtl = SDK_INT >= 17 &&
-				config.getLayoutDirection() == LAYOUT_DIRECTION_RTL;
 
 		// clone constraint sets from layout files
 		textConstraints
@@ -77,32 +60,24 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 	}
 
 	@Override
-	void bind(ConversationItem conversationItem,
-			ConversationListener listener) {
-		super.bind(conversationItem, listener);
+	void bind(ConversationItem conversationItem) {
+		super.bind(conversationItem);
 		ConversationMessageItem item =
 				(ConversationMessageItem) conversationItem;
 		if (item.getAttachments().isEmpty()) {
 			bindTextItem();
 		} else {
-			bindImageItem(item, listener);
+			bindImageItem(item);
 		}
 	}
 
 	private void bindTextItem() {
-		clearImage();
-		statusLayout.setBackgroundResource(0);
-		// also reset padding (the background drawable defines some)
-		statusLayout.setPadding(0, 0, 0, 0);
-		time.setTextColor(timeColor);
+		resetStatusLayoutForText();
 		textConstraints.applyTo(layout);
+		adapter.clear();
 	}
 
-	private void bindImageItem(ConversationMessageItem item,
-			ConversationListener listener) {
-		// TODO show more than just the first image
-		AttachmentItem attachment = item.getAttachments().get(0);
-
+	private void bindImageItem(ConversationMessageItem item) {
 		ConstraintSet constraintSet;
 		if (item.getText() == null) {
 			statusLayout
@@ -110,52 +85,30 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 			time.setTextColor(timeColorBubble);
 			constraintSet = imageConstraints;
 		} else {
-			statusLayout.setBackgroundResource(0);
-			// also reset padding (the background drawable defines some)
-			statusLayout.setPadding(0, 0, 0, 0);
-			time.setTextColor(timeColor);
+			resetStatusLayoutForText();
 			constraintSet = imageTextConstraints;
 		}
 
-		// apply image size constraints, so glides picks them up for scaling
-		int width = attachment.getThumbnailWidth();
-		int height = attachment.getThumbnailHeight();
-		constraintSet.constrainWidth(R.id.imageView, width);
-		constraintSet.constrainHeight(R.id.imageView, height);
-		constraintSet.applyTo(layout);
-
-		if (attachment.hasError()) {
-			clearImage();
-			imageView.setImageResource(ERROR_RES);
+		if (item.getAttachments().size() == 1) {
+			// apply image size constraints for a single image
+			AttachmentItem attachment = item.getAttachments().get(0);
+			int width = attachment.getThumbnailWidth();
+			int height = attachment.getThumbnailHeight();
+			constraintSet.constrainWidth(R.id.imageView, width);
+			constraintSet.constrainHeight(R.id.imageView, height);
 		} else {
-			loadImage(item, attachment, listener);
+			constraintSet.constrainWidth(R.id.imageView, WRAP_CONTENT);
+			constraintSet.constrainHeight(R.id.imageView, WRAP_CONTENT);
 		}
+		constraintSet.applyTo(layout);
+		adapter.setConversationItem(item);
 	}
 
-	private void clearImage() {
-		GlideApp.with(imageView)
-				.clear(imageView);
-		imageView.setOnClickListener(null);
-	}
-
-	private void loadImage(ConversationMessageItem item,
-			AttachmentItem attachment, ConversationListener listener) {
-		boolean leftCornerSmall =
-				(isIncoming() && !isRtl) || (!isIncoming() && isRtl);
-		boolean bottomRound = item.getText() == null;
-		Transformation<Bitmap> transformation = new BriarImageTransformation(
-				radiusSmall, radiusBig, leftCornerSmall, bottomRound);
-
-		GlideApp.with(imageView)
-				.load(attachment)
-				.diskCacheStrategy(NONE)
-				.error(ERROR_RES)
-				.transform(transformation)
-				.transition(withCrossFade())
-				.into(imageView)
-				.waitForLayout();
-		imageView.setOnClickListener(
-				view -> listener.onAttachmentClicked(view, item, attachment));
+	private void resetStatusLayoutForText() {
+		statusLayout.setBackgroundResource(0);
+		// also reset padding (the background drawable defines some)
+		statusLayout.setPadding(0, 0, 0, 0);
+		time.setTextColor(timeColor);
 	}
 
 }

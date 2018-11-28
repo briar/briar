@@ -3,6 +3,7 @@ package org.briarproject.briar.android.conversation;
 import android.content.Context;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView.RecycledViewPool;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,11 +22,14 @@ class ConversationAdapter
 		extends BriarAdapter<ConversationItem, ConversationItemViewHolder> {
 
 	private ConversationListener listener;
+	private final RecycledViewPool imageViewPool;
 
 	ConversationAdapter(Context ctx,
 			ConversationListener conversationListener) {
 		super(ctx, ConversationItem.class);
 		listener = conversationListener;
+		// This shares the same pool for view recycling between all image lists
+		imageViewPool = new RecycledViewPool();
 	}
 
 	@LayoutRes
@@ -42,15 +46,17 @@ class ConversationAdapter
 				type, viewGroup, false);
 		switch (type) {
 			case R.layout.list_item_conversation_msg_in:
-				return new ConversationMessageViewHolder(v, true);
+				return new ConversationMessageViewHolder(v, listener, true,
+						imageViewPool);
 			case R.layout.list_item_conversation_msg_out:
-				return new ConversationMessageViewHolder(v, false);
+				return new ConversationMessageViewHolder(v, listener, false,
+						imageViewPool);
 			case R.layout.list_item_conversation_notice_in:
-				return new ConversationNoticeViewHolder(v, true);
+				return new ConversationNoticeViewHolder(v, listener, true);
 			case R.layout.list_item_conversation_notice_out:
-				return new ConversationNoticeViewHolder(v, false);
+				return new ConversationNoticeViewHolder(v, listener, false);
 			case R.layout.list_item_conversation_request:
-				return new ConversationRequestViewHolder(v, true);
+				return new ConversationRequestViewHolder(v, listener, true);
 			default:
 				throw new IllegalArgumentException("Unknown ConversationItem");
 		}
@@ -59,7 +65,7 @@ class ConversationAdapter
 	@Override
 	public void onBindViewHolder(ConversationItemViewHolder ui, int position) {
 		ConversationItem item = items.get(position);
-		ui.bind(item, listener);
+		ui.bind(item);
 		listener.onItemVisible(item);
 	}
 
