@@ -108,6 +108,7 @@ public class ImageActivity extends BriarActivity
 			public boolean onLoadFailed(@Nullable GlideException e,
 					Object model, Target<Drawable> target,
 					boolean isFirstResource) {
+				supportStartPostponedEnterTransition();
 				return false;
 			}
 
@@ -176,14 +177,14 @@ public class ImageActivity extends BriarActivity
 	private void toggleSystemUi() {
 		View decorView = getWindow().getDecorView();
 		if (appBarLayout.getVisibility() == VISIBLE) {
-			hideSystemUI(decorView);
+			hideSystemUi(decorView);
 		} else {
-			showSystemUI(decorView);
+			showSystemUi(decorView);
 		}
 	}
 
 	@RequiresApi(api = 16)
-	private void hideSystemUI(View decorView) {
+	private void hideSystemUi(View decorView) {
 		decorView.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE
 				| SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 				| SYSTEM_UI_FLAG_FULLSCREEN
@@ -196,7 +197,7 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@RequiresApi(api = 16)
-	private void showSystemUI(View decorView) {
+	private void showSystemUi(View decorView) {
 		decorView.setSystemUiVisibility(
 				SYSTEM_UI_FLAG_LAYOUT_STABLE
 						| SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN

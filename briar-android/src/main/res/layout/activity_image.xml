@@ -40,7 +40,6 @@
 					android:layout_width="wrap_content"
 					android:layout_height="match_parent"
 					android:ellipsize="end"
-					android:gravity="center"
 					android:maxLines="1"
 					android:textColor="@color/action_bar_text"
 					tools:text="Contact Name of someone who chose a long name"/>

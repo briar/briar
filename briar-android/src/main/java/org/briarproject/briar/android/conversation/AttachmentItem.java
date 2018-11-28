@@ -75,6 +75,7 @@ public class AttachmentItem implements Parcelable {
 		return hasError;
 	}
 
+	// TODO use counter instead, because in theory one attachment can appear in more than one messages
 	String getTransitionName() {
 		return String.valueOf(messageId.hashCode());
 	}
