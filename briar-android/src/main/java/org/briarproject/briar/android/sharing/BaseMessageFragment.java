@@ -23,9 +23,7 @@ import org.briarproject.briar.android.view.TextInputView.TextInputListener;
 import java.util.List;
 
 import static android.support.design.widget.Snackbar.LENGTH_SHORT;
-import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
-import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -96,7 +94,6 @@ public abstract class BaseMessageFragment extends BaseFragment
 		message.setSendButtonEnabled(false);
 		message.hideSoftKeyboard();
 
-		text = truncateUtf8(text, MAX_INVITATION_TEXT_LENGTH);
 		if(!listener.onButtonClick(text)) {
 			message.setSendButtonEnabled(true);
 			message.showSoftKeyboard();

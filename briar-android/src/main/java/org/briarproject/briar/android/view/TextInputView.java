@@ -174,7 +174,7 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 			listener.onSendClick(text, imageUris);
 		}
 		if (attachmentController != null) {
-			attachmentController.afterSendButtonClicked();
+			attachmentController.reset();
 		}
 	}
 

@@ -49,6 +49,7 @@ import static com.bumptech.glide.load.resource.bitmap.DownsampleStrategy.FIT_CEN
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 
+@UiThread
 class TextInputAttachmentController implements TextWatcher {
 
 	private final EmojiEditText editText;
@@ -78,7 +79,10 @@ class TextInputAttachmentController implements TextWatcher {
 
 		editText.addTextChangedListener(this);
 		imageButton.setOnClickListener(view -> onImageButtonClicked());
-		imageCancelButton.setOnClickListener(view -> afterSendButtonClicked());
+		imageCancelButton.setOnClickListener(view -> {
+			editText.setText(null);
+			reset();
+		});
 		showImageButton(true);
 	}
 
@@ -87,7 +91,7 @@ class TextInputAttachmentController implements TextWatcher {
 				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
 		intent.addCategory(CATEGORY_OPENABLE);
 		intent.setType("image/*");
-		if (SDK_INT >= 18)
+		if (SDK_INT >= 18)  // TODO set true to allow attaching multiple images
 			intent.putExtra(EXTRA_ALLOW_MULTIPLE, false);
 		listener.onAttachImage(intent);
 	}
@@ -122,6 +126,7 @@ class TextInputAttachmentController implements TextWatcher {
 					public boolean onLoadFailed(@Nullable GlideException e,
 							Object model, Target<Bitmap> target,
 							boolean isFirstResource) {
+						reset();
 						return false;
 					}
 
@@ -157,9 +162,11 @@ class TextInputAttachmentController implements TextWatcher {
 				sendButton.setVisibility(INVISIBLE);
 			} else {
 				sendButton.clearAnimation();
-				sendButton.animate().alpha(0f).withEndAction(
-						() -> sendButton.setVisibility(INVISIBLE)
-				).start();
+				sendButton.setEnabled(false);
+				sendButton.animate().alpha(0f).withEndAction(() -> {
+					sendButton.setVisibility(INVISIBLE);
+					imageButton.setEnabled(true);
+				}).start();
 				imageButton.clearAnimation();
 				imageButton.animate().alpha(1f).start();
 			}
@@ -171,9 +178,11 @@ class TextInputAttachmentController implements TextWatcher {
 				sendButton.clearAnimation();
 				sendButton.animate().alpha(1f).start();
 				imageButton.clearAnimation();
-				imageButton.animate().alpha(0f).withEndAction(
-						() -> imageButton.setVisibility(INVISIBLE)
-				).start();
+				imageButton.setEnabled(false);
+				imageButton.animate().alpha(0f).withEndAction(() -> {
+					imageButton.setVisibility(INVISIBLE);
+					sendButton.setEnabled(true);
+				}).start();
 			}
 		}
 	}
@@ -189,7 +198,7 @@ class TextInputAttachmentController implements TextWatcher {
 			int count) {
 		if (start != 0 || !imageUris.isEmpty()) return;
 		if (s.length() > 0) showImageButton(false);
-		else if (s.length() == 0) showImageButton(true);
+		else showImageButton(true);
 	}
 
 	@Override
@@ -205,7 +214,7 @@ class TextInputAttachmentController implements TextWatcher {
 		textHint = hint;
 	}
 
-	void afterSendButtonClicked() {
+	void reset() {
 		// restore hint
 		editText.setHint(textHint);
 		// hide image layout
@@ -242,7 +251,6 @@ class TextInputAttachmentController implements TextWatcher {
 			super(in);
 			//noinspection unchecked
 			imageUris = in.readArrayList(Uri.class.getClassLoader());
-
 		}
 
 		@Override
