@@ -34,6 +34,7 @@ import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+import static android.widget.ImageView.ScaleType.FIT_START;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
@@ -47,6 +48,7 @@ public class ImageActivity extends BriarActivity
 
 	private PullDownLayout layout;
 	private AppBarLayout appBarLayout;
+	private PhotoView photoView;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -94,7 +96,7 @@ public class ImageActivity extends BriarActivity
 		dateView.setText(date);
 
 		// Image View
-		PhotoView photoView = findViewById(R.id.photoView);
+		photoView = findViewById(R.id.photoView);
 		if (SDK_INT >= 16) {
 			photoView.setOnClickListener(view -> toggleSystemUi());
 			window.getDecorView().setSystemUiVisibility(
@@ -113,15 +115,18 @@ public class ImageActivity extends BriarActivity
 			}
 
 			@Override
-			public boolean onResourceReady(Drawable resource,
-					Object model, Target<Drawable> target,
-					DataSource dataSource, boolean isFirstResource) {
-				if (SDK_INT >= 21 &&
-						!(resource instanceof Animatable)) {
+			public boolean onResourceReady(Drawable resource, Object model,
+					Target<Drawable> target, DataSource dataSource,
+					boolean isFirstResource) {
+				if (SDK_INT >= 21 && !(resource instanceof Animatable)) {
 					// set transition name only when not animatable,
 					// because the animation won't start otherwise
 					photoView.setTransitionName(
 							attachment.getTransitionName());
+				}
+				// Move image to the top if overlapping toolbar
+				if (isOverlappingToolbar(resource)) {
+					photoView.setScaleType(FIT_START);
 				}
 				supportStartPostponedEnterTransition();
 				return false;
@@ -207,6 +212,22 @@ public class ImageActivity extends BriarActivity
 				.alpha(1f)
 				.withStartAction(() -> appBarLayout.setVisibility(VISIBLE))
 				.start();
+	}
+
+	private boolean isOverlappingToolbar(Drawable drawable) {
+		int width = drawable.getIntrinsicWidth();
+		int height = drawable.getIntrinsicHeight();
+		float widthPercentage = photoView.getWidth() / (float) width;
+		float heightPercentage = photoView.getHeight() / (float) height;
+		float scaleFactor = Math.min(widthPercentage, heightPercentage);
+		int realWidth = (int) (width * scaleFactor);
+		int realHeight = (int) (height * scaleFactor);
+		// return if photo doesn't use the full width,
+		// because it will be moved to the right otherwise
+		if (realWidth < photoView.getWidth()) return false;
+		int drawableTop = (photoView.getHeight() - realHeight) / 2;
+		return drawableTop < appBarLayout.getBottom() &&
+				drawableTop != appBarLayout.getTop();
 	}
 
 }
