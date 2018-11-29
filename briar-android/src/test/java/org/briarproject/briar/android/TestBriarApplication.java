@@ -63,4 +63,9 @@ public class TestBriarApplication extends Application
 	public SharedPreferences getDefaultSharedPreferences() {
 		return prefs;
 	}
+
+	@Override
+	public boolean isRunningInBackground() {
+		return false;
+	}
 }

@@ -1,7 +1,5 @@
 package org.briarproject.briar.android;
 
-import android.app.ActivityManager;
-import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -35,7 +33,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
 import static android.app.NotificationManager.IMPORTANCE_DEFAULT;
 import static android.app.NotificationManager.IMPORTANCE_NONE;
 import static android.app.PendingIntent.FLAG_UPDATE_CURRENT;
@@ -74,6 +71,7 @@ public class BriarService extends Service {
 
 	@Nullable
 	private BroadcastReceiver receiver = null;
+	private BriarApplication app;
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -93,8 +91,8 @@ public class BriarService extends Service {
 	public void onCreate() {
 		super.onCreate();
 
-		BriarApplication application = (BriarApplication) getApplication();
-		application.getApplicationComponent().inject(this);
+		app = (BriarApplication) getApplication();
+		app.getApplicationComponent().inject(this);
 
 		LOG.info("Created");
 		if (created.getAndSet(true)) {
@@ -220,8 +218,8 @@ public class BriarService extends Service {
 	public void onLowMemory() {
 		super.onLowMemory();
 		LOG.warning("Memory is low");
-		// Clear the UI - this is done in onTrimMemory() if SDK_INT >= 16
-		if (SDK_INT < 16) hideUi();
+		// If we're not in the foreground, clear the UI to save memory
+		if (app.isRunningInBackground()) hideUi();
 	}
 
 	@Override
@@ -235,20 +233,16 @@ public class BriarService extends Service {
 			LOG.info("Trim memory: near middle of LRU list");
 		} else if (level == TRIM_MEMORY_COMPLETE) {
 			LOG.info("Trim memory: near end of LRU list");
-		} else if (SDK_INT >= 16) {
-			if (level == TRIM_MEMORY_RUNNING_MODERATE) {
-				LOG.info("Trim memory: running moderately low");
-			} else if (level == TRIM_MEMORY_RUNNING_LOW) {
-				LOG.info("Trim memory: running low");
-			} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
-				LOG.info("Trim memory: running critically low");
-				// If we're not in the foreground, clear the UI to save memory
-				RunningAppProcessInfo info = new RunningAppProcessInfo();
-				ActivityManager.getMyMemoryState(info);
-				if (info.importance != IMPORTANCE_FOREGROUND) hideUi();
-			} else if (LOG.isLoggable(INFO)) {
-				LOG.info("Trim memory: unknown level " + level);
-			}
+		} else if (level == TRIM_MEMORY_RUNNING_MODERATE) {
+			LOG.info("Trim memory: running moderately low");
+		} else if (level == TRIM_MEMORY_RUNNING_LOW) {
+			LOG.info("Trim memory: running low");
+		} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
+			// This level may be received if SDK_INT < 16, although the
+			// constant isn't declared until API level 16
+			LOG.warning("Trim memory: running critically low");
+			// If we're not in the foreground, clear the UI to save memory
+			if (app.isRunningInBackground()) hideUi();
 		} else if (LOG.isLoggable(INFO)) {
 			LOG.info("Trim memory: unknown level " + level);
 		}

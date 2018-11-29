@@ -1,5 +1,7 @@
 package org.briarproject.briar.android;
 
+import android.app.ActivityManager;
+import android.app.ActivityManager.RunningAppProcessInfo;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -30,6 +32,8 @@ import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 
+import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREGROUND;
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static org.acra.ReportField.ANDROID_VERSION;
@@ -79,6 +83,7 @@ public class BriarApplicationImpl extends Application
 			Logger.getLogger(BriarApplicationImpl.class.getName());
 
 	private final CachingLogHandler logHandler = new CachingLogHandler();
+	private final BackgroundMonitor backgroundMonitor = new BackgroundMonitor();
 
 	private AndroidComponent applicationComponent;
 	private volatile SharedPreferences prefs;
@@ -115,6 +120,9 @@ public class BriarApplicationImpl extends Application
 
 		applicationComponent = createApplicationComponent();
 		EmojiManager.install(new GoogleEmojiProvider());
+
+		if (SDK_INT < 16)
+			registerActivityLifecycleCallbacks(backgroundMonitor);
 	}
 
 	protected AndroidComponent createApplicationComponent() {
@@ -172,5 +180,16 @@ public class BriarApplicationImpl extends Application
 	@Override
 	public SharedPreferences getDefaultSharedPreferences() {
 		return prefs;
+	}
+
+	@Override
+	public boolean isRunningInBackground() {
+		if (SDK_INT >= 16) {
+			RunningAppProcessInfo info = new RunningAppProcessInfo();
+			ActivityManager.getMyMemoryState(info);
+			return (info.importance != IMPORTANCE_FOREGROUND);
+		} else {
+			return backgroundMonitor.isRunningInBackground();
+		}
 	}
 }

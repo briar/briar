@@ -16,4 +16,6 @@ public interface BriarApplication {
 	AndroidComponent getApplicationComponent();
 
 	SharedPreferences getDefaultSharedPreferences();
+
+	boolean isRunningInBackground();
 }
