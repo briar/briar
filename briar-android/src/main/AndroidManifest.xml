@@ -114,6 +114,15 @@
 		</activity>
 
 		<activity
+			android:name=".android.conversation.ImageActivity"
+			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity"
+			android:theme="@style/BriarTheme.Transparent.NoActionBar">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.conversation.ConversationActivity"/>
+		</activity>
+
+		<activity
 			android:name="org.briarproject.briar.android.privategroup.creation.CreateGroupActivity"
 			android:label="@string/groups_create_group_title"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"

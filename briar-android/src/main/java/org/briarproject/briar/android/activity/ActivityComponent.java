@@ -15,10 +15,11 @@ import org.briarproject.briar.android.blog.ReblogFragment;
 import org.briarproject.briar.android.blog.RssFeedImportActivity;
 import org.briarproject.briar.android.blog.RssFeedManageActivity;
 import org.briarproject.briar.android.blog.WriteBlogPostActivity;
-import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
+import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
+import org.briarproject.briar.android.conversation.ImageActivity;
 import org.briarproject.briar.android.forum.CreateForumActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.forum.ForumListFragment;
@@ -109,6 +110,8 @@ public interface ActivityComponent {
 	void inject(KeyAgreementActivity activity);
 
 	void inject(ConversationActivity activity);
+
+	void inject(ImageActivity activity);
 
 	void inject(ForumInvitationActivity activity);
 

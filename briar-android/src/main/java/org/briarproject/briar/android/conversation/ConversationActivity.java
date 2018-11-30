@@ -9,11 +9,15 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.ActionMenuView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
+import android.transition.Transition;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -96,8 +100,11 @@ import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
+import static android.view.Gravity.END;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
@@ -108,6 +115,9 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
+import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT;
+import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
+import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
@@ -186,7 +196,10 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
-		setSceneTransitionAnimation();
+		if (SDK_INT >= 21) {
+			Transition slide = new Slide(END);
+			setSceneTransitionAnimation(slide, null, slide);
+		}
 		super.onCreate(state);
 
 		Intent i = getIntent();
@@ -802,6 +815,31 @@ public class ConversationActivity extends BriarActivity
 		startActivity(i);
 	}
 
+	@Override
+	public void onAttachmentClicked(View view,
+			ConversationMessageItem messageItem, AttachmentItem item) {
+		String name;
+		if (messageItem.isIncoming()) {
+			// must be available when items are being displayed
+			name = viewModel.getContactDisplayName().getValue();
+		} else {
+			name = getString(R.string.you);
+		}
+		Intent i = new Intent(this, ImageActivity.class);
+		i.putExtra(ATTACHMENT, item);
+		i.putExtra(NAME, name);
+		i.putExtra(DATE, messageItem.getTime());
+		if (SDK_INT >= 23) {
+			String transitionName = item.getTransitionName();
+			ActivityOptionsCompat options =
+					makeSceneTransitionAnimation(this, view, transitionName);
+			ActivityCompat.startActivity(this, i, options.toBundle());
+		} else {
+			// work-around for android bug #224270
+			startActivity(i);
+		}
+	}
+
 	@DatabaseExecutor
 	private void respondToIntroductionRequest(SessionId sessionId,
 			boolean accept, long time) throws DbException {
@@ -845,4 +883,5 @@ public class ConversationActivity extends BriarActivity
 		}
 		return attachments;
 	}
+
 }

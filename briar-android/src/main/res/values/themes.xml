@@ -18,6 +18,12 @@
 		<item name="toolbarStyle">@style/BriarToolbar</item>
 	</style>
 
+	<style name="BriarTheme.Transparent.NoActionBar" parent="BriarTheme.NoActionBar">
+		<item name="android:windowBackground">@android:color/transparent</item>
+		<item name="android:windowIsTranslucent">true</item>
+		<item name="android:windowActionBarOverlay">true</item>
+	</style>
+
 	<style name="ActivityAnimation" parent="@android:style/Animation.Activity">
 		<item name="android:activityOpenEnterAnimation">@anim/screen_new_in</item>
 		<item name="android:activityOpenExitAnimation">@anim/screen_old_out</item>
