@@ -157,7 +157,7 @@
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
 		</activity>
 
-			<activity
+		<activity
 			android:name="org.briarproject.briar.android.privategroup.memberlist.GroupMemberListActivity"
 			android:label="@string/groups_member_list"
 			android:parentActivityName="org.briarproject.briar.android.privategroup.conversation.GroupActivity"
@@ -400,7 +400,7 @@
 		<activity
 			android:name="org.briarproject.briar.android.panic.PanicResponderActivity"
 			android:noHistory="true"
-			android:theme="@style/Theme.AppCompat.NoActionBar">
+			android:theme="@style/TranslucentTheme">
 			<!-- this can never have launchMode singleTask or singleInstance! -->
 			<intent-filter>
 				<action android:name="info.guardianproject.panic.action.TRIGGER"/>
@@ -410,12 +410,12 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.logout.ExitActivity"
-			android:theme="@style/Theme.AppCompat.NoActionBar">
+			android:theme="@android:style/Theme.NoDisplay">
 		</activity>
 
 		<activity
 			android:name=".android.logout.HideUiActivity"
-			android:theme="@style/Theme.AppCompat.NoActionBar">
+			android:theme="@android:style/Theme.NoDisplay">
 		</activity>
 
 		<activity
