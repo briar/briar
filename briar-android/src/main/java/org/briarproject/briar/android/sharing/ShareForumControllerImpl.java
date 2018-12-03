@@ -13,19 +13,19 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
-import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.forum.ForumSharingManager;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
 @NotNullByDefault
@@ -57,16 +57,15 @@ class ShareForumControllerImpl extends ContactSelectorControllerImpl
 
 	@Override
 	public void share(GroupId g, Collection<ContactId> contacts,
-			String text, ExceptionHandler<DbException> handler) {
+			@Nullable String text, ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				String txt = isNullOrEmpty(text) ? null : text;
 				for (ContactId c : contacts) {
 					try {
 						long time = Math.max(clock.currentTimeMillis(),
 								conversationManager.getGroupCount(c)
 										.getLatestMsgTime() + 1);
-						forumSharingManager.sendInvitation(g, c, txt, time);
+						forumSharingManager.sendInvitation(g, c, text, time);
 					} catch (NoSuchContactException | NoSuchGroupException e) {
 						logException(LOG, WARNING, e);
 					}

@@ -21,6 +21,8 @@
 
 	<declare-styleable name="TextInputView">
 		<attr name="hint" format="string"/>
+		<attr name="allowEmptyText" format="boolean"/>
+		<attr name="supportsAttachments" format="boolean"/>
 	</declare-styleable>
 
 	<declare-styleable name="LargeTextInputView">

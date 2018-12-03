@@ -19,7 +19,7 @@ import org.briarproject.briar.android.controller.handler.UiExceptionHandler;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextInputView.SendListener;
 
 import java.util.List;
 
@@ -32,10 +32,11 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
+import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ReblogFragment extends BaseFragment implements TextInputListener {
+public class ReblogFragment extends BaseFragment implements SendListener {
 
 	public static final String TAG = ReblogFragment.class.getName();
 
@@ -80,7 +81,8 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 		View v = inflater.inflate(R.layout.fragment_reblog, container, false);
 		ui = new ViewHolder(v);
 		ui.post.setTransitionName(postId);
-		ui.input.setSendButtonEnabled(false);
+		ui.input.setEnabled(false);
+		ui.input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
 		showProgressBar();
 
 		return v;
@@ -116,7 +118,7 @@ public class ReblogFragment extends BaseFragment implements TextInputListener {
 		ui.post.hideReblogButton();
 
 		ui.input.setListener(this);
-		ui.input.setSendButtonEnabled(true);
+		ui.input.setEnabled(true);
 		ui.scrollView.post(() -> ui.scrollView.fullScroll(FOCUS_DOWN));
 	}
 

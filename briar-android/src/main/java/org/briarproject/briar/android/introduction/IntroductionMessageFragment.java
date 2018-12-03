@@ -23,7 +23,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextInputView.SendListener;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 
 import java.util.List;
@@ -40,14 +40,13 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class IntroductionMessageFragment extends BaseFragment
-		implements TextInputListener {
+		implements SendListener {
 
 	public static final String TAG =
 			IntroductionMessageFragment.class.getName();
@@ -103,7 +102,8 @@ public class IntroductionMessageFragment extends BaseFragment
 		View v = inflater.inflate(R.layout.introduction_message, container,
 				false);
 		ui = new ViewHolder(v);
-		ui.message.setSendButtonEnabled(false);
+		ui.message.setMaxTextLength(MAX_INTRODUCTION_TEXT_LENGTH);
+		ui.message.setEnabled(false);
 
 		return v;
 	}
@@ -168,7 +168,7 @@ public class IntroductionMessageFragment extends BaseFragment
 				// show views
 				ui.notPossible.setVisibility(GONE);
 				ui.message.setVisibility(VISIBLE);
-				ui.message.setSendButtonEnabled(true);
+				ui.message.setEnabled(true);
 				ui.message.showSoftKeyboard();
 			} else {
 				ui.notPossible.setVisibility(VISIBLE);
@@ -192,11 +192,8 @@ public class IntroductionMessageFragment extends BaseFragment
 	@Override
 	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
 		// disable button to prevent accidental double invitations
-		ui.message.setSendButtonEnabled(false);
+		ui.message.setEnabled(false);
 
-		if (text != null) {
-			text = truncateUtf8(text, MAX_INTRODUCTION_TEXT_LENGTH);
-		}
 		makeIntroduction(contact1, contact2, text);
 
 		// don't wait for the introduction to be made before finishing activity

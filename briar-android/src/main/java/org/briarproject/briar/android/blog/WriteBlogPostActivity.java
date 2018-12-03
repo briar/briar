@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
@@ -23,7 +21,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.view.TextInputView;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextInputView.SendListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
@@ -40,13 +38,12 @@ import static android.view.View.VISIBLE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class WriteBlogPostActivity extends BriarActivity
-		implements OnEditorActionListener, TextInputListener {
+		implements OnEditorActionListener, SendListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(WriteBlogPostActivity.class.getName());
@@ -78,23 +75,7 @@ public class WriteBlogPostActivity extends BriarActivity
 		setContentView(R.layout.activity_write_blog_post);
 
 		input = findViewById(R.id.textInput);
-		input.setSendButtonEnabled(false);
-		input.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-			}
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before,
-					int count) {
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				enableOrDisablePublishButton();
-			}
-		});
+		input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
 		input.setListener(this);
 
 		progressBar = findViewById(R.id.progressBar);
@@ -134,20 +115,15 @@ public class WriteBlogPostActivity extends BriarActivity
 		return true;
 	}
 
-	private void enableOrDisablePublishButton() {
-		input.setSendButtonEnabled(!input.isEmpty());
-	}
-
 	@Override
 	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
-		if (isNullOrEmpty(text)) return;
+		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		// hide publish button, show progress bar
 		input.hideSoftKeyboard();
 		input.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
 
-		text = truncateUtf8(text, MAX_BLOG_POST_TEXT_LENGTH);
 		storePost(text);
 	}
 

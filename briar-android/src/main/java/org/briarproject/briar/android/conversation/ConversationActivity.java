@@ -65,7 +65,7 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.AttachImageListener;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextInputView.SendListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -118,7 +118,6 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_IMAGE_ATTACHMENTS;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
@@ -136,7 +135,7 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
-		implements EventListener, ConversationListener, TextInputListener,
+		implements EventListener, ConversationListener, SendListener,
 		TextCache, AttachmentCache, AttachImageListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
@@ -256,6 +255,8 @@ public class ConversationActivity extends BriarActivity
 		list.setEmptyText(getString(R.string.no_private_messages));
 
 		textInputView = findViewById(R.id.text_input_container);
+		textInputView.setMaxTextLength(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+		textInputView.setEnabled(false);
 		textInputView.setListener(this);
 		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
 			textInputView.setAttachImageListener(this);
@@ -416,7 +417,7 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
-				textInputView.setSendButtonEnabled(true);
+				textInputView.setEnabled(true);
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
 				list.showData();
@@ -592,16 +593,15 @@ public class ConversationActivity extends BriarActivity
 	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
 		if (!imageUris.isEmpty()) {
 			Toast.makeText(this, "Not yet implemented.", LENGTH_LONG).show();
-			textInputView.setText("");
+			textInputView.clearText();
 			return;
 		}
-		if (isNullOrEmpty(text)) return;
-		text = truncateUtf8(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+		if (isNullOrEmpty(text)) throw new AssertionError();
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		if (messagingGroupId == null) loadGroupId(text, timestamp);
 		else createMessage(text, timestamp);
-		textInputView.setText("");
+		textInputView.clearText();
 	}
 
 	private long getMinTimestampForNewMessage() {

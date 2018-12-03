@@ -55,7 +55,7 @@ public class GroupInviteActivity extends ContactSelectorActivity
 	}
 
 	@Override
-	public boolean onButtonClick(String text) {
+	public void onButtonClick(@Nullable String text) {
 		if (groupId == null)
 			throw new IllegalStateException("GroupId was not initialized");
 		controller.sendInvitation(groupId, contacts, text,
@@ -72,7 +72,6 @@ public class GroupInviteActivity extends ContactSelectorActivity
 						handleDbException(exception);
 					}
 				});
-		return true;
 	}
 
 	@Override

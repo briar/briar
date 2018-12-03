@@ -20,12 +20,12 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
 @NotNullByDefault
@@ -56,17 +56,16 @@ class ShareBlogControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	@Override
-	public void share(GroupId g, Collection<ContactId> contacts, String text,
-			ExceptionHandler<DbException> handler) {
+	public void share(GroupId g, Collection<ContactId> contacts, @Nullable
+			String text, ExceptionHandler<DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				String txt = isNullOrEmpty(text) ? null : text;
 				for (ContactId c : contacts) {
 					try {
 						long time = Math.max(clock.currentTimeMillis(),
 								conversationManager.getGroupCount(c)
 										.getLatestMsgTime() + 1);
-						blogSharingManager.sendInvitation(g, c, txt, time);
+						blogSharingManager.sendInvitation(g, c, text, time);
 					} catch (NoSuchContactException | NoSuchGroupException e) {
 						logException(LOG, WARNING, e);
 					}

@@ -41,13 +41,12 @@ public abstract class ShareActivity extends ContactSelectorActivity
 
 	@UiThread
 	@Override
-	public boolean onButtonClick(String text) {
+	public void onButtonClick(@Nullable String text) {
 		share(contacts, text);
 		setResult(RESULT_OK);
 		supportFinishAfterTransition();
-		return true;
 	}
 
-	abstract void share(Collection<ContactId> contacts, String text);
+	abstract void share(Collection<ContactId> contacts, @Nullable String text);
 
 }

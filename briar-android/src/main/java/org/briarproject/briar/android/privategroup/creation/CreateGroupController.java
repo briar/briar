@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.privategroup.creation;
 
+import android.support.annotation.Nullable;
+
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -18,6 +20,7 @@ public interface CreateGroupController
 			ResultExceptionHandler<GroupId, DbException> result);
 
 	void sendInvitation(GroupId g, Collection<ContactId> contacts,
-			String text, ResultExceptionHandler<Void, DbException> result);
+			@Nullable String text,
+			ResultExceptionHandler<Void, DbException> result);
 
 }

@@ -32,9 +32,9 @@
 					android:layout_height="match_parent"
 					android:layout_marginLeft="@dimen/margin_medium"
 					android:layout_marginStart="@dimen/margin_medium"
+					android:ellipsize="end"
 					android:gravity="center"
 					android:maxLines="1"
-					android:ellipsize="end"
 					android:textColor="@color/action_bar_text"
 					tools:text="Contact Name of someone who chose a long name"/>
 
@@ -54,6 +54,7 @@
 		android:id="@+id/text_input_container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:hint="@string/message_hint"/>
+		app:hint="@string/message_hint"
+		app:supportsAttachments="true"/>
 
 </LinearLayout>

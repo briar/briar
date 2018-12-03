@@ -12,8 +12,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.AbsSavedState;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatImageButton;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,7 +20,6 @@ import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
-import com.vanniktech.emoji.EmojiEditText;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
@@ -48,23 +45,24 @@ import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.bitmap.DownsampleStrategy.FIT_CENTER;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 
 @UiThread
-class TextInputAttachmentController implements TextWatcher {
+class TextAttachmentController extends TextSendController {
 
-	private final EmojiEditText editText;
-	private final View sendButton;
 	private final AppCompatImageButton imageButton;
 	private final ViewGroup imageLayout;
 	private final ImageView imageView;
 
-	private final AttachImageListener listener;
+	@Nullable
+	private AttachImageListener imageListener;
 
-	private String textHint;
+	private CharSequence textHint;
 	private List<Uri> imageUris = emptyList();
 
-	public TextInputAttachmentController(View v, EmojiEditText editText,
-			View sendButton, AttachImageListener listener) {
+	TextAttachmentController(View v, View sendButton,
+			TextInputController textInput) {
+		super(sendButton, textInput, true);
 
 		imageLayout = v.findViewById(R.id.imageLayout);
 		imageView = v.findViewById(R.id.imageView);
@@ -72,18 +70,35 @@ class TextInputAttachmentController implements TextWatcher {
 				v.findViewById(R.id.imageCancelButton);
 		imageButton = v.findViewById(R.id.imageButton);
 
-		this.listener = listener;
-		this.sendButton = sendButton;
-		this.editText = editText;
-		this.textHint = editText.getHint().toString();
+		textHint = textInput.getHint();
 
-		editText.addTextChangedListener(this);
 		imageButton.setOnClickListener(view -> onImageButtonClicked());
 		imageCancelButton.setOnClickListener(view -> {
-			editText.setText(null);
+			textInput.clearText();
 			reset();
 		});
+	}
+
+	public void setAttachImageListener(AttachImageListener imageListener) {
+		this.imageListener = imageListener;
 		showImageButton(true);
+	}
+
+	@Override
+	public void onTextValidityChanged(boolean isEmpty) {
+		if (imageUris.isEmpty()) showImageButton(isEmpty);
+	}
+
+	@Override
+	void onSendButtonClicked() {
+		if (listener != null) {
+			if (textInput.isTooLong()) {
+				textInput.showError();
+				return;
+			}
+			listener.onSendClick(textInput.getText(), imageUris);
+		}
+		reset();
 	}
 
 	private void onImageButtonClicked() {
@@ -93,7 +108,7 @@ class TextInputAttachmentController implements TextWatcher {
 		intent.setType("image/*");
 		if (SDK_INT >= 18)  // TODO set true to allow attaching multiple images
 			intent.putExtra(EXTRA_ALLOW_MULTIPLE, false);
-		listener.onAttachImage(intent);
+		requireNonNull(imageListener).onAttachImage(intent);
 	}
 
 	void onImageReceived(@Nullable Intent resultData) {
@@ -114,7 +129,7 @@ class TextInputAttachmentController implements TextWatcher {
 	private void onNewUris() {
 		if (imageUris.isEmpty()) return;
 		showImageButton(false);
-		editText.setHint(R.string.image_caption_hint);
+		textInput.setHint(R.string.image_caption_hint);
 		imageLayout.setVisibility(VISIBLE);
 		GlideApp.with(imageView)
 				.asBitmap()
@@ -135,7 +150,7 @@ class TextInputAttachmentController implements TextWatcher {
 							Object model, Target<Bitmap> target,
 							DataSource dataSource, boolean isFirstResource) {
 						Palette.from(resource).generate(
-								TextInputAttachmentController.this::onPaletteGenerated);
+								TextAttachmentController.this::onPaletteGenerated);
 						return false;
 					}
 				})
@@ -158,11 +173,12 @@ class TextInputAttachmentController implements TextWatcher {
 	private void showImageButton(boolean showImageButton) {
 		if (showImageButton) {
 			imageButton.setVisibility(VISIBLE);
+			sendButton.setEnabled(false);
 			if (SDK_INT <= 15) {
 				sendButton.setVisibility(INVISIBLE);
+				imageButton.setEnabled(true);
 			} else {
 				sendButton.clearAnimation();
-				sendButton.setEnabled(false);
 				sendButton.animate().alpha(0f).withEndAction(() -> {
 					sendButton.setVisibility(INVISIBLE);
 					imageButton.setEnabled(true);
@@ -172,51 +188,25 @@ class TextInputAttachmentController implements TextWatcher {
 			}
 		} else {
 			sendButton.setVisibility(VISIBLE);
+			// enable/disable buttons right away to allow fast sending
+			sendButton.setEnabled(true);
+			imageButton.setEnabled(false);
 			if (SDK_INT <= 15) {
 				imageButton.setVisibility(INVISIBLE);
 			} else {
 				sendButton.clearAnimation();
 				sendButton.animate().alpha(1f).start();
 				imageButton.clearAnimation();
-				imageButton.setEnabled(false);
-				imageButton.animate().alpha(0f).withEndAction(() -> {
-					imageButton.setVisibility(INVISIBLE);
-					sendButton.setEnabled(true);
-				}).start();
+				imageButton.animate().alpha(0f).withEndAction(() ->
+						imageButton.setVisibility(INVISIBLE)
+				).start();
 			}
 		}
 	}
 
-	@Override
-	public void beforeTextChanged(CharSequence s, int start, int count,
-			int after) {
-		// noop
-	}
-
-	@Override
-	public void onTextChanged(CharSequence s, int start, int before,
-			int count) {
-		if (start != 0 || !imageUris.isEmpty()) return;
-		if (s.length() > 0) showImageButton(false);
-		else showImageButton(true);
-	}
-
-	@Override
-	public void afterTextChanged(Editable s) {
-		// noop
-	}
-
-	public List<Uri> getUris() {
-		return imageUris;
-	}
-
-	public void saveHint(String hint) {
-		textHint = hint;
-	}
-
-	void reset() {
+	private void reset() {
 		// restore hint
-		editText.setHint(textHint);
+		textInput.setHint(textHint);
 		// hide image layout
 		imageLayout.setVisibility(GONE);
 		// reset image URIs

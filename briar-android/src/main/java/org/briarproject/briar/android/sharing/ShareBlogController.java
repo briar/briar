@@ -9,10 +9,12 @@ import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 public interface ShareBlogController
 		extends ContactSelectorController<SelectableContactItem> {
 
-	void share(GroupId g, Collection<ContactId> contacts, String text,
+	void share(GroupId g, Collection<ContactId> contacts, @Nullable String text,
 			ExceptionHandler<DbException> handler);
 
 }

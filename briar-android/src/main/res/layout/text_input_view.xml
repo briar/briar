@@ -79,20 +79,6 @@
 			android:layout_gravity="bottom">
 
 			<android.support.v7.widget.AppCompatImageButton
-				android:id="@+id/btn_send"
-				android:layout_width="@dimen/text_input_height"
-				android:layout_height="@dimen/text_input_height"
-				android:background="?attr/selectableItemBackground"
-				android:clickable="true"
-				android:contentDescription="@string/send"
-				android:enabled="false"
-				android:focusable="true"
-				android:padding="4dp"
-				android:scaleType="center"
-				android:src="@drawable/social_send_now_white"
-				app:tint="@color/briar_accent"/>
-
-			<android.support.v7.widget.AppCompatImageButton
 				android:id="@+id/imageButton"
 				android:layout_width="@dimen/text_input_height"
 				android:layout_height="@dimen/text_input_height"
@@ -106,6 +92,20 @@
 				android:src="@drawable/ic_image"
 				android:visibility="invisible"
 				app:tint="?attr/colorControlNormal"/>
+
+			<android.support.v7.widget.AppCompatImageButton
+				android:id="@+id/btn_send"
+				android:layout_width="@dimen/text_input_height"
+				android:layout_height="@dimen/text_input_height"
+				android:background="?attr/selectableItemBackground"
+				android:clickable="true"
+				android:contentDescription="@string/send"
+				android:enabled="false"
+				android:focusable="true"
+				android:padding="4dp"
+				android:scaleType="center"
+				android:src="@drawable/social_send_now_white"
+				app:tint="@color/briar_accent"/>
 
 		</FrameLayout>
 

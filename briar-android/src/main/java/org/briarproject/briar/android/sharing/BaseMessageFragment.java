@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,17 +17,14 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextInputView.SendListener;
 
 import java.util.List;
-
-import static android.support.design.widget.Snackbar.LENGTH_SHORT;
-import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class BaseMessageFragment extends BaseFragment
-		implements TextInputListener {
+		implements SendListener {
 
 	protected LargeTextInputView message;
 	private MessageFragmentListener listener;
@@ -48,6 +44,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 		View v = inflater.inflate(R.layout.fragment_message, container,
 				false);
 		message = v.findViewById(R.id.messageView);
+		message.setMaxTextLength(listener.getMaximumTextLength());
 		message.setButtonText(getString(getButtonText()));
 		message.setHint(getHintText());
 		message.setListener(this);
@@ -84,20 +81,11 @@ public abstract class BaseMessageFragment extends BaseFragment
 
 	@Override
 	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
-		if (text == null) return;
-		if (utf8IsTooLong(text, listener.getMaximumTextLength())) {
-			Snackbar.make(message, R.string.text_too_long, LENGTH_SHORT).show();
-			return;
-		}
-
 		// disable button to prevent accidental double actions
-		message.setSendButtonEnabled(false);
+		message.setEnabled(false);
 		message.hideSoftKeyboard();
 
-		if(!listener.onButtonClick(text)) {
-			message.setSendButtonEnabled(true);
-			message.showSoftKeyboard();
-		}
+		listener.onButtonClick(text);
 	}
 
 	@UiThread
@@ -108,8 +96,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 
 		void setTitle(@StringRes int titleRes);
 
-		/** Returns true when the button click has been consumed. */
-		boolean onButtonClick(String text);
+		void onButtonClick(@Nullable String text);
 
 		int getMaximumTextLength();
 
