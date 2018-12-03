@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
@@ -44,6 +45,7 @@ import static android.support.v7.app.AppCompatDelegate.getDefaultNightMode;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_LONG;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.bitmap.DownsampleStrategy.FIT_CENTER;
 import static java.util.Collections.emptyList;
@@ -153,6 +155,9 @@ class TextAttachmentController extends TextSendController {
 							Object model, Target<Bitmap> target,
 							boolean isFirstResource) {
 						reset();
+						Toast.makeText(imageView.getContext(),
+								R.string.image_attach_error, LENGTH_LONG)
+								.show();
 						return false;
 					}
 
