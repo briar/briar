@@ -15,6 +15,7 @@ import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
 
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.RecentEmoji;
@@ -143,9 +144,10 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		textSendController.setSendListener(listener);
 	}
 
-	public void setAttachImageListener(AttachImageListener imageListener) {
+	public void setAttachImageListener(AttachImageListener imageListener,
+			WindowManager windowManager) {
 		attachmentController = (TextAttachmentController) textSendController;
-		attachmentController.setAttachImageListener(imageListener);
+		attachmentController.setAttachImageListener(imageListener, windowManager);
 	}
 
 	public void onImageReceived(@Nullable Intent resultData) {

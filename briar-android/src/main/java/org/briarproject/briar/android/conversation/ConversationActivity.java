@@ -259,7 +259,7 @@ public class ConversationActivity extends BriarActivity
 		textInputView.setEnabled(false);
 		textInputView.setListener(this);
 		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
-			textInputView.setAttachImageListener(this);
+			textInputView.setAttachImageListener(this, getWindowManager());
 		}
 	}
 

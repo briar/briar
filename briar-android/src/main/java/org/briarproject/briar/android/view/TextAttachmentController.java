@@ -12,8 +12,11 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.AbsSavedState;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatImageButton;
+import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.view.WindowManager;
 import android.widget.ImageView;
 
 import com.bumptech.glide.load.DataSource;
@@ -79,8 +82,16 @@ class TextAttachmentController extends TextSendController {
 		});
 	}
 
-	public void setAttachImageListener(AttachImageListener imageListener) {
+	public void setAttachImageListener(AttachImageListener imageListener,
+			WindowManager windowManager) {
 		this.imageListener = imageListener;
+		// set preview size based on screen height
+		DisplayMetrics displayMetrics = new DisplayMetrics();
+		windowManager.getDefaultDisplay().getMetrics(displayMetrics);
+		LayoutParams layoutParams = imageView.getLayoutParams();
+		layoutParams.height = displayMetrics.heightPixels / 4;
+		imageView.setLayoutParams(layoutParams);
+		// show image button
 		showImageButton(true);
 	}
 

@@ -23,6 +23,7 @@
 			android:id="@+id/imageView"
 			android:layout_width="match_parent"
 			android:layout_height="@dimen/text_input_image_height"
+			android:minHeight="@dimen/button_size"
 			tools:background="@color/msg_status_bubble_background"
 			tools:ignore="ContentDescription"
 			tools:srcCompat="@tools:sample/avatars"/>
