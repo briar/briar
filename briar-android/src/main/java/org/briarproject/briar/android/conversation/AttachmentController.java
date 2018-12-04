@@ -92,19 +92,32 @@ class AttachmentController {
 
 	List<AttachmentItem> getAttachmentItems(
 			List<Pair<AttachmentHeader, Attachment>> attachments) {
+		boolean needsSize = attachments.size() == 1;
 		List<AttachmentItem> items = new ArrayList<>(attachments.size());
 		for (Pair<AttachmentHeader, Attachment> a : attachments) {
 			AttachmentItem item =
-					getAttachmentItem(a.getFirst(), a.getSecond());
+					getAttachmentItem(a.getFirst(), a.getSecond(), needsSize);
 			items.add(item);
 		}
 		return items;
 	}
 
-	private AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a) {
+	private AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
+			boolean needsSize) {
 		MessageId messageId = h.getMessageId();
-		Size size = new Size();
+		if (!needsSize) {
+			String mimeType = h.getContentType();
+			String extension = getExtensionFromMimeType(mimeType);
+			boolean hasError = false;
+			if (extension == null) {
+				extension = "";
+				hasError = true;
+			}
+			return new AttachmentItem(messageId, 0, 0, mimeType, extension, 0,
+					0, hasError);
+		}
 
+		Size size = new Size();
 		InputStream is = a.getStream();
 		is.mark(Integer.MAX_VALUE);
 		try {
@@ -134,14 +147,19 @@ class AttachmentController {
 					getThumbnailSize(size.width, size.height, size.mimeType);
 		}
 		// get file extension
-		MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-		String extension = mimeTypeMap.getExtensionFromMimeType(size.mimeType);
+		String extension = getExtensionFromMimeType(size.mimeType);
 		if (extension == null) {
 			return new AttachmentItem(messageId, 0, 0, "", "", 0, 0, true);
 		}
 		return new AttachmentItem(messageId, size.width, size.height,
 				size.mimeType, extension, thumbnailSize.width, thumbnailSize.height,
 				size.error);
+	}
+
+	@Nullable
+	private String getExtensionFromMimeType(String mimeType) {
+		MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+		return mimeTypeMap.getExtensionFromMimeType(mimeType);
 	}
 
 	/**
