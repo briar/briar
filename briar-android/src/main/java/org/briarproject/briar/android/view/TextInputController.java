@@ -6,7 +6,6 @@ import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
 import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -21,9 +20,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
-import static android.support.design.widget.Snackbar.LENGTH_SHORT;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 import static org.briarproject.briar.android.view.TextInputView.TextValidityListener;
 
 @UiThread
@@ -35,7 +34,8 @@ class TextInputController implements TextWatcher {
 	private final EmojiPopup emojiPopup;
 	private final EmojiEditText editText;
 
-	private @Nullable TextValidityListener listener;
+	@Nullable
+	private TextValidityListener listener;
 	private int maxLength = Integer.MAX_VALUE;
 	private final boolean emptyTextAllowed;
 	private boolean isEmpty = true;
@@ -66,15 +66,16 @@ class TextInputController implements TextWatcher {
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before,
 			int count) {
-		if (emptyTextAllowed || listener == null) return;
-		if (s.toString().trim().length() == 0) {
+		// Need to start at position 0 to change empty
+		if (start != 0 || emptyTextAllowed || listener == null) return;
+		if (s.length() == 0) {
 			if (!isEmpty) {
 				isEmpty = true;
-				listener.onTextValidityChanged(true);
+				listener.onTextIsEmptyChanged(true);
 			}
 		} else if (isEmpty) {
 			isEmpty = false;
-			listener.onTextValidityChanged(false);
+			listener.onTextIsEmptyChanged(false);
 		}
 	}
 
@@ -86,9 +87,13 @@ class TextInputController implements TextWatcher {
 		this.maxLength = maxLength;
 	}
 
+	boolean isEmpty() {
+		return getText() == null;
+	}
+
 	boolean isTooLong() {
 		return editText.getText() != null &&
-				editText.getText().toString().trim().length() > maxLength;
+				utf8IsTooLong(editText.getText().toString().trim(), maxLength);
 	}
 
 	/**
@@ -98,9 +103,9 @@ class TextInputController implements TextWatcher {
 	@Nullable
 	String getText() {
 		Editable editable = editText.getText();
-		if (editable == null || editable.toString().trim().length() == 0)
-			return null;
-		return editable.toString().trim();
+		String str = editable == null ? null : editable.toString().trim();
+		if (str == null || str.length() == 0) return null;
+		return str;
 	}
 
 	void clearText() {
@@ -121,10 +126,6 @@ class TextInputController implements TextWatcher {
 
 	void setTextValidityListener(@Nullable TextValidityListener listener) {
 		this.listener = listener;
-	}
-
-	void showError() {
-		Snackbar.make(editText, R.string.text_too_long, LENGTH_SHORT).show();
 	}
 
 	boolean requestFocus(int direction, Rect previouslyFocusedRect) {

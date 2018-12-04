@@ -20,6 +20,7 @@ import org.briarproject.briar.android.controller.handler.UiResultExceptionHandle
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.SendListener;
+import org.briarproject.briar.android.view.TextSendController;
 
 import java.util.List;
 
@@ -81,6 +82,9 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		View v = inflater.inflate(R.layout.fragment_reblog, container, false);
 		ui = new ViewHolder(v);
 		ui.post.setTransitionName(postId);
+		TextSendController sendController =
+				new TextSendController(ui.input, this, true);
+		ui.input.setSendController(sendController);
 		ui.input.setEnabled(false);
 		ui.input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
 		showProgressBar();
@@ -117,7 +121,6 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		ui.post.bindItem(item);
 		ui.post.hideReblogButton();
 
-		ui.input.setListener(this);
 		ui.input.setEnabled(true);
 		ui.scrollView.post(() -> ui.scrollView.fullScroll(FOCUS_DOWN));
 	}

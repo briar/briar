@@ -54,7 +54,6 @@
 		android:id="@+id/text_input_container"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		app:hint="@string/message_hint"
-		app:supportsAttachments="true"/>
+		app:hint="@string/message_hint"/>
 
 </LinearLayout>

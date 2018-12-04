@@ -18,6 +18,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
 import org.briarproject.briar.android.view.TextInputView.SendListener;
+import org.briarproject.briar.android.view.TextSendController;
 
 import java.util.List;
 
@@ -44,10 +45,12 @@ public abstract class BaseMessageFragment extends BaseFragment
 		View v = inflater.inflate(R.layout.fragment_message, container,
 				false);
 		message = v.findViewById(R.id.messageView);
+		TextSendController sendController =
+				new TextSendController(message, this, true);
+		message.setSendController(sendController);
 		message.setMaxTextLength(listener.getMaximumTextLength());
 		message.setButtonText(getString(getButtonText()));
 		message.setHint(getHintText());
-		message.setListener(this);
 
 		return v;
 	}

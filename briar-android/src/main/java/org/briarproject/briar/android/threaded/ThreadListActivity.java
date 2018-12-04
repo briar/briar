@@ -29,6 +29,7 @@ import org.briarproject.briar.android.threaded.ThreadListController.ThreadListLi
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.SendListener;
+import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
 import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
@@ -88,8 +89,10 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		getController().setGroupId(groupId);
 
 		textInput = findViewById(R.id.text_input_container);
+		TextSendController sendController =
+				new TextSendController(textInput, this, false);
+		textInput.setSendController(sendController);
 		textInput.setMaxTextLength(getMaxTextLength());
-		textInput.setListener(this);
 		list = findViewById(R.id.list);
 		layoutManager = new LinearLayoutManager(this);
 		// FIXME pre-fetching messes with read state, find better solution #1289

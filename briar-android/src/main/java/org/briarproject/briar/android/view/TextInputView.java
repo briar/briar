@@ -14,8 +14,6 @@ import android.support.annotation.UiThread;
 import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-import android.view.View;
-import android.view.WindowManager;
 
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.RecentEmoji;
@@ -43,12 +41,9 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 	RecentEmoji recentEmoji;
 
 	TextInputController textInputController;
+	@Nullable
 	TextSendController textSendController;
 	EmojiEditText editText;
-	View sendButton;
-
-	@Nullable
-	TextAttachmentController attachmentController;
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -87,8 +82,6 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		String hint = attributes.getString(R.styleable.TextInputView_hint);
 		boolean allowEmptyText = attributes
 				.getBoolean(R.styleable.TextInputView_allowEmptyText, false);
-		boolean supportsAttachments = attributes
-				.getBoolean(R.styleable.TextInputView_supportsAttachments, false);
 		attributes.recycle();
 
 		// set up input controller
@@ -97,16 +90,34 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		textInputController = new TextInputController(this, emojiToggle,
 				editText, recentEmoji, allowEmptyText);
 		if (hint != null) textInputController.setHint(hint);
+	}
 
-		// set up sending controller
-		sendButton = findViewById(R.id.btn_send);
-		if (supportsAttachments) {
-			textSendController = new TextAttachmentController(this, sendButton,
-					textInputController);
-		} else {
-			textSendController = new TextSendController(sendButton,
-					textInputController, allowEmptyText);
+	@Nullable
+	@Override
+	protected Parcelable onSaveInstanceState() {
+		Parcelable superState = super.onSaveInstanceState();
+		if (textSendController != null) {
+			superState = textSendController.onSaveInstanceState(superState);
 		}
+		return superState;
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Parcelable state) {
+		if (textSendController != null) {
+			Parcelable outState =
+					textSendController.onRestoreInstanceState(state);
+			super.onRestoreInstanceState(outState);
+		} else {
+			super.onRestoreInstanceState(state);
+		}
+	}
+
+	/**
+	 * Call this in onCreate() before any other methods of this class.
+	 */
+	public <T extends TextSendController> void setSendController(T controller) {
+		textSendController = controller;
 		textInputController.setTextValidityListener(textSendController);
 
 		// support sending with Ctrl+Enter
@@ -119,47 +130,15 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 		});
 	}
 
-	@Nullable
-	@Override
-	protected Parcelable onSaveInstanceState() {
-		Parcelable superState = super.onSaveInstanceState();
-		if (attachmentController != null) {
-			superState = attachmentController.onSaveInstanceState(superState);
-		}
-		return superState;
-	}
-
-	@Override
-	protected void onRestoreInstanceState(Parcelable state) {
-		if (attachmentController != null) {
-			Parcelable outState =
-					attachmentController.onRestoreInstanceState(state);
-			super.onRestoreInstanceState(outState);
-		} else {
-			super.onRestoreInstanceState(state);
-		}
-	}
-
-	public void setListener(SendListener listener) {
-		textSendController.setSendListener(listener);
-	}
-
-	public void setAttachImageListener(AttachImageListener imageListener,
-			WindowManager windowManager) {
-		attachmentController = (TextAttachmentController) textSendController;
-		attachmentController.setAttachImageListener(imageListener, windowManager);
-	}
-
-	public void onImageReceived(@Nullable Intent resultData) {
-		if (attachmentController == null) throw new IllegalStateException();
-		attachmentController.onImageReceived(resultData);
+	public TextInputController getTextInputController() {
+		return textInputController;
 	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
 		textInputController.setEnabled(enabled);
-		textSendController.setEnabled(enabled);
+		requireNonNull(textSendController).setEnabled(enabled);
 	}
 
 	@Override
@@ -195,7 +174,7 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 	}
 
 	interface TextValidityListener {
-		void onTextValidityChanged(boolean isEmpty);
+		void onTextIsEmptyChanged(boolean isEmpty);
 	}
 
 	public interface AttachImageListener {

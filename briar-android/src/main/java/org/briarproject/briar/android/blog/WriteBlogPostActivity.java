@@ -22,6 +22,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.SendListener;
+import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
@@ -75,8 +76,10 @@ public class WriteBlogPostActivity extends BriarActivity
 		setContentView(R.layout.activity_write_blog_post);
 
 		input = findViewById(R.id.textInput);
+		TextSendController sendController =
+				new TextSendController(input, this, false);
+		input.setSendController(sendController);
 		input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
-		input.setListener(this);
 
 		progressBar = findViewById(R.id.progressBar);
 	}

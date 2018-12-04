@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.FloatingActionButton;
@@ -13,7 +14,6 @@ import android.support.v4.view.AbsSavedState;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatImageButton;
 import android.util.DisplayMetrics;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 import android.view.WindowManager;
@@ -28,6 +28,7 @@ import com.bumptech.glide.request.target.Target;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.view.TextInputView.AttachImageListener;
+import org.briarproject.briar.android.view.TextInputView.SendListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,21 +54,21 @@ import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 @UiThread
-class TextAttachmentController extends TextSendController {
+public class TextAttachmentController extends TextSendController {
 
 	private final AppCompatImageButton imageButton;
 	private final ViewGroup imageLayout;
 	private final ImageView imageView;
 
-	@Nullable
-	private AttachImageListener imageListener;
+	private final AttachImageListener imageListener;
 
 	private CharSequence textHint;
 	private List<Uri> imageUris = emptyList();
 
-	TextAttachmentController(View v, View sendButton,
-			TextInputController textInput) {
-		super(sendButton, textInput, true);
+	public TextAttachmentController(TextInputView v, SendListener listener,
+			AttachImageListener imageListener, WindowManager windowManager) {
+		super(v, listener, true);
+		this.imageListener = imageListener;
 
 		imageLayout = v.findViewById(R.id.imageLayout);
 		imageView = v.findViewById(R.id.imageView);
@@ -82,11 +83,7 @@ class TextAttachmentController extends TextSendController {
 			textInput.clearText();
 			reset();
 		});
-	}
 
-	public void setAttachImageListener(AttachImageListener imageListener,
-			WindowManager windowManager) {
-		this.imageListener = imageListener;
 		// set preview size based on screen height
 		DisplayMetrics displayMetrics = new DisplayMetrics();
 		windowManager.getDefaultDisplay().getMetrics(displayMetrics);
@@ -98,20 +95,16 @@ class TextAttachmentController extends TextSendController {
 	}
 
 	@Override
-	public void onTextValidityChanged(boolean isEmpty) {
+	public void onTextIsEmptyChanged(boolean isEmpty) {
 		if (imageUris.isEmpty()) showImageButton(isEmpty);
 	}
 
 	@Override
 	void onSendButtonClicked() {
-		if (listener != null) {
-			if (textInput.isTooLong()) {
-				textInput.showError();
-				return;
-			}
+		if (canSend()) {
 			listener.onSendClick(textInput.getText(), imageUris);
+			reset();
 		}
-		reset();
 	}
 
 	private void onImageButtonClicked() {
@@ -124,7 +117,7 @@ class TextAttachmentController extends TextSendController {
 		requireNonNull(imageListener).onAttachImage(intent);
 	}
 
-	void onImageReceived(@Nullable Intent resultData) {
+	public void onImageReceived(@Nullable Intent resultData) {
 		if (resultData == null) return;
 		if (resultData.getData() != null) {
 			imageUris = singletonList(resultData.getData());
@@ -205,7 +198,7 @@ class TextAttachmentController extends TextSendController {
 		} else {
 			sendButton.setVisibility(VISIBLE);
 			// enable/disable buttons right away to allow fast sending
-			sendButton.setEnabled(true);
+			sendButton.setEnabled(enabled);
 			imageButton.setEnabled(false);
 			if (SDK_INT <= 15) {
 				imageButton.setVisibility(INVISIBLE);
@@ -231,6 +224,7 @@ class TextAttachmentController extends TextSendController {
 		showImageButton(true);
 	}
 
+	@Override
 	public Parcelable onSaveInstanceState(@Nullable Parcelable superState) {
 		SavedState state =
 				new SavedState(superState == null ? EMPTY_STATE : superState);
@@ -238,8 +232,9 @@ class TextAttachmentController extends TextSendController {
 		return state;
 	}
 
+	@Override
 	@Nullable
-	public Parcelable onRestoreInstanceState(Parcelable inState) {
+	public Parcelable onRestoreInstanceState(@NonNull Parcelable inState) {
 		SavedState state = (SavedState) inState;
 		imageUris = state.imageUris;
 		onNewUris();

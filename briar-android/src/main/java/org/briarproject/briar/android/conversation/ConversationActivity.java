@@ -63,9 +63,11 @@ import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.view.TextAttachmentController;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.AttachImageListener;
 import org.briarproject.briar.android.view.TextInputView.SendListener;
+import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -166,6 +168,7 @@ public class ConversationActivity extends BriarActivity
 	private BriarRecyclerView list;
 	private LinearLayoutManager layoutManager;
 	private TextInputView textInputView;
+	private TextSendController sendController;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -255,12 +258,15 @@ public class ConversationActivity extends BriarActivity
 		list.setEmptyText(getString(R.string.no_private_messages));
 
 		textInputView = findViewById(R.id.text_input_container);
+		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
+			sendController = new TextAttachmentController(textInputView, this,
+					this, getWindowManager());
+		} else {
+			sendController = new TextSendController(textInputView, this, false);
+		}
+		textInputView.setSendController(sendController);
 		textInputView.setMaxTextLength(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		textInputView.setEnabled(false);
-		textInputView.setListener(this);
-		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
-			textInputView.setAttachImageListener(this, getWindowManager());
-		}
 	}
 
 	@Override
@@ -278,7 +284,8 @@ public class ConversationActivity extends BriarActivity
 			snackbar.getView().setBackgroundResource(R.color.briar_primary);
 			snackbar.show();
 		} else if (request == REQUEST_ATTACH_IMAGE && result == RESULT_OK) {
-			textInputView.onImageReceived(data);
+			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+			((TextAttachmentController) sendController).onImageReceived(data);
 		}
 	}
 

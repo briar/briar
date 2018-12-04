@@ -24,6 +24,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextInputView.SendListener;
+import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 
 import java.util.List;
@@ -102,6 +103,9 @@ public class IntroductionMessageFragment extends BaseFragment
 		View v = inflater.inflate(R.layout.introduction_message, container,
 				false);
 		ui = new ViewHolder(v);
+		TextSendController sendController =
+				new TextSendController(ui.message, this, true);
+		ui.message.setSendController(sendController);
 		ui.message.setMaxTextLength(MAX_INTRODUCTION_TEXT_LENGTH);
 		ui.message.setEnabled(false);
 
@@ -162,9 +166,6 @@ public class IntroductionMessageFragment extends BaseFragment
 			ui.progressBar.setVisibility(GONE);
 
 			if (possible) {
-				// set button action
-				ui.message.setListener(IntroductionMessageFragment.this);
-
 				// show views
 				ui.notPossible.setVisibility(GONE);
 				ui.message.setVisibility(VISIBLE);

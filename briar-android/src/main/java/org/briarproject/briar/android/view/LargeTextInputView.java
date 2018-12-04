@@ -71,7 +71,7 @@ public class LargeTextInputView extends TextInputView {
 	}
 
 	public void setButtonText(String text) {
-		((Button) sendButton).setText(text);
+		((Button) findViewById(R.id.btn_send)).setText(text);
 	}
 
 }
