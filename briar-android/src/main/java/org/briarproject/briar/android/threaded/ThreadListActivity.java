@@ -27,12 +27,12 @@ import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListe
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListDataSource;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.view.KeyboardAwareLinearLayout;
 import org.briarproject.briar.android.view.TextInputView;
-import org.briarproject.briar.android.view.TextInputView.SendListener;
 import org.briarproject.briar.android.view.TextSendController;
+import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
-import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 
 import java.util.Collection;
 import java.util.List;

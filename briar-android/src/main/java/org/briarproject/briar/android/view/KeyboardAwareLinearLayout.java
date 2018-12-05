@@ -1,4 +1,8 @@
-package org.thoughtcrime.securesms.components;
+/*
+  Taken from Signal, licences under GPLv3
+ */
+
+package org.briarproject.briar.android.view;
 
 import android.annotation.TargetApi;
 import android.content.Context;
@@ -24,6 +28,7 @@ import javax.annotation.Nullable;
 import static android.content.Context.WINDOW_SERVICE;
 import static android.view.Surface.ROTATION_270;
 import static android.view.Surface.ROTATION_90;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 
@@ -38,8 +43,6 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 			Logger.getLogger(KeyboardAwareLinearLayout.class.getName());
 
 	private final Rect rect = new Rect();
-	private final Set<OnKeyboardHiddenListener> hiddenListeners =
-			new HashSet<>();
 	private final Set<OnKeyboardShownListener> shownListeners = new HashSet<>();
 	private final int minKeyboardSize;
 	private final int minCustomKeyboardSize;
@@ -153,7 +156,6 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 	protected void onKeyboardClose() {
 		LOG.info("onKeyboardClose()");
 		keyboardOpen = false;
-		notifyHiddenListeners();
 	}
 
 	public boolean isKeyboardOpen() {
@@ -173,7 +175,7 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 	private int getDeviceRotation() {
 		WindowManager windowManager =
 				(WindowManager) getContext().getSystemService(WINDOW_SERVICE);
-		return windowManager.getDefaultDisplay().getRotation();
+		return requireNonNull(windowManager).getDefaultDisplay().getRotation();
 	}
 
 	private int getKeyboardLandscapeHeight() {
@@ -199,43 +201,6 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 		prefs.edit().putInt("keyboard_height_portrait", height).apply();
 	}
 
-	public void postOnKeyboardClose(Runnable runnable) {
-		if (keyboardOpen) {
-			addOnKeyboardHiddenListener(new OnKeyboardHiddenListener() {
-				@Override
-				public void onKeyboardHidden() {
-					removeOnKeyboardHiddenListener(this);
-					runnable.run();
-				}
-			});
-		} else {
-			runnable.run();
-		}
-	}
-
-	public void postOnKeyboardOpen(Runnable runnable) {
-		if (!keyboardOpen) {
-			addOnKeyboardShownListener(new OnKeyboardShownListener() {
-				@Override
-				public void onKeyboardShown() {
-					removeOnKeyboardShownListener(this);
-					runnable.run();
-				}
-			});
-		} else {
-			runnable.run();
-		}
-	}
-
-	public void addOnKeyboardHiddenListener(OnKeyboardHiddenListener listener) {
-		hiddenListeners.add(listener);
-	}
-
-	public void removeOnKeyboardHiddenListener(
-			OnKeyboardHiddenListener listener) {
-		hiddenListeners.remove(listener);
-	}
-
 	public void addOnKeyboardShownListener(OnKeyboardShownListener listener) {
 		shownListeners.add(listener);
 	}
@@ -243,15 +208,6 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 	public void removeOnKeyboardShownListener(
 			OnKeyboardShownListener listener) {
 		shownListeners.remove(listener);
-	}
-
-	private void notifyHiddenListeners() {
-		// Make a copy as listeners may remove themselves when called
-		Set<OnKeyboardHiddenListener> listeners =
-				new HashSet<>(hiddenListeners);
-		for (OnKeyboardHiddenListener listener : listeners) {
-			listener.onKeyboardHidden();
-		}
 	}
 
 	private void notifyShownListeners() {
@@ -262,11 +218,8 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 		}
 	}
 
-	public interface OnKeyboardHiddenListener {
-		void onKeyboardHidden();
-	}
-
 	public interface OnKeyboardShownListener {
 		void onKeyboardShown();
 	}
+
 }

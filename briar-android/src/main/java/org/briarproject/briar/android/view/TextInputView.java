@@ -2,48 +2,33 @@ package org.briarproject.briar.android.view;
 
 import android.animation.LayoutTransition;
 import android.content.Context;
-import android.content.Intent;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
-import android.net.Uri;
 import android.os.Parcelable;
-import android.support.annotation.CallSuper;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
-import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
-
-import com.vanniktech.emoji.EmojiEditText;
-import com.vanniktech.emoji.RecentEmoji;
+import android.widget.LinearLayout;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.BriarApplication;
-import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
-
-import java.util.List;
-
-import javax.inject.Inject;
+import org.briarproject.briar.android.view.KeyboardAwareLinearLayout.OnKeyboardShownListener;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static android.view.KeyEvent.KEYCODE_ENTER;
 import static java.util.Objects.requireNonNull;
 
 @UiThread
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class TextInputView extends KeyboardAwareLinearLayout {
+public class TextInputView extends LinearLayout {
 
-	@Inject
-	RecentEmoji recentEmoji;
-
-	TextInputController textInputController;
 	@Nullable
 	TextSendController textSendController;
-	EmojiEditText editText;
+	final EmojiTextInputView textInput;
 
 	public TextInputView(Context context) {
 		this(context, null);
@@ -56,26 +41,15 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 	public TextInputView(Context context, @Nullable AttributeSet attrs,
 			int defStyleAttr) {
 		super(context, attrs, defStyleAttr);
-		if (!isInEditMode()) {
-			BriarApplication app =
-					(BriarApplication) context.getApplicationContext();
-			app.getApplicationComponent().inject(this);
-		}
+		setSaveEnabled(true);
 		setOrientation(VERTICAL);
 		setLayoutTransition(new LayoutTransition());
-		inflateLayout(context);
-		setSaveEnabled(true);
-		if (!isInEditMode()) setUpViews(context, attrs);
-	}
 
-	protected void inflateLayout(Context context) {
+		// inflate layout
 		LayoutInflater inflater = (LayoutInflater) requireNonNull(
 				context.getSystemService(LAYOUT_INFLATER_SERVICE));
-		inflater.inflate(R.layout.text_input_view, this, true);
-	}
+		inflater.inflate(getLayout(), this, true);
 
-	@CallSuper
-	protected void setUpViews(Context context, @Nullable AttributeSet attrs) {
 		// get attributes
 		TypedArray attributes = context.obtainStyledAttributes(attrs,
 				R.styleable.TextInputView);
@@ -84,12 +58,14 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 				.getBoolean(R.styleable.TextInputView_allowEmptyText, false);
 		attributes.recycle();
 
-		// set up input controller
-		AppCompatImageButton emojiToggle = findViewById(R.id.emoji_toggle);
-		editText = findViewById(R.id.input_text);
-		textInputController = new TextInputController(this, emojiToggle,
-				editText, recentEmoji, allowEmptyText);
-		if (hint != null) textInputController.setHint(hint);
+		textInput = findViewById(R.id.emojiTextInput);
+		textInput.setAllowEmptyText(allowEmptyText);
+		if (hint != null) textInput.setHint(hint);
+	}
+
+	@LayoutRes
+	protected int getLayout() {
+		return R.layout.text_input_view;
 	}
 
 	@Nullable
@@ -118,71 +94,56 @@ public class TextInputView extends KeyboardAwareLinearLayout {
 	 */
 	public <T extends TextSendController> void setSendController(T controller) {
 		textSendController = controller;
-		textInputController.setTextValidityListener(textSendController);
-
-		// support sending with Ctrl+Enter
-		editText.setOnKeyListener((v, keyCode, event) -> {
-			if (keyCode == KEYCODE_ENTER && event.isCtrlPressed()) {
-				textSendController.onSendButtonClicked();
-				return true;
-			}
-			return false;
-		});
-	}
-
-	public TextInputController getTextInputController() {
-		return textInputController;
+		textInput.setTextInputListener(textSendController);
 	}
 
 	@Override
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		textInputController.setEnabled(enabled);
+		textInput.setEnabled(enabled);
 		requireNonNull(textSendController).setEnabled(enabled);
 	}
 
 	@Override
 	public boolean requestFocus(int direction, Rect previouslyFocusedRect) {
-		return textInputController
-				.requestFocus(direction, previouslyFocusedRect);
+		return textInput.requestFocus(direction, previouslyFocusedRect);
 	}
 
-	@Override
-	public void onDetachedFromWindow() {
-		super.onDetachedFromWindow();
-		textInputController.onDetachedFromWindow();
+	EmojiTextInputView getEmojiTextInputView() {
+		return textInput;
 	}
 
 	public void clearText() {
-		textInputController.clearText();
+		textInput.clearText();
 	}
 
 	public void setHint(@StringRes int res) {
-		textInputController.setHint(getContext().getString(res));
+		textInput.setHint(getContext().getString(res));
 	}
 
 	public void setMaxTextLength(int maxLength) {
-		textInputController.setMaxLength(maxLength);
+		textInput.setMaxLength(maxLength);
+	}
+
+	public boolean isKeyboardOpen() {
+		return textInput.isKeyboardOpen();
 	}
 
 	public void showSoftKeyboard() {
-		textInputController.showSoftKeyboard();
+		textInput.showSoftKeyboard();
 	}
 
 	public void hideSoftKeyboard() {
-		textInputController.hideSoftKeyboard();
+		textInput.hideSoftKeyboard();
 	}
 
-	interface TextValidityListener {
-		void onTextIsEmptyChanged(boolean isEmpty);
+	public void addOnKeyboardShownListener(OnKeyboardShownListener listener) {
+		textInput.addOnKeyboardShownListener(listener);
 	}
 
-	public interface AttachImageListener {
-		void onAttachImage(Intent intent);
-	}
-
-	public interface SendListener {
-		void onSendClick(@Nullable String text, List<Uri> imageUris);
+	public void removeOnKeyboardShownListener(
+			OnKeyboardShownListener listener) {
+		textInput.removeOnKeyboardShownListener(listener);
 	}
 
 }

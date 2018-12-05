@@ -27,8 +27,6 @@ import com.bumptech.glide.request.target.Target;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
-import org.briarproject.briar.android.view.TextInputView.AttachImageListener;
-import org.briarproject.briar.android.view.TextInputView.SendListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +65,7 @@ public class TextAttachmentController extends TextSendController {
 
 	public TextAttachmentController(TextInputView v, SendListener listener,
 			AttachImageListener imageListener, WindowManager windowManager) {
-		super(v, listener, true);
+		super(v, listener, false);
 		this.imageListener = imageListener;
 
 		imageLayout = v.findViewById(R.id.imageLayout);
@@ -100,11 +98,16 @@ public class TextAttachmentController extends TextSendController {
 	}
 
 	@Override
-	void onSendButtonClicked() {
+	public void onSendEvent() {
 		if (canSend()) {
 			listener.onSendClick(textInput.getText(), imageUris);
 			reset();
 		}
+	}
+
+	@Override
+	protected boolean canSendEmptyText() {
+		return !imageUris.isEmpty();
 	}
 
 	private void onImageButtonClicked() {
@@ -270,6 +273,10 @@ public class TextAttachmentController extends TextSendController {
 				return new SavedState[size];
 			}
 		};
+	}
+
+	public interface AttachImageListener {
+		void onAttachImage(Intent intent);
 	}
 
 }

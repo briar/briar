@@ -48,31 +48,12 @@
 		android:layout_height="wrap_content"
 		android:background="@color/card_background">
 
-		<android.support.v7.widget.AppCompatImageButton
-			android:id="@+id/emoji_toggle"
-			android:layout_width="@dimen/text_input_height"
-			android:layout_height="@dimen/text_input_height"
-			android:layout_gravity="bottom"
-			android:background="?attr/selectableItemBackground"
-			android:padding="@dimen/margin_small"
-			android:scaleType="center"
-			android:src="@drawable/ic_emoji_toggle"
-			app:tint="?attr/colorControlNormal"/>
-
-		<com.vanniktech.emoji.EmojiEditText
-			android:id="@+id/input_text"
+		<org.briarproject.briar.android.view.EmojiTextInputView
+			android:id="@+id/emojiTextInput"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
-			android:background="@android:color/transparent"
-			android:inputType="textMultiLine|textCapSentences"
-			android:maxLines="4"
-			android:minHeight="@dimen/text_input_height"
-			android:paddingLeft="2dp"
-			android:paddingStart="2dp"
-			android:textColor="?android:attr/textColorPrimary"
-			tools:ignore="RtlSymmetry"
-			tools:text="Line 1\nLine 2\nLine 3"/>
+			app:maxTextLines="4"/>
 
 		<FrameLayout
 			android:layout_width="@dimen/text_input_height"

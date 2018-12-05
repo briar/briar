@@ -22,39 +22,12 @@
 		app:cardCornerRadius="0dp"
 		app:cardUseCompatPadding="false">
 
-		<LinearLayout
+		<org.briarproject.briar.android.view.EmojiTextInputView
+			android:id="@+id/emojiTextInput"
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
-			android:orientation="horizontal">
-
-			<android.support.v7.widget.AppCompatImageButton
-				android:id="@+id/emoji_toggle"
-				android:layout_width="@dimen/text_input_height"
-				android:layout_height="@dimen/text_input_height"
-				android:layout_gravity="bottom"
-				android:background="?attr/selectableItemBackground"
-				android:padding="@dimen/margin_small"
-				android:scaleType="center"
-				android:src="@drawable/ic_emoji_toggle"
-				app:tint="?attr/colorControlNormal"/>
-
-			<com.vanniktech.emoji.EmojiEditText
-				android:id="@+id/input_text"
-				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:background="@android:color/transparent"
-				android:gravity="bottom"
-				android:inputType="textMultiLine|textLongMessage|textCapSentences|textAutoCorrect"
-				android:minHeight="@dimen/text_input_height"
-				android:paddingBottom="10dp"
-				android:paddingEnd="@dimen/margin_small"
-				android:paddingRight="@dimen/margin_small"
-				android:paddingTop="@dimen/margin_small"
-				android:textColor="?android:attr/textColorPrimary"
-				tools:ignore="RtlSymmetry"
-				tools:text="Line 1\nLine 2\nLine 3"/>
-
-		</LinearLayout>
+			app:textPaddingBottom="10dp"
+			app:textPaddingEnd="@dimen/margin_medium"/>
 
 	</android.support.v7.widget.CardView>
 
