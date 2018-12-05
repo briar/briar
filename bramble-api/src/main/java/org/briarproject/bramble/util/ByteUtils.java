@@ -1,5 +1,7 @@
 package org.briarproject.bramble.util;
 
+import org.briarproject.bramble.api.FormatException;
+
 public class ByteUtils {
 
 	/**
@@ -12,14 +14,25 @@ public class ByteUtils {
 	 */
 	public static final long MAX_32_BIT_UNSIGNED = 4294967295L; // 2^32 - 1
 
-	/** The number of bytes needed to encode a 16-bit integer. */
+	/**
+	 * The number of bytes needed to encode a 16-bit integer.
+	 */
 	public static final int INT_16_BYTES = 2;
 
-	/** The number of bytes needed to encode a 32-bit integer. */
+	/**
+	 * The number of bytes needed to encode a 32-bit integer.
+	 */
 	public static final int INT_32_BYTES = 4;
 
-	/** The number of bytes needed to encode a 64-bit integer. */
+	/**
+	 * The number of bytes needed to encode a 64-bit integer.
+	 */
 	public static final int INT_64_BYTES = 8;
+
+	/**
+	 * The maximum number of bytes needed to encode a variable-length integer.
+	 */
+	public static final int MAX_VARINT_BYTES = 9;
 
 	public static void writeUint16(int src, byte[] dest, int offset) {
 		if (src < 0) throw new IllegalArgumentException();
@@ -55,6 +68,52 @@ public class ByteUtils {
 		dest[offset + 7] = (byte) (src & 0xFF);
 	}
 
+	private static int countSignificantBits(long src) {
+		if (src < 0) throw new IllegalArgumentException();
+		int bits = 0;
+		while (src > 0) {
+			src >>= 1;
+			bits++;
+		}
+		return bits;
+	}
+
+	/**
+	 * Returns the number of bytes needed to represent 'src' as a
+	 * variable-length integer.
+	 * <p>
+	 * 'src' must not be negative.
+	 */
+	public static int getVarIntBytes(long src) {
+		if (src < 0) throw new IllegalArgumentException();
+		int len = Math.max(1, (countSignificantBits(src) + 6) / 7);
+		if (len > MAX_VARINT_BYTES) throw new AssertionError();
+		return len;
+	}
+
+	/**
+	 * Writes 'src' to 'dest' as a variable-length integer, starting at
+	 * 'offset', and returns the number of bytes written.
+	 * <p>
+	 * `src` must not be negative.
+	 */
+	public static int writeVarInt(long src, byte[] dest, int offset) {
+		if (src < 0) throw new IllegalArgumentException();
+		int len = getVarIntBytes(src);
+		if (dest.length < offset + len) throw new IllegalArgumentException();
+		// Work backwards from the end
+		int end = offset + len - 1;
+		for (int i = end; i >= offset; i--) {
+			// Encode 7 bits
+			dest[i] = (byte) (src & 0x7F);
+			// Raise the continuation flag, except for the last byte
+			if (i < end) dest[i] |= (byte) 0x80;
+			// Shift out the bits that were encoded
+			src >>= 7;
+		}
+		return len;
+	}
+
 	public static int readUint16(byte[] src, int offset) {
 		if (src.length < offset + INT_16_BYTES)
 			throw new IllegalArgumentException();
@@ -83,14 +142,46 @@ public class ByteUtils {
 				| (src[offset + 7] & 0xFFL);
 	}
 
-	public static int readUint(byte[] src, int bits) {
-		if (src.length << 3 < bits) throw new IllegalArgumentException();
-		int dest = 0;
-		for (int i = 0; i < bits; i++) {
-			if ((src[i >> 3] & 128 >> (i & 7)) != 0) dest |= 1 << bits - i - 1;
+	/**
+	 * Returns the length in bytes of a variable-length integer encoded in
+	 * 'src' starting at 'offset'.
+	 *
+	 * @throws FormatException if there is not a valid variable-length integer
+	 * at the specified position.
+	 */
+	public static int getVarIntBytes(byte[] src, int offset)
+			throws FormatException {
+		if (src.length < offset) throw new IllegalArgumentException();
+		for (int i = 0; i < MAX_VARINT_BYTES && offset + i < src.length; i++) {
+			// If the continuation flag is lowered, this is the last byte
+			if ((src[offset + i] & 0x80) == 0) return i + 1;
 		}
-		if (dest < 0) throw new AssertionError();
-		if (dest >= 1 << bits) throw new AssertionError();
-		return dest;
+		// We've read 9 bytes or reached the end of the input without finding
+		// the last byte
+		throw new FormatException();
+	}
+
+	/**
+	 * Reads a variable-length integer from 'src' starting at 'offset' and
+	 * returns it.
+	 *
+	 * @throws FormatException if there is not a valid variable-length integer
+	 * at the specified position.
+	 */
+	public static long readVarInt(byte[] src, int offset)
+			throws FormatException {
+		if (src.length < offset) throw new IllegalArgumentException();
+		long dest = 0;
+		for (int i = 0; i < MAX_VARINT_BYTES && offset + i < src.length; i++) {
+			// Decode 7 bits
+			dest |= src[offset + i] & 0x7F;
+			// If the continuation flag is lowered, this is the last byte
+			if ((src[offset + i] & 0x80) == 0) return dest;
+			// Make room for the next 7 bits
+			dest <<= 7;
+		}
+		// We've read 9 bytes or reached the end of the input without finding
+		// the last byte
+		throw new FormatException();
 	}
 }
