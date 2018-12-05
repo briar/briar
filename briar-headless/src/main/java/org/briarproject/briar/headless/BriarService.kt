@@ -41,6 +41,7 @@ constructor(
         }
         val dbKey = accountManager.databaseKey ?: throw AssertionError()
         lifecycleManager.startServices(dbKey)
+        lifecycleManager.waitForStartup()
     }
 
     override fun stop() {

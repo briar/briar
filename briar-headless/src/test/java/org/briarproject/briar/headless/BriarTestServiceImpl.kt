@@ -24,10 +24,11 @@ constructor(
         }
         accountManager.createAccount(user, pass)
         if (!accountManager.signIn(pass)) {
-            throw java.lang.AssertionError("Password invalid")
+            throw AssertionError("Password invalid")
         }
         val dbKey = accountManager.databaseKey ?: throw AssertionError()
         lifecycleManager.startServices(dbKey)
+        lifecycleManager.waitForStartup()
     }
 
     override fun stop() {
