@@ -63,6 +63,7 @@ import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.view.ImagePreview;
 import org.briarproject.briar.android.view.TextAttachmentController;
 import org.briarproject.briar.android.view.TextAttachmentController.AttachImageListener;
 import org.briarproject.briar.android.view.TextInputView;
@@ -259,8 +260,9 @@ public class ConversationActivity extends BriarActivity
 
 		textInputView = findViewById(R.id.text_input_container);
 		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
-			sendController = new TextAttachmentController(textInputView, this,
-					this, getWindowManager());
+			ImagePreview imagePreview = findViewById(R.id.imagePreview);
+			sendController = new TextAttachmentController(textInputView,
+					imagePreview, this, this);
 		} else {
 			sendController = new TextSendController(textInputView, this, false);
 		}

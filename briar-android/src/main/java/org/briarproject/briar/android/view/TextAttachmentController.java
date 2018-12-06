@@ -2,31 +2,17 @@ package org.briarproject.briar.android.view;
 
 import android.content.ClipData;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.AbsSavedState;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.AppCompatImageButton;
-import android.util.DisplayMetrics;
-import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
-import android.view.WindowManager;
-import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.conversation.glide.GlideApp;
+import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,59 +21,39 @@ import static android.content.Intent.ACTION_GET_CONTENT;
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.content.Intent.CATEGORY_OPENABLE;
 import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
-import static android.graphics.Color.BLACK;
-import static android.graphics.Color.WHITE;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
-import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_YES;
-import static android.support.v7.app.AppCompatDelegate.getDefaultNightMode;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static android.widget.Toast.LENGTH_LONG;
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
-import static com.bumptech.glide.load.resource.bitmap.DownsampleStrategy.FIT_CENTER;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 @UiThread
-public class TextAttachmentController extends TextSendController {
+public class TextAttachmentController extends TextSendController
+		implements ImagePreviewListener {
 
 	private final AppCompatImageButton imageButton;
-	private final ViewGroup imageLayout;
-	private final ImageView imageView;
+	private final ImagePreview imagePreview;
 
 	private final AttachImageListener imageListener;
 
 	private CharSequence textHint;
 	private List<Uri> imageUris = emptyList();
 
-	public TextAttachmentController(TextInputView v, SendListener listener,
-			AttachImageListener imageListener, WindowManager windowManager) {
+	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
+			SendListener listener, AttachImageListener imageListener) {
 		super(v, listener, false);
 		this.imageListener = imageListener;
+		this.imagePreview = imagePreview;
+		this.imagePreview.setImagePreviewListener(this);
 
-		imageLayout = v.findViewById(R.id.imageLayout);
-		imageView = v.findViewById(R.id.imageView);
-		FloatingActionButton imageCancelButton =
-				v.findViewById(R.id.imageCancelButton);
 		imageButton = v.findViewById(R.id.imageButton);
+		imageButton.setOnClickListener(view -> onImageButtonClicked());
 
 		textHint = textInput.getHint();
 
-		imageButton.setOnClickListener(view -> onImageButtonClicked());
-		imageCancelButton.setOnClickListener(view -> {
-			textInput.clearText();
-			reset();
-		});
-
-		// set preview size based on screen height
-		DisplayMetrics displayMetrics = new DisplayMetrics();
-		windowManager.getDefaultDisplay().getMetrics(displayMetrics);
-		LayoutParams layoutParams = imageView.getLayoutParams();
-		layoutParams.height = displayMetrics.heightPixels / 4;
-		imageView.setLayoutParams(layoutParams);
 		// show image button
 		showImageButton(true);
 	}
@@ -139,47 +105,7 @@ public class TextAttachmentController extends TextSendController {
 		if (imageUris.isEmpty()) return;
 		showImageButton(false);
 		textInput.setHint(R.string.image_caption_hint);
-		imageLayout.setVisibility(VISIBLE);
-		GlideApp.with(imageView)
-				.asBitmap()
-				.load(imageUris.get(0))  // TODO show more than the first
-				.diskCacheStrategy(NONE)
-				.downsample(FIT_CENTER)
-				.addListener(new RequestListener<Bitmap>() {
-					@Override
-					public boolean onLoadFailed(@Nullable GlideException e,
-							Object model, Target<Bitmap> target,
-							boolean isFirstResource) {
-						reset();
-						Toast.makeText(imageView.getContext(),
-								R.string.image_attach_error, LENGTH_LONG)
-								.show();
-						return false;
-					}
-
-					@Override
-					public boolean onResourceReady(Bitmap resource,
-							Object model, Target<Bitmap> target,
-							DataSource dataSource, boolean isFirstResource) {
-						Palette.from(resource).generate(
-								TextAttachmentController.this::onPaletteGenerated);
-						return false;
-					}
-				})
-				.into(imageView);
-	}
-
-	@UiThread
-	private void onPaletteGenerated(@Nullable Palette palette) {
-		int color;
-		if (palette == null) {
-			color = getDefaultNightMode() == MODE_NIGHT_YES ? BLACK : WHITE;
-		} else {
-			color = getDefaultNightMode() == MODE_NIGHT_YES ?
-					palette.getDarkMutedColor(BLACK) :
-					palette.getLightMutedColor(WHITE);
-		}
-		imageView.setBackgroundColor(color);
+		imagePreview.showPreview(imageUris);
 	}
 
 	private void showImageButton(boolean showImageButton) {
@@ -220,7 +146,7 @@ public class TextAttachmentController extends TextSendController {
 		// restore hint
 		textInput.setHint(textHint);
 		// hide image layout
-		imageLayout.setVisibility(GONE);
+		imagePreview.setVisibility(GONE);
 		// reset image URIs
 		imageUris = emptyList();
 		// show the image button again, so images can get attached
@@ -242,6 +168,12 @@ public class TextAttachmentController extends TextSendController {
 		imageUris = state.imageUris;
 		onNewUris();
 		return state.getSuperState();
+	}
+
+	@Override
+	public void onCancel() {
+		textInput.clearText();
+		reset();
 	}
 
 	private static class SavedState extends AbsSavedState {
