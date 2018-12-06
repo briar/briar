@@ -35,4 +35,9 @@ public interface SyncConstants {
 	 * The maximum number of message IDs in an ack, offer or request record.
 	 */
 	int MAX_MESSAGE_IDS = MAX_RECORD_PAYLOAD_BYTES / UniqueId.LENGTH;
+
+	/**
+	 * The maximum length of a message block in bytes.
+	 */
+	int MAX_BLOCK_LENGTH = 32 * 2014; // 32 KiB
 }
