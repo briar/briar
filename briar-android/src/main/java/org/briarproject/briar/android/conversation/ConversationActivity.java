@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
+import android.annotation.SuppressLint;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -104,7 +105,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
-import static android.view.Gravity.END;
+import static android.view.Gravity.RIGHT;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
@@ -197,7 +198,9 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		if (SDK_INT >= 21) {
-			Transition slide = new Slide(END);
+			// Spurious lint warning - using END causes a crash
+			@SuppressLint("RtlHardcoded")
+			Transition slide = new Slide(RIGHT);
 			setSceneTransitionAnimation(slide, null, slide);
 		}
 		super.onCreate(state);
