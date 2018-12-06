@@ -9,6 +9,7 @@ import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.db.DatabaseModule;
 import org.briarproject.bramble.event.EventModule;
 import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.io.IoModule;
 import org.briarproject.bramble.keyagreement.KeyAgreementModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.plugin.PluginModule;
@@ -36,6 +37,7 @@ import dagger.Module;
 		DatabaseExecutorModule.class,
 		EventModule.class,
 		IdentityModule.class,
+		IoModule.class,
 		KeyAgreementModule.class,
 		LifecycleModule.class,
 		PluginModule.class,
