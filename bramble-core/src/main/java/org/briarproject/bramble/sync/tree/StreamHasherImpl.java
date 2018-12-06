@@ -4,16 +4,14 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.io.BlockSink;
 import org.briarproject.bramble.api.io.HashingId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.MessageFactory;
-import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.tree.LeafNode;
 import org.briarproject.bramble.api.sync.tree.StreamHasher;
 import org.briarproject.bramble.api.sync.tree.TreeHash;
 import org.briarproject.bramble.api.sync.tree.TreeHasher;
+import org.briarproject.bramble.api.sync.tree.TreeNode;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.LinkedList;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -27,21 +25,19 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_BLOCK_LENGTH;
 class StreamHasherImpl implements StreamHasher {
 
 	private final TreeHasher treeHasher;
-	private final MessageFactory messageFactory;
 	private final Provider<HashTree> hashTreeProvider;
 
 	@Inject
-	StreamHasherImpl(TreeHasher treeHasher, MessageFactory messageFactory,
+	StreamHasherImpl(TreeHasher treeHasher,
 			Provider<HashTree> hashTreeProvider) {
 		this.treeHasher = treeHasher;
-		this.messageFactory = messageFactory;
 		this.hashTreeProvider = hashTreeProvider;
 	}
 
 	@Override
-	public MessageId hash(InputStream in, BlockSink sink, HashingId h,
-			GroupId g, long timestamp) throws IOException, DbException {
-		HashTree hashTree = hashTreeProvider.get();
+	public TreeNode hash(InputStream in, BlockSink sink, HashingId h)
+			throws IOException, DbException {
+		HashTree tree = hashTreeProvider.get();
 		byte[] block = new byte[MAX_BLOCK_LENGTH];
 		int read;
 		for (int blockNumber = 0; (read = read(in, block)) > 0; blockNumber++) {
@@ -49,14 +45,11 @@ class StreamHasherImpl implements StreamHasher {
 			if (read == block.length) data = block;
 			else data = copyOfRange(block, 0, read);
 			sink.putBlock(h, blockNumber, data);
-			LeafNode leaf = treeHasher.hashBlock(blockNumber, data);
-			hashTree.addLeaf(leaf);
+			tree.addLeaf(treeHasher.hashBlock(blockNumber, data));
 		}
-		// TODO: Set paths on block sink
-		TreeHash rootHash = hashTree.getRoot().getHash();
-		MessageId m = messageFactory.getMessageId(g, timestamp, rootHash);
-		sink.setMessageId(h, m);
-		return m;
+		TreeNode root = tree.getRoot();
+		setPaths(sink, h, root, new LinkedList<>());
+		return root;
 	}
 
 	/**
@@ -72,5 +65,21 @@ class StreamHasherImpl implements StreamHasher {
 			offset += read;
 		}
 		return offset;
+	}
+
+	private void setPaths(BlockSink sink, HashingId h, TreeNode node,
+			LinkedList<TreeHash> path) throws DbException {
+		if (node.getHeight() == 0) {
+			// We've reached a leaf - store the path
+			sink.setPath(h, node.getFirstBlockNumber(), path);
+		} else {
+			// Add the right child's hash to the path and traverse the left
+			path.addFirst(node.getRightChild().getHash());
+			setPaths(sink, h, node.getLeftChild(), path);
+			// Add the left child's hash to the path and traverse the right
+			path.removeFirst();
+			path.addFirst(node.getLeftChild().getHash());
+			setPaths(sink, h, node.getRightChild(), path);
+		}
 	}
 }

@@ -1,6 +1,9 @@
 package org.briarproject.bramble.api.sync.tree;
 
-public class TreeNode {
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+@NotNullByDefault
+public abstract class TreeNode {
 
 	private final TreeHash hash;
 	private final int height, firstBlockNumber, lastBlockNumber;
@@ -28,4 +31,8 @@ public class TreeNode {
 	public int getLastBlockNumber() {
 		return lastBlockNumber;
 	}
+
+	public abstract TreeNode getLeftChild();
+
+	public abstract TreeNode getRightChild();
 }
