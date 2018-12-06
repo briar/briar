@@ -1,18 +1,22 @@
 package org.briarproject.bramble.sync.tree;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.tree.LeafNode;
 import org.briarproject.bramble.api.sync.tree.ParentNode;
 import org.briarproject.bramble.api.sync.tree.TreeHash;
 import org.briarproject.bramble.api.sync.tree.TreeHasher;
 import org.briarproject.bramble.api.sync.tree.TreeNode;
 
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.Message.FORMAT_VERSION;
 import static org.briarproject.bramble.api.sync.MessageId.BLOCK_LABEL;
 import static org.briarproject.bramble.api.sync.MessageId.TREE_LABEL;
 
+@Immutable
+@NotNullByDefault
 class TreeHasherImpl implements TreeHasher {
 
 	private static final byte[] FORMAT_VERSION_BYTES =
