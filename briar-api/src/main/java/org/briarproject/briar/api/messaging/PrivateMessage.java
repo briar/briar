@@ -3,6 +3,8 @@ package org.briarproject.briar.api.messaging;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Message;
 
+import java.util.List;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -10,13 +12,18 @@ import javax.annotation.concurrent.Immutable;
 public class PrivateMessage {
 
 	private final Message message;
+	private final List<AttachmentHeader> attachments;
 
-	public PrivateMessage(Message message) {
+	public PrivateMessage(Message message, List<AttachmentHeader> attachments) {
 		this.message = message;
+		this.attachments = attachments;
 	}
 
 	public Message getMessage() {
 		return message;
 	}
 
+	public List<AttachmentHeader> getAttachmentHeaders() {
+		return attachments;
+	}
 }

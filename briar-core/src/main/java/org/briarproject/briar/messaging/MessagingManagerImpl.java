@@ -11,13 +11,16 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.io.MessageInputStreamFactory;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
@@ -32,16 +35,17 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Random;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -51,15 +55,21 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
+	private final MessageFactory messageFactory;
+	private final MessageInputStreamFactory messageInputStreamFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
-			ContactGroupFactory contactGroupFactory) {
+			ContactGroupFactory contactGroupFactory,
+			MessageFactory messageFactory,
+			MessageInputStreamFactory messageInputStreamFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
+		this.messageFactory = messageFactory;
+		this.messageInputStreamFactory = messageInputStreamFactory;
 	}
 
 	@Override
@@ -142,9 +152,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 			meta.put("read", true);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
+			for (AttachmentHeader h : m.getAttachmentHeaders())
+				db.setMessageShared(txn, h.getMessageId());
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -152,11 +164,16 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
-			String contentType, ByteBuffer data) {
-		// TODO add real implementation
-		byte[] b = new byte[MessageId.LENGTH];
-		new Random().nextBytes(b);
-		return new AttachmentHeader(new MessageId(b), "image/png");
+			String contentType, ByteBuffer data) throws DbException {
+		// TODO: Remove this restriction when large messages are supported
+		byte[] body = data.array();
+		if (body.length > MAX_MESSAGE_LENGTH) throw new DbException();
+		// TODO: Store message type and content type
+		Message m = messageFactory.createMessage(groupId, timestamp, body);
+		Metadata meta = new Metadata();
+		// Attachment will be shared when private message is added
+		db.transaction(false, txn -> db.addLocalMessage(txn, m, meta, false));
+		return new AttachmentHeader(m.getId(), contentType);
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId g)
@@ -236,8 +253,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public Attachment getAttachment(MessageId m) {
-		// TODO add real implementation
-		throw new IllegalStateException("Not yet implemented");
+		InputStream in = messageInputStreamFactory.getMessageInputStream(m);
+		// TODO: Read message type and content type
+		return new Attachment(in);
 	}
 
 }

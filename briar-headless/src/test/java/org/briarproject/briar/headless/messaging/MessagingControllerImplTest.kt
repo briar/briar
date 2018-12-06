@@ -62,7 +62,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
             emptyList()
         )
     private val sessionId = SessionId(getRandomId())
-    private val privateMessage = PrivateMessage(message)
+    private val privateMessage = PrivateMessage(message, emptyList())
 
     @Test
     fun list() {

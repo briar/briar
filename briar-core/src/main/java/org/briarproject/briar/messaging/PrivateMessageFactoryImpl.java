@@ -39,6 +39,6 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 		// Serialise the message
 		BdfList message = BdfList.of(text);
 		Message m = clientHelper.createMessage(groupId, timestamp, message);
-		return new PrivateMessage(m);
+		return new PrivateMessage(m, attachments);
 	}
 }

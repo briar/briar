@@ -9,6 +9,8 @@ import org.briarproject.briar.api.messaging.PrivateMessage;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.emptyList;
+
 @Immutable
 @NotNullByDefault
 public abstract class ThreadedMessage extends PrivateMessage {
@@ -19,7 +21,7 @@ public abstract class ThreadedMessage extends PrivateMessage {
 
 	public ThreadedMessage(Message message, @Nullable MessageId parent,
 			Author author) {
-		super(message);
+		super(message, emptyList());
 		this.parent = parent;
 		this.author = author;
 	}
