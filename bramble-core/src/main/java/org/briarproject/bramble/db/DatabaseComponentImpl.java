@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.DbRunnable;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
+import org.briarproject.bramble.api.db.NoSuchBlockException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
@@ -418,6 +419,26 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		db.lowerRequestedFlag(txn, c, ids);
 		transaction.attach(new MessagesSentEvent(c, ids));
 		return messages;
+	}
+
+	@Override
+	public int getBlockCount(Transaction transaction, MessageId m)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		return 1;
+	}
+
+	@Override
+	public byte[] getBlock(Transaction transaction, MessageId m,
+			int blockNumber) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		if (blockNumber != 0)
+			throw new NoSuchBlockException();
+		return db.getMessage(txn, m).getBody();
 	}
 
 	@Override

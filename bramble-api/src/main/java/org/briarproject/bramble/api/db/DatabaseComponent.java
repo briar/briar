@@ -209,6 +209,24 @@ public interface DatabaseComponent {
 			int maxLength, int maxLatency) throws DbException;
 
 	/**
+	 * Returns the number of blocks in the given message.
+	 * <p>
+	 * Read-only.
+	 */
+	int getBlockCount(Transaction txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the given block of the given message.
+	 * <p>
+	 * Read-only.
+	 *
+	 * @throws NoSuchBlockException if 'blockNumber' is greater than or equal
+	 * to the number of blocks in the message
+	 */
+	byte[] getBlock(Transaction txn, MessageId m, int blockNumber)
+			throws DbException;
+
+	/**
 	 * Returns the contact with the given ID.
 	 * <p/>
 	 * Read-only.

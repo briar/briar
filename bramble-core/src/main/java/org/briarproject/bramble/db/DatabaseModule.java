@@ -3,6 +3,7 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.io.BlockSource;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.system.Clock;
@@ -30,5 +31,10 @@ public class DatabaseModule {
 			EventBus eventBus, ShutdownManager shutdown) {
 		return new DatabaseComponentImpl<>(db, Connection.class, eventBus,
 				shutdown);
+	}
+
+	@Provides
+	BlockSource provideBlockSource(BlockSourceImpl blockSource) {
+		return blockSource;
 	}
 }
