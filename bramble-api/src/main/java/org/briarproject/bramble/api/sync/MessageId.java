@@ -24,6 +24,12 @@ public class MessageId extends UniqueId {
 	public static final String BLOCK_LABEL =
 			"org.briarproject.bramble/MESSAGE_BLOCK";
 
+	/**
+	 * Label for hashing two tree hashes to produce a parent.
+	 */
+	public static final String TREE_LABEL =
+			"org.briarproject.bramble/MESSAGE_TREE";
+
 	public MessageId(byte[] id) {
 		super(id);
 	}
