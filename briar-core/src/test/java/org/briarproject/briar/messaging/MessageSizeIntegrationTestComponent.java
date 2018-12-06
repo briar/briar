@@ -8,6 +8,7 @@ import org.briarproject.bramble.data.DataModule;
 import org.briarproject.bramble.db.DatabaseModule;
 import org.briarproject.bramble.event.EventModule;
 import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.io.IoModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
@@ -40,6 +41,7 @@ import dagger.Component;
 		EventModule.class,
 		ForumModule.class,
 		IdentityModule.class,
+		IoModule.class,
 		MessagingModule.class,
 		SyncModule.class,
 		SystemModule.class,
