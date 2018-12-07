@@ -207,7 +207,7 @@ public class UiUtils {
 				runnable.run();
 			}
 		};
-		ssb.setSpan(cSpan, start + 1, end, 0);
+		ssb.setSpan(cSpan, start, end, 0);
 		textView.setText(ssb);
 		textView.setMovementMethod(new LinkMovementMethod());
 	}
