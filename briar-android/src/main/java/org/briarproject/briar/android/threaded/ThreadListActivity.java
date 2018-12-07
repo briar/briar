@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.threaded;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
@@ -26,13 +27,15 @@ import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListe
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListDataSource;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.view.KeyboardAwareLinearLayout;
 import org.briarproject.briar.android.view.TextInputView;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextSendController;
+import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
-import org.thoughtcrime.securesms.components.KeyboardAwareLinearLayout;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -42,14 +45,14 @@ import static android.support.design.widget.Snackbar.make;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
 import static java.util.logging.Level.INFO;
-import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCount;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadItem, A extends ThreadItemAdapter<I>>
 		extends BriarActivity
-		implements ThreadListListener<I>, TextInputListener, SharingListener,
+		implements ThreadListListener<I>, SendListener, SharingListener,
 		ThreadItemListener<I>, ThreadListDataSource {
 
 	protected static final String KEY_REPLY_ID = "replyId";
@@ -86,7 +89,10 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		getController().setGroupId(groupId);
 
 		textInput = findViewById(R.id.text_input_container);
-		textInput.setListener(this);
+		TextSendController sendController =
+				new TextSendController(textInput, this, false);
+		textInput.setSendController(sendController);
+		textInput.setMaxTextLength(getMaxTextLength());
 		list = findViewById(R.id.list);
 		layoutManager = new LinearLayoutManager(this);
 		// FIXME pre-fetching messes with read state, find better solution #1289
@@ -266,7 +272,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	@Override
 	public void onBackPressed() {
 		if (adapter.getHighlightedItem() != null) {
-			textInput.setText("");
+			textInput.clearText();
 			replyId = null;
 			updateTextInput();
 		} else {
@@ -348,13 +354,9 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	}
 
 	@Override
-	public void onSendClick(String text) {
-		if (text.trim().length() == 0)
-			return;
-		if (utf8IsTooLong(text, getMaxTextLength())) {
-			displaySnackbar(R.string.text_too_long);
-			return;
-		}
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+		if (isNullOrEmpty(text)) throw new AssertionError();
+
 		I replyItem = adapter.getHighlightedItem();
 		UiResultExceptionHandler<I, DbException> handler =
 				new UiResultExceptionHandler<I, DbException>(this) {
@@ -370,7 +372,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 				};
 		getController().createAndStoreMessage(text, replyItem, handler);
 		textInput.hideSoftKeyboard();
-		textInput.setText("");
+		textInput.clearText();
 		replyId = null;
 		updateTextInput();
 	}

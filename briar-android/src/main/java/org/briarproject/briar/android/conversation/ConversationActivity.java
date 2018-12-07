@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -52,7 +53,6 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -63,8 +63,12 @@ import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.android.view.ImagePreview;
+import org.briarproject.briar.android.view.TextAttachmentController;
+import org.briarproject.briar.android.view.TextAttachmentController.AttachImageListener;
 import org.briarproject.briar.android.view.TextInputView;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextSendController;
+import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -106,6 +110,7 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.view.Gravity.RIGHT;
+import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
@@ -115,6 +120,9 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_IMAGE_ATTACHMENTS;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT;
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
@@ -130,8 +138,8 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
-		implements EventListener, ConversationListener, TextInputListener,
-		TextCache, AttachmentCache {
+		implements EventListener, ConversationListener, SendListener,
+		TextCache, AttachmentCache, AttachImageListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -161,6 +169,7 @@ public class ConversationActivity extends BriarActivity
 	private BriarRecyclerView list;
 	private LinearLayoutManager layoutManager;
 	private TextInputView textInputView;
+	private TextSendController sendController;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -250,7 +259,16 @@ public class ConversationActivity extends BriarActivity
 		list.setEmptyText(getString(R.string.no_private_messages));
 
 		textInputView = findViewById(R.id.text_input_container);
-		textInputView.setListener(this);
+		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
+			ImagePreview imagePreview = findViewById(R.id.imagePreview);
+			sendController = new TextAttachmentController(textInputView,
+					imagePreview, this, this);
+		} else {
+			sendController = new TextSendController(textInputView, this, false);
+		}
+		textInputView.setSendController(sendController);
+		textInputView.setMaxTextLength(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+		textInputView.setEnabled(false);
 	}
 
 	@Override
@@ -267,6 +285,9 @@ public class ConversationActivity extends BriarActivity
 					Snackbar.LENGTH_SHORT);
 			snackbar.getView().setBackgroundResource(R.color.briar_primary);
 			snackbar.show();
+		} else if (request == REQUEST_ATTACH_IMAGE && result == RESULT_OK) {
+			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+			((TextAttachmentController) sendController).onImageReceived(data);
 		}
 	}
 
@@ -405,7 +426,7 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
-				textInputView.setSendButtonEnabled(true);
+				textInputView.setEnabled(true);
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
 				list.showData();
@@ -573,14 +594,23 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(String text) {
-		if (text.isEmpty()) return;
-		text = StringUtils.truncateUtf8(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+	public void onAttachImage(Intent intent) {
+		startActivityForResult(intent, REQUEST_ATTACH_IMAGE);
+	}
+
+	@Override
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+		if (!imageUris.isEmpty()) {
+			Toast.makeText(this, "Not yet implemented.", LENGTH_LONG).show();
+			textInputView.clearText();
+			return;
+		}
+		if (isNullOrEmpty(text)) throw new AssertionError();
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 		if (messagingGroupId == null) loadGroupId(text, timestamp);
 		else createMessage(text, timestamp);
-		textInputView.setText("");
+		textInputView.clearText();
 	}
 
 	private long getMinTimestampForNewMessage() {

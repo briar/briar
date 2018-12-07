@@ -39,6 +39,7 @@
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:gravity="bottom"
+		app:allowEmptyText="true"
 		app:buttonText="@string/blogs_reblog_button"
 		app:hint="@string/blogs_reblog_comment_hint"
 		app:maxLines="5"/>

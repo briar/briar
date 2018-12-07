@@ -118,6 +118,7 @@
 			android:layout_height="wrap_content"
 			android:layout_marginTop="@dimen/margin_large"
 			android:visibility="gone"
+			app:allowEmptyText="true"
 			app:buttonText="@string/introduction_button"
 			app:hint="@string/introduction_message_hint"
 			app:layout_constraintBottom_toBottomOf="parent"

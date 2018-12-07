@@ -51,7 +51,7 @@ public class ShareBlogActivity extends ShareActivity {
 	}
 
 	@Override
-	void share(Collection<ContactId> contacts, String text) {
+	void share(Collection<ContactId> contacts, @Nullable String text) {
 		controller.share(groupId, contacts, text,
 				new UiExceptionHandler<DbException>(this) {
 					@Override

@@ -1,28 +1,31 @@
 package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
-import org.briarproject.briar.android.view.TextInputView.TextInputListener;
+import org.briarproject.briar.android.view.TextSendController;
+import org.briarproject.briar.android.view.TextSendController.SendListener;
 
-import static android.support.design.widget.Snackbar.LENGTH_SHORT;
-import static org.briarproject.bramble.util.StringUtils.truncateUtf8;
-import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
-import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
+import java.util.List;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class BaseMessageFragment extends BaseFragment
-		implements TextInputListener {
+		implements SendListener {
 
 	protected LargeTextInputView message;
 	private MessageFragmentListener listener;
@@ -34,16 +37,20 @@ public abstract class BaseMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(@Nullable LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		// inflate view
 		View v = inflater.inflate(R.layout.fragment_message, container,
 				false);
 		message = v.findViewById(R.id.messageView);
+		TextSendController sendController =
+				new TextSendController(message, this, true);
+		message.setSendController(sendController);
+		message.setMaxTextLength(listener.getMaximumTextLength());
 		message.setButtonText(getString(getButtonText()));
 		message.setHint(getHintText());
-		message.setListener(this);
 
 		return v;
 	}
@@ -76,21 +83,12 @@ public abstract class BaseMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(String text) {
-		if (utf8IsTooLong(text, listener.getMaximumTextLength())) {
-			Snackbar.make(message, R.string.text_too_long, LENGTH_SHORT).show();
-			return;
-		}
-
+	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
 		// disable button to prevent accidental double actions
-		message.setSendButtonEnabled(false);
+		message.setEnabled(false);
 		message.hideSoftKeyboard();
 
-		text = truncateUtf8(text, MAX_INVITATION_TEXT_LENGTH);
-		if(!listener.onButtonClick(text)) {
-			message.setSendButtonEnabled(true);
-			message.showSoftKeyboard();
-		}
+		listener.onButtonClick(text);
 	}
 
 	@UiThread
@@ -101,8 +99,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 
 		void setTitle(@StringRes int titleRes);
 
-		/** Returns true when the button click has been consumed. */
-		boolean onButtonClick(String text);
+		void onButtonClick(@Nullable String text);
 
 		int getMaximumTextLength();
 

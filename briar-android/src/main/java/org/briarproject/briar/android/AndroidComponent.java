@@ -32,7 +32,7 @@ import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.reporting.BriarReportSender;
-import org.briarproject.briar.android.view.TextInputView;
+import org.briarproject.briar.android.view.EmojiTextInputView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
@@ -169,7 +169,7 @@ public interface AndroidComponent
 
 	void inject(NotificationCleanupService notificationCleanupService);
 
-	void inject(TextInputView textInputView);
+	void inject(EmojiTextInputView textInputView);
 
 	void inject(BriarModelLoader briarModelLoader);
 

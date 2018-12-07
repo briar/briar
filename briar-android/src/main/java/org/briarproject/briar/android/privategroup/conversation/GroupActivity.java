@@ -196,7 +196,7 @@ public class GroupActivity extends
 
 	private void setGroupEnabled(boolean enabled) {
 		isDissolved = !enabled;
-		textInput.setSendButtonEnabled(enabled);
+		textInput.setEnabled(enabled);
 		list.getRecyclerView().setAlpha(enabled ? 1f : 0.5f);
 
 		if (!enabled) {

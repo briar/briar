@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.privategroup.creation;
 
+import android.support.annotation.Nullable;
+
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -123,7 +125,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 
 	@Override
 	public void sendInvitation(GroupId g, Collection<ContactId> contactIds,
-			String text, ResultExceptionHandler<Void, DbException> handler) {
+			@Nullable String text,
+			ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor localAuthor = identityManager.getLocalAuthor();
@@ -144,7 +147,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	private void signInvitations(GroupId g, LocalAuthor localAuthor,
-			Collection<Contact> contacts, String text,
+			Collection<Contact> contacts, @Nullable String text,
 			ResultExceptionHandler<Void, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			long timestamp = clock.currentTimeMillis();
@@ -160,15 +163,14 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	private void sendInvitations(GroupId g,
-			Collection<InvitationContext> contexts, String text,
+			Collection<InvitationContext> contexts, @Nullable String text,
 			ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				String txt = text.isEmpty() ? null : text;
 				for (InvitationContext context : contexts) {
 					try {
 						groupInvitationManager.sendInvitation(g,
-								context.contactId, txt, context.timestamp,
+								context.contactId, text, context.timestamp,
 								context.signature);
 					} catch (NoSuchContactException e) {
 						// Continue
