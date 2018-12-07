@@ -13,17 +13,22 @@ import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
+interface BriarService {
+    fun start()
+    fun stop()
+}
+
 @Immutable
 @Singleton
-internal class BriarService
+internal class BriarServiceImpl
 @Inject
 constructor(
     private val accountManager: AccountManager,
     private val lifecycleManager: LifecycleManager,
     private val passwordStrengthEstimator: PasswordStrengthEstimator
-) {
+) : BriarService {
 
-    fun start() {
+    override fun start() {
         if (!accountManager.accountExists()) {
             createAccount()
         } else {
@@ -36,9 +41,10 @@ constructor(
         }
         val dbKey = accountManager.databaseKey ?: throw AssertionError()
         lifecycleManager.startServices(dbKey)
+        lifecycleManager.waitForStartup()
     }
 
-    fun stop() {
+    override fun stop() {
         lifecycleManager.stopServices()
         lifecycleManager.waitForShutdown()
     }

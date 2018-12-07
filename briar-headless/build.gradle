@@ -30,6 +30,9 @@ dependencies {
 	testRuntime "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
 	testImplementation "io.mockk:mockk:1.8.12"
 	testImplementation "org.skyscreamer:jsonassert:1.5.0"
+	testImplementation 'khttp:khttp:0.1.0'
+
+	kaptTest 'com.google.dagger:dagger-compiler:2.19'
 }
 
 jar {
@@ -48,6 +51,7 @@ jar {
 idea {
 	module {
 		sourceDirs += file('build/generated/source/kapt/main')
+		testSourceDirs += file('build/generated/source/kapt/test')
 		generatedSourceDirs += file('build/generated/source/kapt/main')
 	}
 }

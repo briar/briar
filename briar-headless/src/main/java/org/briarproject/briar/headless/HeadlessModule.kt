@@ -58,6 +58,10 @@ internal class HeadlessModule(private val appDir: File) {
 
     @Provides
     @Singleton
+    internal fun provideBriarService(briarService: BriarServiceImpl): BriarService = briarService
+
+    @Provides
+    @Singleton
     internal fun provideDatabaseConfig(): DatabaseConfig {
         val dbDir = File(appDir, "db")
         val keyDir = File(appDir, "key")
@@ -71,30 +75,21 @@ internal class HeadlessModule(private val appDir: File) {
         locationUtils: LocationUtils, eventBus: EventBus, resourceProvider: ResourceProvider,
         circumventionProvider: CircumventionProvider, batteryManager: BatteryManager, clock: Clock
     ): PluginConfig {
-        val torDirectory = File(appDir, "tor")
-        val duplex: List<DuplexPluginFactory>
-        if (isLinux() || isMac()) {
+        val duplex: List<DuplexPluginFactory> = if (isLinux() || isMac()) {
+            val torDirectory = File(appDir, "tor")
             val tor = UnixTorPluginFactory(
                 ioExecutor, networkManager, locationUtils, eventBus, torSocketFactory,
                 backoffFactory, resourceProvider, circumventionProvider, batteryManager, clock,
                 torDirectory
             )
-            duplex = listOf(tor)
+            listOf(tor)
         } else {
-            duplex = emptyList()
+            emptyList()
         }
         return object : PluginConfig {
-            override fun getDuplexFactories(): Collection<DuplexPluginFactory> {
-                return duplex
-            }
-
-            override fun getSimplexFactories(): Collection<SimplexPluginFactory> {
-                return emptyList()
-            }
-
-            override fun shouldPoll(): Boolean {
-                return true
-            }
+            override fun getDuplexFactories(): Collection<DuplexPluginFactory> = duplex
+            override fun getSimplexFactories(): Collection<SimplexPluginFactory> = emptyList()
+            override fun shouldPoll(): Boolean = true
         }
     }
 
@@ -104,21 +99,14 @@ internal class HeadlessModule(private val appDir: File) {
         return object : DevConfig {
             override fun getDevPublicKey(): PublicKey {
                 try {
-                    return crypto.messageKeyParser
-                        .parsePublicKey(fromHexString(DEV_PUBLIC_KEY_HEX))
+                    return crypto.messageKeyParser.parsePublicKey(fromHexString(DEV_PUBLIC_KEY_HEX))
                 } catch (e: GeneralSecurityException) {
                     throw RuntimeException(e)
                 }
-
             }
 
-            override fun getDevOnionAddress(): String {
-                return DEV_ONION_ADDRESS
-            }
-
-            override fun getReportDir(): File {
-                return File(appDir, "reportDir")
-            }
+            override fun getDevOnionAddress(): String = DEV_ONION_ADDRESS
+            override fun getReportDir(): File = File(appDir, "reportDir")
         }
     }
 
