@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
 import org.briarproject.briar.android.conversation.ConversationViewModel;
+import org.briarproject.briar.android.conversation.ImageViewModel;
 
 import javax.inject.Singleton;
 
@@ -19,6 +20,12 @@ public abstract class ViewModelModule {
 	@ViewModelKey(ConversationViewModel.class)
 	abstract ViewModel bindConversationViewModel(
 			ConversationViewModel conversationViewModel);
+
+	@Binds
+	@IntoMap
+	@ViewModelKey(ImageViewModel.class)
+	abstract ViewModel bindImageViewModel(
+			ImageViewModel imageViewModel);
 
 	@Binds
 	@Singleton

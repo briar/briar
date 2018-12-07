@@ -1,14 +1,23 @@
 package org.briarproject.briar.android.conversation;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface.OnClickListener;
+import android.content.Intent;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
 import android.transition.Transition;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
@@ -26,8 +35,18 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.view.PullDownLayout;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
+import javax.inject.Inject;
+
+import static android.content.Intent.ACTION_CREATE_DOCUMENT;
+import static android.content.Intent.CATEGORY_OPENABLE;
+import static android.content.Intent.EXTRA_TITLE;
 import static android.graphics.Color.TRANSPARENT;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.view.View.GONE;
 import static android.view.View.SYSTEM_UI_FLAG_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
@@ -37,6 +56,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
 import static android.widget.ImageView.ScaleType.FIT_START;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 
 public class ImageActivity extends BriarActivity
@@ -46,9 +66,14 @@ public class ImageActivity extends BriarActivity
 	final static String NAME = "name";
 	final static String DATE = "date";
 
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	private ImageViewModel viewModel;
 	private PullDownLayout layout;
 	private AppBarLayout appBarLayout;
 	private PhotoView photoView;
+	private AttachmentItem attachment;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -66,6 +91,11 @@ public class ImageActivity extends BriarActivity
 			Transition transition = new Fade();
 			setSceneTransitionAnimation(transition, null, transition);
 		}
+
+		// get View Model
+		viewModel = ViewModelProviders.of(this, viewModelFactory)
+				.get(ImageViewModel.class);
+		viewModel.getSaveState().observe(this, this::onImageSaveStateChanged);
 
 		// inflate layout
 		setContentView(R.layout.activity_image);
@@ -88,7 +118,7 @@ public class ImageActivity extends BriarActivity
 		TextView dateView = toolbar.findViewById(R.id.dateView);
 
 		// Intent Extras
-		AttachmentItem attachment = getIntent().getParcelableExtra(ATTACHMENT);
+		attachment = getIntent().getParcelableExtra(ATTACHMENT);
 		String name = getIntent().getStringExtra(NAME);
 		long time = getIntent().getLongExtra(DATE, 0);
 		String date = formatDateAbsolute(this, time);
@@ -144,13 +174,30 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		getMenuInflater().inflate(R.menu.image_actions, menu);
+		return super.onCreateOptionsMenu(menu);
+	}
+
+	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
 				onBackPressed();
 				return true;
+			case R.id.action_save_image:
+				showSaveImageDialog();
+				return true;
 			default:
 				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	@Override
+	protected void onActivityResult(int request, int result, Intent data) {
+		super.onActivityResult(request, result, data);
+		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK) {
+			viewModel.saveImage(attachment, data.getData());
 		}
 	}
 
@@ -190,9 +237,8 @@ public class ImageActivity extends BriarActivity
 
 	@RequiresApi(api = 16)
 	private void hideSystemUi(View decorView) {
-		decorView.setSystemUiVisibility(SYSTEM_UI_FLAG_LAYOUT_STABLE
-				| SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-				| SYSTEM_UI_FLAG_FULLSCREEN
+		decorView.setSystemUiVisibility(SYSTEM_UI_FLAG_FULLSCREEN |
+				SYSTEM_UI_FLAG_LAYOUT_STABLE | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 		);
 		appBarLayout.animate()
 				.translationYBy(-1 * appBarLayout.getHeight())
@@ -204,8 +250,7 @@ public class ImageActivity extends BriarActivity
 	@RequiresApi(api = 16)
 	private void showSystemUi(View decorView) {
 		decorView.setSystemUiVisibility(
-				SYSTEM_UI_FLAG_LAYOUT_STABLE
-						| SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+				SYSTEM_UI_FLAG_LAYOUT_STABLE | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
 		);
 		appBarLayout.animate()
 				.translationYBy(appBarLayout.getHeight())
@@ -228,6 +273,51 @@ public class ImageActivity extends BriarActivity
 		int drawableTop = (photoView.getHeight() - realHeight) / 2;
 		return drawableTop < appBarLayout.getBottom() &&
 				drawableTop != appBarLayout.getTop();
+	}
+
+	private void showSaveImageDialog() {
+		OnClickListener okListener = (dialog, which) -> {
+			if (SDK_INT >= 19) {
+				Intent intent = getCreationIntent();
+				startActivityForResult(intent, REQUEST_SAVE_ATTACHMENT);
+			} else {
+				viewModel.saveImage(attachment);
+			}
+		};
+		Builder builder = new Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.dialog_title_save_image));
+		builder.setMessage(getString(R.string.dialog_message_save_image));
+		Drawable icon = ContextCompat.getDrawable(this, R.drawable.ic_security);
+		DrawableCompat.setTint(requireNonNull(icon),
+				ContextCompat.getColor(this, R.color.color_primary));
+		builder.setIcon(icon);
+		builder.setPositiveButton(R.string.save_image, okListener);
+		builder.setNegativeButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	@RequiresApi(api = 19)
+	private Intent getCreationIntent() {
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss",
+				Locale.getDefault());
+		String fileName = sdf.format(new Date());
+		Intent intent = new Intent(ACTION_CREATE_DOCUMENT);
+		intent.addCategory(CATEGORY_OPENABLE);
+		intent.setType(attachment.getMimeType());
+		intent.putExtra(EXTRA_TITLE, fileName);
+		return intent;
+	}
+
+	private void onImageSaveStateChanged(@Nullable Boolean error) {
+		if (error == null) return;
+		int stringRes = error ?
+				R.string.save_image_error : R.string.save_image_success;
+		int colorRes = error ?
+				R.color.briar_red : R.color.briar_primary;
+		Snackbar s = Snackbar.make(layout, stringRes, LENGTH_LONG);
+		s.getView().setBackgroundResource(colorRes);
+		s.show();
+		viewModel.onSaveStateSeen();
 	}
 
 }
