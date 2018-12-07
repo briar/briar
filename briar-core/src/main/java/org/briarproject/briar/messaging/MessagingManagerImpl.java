@@ -33,6 +33,7 @@ import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,8 +155,9 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
-			String contentType, InputStream is) {
+			String contentType, InputStream is) throws IOException {
 		// TODO add real implementation
+		if (is.available() == 0) throw new IOException();
 		byte[] b = new byte[MessageId.LENGTH];
 		new Random().nextBytes(b);
 		return new AttachmentHeader(new MessageId(b), "image/png");

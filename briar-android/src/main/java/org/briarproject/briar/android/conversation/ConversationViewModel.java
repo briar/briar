@@ -31,7 +31,6 @@ import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
-import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -48,7 +47,6 @@ import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.conversation.AttachmentController.getContentTypeFromBitmap;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
 @NotNullByDefault
@@ -140,7 +138,6 @@ public class ConversationViewModel extends AndroidViewModel {
 		observeForeverOnce(messagingGroupId, groupId -> {
 			if (groupId == null) return;
 			// calls through to creating and storing the message
-			// (wouldn't Kotlin's co-routines be nice here?)
 			storeAttachments(groupId, text, uris, timestamp);
 		});
 	}
@@ -185,12 +182,14 @@ public class ConversationViewModel extends AndroidViewModel {
 					getApplication().getContentResolver();
 			is = contentResolver.openInputStream(uri);
 			if (is == null) throw new IOException();
-			is = new BufferedInputStream(is);  // adds support for reset()
-			is.mark(Integer.MAX_VALUE);
 			String contentType = contentResolver.getType(uri);
-			if (contentType == null) contentType = getContentTypeFromBitmap(is);
+			if (contentType == null) throw new IOException("null content type");
 			AttachmentHeader h = messagingManager
 					.addLocalAttachment(groupId, timestamp, contentType, is);
+			is.close();
+			// re-open stream to get AttachmentItem
+			is = contentResolver.openInputStream(uri);
+			if (is == null) throw new IOException();
 			AttachmentItem item = attachmentController
 					.getAttachmentItem(h, new Attachment(is));
 			return new Pair<>(h, item);
