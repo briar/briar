@@ -4,6 +4,7 @@ import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
 import android.support.media.ExifInterface;
+import android.webkit.MimeTypeMap;
 
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -132,8 +133,14 @@ class AttachmentController {
 			thumbnailSize =
 					getThumbnailSize(size.width, size.height, size.mimeType);
 		}
+		// get file extension
+		MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+		String extension = mimeTypeMap.getExtensionFromMimeType(size.mimeType);
+		if (extension == null) {
+			return new AttachmentItem(messageId, 0, 0, "", "", 0, 0, true);
+		}
 		return new AttachmentItem(messageId, size.width, size.height,
-				size.mimeType, thumbnailSize.width, thumbnailSize.height,
+				size.mimeType, extension, thumbnailSize.width, thumbnailSize.height,
 				size.error);
 	}
 

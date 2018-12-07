@@ -94,10 +94,8 @@ public class ImageViewModel extends AndroidViewModel {
 	 */
 	void saveImage(AttachmentItem attachment) {
 		File file = getImageFile(attachment);
-		saveImage(attachment, () -> getOutputStream(file), () -> {
-			scanFile(getApplication(), new String[] {file.toString()}, null,
-					null);
-		});
+		saveImage(attachment, () -> getOutputStream(file), () -> scanFile(
+				getApplication(), new String[] {file.toString()}, null, null));
 	}
 
 	private void saveImage(AttachmentItem attachment, OutputStreamProvider osp,
@@ -141,7 +139,7 @@ public class ImageViewModel extends AndroidViewModel {
 		//noinspection ResultOfMethodCallIgnored
 		path.mkdirs();
 		String fileName = getFileName();
-		String ext = attachment.getMimeType().replaceFirst("image/", ".");
+		String ext = "." + attachment.getExtension();
 		File file = new File(path, fileName + ext);
 		int i = 1;
 		while (file.exists()) {
