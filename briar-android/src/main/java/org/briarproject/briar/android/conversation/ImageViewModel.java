@@ -4,9 +4,11 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
+import android.view.View;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -48,7 +50,9 @@ public class ImageViewModel extends AndroidViewModel {
 	@IoExecutor
 	private final Executor ioExecutor;
 
+	private final MutableLiveData<Boolean> imageClicked = new MutableLiveData<>();
 	private final MutableLiveData<Boolean> saveState = new MutableLiveData<>();
+	private int toolbarTop, toolbarBottom;
 
 	@Inject
 	ImageViewModel(Application application,
@@ -59,6 +63,45 @@ public class ImageViewModel extends AndroidViewModel {
 		this.messagingManager = messagingManager;
 		this.dbExecutor = dbExecutor;
 		this.ioExecutor = ioExecutor;
+	}
+
+	void clickPhoto() {
+		imageClicked.setValue(true);
+	}
+
+	/**
+	 * A LiveData that is true if the image was clicked,
+	 * false if it wasn't.
+	 *
+	 * Call {@link #onOnImageClickSeen()} after consuming an update.
+	 */
+	LiveData<Boolean> getOnImageClicked() {
+		return imageClicked;
+	}
+
+	@UiThread
+	void onOnImageClickSeen() {
+		imageClicked.setValue(false);
+	}
+
+	void setToolbarPosition(int top, int bottom) {
+		toolbarTop = top;
+		toolbarBottom = bottom;
+	}
+
+	boolean isOverlappingToolbar(View screenView, Drawable drawable) {
+		int width = drawable.getIntrinsicWidth();
+		int height = drawable.getIntrinsicHeight();
+		float widthPercentage = screenView.getWidth() / (float) width;
+		float heightPercentage = screenView.getHeight() / (float) height;
+		float scaleFactor = Math.min(widthPercentage, heightPercentage);
+		int realWidth = (int) (width * scaleFactor);
+		int realHeight = (int) (height * scaleFactor);
+		// return if photo doesn't use the full width,
+		// because it will be moved to the right otherwise
+		if (realWidth < screenView.getWidth()) return false;
+		int drawableTop = (screenView.getHeight() - realHeight) / 2;
+		return drawableTop < toolbarBottom && drawableTop != toolbarTop;
 	}
 
 	/**

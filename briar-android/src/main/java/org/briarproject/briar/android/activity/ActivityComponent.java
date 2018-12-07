@@ -20,6 +20,7 @@ import org.briarproject.briar.android.contact.ContactModule;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.conversation.ImageActivity;
+import org.briarproject.briar.android.conversation.ImageFragment;
 import org.briarproject.briar.android.forum.CreateForumActivity;
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.forum.ForumListFragment;
@@ -217,5 +218,7 @@ public interface ActivityComponent {
 	void inject(ContactExchangeErrorFragment fragment);
 
 	void inject(AliasDialogFragment aliasDialogFragment);
+
+	void inject(ImageFragment imageFragment);
 
 }
