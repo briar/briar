@@ -82,7 +82,7 @@ public class ImageViewModel extends AndroidViewModel {
 	@UiThread
 	void saveImage(AttachmentItem attachment, @Nullable Uri uri) {
 		if (uri == null) {
-			saveState.setValue(true);
+			saveState.setValue(false);
 		} else {
 			saveImage(attachment, () -> getOutputStream(uri), null);
 		}

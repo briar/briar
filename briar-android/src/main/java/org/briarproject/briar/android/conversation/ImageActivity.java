@@ -11,6 +11,8 @@ import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
@@ -285,7 +287,10 @@ public class ImageActivity extends BriarActivity
 		Builder builder = new Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_save_image));
 		builder.setMessage(getString(R.string.dialog_message_save_image));
-		builder.setIcon(R.drawable.emoji_google_1f6af);
+		Drawable icon = ContextCompat.getDrawable(this, R.drawable.ic_security);
+		DrawableCompat.setTint(requireNonNull(icon),
+				ContextCompat.getColor(this, R.color.color_primary));
+		builder.setIcon(icon);
 		builder.setPositiveButton(R.string.save_image, okListener);
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.show();
