@@ -13,6 +13,8 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.bramble.api.contact.PendingContact.PendingContactState.FAILED;
+
 @NotNullByDefault
 public interface ContactManager {
 
@@ -51,6 +53,35 @@ public interface ContactManager {
 	ContactId addContact(Author remote, AuthorId local, SecretKey master,
 			long timestamp, boolean alice, boolean verified, boolean active)
 			throws DbException;
+
+	/**
+	 * Returns the static link that needs to be sent to the contact to be added.
+	 */
+	String getRemoteContactLink();
+
+	/**
+	 * Returns true if the given link is syntactically valid.
+	 */
+	boolean isValidRemoteContactLink(String link);
+
+	/**
+	 * Requests a new contact to be added via the given {@code link}.
+	 *
+	 * @param link The link received from the contact we want to add.
+	 * @param alias The alias the user has given this contact.
+	 * @return A PendingContact representing the contact to be added.
+	 */
+	PendingContact addRemoteContactRequest(String link, String alias);
+
+	/**
+	 * Returns a list of {@link PendingContact}s.
+	 */
+	Collection<PendingContact> getPendingContacts();
+
+	/**
+	 * Removes a {@link PendingContact} that is in state {@link FAILED}.
+	 */
+	void removePendingContact(PendingContact pendingContact);
 
 	/**
 	 * Returns the contact with the given ID.

@@ -3,6 +3,8 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -19,12 +21,16 @@ import org.briarproject.bramble.api.transport.KeyManager;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.api.contact.PendingContact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
@@ -35,6 +41,12 @@ import static org.briarproject.bramble.util.StringUtils.toUtf8;
 @ThreadSafe
 @NotNullByDefault
 class ContactManagerImpl implements ContactManager {
+
+	private static final int LINK_LENGTH = 64;
+	private static final String REMOTE_CONTACT_LINK =
+			"briar://" + getRandomBase32String(LINK_LENGTH);
+	private static final Pattern LINK_REGEX =
+			Pattern.compile("(briar://)?([a-z2-7]{" + LINK_LENGTH + "})");
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
@@ -82,6 +94,48 @@ class ContactManagerImpl implements ContactManager {
 		return db.transactionWithResult(false, txn ->
 				addContact(txn, remote, local, master, timestamp, alice,
 						verified, active));
+	}
+
+	@Override
+	public String getRemoteContactLink() {
+		// TODO replace with real implementation
+		return REMOTE_CONTACT_LINK;
+	}
+
+	@SuppressWarnings("SameParameterValue")
+	private static String getRandomBase32String(int length) {
+		Random random = new Random();
+		char[] c = new char[length];
+		for (int i = 0; i < length; i++) {
+			int character = random.nextInt(32);
+			if (character < 26) c[i] = (char) ('a' + character);
+			else c[i] = (char) ('2' + (character - 26));
+		}
+		return new String(c);
+	}
+
+	@Override
+	public boolean isValidRemoteContactLink(String link) {
+		return LINK_REGEX.matcher(link).matches();
+	}
+
+	@Override
+	public PendingContact addRemoteContactRequest(String link, String alias) {
+		// TODO replace with real implementation
+		PendingContactId id = new PendingContactId(link.getBytes());
+		return new PendingContact(id, alias, WAITING_FOR_CONNECTION,
+				System.currentTimeMillis());
+	}
+
+	@Override
+	public Collection<PendingContact> getPendingContacts() {
+		// TODO replace with real implementation
+		return emptyList();
+	}
+
+	@Override
+	public void removePendingContact(PendingContact pendingContact) {
+		// TODO replace with real implementation
 	}
 
 	@Override
