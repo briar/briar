@@ -42,6 +42,7 @@ import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
+import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 public class BriarReportPrimer implements ReportPrimer {
@@ -192,7 +193,7 @@ public class BriarReportPrimer implements ReportPrimer {
 					int ip3 = (ip >> 16) & 0xFF;
 					int ip4 = (ip >> 24) & 0xFF;
 					String address = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-					customData.put("Wi-Fi address", address);
+					customData.put("Wi-Fi address", scrubInetAddress(address));
 				}
 			}
 
