@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -43,6 +44,7 @@ import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
 public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
@@ -656,5 +658,236 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		ClientVersioningManagerImpl c = createInstance();
 		c.registerClient(clientId, 123, 234, hook);
 		assertFalse(c.incomingMessage(txn, newRemoteUpdate, new Metadata()));
+	}
+
+	@Test
+	public void testReturnsInvisibleIfContactGroupDoesNotExist()
+			throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(false));
+		}});
+
+		ClientVersioningManagerImpl c = createInstance();
+		assertEquals(INVISIBLE, c.getClientVisibility(txn, contact.getId(),
+				clientId, 123));
+	}
+
+	@Test
+	public void testReturnsInvisibleIfNoRemoteUpdateExists() throws Exception {
+		MessageId localUpdateId = new MessageId(getRandomId());
+		BdfDictionary localUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, true));
+
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(singletonMap(localUpdateId, localUpdateMeta)));
+		}});
+
+		ClientVersioningManagerImpl c = createInstance();
+		assertEquals(INVISIBLE, c.getClientVisibility(txn, contact.getId(),
+				clientId, 123));
+	}
+
+	@Test(expected = DbException.class)
+	public void testThrowsExceptionIfNoLocalUpdateExists() throws Exception {
+		MessageId remoteUpdateId = new MessageId(getRandomId());
+		BdfDictionary remoteUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, false));
+
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(singletonMap(remoteUpdateId, remoteUpdateMeta)));
+		}});
+
+		ClientVersioningManagerImpl c = createInstance();
+		c.getClientVisibility(txn, contact.getId(), clientId, 123);
+	}
+
+	@Test
+	public void testReturnsInvisibleIfClientNotSupportedLocally()
+			throws Exception {
+		MessageId localUpdateId = new MessageId(getRandomId());
+		BdfDictionary localUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, true));
+		MessageId remoteUpdateId = new MessageId(getRandomId());
+		BdfDictionary remoteUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, false));
+		Map<MessageId, BdfDictionary> messageMetadata = new HashMap<>();
+		messageMetadata.put(localUpdateId, localUpdateMeta);
+		messageMetadata.put(remoteUpdateId, remoteUpdateMeta);
+		// The client is supported remotely but not locally
+		BdfList localUpdateBody = BdfList.of(new BdfList(), 1L);
+		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
+				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
+
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			will(returnValue(localUpdateBody));
+			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			will(returnValue(remoteUpdateBody));
+		}});
+
+		ClientVersioningManagerImpl c = createInstance();
+		assertEquals(INVISIBLE, c.getClientVisibility(txn, contact.getId(),
+				clientId, 123));
+	}
+
+	@Test
+	public void testReturnsInvisibleIfClientNotSupportedRemotely()
+			throws Exception {
+		MessageId localUpdateId = new MessageId(getRandomId());
+		BdfDictionary localUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, true));
+		MessageId remoteUpdateId = new MessageId(getRandomId());
+		BdfDictionary remoteUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, false));
+		Map<MessageId, BdfDictionary> messageMetadata = new HashMap<>();
+		messageMetadata.put(localUpdateId, localUpdateMeta);
+		messageMetadata.put(remoteUpdateId, remoteUpdateMeta);
+		// The client is supported locally but not remotely
+		BdfList localUpdateBody = BdfList.of(BdfList.of(
+				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
+		BdfList remoteUpdateBody = BdfList.of(new BdfList(), 1L);
+
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			will(returnValue(localUpdateBody));
+			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			will(returnValue(remoteUpdateBody));
+		}});
+
+		ClientVersioningManagerImpl c = createInstance();
+		assertEquals(INVISIBLE, c.getClientVisibility(txn, contact.getId(),
+				clientId, 123));
+	}
+
+	@Test
+	public void testReturnsVisibleIfClientNotActiveRemotely() throws Exception {
+		MessageId localUpdateId = new MessageId(getRandomId());
+		BdfDictionary localUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, true));
+		MessageId remoteUpdateId = new MessageId(getRandomId());
+		BdfDictionary remoteUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, false));
+		Map<MessageId, BdfDictionary> messageMetadata = new HashMap<>();
+		messageMetadata.put(localUpdateId, localUpdateMeta);
+		messageMetadata.put(remoteUpdateId, remoteUpdateMeta);
+		// The client is supported locally and remotely but not active
+		BdfList localUpdateBody = BdfList.of(BdfList.of(
+				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
+		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
+				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
+
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			will(returnValue(localUpdateBody));
+			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			will(returnValue(remoteUpdateBody));
+		}});
+
+		ClientVersioningManagerImpl c = createInstance();
+		assertEquals(VISIBLE, c.getClientVisibility(txn, contact.getId(),
+				clientId, 123));
+	}
+
+	@Test
+	public void testReturnsSharedIfClientActiveRemotely() throws Exception {
+		MessageId localUpdateId = new MessageId(getRandomId());
+		BdfDictionary localUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, true));
+		MessageId remoteUpdateId = new MessageId(getRandomId());
+		BdfDictionary remoteUpdateMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
+				new BdfEntry(MSG_KEY_LOCAL, false));
+		Map<MessageId, BdfDictionary> messageMetadata = new HashMap<>();
+		messageMetadata.put(localUpdateId, localUpdateMeta);
+		messageMetadata.put(remoteUpdateId, remoteUpdateMeta);
+		// The client is supported locally and remotely and active
+		BdfList localUpdateBody = BdfList.of(BdfList.of(
+				BdfList.of(clientId.getString(), 123, 234, true)), 1L);
+		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
+				BdfList.of(clientId.getString(), 123, 234, true)), 1L);
+
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(true));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			will(returnValue(localUpdateBody));
+			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			will(returnValue(remoteUpdateBody));
+		}});
+
+		ClientVersioningManagerImpl c = createInstance();
+		assertEquals(SHARED, c.getClientVisibility(txn, contact.getId(),
+				clientId, 123));
 	}
 }
