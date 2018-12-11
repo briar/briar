@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
@@ -193,6 +194,8 @@ public class ConversationActivity extends BriarActivity
 	ViewModelProvider.Factory viewModelFactory;
 
 	private volatile ContactId contactId;
+	@Nullable
+	private Parcelable layoutManagerState;
 
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
@@ -318,6 +321,21 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (layoutManager != null) {
+			layoutManagerState = layoutManager.onSaveInstanceState();
+			outState.putParcelable("layoutManager", layoutManagerState);
+		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		layoutManagerState = savedInstanceState.getParcelable("layoutManager");
+	}
+
+	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
@@ -436,8 +454,12 @@ public class ConversationActivity extends BriarActivity
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
 				list.showData();
-				// Scroll to the bottom
-				list.scrollToPosition(adapter.getItemCount() - 1);
+				if (layoutManagerState == null) {
+					// Scroll to the bottom
+					list.scrollToPosition(adapter.getItemCount() - 1);
+				} else {
+					layoutManager.onRestoreInstanceState(layoutManagerState);
+				}
 			} else {
 				LOG.info("Concurrent update, reloading");
 				loadMessages();
@@ -479,7 +501,8 @@ public class ConversationActivity extends BriarActivity
 					adapter.getMessageItem(m);
 			if (pair != null) {
 				pair.getSecond().setText(text);
-				boolean bottom = adapter.isScrolledToBottom(layoutManager);
+				boolean bottom = layoutManagerState == null &&
+						adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
 				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
 			}
@@ -510,7 +533,8 @@ public class ConversationActivity extends BriarActivity
 					adapter.getMessageItem(m);
 			if (pair != null) {
 				pair.getSecond().setAttachments(items);
-				boolean bottom = adapter.isScrolledToBottom(layoutManager);
+				boolean bottom = layoutManagerState == null &&
+						adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
 				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
 			}
@@ -561,7 +585,8 @@ public class ConversationActivity extends BriarActivity
 
 	private void addConversationItem(ConversationItem item) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			boolean bottom = adapter.isScrolledToBottom(layoutManager);
+			boolean bottom = layoutManagerState == null &&
+					adapter.isScrolledToBottom(layoutManager);
 			adapter.incrementRevision();
 			adapter.add(item);
 			if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
