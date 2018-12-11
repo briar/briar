@@ -35,17 +35,21 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHME
 @ParametersAreNonnullByDefault
 public class ImageFragment extends Fragment {
 
+	private final static String IS_FIRST = "isFirst";
+
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
 	private AttachmentItem attachment;
+	private boolean isFirst;
 	private ImageViewModel viewModel;
 	private PhotoView photoView;
 
-	static ImageFragment newInstance(AttachmentItem a) {
+	static ImageFragment newInstance(AttachmentItem a, boolean isFirst) {
 		ImageFragment f = new ImageFragment();
 		Bundle args = new Bundle();
 		args.putParcelable(ATTACHMENT_POSITION, a);
+		args.putBoolean(IS_FIRST, isFirst);
 		f.setArguments(args);
 		return f;
 	}
@@ -63,6 +67,7 @@ public class ImageFragment extends Fragment {
 
 		Bundle args = requireNonNull(getArguments());
 		attachment = requireNonNull(args.getParcelable(ATTACHMENT_POSITION));
+		isFirst = args.getBoolean(IS_FIRST);
 	}
 
 	@Nullable
@@ -86,7 +91,7 @@ public class ImageFragment extends Fragment {
 			public boolean onLoadFailed(@Nullable GlideException e,
 					Object model, Target<Drawable> target,
 					boolean isFirstResource) {
-				if (getActivity() != null)
+				if (getActivity() != null && isFirst)
 					getActivity().supportStartPostponedEnterTransition();
 				return false;
 			}
@@ -105,8 +110,9 @@ public class ImageFragment extends Fragment {
 				if (viewModel.isOverlappingToolbar(photoView, resource)) {
 					photoView.setScaleType(FIT_START);
 				}
-				if (getActivity() != null)
+				if (getActivity() != null && isFirst) {
 					getActivity().supportStartPostponedEnterTransition();
+				}
 				return false;
 			}
 		};

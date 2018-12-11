@@ -82,7 +82,7 @@ public class ImageActivity extends BriarActivity
 		super.onCreate(state);
 
 		// Transitions
-		supportPostponeEnterTransition();
+		if (state == null) supportPostponeEnterTransition();
 		Window window = getWindow();
 		if (SDK_INT >= 21) {
 			Transition transition = new Fade();
@@ -298,13 +298,18 @@ public class ImageActivity extends BriarActivity
 
 	private class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
+		private boolean isFirst = true;
+
 		private ImagePagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			return ImageFragment.newInstance(attachments.get(position));
+			Fragment f = ImageFragment
+					.newInstance(attachments.get(position), isFirst);
+			isFirst = false;
+			return f;
 		}
 
 		@Override
