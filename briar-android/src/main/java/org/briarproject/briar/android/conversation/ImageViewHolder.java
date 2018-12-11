@@ -15,6 +15,7 @@ import org.briarproject.briar.android.conversation.glide.BriarImageTransformatio
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.conversation.glide.Radii;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 
@@ -42,6 +43,9 @@ class ImageViewHolder extends ViewHolder {
 		} else {
 			setImageViewDimensions(attachment, single, needsStretch);
 			loadImage(attachment, r);
+			if (SDK_INT >= 21) {
+				imageView.setTransitionName(attachment.getTransitionName());
+			}
 		}
 	}
 
