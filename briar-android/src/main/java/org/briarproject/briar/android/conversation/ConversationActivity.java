@@ -853,15 +853,11 @@ public class ConversationActivity extends BriarActivity
 		i.putExtra(ATTACHMENT_POSITION, attachments.indexOf(item));
 		i.putExtra(NAME, name);
 		i.putExtra(DATE, messageItem.getTime());
-		if (SDK_INT >= 23) {
-			String transitionName = item.getTransitionName();
-			ActivityOptionsCompat options =
-					makeSceneTransitionAnimation(this, view, transitionName);
-			ActivityCompat.startActivity(this, i, options.toBundle());
-		} else {
-			// work-around for android bug #224270
-			startActivity(i);
-		}
+		// restoring list position should not trigger android bug #224270
+		String transitionName = item.getTransitionName();
+		ActivityOptionsCompat options =
+				makeSceneTransitionAnimation(this, view, transitionName);
+		ActivityCompat.startActivity(this, i, options.toBundle());
 	}
 
 	@DatabaseExecutor
