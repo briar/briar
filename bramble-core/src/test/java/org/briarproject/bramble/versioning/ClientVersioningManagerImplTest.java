@@ -663,15 +663,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testReturnsInvisibleIfContactGroupDoesNotExist()
 			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
-		}});
+		expectGetContactGroup(false);
 
 		ClientVersioningManagerImpl c = createInstance();
 		assertEquals(INVISIBLE, c.getClientVisibility(txn, contact.getId(),
@@ -685,14 +677,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
 				new BdfEntry(MSG_KEY_LOCAL, true));
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(singletonMap(localUpdateId, localUpdateMeta)));
@@ -710,14 +696,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
 				new BdfEntry(MSG_KEY_LOCAL, false));
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(singletonMap(remoteUpdateId, remoteUpdateMeta)));
@@ -746,14 +726,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
 				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
@@ -787,14 +761,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
 		BdfList remoteUpdateBody = BdfList.of(new BdfList(), 1L);
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
@@ -828,14 +796,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
 				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
@@ -869,14 +831,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
 				BdfList.of(clientId.getString(), 123, 234, true)), 1L);
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
@@ -894,15 +850,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testReturnsNegativeIfContactGroupDoesNotExist()
 			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(false));
-		}});
+		expectGetContactGroup(false);
 
 		ClientVersioningManagerImpl c = createInstance();
 		assertEquals(-1, c.getClientMinorVersion(txn, contact.getId(),
@@ -916,14 +864,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_UPDATE_VERSION, 1L),
 				new BdfEntry(MSG_KEY_LOCAL, true));
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(singletonMap(localUpdateId, localUpdateMeta)));
@@ -951,14 +893,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		// The client is not supported remotely
 		BdfList remoteUpdateBody = BdfList.of(new BdfList(), 1L);
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
@@ -989,14 +925,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
 				BdfList.of(clientId.getString(), 123, 234, false)), 1L);
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
@@ -1027,14 +957,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		BdfList remoteUpdateBody = BdfList.of(BdfList.of(
 				BdfList.of(clientId.getString(), 123, 234, true)), 1L);
 
+		expectGetContactGroup(true);
 		context.checking(new Expectations() {{
-			oneOf(db).getContact(txn, contact.getId());
-			will(returnValue(contact));
-			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
-			will(returnValue(contactGroup));
-			oneOf(db).containsGroup(txn, contactGroup.getId());
-			will(returnValue(true));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
@@ -1045,5 +969,17 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		ClientVersioningManagerImpl c = createInstance();
 		assertEquals(234, c.getClientMinorVersion(txn, contact.getId(),
 				clientId, 123));
+	}
+
+	private void expectGetContactGroup(boolean exists) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(db).getContact(txn, contact.getId());
+			will(returnValue(contact));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(db).containsGroup(txn, contactGroup.getId());
+			will(returnValue(exists));
+		}});
 	}
 }
