@@ -81,8 +81,7 @@ public class TextAttachmentController extends TextSendController
 				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
 		intent.addCategory(CATEGORY_OPENABLE);
 		intent.setType("image/*");
-		if (SDK_INT >= 18)  // TODO set true to allow attaching multiple images
-			intent.putExtra(EXTRA_ALLOW_MULTIPLE, false);
+		if (SDK_INT >= 18) intent.putExtra(EXTRA_ALLOW_MULTIPLE, true);
 		requireNonNull(imageListener).onAttachImage(intent);
 	}
 

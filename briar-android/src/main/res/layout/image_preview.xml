@@ -13,21 +13,23 @@
 		android:id="@+id/divider"
 		style="@style/Divider.Horizontal"
 		android:layout_alignParentTop="true"
-		app:layout_constraintBottom_toTopOf="@+id/imageView"
+		app:layout_constraintBottom_toTopOf="@+id/imageList"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"/>
 
-	<ImageView
-		android:id="@+id/imageView"
-		android:layout_width="match_parent"
+	<android.support.v7.widget.RecyclerView
+		android:id="@+id/imageList"
+		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
+		android:orientation="horizontal"
+		app:layoutManager="android.support.v7.widget.LinearLayoutManager"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/divider"
 		tools:ignore="ContentDescription"
-		tools:srcCompat="@tools:sample/avatars"/>
+		tools:listitem="@layout/list_item_image"/>
 
 	<android.support.design.widget.FloatingActionButton
 		android:id="@+id/imageCancelButton"
