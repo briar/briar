@@ -38,6 +38,13 @@ public interface ClientVersioningManager {
 	Visibility getClientVisibility(Transaction txn, ContactId contactId,
 			ClientId clientId, int majorVersion) throws DbException;
 
+	/**
+	 * Returns the minor version of the given client that is supported by the
+	 * given contact, or -1 if the contact does not support the client.
+	 */
+	int getClientMinorVersion(Transaction txn, ContactId contactId,
+			ClientId clientId, int majorVersion) throws DbException;
+
 	interface ClientVersioningHook {
 
 		void onClientVisibilityChanging(Transaction txn, Contact c,
