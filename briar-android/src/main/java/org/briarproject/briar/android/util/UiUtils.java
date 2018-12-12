@@ -14,9 +14,9 @@ import android.os.PowerManager;
 import android.support.annotation.AttrRes;
 import android.support.annotation.ColorInt;
 import android.support.annotation.ColorRes;
-import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
+import android.support.annotation.UiThread;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.content.ContextCompat;
@@ -342,7 +342,7 @@ public class UiUtils {
 	 * If the LiveData's value is available, the {@link Observer} will be
 	 * called right away.
 	 */
-	@MainThread
+	@UiThread
 	public static <T> void observeOnce(LiveData<T> liveData,
 			LifecycleOwner owner, Observer<T> observer) {
 		liveData.observe(owner, new Observer<T>() {
@@ -360,7 +360,7 @@ public class UiUtils {
 	 *
 	 * Warning: Do NOT call from objects that have a lifecycle.
 	 */
-	@MainThread
+	@UiThread
 	public static <T> void observeForeverOnce(LiveData<T> liveData,
 			Observer<T> observer) {
 		liveData.observeForever(new Observer<T>() {
