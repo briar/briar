@@ -25,13 +25,12 @@ class ImageViewHolder extends ViewHolder {
 	private static final int ERROR_RES = R.drawable.ic_image_broken;
 
 	protected final ImageView imageView;
-	private final int imageSize, borderSize;
+	private final int imageSize;
 
-	public ImageViewHolder(View v, int imageSize, int borderSize) {
+	ImageViewHolder(View v, int imageSize) {
 		super(v);
 		imageView = v.findViewById(R.id.imageView);
 		this.imageSize = imageSize;
-		this.borderSize = borderSize;
 	}
 
 	void bind(AttachmentItem attachment, Radii r, boolean single,
@@ -49,9 +48,7 @@ class ImageViewHolder extends ViewHolder {
 	private void setImageViewDimensions(AttachmentItem a, boolean single,
 			boolean needsStretch) {
 		LayoutParams params = (LayoutParams) imageView.getLayoutParams();
-		// actual image size will shrink half the border
-		int stretchSize = (imageSize - borderSize / 2) * 2 + borderSize;
-		int width = needsStretch ? stretchSize : imageSize;
+		int width = needsStretch ? imageSize * 2 : imageSize;
 		params.width = single ? a.getThumbnailWidth() : width;
 		params.height = single ? a.getThumbnailHeight() : imageSize;
 		params.setFullSpan(!single && needsStretch);

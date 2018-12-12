@@ -19,36 +19,35 @@ import java.util.List;
 
 import static android.content.Context.WINDOW_SERVICE;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.briar.android.util.UiUtils.isRtl;
 
 @NotNullByDefault
 class ImageAdapter extends Adapter<ImageViewHolder> {
 
 	private final List<AttachmentItem> items = new ArrayList<>();
 	private final ConversationListener listener;
-	private final int imageSize, borderSize;
+	private final int imageSize;
 	private final int radiusBig, radiusSmall;
 	private final boolean isRtl;
 	@Nullable
 	private ConversationMessageItem conversationItem;
 
-	public ImageAdapter(Context ctx, ImageItemDecoration imageItemDecoration,
-			ConversationListener listener) {
+	ImageAdapter(Context ctx, ConversationListener listener) {
 		this.listener = listener;
-		borderSize = imageItemDecoration.getBorderSize();
 		imageSize = getImageSize(ctx);
 		Resources res = ctx.getResources();
 		radiusBig =
 				res.getDimensionPixelSize(R.dimen.message_bubble_radius_big);
 		radiusSmall =
 				res.getDimensionPixelSize(R.dimen.message_bubble_radius_small);
-		isRtl = imageItemDecoration.isRtl();
+		isRtl = isRtl(ctx);
 	}
 
 	@Override
 	public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
 		View v = LayoutInflater.from(viewGroup.getContext()).inflate(
 				R.layout.list_item_image, viewGroup, false);
-		return new ImageViewHolder(v, imageSize, borderSize);
+		return new ImageViewHolder(v, imageSize);
 	}
 
 	@Override
