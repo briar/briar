@@ -134,7 +134,7 @@ public class ImageActivity extends BriarActivity
 		viewPager.setCurrentItem(position);
 
 		if (SDK_INT >= 16) {
-			viewModel.getOnImageClicked().observe(this, this::onPhotoClicked);
+			viewModel.getOnImageClicked().observe(this, this::onImageClicked);
 			window.getDecorView().setSystemUiVisibility(
 					SYSTEM_UI_FLAG_LAYOUT_STABLE |
 							SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
@@ -168,6 +168,8 @@ public class ImageActivity extends BriarActivity
 		);
 		if (SDK_INT >= 16) {
 			layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+		} else {
+			layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 		}
 	}
 
@@ -203,8 +205,9 @@ public class ImageActivity extends BriarActivity
 		supportFinishAfterTransition();
 	}
 
-	private void onPhotoClicked(@Nullable Boolean clicked) {
-		if (clicked != null&& clicked && SDK_INT >= 16) {
+	@RequiresApi(api = 16)
+	private void onImageClicked(@Nullable Boolean clicked) {
+		if (clicked != null && clicked) {
 			toggleSystemUi();
 			viewModel.onOnImageClickSeen();
 		}

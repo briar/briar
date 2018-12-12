@@ -77,7 +77,7 @@ public class ImageFragment extends Fragment {
 				viewModelFactory).get(ImageViewModel.class);
 
 		photoView = v.findViewById(R.id.photoView);
-		photoView.setOnClickListener(view -> viewModel.clickPhoto());
+		photoView.setOnClickListener(view -> viewModel.clickImage());
 
 		// Request Listener
 		RequestListener<Drawable> listener = new RequestListener<Drawable>() {

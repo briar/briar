@@ -50,7 +50,8 @@ public class ImageViewModel extends AndroidViewModel {
 	@IoExecutor
 	private final Executor ioExecutor;
 
-	private final MutableLiveData<Boolean> imageClicked = new MutableLiveData<>();
+	private final MutableLiveData<Boolean> imageClicked =
+			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> saveState = new MutableLiveData<>();
 	private int toolbarTop, toolbarBottom;
 
@@ -65,7 +66,7 @@ public class ImageViewModel extends AndroidViewModel {
 		this.ioExecutor = ioExecutor;
 	}
 
-	void clickPhoto() {
+	void clickImage() {
 		imageClicked.setValue(true);
 	}
 
@@ -97,7 +98,7 @@ public class ImageViewModel extends AndroidViewModel {
 		float scaleFactor = Math.min(widthPercentage, heightPercentage);
 		int realWidth = (int) (width * scaleFactor);
 		int realHeight = (int) (height * scaleFactor);
-		// return if photo doesn't use the full width,
+		// return if image doesn't use the full width,
 		// because it will be moved to the right otherwise
 		if (realWidth < screenView.getWidth()) return false;
 		int drawableTop = (screenView.getHeight() - realHeight) / 2;
