@@ -19,6 +19,7 @@ import org.briarproject.briar.android.contact.ContactLinkExchangeActivity;
 import org.briarproject.briar.android.contact.ContactLinkExchangeFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
+import org.briarproject.briar.android.contact.ContactNicknameFragment;
 import org.briarproject.briar.android.contact.ContactQrCodeInputFragment;
 import org.briarproject.briar.android.contact.ContactQrCodeOutputFragment;
 import org.briarproject.briar.android.contact.PendingRequestsActivity;
@@ -228,6 +229,8 @@ public interface ActivityComponent {
 	void inject(AliasDialogFragment aliasDialogFragment);
 
 	void inject(ContactLinkExchangeFragment fragment);
+
+	void inject(ContactNicknameFragment fragment);
 
 	void inject(ContactQrCodeOutputFragment fragment);
 

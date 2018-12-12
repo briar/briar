@@ -166,18 +166,23 @@
 
 
 	<!-- Adding Contacts Remotely PROTOTYPE -->
+	<string name="add_contact_remotely_title_case">Add Contact Remotely</string>
 	<string name="add_contact_nearby_title">Add contact nearby</string>
 	<string name="add_contact_remotely_title">Add contact remotely</string>
 	<string name="contact_name_hint">Give contact a nickname</string>
-	<string name="contact_link_hint">Enter contact\'s link</string>
+	<string name="contact_link_intro">Enter the link from your contact here</string>
+	<string name="contact_link_hint">Contact\'s link</string>
 	<string name="paste_button">Paste</string>
 	<string name="scan_qr_code_button">QR Code</string>
 	<string name="add_contact_button">Add contact</string>
 	<string name="copy_button">Copy</string>
 	<string name="share_button">Share</string>
 	<string name="show_qr_code_button">QR Code</string>
-	<string name="send_link_title">Exchange links with your contact</string>
-	<string name="your_link">Your link:</string>
+	<string name="send_link_title">Exchange links</string>
+	<string name="add_contact_choose_nickname">Choose Nickname</string>
+	<string name="add_contact_choose_a_nickname">Choose a nickname</string>
+	<string name="nickname_intro">Give your contact a nickname! Only you can see it.</string>
+	<string name="your_link">Give this link to the contact you want to add</string>
 	<string name="link_clip_label">Briar link</string>
 	<string name="link_copied_toast">Link copied</string>
 	<string name="pending_contact_requests_snackbar">"There are pending contact requests"</string>

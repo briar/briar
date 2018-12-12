@@ -2,13 +2,13 @@ package org.briarproject.briar.android.contact;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ShareCompat.IntentBuilder;
+import android.support.v7.widget.AppCompatImageButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -47,9 +47,8 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 	}
 
 	private ClipboardManager clipboard;
-	private TextInputLayout linkInputLayout, contactNameLayout;
-	private TextInputEditText linkInput, contactNameInput;
-	private Button addButton;
+	private TextInputLayout linkInputLayout;
+	private TextInputEditText linkInput;
 
 	@Override
 	public String getUniqueTag() {
@@ -68,7 +67,7 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 			@Nullable Bundle savedInstanceState) {
 		if (getActivity() == null || getContext() == null) return null;
 
-		getActivity().setTitle(R.string.add_contact_title);
+		getActivity().setTitle(R.string.add_contact_remotely_title_case);
 
 		View v = inflater.inflate(R.layout.fragment_contact_link_exchange,
 				container, false);
@@ -79,16 +78,8 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 		int color =
 				resolveColorAttribute(getContext(), R.attr.colorControlNormal);
 
-		addButton = v.findViewById(R.id.addButton);
-		addButton.setOnClickListener(view -> onAddButtonClicked());
-
-		contactNameLayout = v.findViewById(R.id.contactNameLayout);
-		contactNameInput = v.findViewById(R.id.contactNameInput);
-		if (SDK_INT < 23) {
-			Drawable drawable = wrap(contactNameInput.getCompoundDrawables()[0]);
-			setTint(drawable, color);
-			contactNameInput.setCompoundDrawables(drawable, null, null, null);
-		}
+		Button continueButton = v.findViewById(R.id.addButton);
+		continueButton.setOnClickListener(view -> onContinueButtonClicked());
 
 		linkInputLayout = v.findViewById(R.id.linkInputLayout);
 		linkInput = v.findViewById(R.id.linkInput);
@@ -100,7 +91,7 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 		if (getArguments() != null)
 			linkInput.setText(getArguments().getString("link"));
 
-		Button pasteButton = v.findViewById(R.id.pasteButton);
+		AppCompatImageButton pasteButton = v.findViewById(R.id.pasteButton);
 		pasteButton.setOnClickListener(view -> {
 			ClipData clip = clipboard.getPrimaryClip();
 			if (clip != null)
@@ -162,13 +153,6 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 			linkInput.requestFocus();
 			return true;
 		} else linkInputLayout.setError(null);
-		boolean validContactName = contactNameInput.getText() != null &&
-				contactNameInput.getText().length() > 0;
-		if (!validContactName) {
-			contactNameLayout.setError(getString(R.string.nickname_missing));
-			contactNameInput.requestFocus();
-			return true;
-		} else contactNameLayout.setError(null);
 		return false;
 	}
 
@@ -186,17 +170,15 @@ public class ContactLinkExchangeFragment extends BaseFragment {
 			return null;
 	}
 
-	private void onAddButtonClicked() {
+	private void onContinueButtonClicked() {
 		ContactLinkExchangeActivity activity = getCastActivity();
 		if (activity == null || isInputError()) return;
 
 		String linkText = getLink();
 		if (linkText == null) throw new AssertionError();
-		activity.addFakeRequest(contactNameInput.getText().toString(),
-				linkText);
 
-		Intent intent = new Intent(activity, PendingRequestsActivity.class);
-		startActivity(intent);
-		finish();
+		BaseFragment f = ContactNicknameFragment.newInstance(linkText);
+		activity.showNextFragment(f);
 	}
+
 }

@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.contact;
 
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.util.Log;
 import android.view.View;
@@ -37,13 +38,18 @@ public class PendingRequestsViewHolder extends ViewHolder {
 		time.setText(formatDate(time.getContext(), item.getTimestamp()));
 		long diff = item.getAddAt() - System.currentTimeMillis();
 		Log.e("TEST", "diff: " + diff);
+		int color = ContextCompat
+				.getColor(status.getContext(), R.color.briar_green);
 		if (diff < SECONDS.toMillis(10)) {
 			status.setText(R.string.adding_contact);
 		} else if (diff < SECONDS.toMillis(20)) {
 			status.setText(R.string.connecting);
 		} else if (diff < SECONDS.toMillis(30)) {
 			status.setText(R.string.waiting_for_contact_to_come_online);
+			color = ContextCompat
+					.getColor(status.getContext(), R.color.briar_yellow);
 		}
+		status.setTextColor(color);
 	}
 
 }

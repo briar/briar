@@ -4,124 +4,39 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
-	android:layout_height="match_parent">
+	android:layout_height="match_parent"
+	android:fillViewport="true">
 
 	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:padding="@dimen/margin_large">
 
-		<android.support.design.widget.TextInputLayout
-			android:id="@+id/contactNameLayout"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			app:errorEnabled="true"
-			app:hintEnabled="false"
-			app:layout_constraintBottom_toTopOf="@+id/addButton"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/pasteButton">
-
-			<android.support.design.widget.TextInputEditText
-				android:id="@+id/contactNameInput"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:drawableLeft="@drawable/ic_person"
-				android:drawablePadding="8dp"
-				android:drawableStart="@drawable/ic_person"
-				android:drawableTint="?attr/colorControlNormal"
-				android:hint="@string/contact_name_hint"
-				android:importantForAutofill="no"
-				android:inputType="text|textCapWords"/>
-
-		</android.support.design.widget.TextInputLayout>
-
-		<android.support.design.widget.TextInputLayout
-			android:id="@+id/linkInputLayout"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp"
-			app:errorEnabled="true"
-			app:hintEnabled="false"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/divider">
-
-			<android.support.design.widget.TextInputEditText
-				android:id="@+id/linkInput"
-				android:layout_width="match_parent"
-				android:layout_height="match_parent"
-				android:drawableLeft="@drawable/ic_link"
-				android:drawablePadding="8dp"
-				android:drawableStart="@drawable/ic_link"
-				android:drawableTint="?attr/colorControlNormal"
-				android:hint="@string/contact_link_hint"
-				android:importantForAutofill="no"
-				android:inputType="textUri"/>
-
-		</android.support.design.widget.TextInputLayout>
-
-		<Button
-			android:id="@+id/pasteButton"
-			style="@style/BriarButtonFlat.Positive.Tiny"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginLeft="8dp"
-			android:layout_marginStart="8dp"
-			android:drawableLeft="@drawable/ic_content_paste"
-			android:drawablePadding="8dp"
-			android:drawableStart="@drawable/ic_content_paste"
-			android:text="@string/paste_button"
-			app:layout_constraintBottom_toTopOf="@+id/contactNameLayout"
-			app:layout_constraintEnd_toStartOf="@id/scanCodeButton"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/linkInputLayout"/>
-
-		<Button
-			android:id="@+id/scanCodeButton"
-			style="@style/BriarButtonFlat.Positive.Tiny"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:drawableLeft="@drawable/ic_qr_code"
-			android:drawablePadding="8dp"
-			android:drawableStart="@drawable/ic_qr_code"
-			android:text="@string/scan_qr_code_button"
-			android:visibility="gone"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintHorizontal_bias="0.5"
-			app:layout_constraintStart_toEndOf="@id/pasteButton"
-			app:layout_constraintTop_toTopOf="@+id/pasteButton"
-			tools:visibility="visible"/>
-
-		<TextView
-			android:id="@+id/linkIntro"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:gravity="left|start"
-			android:text="@string/send_link_title"
-			android:textSize="18sp"
-			android:textStyle="bold"
-			app:layout_constraintBottom_toTopOf="@+id/yourLink"
-			app:layout_constraintEnd_toEndOf="parent"
+		<android.support.v7.widget.AppCompatImageView
+			android:id="@+id/yourLinkIcon"
+			android:layout_width="38dp"
+			android:layout_height="38dp"
+			android:layout_marginTop="8dp"
+			android:background="@drawable/bubble_accent"
+			android:scaleType="center"
+			android:src="@drawable/ic_call_made"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintVertical_bias="0"
-			app:layout_constraintVertical_chainStyle="packed"/>
+			app:tint="@color/briar_white"/>
 
 		<TextView
 			android:id="@+id/yourLink"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginTop="16dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginStart="8dp"
 			android:gravity="left|start"
 			android:text="@string/your_link"
-			android:textSize="18sp"
-			app:layout_constraintBottom_toTopOf="@+id/linkView"
+			android:textSize="16sp"
+			app:layout_constraintBottom_toBottomOf="@+id/yourLinkIcon"
 			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/linkIntro"
-			app:layout_constraintVertical_bias="0"
-			app:layout_constraintVertical_chainStyle="packed"/>
+			app:layout_constraintStart_toEndOf="@+id/yourLinkIcon"
+			app:layout_constraintTop_toTopOf="@+id/yourLinkIcon"/>
 
 		<TextView
 			android:id="@+id/linkView"
@@ -134,26 +49,10 @@
 			android:textIsSelectable="true"
 			android:textSize="18sp"
 			android:typeface="monospace"
-			app:layout_constraintBottom_toTopOf="@+id/copyButton"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/yourLink"
+			app:layout_constraintTop_toBottomOf="@+id/yourLinkIcon"
 			tools:text="briar://scnsdflamslkfjgluoblmksdfbwevlewajfdlkjewwhqliafskfjhskdjhvoieiv"/>
-
-		<Button
-			android:id="@+id/copyButton"
-			style="@style/BriarButtonFlat.Positive.Tiny"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginTop="8dp"
-			android:drawableLeft="@drawable/ic_content_copy"
-			android:drawablePadding="8dp"
-			android:drawableStart="@drawable/ic_content_copy"
-			android:text="@string/copy_button"
-			app:layout_constraintBottom_toTopOf="@+id/linkInputLayout"
-			app:layout_constraintEnd_toStartOf="@id/shareButton"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/linkView"/>
 
 		<Button
 			android:id="@+id/shareButton"
@@ -170,6 +69,22 @@
 			app:layout_constraintTop_toTopOf="@id/copyButton"/>
 
 		<Button
+			android:id="@+id/copyButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			android:drawableLeft="@drawable/ic_content_copy"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_content_copy"
+			android:text="@string/copy_button"
+			app:layout_constraintEnd_toStartOf="@id/shareButton"
+			app:layout_constraintHorizontal_bias="1.0"
+			app:layout_constraintHorizontal_chainStyle="packed"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/linkView"/>
+
+		<Button
 			android:id="@+id/showCodeButton"
 			style="@style/BriarButtonFlat.Positive.Tiny"
 			android:layout_width="wrap_content"
@@ -184,28 +99,180 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@id/shareButton"
 			app:layout_constraintTop_toTopOf="@id/copyButton"
-			tools:visibility="visible"/>
+			tools:visibility="gone"/>
+
+		<android.support.v7.widget.AppCompatImageView
+			android:id="@+id/linkInputIcon"
+			android:layout_width="38dp"
+			android:layout_height="38dp"
+			android:layout_marginTop="24dp"
+			android:background="@drawable/bubble_accent"
+			android:scaleType="center"
+			android:src="@drawable/ic_call_received"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/copyButton"
+			app:tint="@color/briar_white"/>
+
+		<TextView
+			android:id="@+id/inputLink"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="8dp"
+			android:layout_marginStart="8dp"
+			android:gravity="left|start"
+			android:text="@string/contact_link_intro"
+			android:textSize="16sp"
+			app:layout_constraintBottom_toBottomOf="@+id/linkInputIcon"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/linkInputIcon"
+			app:layout_constraintTop_toTopOf="@+id/linkInputIcon"/>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/linkInputLayout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
+			app:errorEnabled="true"
+			app:hintEnabled="false"
+			app:layout_constraintEnd_toStartOf="@+id/pasteButton"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/linkInputIcon">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/linkInput"
+				android:layout_width="match_parent"
+				android:layout_height="match_parent"
+				android:hint="@string/contact_link_hint"
+				android:importantForAutofill="no"
+				android:inputType="textUri"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<android.support.v7.widget.AppCompatImageButton
+			android:id="@+id/pasteButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:src="@drawable/ic_content_paste"
+			app:layout_constraintBottom_toBottomOf="@+id/linkInputLayout"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/linkInputLayout"
+			app:layout_constraintTop_toTopOf="@+id/linkInputLayout"
+			app:layout_constraintVertical_bias="0.0"/>
+
+		<Button
+			android:id="@+id/scanCodeButton"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:drawableLeft="@drawable/ic_qr_code"
+			android:drawablePadding="8dp"
+			android:drawableStart="@drawable/ic_qr_code"
+			android:text="@string/scan_qr_code_button"
+			android:visibility="gone"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toEndOf="@id/pasteButton"
+			app:layout_constraintTop_toTopOf="@+id/pasteButton"
+			tools:visibility="gone"/>
+
+		<android.support.constraint.Guideline
+			android:id="@+id/guideline"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:orientation="vertical"
+			app:layout_constraintGuide_percent="0.5"/>
+
+
+		<TextView
+			android:id="@+id/stepOne"
+			android:layout_width="28dp"
+			android:layout_height="28dp"
+			android:layout_marginTop="16dp"
+			android:background="@drawable/bubble_accent"
+			android:gravity="center"
+			android:text="1"
+			android:textColor="@color/briar_white"
+			android:textSize="18sp"
+			app:layout_constraintBottom_toTopOf="@+id/stepOneText"
+			app:layout_constraintEnd_toStartOf="@+id/guideline"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/linkInputLayout"
+			app:layout_constraintVertical_bias="1.0"
+			app:layout_constraintVertical_chainStyle="packed"/>
+
+		<TextView
+			android:id="@+id/stepOneText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="8dp"
+			android:layout_marginEnd="8dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginRight="8dp"
+			android:layout_marginStart="8dp"
+			android:layout_marginTop="8dp"
+			android:text="@string/send_link_title"
+			app:layout_constraintBottom_toTopOf="@+id/addButton"
+			app:layout_constraintEnd_toStartOf="@+id/guideline"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/stepOne"/>
+
+		<View
+			android:id="@+id/stepConnector"
+			android:layout_width="0dp"
+			android:layout_height="1dp"
+			android:layout_margin="16dp"
+			android:alpha="0.5"
+			android:background="@color/briar_accent"
+			app:layout_constraintBottom_toBottomOf="@+id/stepOne"
+			app:layout_constraintEnd_toStartOf="@+id/stepTwo"
+			app:layout_constraintStart_toEndOf="@+id/stepOne"
+			app:layout_constraintTop_toTopOf="@+id/stepOne"/>
+
+		<TextView
+			android:id="@+id/stepTwo"
+			android:layout_width="28dp"
+			android:layout_height="28dp"
+			android:alpha="0.5"
+			android:background="@drawable/bubble_accent"
+			android:gravity="center"
+			android:text="2"
+			android:textColor="@color/private_message_date_inverse"
+			android:textSize="18sp"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="@+id/guideline"
+			app:layout_constraintTop_toTopOf="@+id/stepOne"/>
+
+		<TextView
+			android:id="@+id/stepTwoText"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="8dp"
+			android:layout_marginEnd="8dp"
+			android:layout_marginLeft="8dp"
+			android:layout_marginRight="8dp"
+			android:layout_marginStart="8dp"
+			android:layout_marginTop="8dp"
+			android:text="@string/add_contact_choose_nickname"
+			app:layout_constraintBottom_toTopOf="@+id/addButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.5"
+			app:layout_constraintStart_toEndOf="@+id/guideline"
+			app:layout_constraintTop_toBottomOf="@+id/stepTwo"/>
 
 		<Button
 			android:id="@+id/addButton"
 			style="@style/BriarButton"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="8dp"
-			android:layout_marginTop="16dp"
-			android:text="@string/add_contact_button"
+			android:text="@string/continue_button"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHorizontal_bias="0.5"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"/>
+			app:layout_constraintTop_toBottomOf="@+id/stepOneText"/>
 
-		<View
-			android:id="@+id/divider"
-			style="@style/Divider.Horizontal"
-			android:layout_width="match_parent"
-			android:layout_height="1dp"
-			android:layout_marginTop="8dp"
-			app:layout_constraintTop_toBottomOf="@+id/copyButton"/>
 
 	</android.support.constraint.ConstraintLayout>
 </ScrollView>
