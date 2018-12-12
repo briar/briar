@@ -57,7 +57,6 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
-import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 
@@ -156,12 +155,12 @@ public class NavDrawerActivity extends BriarActivity implements
 		super.onStart();
 		updateTransports();
 		lockManager.checkIfLockable();
-		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
-			@Override
-			public void onResultUi(ExpiryWarning expiry) {
-				if (expiry != NO) showExpiryWarning(expiry);
-			}
-		});
+//		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
+//			@Override
+//			public void onResultUi(ExpiryWarning expiry) {
+//				if (expiry != NO) showExpiryWarning(expiry);
+//			}
+//		});
 	}
 
 	@Override
