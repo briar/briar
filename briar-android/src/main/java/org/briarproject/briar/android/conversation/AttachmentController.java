@@ -16,6 +16,7 @@ import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -90,6 +91,11 @@ class AttachmentController {
 		return attachments;
 	}
 
+	/**
+	 * Creates {@link AttachmentItem}s from the passed headers and Attachments.
+	 *
+	 * Note: This closes the {@link Attachment}'s {@link InputStream}.
+	 */
 	List<AttachmentItem> getAttachmentItems(
 			List<Pair<AttachmentHeader, Attachment>> attachments) {
 		boolean needsSize = attachments.size() == 1;
@@ -102,7 +108,11 @@ class AttachmentController {
 		return items;
 	}
 
-	private AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
+	/**
+	 * Creates an {@link AttachmentItem} from the {@link Attachment}'s
+	 * {@link InputStream} which will be closed when this method returns.
+	 */
+	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
 			boolean needsSize) {
 		MessageId messageId = h.getMessageId();
 		if (!needsSize) {
@@ -118,7 +128,7 @@ class AttachmentController {
 		}
 
 		Size size = new Size();
-		InputStream is = a.getStream();
+		InputStream is = new BufferedInputStream(a.getStream());
 		is.mark(Integer.MAX_VALUE);
 		try {
 			// use exif to get size
@@ -152,8 +162,8 @@ class AttachmentController {
 			return new AttachmentItem(messageId, 0, 0, "", "", 0, 0, true);
 		}
 		return new AttachmentItem(messageId, size.width, size.height,
-				size.mimeType, extension, thumbnailSize.width, thumbnailSize.height,
-				size.error);
+				size.mimeType, extension, thumbnailSize.width,
+				thumbnailSize.height, size.error);
 	}
 
 	@Nullable

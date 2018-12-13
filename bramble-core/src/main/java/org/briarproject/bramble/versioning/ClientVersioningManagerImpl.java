@@ -89,14 +89,9 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	public Visibility getClientVisibility(Transaction txn, ContactId contactId,
 			ClientId clientId, int majorVersion) throws DbException {
 		try {
-			Contact contact = db.getContact(txn, contactId);
-			Group g = getContactGroup(contact);
-			// Contact may be in the process of being added or removed, so
-			// contact group may not exist
-			if (!db.containsGroup(txn, g.getId())) return INVISIBLE;
-			LatestUpdates latest = findLatestUpdates(txn, g.getId());
+			LatestUpdates latest = findLatestUpdates(txn, contactId);
+			if (latest == null || latest.remote == null) return INVISIBLE;
 			if (latest.local == null) throw new DbException();
-			if (latest.remote == null) return INVISIBLE;
 			Update localUpdate = loadUpdate(txn, latest.local.messageId);
 			Update remoteUpdate = loadUpdate(txn, latest.remote.messageId);
 			Map<ClientMajorVersion, Visibility> visibilities =
@@ -105,6 +100,24 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 					new ClientMajorVersion(clientId, majorVersion);
 			Visibility v = visibilities.get(cv);
 			return v == null ? INVISIBLE : v;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public int getClientMinorVersion(Transaction txn, ContactId contactId,
+			ClientId clientId, int majorVersion) throws DbException {
+		try {
+			LatestUpdates latest = findLatestUpdates(txn, contactId);
+			if (latest == null || latest.remote == null) return -1;
+			Update remoteUpdate = loadUpdate(txn, latest.remote.messageId);
+			ClientMajorVersion cv =
+					new ClientMajorVersion(clientId, majorVersion);
+			for (ClientState remote : remoteUpdate.states) {
+				if (remote.majorVersion.equals(cv)) return remote.minorVersion;
+			}
+			return -1;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -334,6 +347,17 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	private Group getContactGroup(Contact c) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
 				MAJOR_VERSION, c);
+	}
+
+	@Nullable
+	private LatestUpdates findLatestUpdates(Transaction txn, ContactId c)
+			throws DbException, FormatException {
+		Contact contact = db.getContact(txn, c);
+		Group g = getContactGroup(contact);
+		// Contact may be in the process of being added or removed, so
+		// contact group may not exist
+		if (!db.containsGroup(txn, g.getId())) return null;
+		return findLatestUpdates(txn, g.getId());
 	}
 
 	private LatestUpdates findLatestUpdates(Transaction txn, GroupId g)
