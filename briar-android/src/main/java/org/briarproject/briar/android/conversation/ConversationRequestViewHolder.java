@@ -17,16 +17,17 @@ class ConversationRequestViewHolder extends ConversationNoticeViewHolder {
 	private final Button acceptButton;
 	private final Button declineButton;
 
-	ConversationRequestViewHolder(View v, boolean isIncoming) {
-		super(v, isIncoming);
+	ConversationRequestViewHolder(View v, ConversationListener listener,
+			boolean isIncoming) {
+		super(v, listener, isIncoming);
 		acceptButton = v.findViewById(R.id.acceptButton);
 		declineButton = v.findViewById(R.id.declineButton);
 	}
 
 	@Override
-	void bind(ConversationItem item, ConversationListener listener) {
+	void bind(ConversationItem item) {
 		ConversationRequestItem request = (ConversationRequestItem) item;
-		super.bind(request, listener);
+		super.bind(request);
 
 		if (request.wasAnswered() && request.canBeOpened()) {
 			acceptButton.setVisibility(VISIBLE);

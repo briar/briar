@@ -56,6 +56,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
+import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_AUTO;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_NO;
@@ -370,6 +371,12 @@ public class UiUtils {
 				liveData.removeObserver(this);
 			}
 		});
+	}
+
+	public static boolean isRtl(Context ctx) {
+		if (SDK_INT < 17) return false;
+		return ctx.getResources().getConfiguration().getLayoutDirection() ==
+				LAYOUT_DIRECTION_RTL;
 	}
 
 }

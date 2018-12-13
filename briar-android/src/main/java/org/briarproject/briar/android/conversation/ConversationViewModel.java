@@ -160,9 +160,11 @@ public class ConversationViewModel extends AndroidViewModel {
 			long start = now();
 			List<AttachmentHeader> attachments = new ArrayList<>();
 			List<AttachmentItem> items = new ArrayList<>();
+			boolean needsSize = uris.size() == 1;
 			for (Uri uri : uris) {
 				Pair<AttachmentHeader, AttachmentItem> pair =
-						createAttachmentHeader(groupId, uri, timestamp);
+						createAttachmentHeader(groupId, uri, timestamp,
+								needsSize);
 				if (pair == null) continue;
 				attachments.add(pair.getFirst());
 				items.add(pair.getSecond());
@@ -175,7 +177,7 @@ public class ConversationViewModel extends AndroidViewModel {
 	@Nullable
 	@DatabaseExecutor
 	private Pair<AttachmentHeader, AttachmentItem> createAttachmentHeader(
-			GroupId groupId, Uri uri, long timestamp) {
+			GroupId groupId, Uri uri, long timestamp, boolean needsSize) {
 		InputStream is = null;
 		try {
 			ContentResolver contentResolver =
@@ -191,7 +193,7 @@ public class ConversationViewModel extends AndroidViewModel {
 			is = contentResolver.openInputStream(uri);
 			if (is == null) throw new IOException();
 			AttachmentItem item = attachmentController
-					.getAttachmentItem(h, new Attachment(is));
+					.getAttachmentItem(h, new Attachment(is), needsSize);
 			return new Pair<>(h, item);
 		} catch (DbException | IOException e) {
 			logException(LOG, WARNING, e);

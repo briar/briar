@@ -48,10 +48,10 @@ public class ImageViewModel extends AndroidViewModel {
 	@IoExecutor
 	private final Executor ioExecutor;
 
-	private MutableLiveData<Boolean> saveState = new MutableLiveData<>();
+	private final MutableLiveData<Boolean> saveState = new MutableLiveData<>();
 
 	@Inject
-	public ImageViewModel(Application application,
+	ImageViewModel(Application application,
 			MessagingManager messagingManager,
 			@DatabaseExecutor Executor dbExecutor,
 			@IoExecutor Executor ioExecutor) {

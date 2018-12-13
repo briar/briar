@@ -394,7 +394,7 @@ public class ConversationActivity extends BriarActivity
 								textCache.put(id, text);
 							}
 						}
-						if (!h.getAttachmentHeaders().isEmpty()) {
+						if (h.getAttachmentHeaders().size() == 1) {
 							List<AttachmentItem> items =
 									attachmentController.get(id);
 							if (items == null) {
@@ -483,7 +483,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				List<Pair<AttachmentHeader, Attachment>> attachments =
 						attachmentController.getMessageAttachments(headers);
-				// TODO move getting the items off to the IoExecutor
+				// TODO move getting the items off to IoExecutor, if size == 1
 				List<AttachmentItem> items =
 						attachmentController.getAttachmentItems(attachments);
 				displayMessageAttachments(messageId, items);
