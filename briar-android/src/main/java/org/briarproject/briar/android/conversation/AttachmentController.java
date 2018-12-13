@@ -16,6 +16,7 @@ import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -90,6 +91,11 @@ class AttachmentController {
 		return attachments;
 	}
 
+	/**
+	 * Creates {@link AttachmentItem}s from the passed headers and Attachments.
+	 *
+	 * Note: This closes the {@link Attachment}'s {@link InputStream}.
+	 */
 	List<AttachmentItem> getAttachmentItems(
 			List<Pair<AttachmentHeader, Attachment>> attachments) {
 		List<AttachmentItem> items = new ArrayList<>(attachments.size());
@@ -101,11 +107,15 @@ class AttachmentController {
 		return items;
 	}
 
-	private AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a) {
+	/**
+	 * Creates an {@link AttachmentItem} from the {@link Attachment}'s
+	 * {@link InputStream} which will be closed when this method returns.
+	 */
+	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a) {
 		MessageId messageId = h.getMessageId();
 		Size size = new Size();
 
-		InputStream is = a.getStream();
+		InputStream is = new BufferedInputStream(a.getStream());
 		is.mark(Integer.MAX_VALUE);
 		try {
 			// use exif to get size
