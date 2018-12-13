@@ -68,16 +68,6 @@ public class ByteUtils {
 		dest[offset + 7] = (byte) (src & 0xFF);
 	}
 
-	private static int countSignificantBits(long src) {
-		if (src < 0) throw new IllegalArgumentException();
-		int bits = 0;
-		while (src > 0) {
-			src >>= 1;
-			bits++;
-		}
-		return bits;
-	}
-
 	/**
 	 * Returns the number of bytes needed to represent 'src' as a
 	 * variable-length integer.
@@ -86,8 +76,8 @@ public class ByteUtils {
 	 */
 	public static int getVarIntBytes(long src) {
 		if (src < 0) throw new IllegalArgumentException();
-		int len = Math.max(1, (countSignificantBits(src) + 6) / 7);
-		if (len > MAX_VARINT_BYTES) throw new AssertionError();
+		int len = 1;
+		while ((src >>= 7) > 0) len++;
 		return len;
 	}
 
