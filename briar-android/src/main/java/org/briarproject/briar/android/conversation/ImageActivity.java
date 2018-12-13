@@ -4,15 +4,18 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.graphics.drawable.DrawableCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
@@ -20,23 +23,18 @@ import android.transition.Transition;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.widget.TextView;
-
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
-import com.github.chrisbanes.photoview.PhotoView;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.view.PullDownLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import javax.inject.Inject;
@@ -53,16 +51,15 @@ import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
 import static android.view.View.SYSTEM_UI_FLAG_LAYOUT_STABLE;
 import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-import static android.widget.ImageView.ScaleType.FIT_START;
-import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 
 public class ImageActivity extends BriarActivity
-		implements PullDownLayout.Callback {
+		implements PullDownLayout.Callback, OnGlobalLayoutListener {
 
-	final static String ATTACHMENT = "attachment";
+	final static String ATTACHMENTS = "attachments";
+	final static String ATTACHMENT_POSITION = "position";
 	final static String NAME = "name";
 	final static String DATE = "date";
 
@@ -72,8 +69,8 @@ public class ImageActivity extends BriarActivity
 	private ImageViewModel viewModel;
 	private PullDownLayout layout;
 	private AppBarLayout appBarLayout;
-	private PhotoView photoView;
-	private AttachmentItem attachment;
+	private ViewPager viewPager;
+	private List<AttachmentItem> attachments;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -102,6 +99,7 @@ public class ImageActivity extends BriarActivity
 		layout = findViewById(R.id.layout);
 		layout.getBackground().setAlpha(255);
 		layout.setCallback(this);
+		layout.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
 		// Status Bar
 		if (SDK_INT >= 21) {
@@ -118,59 +116,29 @@ public class ImageActivity extends BriarActivity
 		TextView dateView = toolbar.findViewById(R.id.dateView);
 
 		// Intent Extras
-		attachment = getIntent().getParcelableExtra(ATTACHMENT);
-		String name = getIntent().getStringExtra(NAME);
-		long time = getIntent().getLongExtra(DATE, 0);
+		Intent i = getIntent();
+		attachments = i.getParcelableArrayListExtra(ATTACHMENTS);
+		int position = i.getIntExtra(ATTACHMENT_POSITION, -1);
+		if (position == -1) throw new IllegalStateException();
+		String name = i.getStringExtra(NAME);
+		long time = i.getLongExtra(DATE, 0);
 		String date = formatDateAbsolute(this, time);
 		contactName.setText(name);
 		dateView.setText(date);
 
-		// Image View
-		photoView = findViewById(R.id.photoView);
+		// Set up image ViewPager
+		viewPager = findViewById(R.id.viewPager);
+		ImagePagerAdapter pagerAdapter =
+				new ImagePagerAdapter(getSupportFragmentManager());
+		viewPager.setAdapter(pagerAdapter);
+		viewPager.setCurrentItem(position);
+
 		if (SDK_INT >= 16) {
-			photoView.setOnClickListener(view -> toggleSystemUi());
+			viewModel.getOnImageClicked().observe(this, this::onImageClicked);
 			window.getDecorView().setSystemUiVisibility(
 					SYSTEM_UI_FLAG_LAYOUT_STABLE |
 							SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 		}
-
-		// Request Listener
-		RequestListener<Drawable> listener = new RequestListener<Drawable>() {
-			@Override
-			public boolean onLoadFailed(@Nullable GlideException e,
-					Object model, Target<Drawable> target,
-					boolean isFirstResource) {
-				supportStartPostponedEnterTransition();
-				return false;
-			}
-
-			@Override
-			public boolean onResourceReady(Drawable resource, Object model,
-					Target<Drawable> target, DataSource dataSource,
-					boolean isFirstResource) {
-				if (SDK_INT >= 21 && !(resource instanceof Animatable)) {
-					// set transition name only when not animatable,
-					// because the animation won't start otherwise
-					photoView.setTransitionName(
-							attachment.getTransitionName());
-				}
-				// Move image to the top if overlapping toolbar
-				if (isOverlappingToolbar(resource)) {
-					photoView.setScaleType(FIT_START);
-				}
-				supportStartPostponedEnterTransition();
-				return false;
-			}
-		};
-
-		// Load Image
-		GlideApp.with(this)
-				.load(attachment)
-				.diskCacheStrategy(NONE)
-				.error(R.drawable.ic_image_broken)
-				.dontTransform()
-				.addListener(listener)
-				.into(photoView);
 	}
 
 	@Override
@@ -194,10 +162,22 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@Override
+	public void onGlobalLayout() {
+		viewModel.setToolbarPosition(
+				appBarLayout.getTop(), appBarLayout.getBottom()
+		);
+		if (SDK_INT >= 16) {
+			layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+		} else {
+			layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
+		}
+	}
+
+	@Override
 	protected void onActivityResult(int request, int result, Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK) {
-			viewModel.saveImage(attachment, data.getData());
+			viewModel.saveImage(getVisibleAttachment(), data.getData());
 		}
 	}
 
@@ -223,6 +203,14 @@ public class ImageActivity extends BriarActivity
 	@Override
 	public void onPullComplete() {
 		supportFinishAfterTransition();
+	}
+
+	@RequiresApi(api = 16)
+	private void onImageClicked(@Nullable Boolean clicked) {
+		if (clicked != null && clicked) {
+			toggleSystemUi();
+			viewModel.onOnImageClickSeen();
+		}
 	}
 
 	@RequiresApi(api = 16)
@@ -259,29 +247,13 @@ public class ImageActivity extends BriarActivity
 				.start();
 	}
 
-	private boolean isOverlappingToolbar(Drawable drawable) {
-		int width = drawable.getIntrinsicWidth();
-		int height = drawable.getIntrinsicHeight();
-		float widthPercentage = photoView.getWidth() / (float) width;
-		float heightPercentage = photoView.getHeight() / (float) height;
-		float scaleFactor = Math.min(widthPercentage, heightPercentage);
-		int realWidth = (int) (width * scaleFactor);
-		int realHeight = (int) (height * scaleFactor);
-		// return if photo doesn't use the full width,
-		// because it will be moved to the right otherwise
-		if (realWidth < photoView.getWidth()) return false;
-		int drawableTop = (photoView.getHeight() - realHeight) / 2;
-		return drawableTop < appBarLayout.getBottom() &&
-				drawableTop != appBarLayout.getTop();
-	}
-
 	private void showSaveImageDialog() {
 		OnClickListener okListener = (dialog, which) -> {
 			if (SDK_INT >= 19) {
 				Intent intent = getCreationIntent();
 				startActivityForResult(intent, REQUEST_SAVE_ATTACHMENT);
 			} else {
-				viewModel.saveImage(attachment);
+				viewModel.saveImage(getVisibleAttachment());
 			}
 		};
 		Builder builder = new Builder(this, R.style.BriarDialogTheme);
@@ -303,7 +275,7 @@ public class ImageActivity extends BriarActivity
 		String fileName = sdf.format(new Date());
 		Intent intent = new Intent(ACTION_CREATE_DOCUMENT);
 		intent.addCategory(CATEGORY_OPENABLE);
-		intent.setType(attachment.getMimeType());
+		intent.setType(getVisibleAttachment().getMimeType());
 		intent.putExtra(EXTRA_TITLE, fileName);
 		return intent;
 	}
@@ -318,6 +290,28 @@ public class ImageActivity extends BriarActivity
 		s.getView().setBackgroundResource(colorRes);
 		s.show();
 		viewModel.onSaveStateSeen();
+	}
+
+	AttachmentItem getVisibleAttachment() {
+		return attachments.get(viewPager.getCurrentItem());
+	}
+
+	private class ImagePagerAdapter extends FragmentStatePagerAdapter {
+
+		private ImagePagerAdapter(FragmentManager fm) {
+			super(fm);
+		}
+
+		@Override
+		public Fragment getItem(int position) {
+			return ImageFragment.newInstance(attachments.get(position));
+		}
+
+		@Override
+		public int getCount() {
+			return attachments.size();
+		}
+
 	}
 
 }

@@ -121,8 +121,9 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_IMAGE_ATTACHMENTS;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
-import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT;
+import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
+import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENTS;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
@@ -812,8 +813,11 @@ public class ConversationActivity extends BriarActivity
 		} else {
 			name = getString(R.string.you);
 		}
+		ArrayList<AttachmentItem> attachments =
+				new ArrayList<>(messageItem.getAttachments());
 		Intent i = new Intent(this, ImageActivity.class);
-		i.putExtra(ATTACHMENT, item);
+		i.putParcelableArrayListExtra(ATTACHMENTS, attachments);
+		i.putExtra(ATTACHMENT_POSITION, attachments.indexOf(item));
 		i.putExtra(NAME, name);
 		i.putExtra(DATE, messageItem.getTime());
 		if (SDK_INT >= 23) {

@@ -8,12 +8,11 @@
 	android:background="@color/briar_black"
 	tools:context=".android.conversation.ImageActivity">
 
-	<com.github.chrisbanes.photoview.PhotoView
-		android:id="@+id/photoView"
+	<android.support.v4.view.ViewPager
+		android:id="@+id/viewPager"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		tools:ignore="ContentDescription"
-		tools:srcCompat="@tools:sample/backgrounds/scenic"/>
+		tools:background="@color/briar_green_light"/>
 
 	<android.support.design.widget.AppBarLayout
 		android:id="@+id/appBarLayout"

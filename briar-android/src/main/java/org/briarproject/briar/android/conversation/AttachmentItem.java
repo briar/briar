@@ -2,6 +2,7 @@ package org.briarproject.briar.android.conversation;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -109,6 +110,12 @@ public class AttachmentItem implements Parcelable {
 		dest.writeInt(thumbnailWidth);
 		dest.writeInt(thumbnailHeight);
 		dest.writeByte((byte) (hasError ? 1 : 0));
+	}
+
+	@Override
+	public boolean equals(@Nullable Object o) {
+		return o instanceof AttachmentItem &&
+				messageId.equals(((AttachmentItem) o).messageId);
 	}
 
 }
