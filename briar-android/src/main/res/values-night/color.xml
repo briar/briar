@@ -23,7 +23,6 @@
 	<color name="briar_button_text_disabled">#23cccccc</color>
 
 	<color name="thread_indicator">@color/briar_blue</color>
-	<color name="thread_item_background">@color/window_background</color>
 	<color name="thread_item_highlight">@color/briar_black</color>
 
 	<color name="divider">@color/briar_black</color>
