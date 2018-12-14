@@ -50,9 +50,12 @@ public class ImageViewModel extends AndroidViewModel {
 	@IoExecutor
 	private final Executor ioExecutor;
 
+	/**
+	 * true means there was an error saving the image, false if image was saved.
+	 */
+	private final MutableLiveData<Boolean> saveState = new MutableLiveData<>();
 	private final MutableLiveData<Boolean> imageClicked =
 			new MutableLiveData<>();
-	private final MutableLiveData<Boolean> saveState = new MutableLiveData<>();
 	private int toolbarTop, toolbarBottom;
 
 	@Inject
@@ -106,8 +109,9 @@ public class ImageViewModel extends AndroidViewModel {
 	}
 
 	/**
-	 * A LiveData that is true if the image was saved,
-	 * false if there was an error and null otherwise.
+	 * A LiveData that is true if there was an error
+	 * and false if the image was saved.
+	 * It can be null otherwise, if no image was saved recently.
 	 *
 	 * Call {@link #onSaveStateSeen()} after consuming an update.
 	 */
@@ -126,7 +130,7 @@ public class ImageViewModel extends AndroidViewModel {
 	@UiThread
 	void saveImage(AttachmentItem attachment, @Nullable Uri uri) {
 		if (uri == null) {
-			saveState.setValue(false);
+			saveState.setValue(true);
 		} else {
 			saveImage(attachment, () -> getOutputStream(uri), null);
 		}
