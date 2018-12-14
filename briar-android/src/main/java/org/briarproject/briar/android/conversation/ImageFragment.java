@@ -114,11 +114,10 @@ public class ImageFragment extends Fragment {
 		// Load Image
 		GlideApp.with(this)
 				.load(attachment)
-				// TODO allow if < maxTextureSize ?
+				// TODO allow if size < maxTextureSize ?
 //				.override(SIZE_ORIGINAL)
 				.diskCacheStrategy(NONE)
 				.error(R.drawable.ic_image_broken)
-				.dontTransform()
 				.addListener(listener)
 				.into(photoView);
 
