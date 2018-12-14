@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import android.support.media.ExifInterface;
 import android.webkit.MimeTypeMap;
 
+import com.bumptech.glide.util.MarkEnforcingInputStream;
+
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -44,6 +46,7 @@ class AttachmentController {
 
 	private static final Logger LOG =
 			getLogger(AttachmentController.class.getName());
+	private static final int READ_LIMIT = 1024 * 8192;
 
 	private final MessagingManager messagingManager;
 	private final int defaultSize;
@@ -128,8 +131,9 @@ class AttachmentController {
 		}
 
 		Size size = new Size();
-		InputStream is = new BufferedInputStream(a.getStream());
-		is.mark(Integer.MAX_VALUE);
+		InputStream is = new MarkEnforcingInputStream(
+				new BufferedInputStream(a.getStream()));
+		is.mark(READ_LIMIT);
 		try {
 			// use exif to get size
 			if (h.getContentType().equals("image/jpeg")) {
@@ -142,6 +146,8 @@ class AttachmentController {
 			// use BitmapFactory to get size
 			if (size.error) {
 				is.reset();
+				// need to mark again to re-add read limit
+				is.mark(READ_LIMIT);
 				size = getSizeFromBitmap(is);
 			}
 		} catch (IOException e) {
@@ -158,12 +164,11 @@ class AttachmentController {
 		}
 		// get file extension
 		String extension = getExtensionFromMimeType(size.mimeType);
-		if (extension == null) {
-			return new AttachmentItem(messageId, 0, 0, "", "", 0, 0, true);
-		}
+		boolean hasError = extension == null || size.error;
+		if (extension == null) extension = "";
 		return new AttachmentItem(messageId, size.width, size.height,
 				size.mimeType, extension, thumbnailSize.width,
-				thumbnailSize.height, size.error);
+				thumbnailSize.height, hasError);
 	}
 
 	@Nullable
