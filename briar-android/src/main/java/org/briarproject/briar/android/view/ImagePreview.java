@@ -48,6 +48,7 @@ public class ImagePreview extends ConstraintLayout {
 
 		// find list
 		imageList = findViewById(R.id.imageList);
+		imageList.addItemDecoration(new ImagePreviewDecoration(context));
 
 		// set cancel listener
 		findViewById(R.id.imageCancelButton).setOnClickListener(view -> {
