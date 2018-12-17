@@ -89,7 +89,7 @@ public abstract class BriarActivity extends BaseActivity {
 		} else if (lockManager.isLocked() && !isFinishing()) {
 			// Also check that the activity isn't finishing already.
 			// This is possible if we finished in onActivityResult().
-			// Lauching another UnlockActivity would cause a loop.
+			// Launching another UnlockActivity would cause a loop.
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else if (SDK_INT >= 23) {
@@ -109,6 +109,10 @@ public abstract class BriarActivity extends BaseActivity {
 	protected void onStop() {
 		super.onStop();
 		lockManager.onActivityStop();
+	}
+
+	protected boolean signedIn() {
+		return briarController.accountSignedIn();
 	}
 
 	/**
