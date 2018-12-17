@@ -263,6 +263,13 @@ public class ConversationActivity extends BriarActivity
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
 					imagePreview, this, this);
+			observeOnce(viewModel.hasImageSupport(), this, hasSupport -> {
+				if (hasSupport != null && hasSupport) {
+					// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+					((TextAttachmentController) sendController)
+							.setImagesSupported();
+				}
+			});
 		} else {
 			sendController = new TextSendController(textInputView, this, false);
 		}
@@ -461,6 +468,10 @@ public class ConversationActivity extends BriarActivity
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
 				textInputView.setEnabled(true);
+				// start observing onboarding after enabling (only once, because
+				// we only update this when an onboarding should be shown)
+				observeOnce(viewModel.showImageOnboarding(), this,
+						this::showImageOnboarding);
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
 				list.showData();
@@ -728,6 +739,18 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(() -> item.setEnabled(true));
 	}
 
+	private void showImageOnboarding(@Nullable Boolean show) {
+		if (show == null || !show) return;
+		// show onboarding only after the enter transition has ended
+		// otherwise the tap target animation won't play
+		textInputView.postDelayed(() -> {
+			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+			((TextAttachmentController) sendController)
+					.showImageOnboarding(this, () ->
+							viewModel.imageOnboardingSeen());
+		}, 750);
+	}
+
 	private void showIntroductionOnboarding() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			// find view of overflow icon
@@ -755,6 +778,8 @@ public class ConversationActivity extends BriarActivity
 					.setPrimaryText(R.string.introduction_onboarding_title)
 					.setSecondaryText(R.string.introduction_onboarding_text)
 					.setIcon(R.drawable.ic_more_vert_accent)
+					.setBackgroundColour(
+							ContextCompat.getColor(this, R.color.briar_primary))
 					.setPromptStateChangeListener(listener)
 					.show();
 		});
