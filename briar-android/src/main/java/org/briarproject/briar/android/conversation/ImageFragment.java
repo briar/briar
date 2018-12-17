@@ -77,6 +77,7 @@ public class ImageFragment extends Fragment {
 				viewModelFactory).get(ImageViewModel.class);
 
 		photoView = v.findViewById(R.id.photoView);
+		photoView.setScaleLevels(1, 2, 4);
 		photoView.setOnClickListener(view -> viewModel.clickImage());
 
 		// Request Listener
@@ -113,9 +114,10 @@ public class ImageFragment extends Fragment {
 		// Load Image
 		GlideApp.with(this)
 				.load(attachment)
+				// TODO allow if size < maxTextureSize ?
+//				.override(SIZE_ORIGINAL)
 				.diskCacheStrategy(NONE)
 				.error(R.drawable.ic_image_broken)
-				.dontTransform()
 				.addListener(listener)
 				.into(photoView);
 
