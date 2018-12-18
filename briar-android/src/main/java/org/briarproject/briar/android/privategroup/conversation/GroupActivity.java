@@ -138,7 +138,6 @@ public class GroupActivity extends
 		inviteMenuItem = menu.findItem(R.id.action_group_invite);
 		leaveMenuItem = menu.findItem(R.id.action_group_leave);
 		dissolveMenuItem = menu.findItem(R.id.action_group_dissolve);
-		showMenuItems();
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -208,7 +207,6 @@ public class GroupActivity extends
 	}
 
 	private void showMenuItems() {
-		if (leaveMenuItem == null || dissolveMenuItem == null) return;
 		if (isCreator) {
 			revealMenuItem.setVisible(false);
 			inviteMenuItem.setVisible(true);
