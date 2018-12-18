@@ -37,7 +37,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public View onCreateView(@Nullable LayoutInflater inflater,
+	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 

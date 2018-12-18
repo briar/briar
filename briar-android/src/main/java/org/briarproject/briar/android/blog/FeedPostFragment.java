@@ -17,6 +17,7 @@ import org.briarproject.briar.android.controller.handler.UiResultExceptionHandle
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
 @UiThread
@@ -42,13 +43,17 @@ public class FeedPostFragment extends BasePostFragment {
 		return f;
 	}
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
-		Bundle args = getArguments();
+		Bundle args = requireNonNull(getArguments());
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
 		blogId = new GroupId(b);
@@ -59,11 +64,6 @@ public class FeedPostFragment extends BasePostFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

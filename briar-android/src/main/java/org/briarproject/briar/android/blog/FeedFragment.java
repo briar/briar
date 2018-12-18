@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.support.design.widget.Snackbar.LENGTH_LONG;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
 
@@ -64,13 +65,18 @@ public class FeedFragment extends BaseFragment implements
 		return f;
 	}
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		feedController.setFeedListener(this);
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
-		getActivity().setTitle(R.string.blogs_button);
+		requireNonNull(getActivity()).setTitle(R.string.blogs_button);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
@@ -86,12 +92,6 @@ public class FeedFragment extends BaseFragment implements
 		list.setEmptyAction(R.string.blogs_feed_empty_state_action);
 
 		return v;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-		feedController.setFeedListener(this);
 	}
 
 	@Override

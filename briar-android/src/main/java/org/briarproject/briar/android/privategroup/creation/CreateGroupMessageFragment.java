@@ -2,10 +2,13 @@ package org.briarproject.briar.android.privategroup.creation;
 
 import android.support.annotation.StringRes;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.sharing.BaseMessageFragment;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class CreateGroupMessageFragment extends BaseMessageFragment {
 
 	private final static String TAG =
@@ -26,11 +29,6 @@ public class CreateGroupMessageFragment extends BaseMessageFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 }

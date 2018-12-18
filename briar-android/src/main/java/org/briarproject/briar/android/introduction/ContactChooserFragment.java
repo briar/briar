@@ -1,7 +1,8 @@
 package org.briarproject.briar.android.introduction;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
+import android.support.annotation.UiThread;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,8 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -28,10 +31,14 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
+@UiThread
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ContactChooserFragment extends BaseFragment {
 
 	public static final String TAG = ContactChooserFragment.class.getName();
@@ -51,7 +58,6 @@ public class ContactChooserFragment extends BaseFragment {
 	volatile ConnectionRegistry connectionRegistry;
 
 	public static ContactChooserFragment newInstance(ContactId id) {
-
 		Bundle args = new Bundle();
 
 		ContactChooserFragment fragment = new ContactChooserFragment();
@@ -61,13 +67,13 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	@Override
-	public void onAttach(Context context) {
-		super.onAttach(context);
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
 
@@ -77,14 +83,16 @@ public class ContactChooserFragment extends BaseFragment {
 					Contact c2 = item.getContact();
 					showMessageScreen(c1, c2);
 				};
-		adapter = new ContactListAdapter(getActivity(), onContactClickListener);
+		adapter = new ContactListAdapter(requireNonNull(getActivity()),
+				onContactClickListener);
 
 		list = contentView.findViewById(R.id.list);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 		list.setEmptyText(R.string.no_contacts);
 
-		contactId = new ContactId(getArguments().getInt(CONTACT_ID));
+		contactId = new ContactId(
+				requireNonNull(getArguments()).getInt(CONTACT_ID));
 
 		return contentView;
 	}
@@ -105,11 +113,6 @@ public class ContactChooserFragment extends BaseFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	private void loadContacts() {

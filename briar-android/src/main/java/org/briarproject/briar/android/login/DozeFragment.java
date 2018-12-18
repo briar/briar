@@ -19,6 +19,7 @@ import org.briarproject.briar.android.util.UiUtils;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
@@ -40,10 +41,15 @@ public class DozeFragment extends SetupFragment
 	}
 
 	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		getActivity().setTitle(getString(R.string.setup_doze_title));
+		requireNonNull(getActivity()).setTitle(getString(R.string.setup_doze_title));
 		setHasOptionsMenu(false);
 		View v = inflater.inflate(R.layout.fragment_setup_doze, container,
 						false);
@@ -63,11 +69,6 @@ public class DozeFragment extends SetupFragment
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

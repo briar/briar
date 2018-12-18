@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.privategroup.creation;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -13,6 +14,7 @@ import org.briarproject.briar.android.contactselection.SelectableContactItem;
 
 import javax.inject.Inject;
 
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
 @MethodsNotNullByDefault
@@ -33,14 +35,14 @@ public class GroupInviteFragment extends ContactSelectorFragment {
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		getActivity().setTitle(R.string.groups_invite_members);
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		requireNonNull(getActivity()).setTitle(R.string.groups_invite_members);
 	}
 
 	@Override

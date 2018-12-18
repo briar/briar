@@ -10,11 +10,15 @@ import android.support.v4.app.FragmentActivity;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.activity.ActivityComponent;
 
 import javax.annotation.Nullable;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class BaseFragment extends Fragment
 		implements DestroyableContext {
 
@@ -22,12 +26,15 @@ public abstract class BaseFragment extends Fragment
 
 	public abstract String getUniqueTag();
 
-	public abstract void injectFragment(ActivityComponent component);
-
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
 		listener = (BaseFragmentListener) context;
+		injectFragment(listener.getActivityComponent());
+	}
+
+	public void injectFragment(ActivityComponent component) {
+		// fragments that need to inject, can override this method
 	}
 
 	@Override
@@ -36,12 +43,6 @@ public abstract class BaseFragment extends Fragment
 
 		// allow for "up" button to act as back button
 		setHasOptionsMenu(true);
-	}
-
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		injectFragment(listener.getActivityComponent());
 	}
 
 	@Override

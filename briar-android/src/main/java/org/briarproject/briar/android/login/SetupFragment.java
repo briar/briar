@@ -11,7 +11,8 @@ import android.view.View.OnClickListener;
 import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
@@ -22,7 +23,8 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
-@NotNullByDefault
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 abstract class SetupFragment extends BaseFragment implements TextWatcher,
 		OnEditorActionListener, OnClickListener {
 

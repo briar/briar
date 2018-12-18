@@ -23,6 +23,7 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 
 @MethodsNotNullByDefault
@@ -44,10 +45,15 @@ public class PasswordFragment extends SetupFragment {
 	}
 
 	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		getActivity().setTitle(getString(R.string.setup_password_intro));
+		requireNonNull(getActivity()).setTitle(getString(R.string.setup_password_intro));
 		View v = inflater.inflate(R.layout.fragment_setup_password, container,
 						false);
 
@@ -64,23 +70,17 @@ public class PasswordFragment extends SetupFragment {
 		passwordConfirmation.addTextChangedListener(this);
 		nextButton.setOnClickListener(this);
 
+		if (!setupController.needToShowDozeFragment()) {
+			nextButton.setText(R.string.create_account_button);
+			passwordConfirmation.setImeOptions(IME_ACTION_DONE);
+		}
+
 		return v;
 	}
 
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-
-		// the controller is not yet available in onCreateView()
-		if (!setupController.needToShowDozeFragment()) {
-			nextButton.setText(R.string.create_account_button);
-			passwordConfirmation.setImeOptions(IME_ACTION_DONE);
-		}
 	}
 
 	@Override

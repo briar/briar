@@ -53,6 +53,7 @@ import static android.view.View.VISIBLE;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.widget.LinearLayout.HORIZONTAL;
 import static android.widget.Toast.LENGTH_LONG;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -136,7 +137,8 @@ public class KeyAgreementFragment extends BaseEventFragment
 	@Override
 	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		getActivity().setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
+		requireNonNull(getActivity())
+				.setRequestedOrientation(SCREEN_ORIENTATION_NOSENSOR);
 		cameraView.setPreviewConsumer(new QrCodeDecoder(this));
 	}
 

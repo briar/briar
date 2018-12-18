@@ -44,6 +44,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -80,13 +81,18 @@ public class ForumListFragment extends BaseEventFragment implements
 		return fragment;
 	}
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		getActivity().setTitle(R.string.forums_button);
+		requireNonNull(getActivity()).setTitle(R.string.forums_button);
 
 		View contentView =
 				inflater.inflate(R.layout.fragment_forum_list, container,
@@ -102,7 +108,7 @@ public class ForumListFragment extends BaseEventFragment implements
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.setAction(R.string.show, this);
 		snackbar.setActionTextColor(ContextCompat
-				.getColor(getContext(), R.color.briar_button_text_positive));
+				.getColor(getActivity(), R.color.briar_button_text_positive));
 
 		return contentView;
 	}
@@ -110,11 +116,6 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

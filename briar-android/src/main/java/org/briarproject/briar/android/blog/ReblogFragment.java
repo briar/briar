@@ -31,6 +31,7 @@ import static android.view.View.FOCUS_DOWN;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.blog.BasePostFragment.POST_ID;
 import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_LENGTH;
@@ -42,8 +43,6 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	public static final String TAG = ReblogFragment.class.getName();
 
 	private ViewHolder ui;
-	private GroupId blogId;
-	private MessageId postId;
 	private BlogPostItem item;
 
 	@Inject
@@ -75,9 +74,11 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		Bundle args = getArguments();
-		blogId = new GroupId(args.getByteArray(GROUP_ID));
-		postId = new MessageId(args.getByteArray(POST_ID));
+		Bundle args = requireNonNull(getArguments());
+		GroupId blogId =
+				new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
+		MessageId postId =
+				new MessageId(requireNonNull(args.getByteArray(POST_ID)));
 
 		View v = inflater.inflate(R.layout.fragment_reblog, container, false);
 		ui = new ViewHolder(v);
@@ -89,14 +90,6 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		ui.input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
 		showProgressBar();
 
-		return v;
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-
-		// TODO: Load blog post when fragment is created. #631
 		feedController.loadBlogPost(blogId, postId,
 				new UiResultExceptionHandler<BlogPostItem, DbException>(
 						this) {
@@ -111,6 +104,8 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 						handleDbException(exception);
 					}
 				});
+
+		return v;
 	}
 
 	private void bindViewHolder() {

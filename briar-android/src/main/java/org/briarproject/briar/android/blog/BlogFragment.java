@@ -43,6 +43,7 @@ import javax.inject.Inject;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_BLOG;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
@@ -69,7 +70,6 @@ public class BlogFragment extends BaseFragment
 	private boolean isMyBlog = false, canDeleteBlog = false;
 
 	static BlogFragment newInstance(GroupId groupId) {
-
 		BlogFragment f = new BlogFragment();
 
 		Bundle bundle = new Bundle();
@@ -79,20 +79,27 @@ public class BlogFragment extends BaseFragment
 		return f;
 	}
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		blogController.setBlogSharingListener(this);
+		sharingController.setSharingListener(this);
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		Bundle args = getArguments();
+		Bundle args = requireNonNull(getArguments());
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
 		groupId = new GroupId(b);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter =
-				new BlogPostAdapter(getActivity(), this, getFragmentManager());
+		adapter = new BlogPostAdapter(requireNonNull(getActivity()), this,
+				getFragmentManager());
 		list = v.findViewById(R.id.postList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
@@ -100,13 +107,6 @@ public class BlogFragment extends BaseFragment
 		list.setEmptyText(getString(R.string.blogs_other_blog_empty_state));
 
 		return v;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-		blogController.setBlogSharingListener(this);
-		sharingController.setSharingListener(this);
 	}
 
 	@Override
@@ -218,7 +218,10 @@ public class BlogFragment extends BaseFragment
 
 	@Override
 	public void onAuthorClick(BlogPostItem post) {
-		if (post.getGroupId().equals(groupId)) return; // We're already there
+		if (post.getGroupId().equals(groupId) || getContext() == null) {
+			// We're already there
+			return;
+		}
 		Intent i = new Intent(getContext(), BlogActivity.class);
 		i.putExtra(GROUP_ID, post.getGroupId().getBytes());
 		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);

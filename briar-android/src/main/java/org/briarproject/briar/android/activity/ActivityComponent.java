@@ -31,7 +31,6 @@ import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.introduction.IntroductionMessageFragment;
 import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.keyagreement.ContactExchangeErrorFragment;
-import org.briarproject.briar.android.keyagreement.IntroFragment;
 import org.briarproject.briar.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.briar.android.keyagreement.KeyAgreementFragment;
 import org.briarproject.briar.android.login.AuthorNameFragment;
@@ -49,7 +48,6 @@ import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupConversationModule;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupFragment;
-import org.briarproject.briar.android.privategroup.creation.CreateGroupMessageFragment;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupModule;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteFragment;
@@ -70,10 +68,8 @@ import org.briarproject.briar.android.sharing.ForumInvitationActivity;
 import org.briarproject.briar.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareBlogActivity;
 import org.briarproject.briar.android.sharing.ShareBlogFragment;
-import org.briarproject.briar.android.sharing.ShareBlogMessageFragment;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.sharing.ShareForumFragment;
-import org.briarproject.briar.android.sharing.ShareForumMessageFragment;
 import org.briarproject.briar.android.sharing.SharingModule;
 import org.briarproject.briar.android.splash.SplashScreenActivity;
 import org.briarproject.briar.android.test.TestDataActivity;
@@ -183,8 +179,6 @@ public interface ActivityComponent {
 
 	void inject(CreateGroupFragment fragment);
 
-	void inject(CreateGroupMessageFragment fragment);
-
 	void inject(GroupListFragment fragment);
 
 	void inject(GroupInviteFragment fragment);
@@ -195,19 +189,13 @@ public interface ActivityComponent {
 
 	void inject(FeedFragment fragment);
 
-	void inject(IntroFragment fragment);
-
 	void inject(KeyAgreementFragment fragment);
 
 	void inject(ContactChooserFragment fragment);
 
 	void inject(ShareForumFragment fragment);
 
-	void inject(ShareForumMessageFragment fragment);
-
 	void inject(ShareBlogFragment fragment);
-
-	void inject(ShareBlogMessageFragment fragment);
 
 	void inject(IntroductionMessageFragment fragment);
 

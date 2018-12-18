@@ -77,6 +77,17 @@ public abstract class BaseActivity extends AppCompatActivity
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
+		// create the ActivityComponent *before* calling super.onCreate()
+		// because it already attaches fragments which need access
+		// to the component for their own injection
+		AndroidComponent applicationComponent =
+				((BriarApplication) getApplication()).getApplicationComponent();
+		activityComponent = DaggerActivityComponent.builder()
+				.androidComponent(applicationComponent)
+				.activityModule(getActivityModule())
+				.forumModule(getForumModule())
+				.build();
+		injectActivity(activityComponent);
 		super.onCreate(state);
 
 		// WARNING: When removing this or making it possible to turn it off,
@@ -85,17 +96,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		//          set, the app content becomes visible briefly before the
 		//          unlock screen is shown.
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
-
-		AndroidComponent applicationComponent =
-				((BriarApplication) getApplication()).getApplicationComponent();
-
-		activityComponent = DaggerActivityComponent.builder()
-				.androidComponent(applicationComponent)
-				.activityModule(getActivityModule())
-				.forumModule(getForumModule())
-				.build();
-
-		injectActivity(activityComponent);
 
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityCreate(this);
