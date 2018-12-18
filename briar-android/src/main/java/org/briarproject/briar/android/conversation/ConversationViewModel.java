@@ -38,6 +38,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -62,6 +63,8 @@ public class ConversationViewModel extends AndroidViewModel {
 			getLogger(ConversationViewModel.class.getName());
 	private static final String SHOW_ONBOARDING_IMAGE =
 			"showOnboardingImage";
+	private static final String SHOW_ONBOARDING_INTRODUCTION =
+			"showOnboardingIntroduction";
 
 	@DatabaseExecutor
 	private final Executor dbExecutor;
@@ -85,6 +88,10 @@ public class ConversationViewModel extends AndroidViewModel {
 	private final MutableLiveData<Boolean> imageSupport =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> showImageOnboarding =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showIntroductionOnboarding =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showIntroductionAction =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> contactDeleted =
 			new MutableLiveData<>();
@@ -115,25 +122,28 @@ public class ConversationViewModel extends AndroidViewModel {
 		contactDeleted.setValue(false);
 	}
 
+	/**
+	 * Setting the {@link ContactId} automatically triggers loading of other
+	 * data.
+	 */
 	void setContactId(ContactId contactId) {
 		if (this.contactId == null) {
 			this.contactId = contactId;
-			loadContact();
+			loadContact(contactId);
 		} else if (!contactId.equals(this.contactId)) {
 			throw new IllegalStateException();
 		}
 	}
 
-	private void loadContact() {
+	private void loadContact(ContactId contactId) {
 		dbExecutor.execute(() -> {
 			try {
 				long start = now();
-				Contact c =
-						contactManager.getContact(requireNonNull(contactId));
+				Contact c = contactManager.getContact(contactId);
 				contact.postValue(c);
 				logDuration(LOG, "Loading contact", start);
 				start = now();
-				checkImageSupport(c.getId());
+				checkFeaturesAndOnboarding(contactId);
 				logDuration(LOG, "Checking for image support", start);
 			} catch (NoSuchContactException e) {
 				contactDeleted.postValue(true);
@@ -148,7 +158,7 @@ public class ConversationViewModel extends AndroidViewModel {
 			try {
 				contactManager.setContactAlias(requireNonNull(contactId),
 						alias.isEmpty() ? null : alias);
-				loadContact();
+				loadContact(contactId);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -177,28 +187,54 @@ public class ConversationViewModel extends AndroidViewModel {
 	}
 
 	@DatabaseExecutor
-	private void checkImageSupport(ContactId c) throws DbException {
+	private void checkFeaturesAndOnboarding(ContactId c) throws DbException {
+		// check if images are supported
 		int minorVersion = db.transactionWithResult(true, txn ->
 				clientVersioningManager
 						.getClientMinorVersion(txn, c, CLIENT_ID, 0));
 		// support was added in 0.1
 		boolean imagesSupported = minorVersion == 1;
 		imageSupport.postValue(imagesSupported);
-		if (!imagesSupported) return;
 
-		// check if we should show onboarding, only if images are supported
-		Settings settings =
-				settingsManager.getSettings(SETTINGS_NAMESPACE);
-		if (settings.getBoolean(SHOW_ONBOARDING_IMAGE, true)) {
+		// check if introductions are supported
+		Collection<Contact> contacts = contactManager.getActiveContacts();
+		boolean introductionSupported = contacts.size() > 1;
+		showIntroductionAction.postValue(introductionSupported);
+
+		Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+		if (imagesSupported &&
+				settings.getBoolean(SHOW_ONBOARDING_IMAGE, true)) {
+			// check if we should show onboarding, only if images are supported
 			showImageOnboarding.postValue(true);
+			// allow observer to stop listening for changes
+			showIntroductionOnboarding.postValue(false);
+		} else {
+			// allow observer to stop listening for changes
+			showImageOnboarding.postValue(false);
+			// we only show one onboarding dialog at a time
+			if (introductionSupported &&
+					settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION, true)) {
+				showIntroductionOnboarding.postValue(true);
+			} else {
+				// allow observer to stop listening for changes
+				showIntroductionOnboarding.postValue(false);
+			}
 		}
 	}
 
-	void imageOnboardingSeen() {
+	void onImageOnboardingSeen() {
+		onOnboardingSeen(SHOW_ONBOARDING_IMAGE);
+	}
+
+	void onIntroductionOnboardingSeen() {
+		onOnboardingSeen(SHOW_ONBOARDING_INTRODUCTION);
+	}
+
+	private void onOnboardingSeen(String key) {
 		dbExecutor.execute(() -> {
 			try {
 				Settings settings = new Settings();
-				settings.putBoolean(SHOW_ONBOARDING_IMAGE, false);
+				settings.putBoolean(key, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -320,6 +356,14 @@ public class ConversationViewModel extends AndroidViewModel {
 
 	LiveData<Boolean> showImageOnboarding() {
 		return showImageOnboarding;
+	}
+
+	LiveData<Boolean> showIntroductionOnboarding() {
+		return showIntroductionOnboarding;
+	}
+
+	LiveData<Boolean> showIntroductionAction() {
+		return showIntroductionAction;
 	}
 
 	LiveData<Boolean> isContactDeleted() {

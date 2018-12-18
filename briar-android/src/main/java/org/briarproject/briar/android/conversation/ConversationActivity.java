@@ -46,7 +46,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
-import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -126,7 +125,6 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHME
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
@@ -141,11 +139,10 @@ public class ConversationActivity extends BriarActivity
 		TextCache, AttachmentCache, AttachImageListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
+	private static final int ONBOARDING_DELAY = 750;
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
-	private static final String SHOW_ONBOARDING_INTRODUCTION =
-			"showOnboardingIntroduction";
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -355,10 +352,19 @@ public class ConversationActivity extends BriarActivity
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.conversation_actions, menu);
 
-		enableIntroductionActionIfAvailable(
-				menu.findItem(R.id.action_introduction));
-		enableAliasActionIfAvailable(
-				menu.findItem(R.id.action_set_alias));
+		// enable introduction action if available
+		observeOnce(viewModel.showIntroductionAction(), this, enable -> {
+			if (enable != null && enable) {
+				menu.findItem(R.id.action_introduction).setEnabled(true);
+				// show introduction onboarding, if needed
+				observeOnce(viewModel.showIntroductionOnboarding(), this,
+						this::showIntroductionOnboarding);
+			}
+		});
+		// enable alias action if available
+		observeOnce(viewModel.getContact(), this, contact -> {
+			menu.findItem(R.id.action_set_alias).setEnabled(true);
+		});
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -713,32 +719,6 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void enableIntroductionActionIfAvailable(MenuItem item) {
-		runOnDbThread(() -> {
-			try {
-				if (contactManager.getActiveContacts().size() > 1) {
-					enableIntroductionAction(item);
-					Settings settings =
-							settingsManager.getSettings(SETTINGS_NAMESPACE);
-					if (settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION,
-							true)) {
-						showIntroductionOnboarding();
-					}
-				}
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	private void enableAliasActionIfAvailable(MenuItem item) {
-		observeOnce(viewModel.getContact(), this, c -> item.setEnabled(true));
-	}
-
-	private void enableIntroductionAction(MenuItem item) {
-		runOnUiThreadUnlessDestroyed(() -> item.setEnabled(true));
-	}
-
 	private void showImageOnboarding(@Nullable Boolean show) {
 		if (show == null || !show) return;
 		// show onboarding only after the enter transition has ended
@@ -747,12 +727,15 @@ public class ConversationActivity extends BriarActivity
 			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
 			((TextAttachmentController) sendController)
 					.showImageOnboarding(this, () ->
-							viewModel.imageOnboardingSeen());
-		}, 750);
+							viewModel.onImageOnboardingSeen());
+		}, ONBOARDING_DELAY);
 	}
 
-	private void showIntroductionOnboarding() {
-		runOnUiThreadUnlessDestroyed(() -> {
+	private void showIntroductionOnboarding(@Nullable Boolean show) {
+		if (show == null || !show) return;
+		// show onboarding only after the enter transition has ended
+		// otherwise the tap target animation won't play
+		textInputView.postDelayed(() -> {
 			// find view of overflow icon
 			View target = null;
 			for (int i = 0; i < toolbar.getChildCount(); i++) {
@@ -770,7 +753,7 @@ public class ConversationActivity extends BriarActivity
 
 			PromptStateChangeListener listener = (prompt, state) -> {
 				if (state == STATE_DISMISSED || state == STATE_FINISHED) {
-					introductionOnboardingSeen();
+					viewModel.onIntroductionOnboardingSeen();
 				}
 			};
 			new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
@@ -782,19 +765,7 @@ public class ConversationActivity extends BriarActivity
 							ContextCompat.getColor(this, R.color.briar_primary))
 					.setPromptStateChangeListener(listener)
 					.show();
-		});
-	}
-
-	private void introductionOnboardingSeen() {
-		runOnDbThread(() -> {
-			try {
-				Settings settings = new Settings();
-				settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
-				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		}, ONBOARDING_DELAY);
 	}
 
 	@Override
