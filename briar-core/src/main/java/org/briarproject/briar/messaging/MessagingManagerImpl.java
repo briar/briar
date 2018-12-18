@@ -248,4 +248,13 @@ class MessagingManagerImpl extends ConversationClientImpl
 		return new Attachment(new ByteArrayInputStream(bytes));
 	}
 
+	@Override
+	public boolean contactSupportsImages(Transaction txn, ContactId c)
+			throws DbException {
+		int minorVersion = clientVersioningManager
+				.getClientMinorVersion(txn, c, CLIENT_ID, 0);
+		// support was added in 0.1
+		return minorVersion == 1;
+	}
+
 }

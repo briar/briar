@@ -26,7 +26,6 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
-import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
@@ -54,7 +53,6 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
-import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_ID;
 
 @NotNullByDefault
 public class ConversationViewModel extends AndroidViewModel {
@@ -70,12 +68,12 @@ public class ConversationViewModel extends AndroidViewModel {
 	private final Executor dbExecutor;
 	@CryptoExecutor
 	private final Executor cryptoExecutor;
+	// TODO replace with TransactionManager once it exists
 	private final DatabaseComponent db;
 	private final MessagingManager messagingManager;
 	private final ContactManager contactManager;
 	private final SettingsManager settingsManager;
 	private final PrivateMessageFactory privateMessageFactory;
-	private final ClientVersioningManager clientVersioningManager;
 	private final AttachmentController attachmentController;
 
 	@Nullable
@@ -106,8 +104,7 @@ public class ConversationViewModel extends AndroidViewModel {
 			@CryptoExecutor Executor cryptoExecutor, DatabaseComponent db,
 			MessagingManager messagingManager, ContactManager contactManager,
 			SettingsManager settingsManager,
-			PrivateMessageFactory privateMessageFactory,
-			ClientVersioningManager clientVersioningManager) {
+			PrivateMessageFactory privateMessageFactory) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
@@ -116,7 +113,6 @@ public class ConversationViewModel extends AndroidViewModel {
 		this.contactManager = contactManager;
 		this.settingsManager = settingsManager;
 		this.privateMessageFactory = privateMessageFactory;
-		this.clientVersioningManager = clientVersioningManager;
 		this.attachmentController = new AttachmentController(messagingManager,
 				application.getResources());
 		contactDeleted.setValue(false);
@@ -189,11 +185,8 @@ public class ConversationViewModel extends AndroidViewModel {
 	@DatabaseExecutor
 	private void checkFeaturesAndOnboarding(ContactId c) throws DbException {
 		// check if images are supported
-		int minorVersion = db.transactionWithResult(true, txn ->
-				clientVersioningManager
-						.getClientMinorVersion(txn, c, CLIENT_ID, 0));
-		// support was added in 0.1
-		boolean imagesSupported = minorVersion == 1;
+		boolean imagesSupported = db.transactionWithResult(true, txn ->
+				messagingManager.contactSupportsImages(txn, c));
 		imageSupport.postValue(imagesSupported);
 
 		// check if introductions are supported

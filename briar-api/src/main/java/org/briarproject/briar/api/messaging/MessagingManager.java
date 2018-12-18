@@ -2,6 +2,7 @@ package org.briarproject.briar.api.messaging;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -59,5 +60,14 @@ public interface MessagingManager extends ConversationClient {
 	 * Returns the attachment with the given ID.
 	 */
 	Attachment getAttachment(MessageId m) throws DbException;
+
+	/**
+	 * Returns true if the contact with the given {@link ContactId} does support
+	 * image attachments.
+	 *
+	 * Added: 2019-01-01
+	 */
+	boolean contactSupportsImages(Transaction txn, ContactId c)
+			throws DbException;
 
 }
