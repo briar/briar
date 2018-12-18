@@ -11,6 +11,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import static java.util.Objects.requireNonNull;
@@ -23,8 +25,9 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 	@LayoutRes
 	private final int layout;
 
-	public ImagePreviewAdapter(List<Uri> items, ImagePreviewListener listener) {
-		this.items = items;
+	public ImagePreviewAdapter(Collection<Uri> items,
+			ImagePreviewListener listener) {
+		this.items = new ArrayList<>(items);
 		this.listener = listener;
 		this.layout = items.size() == 1 ?
 				R.layout.list_item_image_preview_single :
@@ -35,8 +38,7 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 	public ImagePreviewViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
 		View v = LayoutInflater.from(viewGroup.getContext())
 				.inflate(layout, viewGroup, false);
-		return new ImagePreviewViewHolder(v, items.size() == 1,
-				requireNonNull(listener));
+		return new ImagePreviewViewHolder(v, requireNonNull(listener));
 	}
 
 	@Override
@@ -47,6 +49,12 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 	@Override
 	public int getItemCount() {
 		return items.size();
+	}
+
+	void removeUri(Uri uri) {
+		int pos = items.indexOf(uri);
+		items.remove(uri);
+		notifyItemRemoved(pos);
 	}
 
 }

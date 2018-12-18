@@ -11,7 +11,7 @@ import android.view.LayoutInflater;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
-import java.util.List;
+import java.util.Collection;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.support.v4.content.ContextCompat.getColor;
@@ -60,7 +60,7 @@ public class ImagePreview extends ConstraintLayout {
 		this.listener = listener;
 	}
 
-	void showPreview(List<Uri> imageUris) {
+	void showPreview(Collection<Uri> imageUris) {
 		if (listener == null) throw new IllegalStateException();
 		if (imageUris.size() == 1) {
 			LayoutParams params = (LayoutParams) imageList.getLayoutParams();
@@ -71,7 +71,14 @@ public class ImagePreview extends ConstraintLayout {
 		imageList.setAdapter(new ImagePreviewAdapter(imageUris, listener));
 	}
 
+	void removeUri(Uri uri) {
+		ImagePreviewAdapter adapter =
+				(ImagePreviewAdapter) imageList.getAdapter();
+		requireNonNull(adapter).removeUri(uri);
+	}
+
 	interface ImagePreviewListener {
+		void onUriError(Uri uri);
 		void onCancel();
 	}
 
