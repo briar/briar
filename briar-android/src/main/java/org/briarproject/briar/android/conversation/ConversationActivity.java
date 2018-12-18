@@ -139,7 +139,8 @@ public class ConversationActivity extends BriarActivity
 		TextCache, AttachmentCache, AttachImageListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
-	private static final int ONBOARDING_DELAY = 750;
+	private static final int TRANSITION_DURATION = 500;
+	private static final int ONBOARDING_DELAY = TRANSITION_DURATION + 1;
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
@@ -206,6 +207,7 @@ public class ConversationActivity extends BriarActivity
 			// Spurious lint warning - using END causes a crash
 			@SuppressLint("RtlHardcoded")
 			Transition slide = new Slide(RIGHT);
+			slide.setDuration(TRANSITION_DURATION); // should be default
 			setSceneTransitionAnimation(slide, null, slide);
 		}
 		super.onCreate(state);
