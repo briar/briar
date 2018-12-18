@@ -103,6 +103,7 @@ import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
+import static android.arch.lifecycle.Lifecycle.State.RESUMED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.setTransitionName;
@@ -294,8 +295,6 @@ public class ConversationActivity extends BriarActivity
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
-		notificationManager.blockContactNotification(contactId);
-		notificationManager.clearContactNotification(contactId);
 		displayContactOnlineStatus();
 		viewModel.getContactDisplayName().observe(this, contactNameObserver);
 		list.startPeriodicUpdate();
@@ -304,6 +303,9 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public void onResume() {
 		super.onResume();
+		// TODO move back to onStart() when we have unread msg indicators
+		notificationManager.blockContactNotification(contactId);
+		notificationManager.clearContactNotification(contactId);
 		// Trigger loading of contact data, noop if data was loaded already.
 		//
 		// We can only start loading data *after* we are sure
@@ -312,10 +314,16 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
+	protected void onPause() {
+		super.onPause();
+		// TODO move back to onStop() when we have unread msg indicators
+		notificationManager.unblockContactNotification(contactId);
+	}
+
+	@Override
 	public void onStop() {
 		super.onStop();
 		eventBus.removeListener(this);
-		notificationManager.unblockContactNotification(contactId);
 		viewModel.getContactDisplayName().removeObserver(contactNameObserver);
 		list.stopPeriodicUpdate();
 	}
@@ -501,10 +509,12 @@ public class ConversationActivity extends BriarActivity
 					adapter.getMessageItem(m);
 			if (pair != null) {
 				pair.getSecond().setText(text);
-				boolean bottom = layoutManagerState == null &&
+				boolean shouldScroll = layoutManagerState == null &&
 						adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
+				if (shouldScroll) {
+					list.scrollToPosition(adapter.getItemCount() - 1);
+				}
 			}
 		});
 	}
@@ -533,10 +543,12 @@ public class ConversationActivity extends BriarActivity
 					adapter.getMessageItem(m);
 			if (pair != null) {
 				pair.getSecond().setAttachments(items);
-				boolean bottom = layoutManagerState == null &&
+				boolean shouldScroll = layoutManagerState == null &&
 						adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
+				if (shouldScroll) {
+					list.scrollToPosition(adapter.getItemCount() - 1);
+				}
 			}
 		});
 	}
@@ -585,11 +597,11 @@ public class ConversationActivity extends BriarActivity
 
 	private void addConversationItem(ConversationItem item) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			boolean bottom = layoutManagerState == null &&
-					adapter.isScrolledToBottom(layoutManager);
+			// whenever the activity is shown, we'll scroll down for new msgs
+			boolean shouldScroll = getLifecycle().getCurrentState() == RESUMED;
 			adapter.incrementRevision();
 			adapter.add(item);
-			if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
+			if (shouldScroll) list.scrollToPosition(adapter.getItemCount() - 1);
 		});
 	}
 
