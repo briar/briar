@@ -107,7 +107,6 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.support.v4.view.ViewCompat.setTransitionName;
 import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.view.Gravity.RIGHT;
-import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
@@ -121,9 +120,9 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_IMAGE_ATTACHMENTS;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
+import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENTS;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
-import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENTS;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
@@ -217,7 +216,6 @@ public class ConversationActivity extends BriarActivity
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(ConversationViewModel.class);
-		viewModel.setContactId(contactId);
 		attachmentController = viewModel.getAttachmentController();
 
 		setContentView(R.layout.activity_conversation);
@@ -298,6 +296,16 @@ public class ConversationActivity extends BriarActivity
 		displayContactOnlineStatus();
 		viewModel.getContactDisplayName().observe(this, contactNameObserver);
 		list.startPeriodicUpdate();
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		// Trigger loading of contact data, noop if data was loaded already.
+		//
+		// We can only start loading data *after* we are sure
+		// the user has signed in. After sign-in, onCreate() isn't run again.
+		if (signedIn()) viewModel.setContactId(contactId);
 	}
 
 	@Override
