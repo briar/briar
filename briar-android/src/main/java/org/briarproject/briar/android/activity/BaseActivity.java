@@ -15,6 +15,8 @@ import android.view.ViewGroup.LayoutParams;
 import android.view.inputmethod.InputMethodManager;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
@@ -51,6 +53,8 @@ import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOT
  * Warning: Some activities don't extend {@link BaseActivity}.
  *          E.g. {@link DevReportActivity}
  */
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class BaseActivity extends AppCompatActivity
 		implements DestroyableContext, OnTapFilteredListener {
 

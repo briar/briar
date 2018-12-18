@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.activity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.annotation.RequiresApi;
 import android.support.v7.app.ActionBar;
@@ -10,6 +9,8 @@ import android.transition.Transition;
 import android.view.Window;
 import android.widget.CheckBox;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
@@ -36,7 +37,8 @@ import static org.briarproject.briar.android.util.UiUtils.excludeSystemUi;
 import static org.briarproject.briar.android.util.UiUtils.getDozeWhitelistingIntent;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
-@SuppressLint("Registered")
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public abstract class BriarActivity extends BaseActivity {
 
 	public static final String GROUP_ID = "briar.GROUP_ID";
@@ -60,7 +62,8 @@ public abstract class BriarActivity extends BaseActivity {
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD) {
 			// The result can be RESULT_CANCELED if there's no account
