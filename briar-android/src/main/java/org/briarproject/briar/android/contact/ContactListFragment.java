@@ -56,6 +56,7 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
+import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -114,7 +115,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					ContactId contactId = item.getContact().getId();
 					i.putExtra(CONTACT_ID, contactId.getInt());
 
-					if (SDK_INT >= 23) {
+					if (SDK_INT >= 23 && !isSamsung7()) {
 						ContactListItemViewHolder holder =
 								(ContactListItemViewHolder) list
 										.getRecyclerView()
