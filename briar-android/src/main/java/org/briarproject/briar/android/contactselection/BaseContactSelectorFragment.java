@@ -25,6 +25,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.contactselection.ContactSelectorActivity.CONTACTS;
 import static org.briarproject.briar.android.contactselection.ContactSelectorActivity.getContactsFromIds;
@@ -50,10 +51,10 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Bundle args = getArguments();
+		Bundle args = requireNonNull(getArguments());
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId");
 		groupId = new GroupId(b);
@@ -72,7 +73,7 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 		list.setEmptyImage(R.drawable.ic_empty_state_contact_list);
 		list.setEmptyText(getString(R.string.no_contacts_selector));
 		list.setEmptyAction(getString(R.string.no_contacts_selector_action));
-		adapter = getAdapter(getContext(), this);
+		adapter = getAdapter(requireNonNull(getContext()), this);
 		list.setAdapter(adapter);
 
 		// restore selected contacts if available

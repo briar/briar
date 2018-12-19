@@ -15,7 +15,6 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.Objects.requireNonNull;
@@ -29,7 +28,6 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 
 	private ConversationViewModel viewModel;
 	private EditText aliasEditText;
-	private Button setButton;
 
 	public static AliasDialogFragment newInstance() {
 		return new AliasDialogFragment();
@@ -40,6 +38,11 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		super.onCreate(savedInstanceState);
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
+
+		BriarActivity a = (BriarActivity) requireNonNull(getActivity());
+		a.getActivityComponent().inject(this);
+		viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
+				.get(ConversationViewModel.class);
 	}
 
 	@Override
@@ -47,33 +50,23 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 			ViewGroup container, Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_alias_dialog, container,
 				false);
+
 		aliasEditText = v.findViewById(R.id.aliasEditText);
-		setButton = v.findViewById(R.id.setButton);
-
-		Button cancelButton = v.findViewById(R.id.cancelButton);
-		cancelButton.setOnClickListener(v1 -> getDialog().cancel());
-
-		return v;
-	}
-
-	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		BriarActivity a = (BriarActivity) requireNonNull(getActivity());
-		a.getActivityComponent().inject(this);
-
-		viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
-				.get(ConversationViewModel.class);
-
 		Contact contact = requireNonNull(viewModel.getContact().getValue());
 		String alias = contact.getAlias();
 		aliasEditText.setText(alias);
 		if (alias != null) aliasEditText.setSelection(alias.length());
 
+		Button setButton = v.findViewById(R.id.setButton);
 		setButton.setOnClickListener(v1 -> {
 			viewModel.setContactAlias(aliasEditText.getText().toString());
 			getDialog().dismiss();
 		});
+
+		Button cancelButton = v.findViewById(R.id.cancelButton);
+		cancelButton.setOnClickListener(v1 -> getDialog().cancel());
+
+		return v;
 	}
 
 }

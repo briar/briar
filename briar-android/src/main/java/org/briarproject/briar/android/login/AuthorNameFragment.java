@@ -18,6 +18,7 @@ import javax.annotation.Nullable;
 
 import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_NONE;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 
@@ -36,10 +37,15 @@ public class AuthorNameFragment extends SetupFragment {
 	}
 
 	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		getActivity().setTitle(getString(R.string.setup_title));
+		requireNonNull(getActivity()).setTitle(getString(R.string.setup_title));
 		View v = inflater.inflate(R.layout.fragment_setup_author_name,
 				container, false);
 		authorNameWrapper = v.findViewById(R.id.nickname_entry_wrapper);
@@ -55,11 +61,6 @@ public class AuthorNameFragment extends SetupFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

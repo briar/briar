@@ -2,6 +2,7 @@ package org.briarproject.briar.android.privategroup.creation;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -12,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -23,6 +26,8 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class CreateGroupFragment extends BaseFragment {
 
 	public final static String TAG = CreateGroupFragment.class.getName();
@@ -40,8 +45,13 @@ public class CreateGroupFragment extends BaseFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
+	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		View v = inflater.inflate(R.layout.fragment_create_group, container,
 				false);
@@ -85,11 +95,6 @@ public class CreateGroupFragment extends BaseFragment {
 	public void onStart() {
 		super.onStart();
 		listener.showSoftKeyboard(nameEntry);
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

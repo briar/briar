@@ -1,14 +1,18 @@
 package org.briarproject.briar.android.sharing;
 
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ShareForumMessageFragment extends BaseMessageFragment {
 
 	public final static String TAG = ShareForumMessageFragment.class.getName();
@@ -18,8 +22,9 @@ public class ShareForumMessageFragment extends BaseMessageFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		setTitle(R.string.forum_share_button);
 		return super.onCreateView(inflater, container, savedInstanceState);
@@ -35,11 +40,6 @@ public class ShareForumMessageFragment extends BaseMessageFragment {
 	@StringRes
 	protected int getHintText() {
 		return R.string.forum_share_message;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
+import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -57,17 +58,23 @@ public class GroupListFragment extends BaseFragment implements
 	private GroupListAdapter adapter;
 	private Snackbar snackbar;
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+		controller.setGroupListListener(this);
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		getActivity().setTitle(R.string.groups_button);
+		requireNonNull(getActivity()).setTitle(R.string.groups_button);
 
 		View v = inflater.inflate(R.layout.list, container, false);
 
-		adapter = new GroupListAdapter(getContext(), this);
+		adapter = new GroupListAdapter(getActivity(), this);
 		list = v.findViewById(R.id.list);
 		list.setEmptyImage(R.drawable.ic_empty_state_group_list);
 		list.setEmptyText(R.string.groups_list_empty);
@@ -79,15 +86,9 @@ public class GroupListFragment extends BaseFragment implements
 		snackbar.getView().setBackgroundResource(R.color.briar_primary);
 		snackbar.setAction(R.string.show, this);
 		snackbar.setActionTextColor(ContextCompat
-				.getColor(getContext(), R.color.briar_button_text_positive));
+				.getColor(getActivity(), R.color.briar_button_text_positive));
 
 		return v;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-		controller.setGroupListListener(this);
 	}
 
 	@Override

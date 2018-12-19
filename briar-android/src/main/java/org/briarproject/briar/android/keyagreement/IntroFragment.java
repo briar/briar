@@ -10,7 +10,6 @@ import android.widget.ScrollView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.annotation.Nullable;
@@ -37,11 +36,6 @@ public class IntroFragment extends BaseFragment {
 		IntroFragment fragment = new IntroFragment();
 		fragment.setArguments(args);
 		return fragment;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	@Override

@@ -10,7 +10,6 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 
 
 @MethodsNotNullByDefault
@@ -55,11 +54,6 @@ public class ErrorFragment extends BaseFragment {
 		TextView msg = v.findViewById(R.id.errorMessage);
 		msg.setText(errorMessage);
 		return v;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		// not necessary
 	}
 
 }

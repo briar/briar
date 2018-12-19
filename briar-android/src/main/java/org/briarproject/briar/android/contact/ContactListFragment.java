@@ -51,6 +51,7 @@ import javax.inject.Inject;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.getTransitionName;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -102,8 +103,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
-		getActivity().setTitle(R.string.contact_list_button);
+		requireNonNull(getActivity()).setTitle(R.string.contact_list_button);
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
 

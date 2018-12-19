@@ -39,6 +39,7 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
@@ -78,14 +79,14 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
-	}
-
-	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
 		introductionActivity = (IntroductionActivity) context;
+	}
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
 	}
 
 	@Override
@@ -99,6 +100,14 @@ public class IntroductionMessageFragment extends BaseFragment
 			actionBar.setTitle(R.string.introduction_message_title);
 		}
 
+		// get contact IDs from fragment arguments
+		Bundle args = requireNonNull(getArguments());
+		int contactId1 = args.getInt(CONTACT_ID_1, -1);
+		int contactId2 = args.getInt(CONTACT_ID_2, -1);
+		if (contactId1 == -1 || contactId2 == -1) {
+			throw new AssertionError("Use newInstance() to instantiate");
+		}
+
 		// inflate view
 		View v = inflater.inflate(R.layout.introduction_message, container,
 				false);
@@ -109,22 +118,15 @@ public class IntroductionMessageFragment extends BaseFragment
 		ui.message.setMaxTextLength(MAX_INTRODUCTION_TEXT_LENGTH);
 		ui.message.setEnabled(false);
 
+		// get contacts and then show view
+		prepareToSetUpViews(contactId1, contactId2);
+
 		return v;
 	}
 
 	@Override
 	public void onStart() {
 		super.onStart();
-
-		// get contact IDs from fragment arguments
-		int contactId1 = getArguments().getInt(CONTACT_ID_1, -1);
-		int contactId2 = getArguments().getInt(CONTACT_ID_2, -1);
-		if (contactId1 == -1 || contactId2 == -1) {
-			throw new java.lang.InstantiationError(
-					"You need to use newInstance() to instantiate");
-		}
-		// get contacts and then show view
-		prepareToSetUpViews(contactId1, contactId2);
 	}
 
 	@Override

@@ -3,22 +3,29 @@ package org.briarproject.briar.android;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.fragment.ErrorFragment;
 
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import static org.briarproject.briar.android.BriarService.EXTRA_NOTIFICATION_ID;
 import static org.briarproject.briar.android.BriarService.EXTRA_START_RESULT;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class StartupFailureActivity extends BaseActivity implements
 		BaseFragmentListener {
 
 	@Override
-	public void onCreate(Bundle state) {
+	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
 		setContentView(R.layout.activity_fragment_container);
@@ -38,7 +45,7 @@ public class StartupFailureActivity extends BaseActivity implements
 		// cancel notification
 		if (notificationId > -1) {
 			Object o = getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
+			NotificationManager nm = (NotificationManager) requireNonNull(o);
 			nm.cancel(notificationId);
 		}
 
@@ -66,7 +73,7 @@ public class StartupFailureActivity extends BaseActivity implements
 	}
 
 	@Override
-	public void runOnDbThread(Runnable runnable) {
+	public void runOnDbThread(@NonNull Runnable runnable) {
 		throw new AssertionError("Deprecated and should not be used");
 	}
 

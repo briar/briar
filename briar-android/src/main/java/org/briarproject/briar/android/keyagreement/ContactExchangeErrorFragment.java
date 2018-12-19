@@ -44,6 +44,11 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 		return TAG;
 	}
 
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
 	@Nullable
 	@Override
 	public View onCreateView(LayoutInflater inflater,
@@ -72,11 +77,6 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 		Button cancel = v.findViewById(R.id.cancelButton);
 		cancel.setOnClickListener(view -> finish());
 		return v;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		component.inject(this);
 	}
 
 	private void triggerFeedback() {

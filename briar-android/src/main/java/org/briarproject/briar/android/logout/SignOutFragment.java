@@ -5,19 +5,21 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class SignOutFragment extends BaseFragment {
 
 	public static final String TAG = SignOutFragment.class.getName();
 
 	@Override
-	public View onCreateView(@Nonnull LayoutInflater inflater,
+	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		return inflater.inflate(R.layout.fragment_sign_out, container, false);
@@ -26,10 +28,5 @@ public class SignOutFragment extends BaseFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	public void injectFragment(ActivityComponent component) {
-		// no need to inject
 	}
 }

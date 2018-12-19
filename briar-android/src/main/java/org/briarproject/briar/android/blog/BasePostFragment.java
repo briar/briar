@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static java.util.Objects.requireNonNull;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.util.UiUtils.MIN_DATE_RESOLUTION;
 
@@ -35,7 +37,7 @@ abstract class BasePostFragment extends BaseFragment {
 	static final String POST_ID = "briar.POST_ID";
 
 	private static final Logger LOG =
-			Logger.getLogger(BasePostFragment.class.getName());
+			getLogger(BasePostFragment.class.getName());
 
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -52,7 +54,7 @@ abstract class BasePostFragment extends BaseFragment {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		// retrieve MessageId of blog post from arguments
-		byte[] p = getArguments().getByteArray(POST_ID);
+		byte[] p = requireNonNull(getArguments()).getByteArray(POST_ID);
 		if (p == null) throw new IllegalStateException("No post ID in args");
 		postId = new MessageId(p);
 
@@ -68,6 +70,7 @@ abstract class BasePostFragment extends BaseFragment {
 
 			@Override
 			public void onAuthorClick(BlogPostItem post) {
+				if (getContext() == null) return;
 				Intent i = new Intent(getContext(), BlogActivity.class);
 				i.putExtra(GROUP_ID, post.getGroupId().getBytes());
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
