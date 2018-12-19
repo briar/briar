@@ -258,7 +258,8 @@ public class UiUtils {
 	}
 
 	public static boolean isSamsung7() {
-		return SDK_INT == 24 && MANUFACTURER.equalsIgnoreCase("Samsung");
+		return (SDK_INT == 24 || SDK_INT == 25) &&
+				MANUFACTURER.equalsIgnoreCase("Samsung");
 	}
 
 	public static void setFilterTouchesWhenObscured(View v, boolean filter) {
