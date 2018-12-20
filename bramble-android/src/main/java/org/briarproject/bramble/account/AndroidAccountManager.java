@@ -14,6 +14,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
@@ -39,7 +40,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		appContext = app.getApplicationContext();
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Override
 	@Nullable
 	protected String loadEncryptedDatabaseKey() {
@@ -49,7 +50,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		return key;
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	private String getDatabaseKeyFromPreferences() {
 		String key = prefs.getString(PREF_DB_KEY, null);
@@ -58,7 +59,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		return key;
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private void migrateDatabaseKeyToFile(String key) {
 		if (storeEncryptedDatabaseKey(key)) {
 			if (prefs.edit().remove(PREF_DB_KEY).commit())
@@ -83,7 +84,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		return PreferenceManager.getDefaultSharedPreferences(appContext);
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private void deleteAppData(SharedPreferences... clear) {
 		// Clear and commit shared preferences
 		for (SharedPreferences prefs : clear) {

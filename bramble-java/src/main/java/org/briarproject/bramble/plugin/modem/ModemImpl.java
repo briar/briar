@@ -182,7 +182,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 		}
 	}
 
-	// Locking: stateChange
+	@GuardedBy("stateChange")
 	private void hangUpInner() throws IOException {
 		ReliabilityLayer reliability;
 		lock.lock();

@@ -52,6 +52,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import static java.lang.System.arraycopy;
 import static java.sql.Types.INTEGER;
@@ -319,11 +320,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private final Clock clock;
 	private final DatabaseTypes dbTypes;
 
-	// Locking: connectionsLock
+	@GuardedBy("connectionsLock")
 	private final LinkedList<Connection> connections = new LinkedList<>();
 
-	private int openConnections = 0; // Locking: connectionsLock
-	private boolean closed = false; // Locking: connectionsLock
+	@GuardedBy("connectionsLock")
+	private int openConnections = 0;
+	@GuardedBy("connectionsLock")
+	private boolean closed = false;
 
 	protected abstract Connection createConnection() throws SQLException;
 

@@ -17,6 +17,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
@@ -67,7 +68,7 @@ class AccountManagerImpl implements AccountManager {
 		return databaseKey;
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	protected String loadEncryptedDatabaseKey() {
 		String key = readDbKeyFromFile(dbKeyFile);
@@ -82,7 +83,7 @@ class AccountManagerImpl implements AccountManager {
 		return key;
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	private String readDbKeyFromFile(File f) {
 		if (!f.exists()) {
@@ -101,7 +102,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
 		// Create the directory if necessary
@@ -139,7 +140,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private void writeDbKeyToFile(String key, File f) throws IOException {
 		FileOutputStream out = new FileOutputStream(f);
 		out.write(key.getBytes("UTF-8"));
@@ -169,7 +170,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private boolean encryptAndStoreDatabaseKey(SecretKey key, String password) {
 		byte[] plaintext = key.getBytes();
 		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password);
@@ -196,7 +197,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	private SecretKey loadAndDecryptDatabaseKey(String password) {
 		String hex = loadEncryptedDatabaseKey();

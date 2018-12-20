@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
@@ -17,7 +18,7 @@ import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
 @NotNullByDefault
 public class Localizer {
 
-	// Locking: class
+	@GuardedBy("Localizer.class")
 	@Nullable
 	private static Localizer INSTANCE;
 	private final Locale systemLocale;

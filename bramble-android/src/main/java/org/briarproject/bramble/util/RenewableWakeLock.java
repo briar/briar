@@ -10,6 +10,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -37,10 +38,12 @@ public class RenewableWakeLock {
 	private final Runnable renewTask;
 
 	private final Object lock = new Object();
+	@GuardedBy("lock")
 	@Nullable
-	private PowerManager.WakeLock wakeLock; // Locking: lock
+	private PowerManager.WakeLock wakeLock;
+	@GuardedBy("lock")
 	@Nullable
-	private ScheduledFuture future; // Locking: lock
+	private ScheduledFuture future;
 
 	public RenewableWakeLock(PowerManager powerManager,
 			ScheduledExecutorService scheduler, int levelAndFlags, String tag,

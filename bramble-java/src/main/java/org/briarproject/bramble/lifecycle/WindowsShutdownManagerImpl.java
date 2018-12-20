@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
@@ -45,7 +46,8 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 
 	private final Map<String, Object> options;
 
-	private boolean initialised = false; // Locking: lock
+	@GuardedBy("lock")
+	private boolean initialised = false;
 
 	WindowsShutdownManagerImpl() {
 		// Use the Unicode versions of Win32 API calls
@@ -71,7 +73,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		return new StartOnce(r);
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void initialise() {
 		if (isWindows()) {
 			new EventLoop().start();

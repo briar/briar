@@ -9,6 +9,7 @@ import java.util.Queue;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
@@ -18,7 +19,7 @@ public class CachingLogHandler extends Handler {
 	private static final int MAX_RECENT_RECORDS = 100;
 
 	private final Object lock = new Object();
-	// Locking: lock
+	@GuardedBy("lock")
 	private final Queue<LogRecord> recent = new LinkedList<>();
 
 	@Override

@@ -36,6 +36,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -59,7 +60,8 @@ class Poller implements EventListener {
 	private final SecureRandom random;
 	private final Clock clock;
 	private final Lock lock;
-	private final Map<TransportId, ScheduledPollTask> tasks; // Locking: lock
+	@GuardedBy("lock")
+	private final Map<TransportId, ScheduledPollTask> tasks;
 
 	Poller(@IoExecutor Executor ioExecutor,
 			@Scheduler ScheduledExecutorService scheduler,

@@ -28,6 +28,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -111,7 +112,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		return rotationResult;
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void addKeys(Collection<KeySet> keys) {
 		for (KeySet ks : keys) {
 			addKeys(ks.getKeySetId(), ks.getContactId(),
@@ -119,7 +120,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void addKeys(KeySetId keySetId, ContactId contactId,
 			MutableTransportKeys m) {
 		MutableKeySet ks = new MutableKeySet(keySetId, contactId, m);
@@ -130,7 +131,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		considerReplacingOutgoingKeys(ks);
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void encodeTags(KeySetId keySetId, ContactId contactId,
 			MutableIncomingKeys inKeys) {
 		for (long streamNumber : inKeys.getWindow().getUnseen()) {
@@ -143,7 +144,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void considerReplacingOutgoingKeys(MutableKeySet ks) {
 		// Use the active outgoing keys with the highest key set ID
 		if (ks.getTransportKeys().getCurrentOutgoingKeys().isActive()) {

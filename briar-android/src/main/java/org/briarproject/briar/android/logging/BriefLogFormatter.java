@@ -9,6 +9,7 @@ import java.util.TimeZone;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.Locale.US;
@@ -18,8 +19,10 @@ import static java.util.Locale.US;
 public class BriefLogFormatter extends Formatter {
 
 	private final Object lock = new Object();
-	private final DateFormat dateFormat; // Locking: lock
-	private final Date date; // Locking: lock
+	@GuardedBy("lock")
+	private final DateFormat dateFormat;
+	@GuardedBy("lock")
+	private final Date date;
 
 	public BriefLogFormatter() {
 		synchronized (lock) {
