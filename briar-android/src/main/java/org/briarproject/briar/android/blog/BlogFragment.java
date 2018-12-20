@@ -99,7 +99,7 @@ public class BlogFragment extends BaseFragment
 		adapter = new BlogPostAdapter(requireActivity(), this,
 				getFragmentManager());
 		list = v.findViewById(R.id.postList);
-		list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		list.setLayoutManager(new LinearLayoutManager(requireActivity()));
 		list.setAdapter(adapter);
 		list.showProgressBar();
 		list.setEmptyText(getString(R.string.blogs_other_blog_empty_state));
@@ -139,19 +139,20 @@ public class BlogFragment extends BaseFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case R.id.action_write_blog_post:
-				Intent i = new Intent(getActivity(),
+				Intent i = new Intent(requireActivity(),
 						WriteBlogPostActivity.class);
 				i.putExtra(GROUP_ID, groupId.getBytes());
 				startActivityForResult(i, REQUEST_WRITE_BLOG_POST);
 				return true;
 			case R.id.action_blog_share:
-				Intent i2 = new Intent(getActivity(), ShareBlogActivity.class);
+				Intent i2 = new Intent(requireActivity(),
+						ShareBlogActivity.class);
 				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
 				startActivityForResult(i2, REQUEST_SHARE_BLOG);
 				return true;
 			case R.id.action_blog_sharing_status:
-				Intent i3 = new Intent(getActivity(),
+				Intent i3 = new Intent(requireActivity(),
 						BlogSharingStatusActivity.class);
 				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
