@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.conversation;
 
-import android.content.res.Resources;
 import android.graphics.BitmapFactory;
 import android.support.annotation.Nullable;
 import android.support.media.ExifInterface;
@@ -13,7 +12,6 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.R;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -56,18 +54,14 @@ class AttachmentController {
 	private final Map<MessageId, List<AttachmentItem>> attachmentCache =
 			new ConcurrentHashMap<>();
 
-	AttachmentController(MessagingManager messagingManager, Resources res) {
+	AttachmentController(MessagingManager messagingManager,
+			AttachmentDimensions dimensions) {
 		this.messagingManager = messagingManager;
-		defaultSize =
-				res.getDimensionPixelSize(R.dimen.message_bubble_image_default);
-		minWidth = res.getDimensionPixelSize(
-				R.dimen.message_bubble_image_min_width);
-		maxWidth = res.getDimensionPixelSize(
-				R.dimen.message_bubble_image_max_width);
-		minHeight = res.getDimensionPixelSize(
-				R.dimen.message_bubble_image_min_height);
-		maxHeight = res.getDimensionPixelSize(
-				R.dimen.message_bubble_image_max_height);
+		defaultSize = dimensions.defaultSize;
+		minWidth = dimensions.minWidth;
+		maxWidth = dimensions.maxWidth;
+		minHeight = dimensions.minHeight;
+		maxHeight = dimensions.maxHeight;
 	}
 
 	void put(MessageId messageId, List<AttachmentItem> attachments) {
