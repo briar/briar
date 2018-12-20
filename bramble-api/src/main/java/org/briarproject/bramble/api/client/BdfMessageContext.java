@@ -5,9 +5,10 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.annotation.concurrent.Immutable;
+
+import static java.util.Collections.emptyList;
 
 @Immutable
 @NotNullByDefault
@@ -23,7 +24,7 @@ public class BdfMessageContext {
 	}
 
 	public BdfMessageContext(BdfDictionary dictionary) {
-		this(dictionary, Collections.emptyList());
+		this(dictionary, emptyList());
 	}
 
 	public BdfDictionary getDictionary() {

@@ -9,6 +9,7 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 
 /**
@@ -70,14 +71,14 @@ class StreamWriterImpl extends OutputStream implements StreamWriter {
 	public void write(byte[] b, int off, int len) throws IOException {
 		int available = payload.length - length;
 		while (available <= len) {
-			System.arraycopy(b, off, payload, length, available);
+			arraycopy(b, off, payload, length, available);
 			length += available;
 			writeFrame(false);
 			off += available;
 			len -= available;
 			available = payload.length - length;
 		}
-		System.arraycopy(b, off, payload, length, len);
+		arraycopy(b, off, payload, length, len);
 		length += len;
 	}
 

@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
 import java.util.logging.Logger;
@@ -18,6 +17,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.deleteFileOrDir;
 
 class AndroidAccountManager extends AccountManagerImpl
 		implements AccountManager {
@@ -99,7 +99,7 @@ class AndroidAccountManager extends AccountManagerImpl
 			for (File child : children) {
 				String name = child.getName();
 				if (!name.equals("lib") && !name.equals("shared_prefs")) {
-					IoUtils.deleteFileOrDir(child);
+					deleteFileOrDir(child);
 				}
 			}
 		}

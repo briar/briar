@@ -32,7 +32,6 @@ import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +44,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyMap;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_LOCAL;
@@ -249,7 +249,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	private ForumPostHeader getForumPostHeader(Transaction txn, MessageId id,
 			BdfDictionary meta) throws DbException, FormatException {
-		return getForumPostHeader(txn, id, meta, Collections.emptyMap());
+		return getForumPostHeader(txn, id, meta, emptyMap());
 	}
 
 	private ForumPostHeader getForumPostHeader(Transaction txn, MessageId id,

@@ -19,10 +19,10 @@ import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 
 import java.security.GeneralSecurityException;
-import java.util.Collections;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
@@ -120,8 +120,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -139,8 +138,7 @@ class GroupInvitationValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 

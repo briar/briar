@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -23,6 +22,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.deleteFileOrDir;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
@@ -182,8 +182,8 @@ class AccountManagerImpl implements AccountManager {
 	public void deleteAccount() {
 		synchronized (stateChangeLock) {
 			LOG.info("Deleting account");
-			IoUtils.deleteFileOrDir(databaseConfig.getDatabaseKeyDirectory());
-			IoUtils.deleteFileOrDir(databaseConfig.getDatabaseDirectory());
+			deleteFileOrDir(databaseConfig.getDatabaseKeyDirectory());
+			deleteFileOrDir(databaseConfig.getDatabaseDirectory());
 			databaseKey = null;
 		}
 	}

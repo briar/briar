@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 
+import static java.lang.System.arraycopy;
+
 @NotNullByDefault
 class Curve25519KeyParser implements KeyParser {
 
@@ -26,7 +28,7 @@ class Curve25519KeyParser implements KeyParser {
 
 	static byte[] clamp(byte[] b) {
 		byte[] clamped = new byte[32];
-		System.arraycopy(b, 0, clamped, 0, 32);
+		arraycopy(b, 0, clamped, 0, 32);
 		clamped[0] &= 248;
 		clamped[31] &= 127;
 		clamped[31] |= 64;

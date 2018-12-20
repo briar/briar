@@ -42,7 +42,6 @@ import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.logging.Logger;
@@ -67,6 +66,7 @@ import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -222,7 +222,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		if (SDK_INT < 27) {
 			// remove System Default Theme option
 			List<CharSequence> entries =
-					new ArrayList<>(Arrays.asList(theme.getEntries()));
+					new ArrayList<>(asList(theme.getEntries()));
 			entries.remove(getString(R.string.pref_theme_system));
 			theme.setEntries(entries.toArray(new CharSequence[0]));
 		}

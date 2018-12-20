@@ -33,10 +33,10 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Signature;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.sort;
 import static net.i2p.crypto.eddsa.EdDSAEngine.SIGNATURE_ALGORITHM;
 
 // Not a JUnit test
@@ -45,9 +45,9 @@ public class EllipticCurvePerformanceTest {
 	private static final SecureRandom random = new SecureRandom();
 	private static final int SAMPLES = 50;
 	private static final int BYTES_TO_SIGN = 1024;
-	private static final List<String> SEC_NAMES = Arrays.asList(
+	private static final List<String> SEC_NAMES = asList(
 			"secp256k1", "secp256r1", "secp384r1", "secp521r1");
-	private static final List<String> BRAINPOOL_NAMES = Arrays.asList(
+	private static final List<String> BRAINPOOL_NAMES = asList(
 			"brainpoolp256r1", "brainpoolp384r1", "brainpoolp512r1");
 	private static final Provider ED_PROVIDER = new EdDSASecurityProvider();
 
@@ -184,7 +184,7 @@ public class EllipticCurvePerformanceTest {
 	private static long median(List<Long> list) {
 		int size = list.size();
 		if (size == 0) throw new IllegalArgumentException();
-		Collections.sort(list);
+		sort(list);
 		if (size % 2 == 1) return list.get(size / 2);
 		return list.get(size / 2 - 1) + list.get(size / 2) / 2;
 	}

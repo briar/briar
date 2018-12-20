@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -19,15 +20,15 @@ public class BdfDictionaryTest extends BrambleTestCase {
 	public void testConstructors() {
 		assertEquals(Collections.<String, Object>emptyMap(),
 				new BdfDictionary());
-		assertEquals(Collections.singletonMap("foo", NULL_VALUE),
-				new BdfDictionary(Collections.singletonMap("foo", NULL_VALUE)));
+		assertEquals(singletonMap("foo", NULL_VALUE),
+				new BdfDictionary(singletonMap("foo", NULL_VALUE)));
 	}
 
 	@Test
 	public void testFactoryMethod() {
 		assertEquals(Collections.<String, Object>emptyMap(),
 				BdfDictionary.of());
-		assertEquals(Collections.singletonMap("foo", NULL_VALUE),
+		assertEquals(singletonMap("foo", NULL_VALUE),
 				BdfDictionary.of(new BdfEntry("foo", NULL_VALUE)));
 	}
 

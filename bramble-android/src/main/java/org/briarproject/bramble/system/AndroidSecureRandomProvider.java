@@ -8,7 +8,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.StrictMode;
 import android.provider.Settings;
@@ -23,6 +22,9 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static android.content.Context.WIFI_SERVICE;
+import static android.os.Build.FINGERPRINT;
+import static android.os.Build.SERIAL;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.Secure.ANDROID_ID;
 
 @Immutable
@@ -45,8 +47,8 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 		out.writeInt(android.os.Process.myPid());
 		out.writeInt(android.os.Process.myTid());
 		out.writeInt(android.os.Process.myUid());
-		if (Build.FINGERPRINT != null) out.writeUTF(Build.FINGERPRINT);
-		if (Build.SERIAL != null) out.writeUTF(Build.SERIAL);
+		if (FINGERPRINT != null) out.writeUTF(FINGERPRINT);
+		if (SERIAL != null) out.writeUTF(SERIAL);
 		ContentResolver contentResolver = appContext.getContentResolver();
 		String id = Settings.Secure.getString(contentResolver, ANDROID_ID);
 		if (id != null) out.writeUTF(id);
@@ -74,15 +76,13 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 		// Silence strict mode
 		StrictMode.ThreadPolicy tp = StrictMode.allowThreadDiskWrites();
 		super.writeSeed();
-		if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT <= 18)
-			applyOpenSslFix();
+		if (SDK_INT >= 16 && SDK_INT <= 18) applyOpenSslFix();
 		StrictMode.setThreadPolicy(tp);
 	}
 
 	// Based on https://android-developers.googleblog.com/2013/08/some-securerandom-thoughts.html
 	private void applyOpenSslFix() {
-		byte[] seed = new UnixSecureRandomSpi().engineGenerateSeed(
-				SEED_LENGTH);
+		byte[] seed = new UnixSecureRandomSpi().engineGenerateSeed(SEED_LENGTH);
 		try {
 			// Seed the OpenSSL PRNG
 			Class.forName("org.apache.harmony.xnet.provider.jsse.NativeCrypto")

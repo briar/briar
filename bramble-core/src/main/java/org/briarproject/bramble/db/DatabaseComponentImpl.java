@@ -61,7 +61,6 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -72,6 +71,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.singletonList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -899,7 +899,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (old == INVISIBLE) db.addGroupVisibility(txn, c, g, v == SHARED);
 		else if (v == INVISIBLE) db.removeGroupVisibility(txn, c, g);
 		else db.setGroupVisibility(txn, c, g, v == SHARED);
-		List<ContactId> affected = Collections.singletonList(c);
+		List<ContactId> affected = singletonList(c);
 		transaction.attach(new GroupVisibilityUpdatedEvent(affected));
 	}
 

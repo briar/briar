@@ -8,6 +8,8 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.lang.System.arraycopy;
+
 @NotThreadSafe
 @NotNullByDefault
 class ReceiverInputStream extends InputStream {
@@ -44,7 +46,7 @@ class ReceiverInputStream extends InputStream {
 		while (length == 0) if (!receive()) return -1;
 		if (data == null) throw new AssertionError();
 		len = Math.min(len, length);
-		System.arraycopy(data.getBuffer(), offset, b, off, len);
+		arraycopy(data.getBuffer(), offset, b, off, len);
 		offset += len;
 		length -= len;
 		return len;

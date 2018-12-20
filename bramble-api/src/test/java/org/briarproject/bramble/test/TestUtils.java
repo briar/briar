@@ -12,12 +12,10 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +23,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.sort;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -33,6 +32,7 @@ import static org.briarproject.bramble.api.properties.TransportPropertyConstants
 import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.util.IoUtils.deleteFileOrDir;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
 public class TestUtils {
@@ -48,7 +48,7 @@ public class TestUtils {
 	}
 
 	public static void deleteTestDirectory(File testDir) {
-		IoUtils.deleteFileOrDir(testDir);
+		deleteFileOrDir(testDir);
 		testDir.getParentFile().delete(); // Delete if empty
 	}
 
@@ -145,7 +145,7 @@ public class TestUtils {
 		if (size == 0) throw new IllegalArgumentException();
 		List<Double> sorted = new ArrayList<>(size);
 		for (Number n : samples) sorted.add(n.doubleValue());
-		Collections.sort(sorted);
+		sort(sorted);
 		if (size % 2 == 1) return sorted.get(size / 2);
 		double low = sorted.get(size / 2 - 1), high = sorted.get(size / 2);
 		return (low + high) / 2;

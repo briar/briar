@@ -3,13 +3,13 @@ package org.briarproject.bramble;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import static java.util.Arrays.asList;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
@@ -119,12 +119,12 @@ public class PoliteExecutorTest extends BrambleTestCase {
 	private List<Integer> ascendingOrder() {
 		Integer[] array = new Integer[TASKS];
 		for (int i = 0; i < TASKS; i++) array[i] = i;
-		return Arrays.asList(array);
+		return asList(array);
 	}
 
 	private List<Integer> descendingOrder() {
 		Integer[] array = new Integer[TASKS];
 		for (int i = 0; i < TASKS; i++) array[i] = TASKS - 1 - i;
-		return Arrays.asList(array);
+		return asList(array);
 	}
 }

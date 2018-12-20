@@ -3,10 +3,11 @@ package org.briarproject.bramble.api.db;
 import org.briarproject.bramble.api.event.Event;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import static java.util.Collections.emptyList;
 
 /**
  * A wrapper around a database transaction. Transactions are not thread-safe.
@@ -53,7 +54,7 @@ public class Transaction {
 	 * Returns any events attached to the transaction.
 	 */
 	public List<Event> getEvents() {
-		if (events == null) return Collections.emptyList();
+		if (events == null) return emptyList();
 		return events;
 	}
 

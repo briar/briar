@@ -16,6 +16,7 @@ import org.briarproject.briar.headless.contact.ContactController
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
+import java.lang.Integer.parseInt
 import java.lang.Runtime.getRuntime
 import java.lang.System.exit
 import java.util.concurrent.atomic.AtomicBoolean
@@ -128,7 +129,7 @@ constructor(
 fun Context.getContactIdFromPathParam(): ContactId {
     val contactString = pathParam("contactId")
     val contactInt = try {
-        Integer.parseInt(contactString)
+        parseInt(contactString)
     } catch (e: NumberFormatException) {
         throw NotFoundResponse()
     }

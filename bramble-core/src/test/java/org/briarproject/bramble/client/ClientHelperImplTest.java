@@ -30,11 +30,11 @@ import org.junit.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.security.GeneralSecurityException;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
@@ -166,7 +166,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getMessageMetadata(txn, groupId);
-			will(returnValue(Collections.singletonMap(messageId, metadata)));
+			will(returnValue(singletonMap(messageId, metadata)));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
 		}});
@@ -190,7 +190,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			oneOf(metadataEncoder).encode(query);
 			will(returnValue(queryMetadata));
 			oneOf(db).getMessageMetadata(txn, groupId, queryMetadata);
-			will(returnValue(Collections.singletonMap(messageId, metadata)));
+			will(returnValue(singletonMap(messageId, metadata)));
 			oneOf(metadataParser).parse(metadata);
 			will(returnValue(dictionary));
 		}});

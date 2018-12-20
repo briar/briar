@@ -7,6 +7,8 @@ import java.io.OutputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.lang.System.arraycopy;
+
 @NotThreadSafe
 @NotNullByDefault
 class SenderOutputStream extends OutputStream {
@@ -59,20 +61,20 @@ class SenderOutputStream extends OutputStream {
 	public void write(byte[] b, int off, int len) throws IOException {
 		int available = Data.MAX_LENGTH - offset - Data.FOOTER_LENGTH;
 		while (available <= len) {
-			System.arraycopy(b, off, buf, offset, available);
+			arraycopy(b, off, buf, offset, available);
 			offset += available;
 			send(false);
 			off += available;
 			len -= available;
 			available = Data.MAX_LENGTH - offset - Data.FOOTER_LENGTH;
 		}
-		System.arraycopy(b, off, buf, offset, len);
+		arraycopy(b, off, buf, offset, len);
 		offset += len;
 	}
 
 	private void send(boolean lastFrame) throws IOException {
 		byte[] frame = new byte[offset + Data.FOOTER_LENGTH];
-		System.arraycopy(buf, 0, frame, 0, frame.length);
+		arraycopy(buf, 0, frame, 0, frame.length);
 		Data d = new Data(frame);
 		d.setLastFrame(lastFrame);
 		d.setSequenceNumber(sequenceNumber++);

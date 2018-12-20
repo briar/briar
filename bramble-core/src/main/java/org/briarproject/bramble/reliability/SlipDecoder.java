@@ -7,6 +7,8 @@ import java.io.IOException;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.lang.System.arraycopy;
+
 @Immutable
 @NotNullByDefault
 class SlipDecoder implements ReadHandler {
@@ -36,7 +38,7 @@ class SlipDecoder implements ReadHandler {
 				} else {
 					if (decodedLength > 0) {
 						byte[] decoded = new byte[decodedLength];
-						System.arraycopy(buf, 0, decoded, 0, decodedLength);
+						arraycopy(buf, 0, decoded, 0, decodedLength);
 						readHandler.handleRead(decoded);
 					}
 					reset(false);

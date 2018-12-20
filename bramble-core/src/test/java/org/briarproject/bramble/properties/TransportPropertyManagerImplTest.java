@@ -25,12 +25,12 @@ import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
@@ -448,7 +448,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contactGroup2));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup2.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			// Third contact: returns an update
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact3);
@@ -514,7 +514,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// There are no existing properties to merge with
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			// Store the new properties in the local group, version 1
 			expectStoreMessage(txn, localGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, false);
@@ -526,7 +526,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			expectStoreMessage(txn, contactGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, true);
 		}});

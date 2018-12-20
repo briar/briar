@@ -42,9 +42,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -58,6 +56,9 @@ import java.util.zip.ZipInputStream;
 import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -252,11 +253,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			controlConnection.authenticate(read(cookieFile));
 			// Tell Tor to exit when the control connection is closed
 			controlConnection.takeOwnership();
-			controlConnection.resetConf(Collections.singletonList(OWNER));
+			controlConnection.resetConf(singletonList(OWNER));
 			running = true;
 			// Register to receive events from the Tor process
 			controlConnection.setEventHandler(this);
-			controlConnection.setEvents(Arrays.asList(EVENTS));
+			controlConnection.setEvents(asList(EVENTS));
 			// Check whether Tor has already bootstrapped
 			String phase = controlConnection.getInfo("status/bootstrap-phase");
 			if (phase != null && phase.contains("PROGRESS=100")) {
@@ -411,8 +412,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!running) return;
 		LOG.info("Creating hidden service");
 		String privKey = settings.get(HS_PRIVKEY);
-		Map<Integer, String> portLines =
-				Collections.singletonMap(80, "127.0.0.1:" + port);
+		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
 		Map<String, String> response;
 		try {
 			// Use the control connection to set up the hidden service

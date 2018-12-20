@@ -15,10 +15,9 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.SessionId;
 
-import java.util.Collections;
-
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -84,8 +83,7 @@ class IntroductionValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -118,8 +116,7 @@ class IntroductionValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -144,8 +141,7 @@ class IntroductionValidator extends BdfMessageValidator {
 				.encodeMetadata(AUTH, sessionId, m.getTimestamp(), false, false,
 						false);
 		MessageId dependency = new MessageId(previousMessageId);
-		return new BdfMessageContext(meta,
-				Collections.singletonList(dependency));
+		return new BdfMessageContext(meta, singletonList(dependency));
 	}
 
 	private BdfMessageContext validateActivateMessage(Message m, BdfList body)
@@ -169,8 +165,7 @@ class IntroductionValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -192,8 +187,7 @@ class IntroductionValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 

@@ -13,6 +13,7 @@ import java.security.GeneralSecurityException;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_PLAINTEXT_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_NONCE_LENGTH;
@@ -131,7 +132,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		}
 		// Extract the nonce
 		byte[] streamHeaderNonce = new byte[STREAM_HEADER_NONCE_LENGTH];
-		System.arraycopy(streamHeaderCiphertext, 0, streamHeaderNonce, 0,
+		arraycopy(streamHeaderCiphertext, 0, streamHeaderNonce, 0,
 				STREAM_HEADER_NONCE_LENGTH);
 		// Decrypt and authenticate the stream header
 		try {
@@ -155,7 +156,7 @@ class StreamDecrypterImpl implements StreamDecrypter {
 		if (receivedStreamNumber != streamNumber) throw new FormatException();
 		// Extract the frame key
 		byte[] frameKeyBytes = new byte[SecretKey.LENGTH];
-		System.arraycopy(streamHeaderPlaintext, INT_16_BYTES + INT_64_BYTES,
+		arraycopy(streamHeaderPlaintext, INT_16_BYTES + INT_64_BYTES,
 				frameKeyBytes, 0, SecretKey.LENGTH);
 		frameKey = new SecretKey(frameKeyBytes);
 	}

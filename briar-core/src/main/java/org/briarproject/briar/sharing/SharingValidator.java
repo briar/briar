@@ -15,10 +15,9 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 
-import java.util.Collections;
-
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
@@ -70,8 +69,7 @@ abstract class SharingValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -93,8 +91,7 @@ abstract class SharingValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 

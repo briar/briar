@@ -5,9 +5,8 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -16,15 +15,15 @@ public class BdfListTest extends BrambleTestCase {
 
 	@Test
 	public void testConstructors() {
-		assertEquals(Collections.emptyList(), new BdfList());
-		assertEquals(Arrays.asList(1, 2, NULL_VALUE),
-				new BdfList(Arrays.asList(1, 2, NULL_VALUE)));
+		assertEquals(emptyList(), new BdfList());
+		assertEquals(asList(1, 2, NULL_VALUE),
+				new BdfList(asList(1, 2, NULL_VALUE)));
 	}
 
 	@Test
 	public void testFactoryMethod() {
-		assertEquals(Collections.emptyList(), BdfList.of());
-		assertEquals(Arrays.asList(1, 2, NULL_VALUE),
+		assertEquals(emptyList(), BdfList.of());
+		assertEquals(asList(1, 2, NULL_VALUE),
 				BdfList.of(1, 2, NULL_VALUE));
 	}
 

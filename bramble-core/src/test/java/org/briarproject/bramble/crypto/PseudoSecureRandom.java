@@ -4,6 +4,8 @@ import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.SecureRandomSpi;
 
+import static java.lang.System.arraycopy;
+
 class PseudoSecureRandom extends SecureRandom {
 
 	private static final Provider PROVIDER = new PseudoSecureRandomProvider();
@@ -28,7 +30,7 @@ class PseudoSecureRandom extends SecureRandom {
 		@Override
 		protected void engineNextBytes(byte[] b) {
 			byte[] random = pseudoRandom.nextBytes(b.length);
-			System.arraycopy(random, 0, b, 0, b.length);
+			arraycopy(random, 0, b, 0, b.length);
 		}
 
 		@Override

@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
+import static java.lang.System.arraycopy;
 import static junit.framework.Assert.assertEquals;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
@@ -287,7 +288,7 @@ public class StreamDecrypterImplTest extends BrambleTestCase {
 	private static void assertArrayStartsWith(byte[] expected, byte[] actual,
 			int len) {
 		byte[] prefix = new byte[len];
-		System.arraycopy(actual, 0, prefix, 0, len);
+		arraycopy(actual, 0, prefix, 0, len);
 		assertArrayEquals(expected, prefix);
 	}
 }

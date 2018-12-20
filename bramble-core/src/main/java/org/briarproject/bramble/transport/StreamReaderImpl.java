@@ -8,6 +8,7 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_PAYLOAD_LENGTH;
 
 /**
@@ -51,7 +52,7 @@ class StreamReaderImpl extends InputStream {
 			readFrame();
 		}
 		len = Math.min(len, length);
-		System.arraycopy(payload, offset, b, off, len);
+		arraycopy(payload, offset, b, off, len);
 		offset += len;
 		length -= len;
 		return len;

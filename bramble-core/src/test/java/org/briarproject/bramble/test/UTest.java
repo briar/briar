@@ -5,11 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
 
+import static java.util.Collections.sort;
 import static org.briarproject.bramble.test.UTest.Result.INCONCLUSIVE;
 import static org.briarproject.bramble.test.UTest.Result.LARGER;
 import static org.briarproject.bramble.test.UTest.Result.SMALLER;
@@ -80,7 +80,7 @@ public class UTest {
 		List<Value> sorted = new ArrayList<>(nA + nB);
 		for (Double d : a) sorted.add(new Value(d, true));
 		for (Double d : b) sorted.add(new Value(d, false));
-		Collections.sort(sorted);
+		sort(sorted);
 
 		// Assign ranks to the values
 		int i = 0, size = sorted.size();

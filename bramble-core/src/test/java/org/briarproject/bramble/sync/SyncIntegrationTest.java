@@ -27,11 +27,11 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.util.Arrays;
 import java.util.Collection;
 
 import javax.inject.Inject;
 
+import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPTOR_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
@@ -90,7 +90,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		byte[] body = "Hello world".getBytes("UTF-8");
 		message = messageFactory.createMessage(group.getId(), timestamp, body);
 		message1 = messageFactory.createMessage(group.getId(), timestamp, body);
-		messageIds = Arrays.asList(message.getId(), message1.getId());
+		messageIds = asList(message.getId(), message1.getId());
 	}
 
 	@Test

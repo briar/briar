@@ -21,13 +21,14 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.net.NetworkInterface.getNetworkInterfaces;
+import static java.util.Collections.list;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
@@ -327,9 +328,8 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	}
 
 	private boolean systemHasLocalIpv4Address() throws Exception {
-		for (NetworkInterface i : Collections.list(
-				NetworkInterface.getNetworkInterfaces())) {
-			for (InetAddress a : Collections.list(i.getInetAddresses())) {
+		for (NetworkInterface i : list(getNetworkInterfaces())) {
+			for (InetAddress a : list(i.getInetAddresses())) {
 				if (a instanceof Inet4Address)
 					return a.isLinkLocalAddress() || a.isSiteLocalAddress();
 			}

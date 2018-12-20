@@ -42,7 +42,6 @@ import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +53,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyMap;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
@@ -574,7 +574,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta, boolean local)
 			throws DbException, FormatException {
 		GroupMessageHeader header = getGroupMessageHeader(txn, m.getGroupId(),
-				m.getId(), meta, Collections.emptyMap());
+				m.getId(), meta, emptyMap());
 		String text = getMessageText(clientHelper.toList(m));
 		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, text,
 				local));
@@ -584,7 +584,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			BdfDictionary meta, boolean local, Visibility v)
 			throws DbException, FormatException {
 		JoinMessageHeader header = getJoinMessageHeader(txn, m.getGroupId(),
-				m.getId(), meta, Collections.emptyMap(), v);
+				m.getId(), meta, emptyMap(), v);
 		txn.attach(new GroupMessageAddedEvent(m.getGroupId(), header, "",
 				local));
 	}

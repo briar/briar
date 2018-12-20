@@ -38,7 +38,6 @@ import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -50,6 +49,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyMap;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
@@ -560,8 +560,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,
 			GroupId groupId, MessageId id, BdfDictionary meta)
 			throws DbException, FormatException {
-		return getPostHeaderFromMetadata(txn, groupId, id, meta,
-				Collections.emptyMap());
+		return getPostHeaderFromMetadata(txn, groupId, id, meta, emptyMap());
 	}
 
 	private BlogPostHeader getPostHeaderFromMetadata(Transaction txn,

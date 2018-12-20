@@ -6,13 +6,15 @@ import org.briarproject.briar.api.client.MessageTree;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.ThreadSafe;
+
+import static java.util.Collections.singletonList;
+import static java.util.Collections.sort;
 
 @ThreadSafe
 @NotNullByDefault
@@ -47,7 +49,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 
 	@Override
 	public synchronized void add(T node) {
-		add(Collections.singletonList(node));
+		add(singletonList(node));
 	}
 
 	private void markAsUnsorted(List<T> list) {
@@ -69,7 +71,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 
 	private void sortUnsorted() {
 		for (List<T> list : unsortedLists) {
-			Collections.sort(list, comparator);
+			sort(list, comparator);
 		}
 		unsortedLists.clear();
 	}
@@ -87,9 +89,9 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	public synchronized void setComparator(Comparator<T> comparator) {
 		this.comparator = comparator;
 		// Sort all lists with the new comparator
-		Collections.sort(roots, comparator);
+		sort(roots, comparator);
 		for (Map.Entry<MessageId, List<T>> entry : nodeMap.entrySet()) {
-			Collections.sort(entry.getValue(), comparator);
+			sort(entry.getValue(), comparator);
 		}
 	}
 

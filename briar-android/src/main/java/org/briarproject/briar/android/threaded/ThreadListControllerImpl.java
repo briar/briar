@@ -28,12 +28,12 @@ import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.client.ThreadedMessage;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import static java.util.Collections.singletonList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -186,7 +186,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@Override
 	public void markItemRead(I item) {
-		markItemsRead(Collections.singletonList(item));
+		markItemsRead(singletonList(item));
 	}
 
 	@Override

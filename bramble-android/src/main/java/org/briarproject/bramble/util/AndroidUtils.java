@@ -3,17 +3,19 @@ package org.briarproject.bramble.util;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
-import android.os.Build;
 import android.provider.Settings;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.os.Build.CPU_ABI;
+import static android.os.Build.CPU_ABI2;
+import static android.os.Build.SUPPORTED_ABIS;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Arrays.asList;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 public class AndroidUtils {
@@ -27,10 +29,10 @@ public class AndroidUtils {
 	public static Collection<String> getSupportedArchitectures() {
 		List<String> abis = new ArrayList<>();
 		if (SDK_INT >= 21) {
-			abis.addAll(Arrays.asList(Build.SUPPORTED_ABIS));
+			abis.addAll(asList(SUPPORTED_ABIS));
 		} else {
-			abis.add(Build.CPU_ABI);
-			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
+			abis.add(CPU_ABI);
+			if (CPU_ABI2 != null) abis.add(CPU_ABI2);
 		}
 		return abis;
 	}

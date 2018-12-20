@@ -26,6 +26,7 @@ import javax.annotation.Nullable;
 import jssc.SerialPortEvent;
 import jssc.SerialPortEventListener;
 
+import static java.lang.System.arraycopy;
 import static java.nio.charset.CodingErrorAction.IGNORE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
@@ -375,7 +376,7 @@ class ModemImpl implements Modem, WriteHandler, SerialPortEventListener {
 					int off = i + 1;
 					if (off < b.length) {
 						byte[] data = new byte[b.length - off];
-						System.arraycopy(b, off, data, 0, data.length);
+						arraycopy(b, off, data, 0, data.length);
 						handleData(data);
 					}
 					return;

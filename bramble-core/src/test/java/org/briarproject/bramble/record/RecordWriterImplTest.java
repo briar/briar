@@ -7,6 +7,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.record.Record.RECORD_HEADER_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -42,7 +43,7 @@ public class RecordWriterImplTest extends BrambleTestCase {
 		assertEquals(recordType, written[1]);
 		assertEquals(payloadLength, readUint16(written, 2));
 		byte[] writtenPayload = new byte[payloadLength];
-		System.arraycopy(written, RECORD_HEADER_BYTES, writtenPayload, 0,
+		arraycopy(written, RECORD_HEADER_BYTES, writtenPayload, 0,
 				payloadLength);
 		assertArrayEquals(payload, writtenPayload);
 	}

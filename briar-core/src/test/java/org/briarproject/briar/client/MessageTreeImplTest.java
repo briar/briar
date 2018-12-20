@@ -5,11 +5,11 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTree;
 import org.junit.Test;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import javax.annotation.Nullable;
 
+import static java.util.Arrays.asList;
+import static java.util.Arrays.copyOf;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
 
@@ -48,8 +48,8 @@ public class MessageTreeImplTest {
 		nodes[3].setTimestamp(timestamp - 2);
 		nodes[2].setTimestamp(timestamp - 1);
 		// add all nodes except the last one
-		tree.add(Arrays.asList(Arrays.copyOf(nodes, nodes.length - 1)));
-		tree.add(Collections.singletonList(nodes[nodes.length - 1]));
+		tree.add(asList(copyOf(nodes, nodes.length - 1)));
+		tree.add(singletonList(nodes[nodes.length - 1]));
 		TestNode[] sortedNodes =
 				tree.depthFirstOrder().toArray(new TestNode[5]);
 		assertEquals(nodes[4], sortedNodes[0]);

@@ -2,12 +2,13 @@ package org.briarproject.briar.feed;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
 
 import okhttp3.Dns;
+
+import static java.util.Collections.singletonList;
 
 class NoDns implements Dns {
 
@@ -22,7 +23,7 @@ class NoDns implements Dns {
 			throws UnknownHostException {
 		InetAddress unspecified =
 				InetAddress.getByAddress(hostname, UNSPECIFIED_ADDRESS);
-		return Collections.singletonList(unspecified);
+		return singletonList(unspecified);
 	}
 
 }

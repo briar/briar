@@ -2,6 +2,8 @@ package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import static java.lang.System.arraycopy;
+
 @NotNullByDefault
 class Sec1Utils {
 
@@ -10,10 +12,10 @@ class Sec1Utils {
 		if (src.length < destLen) {
 			int padding = destLen - src.length;
 			for (int i = destOff; i < destOff + padding; i++) dest[i] = 0;
-			System.arraycopy(src, 0, dest, destOff + padding, src.length);
+			arraycopy(src, 0, dest, destOff + padding, src.length);
 		} else {
 			int srcOff = src.length - destLen;
-			System.arraycopy(src, srcOff, dest, destOff, destLen);
+			arraycopy(src, srcOff, dest, destOff, destLen);
 		}
 	}
 }

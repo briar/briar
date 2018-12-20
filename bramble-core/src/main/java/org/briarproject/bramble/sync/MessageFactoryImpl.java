@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.sync.Message.FORMAT_VERSION;
 import static org.briarproject.bramble.api.sync.MessageId.BLOCK_LABEL;
 import static org.briarproject.bramble.api.sync.MessageId.ID_LABEL;
@@ -61,11 +62,11 @@ class MessageFactoryImpl implements MessageFactory {
 		if (raw.length > MAX_MESSAGE_LENGTH)
 			throw new IllegalArgumentException();
 		byte[] groupId = new byte[UniqueId.LENGTH];
-		System.arraycopy(raw, 0, groupId, 0, UniqueId.LENGTH);
+		arraycopy(raw, 0, groupId, 0, UniqueId.LENGTH);
 		GroupId g = new GroupId(groupId);
 		long timestamp = readUint64(raw, UniqueId.LENGTH);
 		byte[] body = new byte[raw.length - MESSAGE_HEADER_LENGTH];
-		System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
+		arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
 		MessageId id = getMessageId(g, timestamp, body);
 		return new Message(id, g, timestamp, body);
 	}
@@ -74,9 +75,9 @@ class MessageFactoryImpl implements MessageFactory {
 	public byte[] getRawMessage(Message m) {
 		byte[] body = m.getBody();
 		byte[] raw = new byte[MESSAGE_HEADER_LENGTH + body.length];
-		System.arraycopy(m.getGroupId().getBytes(), 0, raw, 0, UniqueId.LENGTH);
+		arraycopy(m.getGroupId().getBytes(), 0, raw, 0, UniqueId.LENGTH);
 		writeUint64(m.getTimestamp(), raw, UniqueId.LENGTH);
-		System.arraycopy(body, 0, raw, MESSAGE_HEADER_LENGTH, body.length);
+		arraycopy(body, 0, raw, MESSAGE_HEADER_LENGTH, body.length);
 		return raw;
 	}
 }

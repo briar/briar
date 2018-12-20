@@ -21,6 +21,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.MESSAGE;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
@@ -107,7 +108,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 		List<MessageId> ids = new ArrayList<>(payload.length / UniqueId.LENGTH);
 		for (int off = 0; off < payload.length; off += UniqueId.LENGTH) {
 			byte[] id = new byte[UniqueId.LENGTH];
-			System.arraycopy(payload, off, id, 0, UniqueId.LENGTH);
+			arraycopy(payload, off, id, 0, UniqueId.LENGTH);
 			ids.add(new MessageId(id));
 		}
 		nextRecord = null;

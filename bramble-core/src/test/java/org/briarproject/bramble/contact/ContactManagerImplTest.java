@@ -22,7 +22,6 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Random;
 
 import static java.util.Collections.emptyList;
@@ -98,7 +97,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetContactByAuthor() throws Exception {
 		Transaction txn = new Transaction(null, true);
-		Collection<Contact> contacts = Collections.singleton(contact);
+		Collection<Contact> contacts = singletonList(contact);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getContactsByAuthorId(txn, remote.getId());
@@ -123,7 +122,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test(expected = NoSuchContactException.class)
 	public void testGetContactByUnknownLocalAuthor() throws Exception {
 		Transaction txn = new Transaction(null, true);
-		Collection<Contact> contacts = Collections.singleton(contact);
+		Collection<Contact> contacts = singletonList(contact);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getContactsByAuthorId(txn, remote.getId());
@@ -135,7 +134,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testGetActiveContacts() throws Exception {
-		Collection<Contact> activeContacts = Collections.singletonList(contact);
+		Collection<Contact> activeContacts = singletonList(contact);
 		Collection<Contact> contacts = new ArrayList<>(activeContacts);
 		contacts.add(new Contact(new ContactId(3), remote, local, alias, true,
 				false));

@@ -37,7 +37,6 @@ import org.junit.Test;
 import java.io.File;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -47,6 +46,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -399,10 +399,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Both message IDs should be returned
 		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
-		assertEquals(Arrays.asList(messageId, messageId1), ids);
+		assertEquals(asList(messageId, messageId1), ids);
 
 		// Remove both message IDs
-		db.lowerAckFlag(txn, contactId, Arrays.asList(messageId, messageId1));
+		db.lowerAckFlag(txn, contactId, asList(messageId, messageId1));
 
 		// Both message IDs should have been removed
 		assertEquals(emptyList(), db.getMessagesToAck(txn,
@@ -414,7 +414,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Both message IDs should be returned
 		ids = db.getMessagesToAck(txn, contactId, 1234);
-		assertEquals(Arrays.asList(messageId, messageId1), ids);
+		assertEquals(asList(messageId, messageId1), ids);
 
 		db.commitTransaction(txn);
 		db.close();

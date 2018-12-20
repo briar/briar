@@ -4,12 +4,12 @@ import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.data.BdfDictionary.NULL_VALUE;
 
 @NotThreadSafe
@@ -22,7 +22,7 @@ public class BdfList extends ArrayList<Object> {
 	 * </pre>
 	 */
 	public static BdfList of(Object... items) {
-		return new BdfList(Arrays.asList(items));
+		return new BdfList(asList(items));
 	}
 
 	public BdfList() {

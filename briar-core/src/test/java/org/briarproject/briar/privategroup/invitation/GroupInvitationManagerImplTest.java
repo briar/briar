@@ -35,14 +35,16 @@ import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
@@ -112,9 +114,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private final BdfDictionary bdfSession =
 			BdfDictionary.of(new BdfEntry("f", "o"));
 	private final Map<MessageId, BdfDictionary> oneResult =
-			Collections.singletonMap(storageMessage.getId(), bdfSession);
-	private final Map<MessageId, BdfDictionary> noResults =
-			Collections.emptyMap();
+			singletonMap(storageMessage.getId(), bdfSession);
+	private final Map<MessageId, BdfDictionary> noResults = emptyMap();
 
 
 	public GroupInvitationManagerImplTest() {
@@ -156,7 +157,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(false));
 			oneOf(db).addGroup(txn, localGroup);
 			oneOf(db).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 		}});
 		expectAddingContact(contact);
 		groupInvitationManager.createLocalState(txn);
@@ -192,7 +193,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 					.mergeGroupMetadata(txn, contactGroup.getId(), meta);
 			oneOf(db).getGroups(txn, PrivateGroupManager.CLIENT_ID,
 					PrivateGroupManager.MAJOR_VERSION);
-			will(returnValue(Collections.singletonList(privateGroup)));
+			will(returnValue(singletonList(privateGroup)));
 			oneOf(privateGroupManager).isMember(txn, privateGroup.getId(),
 					c.getAuthor());
 			will(returnValue(true));
@@ -743,7 +744,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).startTransaction(true);
 			will(returnValue(txn));
 			oneOf(db).getContacts(txn);
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact);
 			will(returnValue(contactGroup));
@@ -836,7 +837,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		expectAddingMember(privateGroup.getId(), contact);
 		context.checking(new Expectations() {{
 			oneOf(db).getContactsByAuthorId(txn, author.getId());
-			will(returnValue(Collections.singletonList(contact)));
+			will(returnValue(singletonList(contact)));
 		}});
 		groupInvitationManager.addingMember(txn, privateGroup.getId(), author);
 	}
@@ -847,8 +848,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				author.getId(), getRandomString(5), true, true);
 		Contact contact3 = new Contact(new ContactId(3), author,
 				author.getId(), getRandomString(5), true, true);
-		Collection<Contact> contacts =
-				Arrays.asList(contact, contact2, contact3);
+		Collection<Contact> contacts = asList(contact, contact2, contact3);
 
 		Group contactGroup2 = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Group contactGroup3 = getGroup(CLIENT_ID, MAJOR_VERSION);
@@ -861,9 +861,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 				BdfDictionary.of(new BdfEntry("f3", "o"));
 
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
-		expectGetSession(Collections.singletonMap(storageId2, bdfSession2),
+		expectGetSession(singletonMap(storageId2, bdfSession2),
 				sessionId, contactGroup2.getId());
-		expectGetSession(Collections.singletonMap(storageId3, bdfSession3),
+		expectGetSession(singletonMap(storageId3, bdfSession3),
 				sessionId, contactGroup3.getId());
 
 		context.checking(new Expectations() {{

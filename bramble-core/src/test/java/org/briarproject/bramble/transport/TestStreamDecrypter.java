@@ -7,6 +7,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_FRAME_LENGTH;
@@ -47,7 +48,7 @@ class TestStreamDecrypter implements StreamDecrypter {
 			if (read == -1) throw new EOFException();
 			offset += read;
 		}
-		System.arraycopy(frame, FRAME_HEADER_LENGTH, payload, 0, payloadLength);
+		arraycopy(frame, FRAME_HEADER_LENGTH, payload, 0, payloadLength);
 		return payloadLength;
 	}
 

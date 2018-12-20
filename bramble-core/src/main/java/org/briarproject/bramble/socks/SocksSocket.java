@@ -12,6 +12,7 @@ import java.net.SocketAddress;
 import java.util.Arrays;
 
 import static org.briarproject.bramble.util.ByteUtils.writeUint16;
+import static org.briarproject.bramble.util.IoUtils.read;
 
 class SocksSocket extends Socket {
 
@@ -89,7 +90,7 @@ class SocksSocket extends Socket {
 
 	private void receiveMethodResponse(InputStream in) throws IOException {
 		byte[] methodResponse = new byte[2];
-		IoUtils.read(in, methodResponse);
+		read(in, methodResponse);
 		byte version = methodResponse[0];
 		byte method = methodResponse[1];
 		if (version != 5)
@@ -116,7 +117,7 @@ class SocksSocket extends Socket {
 
 	private void receiveConnectResponse(InputStream in) throws IOException {
 		byte[] connectResponse = new byte[4];
-		IoUtils.read(in, connectResponse);
+		read(in, connectResponse);
 		int version = connectResponse[0] & 0xFF;
 		int reply = connectResponse[1] & 0xFF;
 		int addressType = connectResponse[3] & 0xFF;
@@ -127,9 +128,9 @@ class SocksSocket extends Socket {
 				throw new IOException("Connection failed: " + ERRORS[reply]);
 			else throw new IOException("Connection failed: " + reply);
 		}
-		if (addressType == 1) IoUtils.read(in, new byte[4]); // IPv4
-		else if (addressType == 4) IoUtils.read(in, new byte[16]); // IPv6
+		if (addressType == 1) read(in, new byte[4]); // IPv4
+		else if (addressType == 4) read(in, new byte[16]); // IPv6
 		else throw new IOException("Unsupported address type: " + addressType);
-		IoUtils.read(in, new byte[2]); // Port number
+		read(in, new byte[2]); // Port number
 	}
 }

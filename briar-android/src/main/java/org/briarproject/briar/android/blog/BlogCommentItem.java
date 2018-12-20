@@ -4,9 +4,10 @@ import org.briarproject.briar.api.blog.BlogCommentHeader;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+
+import static java.util.Collections.sort;
 
 // This class is not thread-safe
 class BlogCommentItem extends BlogPostItem {
@@ -20,7 +21,7 @@ class BlogCommentItem extends BlogPostItem {
 	BlogCommentItem(BlogCommentHeader header) {
 		super(header, null);
 		postHeader = collectComments(header);
-		Collections.sort(comments, COMPARATOR);
+		sort(comments, COMPARATOR);
 	}
 
 	private BlogPostHeader collectComments(BlogPostHeader header) {

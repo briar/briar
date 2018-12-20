@@ -7,6 +7,7 @@ import org.junit.Test;
 import java.security.GeneralSecurityException;
 import java.util.Random;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -74,7 +75,7 @@ public class XSalsa20Poly1305AuthenticatedCipherTest extends BrambleTestCase {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(false, k, TEST_IV);
 		byte[] input = new byte[cipher.getMacBytes() - 1];
-		System.arraycopy(TEST_CIPHERTEXT, 0, input, 0, input.length);
+		arraycopy(TEST_CIPHERTEXT, 0, input, 0, input.length);
 		byte[] output = new byte[TEST_PLAINTEXT.length];
 		cipher.process(input, 0, input.length, output, 0);
 	}
@@ -85,7 +86,7 @@ public class XSalsa20Poly1305AuthenticatedCipherTest extends BrambleTestCase {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		cipher.init(false, k, TEST_IV);
 		byte[] input = new byte[TEST_CIPHERTEXT.length];
-		System.arraycopy(TEST_CIPHERTEXT, 0, input, 0, TEST_CIPHERTEXT.length);
+		arraycopy(TEST_CIPHERTEXT, 0, input, 0, TEST_CIPHERTEXT.length);
 		input[new Random().nextInt(TEST_CIPHERTEXT.length)] ^= 0xFF;
 		byte[] output = new byte[TEST_PLAINTEXT.length];
 		cipher.process(input, 0, input.length, output, 0);

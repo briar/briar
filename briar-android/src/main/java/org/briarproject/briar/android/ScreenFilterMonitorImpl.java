@@ -25,7 +25,6 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,6 +45,9 @@ import static android.content.pm.PackageInfo.REQUESTED_PERMISSION_GRANTED;
 import static android.content.pm.PackageManager.GET_PERMISSIONS;
 import static android.content.pm.PackageManager.GET_SIGNATURES;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Collections.emptySet;
+import static java.util.Collections.sort;
+import static java.util.Collections.unmodifiableList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -105,8 +107,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 	@UiThread
 	public Collection<AppDetails> getApps() {
 		if (cachedApps != null) return cachedApps;
-		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
-				Collections.emptySet());
+		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED, emptySet());
 		List<AppDetails> apps = new ArrayList<>();
 		List<PackageInfo> packageInfos =
 				pm.getInstalledPackages(GET_PERMISSIONS);
@@ -117,8 +118,8 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 				apps.add(new AppDetails(name, packageInfo.packageName));
 			}
 		}
-		Collections.sort(apps, (a, b) -> a.name.compareTo(b.name));
-		apps = Collections.unmodifiableList(apps);
+		sort(apps, (a, b) -> a.name.compareTo(b.name));
+		apps = unmodifiableList(apps);
 		cachedApps = apps;
 		return apps;
 	}
@@ -127,8 +128,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 	@UiThread
 	public void allowApps(Collection<String> packageNames) {
 		cachedApps = null;
-		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED,
-				Collections.emptySet());
+		Set<String> allowed = prefs.getStringSet(PREF_KEY_ALLOWED, emptySet());
 		Set<String> merged = new HashSet<>(allowed);
 		merged.addAll(packageNames);
 		prefs.edit().putStringSet(PREF_KEY_ALLOWED, merged).apply();

@@ -28,10 +28,11 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
@@ -66,8 +67,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private final Contact contact =
 			new Contact(contactId, author, localAuthor.getId(),
 					getRandomString(5), true, true);
-	private final Collection<Contact> contacts =
-			Collections.singletonList(contact);
+	private final Collection<Contact> contacts = singletonList(contact);
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group blogGroup =
@@ -120,7 +120,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private void expectAddingContact(Transaction txn) throws Exception {
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
-		Map<MessageId, BdfDictionary> sessions = Collections.emptyMap();
+		Map<MessageId, BdfDictionary> sessions = emptyMap();
 
 		context.checking(new Expectations() {{
 			// Create the contact group and share it with the contact

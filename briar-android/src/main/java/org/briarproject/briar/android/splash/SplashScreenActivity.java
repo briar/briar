@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.splash;
 
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.preference.PreferenceManager;
@@ -21,6 +20,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
@@ -40,7 +40,7 @@ public class SplashScreenActivity extends BaseActivity {
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 
-		if (Build.VERSION.SDK_INT >= 21) {
+		if (SDK_INT >= 21) {
 			getWindow().setExitTransition(new Fade());
 		}
 

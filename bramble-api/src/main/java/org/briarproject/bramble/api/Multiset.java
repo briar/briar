@@ -2,13 +2,14 @@ package org.briarproject.bramble.api;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import static java.util.Collections.unmodifiableSet;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -96,6 +97,6 @@ public class Multiset<T> {
 	 * is unmodifiable.
 	 */
 	public Set<T> keySet() {
-		return Collections.unmodifiableSet(map.keySet());
+		return unmodifiableSet(map.keySet());
 	}
 }

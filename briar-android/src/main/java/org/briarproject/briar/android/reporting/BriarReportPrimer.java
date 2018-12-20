@@ -7,7 +7,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
@@ -23,7 +22,6 @@ import org.briarproject.briar.android.logging.BriefLogFormatter;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -41,6 +39,8 @@ import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
+import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Collections.unmodifiableMap;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -90,7 +90,7 @@ public class BriarReportPrimer implements ReportPrimer {
 			ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 			am.getMemoryInfo(mem);
 			String systemMemory;
-			if (Build.VERSION.SDK_INT >= 16) {
+			if (SDK_INT >= 16) {
 				systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
 						+ (mem.availMem / 1024 / 1204) + " MiB free, "
 						+ (mem.threshold / 1024 / 1024) + " MiB threshold";
@@ -213,7 +213,7 @@ public class BriarReportPrimer implements ReportPrimer {
 					bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 			// Is Bluetooth LE scanning and advertising supported?
 			boolean btLeApi = false, btLeScan = false, btLeAdvertise = false;
-			if (bt != null && Build.VERSION.SDK_INT >= 21) {
+			if (bt != null && SDK_INT >= 21) {
 				btLeApi = true;
 				btLeScan = bt.getBluetoothLeScanner() != null;
 				btLeAdvertise = bt.getBluetoothLeAdvertiser() != null;
@@ -255,7 +255,7 @@ public class BriarReportPrimer implements ReportPrimer {
 			// Git commit ID
 			customData.put("Commit ID", BuildConfig.GitHash);
 
-			return Collections.unmodifiableMap(customData);
+			return unmodifiableMap(customData);
 		}
 	}
 

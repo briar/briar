@@ -10,11 +10,12 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.plugin.WanTcpConstants.ID;
 
 @MethodsNotNullByDefault
@@ -80,8 +81,7 @@ class WanTcpPlugin extends TcpPlugin {
 	protected List<InetSocketAddress> getRemoteSocketAddresses(
 			TransportProperties p) {
 		InetSocketAddress parsed = parseSocketAddress(p.get(PROP_IP_PORT));
-		if (parsed == null) return Collections.emptyList();
-		return Collections.singletonList(parsed);
+		return parsed == null ? emptyList() : singletonList(parsed);
 	}
 
 	@Override

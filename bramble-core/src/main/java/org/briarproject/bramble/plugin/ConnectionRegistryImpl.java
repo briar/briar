@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +23,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
@@ -104,7 +104,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		lock.lock();
 		try {
 			Multiset<ContactId> m = connections.get(t);
-			if (m == null) return Collections.emptyList();
+			if (m == null) return emptyList();
 			List<ContactId> ids = new ArrayList<>(m.keySet());
 			if (LOG.isLoggable(INFO))
 				LOG.info(ids.size() + " contacts connected: " + t);

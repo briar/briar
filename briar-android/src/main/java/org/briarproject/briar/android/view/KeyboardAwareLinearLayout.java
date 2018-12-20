@@ -8,7 +8,6 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Rect;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.annotation.UiThread;
 import android.util.AttributeSet;
@@ -26,6 +25,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 
 import static android.content.Context.WINDOW_SERVICE;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.Surface.ROTATION_270;
 import static android.view.Surface.ROTATION_90;
 import static java.util.Objects.requireNonNull;
@@ -106,7 +106,7 @@ public class KeyboardAwareLinearLayout extends LinearLayout {
 			return;
 		}
 
-		if (viewInset == 0 && Build.VERSION.SDK_INT >= 21)
+		if (viewInset == 0 && SDK_INT >= 21)
 			viewInset = getViewInset();
 		int availableHeight =
 				getRootView().getHeight() - statusBarHeight - viewInset;

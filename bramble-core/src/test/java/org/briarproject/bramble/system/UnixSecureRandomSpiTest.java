@@ -2,7 +2,6 @@ package org.briarproject.bramble.system;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.util.IoUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -16,6 +15,7 @@ import java.util.Set;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.bramble.util.IoUtils.read;
 import static org.briarproject.bramble.util.OsUtils.isLinux;
 import static org.briarproject.bramble.util.OsUtils.isMac;
 import static org.junit.Assert.assertArrayEquals;
@@ -64,7 +64,7 @@ public class UnixSecureRandomSpiTest extends BrambleTestCase {
 		assertEquals(SEED_BYTES, urandom.length());
 		byte[] written = new byte[SEED_BYTES];
 		FileInputStream in = new FileInputStream(urandom);
-		IoUtils.read(in, written);
+		read(in, written);
 		in.close();
 		assertArrayEquals(seed, written);
 	}

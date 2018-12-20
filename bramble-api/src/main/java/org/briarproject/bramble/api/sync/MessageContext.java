@@ -4,9 +4,10 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
-import java.util.Collections;
 
 import javax.annotation.concurrent.Immutable;
+
+import static java.util.Collections.emptyList;
 
 @Immutable
 @NotNullByDefault
@@ -22,7 +23,7 @@ public class MessageContext {
 	}
 
 	public MessageContext(Metadata metadata) {
-		this(metadata, Collections.emptyList());
+		this(metadata, emptyList());
 	}
 
 	public Metadata getMetadata() {

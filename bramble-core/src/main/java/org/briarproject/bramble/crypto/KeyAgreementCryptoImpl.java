@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 
 import javax.inject.Inject;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 
 class KeyAgreementCryptoImpl implements KeyAgreementCrypto {
@@ -24,7 +25,7 @@ class KeyAgreementCryptoImpl implements KeyAgreementCrypto {
 		byte[] hash = crypto.hash(COMMIT_LABEL, publicKey.getEncoded());
 		// The output is the first COMMIT_LENGTH bytes of the hash
 		byte[] commitment = new byte[COMMIT_LENGTH];
-		System.arraycopy(hash, 0, commitment, 0, COMMIT_LENGTH);
+		arraycopy(hash, 0, commitment, 0, COMMIT_LENGTH);
 		return commitment;
 	}
 

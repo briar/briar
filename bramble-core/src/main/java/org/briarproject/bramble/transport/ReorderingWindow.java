@@ -3,11 +3,12 @@ package org.briarproject.bramble.transport;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.util.ByteUtils.MAX_32_BIT_UNSIGNED;
 
 @NotThreadSafe
@@ -64,8 +65,8 @@ class ReorderingWindow {
 		while (seen[slide]) slide++;
 		// If the window doesn't need to slide, return
 		if (slide == 0) {
-			List<Long> added = Collections.emptyList();
-			List<Long> removed = Collections.singletonList(index);
+			List<Long> added = emptyList();
+			List<Long> removed = singletonList(index);
 			return new Change(added, removed);
 		}
 		// Record the elements that will be added and removed

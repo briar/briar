@@ -14,9 +14,10 @@ import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.NoSuchElementException;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -52,38 +53,31 @@ public class ConnectionRegistryImplTest extends BrambleTestCase {
 		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
 
 		// The registry should be empty
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
 		// Check that a registered connection shows up - this should
 		// broadcast a ConnectionOpenedEvent and a ContactConnectedEvent
 		c.registerConnection(contactId, transportId, true);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(singletonList(contactId),
 				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
 		// Register an identical connection - this should broadcast a
 		// ConnectionOpenedEvent and lookup should be unaffected
 		c.registerConnection(contactId, transportId, true);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(singletonList(contactId),
 				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
 		// Unregister one of the connections - this should broadcast a
 		// ConnectionClosedEvent and lookup should be unaffected
 		c.unregisterConnection(contactId, transportId, true);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(singletonList(contactId),
 				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
 		// Unregister the other connection - this should broadcast a
 		// ConnectionClosedEvent and a ContactDisconnectedEvent
 		c.unregisterConnection(contactId, transportId, true);
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
 		// Try to unregister the connection again - exception should be thrown
 		try {
 			c.unregisterConnection(contactId, transportId, true);
@@ -101,7 +95,7 @@ public class ConnectionRegistryImplTest extends BrambleTestCase {
 		assertEquals(2, connected.size());
 		assertTrue(connected.contains(contactId));
 		assertTrue(connected.contains(contactId1));
-		assertEquals(Collections.singletonList(contactId1),
+		assertEquals(singletonList(contactId1),
 				c.getConnectedContacts(transportId1));
 		context.assertIsSatisfied();
 	}

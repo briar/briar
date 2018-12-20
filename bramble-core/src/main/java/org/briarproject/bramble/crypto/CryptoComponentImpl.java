@@ -28,6 +28,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.lang.System.arraycopy;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
@@ -190,7 +191,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		PrivateKey ourPriv = ourKeyPair.getPrivate();
 		byte[][] hashInputs = new byte[inputs.length + 1][];
 		hashInputs[0] = performRawKeyAgreement(ourPriv, theirPublicKey);
-		System.arraycopy(inputs, 0, hashInputs, 1, inputs.length);
+		arraycopy(inputs, 0, hashInputs, 1, inputs.length);
 		byte[] hash = hash(label, hashInputs);
 		if (hash.length != SecretKey.LENGTH) throw new IllegalStateException();
 		return new SecretKey(hash);
@@ -299,13 +300,13 @@ class CryptoComponentImpl implements CryptoComponent {
 		output[outputOff] = PBKDF_FORMAT_SCRYPT;
 		outputOff++;
 		// Salt
-		System.arraycopy(salt, 0, output, outputOff, salt.length);
+		arraycopy(salt, 0, output, outputOff, salt.length);
 		outputOff += salt.length;
 		// Cost parameter
 		writeUint32(cost, output, outputOff);
 		outputOff += INT_32_BYTES;
 		// IV
-		System.arraycopy(iv, 0, output, outputOff, iv.length);
+		arraycopy(iv, 0, output, outputOff, iv.length);
 		outputOff += iv.length;
 		// Initialise the cipher and encrypt the plaintext
 		try {
@@ -335,7 +336,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			return null; // Unknown format
 		// Salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
-		System.arraycopy(input, inputOff, salt, 0, salt.length);
+		arraycopy(input, inputOff, salt, 0, salt.length);
 		inputOff += salt.length;
 		// Cost parameter
 		long cost = readUint32(input, inputOff);
@@ -344,7 +345,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			return null; // Invalid cost parameter
 		// IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
-		System.arraycopy(input, inputOff, iv, 0, iv.length);
+		arraycopy(input, inputOff, iv, 0, iv.length);
 		inputOff += iv.length;
 		// Derive the key from the password
 		SecretKey key = passwordBasedKdf.deriveKey(password, salt, (int) cost);

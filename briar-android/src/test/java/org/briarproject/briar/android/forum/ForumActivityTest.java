@@ -21,8 +21,7 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.annotation.Config;
 
-import java.util.Arrays;
-
+import static java.util.Arrays.asList;
 import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
@@ -91,7 +90,7 @@ public class ForumActivityTest {
 			forumItems[i].setLevel(LEVELS[i]);
 		}
 		ThreadItemList<ForumItem> list = new ThreadItemListImpl<>();
-		list.addAll(Arrays.asList(forumItems));
+		list.addAll(asList(forumItems));
 		return list;
 	}
 

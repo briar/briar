@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.lang.System.arraycopy;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -56,12 +57,12 @@ class Sec1KeyParser implements KeyParser {
 		if (encodedKey[0] != 4) throw new GeneralSecurityException();
 		// The x co-ordinate must be >= 0 and < p
 		byte[] xBytes = new byte[bytesPerInt];
-		System.arraycopy(encodedKey, 1, xBytes, 0, bytesPerInt);
+		arraycopy(encodedKey, 1, xBytes, 0, bytesPerInt);
 		BigInteger x = new BigInteger(1, xBytes); // Positive signum
 		if (x.compareTo(modulus) >= 0) throw new GeneralSecurityException();
 		// The y co-ordinate must be >= 0 and < p
 		byte[] yBytes = new byte[bytesPerInt];
-		System.arraycopy(encodedKey, 1 + bytesPerInt, yBytes, 0, bytesPerInt);
+		arraycopy(encodedKey, 1 + bytesPerInt, yBytes, 0, bytesPerInt);
 		BigInteger y = new BigInteger(1, yBytes); // Positive signum
 		if (y.compareTo(modulus) >= 0) throw new GeneralSecurityException();
 		// Verify that y^2 == x^3 + ax + b (mod p)

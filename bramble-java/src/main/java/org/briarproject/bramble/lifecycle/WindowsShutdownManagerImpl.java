@@ -16,7 +16,6 @@ import com.sun.jna.win32.W32APITypeMapper;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -26,6 +25,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static com.sun.jna.Library.OPTION_FUNCTION_MAPPER;
 import static com.sun.jna.Library.OPTION_TYPE_MAPPER;
+import static java.util.Collections.unmodifiableMap;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -51,7 +51,7 @@ class WindowsShutdownManagerImpl extends ShutdownManagerImpl {
 		Map<String, Object> m = new HashMap<>();
 		m.put(OPTION_TYPE_MAPPER, W32APITypeMapper.UNICODE);
 		m.put(OPTION_FUNCTION_MAPPER, W32APIFunctionMapper.UNICODE);
-		options = Collections.unmodifiableMap(m);
+		options = unmodifiableMap(m);
 	}
 
 	@Override

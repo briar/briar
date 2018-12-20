@@ -38,9 +38,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -55,8 +53,12 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.lang.System.arraycopy;
 import static java.sql.Types.INTEGER;
 import static java.sql.Types.VARCHAR;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.emptySet;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -424,7 +426,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
-		return Arrays.asList(
+		return asList(
 				new Migration38_39(),
 				new Migration39_40(),
 				new Migration40_41(dbTypes)
@@ -1536,7 +1538,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (raw == null) throw new MessageDeletedException();
 			if (raw.length <= MESSAGE_HEADER_LENGTH) throw new AssertionError();
 			byte[] body = new byte[raw.length - MESSAGE_HEADER_LENGTH];
-			System.arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
+			arraycopy(raw, MESSAGE_HEADER_LENGTH, body, 0, body.length);
 			return new Message(m, g, timestamp, body);
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
@@ -1596,7 +1598,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (intersection == null) intersection = ids;
 				else intersection.retainAll(ids);
 				// Return early if there are no matches
-				if (intersection.isEmpty()) return Collections.emptySet();
+				if (intersection.isEmpty()) return emptySet();
 			}
 			if (intersection == null) throw new AssertionError();
 			return intersection;
@@ -1645,7 +1647,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			GroupId g, Metadata query) throws DbException {
 		// Retrieve the matching message IDs
 		Collection<MessageId> matches = getMessageIds(txn, g, query);
-		if (matches.isEmpty()) return Collections.emptyMap();
+		if (matches.isEmpty()) return emptyMap();
 		// Retrieve the metadata for each match
 		Map<MessageId, Metadata> all = new HashMap<>(matches.size());
 		for (MessageId m : matches) all.put(m, getMessageMetadata(txn, m));
@@ -2395,7 +2397,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				}
 				ps.close();
 			}
-			if (notRemoved.isEmpty()) return Collections.emptyMap();
+			if (notRemoved.isEmpty()) return emptyMap();
 			// Update any keys that already exist
 			String sql = "UPDATE " + tableName + " SET value = ?"
 					+ " WHERE " + columnName + " = ? AND metaKey = ?";

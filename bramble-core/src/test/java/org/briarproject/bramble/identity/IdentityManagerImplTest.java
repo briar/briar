@@ -17,8 +17,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Collections;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.junit.Assert.assertEquals;
 
@@ -34,7 +34,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	private final Transaction txn = new Transaction(null, false);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Collection<LocalAuthor> localAuthors =
-			Collections.singletonList(localAuthor);
+			singletonList(localAuthor);
 	private final String authorName = localAuthor.getName();
 	private final KeyPair keyPair = new KeyPair(publicKey, privateKey);
 	private final byte[] publicKeyBytes = localAuthor.getPublicKey();

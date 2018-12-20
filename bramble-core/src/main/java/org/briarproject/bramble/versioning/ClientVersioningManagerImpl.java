@@ -30,7 +30,6 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -45,6 +44,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -134,7 +134,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	@Override
 	public void startService() throws ServiceException {
 		List<ClientVersion> versions = new ArrayList<>(clients);
-		Collections.sort(versions);
+		sort(versions);
 		try {
 			db.transaction(false, txn -> {
 				if (updateClientVersions(txn, versions)) {
@@ -167,7 +167,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 		// Create and store the first local update
 		List<ClientVersion> versions = new ArrayList<>(clients);
-		Collections.sort(versions);
+		sort(versions);
 		storeFirstUpdate(txn, g.getId(), versions);
 	}
 

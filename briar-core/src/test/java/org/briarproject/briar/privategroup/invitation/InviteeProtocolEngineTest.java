@@ -11,9 +11,9 @@ import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.Map;
 
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -753,7 +753,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		BdfDictionary query = BdfDictionary.of(new BdfEntry("query", ""));
 		BdfDictionary meta = BdfDictionary.of(new BdfEntry("meta", ""));
 		Map<MessageId, BdfDictionary> invites =
-				Collections.singletonMap(lastRemoteMessageId, meta);
+				singletonMap(lastRemoteMessageId, meta);
 		context.checking(new Expectations() {{
 			oneOf(messageParser)
 					.getInvitesAvailableToAnswerQuery(privateGroupId);

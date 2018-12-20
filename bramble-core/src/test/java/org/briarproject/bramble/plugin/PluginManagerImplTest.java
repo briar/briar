@@ -22,11 +22,11 @@ import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
 
 import java.security.SecureRandom;
-import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 
+import static java.util.Arrays.asList;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
 public class PluginManagerImplTest extends BrambleTestCase {
@@ -84,8 +84,7 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			// start()
 			// First simplex plugin
 			oneOf(pluginConfig).getSimplexFactories();
-			will(returnValue(Arrays.asList(simplexFactory,
-					simplexFailFactory)));
+			will(returnValue(asList(simplexFactory, simplexFailFactory)));
 			oneOf(simplexFactory).getId();
 			will(returnValue(simplexId));
 			oneOf(simplexFactory).createPlugin(with(any(
@@ -102,7 +101,7 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			will(throwException(new PluginException()));
 			// First duplex plugin
 			oneOf(pluginConfig).getDuplexFactories();
-			will(returnValue(Arrays.asList(duplexFactory, duplexFailFactory)));
+			will(returnValue(asList(duplexFactory, duplexFailFactory)));
 			oneOf(duplexFactory).getId();
 			will(returnValue(duplexId));
 			oneOf(duplexFactory).createPlugin(with(any(

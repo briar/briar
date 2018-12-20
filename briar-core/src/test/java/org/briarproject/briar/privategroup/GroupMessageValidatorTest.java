@@ -16,10 +16,11 @@ import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -178,7 +179,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 		assertExpectedMessageContext(messageContext, JOIN, creatorList,
-				Collections.emptyList());
+				emptyList());
 		assertTrue(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}
@@ -363,7 +364,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 		assertExpectedMessageContext(messageContext, JOIN, memberList,
-				Collections.emptyList());
+				emptyList());
 		assertFalse(messageContext.getDictionary()
 				.getBoolean(KEY_INITIAL_JOIN_MSG));
 	}
@@ -606,7 +607,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 		assertExpectedMessageContext(messageContext, POST, memberList,
-				Arrays.asList(parentId, previousMsgId));
+				asList(parentId, previousMsgId));
 		assertArrayEquals(previousMsgId.getBytes(),
 				messageContext.getDictionary().getRaw(KEY_PREVIOUS_MSG_ID));
 		assertArrayEquals(parentId.getBytes(),
@@ -621,7 +622,7 @@ public class GroupMessageValidatorTest extends ValidatorTestCase {
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 		assertExpectedMessageContext(messageContext, POST, memberList,
-				Collections.singletonList(previousMsgId));
+				singletonList(previousMsgId));
 		assertArrayEquals(previousMsgId.getBytes(),
 				messageContext.getDictionary().getRaw(KEY_PREVIOUS_MSG_ID));
 		assertFalse(

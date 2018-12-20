@@ -11,6 +11,7 @@ import java.security.GeneralSecurityException;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_HEADER_PLAINTEXT_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.FRAME_NONCE_LENGTH;
@@ -89,7 +90,7 @@ class StreamEncrypterImpl implements StreamEncrypter {
 			throw new RuntimeException(badCipher);
 		}
 		// Combine the payload and padding
-		System.arraycopy(payload, 0, framePlaintext, 0, payloadLength);
+		arraycopy(payload, 0, framePlaintext, 0, payloadLength);
 		for (int i = 0; i < paddingLength; i++)
 			framePlaintext[payloadLength + i] = 0;
 		// Encrypt and authenticate the payload and padding
@@ -121,10 +122,10 @@ class StreamEncrypterImpl implements StreamEncrypter {
 		byte[] streamHeaderPlaintext = new byte[STREAM_HEADER_PLAINTEXT_LENGTH];
 		writeUint16(PROTOCOL_VERSION, streamHeaderPlaintext, 0);
 		writeUint64(streamNumber, streamHeaderPlaintext, INT_16_BYTES);
-		System.arraycopy(frameKey.getBytes(), 0, streamHeaderPlaintext,
+		arraycopy(frameKey.getBytes(), 0, streamHeaderPlaintext,
 				INT_16_BYTES + INT_64_BYTES, SecretKey.LENGTH);
 		byte[] streamHeaderCiphertext = new byte[STREAM_HEADER_LENGTH];
-		System.arraycopy(streamHeaderNonce, 0, streamHeaderCiphertext, 0,
+		arraycopy(streamHeaderNonce, 0, streamHeaderCiphertext, 0,
 				STREAM_HEADER_NONCE_LENGTH);
 		// Encrypt and authenticate the stream header key
 		try {

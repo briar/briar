@@ -12,6 +12,7 @@ import org.spongycastle.crypto.digests.Blake2bDigest;
 
 import javax.inject.Inject;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.transport.TransportConstants.ALICE_HEADER_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.ALICE_TAG_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.BOB_HEADER_LABEL;
@@ -134,6 +135,6 @@ class TransportCryptoImpl implements TransportCrypto {
 		byte[] mac = new byte[macLength];
 		prf.doFinal(mac, 0);
 		// The output is the first TAG_LENGTH bytes of the MAC
-		System.arraycopy(mac, 0, tag, 0, TAG_LENGTH);
+		arraycopy(mac, 0, tag, 0, TAG_LENGTH);
 	}
 }

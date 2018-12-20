@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.security.GeneralSecurityException;
 
+import static java.lang.System.arraycopy;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAC_LENGTH;
 
 @NotNullByDefault
@@ -22,7 +23,7 @@ class TestAuthenticatedCipher implements AuthenticatedCipher {
 	public int process(byte[] input, int inputOff, int len, byte[] output,
 			int outputOff) throws GeneralSecurityException {
 		if (encrypt) {
-			System.arraycopy(input, inputOff, output, outputOff, len);
+			arraycopy(input, inputOff, output, outputOff, len);
 			for (int i = 0; i < MAC_LENGTH; i++)
 				output[outputOff + len + i] = 0;
 			return len + MAC_LENGTH;
@@ -30,8 +31,7 @@ class TestAuthenticatedCipher implements AuthenticatedCipher {
 			for (int i = 0; i < MAC_LENGTH; i++)
 				if (input[inputOff + len - MAC_LENGTH + i] != 0)
 					throw new GeneralSecurityException();
-			System.arraycopy(input, inputOff, output, outputOff,
-					len - MAC_LENGTH);
+			arraycopy(input, inputOff, output, outputOff, len - MAC_LENGTH);
 			return len - MAC_LENGTH;
 		}
 	}
