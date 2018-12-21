@@ -23,7 +23,7 @@
 	<color name="briar_primary_dark">@color/briar_blue_very_dark</color>
 	<color name="briar_accent">@color/briar_blue</color>
 
-	<color name="window_background">#E3EBEF</color>
+	<color name="window_background">#EBEBEB</color>
 	<color name="card_background">@color/cardview_light_background</color>
 	<color name="item_background_highlight">#DCDCDC</color>
 	<color name="briar_warning_background">@color/briar_red</color>
@@ -59,7 +59,7 @@
 	<color name="briar_button_text_disabled">#28000000</color>
 
 	<color name="thread_indicator">@color/m_grey_500</color>
-	<color name="thread_item_background">@color/m_blue_grey_50</color>
+	<color name="thread_item_background">@color/window_background</color>
 	<color name="thread_item_highlight">@color/briar_white</color>
 
 	<color name="divider">#c1c1c1</color>
