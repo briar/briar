@@ -3,6 +3,7 @@ package org.briarproject.briar.android.fragment;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.app.DialogFragment;
@@ -56,11 +57,9 @@ public class ScreenFilterDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		Activity activity = getActivity();
-		if (activity == null) throw new IllegalStateException();
-		((BaseActivity) activity).getActivityComponent().inject(this);
+	public void onAttach(Context ctx) {
+		super.onAttach(ctx);
+		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
 	@Override

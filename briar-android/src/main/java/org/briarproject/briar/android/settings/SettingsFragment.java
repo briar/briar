@@ -153,8 +153,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onAttach(Context context) {
 		super.onAttach(context);
 		listener = (SettingsActivity) context;
-		// we need to inject here,
-		// because onActivityCreated() is called after onCreatePreferences()
 		listener.getActivityComponent().inject(this);
 	}
 
@@ -246,7 +244,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Bundle savedInstanceState) {
 		View view = super.onCreateView(inflater, container, savedInstanceState);
 		ColorDrawable divider = new ColorDrawable(
-				ContextCompat.getColor(getContext(), R.color.divider));
+				ContextCompat.getColor(requireContext(), R.color.divider));
 		setDivider(divider);
 		return view;
 	}
@@ -486,8 +484,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		pref.setWidgetLayoutResource(0);
 		pref.setSummary(summary);
 		pref.setOnPreferenceClickListener(clickedPref -> {
+			String packageName = requireContext().getPackageName();
 			Intent intent = new Intent(ACTION_CHANNEL_NOTIFICATION_SETTINGS)
-					.putExtra(EXTRA_APP_PACKAGE, getContext().getPackageName())
+					.putExtra(EXTRA_APP_PACKAGE, packageName)
 					.putExtra(EXTRA_CHANNEL_ID, channelId);
 			startActivity(intent);
 			return true;
@@ -580,8 +579,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 							NavDrawerActivity.class);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					intent.putExtra(INTENT_SIGN_OUT, true);
-					getActivity().startActivity(intent);
-					getActivity().finish();
+					requireActivity().startActivity(intent);
+					requireActivity().finish();
 				});
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setCancelable(false);

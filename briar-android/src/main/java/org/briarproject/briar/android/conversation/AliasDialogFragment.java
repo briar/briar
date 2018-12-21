@@ -2,8 +2,9 @@ package org.briarproject.briar.android.conversation;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
@@ -13,8 +14,10 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.activity.BaseActivity;
 
 import javax.inject.Inject;
 
@@ -22,6 +25,8 @@ import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class AliasDialogFragment extends AppCompatDialogFragment {
 
 	final static String TAG = AliasDialogFragment.class.getName();
@@ -38,20 +43,25 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onAttach(Context ctx) {
+		super.onAttach(ctx);
+		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
+	}
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
 
-		BriarActivity a = (BriarActivity) requireNonNull(getActivity());
-		a.getActivityComponent().inject(this);
-		viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
+		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
 				.get(ConversationViewModel.class);
 	}
 
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater,
-			ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_alias_dialog, container,
 				false);
 

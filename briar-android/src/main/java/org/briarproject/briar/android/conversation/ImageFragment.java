@@ -2,6 +2,7 @@ package org.briarproject.briar.android.conversation;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.Context;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -55,10 +56,9 @@ public class ImageFragment extends Fragment {
 	}
 
 	@Override
-	public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		BaseActivity a = (BaseActivity) requireNonNull(getActivity());
-		a.getActivityComponent().inject(this);
+	public void onAttach(Context ctx) {
+		super.onAttach(ctx);
+		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
 	@Override
@@ -87,6 +87,7 @@ public class ImageFragment extends Fragment {
 
 		// Request Listener
 		RequestListener<Drawable> listener = new RequestListener<Drawable>() {
+
 			@Override
 			public boolean onLoadFailed(@Nullable GlideException e,
 					Object model, Target<Drawable> target,
