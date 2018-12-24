@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
 import android.annotation.SuppressLint;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -10,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.annotation.RequiresApi;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -139,8 +141,6 @@ public class ConversationActivity extends BriarActivity
 		TextCache, AttachmentCache, AttachImageListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
-	private static final int TRANSITION_DURATION = 500;
-	private static final int ONBOARDING_DELAY = TRANSITION_DURATION + 1;
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
@@ -195,6 +195,8 @@ public class ConversationActivity extends BriarActivity
 	private volatile ContactId contactId;
 	@Nullable
 	private Parcelable layoutManagerState;
+	private final MutableLiveData<Boolean> canShowOnboarding =
+			new MutableLiveData<>();
 
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
@@ -207,7 +209,6 @@ public class ConversationActivity extends BriarActivity
 			// Spurious lint warning - using END causes a crash
 			@SuppressLint("RtlHardcoded")
 			Transition slide = new Slide(RIGHT);
-			slide.setDuration(TRANSITION_DURATION); // should be default
 			setSceneTransitionAnimation(slide, null, slide);
 		}
 		super.onCreate(state);
@@ -289,7 +290,8 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_INTRODUCTION && result == RESULT_OK) {
@@ -725,19 +727,19 @@ public class ConversationActivity extends BriarActivity
 		if (show == null || !show) return;
 		// show onboarding only after the enter transition has ended
 		// otherwise the tap target animation won't play
-		textInputView.postDelayed(() -> {
+		observeOnce(canShowOnboarding, this, canShow -> {
 			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
 			((TextAttachmentController) sendController)
 					.showImageOnboarding(this, () ->
 							viewModel.onImageOnboardingSeen());
-		}, ONBOARDING_DELAY);
+		});
 	}
 
 	private void showIntroductionOnboarding(@Nullable Boolean show) {
 		if (show == null || !show) return;
 		// show onboarding only after the enter transition has ended
 		// otherwise the tap target animation won't play
-		textInputView.postDelayed(() -> {
+		observeOnce(canShowOnboarding, this, canShow -> {
 			// find view of overflow icon
 			View target = null;
 			for (int i = 0; i < toolbar.getChildCount(); i++) {
@@ -767,7 +769,7 @@ public class ConversationActivity extends BriarActivity
 							ContextCompat.getColor(this, R.color.briar_primary))
 					.setPromptStateChangeListener(listener)
 					.show();
-		}, ONBOARDING_DELAY);
+		});
 	}
 
 	@Override
@@ -917,6 +919,41 @@ public class ConversationActivity extends BriarActivity
 			return emptyList();
 		}
 		return attachments;
+	}
+
+	@Override
+	@RequiresApi(api = 21)
+	public void setSceneTransitionAnimation(
+			@Nullable Transition enterTransition,
+			@Nullable Transition exitTransition,
+			@Nullable Transition returnTransition) {
+		super.setSceneTransitionAnimation(enterTransition, exitTransition,
+				returnTransition);
+		// workaround for MaterialTapTargetPrompt bug:
+		// https://github.com/sjwall/MaterialTapTargetPrompt/issues/147
+		getWindow().getEnterTransition().addListener(
+				new Transition.TransitionListener() {
+					@Override
+					public void onTransitionStart(Transition transition) {
+					}
+
+					@Override
+					public void onTransitionEnd(Transition transition) {
+						canShowOnboarding.setValue(true);
+					}
+
+					@Override
+					public void onTransitionCancel(Transition transition) {
+					}
+
+					@Override
+					public void onTransitionPause(Transition transition) {
+					}
+
+					@Override
+					public void onTransitionResume(Transition transition) {
+					}
+				});
 	}
 
 }
