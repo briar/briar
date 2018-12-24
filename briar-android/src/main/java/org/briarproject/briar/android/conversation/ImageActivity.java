@@ -27,6 +27,8 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -55,6 +57,8 @@ import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ImageActivity extends BriarActivity
 		implements PullDownLayout.Callback, OnGlobalLayoutListener {
 
@@ -174,9 +178,11 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
-		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK) {
+		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK &&
+				data != null) {
 			viewModel.saveImage(getVisibleAttachment(), data.getData());
 		}
 	}
