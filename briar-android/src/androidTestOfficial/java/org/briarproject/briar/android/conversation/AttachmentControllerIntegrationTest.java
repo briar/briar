@@ -21,7 +21,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class AttachmentControllerTest {
+public class AttachmentControllerIntegrationTest {
 
 	private static final String smallKitten =
 			"https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Kitten_in_Rizal_Park%2C_Manila.jpg/160px-Kitten_in_Rizal_Park%2C_Manila.jpg";
@@ -52,67 +52,8 @@ public class AttachmentControllerTest {
 			new AttachmentController(null, dimensions);
 
 	@Test
-	public void testNoSizeWrongMimeTypeProducesError() throws Exception {
-		AttachmentHeader h =
-				new AttachmentHeader(msgId, "application/octet-stream");
-		InputStream is = getUrlInputStream(smallKitten);
-		Attachment a = new Attachment(is);
-		AttachmentItem item = controller.getAttachmentItem(h, a, false);
-		assertTrue(item.hasError());
-	}
-
-	@Test
-	public void testNoSizeJpeg() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(smallKitten);
-		Attachment a = new Attachment(is);
-		AttachmentItem item = controller.getAttachmentItem(h, a, false);
-		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
-		assertFalse(item.hasError());
-	}
-
-	@Test
-	public void testNoSizePng() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/png");
-		InputStream is = getUrlInputStream(smallKitten);
-		Attachment a = new Attachment(is);
-		AttachmentItem item = controller.getAttachmentItem(h, a, false);
-		assertEquals("image/png", item.getMimeType());
-		assertEquals("png", item.getExtension());
-		assertFalse(item.hasError());
-	}
-
-	@Test
-	public void testNoSizeGif() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/gif");
-		InputStream is = getUrlInputStream(smallKitten);
-		Attachment a = new Attachment(is);
-		AttachmentItem item = controller.getAttachmentItem(h, a, false);
-		assertEquals("image/gif", item.getMimeType());
-		assertEquals("gif", item.getExtension());
-		assertFalse(item.hasError());
-	}
-
-	@Test
 	public void testSmallJpegImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(smallKitten);
-		Attachment a = new Attachment(is);
-		AttachmentItem item = controller.getAttachmentItem(h, a, true);
-		assertEquals(msgId, item.getMessageId());
-		assertEquals(160, item.getWidth());
-		assertEquals(240, item.getHeight());
-		assertEquals(160, item.getThumbnailWidth());
-		assertEquals(240, item.getThumbnailHeight());
-		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
-		assertFalse(item.hasError());
-	}
-
-	@Test
-	public void testSmallJpegImageHealsWrongMimeType() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/png");
 		InputStream is = getUrlInputStream(smallKitten);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -145,22 +86,6 @@ public class AttachmentControllerTest {
 	@Test
 	public void testSmallPngImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/png");
-		InputStream is = getUrlInputStream(pngKitten);
-		Attachment a = new Attachment(is);
-		AttachmentItem item = controller.getAttachmentItem(h, a, true);
-		assertEquals(msgId, item.getMessageId());
-		assertEquals(737, item.getWidth());
-		assertEquals(510, item.getHeight());
-		assertEquals(dimensions.maxWidth, item.getThumbnailWidth());
-		assertEquals(138, item.getThumbnailHeight());
-		assertEquals("image/png", item.getMimeType());
-		assertEquals("png", item.getExtension());
-		assertFalse(item.hasError());
-	}
-
-	@Test
-	public void testSmallPngImageHealsWrongMimeType() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
 		InputStream is = getUrlInputStream(pngKitten);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -331,15 +256,6 @@ public class AttachmentControllerTest {
 		assertEquals("image/jpeg", item.getMimeType());
 		assertEquals("jpg", item.getExtension());
 		assertFalse(item.hasError());
-	}
-
-	@Test
-	public void testZeroSizeError() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
-		InputStream is = getAssetInputStream("error_zero.jpg");
-		Attachment a = new Attachment(is);
-		AttachmentItem item = controller.getAttachmentItem(h, a, true);
-		assertTrue(item.hasError());
 	}
 
 	private InputStream getUrlInputStream(String url) throws IOException {

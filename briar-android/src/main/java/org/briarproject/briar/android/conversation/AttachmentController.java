@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
 import android.graphics.BitmapFactory;
+import android.graphics.BitmapFactory.Options;
 import android.support.annotation.Nullable;
 import android.support.media.ExifInterface;
 import android.webkit.MimeTypeMap;
@@ -47,6 +48,7 @@ class AttachmentController {
 	private static final int READ_LIMIT = 1024 * 8192;
 
 	private final MessagingManager messagingManager;
+	private final ImageManager imageManager;
 	private final int defaultSize;
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
@@ -55,13 +57,31 @@ class AttachmentController {
 			new ConcurrentHashMap<>();
 
 	AttachmentController(MessagingManager messagingManager,
-			AttachmentDimensions dimensions) {
+			AttachmentDimensions dimensions, ImageManager imageManager) {
 		this.messagingManager = messagingManager;
+		this.imageManager = imageManager;
 		defaultSize = dimensions.defaultSize;
 		minWidth = dimensions.minWidth;
 		maxWidth = dimensions.maxWidth;
 		minHeight = dimensions.minHeight;
 		maxHeight = dimensions.maxHeight;
+	}
+
+	AttachmentController(MessagingManager messagingManager,
+			AttachmentDimensions dimensions) {
+		this(messagingManager, dimensions, new ImageManager() {
+			@Override
+			public void decodeStream(InputStream is, Options options) {
+				BitmapFactory.decodeStream(is, null, options);
+			}
+
+			@Nullable
+			@Override
+			public String getExtensionFromMimeType(String mimeType) {
+				MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
+				return mimeTypeMap.getExtensionFromMimeType(mimeType);
+			}
+		});
 	}
 
 	void put(MessageId messageId, List<AttachmentItem> attachments) {
@@ -113,7 +133,7 @@ class AttachmentController {
 		MessageId messageId = h.getMessageId();
 		if (!needsSize) {
 			String mimeType = h.getContentType();
-			String extension = getExtensionFromMimeType(mimeType);
+			String extension = imageManager.getExtensionFromMimeType(mimeType);
 			boolean hasError = false;
 			if (extension == null) {
 				extension = "";
@@ -156,7 +176,7 @@ class AttachmentController {
 					getThumbnailSize(size.width, size.height, size.mimeType);
 		}
 		// get file extension
-		String extension = getExtensionFromMimeType(size.mimeType);
+		String extension = imageManager.getExtensionFromMimeType(size.mimeType);
 		boolean hasError = extension == null || size.error;
 		if (extension == null) extension = "";
 		return new AttachmentItem(messageId, size.width, size.height,
@@ -164,17 +184,10 @@ class AttachmentController {
 				thumbnailSize.height, hasError);
 	}
 
-	@Nullable
-	private String getExtensionFromMimeType(String mimeType) {
-		MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-		return mimeTypeMap.getExtensionFromMimeType(mimeType);
-	}
-
 	/**
 	 * Gets the size of a JPEG {@link InputStream} if EXIF info is available.
 	 */
-	private static Size getSizeFromExif(InputStream is)
-			throws IOException {
+	private Size getSizeFromExif(InputStream is) throws IOException {
 		ExifInterface exif = new ExifInterface(is);
 		// these can return 0 independent of default value
 		int width = exif.getAttributeInt(TAG_IMAGE_WIDTH, 0);
@@ -194,10 +207,10 @@ class AttachmentController {
 	/**
 	 * Gets the size of any image {@link InputStream}.
 	 */
-	private static Size getSizeFromBitmap(InputStream is) {
-		BitmapFactory.Options options = new BitmapFactory.Options();
+	private Size getSizeFromBitmap(InputStream is) {
+		Options options = new Options();
 		options.inJustDecodeBounds = true;
-		BitmapFactory.decodeStream(is, null, options);
+		imageManager.decodeStream(is, options);
 		if (options.outWidth < 1 || options.outHeight < 1)
 			return new Size();
 		return new Size(options.outWidth, options.outHeight,
