@@ -10,12 +10,12 @@ import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.util.UiUtils;
 
 import static org.briarproject.briar.android.conversation.ImageAdapter.isBottomRow;
 import static org.briarproject.briar.android.conversation.ImageAdapter.isLeft;
 import static org.briarproject.briar.android.conversation.ImageAdapter.isTopRow;
 import static org.briarproject.briar.android.conversation.ImageAdapter.singleInRow;
+import static org.briarproject.briar.android.util.UiUtils.isRtl;
 
 @NotNullByDefault
 class ImageItemDecoration extends ItemDecoration {
@@ -35,7 +35,7 @@ class ImageItemDecoration extends ItemDecoration {
 		border = realBorderSize / 2;
 
 		// find out if we are showing a RTL language
-		isRtl = UiUtils.isRtl(ctx);
+		isRtl = isRtl(ctx);
 	}
 
 	@Override

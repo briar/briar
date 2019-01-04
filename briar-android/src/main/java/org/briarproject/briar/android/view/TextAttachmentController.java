@@ -5,12 +5,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.view.AbsSavedState;
 import android.support.v7.widget.AppCompatImageButton;
+import android.widget.Toast;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
@@ -26,11 +27,12 @@ import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
 
 @UiThread
+@NotNullByDefault
 public class TextAttachmentController extends TextSendController
 		implements ImagePreviewListener {
 
@@ -81,15 +83,15 @@ public class TextAttachmentController extends TextSendController
 				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
 		intent.addCategory(CATEGORY_OPENABLE);
 		intent.setType("image/*");
-		if (SDK_INT >= 18)  // TODO set true to allow attaching multiple images
-			intent.putExtra(EXTRA_ALLOW_MULTIPLE, false);
+		if (SDK_INT >= 18) intent.putExtra(EXTRA_ALLOW_MULTIPLE, true);
 		requireNonNull(imageListener).onAttachImage(intent);
 	}
 
 	public void onImageReceived(@Nullable Intent resultData) {
 		if (resultData == null) return;
 		if (resultData.getData() != null) {
-			imageUris = singletonList(resultData.getData());
+			imageUris = new ArrayList<>(1);
+			imageUris.add(resultData.getData());
 			onNewUris();
 		} else if (SDK_INT >= 18 && resultData.getClipData() != null) {
 			ClipData clipData = resultData.getClipData();
@@ -163,11 +165,20 @@ public class TextAttachmentController extends TextSendController
 
 	@Override
 	@Nullable
-	public Parcelable onRestoreInstanceState(@NonNull Parcelable inState) {
+	public Parcelable onRestoreInstanceState(Parcelable inState) {
 		SavedState state = (SavedState) inState;
-		imageUris = state.imageUris;
+		imageUris = requireNonNull(state.imageUris);
 		onNewUris();
 		return state.getSuperState();
+	}
+
+	@Override
+	public void onUriError(Uri uri) {
+		imageUris.remove(uri);
+		imagePreview.removeUri(uri);
+		if (imageUris.isEmpty()) onCancel();
+		Toast.makeText(textInput.getContext(), R.string.image_attach_error,
+				LENGTH_LONG).show();
 	}
 
 	@Override
@@ -177,6 +188,8 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	private static class SavedState extends AbsSavedState {
+
+		@Nullable
 		private List<Uri> imageUris;
 
 		private SavedState(Parcelable superState) {
@@ -195,16 +208,18 @@ public class TextAttachmentController extends TextSendController
 			out.writeList(imageUris);
 		}
 
-		public static final Parcelable.Creator<SavedState> CREATOR
-				= new Parcelable.Creator<SavedState>() {
-			public SavedState createFromParcel(Parcel in) {
-				return new SavedState(in);
-			}
+		public static final Creator<SavedState> CREATOR =
+				new Creator<SavedState>() {
+					@Override
+					public SavedState createFromParcel(Parcel in) {
+						return new SavedState(in);
+					}
 
-			public SavedState[] newArray(int size) {
-				return new SavedState[size];
-			}
-		};
+					@Override
+					public SavedState[] newArray(int size) {
+						return new SavedState[size];
+					}
+				};
 	}
 
 	public interface AttachImageListener {
