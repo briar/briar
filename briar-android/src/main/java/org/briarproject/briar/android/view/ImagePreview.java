@@ -78,7 +78,9 @@ public class ImagePreview extends ConstraintLayout {
 	}
 
 	interface ImagePreviewListener {
+
 		void onUriError(Uri uri);
+
 		void onCancel();
 	}
 

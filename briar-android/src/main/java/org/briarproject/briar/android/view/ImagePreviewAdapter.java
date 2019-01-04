@@ -25,8 +25,7 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 	@LayoutRes
 	private final int layout;
 
-	public ImagePreviewAdapter(Collection<Uri> items,
-			ImagePreviewListener listener) {
+	ImagePreviewAdapter(Collection<Uri> items, ImagePreviewListener listener) {
 		this.items = new ArrayList<>(items);
 		this.listener = listener;
 		this.layout = items.size() == 1 ?
@@ -35,14 +34,16 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 	}
 
 	@Override
-	public ImagePreviewViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
+	public ImagePreviewViewHolder onCreateViewHolder(ViewGroup viewGroup,
+			int type) {
 		View v = LayoutInflater.from(viewGroup.getContext())
 				.inflate(layout, viewGroup, false);
 		return new ImagePreviewViewHolder(v, requireNonNull(listener));
 	}
 
 	@Override
-	public void onBindViewHolder(ImagePreviewViewHolder viewHolder, int position) {
+	public void onBindViewHolder(ImagePreviewViewHolder viewHolder,
+			int position) {
 		viewHolder.bind(items.get(position));
 	}
 

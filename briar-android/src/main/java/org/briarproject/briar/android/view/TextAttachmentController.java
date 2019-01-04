@@ -188,6 +188,7 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	private static class SavedState extends AbsSavedState {
+
 		@Nullable
 		private List<Uri> imageUris;
 
@@ -207,16 +208,18 @@ public class TextAttachmentController extends TextSendController
 			out.writeList(imageUris);
 		}
 
-		public static final Parcelable.Creator<SavedState> CREATOR
-				= new Parcelable.Creator<SavedState>() {
-			public SavedState createFromParcel(Parcel in) {
-				return new SavedState(in);
-			}
+		public static final Creator<SavedState> CREATOR =
+				new Creator<SavedState>() {
+					@Override
+					public SavedState createFromParcel(Parcel in) {
+						return new SavedState(in);
+					}
 
-			public SavedState[] newArray(int size) {
-				return new SavedState[size];
-			}
-		};
+					@Override
+					public SavedState[] newArray(int size) {
+						return new SavedState[size];
+					}
+				};
 	}
 
 	public interface AttachImageListener {
