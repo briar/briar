@@ -101,7 +101,6 @@ public class ImageActivity extends BriarActivity
 		// inflate layout
 		setContentView(R.layout.activity_image);
 		layout = findViewById(R.id.layout);
-		layout.getBackground().setAlpha(255);
 		layout.setCallback(this);
 		layout.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
@@ -196,7 +195,6 @@ public class ImageActivity extends BriarActivity
 
 	@Override
 	public void onPull(float progress) {
-		layout.getBackground().setAlpha(Math.round((1 - progress) * 255));
 	}
 
 	@Override

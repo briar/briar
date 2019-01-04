@@ -295,6 +295,8 @@ public class ConversationActivity extends BriarActivity
 	public void onStart() {
 		super.onStart();
 		eventBus.addListener(this);
+		notificationManager.blockContactNotification(contactId);
+		notificationManager.clearContactNotification(contactId);
 		displayContactOnlineStatus();
 		viewModel.getContactDisplayName().observe(this, contactNameObserver);
 		list.startPeriodicUpdate();
@@ -303,9 +305,6 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public void onResume() {
 		super.onResume();
-		// TODO move back to onStart() when we have unread msg indicators
-		notificationManager.blockContactNotification(contactId);
-		notificationManager.clearContactNotification(contactId);
 		// Trigger loading of contact data, noop if data was loaded already.
 		//
 		// We can only start loading data *after* we are sure
@@ -314,16 +313,10 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	protected void onPause() {
-		super.onPause();
-		// TODO move back to onStop() when we have unread msg indicators
-		notificationManager.unblockContactNotification(contactId);
-	}
-
-	@Override
 	public void onStop() {
 		super.onStop();
 		eventBus.removeListener(this);
+		notificationManager.unblockContactNotification(contactId);
 		viewModel.getContactDisplayName().removeObserver(contactNameObserver);
 		list.stopPeriodicUpdate();
 	}
