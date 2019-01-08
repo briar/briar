@@ -103,7 +103,7 @@ import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
-import static android.arch.lifecycle.Lifecycle.State.RESUMED;
+import static android.arch.lifecycle.Lifecycle.State.STARTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.setTransitionName;
@@ -269,6 +269,12 @@ public class ConversationActivity extends BriarActivity
 		textInputView.setSendController(sendController);
 		textInputView.setMaxTextLength(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		textInputView.setEnabled(false);
+		textInputView.addOnKeyboardShownListener(this::scrollToBottom);
+	}
+
+	private void scrollToBottom() {
+		int items = adapter.getItemCount();
+		if (items > 0) list.scrollToPosition(items - 1);
 	}
 
 	@Override
@@ -408,33 +414,10 @@ public class ConversationActivity extends BriarActivity
 						Long.compare(b.getTimestamp(), a.getTimestamp()));
 				if (!sorted.isEmpty()) {
 					// If the latest header is a private message, eagerly load
-					// its text so we can set the scroll position correctly
+					// its size so we can set the scroll position correctly
 					ConversationMessageHeader latest = sorted.get(0);
 					if (latest instanceof PrivateMessageHeader) {
-						MessageId id = latest.getId();
-						PrivateMessageHeader h = (PrivateMessageHeader) latest;
-						if (h.hasText()) {
-							String text = textCache.get(id);
-							if (text == null) {
-								LOG.info(
-										"Eagerly loading text of latest message");
-								text = messagingManager.getMessageText(id);
-								textCache.put(id, text);
-							}
-						}
-						if (h.getAttachmentHeaders().size() == 1) {
-							List<AttachmentItem> items =
-									attachmentController.get(id);
-							if (items == null) {
-								LOG.info(
-										"Eagerly loading image size for latest message");
-								items = attachmentController.getAttachmentItems(
-										attachmentController
-												.getMessageAttachments(
-														h.getAttachmentHeaders()));
-								attachmentController.put(id, items);
-							}
-						}
+						eagerlyLoadMessageSize((PrivateMessageHeader) latest);
 					}
 				}
 				displayMessages(revision, sorted);
@@ -444,6 +427,32 @@ public class ConversationActivity extends BriarActivity
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	private void eagerlyLoadMessageSize(PrivateMessageHeader h)
+			throws DbException {
+		MessageId id = h.getId();
+		// If the message has text, load it
+		if (h.hasText()) {
+			String text = textCache.get(id);
+			if (text == null) {
+				LOG.info("Eagerly loading text for latest message");
+				text = messagingManager.getMessageText(id);
+				textCache.put(id, text);
+			}
+		}
+		// If the message has a single image, load its size - for multiple
+		// images we use a grid so the size is fixed
+		if (h.getAttachmentHeaders().size() == 1) {
+			List<AttachmentItem> items = attachmentController.get(id);
+			if (items == null) {
+				LOG.info("Eagerly loading image size for latest message");
+				items = attachmentController.getAttachmentItems(
+						attachmentController.getMessageAttachments(
+								h.getAttachmentHeaders()));
+				attachmentController.put(id, items);
+			}
+		}
 	}
 
 	private void displayMessages(int revision,
@@ -456,9 +465,9 @@ public class ConversationActivity extends BriarActivity
 				adapter.addAll(items);
 				list.showData();
 				if (layoutManagerState == null) {
-					// Scroll to the bottom
-					list.scrollToPosition(adapter.getItemCount() - 1);
+					scrollToBottom();
 				} else {
+					// Restore the previous scroll position
 					layoutManager.onRestoreInstanceState(layoutManagerState);
 				}
 			} else {
@@ -501,15 +510,19 @@ public class ConversationActivity extends BriarActivity
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
+				boolean scroll = shouldScrollWhenUpdatingMessage();
 				pair.getSecond().setText(text);
-				boolean shouldScroll = layoutManagerState == null &&
-						adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				if (shouldScroll) {
-					list.scrollToPosition(adapter.getItemCount() - 1);
-				}
+				if (scroll) scrollToBottom();
 			}
 		});
+	}
+
+	// When a message's text or attachments are loaded, scroll to the bottom
+	// if the conversation is visible and we were previously at the bottom
+	private boolean shouldScrollWhenUpdatingMessage() {
+		return getLifecycle().getCurrentState().isAtLeast(STARTED)
+				&& adapter.isScrolledToBottom(layoutManager);
 	}
 
 	private void loadMessageAttachments(MessageId messageId,
@@ -535,13 +548,10 @@ public class ConversationActivity extends BriarActivity
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
+				boolean scroll = shouldScrollWhenUpdatingMessage();
 				pair.getSecond().setAttachments(items);
-				boolean shouldScroll = layoutManagerState == null &&
-						adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				if (shouldScroll) {
-					list.scrollToPosition(adapter.getItemCount() - 1);
-				}
+				if (scroll) scrollToBottom();
 			}
 		});
 	}
@@ -590,11 +600,13 @@ public class ConversationActivity extends BriarActivity
 
 	private void addConversationItem(ConversationItem item) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			// whenever the activity is shown, we'll scroll down for new msgs
-			boolean shouldScroll = getLifecycle().getCurrentState() == RESUMED;
 			adapter.incrementRevision();
 			adapter.add(item);
-			if (shouldScroll) list.scrollToPosition(adapter.getItemCount() - 1);
+			// When adding a new message, scroll to the bottom if the
+			// conversation is visible, even if we're not currently at
+			// the bottom
+			if (getLifecycle().getCurrentState().isAtLeast(STARTED))
+				scrollToBottom();
 		});
 	}
 
