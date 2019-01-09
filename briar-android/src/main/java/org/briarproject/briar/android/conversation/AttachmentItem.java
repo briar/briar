@@ -7,6 +7,8 @@ import android.support.annotation.Nullable;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
@@ -18,6 +20,7 @@ public class AttachmentItem implements Parcelable {
 	private final String mimeType, extension;
 	private final int thumbnailWidth, thumbnailHeight;
 	private final boolean hasError;
+	private final long instanceId;
 
 	public static final Creator<AttachmentItem> CREATOR =
 			new Creator<AttachmentItem>() {
@@ -32,6 +35,8 @@ public class AttachmentItem implements Parcelable {
 				}
 			};
 
+	private static final AtomicLong NEXT_INSTANCE_ID = new AtomicLong(0);
+
 	AttachmentItem(MessageId messageId, int width, int height, String mimeType,
 			String extension, int thumbnailWidth, int thumbnailHeight,
 			boolean hasError) {
@@ -43,6 +48,7 @@ public class AttachmentItem implements Parcelable {
 		this.thumbnailWidth = thumbnailWidth;
 		this.thumbnailHeight = thumbnailHeight;
 		this.hasError = hasError;
+		instanceId = NEXT_INSTANCE_ID.getAndIncrement();
 	}
 
 	protected AttachmentItem(Parcel in) {
@@ -56,6 +62,7 @@ public class AttachmentItem implements Parcelable {
 		thumbnailWidth = in.readInt();
 		thumbnailHeight = in.readInt();
 		hasError = in.readByte() != 0;
+		instanceId = in.readLong();
 	}
 
 	public MessageId getMessageId() {
@@ -90,9 +97,8 @@ public class AttachmentItem implements Parcelable {
 		return hasError;
 	}
 
-	// TODO use counter instead, because in theory one attachment can appear in more than one messages
 	String getTransitionName() {
-		return String.valueOf(messageId.hashCode());
+		return String.valueOf(instanceId);
 	}
 
 	@Override
@@ -110,12 +116,13 @@ public class AttachmentItem implements Parcelable {
 		dest.writeInt(thumbnailWidth);
 		dest.writeInt(thumbnailHeight);
 		dest.writeByte((byte) (hasError ? 1 : 0));
+		dest.writeLong(instanceId);
 	}
 
 	@Override
 	public boolean equals(@Nullable Object o) {
 		return o instanceof AttachmentItem &&
-				messageId.equals(((AttachmentItem) o).messageId);
+				instanceId == ((AttachmentItem) o).instanceId;
 	}
 
 }
