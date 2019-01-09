@@ -21,13 +21,14 @@ import static android.graphics.Shader.TileMode.CLAMP;
 
 @Immutable
 @NotNullByDefault
-public class CustomCornersTransformation extends BitmapTransformation {
+class CustomCornersTransformation extends BitmapTransformation {
 
-	private static final String ID = CustomCornersTransformation.class.getName();
+	private static final String ID =
+			CustomCornersTransformation.class.getName();
 
 	private final Radii radii;
 
-	public CustomCornersTransformation(Radii radii) {
+	CustomCornersTransformation(Radii radii) {
 		this.radii = radii;
 	}
 
