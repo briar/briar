@@ -86,8 +86,7 @@ class AttachmentController {
 		List<Pair<AttachmentHeader, Attachment>> attachments =
 				new ArrayList<>(headers.size());
 		for (AttachmentHeader h : headers) {
-			Attachment a =
-					messagingManager.getAttachment(h.getMessageId());
+			Attachment a = messagingManager.getAttachment(h.getMessageId());
 			attachments.add(new Pair<>(h, a));
 		}
 		logDuration(LOG, "Loading attachment", start);
@@ -96,7 +95,7 @@ class AttachmentController {
 
 	/**
 	 * Creates {@link AttachmentItem}s from the passed headers and Attachments.
-	 *
+	 * <p>
 	 * Note: This closes the {@link Attachment}'s {@link InputStream}.
 	 */
 	List<AttachmentItem> getAttachmentItems(

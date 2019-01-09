@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
@@ -102,6 +103,7 @@ import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
+import static android.arch.lifecycle.Lifecycle.State.STARTED;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.setTransitionName;
@@ -193,6 +195,8 @@ public class ConversationActivity extends BriarActivity
 	ViewModelProvider.Factory viewModelFactory;
 
 	private volatile ContactId contactId;
+	@Nullable
+	private Parcelable layoutManagerState;
 
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
@@ -265,6 +269,12 @@ public class ConversationActivity extends BriarActivity
 		textInputView.setSendController(sendController);
 		textInputView.setMaxTextLength(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
 		textInputView.setEnabled(false);
+		textInputView.addOnKeyboardShownListener(this::scrollToBottom);
+	}
+
+	private void scrollToBottom() {
+		int items = adapter.getItemCount();
+		if (items > 0) list.scrollToPosition(items - 1);
 	}
 
 	@Override
@@ -315,6 +325,21 @@ public class ConversationActivity extends BriarActivity
 		notificationManager.unblockContactNotification(contactId);
 		viewModel.getContactDisplayName().removeObserver(contactNameObserver);
 		list.stopPeriodicUpdate();
+	}
+
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (layoutManager != null) {
+			layoutManagerState = layoutManager.onSaveInstanceState();
+			outState.putParcelable("layoutManager", layoutManagerState);
+		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		layoutManagerState = savedInstanceState.getParcelable("layoutManager");
 	}
 
 	@Override
@@ -389,33 +414,10 @@ public class ConversationActivity extends BriarActivity
 						Long.compare(b.getTimestamp(), a.getTimestamp()));
 				if (!sorted.isEmpty()) {
 					// If the latest header is a private message, eagerly load
-					// its text so we can set the scroll position correctly
+					// its size so we can set the scroll position correctly
 					ConversationMessageHeader latest = sorted.get(0);
 					if (latest instanceof PrivateMessageHeader) {
-						MessageId id = latest.getId();
-						PrivateMessageHeader h = (PrivateMessageHeader) latest;
-						if (h.hasText()) {
-							String text = textCache.get(id);
-							if (text == null) {
-								LOG.info(
-										"Eagerly loading text of latest message");
-								text = messagingManager.getMessageText(id);
-								textCache.put(id, text);
-							}
-						}
-						if (h.getAttachmentHeaders().size() == 1) {
-							List<AttachmentItem> items =
-									attachmentController.get(id);
-							if (items == null) {
-								LOG.info(
-										"Eagerly loading image size for latest message");
-								items = attachmentController.getAttachmentItems(
-										attachmentController
-												.getMessageAttachments(
-														h.getAttachmentHeaders()));
-								attachmentController.put(id, items);
-							}
-						}
+						eagerlyLoadMessageSize((PrivateMessageHeader) latest);
 					}
 				}
 				displayMessages(revision, sorted);
@@ -427,6 +429,32 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
+	private void eagerlyLoadMessageSize(PrivateMessageHeader h)
+			throws DbException {
+		MessageId id = h.getId();
+		// If the message has text, load it
+		if (h.hasText()) {
+			String text = textCache.get(id);
+			if (text == null) {
+				LOG.info("Eagerly loading text for latest message");
+				text = messagingManager.getMessageText(id);
+				textCache.put(id, text);
+			}
+		}
+		// If the message has a single image, load its size - for multiple
+		// images we use a grid so the size is fixed
+		if (h.getAttachmentHeaders().size() == 1) {
+			List<AttachmentItem> items = attachmentController.get(id);
+			if (items == null) {
+				LOG.info("Eagerly loading image size for latest message");
+				items = attachmentController.getAttachmentItems(
+						attachmentController.getMessageAttachments(
+								h.getAttachmentHeaders()));
+				attachmentController.put(id, items);
+			}
+		}
+	}
+
 	private void displayMessages(int revision,
 			Collection<ConversationMessageHeader> headers) {
 		runOnUiThreadUnlessDestroyed(() -> {
@@ -436,8 +464,12 @@ public class ConversationActivity extends BriarActivity
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
 				list.showData();
-				// Scroll to the bottom
-				list.scrollToPosition(adapter.getItemCount() - 1);
+				if (layoutManagerState == null) {
+					scrollToBottom();
+				} else {
+					// Restore the previous scroll position
+					layoutManager.onRestoreInstanceState(layoutManagerState);
+				}
 			} else {
 				LOG.info("Concurrent update, reloading");
 				loadMessages();
@@ -478,12 +510,19 @@ public class ConversationActivity extends BriarActivity
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
+				boolean scroll = shouldScrollWhenUpdatingMessage();
 				pair.getSecond().setText(text);
-				boolean bottom = adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
+				if (scroll) scrollToBottom();
 			}
 		});
+	}
+
+	// When a message's text or attachments are loaded, scroll to the bottom
+	// if the conversation is visible and we were previously at the bottom
+	private boolean shouldScrollWhenUpdatingMessage() {
+		return getLifecycle().getCurrentState().isAtLeast(STARTED)
+				&& adapter.isScrolledToBottom(layoutManager);
 	}
 
 	private void loadMessageAttachments(MessageId messageId,
@@ -509,10 +548,10 @@ public class ConversationActivity extends BriarActivity
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
+				boolean scroll = shouldScrollWhenUpdatingMessage();
 				pair.getSecond().setAttachments(items);
-				boolean bottom = adapter.isScrolledToBottom(layoutManager);
 				adapter.notifyItemChanged(pair.getFirst());
-				if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
+				if (scroll) scrollToBottom();
 			}
 		});
 	}
@@ -561,10 +600,13 @@ public class ConversationActivity extends BriarActivity
 
 	private void addConversationItem(ConversationItem item) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			boolean bottom = adapter.isScrolledToBottom(layoutManager);
 			adapter.incrementRevision();
 			adapter.add(item);
-			if (bottom) list.scrollToPosition(adapter.getItemCount() - 1);
+			// When adding a new message, scroll to the bottom if the
+			// conversation is visible, even if we're not currently at
+			// the bottom
+			if (getLifecycle().getCurrentState().isAtLeast(STARTED))
+				scrollToBottom();
 		});
 	}
 
@@ -828,15 +870,11 @@ public class ConversationActivity extends BriarActivity
 		i.putExtra(ATTACHMENT_POSITION, attachments.indexOf(item));
 		i.putExtra(NAME, name);
 		i.putExtra(DATE, messageItem.getTime());
-		if (SDK_INT >= 23) {
-			String transitionName = item.getTransitionName();
-			ActivityOptionsCompat options =
-					makeSceneTransitionAnimation(this, view, transitionName);
-			ActivityCompat.startActivity(this, i, options.toBundle());
-		} else {
-			// work-around for android bug #224270
-			startActivity(i);
-		}
+		// restoring list position should not trigger android bug #224270
+		String transitionName = item.getTransitionName();
+		ActivityOptionsCompat options =
+				makeSceneTransitionAnimation(this, view, transitionName);
+		ActivityCompat.startActivity(this, i, options.toBundle());
 	}
 
 	@DatabaseExecutor

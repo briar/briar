@@ -27,6 +27,8 @@ import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.view.Window;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -55,6 +57,8 @@ import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class ImageActivity extends BriarActivity
 		implements PullDownLayout.Callback, OnGlobalLayoutListener {
 
@@ -82,7 +86,7 @@ public class ImageActivity extends BriarActivity
 		super.onCreate(state);
 
 		// Transitions
-		supportPostponeEnterTransition();
+		if (state == null) supportPostponeEnterTransition();
 		Window window = getWindow();
 		if (SDK_INT >= 21) {
 			Transition transition = new Fade();
@@ -97,7 +101,6 @@ public class ImageActivity extends BriarActivity
 		// inflate layout
 		setContentView(R.layout.activity_image);
 		layout = findViewById(R.id.layout);
-		layout.getBackground().setAlpha(255);
 		layout.setCallback(this);
 		layout.getViewTreeObserver().addOnGlobalLayoutListener(this);
 
@@ -174,9 +177,11 @@ public class ImageActivity extends BriarActivity
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
-		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK) {
+		if (request == REQUEST_SAVE_ATTACHMENT && result == RESULT_OK &&
+				data != null) {
 			viewModel.saveImage(getVisibleAttachment(), data.getData());
 		}
 	}
@@ -190,7 +195,6 @@ public class ImageActivity extends BriarActivity
 
 	@Override
 	public void onPull(float progress) {
-		layout.getBackground().setAlpha(Math.round((1 - progress) * 255));
 	}
 
 	@Override
@@ -298,13 +302,18 @@ public class ImageActivity extends BriarActivity
 
 	private class ImagePagerAdapter extends FragmentStatePagerAdapter {
 
+		private boolean isFirst = true;
+
 		private ImagePagerAdapter(FragmentManager fm) {
 			super(fm);
 		}
 
 		@Override
 		public Fragment getItem(int position) {
-			return ImageFragment.newInstance(attachments.get(position));
+			Fragment f = ImageFragment
+					.newInstance(attachments.get(position), isFirst);
+			isFirst = false;
+			return f;
 		}
 
 		@Override

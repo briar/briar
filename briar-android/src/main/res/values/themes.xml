@@ -18,9 +18,7 @@
 		<item name="toolbarStyle">@style/BriarToolbar</item>
 	</style>
 
-	<style name="BriarTheme.Transparent.NoActionBar" parent="BriarTheme.NoActionBar">
-		<item name="android:windowBackground">@android:color/transparent</item>
-		<item name="android:windowIsTranslucent">true</item>
+	<style name="BriarTheme.ActionBarOverlay" parent="BriarTheme.NoActionBar">
 		<item name="android:windowActionBarOverlay">true</item>
 	</style>
 
