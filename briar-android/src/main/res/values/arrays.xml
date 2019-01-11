@@ -43,6 +43,7 @@
 		<item>hu</item>
 		<item>it</item>
 		<item>ja</item>
+		<item>mk</item>
 		<item>ms</item>
 		<item>nb</item>
 		<item>nl</item>
@@ -55,6 +56,7 @@
 		<item>sr</item>
 		<item>sv</item>
 		<item>tr</item>
+		<item>uk</item>
 		<item>zh-CN</item>
 	</string-array>
 	<string-array name="pref_theme_entries">
