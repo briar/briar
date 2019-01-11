@@ -16,7 +16,7 @@ dependencies {
 
 	implementation 'io.javalin:javalin:2.4.0'
 	implementation 'org.slf4j:slf4j-simple:1.7.25'
-	implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.7'
+	implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
 	implementation 'com.github.ajalt:clikt:1.5.0'
 
 	kapt 'com.google.dagger:dagger-compiler:2.19'
