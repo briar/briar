@@ -40,7 +40,7 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	private volatile boolean cancel = false;
 
 	@Inject
-	public BriarDataFetcher(MessagingManager messagingManager,
+	BriarDataFetcher(MessagingManager messagingManager,
 			@DatabaseExecutor Executor dbExecutor, AttachmentItem attachment) {
 		this.messagingManager = messagingManager;
 		this.dbExecutor = dbExecutor;

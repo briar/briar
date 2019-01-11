@@ -16,7 +16,7 @@ class BriarModelLoaderFactory
 
 	private final BriarApplication app;
 
-	public BriarModelLoaderFactory(BriarApplication app) {
+	BriarModelLoaderFactory(BriarApplication app) {
 		this.app = app;
 	}
 

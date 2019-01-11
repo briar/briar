@@ -22,7 +22,7 @@ public final class BriarModelLoader
 	@Inject
 	BriarDataFetcherFactory dataFetcherFactory;
 
-	public BriarModelLoader(BriarApplication app) {
+	BriarModelLoader(BriarApplication app) {
 		app.getApplicationComponent().inject(this);
 	}
 
