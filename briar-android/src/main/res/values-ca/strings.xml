@@ -48,6 +48,7 @@
   <string name="download_briar_button">Descarrega Briar 1.0</string>
   <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
   <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
+  <string name="startup_compact_database">Compactant la base de dades...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Obre el calaix de navegació</string>
   <string name="nav_drawer_close_description">Tanca el calaix de navegació</string>
@@ -115,12 +116,14 @@
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
   <string name="message_hint">Escriviu un missatge</string>
+  <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="set_alias_button">Canvia</string>
   <string name="delete_contact">Suprimeix aquest contacte</string>
   <string name="dialog_title_delete_contact">Confirmeu la supressió del contacte</string>
   <string name="dialog_message_delete_contact">Segur que voleu suprimir aquest contacte i tots els missatges que us heu intercanviat?</string>
   <string name="contact_deleted_toast">S\'ha suprimit el contacte</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <!--Adding Contacts-->
   <string name="add_contact_title">Afegiu un contacte</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
@@ -131,6 +134,8 @@
   <string name="contact_added_toast">S\'ha afegit el contacte %s</string>
   <string name="contact_already_exists">El contacte %s ja existia</string>
   <string name="qr_code_invalid">El codi QR és invàlid</string>
+  <string name="qr_code_too_old">El codi QR que heu escanejat prové d\'una versió antiga de %s.\n\nDemaneu al vostre contacte que actualitzi a l\'última versió i torneu a provar-ho.</string>
+  <string name="qr_code_too_new">El codi QR que heu escanejat prové d\'una versió nova de %s.\n\nActualitzeu a l\'última versió i torneu a provar-ho.</string>
   <string name="camera_error">Error de la càmera</string>
   <string name="connecting_to_device">Connectant-se al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
@@ -340,8 +345,10 @@
   <string name="tor_mobile_data_title">Usa dades mòbils</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
+  <string name="pref_lock_title">Bloqueig de l\'aplicació</string>
   <string name="pref_lock_summary">Usa el bloqueig de pantalla del dispositiu per protegir Briar mentre inicieu la sessió</string>
   <string name="pref_lock_disabled_summary">Per utilitzar aquesta funció, configureu el bloqueig de pantalla en el vostre dispositiu</string>
+  <string name="pref_lock_timeout_title">Temps d\'inactivitat per al bloqueig</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar es bloquejarà automàticament després de %s de no usar-se.</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -370,6 +377,7 @@
   <string name="panic_app_setting_none">Cap</string>
   <string name="dialog_title_connect_panic_app">Confirmeu l\'aplicació de pànic</string>
   <string name="dialog_message_connect_panic_app">Segur que voleu permetre que %1$s desencadeni accions destructives a conseqüència del botó de pànic?</string>
+  <string name="panic_setting_destructive_action">Accions destructives</string>
   <string name="panic_setting_signout_title">Tanca la sessió</string>
   <string name="panic_setting_signout_summary">Tanca la sessió de Briar si es prem un botó de pànic</string>
   <string name="purge_setting_title">Esborreu el compte</string>
@@ -431,6 +439,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Permís de la càmera</string>
   <string name="permission_camera_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.</string>
+  <string name="permission_location_title">Permís d\'accés a l\'ubicació</string>
+  <string name="permission_location_request_body">Per trobar dispositius Bluetooth, Briar necessita la vostra ubicació.\n\nBriar no guarda la vostra ubicació ni la comparteix amb ningú.</string>
+  <string name="permission_camera_location_title">Permís d\'accés a la càmera i l\'ubicació</string>
+  <string name="permission_camera_location_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.\n\nPer trobar dispositius Bluetooth, Briar necessita la vostra ubicació.\n\nBriar no guarda la vostra ubicació ni la comparteix amb ningú.</string>
   <string name="permission_camera_denied_body">Heu denegat l\'accés a la càmera però per afegir contactes cal utilitzar la càmera.\n\nRecomanem que permeteu l\'accés a la càmera.</string>
   <string name="qr_code">Codi QR</string>
   <string name="show_qr_code_fullscreen">Mostra el codi QR a pantalla completa</string>
@@ -443,9 +455,15 @@
   <string name="lock_tap_to_unlock">Toqueu per desbloquejar-lo</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Hola Bob!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Hola Alice! Gràcies per recomanar-me Briar!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">De res, espero que t\'agradi 😀</string>
 </resources>

@@ -122,6 +122,8 @@
   <string name="dialog_title_delete_contact">Potvrdit odstranění kontaktu</string>
   <string name="dialog_message_delete_contact">Jste si jisti, že chcete odstranit kontakt a všechny související zprávy s tímto kontaktem?</string>
   <string name="contact_deleted_toast">Kontakt odstraněn</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Vy</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Přidat kontakt</string>
   <string name="face_to_face">Musíte se osobně setkat s osobou, kterou si chcete přidat jako kontakt.\n\nToto v budoucnu zabrání komukoli, aby se za vás vydával nebo četl Vaše zprávy.</string>
@@ -334,6 +336,8 @@
   <string name="pref_lock_timeout_60">1 hodina</string>
   <string name="pref_lock_timeout_never">Nikdy</string>
   <string name="change_password">Změnit heslo</string>
+  <string name="current_password">Současné heslo</string>
+  <string name="choose_new_password">Nové heslo</string>
   <string name="password_changed">Heslo bylo změněno.</string>
   <string name="panic_setting">Nastavení tlačítka Paniky</string>
   <string name="panic_setting_title">Tlačítko Paniky</string>

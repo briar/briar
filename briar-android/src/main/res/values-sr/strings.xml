@@ -126,6 +126,7 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="dialog_title_delete_contact">Potvrdite brisanje kontakta</string>
   <string name="dialog_message_delete_contact">Jeste li sigurni da želite da uklonite ovaj kontakt i sve poruke koje ste razmijenili?</string>
   <string name="contact_deleted_toast">Kontakt izbrisan</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <!--Adding Contacts-->
   <string name="add_contact_title">Dodaj kontakt</string>
   <string name="face_to_face">Morate se sresti sa osobom koju želite da dodate kao kontakt.\n\nOvo će spriječiti bilo koga da se predstavi kao vi ili da ubuduće čita poruke.</string>

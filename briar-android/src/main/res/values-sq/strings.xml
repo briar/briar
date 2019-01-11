@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">S\’ka mesazhe.</string>
   <string name="no_private_messages">S’ka mesazhe për shfaqje</string>
   <string name="message_hint">Shtypni mesazhin</string>
+  <string name="image_caption_hint">Shtoni një titull (na daçi)</string>
+  <string name="image_attach">Bashkëngjitni figurë</string>
+  <string name="image_attach_error">S’u bashkëngjit dot figurë</string>
   <string name="set_contact_alias">Ndryshoni emër kontakti</string>
   <string name="set_contact_alias_hint">Emër kontakti</string>
   <string name="set_alias_button">Ndryshoje</string>
@@ -123,6 +126,13 @@
   <string name="dialog_title_delete_contact">Ripohoni Fshirje Kontakti</string>
   <string name="dialog_message_delete_contact">Jeni i sigurt se doni të hiqet ky kontakt dhe krejt mesazhet e shkëmbyer me këtë kontakt?</string>
   <string name="contact_deleted_toast">Kontakti u fshi</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Ju</string>
+  <string name="save_image">Ruaje figurën</string>
+  <string name="dialog_title_save_image">Të ruhet Figura?</string>
+  <string name="dialog_message_save_image">Ruajta e kësaj figure do t’u lejojë aplikacioneve të tjera ta përdorin.\n\nJeni i sigurt se doni të ruhet?</string>
+  <string name="save_image_success">Figura u ruajt</string>
+  <string name="save_image_error">Figura s’u ruajt dot</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Shtoni një Kontakt</string>
   <string name="face_to_face">Duhet të takoheni me personin që doni ta shtoni si kontakt.\n\nKjo do të pengojë cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>

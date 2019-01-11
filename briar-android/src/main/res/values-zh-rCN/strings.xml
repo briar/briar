@@ -47,6 +47,7 @@
   <string name="download_briar_button">下载 Briar 1.0</string>
   <string name="startup_open_database">正在解密数据库……</string>
   <string name="startup_migrate_database">正在更新数据库……</string>
+  <string name="startup_compact_database">正在压缩数据库……</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">打开侧滑导航</string>
   <string name="nav_drawer_close_description">关闭侧滑导航</string>
@@ -110,10 +111,14 @@
   <string name="date_no_private_messages">没有消息。</string>
   <string name="no_private_messages">尚无消息可供显示</string>
   <string name="message_hint">输入信息</string>
+  <string name="set_contact_alias">更改联系人姓名</string>
+  <string name="set_contact_alias_hint">联系人姓名</string>
+  <string name="set_alias_button">更改</string>
   <string name="delete_contact">删除联系人</string>
   <string name="dialog_title_delete_contact">确认删除联系人</string>
   <string name="dialog_message_delete_contact">确认要删除该联系人和与之交流的所有消息吗？</string>
   <string name="contact_deleted_toast">联系人已删除</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <!--Adding Contacts-->
   <string name="add_contact_title">添加联系人</string>
   <string name="face_to_face">您必须面对面添加联系人。\n\n这样将防止未来他人冒充您的身份并查看您的信息。</string>
@@ -124,6 +129,8 @@
   <string name="contact_added_toast">联系人已添加：%s</string>
   <string name="contact_already_exists">联系人 %s 已存在</string>
   <string name="qr_code_invalid">二维码无效</string>
+  <string name="qr_code_too_old">您所扫描的二维码来自旧版本 %s 。\n\n请让您的联系人升级到最新版本并重试。</string>
+  <string name="qr_code_too_new">您所扫描的二维码来自新版本 %s 。\n\n请升级到最新版本并重试。</string>
   <string name="camera_error">相机出错</string>
   <string name="connecting_to_device">正在连接至设备\u2026</string>
   <string name="authenticating_with_device">正在验证设备\u2026</string>
@@ -328,8 +335,10 @@
   <string name="tor_mobile_data_title">使用移动数据</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
+  <string name="pref_lock_title">应用锁</string>
   <string name="pref_lock_summary">登录后，使用设备的屏幕锁定保护 Briar</string>
   <string name="pref_lock_disabled_summary">为了使用该功能，请为设备设置屏幕锁定</string>
+  <string name="pref_lock_timeout_title">应用锁所需的无操作时间</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">当有 %s 不使用 Briar 后，自动将其锁定</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -419,6 +428,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">相机权限</string>
   <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>
+  <string name="permission_location_title">位置权限</string>
+  <string name="permission_location_request_body">Briar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
+  <string name="permission_camera_location_title">相机和位置</string>
+  <string name="permission_camera_location_request_body"> Briar 需要相机权限以扫描二维码。\n\nBriar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
   <string name="permission_camera_denied_body">您已拒绝相机权限，而添加联系人需要使用相机。\n\n请考虑授予相机权限。</string>
   <string name="qr_code">二维码</string>
   <string name="show_qr_code_fullscreen">全屏显示二维码</string>
@@ -431,9 +444,15 @@
   <string name="lock_tap_to_unlock">轻按以解锁</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">韩梅梅</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">李雷</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">林涛</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">嗨，李雷！</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">嗨，韩梅梅！谢谢你告诉我关于 Briar 的事！</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">没问题，希望你喜欢它 😀</string>
 </resources>

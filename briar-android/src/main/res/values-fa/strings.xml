@@ -54,6 +54,7 @@
   <string name="download_briar_button">دانلود Briar (برایر) 1.0</string>
   <string name="startup_open_database">رمزگشایی سیستم ...</string>
   <string name="startup_migrate_database">به روز رسانی سیستم ...</string>
+  <string name="startup_compact_database">درحال فشرده‌سازی پایگاه داده...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">باز کردن منوی برنامه</string>
   <string name="nav_drawer_close_description">بستن منوی برنامه</string>
@@ -121,11 +122,15 @@
   <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
   <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
   <string name="message_hint">نوشتن پیام</string>
+  <string name="set_contact_alias">تغییر نام مخاطب</string>
+  <string name="set_contact_alias_hint">نام مخاطب</string>
   <string name="set_alias_button">تغییر</string>
   <string name="delete_contact">حذف مخاطب</string>
   <string name="dialog_title_delete_contact">تایید حذف مخاطب</string>
   <string name="dialog_message_delete_contact">آیا مطمئن هستید که میخواهید این مخاطب و تمام پیام های تبادل شده با آن را حذف کنید؟</string>
   <string name="contact_deleted_toast">مخاطب حذف شد</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">شما</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">افزودن مخاطب</string>
   <string name="face_to_face">برای اضافه کردن فرد به عنوان مخاطب باید با او به صورت حضوری ملاقات کنید.
@@ -137,12 +142,12 @@
   <string name="contact_added_toast">مخاطب اضافه شد: %s</string>
   <string name="contact_already_exists">مخاطب %s از قبل وجود دارد</string>
   <string name="qr_code_invalid">کد QR نامعتبر می باشد</string>
-  <string name="qr_code_too_old">کد QR که شما اسکن کرده اید متعلق به یک نسخه قدیمی از %s می باشد.
+  <string name="qr_code_too_old">کد QR اسکن شده متعلق به یک نسخه قدیمی از %s است.
 
-لطفا از مخاطب خود بخواهید تا به آخرین نسخه آپگرید کرده و دوباره تلاش کنید.</string>
-  <string name="qr_code_too_new">کد QR که شما اسکن کرده اید متعلق به یک نسخه جدید  از %s می باشد.
+لطفا از مخاطب‌تان بخواهید تا به آخرین نسخه ارتقا داده و سپس دوباره تلاش کنید.</string>
+  <string name="qr_code_too_new">کد QR که شما اسکن کرده‌اید متعلق به یک نسخه جدیدتر  از %s است.
 
-لطفا به آخرین نسخه آپگرید کرده و دوباره تلاش کنید.</string>
+لطفا به آخرین نسخه ارتقا داده و دوباره تلاش کنید.</string>
   <string name="camera_error">خطای دوربین</string>
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
@@ -472,6 +477,8 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">دسترسی به دوربین</string>
   <string name="permission_camera_request_body">برای اسکن کردن کد QR دسترسی به دوربین لازم است.</string>
+  <string name="permission_location_title">مجوز موقعیت محل</string>
+  <string name="permission_camera_location_title">دوربین و موقعیت</string>
   <string name="permission_camera_denied_body">شما دسترسی به دوربین را رد کرده اید، اما افزودن مخاطب نیاز به دوربین دارد.
 
 لطفا اجازه دسترسی را بدهید.</string>

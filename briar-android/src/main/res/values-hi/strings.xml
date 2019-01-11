@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">कोई संदेश नहीं।</string>
   <string name="no_private_messages">दिखाने के लिए कोई संदेश नहीं</string>
   <string name="message_hint">संदेश लिखें</string>
+  <string name="image_caption_hint">एक कैप्शन जोड़ें (वैकल्पिक)</string>
+  <string name="image_attach">छवि संलग्न करें</string>
+  <string name="image_attach_error">छवि संलग्न नहीं कर सका</string>
   <string name="set_contact_alias">संपर्क नाम बदलें</string>
   <string name="set_contact_alias_hint">संपर्क नाम</string>
   <string name="set_alias_button">परिवर्तन</string>
@@ -123,6 +126,13 @@
   <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
   <string name="dialog_message_delete_contact">क्या आप निश्चित हैं कि आप इस संपर्क और सभी संदेशों को इस संपर्क से निकाला जाना चाहते हैं?</string>
   <string name="contact_deleted_toast">संपर्क हटा दिया गया</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">आप</string>
+  <string name="save_image">चित्र को सेव करें</string>
+  <string name="dialog_title_save_image">चित्र को सेव करें?</string>
+  <string name="dialog_message_save_image">इस छवि को सहेजने से अन्य ऐप्स इसे एक्सेस कर सकेंगे। \ n\ nक्या आप सुनिश्चित हैं कि आप सहेजना चाहते हैं?</string>
+  <string name="save_image_success">छवि सहेज ली गई थी</string>
+  <string name="save_image_error">छवि नहीं बचा सका</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">संपर्क जोड़ना</string>
   <string name="face_to_face">आपको उस व्यक्ति के साथ मिलना चाहिए जिसे आप संपर्क के रूप में जोड़ना चाहते हैं। \ N \ n यह किसी को भविष्य में आपके प्रतिरूपण या पढ़ने के बाद से किसी को भी रोकेगा।</string>

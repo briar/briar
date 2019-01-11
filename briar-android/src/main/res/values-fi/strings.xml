@@ -121,6 +121,8 @@
   <string name="dialog_title_delete_contact">Vahvista yhteystiedon poistaminen</string>
   <string name="dialog_message_delete_contact">Oletko varma, että haluat poistaa tämän yhteyshenkilön ja kaikki hänen kanssa vaihdetut viestit?</string>
   <string name="contact_deleted_toast">Yhteystieto poistettu</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="save_image">Tallenna kuva</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Lisää yhteystieto</string>
   <string name="face_to_face">Sinun täytyy tavata käyttäjä, jonka haluat lisätä yhteystietoihisi.\n\nTämä estää sen, että joku voisi esittää olevansa sinä tai lukea viestejäsi tulevaisuudessa</string>

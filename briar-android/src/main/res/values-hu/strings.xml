@@ -121,6 +121,8 @@
   <string name="dialog_title_delete_contact">Kapcsolat törlésének megerősítése</string>
   <string name="dialog_message_delete_contact">Biztosan eltávolítja ezt a kapcsolatot és minden vele történt üzenetváltását?</string>
   <string name="contact_deleted_toast">Kapcsolat törölve</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Te</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kapcsolat hozzáadása</string>
   <string name="face_to_face">Találkoznia kell a személlyel akit, hozzá szeretne adni a kapcsolatokhoz.\n\nEz megelőzi azt, hogy valaki megszemélyesítse Önt, vagy elolvassa későbbi üzeneteit.</string>

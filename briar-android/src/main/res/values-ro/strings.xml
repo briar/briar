@@ -121,6 +121,9 @@
   <string name="date_no_private_messages">Fără mesaje.</string>
   <string name="no_private_messages">Nici un mesaj de arătat</string>
   <string name="message_hint">Scrieți mesajul</string>
+  <string name="image_caption_hint">Adaugă un subtitlu (opțional)</string>
+  <string name="image_attach">Atașează imagine</string>
+  <string name="image_attach_error">Nu s-a putut atașa o imagine</string>
   <string name="set_contact_alias">Schimbă nume contact</string>
   <string name="set_contact_alias_hint">Nume contact</string>
   <string name="set_alias_button">Modifică</string>
@@ -128,6 +131,13 @@
   <string name="dialog_title_delete_contact">Confirmare ștergere contact</string>
   <string name="dialog_message_delete_contact">Sigur doriți să ștergeți acest contact și toate mesajele schimbate?</string>
   <string name="contact_deleted_toast">Contact șters</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Tu</string>
+  <string name="save_image">Salvare imagine</string>
+  <string name="dialog_title_save_image">Salvare imagine?</string>
+  <string name="dialog_message_save_image">Salvând imaginea veți permite altor aplicații să o acceseze.\n\nSigur doriți să o salvați?</string>
+  <string name="save_image_success">Imaginea a fost salvată</string>
+  <string name="save_image_error">Nu s-a putut șterge imaginea</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adaugă un contact</string>
   <string name="face_to_face">Trebuie să vă întâlniți cu persoana pe care doriți să o adăugați la contacte.\n\nAcest pas împiedică alte persoane să vă fure identitatea sau să vă citească mesajele în viitor.</string>

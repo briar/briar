@@ -116,12 +116,23 @@
   <string name="date_no_private_messages">Aucun message.</string>
   <string name="no_private_messages">Aucun message à afficher</string>
   <string name="message_hint">Rédiger le message</string>
+  <string name="image_caption_hint">Ajouter une légende (facultatif)</string>
+  <string name="image_attach">Joindre une image</string>
+  <string name="image_attach_error">Impossible d’attacher une image</string>
+  <string name="set_contact_alias">Changer le nom du contact</string>
   <string name="set_contact_alias_hint">Nom du contact</string>
   <string name="set_alias_button">Modifier</string>
   <string name="delete_contact">Supprimer le contact</string>
   <string name="dialog_title_delete_contact">Confirmer la suppression du contact</string>
   <string name="dialog_message_delete_contact">Voulez-vous vraiment supprimer ce contact et tous les messages associés ?</string>
   <string name="contact_deleted_toast">Le contact a été supprimé</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Vous</string>
+  <string name="save_image">Enregistrer l’image</string>
+  <string name="dialog_title_save_image">Enregistrer l’image ?</string>
+  <string name="dialog_message_save_image">L’enregistrement de cette image permettra aux autres applis d’y accéder.\n\n Souhaitez-vous vraiment l’enregistrer ?</string>
+  <string name="save_image_success">L’image a été enregistrée</string>
+  <string name="save_image_error">Impossible d’enregistrer l’image</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajouter un contact</string>
   <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>

@@ -52,6 +52,7 @@
   <string name="download_briar_button">Загрузить Briar 1.0</string>
   <string name="startup_open_database">Расшифровка базы данных...</string>
   <string name="startup_migrate_database">Обновление базы данных...</string>
+  <string name="startup_compact_database">Сжатие базы данных...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Открыть навигационное меню</string>
   <string name="nav_drawer_close_description">Закрыть навигационное меню</string>
@@ -69,20 +70,20 @@
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Выполнен выход из Briar</string>
-  <string name="reminder_notification_text">Нажмите, чтобы войти повторно.</string>
+  <string name="reminder_notification_text">Нажмите для входа</string>
   <string name="reminder_notification_channel_title">Briar Напоминание о входе</string>
-  <string name="reminder_notification_dismiss">Отклонить</string>
+  <string name="reminder_notification_dismiss">Закрыть</string>
   <string name="ongoing_notification_title">Выполнен вход в Briar</string>
-  <string name="ongoing_notification_text">Нажмите, чтобы открыть Briar</string>
+  <string name="ongoing_notification_text">Нажмите для открытия Briar</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Новое личное сообщение.</item>
-    <item quantity="few">%d новых личных сообщений.</item>
+    <item quantity="few">%d новых личных сообщения.</item>
     <item quantity="many">%d новых личных сообщений.</item>
     <item quantity="other">%d новых личных сообщений.</item>
   </plurals>
   <plurals name="group_message_notification_text">
     <item quantity="one">Новое групповое сообщение</item>
-    <item quantity="few">%d новых групповых сообщений.</item>
+    <item quantity="few">%d новых групповых сообщения.</item>
     <item quantity="many">%d новых групповых сообщений.</item>
     <item quantity="other">%d новых групповых сообщений.</item>
   </plurals>
@@ -123,15 +124,27 @@
   <string name="sorry">Сожалеем</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Нет контактов для отображения</string>
-  <string name="no_contacts_action">Нажмите значок +, чтобы добавить контакт</string>
+  <string name="no_contacts_action">Для добавления контакта нажмите значок +</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
   <string name="no_private_messages">Нет сообщений для отображения</string>
   <string name="message_hint">Печатает сообщение</string>
+  <string name="image_caption_hint">Добавить подпись (необязательно)</string>
+  <string name="image_attach">Прикрепить изображение</string>
+  <string name="image_attach_error">Не удалось прикрепить изображение</string>
+  <string name="set_contact_alias">Изменить имя контакта</string>
+  <string name="set_contact_alias_hint">Имя контакта</string>
   <string name="set_alias_button">Изменить</string>
   <string name="delete_contact">Удалить контакт</string>
   <string name="dialog_title_delete_contact">Подтвердите удаление контакта</string>
   <string name="dialog_message_delete_contact">Вы действительно хотите удалить этот контакт и все связанные с ним сообщения?</string>
   <string name="contact_deleted_toast">Контакт удален</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Вы</string>
+  <string name="save_image">Сохранить изображение</string>
+  <string name="dialog_title_save_image">Сохранить изображение?</string>
+  <string name="dialog_message_save_image">После сохранения изображения другие приложения получат к нему доступ.\n\nВы уверены, что хотите сохранить?</string>
+  <string name="save_image_success">Изображение было сохранено</string>
+  <string name="save_image_error">Не удалось сохранить изображение</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавить контакт</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
@@ -142,6 +155,8 @@
   <string name="contact_added_toast">Контакт добавлен: %s</string>
   <string name="contact_already_exists">Контакт %s уже существует</string>
   <string name="qr_code_invalid">Неверный QR-код</string>
+  <string name="qr_code_too_old">QR-код, который вы сосканировали, сгенерирован в старой версии %s.\n\nПопросите вашего собеседника обновиться до последней версии и повторите попытку.</string>
+  <string name="qr_code_too_new">QR-код, который вы сосканировали, сгенерирован в новой версии %s.\n\nОбновите приложение до последней версии и повторите попытку.</string>
   <string name="camera_error">Ошибка камеры</string>
   <string name="connecting_to_device">Подключение к устройству\u2026</string>
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
@@ -178,7 +193,7 @@
   </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Нет групп для отображения</string>
-  <string name="groups_list_empty_action">Нажмите значок +, чтобы создать группу, или попросите ваши контакты поделиться с вами группами</string>
+  <string name="groups_list_empty_action">Для создания группы нажмите значок + или попросите ваши контакты поделиться с вами группами</string>
   <string name="groups_created_by">Создано %s</string>
   <plurals name="messages">
     <item quantity="one">%d сообщение</item>
@@ -236,7 +251,7 @@
   <string name="groups_reveal_invisible">Связь между контактами не видна группе</string>
   <!--Forums-->
   <string name="no_forums">Нет форумов для отображения</string>
-  <string name="no_forums_action">Нажмите значок +, чтобы создать форум, или попросите ваши контакты поделиться с вами форумами</string>
+  <string name="no_forums_action">Для создания форума нажмите значок + или попросите ваши контакты поделиться с вами форумами</string>
   <string name="create_forum_title">Создать форум</string>
   <string name="choose_forum_hint">Придумайте название вашего форума</string>
   <string name="create_forum_button">Создать форум</string>
@@ -344,7 +359,7 @@
   <string name="pref_theme_title">Тема</string>
   <string name="pref_theme_light">Светлая</string>
   <string name="pref_theme_dark">Темная</string>
-  <string name="pref_theme_auto">Автоматический (Дневной)</string>
+  <string name="pref_theme_auto">Авто (День)</string>
   <string name="pref_theme_system">По-умолчанию</string>
   <!--Settings Network-->
   <string name="network_settings_title">Сети</string>
@@ -357,12 +372,14 @@
   <string name="tor_network_setting_with_bridges">Использовать Tor с мостами</string>
   <string name="tor_network_setting_never">Не подключать</string>
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
-  <string name="tor_network_setting_summary">Автоматически: %1$s (в %2$s)</string>
+  <string name="tor_network_setting_summary">Автоматически: %1$s (%2$s)</string>
   <string name="tor_mobile_data_title">Использовать мобильные данные</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безопасность</string>
+  <string name="pref_lock_title">Блокировка приложения</string>
   <string name="pref_lock_summary">Использовать блокировку экрана устройства для защиты Briar при входе</string>
   <string name="pref_lock_disabled_summary">Чтобы использовать эту функцию, установите блокировку экрана вашего устройства</string>
+  <string name="pref_lock_timeout_title">Блокировка приложения по таймауту неактивности</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Автоматически блокировать Briar через %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -391,6 +408,7 @@
   <string name="panic_app_setting_none">Нет</string>
   <string name="dialog_title_connect_panic_app">Подтвердить приложение тревожной кнопки</string>
   <string name="dialog_message_connect_panic_app">Вы уверены, что хотите разрешить %1$s запуск деструктивных действий тревожной кнопки?</string>
+  <string name="panic_setting_destructive_action">Деструктивные действия</string>
   <string name="panic_setting_signout_title">Выйти</string>
   <string name="panic_setting_signout_summary">Выйти из Briar, если нажата тревожная кнопка</string>
   <string name="purge_setting_title">Удалить аккаунт</string>
@@ -407,7 +425,7 @@
   <string name="notify_group_messages_setting_title">Групповые сообщения</string>
   <string name="notify_group_messages_setting_summary">Показывать оповещения для групповых сообщений</string>
   <string name="notify_group_messages_setting_summary_26">Настройка оповещений для групповых сообщений</string>
-  <string name="notify_forum_posts_setting_title">Посты форума</string>
+  <string name="notify_forum_posts_setting_title">Записи форума</string>
   <string name="notify_forum_posts_setting_summary">Показывать оповещения для записей форума</string>
   <string name="notify_forum_posts_setting_summary_26">Настройка оповещений для записей форума</string>
   <string name="notify_blog_posts_setting_title">Посты блога</string>
@@ -452,21 +470,31 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Доступ к камере</string>
   <string name="permission_camera_request_body">Для сканирования QR-кода Briar необходим доступ к камере.</string>
+  <string name="permission_location_title">Разрешение местоположения</string>
+  <string name="permission_location_request_body">Для обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
+  <string name="permission_camera_location_title">Камера и местоположение</string>
+  <string name="permission_camera_location_request_body">Для сканирования QR-кода Briar необходим доступ к камере.\n\nДля обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
   <string name="permission_camera_denied_body">Вы отказали в доступе к камере. Для добавления контактов необходимо использовать камеру.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
   <!--App Locking-->
   <string name="lock_unlock">Разблокировать Briar</string>
-  <string name="lock_unlock_verbose">Введите PIN-код устройства, графический ключ или пароль, чтобы разблокировать Briar</string>
+  <string name="lock_unlock_verbose">Для разблокировки Briar введите PIN-код устройства, графический ключ или пароль.</string>
   <string name="lock_unlock_fingerprint_description">Для продолжения, прикоснитесь к датчику пальцем</string>
   <string name="lock_unlock_password">Использовать пароль</string>
   <string name="lock_is_locked">Briar заблокирован</string>
   <string name="lock_tap_to_unlock">Нажмите для разблокировки</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Бузова</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Джигурда</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Басков</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Привет, Джигурда!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Здорово, Бузова! Спасибки, что рассказала нам о Briar!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Рада помочь, надеюсь, он вам понравится 😀</string>
 </resources>

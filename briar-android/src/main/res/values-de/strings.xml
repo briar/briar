@@ -48,6 +48,7 @@
   <string name="download_briar_button">Lade Briar 1.0 herunter</string>
   <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
   <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
+  <string name="startup_compact_database">Datenbank komprimieren...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
@@ -115,12 +116,23 @@
   <string name="date_no_private_messages">Keine Nachrichten.</string>
   <string name="no_private_messages">Keine Nachrichten vorhanden</string>
   <string name="message_hint">Nachricht eingeben</string>
+  <string name="image_caption_hint">Überschrift hinzufügen (optional)</string>
+  <string name="image_attach">Bild anhängen</string>
+  <string name="image_attach_error">Konnte kein Bild anhängen</string>
+  <string name="set_contact_alias">Kontaktnamen ändern</string>
   <string name="set_contact_alias_hint">Name des Kontakts</string>
   <string name="set_alias_button">Ändern</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>
   <string name="contact_deleted_toast">Kontakt gelöscht</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Sie</string>
+  <string name="save_image">Bild speichern</string>
+  <string name="dialog_title_save_image">Bild speichern?</string>
+  <string name="dialog_message_save_image">Gespeicherte Bilder können von vielen anderen Apps eingesehen werden.\n\nBist Du sicher, dass Du das Bild speichern möchtest?</string>
+  <string name="save_image_success">Bild wurde gespeichert.</string>
+  <string name="save_image_error">Konnte Bild nicht speichern.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt hinzufügen</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
@@ -131,6 +143,8 @@
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
+  <string name="qr_code_too_old">Der QR-Code, den Du eingescannt hast, kommt von einer älteren Version von %s.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und probiere es erneut.</string>
+  <string name="qr_code_too_new">Der QR-Code, den Du gescannt hast, kommt von einer neueren Version von .\n\nBitte update %s auf die neueste Version und versuche es erneut.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
@@ -341,7 +355,7 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
   <string name="pref_lock_summary">Systemsperrbildschirm benutzen um Briar zu schützen, während angemeldet</string>
-  <string name="pref_lock_disabled_summary">Um dieses Feature zu benutzen aktiviere den Systemsperrbildschirm</string>
+  <string name="pref_lock_disabled_summary">Um dieses Feature zu benutzen, aktiviere den Systemsperrbildschirm</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar automatisch nach %s sperren, wenn unbenutzt.</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -370,6 +384,7 @@
   <string name="panic_app_setting_none">Keine</string>
   <string name="dialog_title_connect_panic_app">Bestätige die Panik-App</string>
   <string name="dialog_message_connect_panic_app">Bist du sicher, dass du %1$s erlauben willst, Panik-Button-Ereignisse auszulösen?</string>
+  <string name="panic_setting_destructive_action">Zerstörerische Aktionen</string>
   <string name="panic_setting_signout_title">Abmelden</string>
   <string name="panic_setting_signout_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
   <string name="purge_setting_title">Konto löschen</string>
@@ -378,8 +393,8 @@
   <string name="uninstall_setting_summary">Diese Aktion benötigt eine manuelle Bestätigung im Falle eines Panik-Ereignisses</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Benachrichtigungen</string>
-  <string name="notify_sign_in_title">Anmeldeerinerung</string>
-  <string name="notify_sign_in_summary">Zeige eine Erinnerung bei Systemstart oder die App geupdated wurde</string>
+  <string name="notify_sign_in_title">Anmeldeerinnerung</string>
+  <string name="notify_sign_in_summary">Zeigt eine Erinnerung an, wenn das Telefon startet oder die App aktualisiert wurde</string>
   <string name="notify_private_messages_setting_title">Private Nachrichten</string>
   <string name="notify_private_messages_setting_summary">Benachrichtigungen für private Nachrichten anzeigen</string>
   <string name="notify_private_messages_setting_summary_26">Benachrichtigungen für private Nachrichten konfigurieren</string>
@@ -431,21 +446,31 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Berechtigung Kamera</string>
   <string name="permission_camera_request_body">Um den QR-Code zu scannen, benötigt Briar Zugriff auf die Kamera.</string>
+  <string name="permission_location_title">Berechtigung Standort</string>
+  <string name="permission_location_request_body">Um Bluetooth-Geräte zu  finden, braucht Briar Zugriff auf Deinen Standort.\n\nBriar speichert weder Deinen Standort noch gibt es ihn an andere weiter.</string>
+  <string name="permission_camera_location_title">Kamera und Standort</string>
+  <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, brauch Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf Deinen Standort.\n\nBriar speichert weder Deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
   <string name="qr_code">QR-Code</string>
   <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>
   <!--App Locking-->
   <string name="lock_unlock">Briar entsperren</string>
-  <string name="lock_unlock_verbose">Um Briar zu entsperren, gib deinen Systempin,-geste oder -password ein</string>
+  <string name="lock_unlock_verbose">Um Briar zu entsperren, gib deine System-PIN, Muster oder Passwort ein</string>
   <string name="lock_unlock_fingerprint_description">Um fortzufahren berühre den Fingerabdrucksensor mit einem registrierten Finger</string>
-  <string name="lock_unlock_password">Benutze Passwort</string>
+  <string name="lock_unlock_password">Passwort benutzen</string>
   <string name="lock_is_locked">Briar ist gesperrt</string>
   <string name="lock_tap_to_unlock">Zum Entsperren antippen</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Hi Bob!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Hi Alice! Danke, dass du mir von Briar erzählt hast!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Kein Problem, ich hoffe, es gefällt dir 😀</string>
 </resources>

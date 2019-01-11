@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">Ez dago mezurik.</string>
   <string name="no_private_messages">Ez dago erakusteko mezurik</string>
   <string name="message_hint">Idatzi mezua</string>
+  <string name="image_caption_hint">Gehitu epigrafea (aukerakoa)</string>
+  <string name="image_attach">Erantsi irudia</string>
+  <string name="image_attach_error">Ezin izan da irudia erantsi</string>
   <string name="set_contact_alias">Aldatu kontaktuaren izena</string>
   <string name="set_contact_alias_hint">Kontaktuaren izena</string>
   <string name="set_alias_button">Aldatu</string>
@@ -123,6 +126,13 @@
   <string name="dialog_title_delete_contact">Baieztatu kontaktua ezabatzea</string>
   <string name="dialog_message_delete_contact">Ziur zaude kontaktu hau eta berarekin trukatutako mezu guztiak kendu nahi dituzula?</string>
   <string name="contact_deleted_toast">Kontaktua ezabatuta</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Zu</string>
+  <string name="save_image">Gorde irudia</string>
+  <string name="dialog_title_save_image">Gorde irudia?</string>
+  <string name="dialog_message_save_image">Irudi hau gordetzeak beste aplikazioei berau atzitea ahalbietuko lieke.\n\nZiur gorde nahi duzula?</string>
+  <string name="save_image_success">Irudia gorde da</string>
+  <string name="save_image_error">Ezin izan da irudia gorde</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Gehitu kontaktu bat</string>
   <string name="face_to_face">Kontaktu gisa gehitu nahi duzun pertsonarekin aurrez aurre egon behar duzu.\n\nHonek etorkizunean inork zure itxurak egitea edo zure mezuak irakurtzea eragotziko du.</string>

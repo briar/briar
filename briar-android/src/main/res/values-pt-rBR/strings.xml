@@ -122,6 +122,8 @@
   <string name="dialog_title_delete_contact">Confirmar remoção do contato</string>
   <string name="dialog_message_delete_contact">Você tem certeza que quer remover este contato e todas mensagens trocadas com ele?</string>
   <string name="contact_deleted_toast">Contato apagado</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Você</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adicionar um contato</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoa que deseja adicionar como contato.\n\nIsso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>

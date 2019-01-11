@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">Sen mensaxes</string>
   <string name="no_private_messages">Sen mensaxes que amosar</string>
   <string name="message_hint">Esciba unha mensaxe</string>
+  <string name="image_caption_hint">Engadir un comentario (optativo)</string>
+  <string name="image_attach">Anexar imaxe</string>
+  <string name="image_attach_error">Non se anexou a imaxe</string>
   <string name="set_contact_alias">Cambiar o nome do contacto</string>
   <string name="set_contact_alias_hint">Nome do contacto</string>
   <string name="set_alias_button">Cambiar</string>
@@ -123,6 +126,13 @@
   <string name="dialog_title_delete_contact">Confirme a eliminación do contacto</string>
   <string name="dialog_message_delete_contact">Segura de querer eliminar este contacto e todas as mensaxes que intercambiaron?</string>
   <string name="contact_deleted_toast">Contacto eliminado</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Vostede</string>
+  <string name="save_image">Gardar imaxe</string>
+  <string name="dialog_title_save_image">Gardar imaxe?</string>
+  <string name="dialog_message_save_image">Ao gardar esta imaxe permitirá que outras apps teñan acceso a ela.\n\nSeguro que a quere gardar?</string>
+  <string name="save_image_success">Gardouse a imaxe</string>
+  <string name="save_image_error">Non se gardou a imaxe</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Engada un contacto</string>
   <string name="face_to_face">Debe atoparse coa persoa que quere engadir como contacto.\n\Isto evitará que calquera poida suplantala ou ler as súas mensaxes no futuro.</string>

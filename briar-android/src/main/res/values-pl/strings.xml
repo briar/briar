@@ -131,6 +131,9 @@
   <string name="dialog_title_delete_contact">Potwierdź usunięcie kontaktu</string>
   <string name="dialog_message_delete_contact">Czy na pewno chcesz usunąć ten kontakt i wszystkie wymienione z nim wiadomości?</string>
   <string name="contact_deleted_toast">Kontakt usunięty</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">You</string>
+  <string name="save_image">Zapisz obrazek</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Dodaj kontakt</string>
   <string name="face_to_face">Musisz spotkać się z osobą którą chcesz dodać jako kontakt.\n\nTo uniemożliwi komukolwiek podszyć się pod Ciebie lub czytać wysyłane wiadomości.</string>
@@ -451,6 +454,7 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Dostęp do aparatu</string>
   <string name="permission_camera_request_body">Aby zeskanować kod QR, Briar potrzebuje mieć dostęp do aparatu.</string>
+  <string name="permission_camera_location_title">Kamera i lokalizacja</string>
   <string name="permission_camera_denied_body">Odmówiłeś dostępu do kamery, lecz dodawanie kontaktów tego wymaga.\n\nProszę udzielić dostępu.</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Pokaż QR na pełnym ekranie</string>

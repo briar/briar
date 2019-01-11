@@ -141,6 +141,8 @@
   <string name="dialog_title_delete_contact">تأكيد حذف جهة الإتصال</string>
   <string name="dialog_message_delete_contact">هل أنت متأكد/ة من أنك تريد حذف جهة الإتصال هذه وكل الرسائل المتبادلة بينكما؟</string>
   <string name="contact_deleted_toast">تم حذف جهة اتصال</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">أنتَ/أنتِ</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">إضافة جهة اتصال</string>
   <string name="face_to_face">لا بد من مقابلة الشخص الذي تريد/ين إضافته كجهة اتصال.\n\nهذا سيمنع أي شخص من انتحال شخصيتك أو قراءة رسائلك في المستقبل.</string>

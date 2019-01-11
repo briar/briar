@@ -116,12 +116,23 @@
   <string name="date_no_private_messages">Geen berichten.</string>
   <string name="no_private_messages">Geen berichten om te tonen</string>
   <string name="message_hint">Schrijf een bericht</string>
+  <string name="image_caption_hint">Voeg een titel toe (optioneel)</string>
+  <string name="image_attach">Voeg een afbeelding toe</string>
+  <string name="image_attach_error">Kon afbeelding niet toevoegen</string>
+  <string name="set_contact_alias">Verander naam van contact</string>
   <string name="set_contact_alias_hint">Contactnaam</string>
   <string name="set_alias_button">Wijzigen</string>
   <string name="delete_contact">Verwijder bericht</string>
   <string name="dialog_title_delete_contact">Bevestig verwijderen contact</string>
   <string name="dialog_message_delete_contact">Weet je zeker dat je dit contact en alle berichten die met dit contact zijn uitgewisseld wil verwijderen?</string>
   <string name="contact_deleted_toast">Contact is verwijderd</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">You</string>
+  <string name="save_image">Sla afbeelding op</string>
+  <string name="dialog_title_save_image">Sla afbeelding op?</string>
+  <string name="dialog_message_save_image">Opslaan van deze afbeelding staat andere apps toe deze te gebruiken.\n\n Weet je zeker dat het wil opslaan?</string>
+  <string name="save_image_success">Afbeelding was opgeslagen</string>
+  <string name="save_image_error">Kon afbeelding niet opslaan</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Voeg contact toe</string>
   <string name="face_to_face">Je moet een persoon in levenden lijve ontmoeten om die als contact toe te voegen.\n\nDit voortkomt dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
@@ -375,6 +386,7 @@
   <string name="panic_app_setting_none">Geen</string>
   <string name="dialog_title_connect_panic_app">Bevestig paniekapp</string>
   <string name="dialog_message_connect_panic_app">Weet je zeker dat je wil toestaan dat %1$s vernietigende paniekknopacties mag veroorzaken?</string>
+  <string name="panic_setting_destructive_action">Vernietigende acties</string>
   <string name="panic_setting_signout_title">Log uit</string>
   <string name="panic_setting_signout_summary">Log uit op Briar als de paniekknop wordt ingedrukt.</string>
   <string name="purge_setting_title">Verwijder account</string>

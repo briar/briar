@@ -129,6 +129,9 @@
   <string name="date_no_private_messages">אין הודעות.</string>
   <string name="no_private_messages">אין הודעות להראות</string>
   <string name="message_hint">הקלד הודעה</string>
+  <string name="image_caption_hint">הוסף כיתוב (רשותי)</string>
+  <string name="image_attach">צרף תמונה</string>
+  <string name="image_attach_error">לא היה ניתן לצרף תמונה</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
   <string name="set_alias_button">שַׁנֵּה</string>
@@ -136,6 +139,13 @@
   <string name="dialog_title_delete_contact">אשר מחיקת איש קשר</string>
   <string name="dialog_message_delete_contact">האם אתה בטוח שאתה רוצה למחוק איש קשר זה ואת כל ההודעות שהוחלפו עם איש קשר זה?</string>
   <string name="contact_deleted_toast">איש קשר נמחק</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">אתה</string>
+  <string name="save_image">שמור תמונה</string>
+  <string name="dialog_title_save_image">לשמור תמונה?</string>
+  <string name="dialog_message_save_image">שמירת תמונה זו תאפשר ליישומים להשיג גישה אל התמונה.\n\nהאם אתה בטוח שאתה רוצה לשמור?</string>
+  <string name="save_image_success">תמונה נשמרה</string>
+  <string name="save_image_error">לא היה ניתן לשמור תמונה</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">הוסף איש קשר</string>
   <string name="face_to_face">אתם חייבים להפגש עם האדם שאותו תרצו להוסיף כאיש קשר.
