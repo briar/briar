@@ -1,14 +1,13 @@
 package org.briarproject.briar.android.logout;
 
-import android.os.Build;
+import android.app.Activity;
 import android.os.Bundle;
-
-import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.activity.BaseActivity;
 
 import java.util.logging.Logger;
 
-public class ExitActivity extends BaseActivity {
+import static android.os.Build.VERSION.SDK_INT;
+
+public class ExitActivity extends Activity {
 
 	private static final Logger LOG =
 			Logger.getLogger(ExitActivity.class.getName());
@@ -16,14 +15,9 @@ public class ExitActivity extends BaseActivity {
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
-		if (Build.VERSION.SDK_INT >= 21) finishAndRemoveTask();
+		if (SDK_INT >= 21) finishAndRemoveTask();
 		else finish();
 		LOG.info("Exiting");
 		System.exit(0);
-	}
-
-	@Override
-	public void injectActivity(ActivityComponent component) {
-
 	}
 }

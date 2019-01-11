@@ -2,7 +2,6 @@ package org.briarproject.briar.android.panic;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
@@ -20,6 +19,7 @@ import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
 
@@ -69,7 +69,7 @@ public class PanicResponderActivity extends BriarActivity {
 			}
 		}
 
-		if (Build.VERSION.SDK_INT >= 21) {
+		if (SDK_INT >= 21) {
 			finishAndRemoveTask();
 		} else {
 			finish();
