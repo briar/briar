@@ -219,18 +219,20 @@ public class TextAttachmentController extends TextSendController
 		reset();
 	}
 
-	public void showImageOnboarding(Activity activity, Runnable onOnboardingSeen) {
+	public void showImageOnboarding(Activity activity,
+			Runnable onOnboardingSeen) {
 		PromptStateChangeListener listener = (prompt, state) -> {
 			if (state == STATE_DISMISSED || state == STATE_FINISHED) {
 				onOnboardingSeen.run();
 			}
 		};
 		int color = resolveColorAttribute(activity, R.attr.colorControlNormal);
-		MaterialTapTargetPrompt p = new MaterialTapTargetPrompt.Builder(activity,
+		new MaterialTapTargetPrompt.Builder(activity,
 				R.style.OnboardingDialogTheme).setTarget(imageButton)
 				.setPrimaryText(R.string.dialog_title_image_support)
 				.setSecondaryText(R.string.dialog_message_image_support)
-				.setBackgroundColour(getColor(activity, R.color.briar_primary))
+				.setBackgroundColour(
+						getColor(activity, R.color.briar_primary))
 				.setIcon(R.drawable.ic_image)
 				.setIconDrawableColourFilter(color)
 				.setPromptStateChangeListener(listener)
