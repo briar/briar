@@ -365,9 +365,8 @@ public class ConversationActivity extends BriarActivity
 			}
 		});
 		// enable alias action if available
-		observeOnce(viewModel.getContact(), this, contact -> {
-			menu.findItem(R.id.action_set_alias).setEnabled(true);
-		});
+		observeOnce(viewModel.getContact(), this, contact ->
+				menu.findItem(R.id.action_set_alias).setEnabled(true));
 
 		return super.onCreateOptionsMenu(menu);
 	}
