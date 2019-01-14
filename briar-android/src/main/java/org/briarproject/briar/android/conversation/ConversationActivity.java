@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
 import android.annotation.SuppressLint;
-import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
@@ -11,7 +10,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -145,6 +143,9 @@ public class ConversationActivity extends BriarActivity
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
 
+	private static final int TRANSITION_DURATION_MS = 500;
+	private static final int ONBOARDING_DELAY_MS = 250;
+
 	@Inject
 	AndroidNotificationManager notificationManager;
 	@Inject
@@ -178,8 +179,6 @@ public class ConversationActivity extends BriarActivity
 	volatile GroupInvitationManager groupInvitationManager;
 
 	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
-	private final MutableLiveData<Boolean> canShowOnboarding =
-			new MutableLiveData<>();
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
 		loadMessages();
@@ -208,6 +207,7 @@ public class ConversationActivity extends BriarActivity
 			// Spurious lint warning - using END causes a crash
 			@SuppressLint("RtlHardcoded")
 			Transition slide = new Slide(RIGHT);
+			slide.setDuration(TRANSITION_DURATION_MS);
 			setSceneTransitionAnimation(slide, null, slide);
 		}
 		super.onCreate(state);
@@ -242,8 +242,8 @@ public class ConversationActivity extends BriarActivity
 			requireNonNull(deleted);
 			if (deleted) finish();
 		});
-		viewModel.getAddedPrivateMessage()
-				.observe(this, this::onAddedPrivateMessage);
+		viewModel.getAddedPrivateMessage().observe(this,
+				this::onAddedPrivateMessage);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
@@ -723,51 +723,68 @@ public class ConversationActivity extends BriarActivity
 
 	private void showImageOnboarding(@Nullable Boolean show) {
 		if (show == null || !show) return;
-		// show onboarding only after the enter transition has ended
-		// otherwise the tap target animation won't play
-		observeOnce(canShowOnboarding, this, canShow -> {
-			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
-			((TextAttachmentController) sendController)
-					.showImageOnboarding(this, () ->
-							viewModel.onImageOnboardingSeen());
-		});
+		if (SDK_INT >= 21) {
+			// show onboarding only after the enter transition has ended
+			// otherwise the tap target animation won't play
+			textInputView.postDelayed(this::showImageOnboarding,
+					TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
+		} else {
+			showImageOnboarding();
+		}
+	}
+
+	private void showImageOnboarding() {
+		// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+		((TextAttachmentController) sendController)
+				.showImageOnboarding(this, () ->
+						viewModel.onImageOnboardingSeen());
 	}
 
 	private void showIntroductionOnboarding(@Nullable Boolean show) {
 		if (show == null || !show) return;
-		// show onboarding only after the enter transition has ended
-		// otherwise the tap target animation won't play
-		observeOnce(canShowOnboarding, this, canShow -> {
-			// find view of overflow icon
-			View target = null;
-			for (int i = 0; i < toolbar.getChildCount(); i++) {
-				if (toolbar.getChildAt(i) instanceof ActionMenuView) {
-					ActionMenuView menu =
-							(ActionMenuView) toolbar.getChildAt(i);
-					target = menu.getChildAt(menu.getChildCount() - 1);
-					break;
-				}
-			}
-			if (target == null) {
-				LOG.warning("No Overflow Icon found!");
-				return;
-			}
+		if (SDK_INT >= 21) {
+			// show onboarding only after the enter transition has ended
+			// otherwise the tap target animation won't play
+			textInputView.postDelayed(this::showIntroductionOnboarding,
+					TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
+		} else {
+			showIntroductionOnboarding();
+		}
+	}
 
-			PromptStateChangeListener listener = (prompt, state) -> {
-				if (state == STATE_DISMISSED || state == STATE_FINISHED) {
-					viewModel.onIntroductionOnboardingSeen();
-				}
-			};
-			new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
-					R.style.OnboardingDialogTheme).setTarget(target)
-					.setPrimaryText(R.string.introduction_onboarding_title)
-					.setSecondaryText(R.string.introduction_onboarding_text)
-					.setIcon(R.drawable.ic_more_vert_accent)
-					.setBackgroundColour(
-							ContextCompat.getColor(this, R.color.briar_primary))
-					.setPromptStateChangeListener(listener)
-					.show();
-		});
+	private void showIntroductionOnboarding() {
+		// find view of overflow icon
+		View target = null;
+		for (int i = 0; i < toolbar.getChildCount(); i++) {
+			if (toolbar.getChildAt(i) instanceof ActionMenuView) {
+				ActionMenuView menu = (ActionMenuView) toolbar.getChildAt(i);
+				// The overflow icon should be the last child of the menu
+				target = menu.getChildAt(menu.getChildCount() - 1);
+				// If the menu hasn't been populated yet, use the menu itself
+				// as the target
+				if (target == null) target = menu;
+				break;
+			}
+		}
+		if (target == null) {
+			LOG.warning("No Overflow Icon found!");
+			return;
+		}
+
+		PromptStateChangeListener listener = (prompt, state) -> {
+			if (state == STATE_DISMISSED || state == STATE_FINISHED) {
+				viewModel.onIntroductionOnboardingSeen();
+			}
+		};
+		new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
+				R.style.OnboardingDialogTheme).setTarget(target)
+				.setPrimaryText(R.string.introduction_onboarding_title)
+				.setSecondaryText(R.string.introduction_onboarding_text)
+				.setIcon(R.drawable.ic_more_vert_accent)
+				.setBackgroundColour(
+						ContextCompat.getColor(this, R.color.briar_primary))
+				.setPromptStateChangeListener(listener)
+				.show();
 	}
 
 	@Override
@@ -917,41 +934,6 @@ public class ConversationActivity extends BriarActivity
 			return emptyList();
 		}
 		return attachments;
-	}
-
-	@Override
-	@RequiresApi(api = 21)
-	public void setSceneTransitionAnimation(
-			@Nullable Transition enterTransition,
-			@Nullable Transition exitTransition,
-			@Nullable Transition returnTransition) {
-		super.setSceneTransitionAnimation(enterTransition, exitTransition,
-				returnTransition);
-		// workaround for MaterialTapTargetPrompt bug:
-		// https://github.com/sjwall/MaterialTapTargetPrompt/issues/147
-		getWindow().getEnterTransition().addListener(
-				new Transition.TransitionListener() {
-					@Override
-					public void onTransitionStart(Transition transition) {
-					}
-
-					@Override
-					public void onTransitionEnd(Transition transition) {
-						canShowOnboarding.setValue(true);
-					}
-
-					@Override
-					public void onTransitionCancel(Transition transition) {
-					}
-
-					@Override
-					public void onTransitionPause(Transition transition) {
-					}
-
-					@Override
-					public void onTransitionResume(Transition transition) {
-					}
-				});
 	}
 
 }
