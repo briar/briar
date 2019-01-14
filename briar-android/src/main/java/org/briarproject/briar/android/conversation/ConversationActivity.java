@@ -152,21 +152,8 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	@CryptoExecutor
 	Executor cryptoExecutor;
-
-	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
-	private AttachmentController attachmentController;
-
-	private ConversationViewModel viewModel;
-	private ConversationVisitor visitor;
-	private ConversationAdapter adapter;
-	private Toolbar toolbar;
-	private CircleImageView toolbarAvatar;
-	private ImageView toolbarStatus;
-	private TextView toolbarTitle;
-	private BriarRecyclerView list;
-	private LinearLayoutManager layoutManager;
-	private TextInputView textInputView;
-	private TextSendController sendController;
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -189,19 +176,31 @@ public class ConversationActivity extends BriarActivity
 	volatile BlogSharingManager blogSharingManager;
 	@Inject
 	volatile GroupInvitationManager groupInvitationManager;
-	@Inject
-	ViewModelProvider.Factory viewModelFactory;
 
-	private volatile ContactId contactId;
-	@Nullable
-	private Parcelable layoutManagerState;
+	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
 	private final MutableLiveData<Boolean> canShowOnboarding =
 			new MutableLiveData<>();
-
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
 		loadMessages();
 	};
+
+	private AttachmentController attachmentController;
+	private ConversationViewModel viewModel;
+	private ConversationVisitor visitor;
+	private ConversationAdapter adapter;
+	private Toolbar toolbar;
+	private CircleImageView toolbarAvatar;
+	private ImageView toolbarStatus;
+	private TextView toolbarTitle;
+	private BriarRecyclerView list;
+	private LinearLayoutManager layoutManager;
+	private TextInputView textInputView;
+	private TextSendController sendController;
+	@Nullable
+	private Parcelable layoutManagerState;
+
+	private volatile ContactId contactId;
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
