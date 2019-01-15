@@ -51,6 +51,7 @@ import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.conversation.AttachmentDimensions.getAttachmentDimensions;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
@@ -114,7 +115,7 @@ public class ConversationViewModel extends AndroidViewModel {
 		this.settingsManager = settingsManager;
 		this.privateMessageFactory = privateMessageFactory;
 		this.attachmentController = new AttachmentController(messagingManager,
-				application.getResources());
+				getAttachmentDimensions(application.getResources()));
 		contactDeleted.setValue(false);
 	}
 
