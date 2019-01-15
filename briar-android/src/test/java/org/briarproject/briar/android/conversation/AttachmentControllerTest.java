@@ -2,6 +2,7 @@ package org.briarproject.briar.android.conversation;
 
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.briar.android.conversation.ImageHelper.DecodeResult;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -10,6 +11,7 @@ import org.junit.Test;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -29,12 +31,12 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 
 	private final MessagingManager messagingManager =
 			context.mock(MessagingManager.class);
-	private final ImageManager imageManager = context.mock(ImageManager.class);
+	private final ImageHelper imageHelper = context.mock(ImageHelper.class);
 	private final AttachmentController controller =
 			new AttachmentController(
 					messagingManager,
 					dimensions,
-					imageManager
+					imageHelper
 			);
 
 	@Test
@@ -43,7 +45,7 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 		AttachmentHeader h = getAttachmentHeader(mimeType);
 
 		context.checking(new Expectations() {{
-			oneOf(imageManager).getExtensionFromMimeType(mimeType);
+			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue("jpg"));
 		}});
 
@@ -60,7 +62,7 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 		AttachmentHeader h = getAttachmentHeader(mimeType);
 
 		context.checking(new Expectations() {{
-			oneOf(imageManager).getExtensionFromMimeType(mimeType);
+			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue(null));
 		}});
 
@@ -74,13 +76,10 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 		String mimeType = "image/jpeg";
 		AttachmentHeader h = getAttachmentHeader(mimeType);
 
-		context.checking(new BitmapDecoderExpectations() {{
-			withDecodeStream(imageManager, options -> {
-				options.outWidth = 160;
-				options.outHeight = 240;
-				options.outMimeType = mimeType;
-			});
-			oneOf(imageManager).getExtensionFromMimeType(mimeType);
+		context.checking(new Expectations() {{
+			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
+			will(returnValue(new DecodeResult(160, 240, mimeType)));
+			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue("jpg"));
 		}});
 
@@ -99,13 +98,10 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 	public void testImageHealsWrongMimeType() {
 		AttachmentHeader h = getAttachmentHeader("image/png");
 
-		context.checking(new BitmapDecoderExpectations() {{
-			withDecodeStream(imageManager, options -> {
-				options.outWidth = 160;
-				options.outHeight = 240;
-				options.outMimeType = "image/jpeg";
-			});
-			oneOf(imageManager).getExtensionFromMimeType("image/jpeg");
+		context.checking(new Expectations() {{
+			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
+			will(returnValue(new DecodeResult(160, 240, "image/jpeg")));
+			oneOf(imageHelper).getExtensionFromMimeType("image/jpeg");
 			will(returnValue("jpg"));
 		}});
 
@@ -120,13 +116,10 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 		String mimeType = "image/jpeg";
 		AttachmentHeader h = getAttachmentHeader(mimeType);
 
-		context.checking(new BitmapDecoderExpectations() {{
-			withDecodeStream(imageManager, options -> {
-				options.outWidth = 1728;
-				options.outHeight = 2592;
-				options.outMimeType = mimeType;
-			});
-			oneOf(imageManager).getExtensionFromMimeType(mimeType);
+		context.checking(new Expectations() {{
+			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
+			will(returnValue(new DecodeResult(1728, 2592, mimeType)));
+			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue("jpg"));
 		}});
 
@@ -142,12 +135,10 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 	public void testMalformedError() {
 		AttachmentHeader h = getAttachmentHeader("image/jpeg");
 
-		context.checking(new BitmapDecoderExpectations() {{
-			withDecodeStream(imageManager, options -> {
-				options.outWidth = 0;
-				options.outHeight = 0;
-			});
-			oneOf(imageManager).getExtensionFromMimeType("");
+		context.checking(new Expectations() {{
+			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
+			will(returnValue(new DecodeResult(0, 0, "")));
+			oneOf(imageHelper).getExtensionFromMimeType("");
 			will(returnValue(null));
 		}});
 
