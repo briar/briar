@@ -16,11 +16,14 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.briar.android.util.UiUtils;
@@ -34,6 +37,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -47,6 +51,7 @@ import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
 @NotNullByDefault
@@ -54,13 +59,20 @@ public class ConversationViewModel extends AndroidViewModel {
 
 	private static Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
+	private static final String SHOW_ONBOARDING_IMAGE =
+			"showOnboardingImage";
+	private static final String SHOW_ONBOARDING_INTRODUCTION =
+			"showOnboardingIntroduction";
 
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 	@CryptoExecutor
 	private final Executor cryptoExecutor;
+	// TODO replace with TransactionManager once it exists
+	private final DatabaseComponent db;
 	private final MessagingManager messagingManager;
 	private final ContactManager contactManager;
+	private final SettingsManager settingsManager;
 	private final PrivateMessageFactory privateMessageFactory;
 	private final AttachmentController attachmentController;
 
@@ -71,6 +83,14 @@ public class ConversationViewModel extends AndroidViewModel {
 			Transformations.map(contact, c -> c.getAuthor().getId());
 	private final LiveData<String> contactName =
 			Transformations.map(contact, UiUtils::getContactDisplayName);
+	private final MutableLiveData<Boolean> imageSupport =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showImageOnboarding =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showIntroductionOnboarding =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showIntroductionAction =
+			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> contactDeleted =
 			new MutableLiveData<>();
 	private final MutableLiveData<GroupId> messagingGroupId =
@@ -81,38 +101,46 @@ public class ConversationViewModel extends AndroidViewModel {
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor cryptoExecutor,
-			MessagingManager messagingManager,
-			ContactManager contactManager,
+			@CryptoExecutor Executor cryptoExecutor, DatabaseComponent db,
+			MessagingManager messagingManager, ContactManager contactManager,
+			SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
+		this.db = db;
 		this.messagingManager = messagingManager;
 		this.contactManager = contactManager;
+		this.settingsManager = settingsManager;
 		this.privateMessageFactory = privateMessageFactory;
 		this.attachmentController = new AttachmentController(messagingManager,
 				application.getResources());
 		contactDeleted.setValue(false);
 	}
 
+	/**
+	 * Setting the {@link ContactId} automatically triggers loading of other
+	 * data.
+	 */
 	void setContactId(ContactId contactId) {
 		if (this.contactId == null) {
 			this.contactId = contactId;
-			loadContact();
+			loadContact(contactId);
 		} else if (!contactId.equals(this.contactId)) {
 			throw new IllegalStateException();
 		}
 	}
 
-	private void loadContact() {
+	private void loadContact(ContactId contactId) {
 		dbExecutor.execute(() -> {
 			try {
 				long start = now();
-				Contact c =
-						contactManager.getContact(requireNonNull(contactId));
+				Contact c = contactManager.getContact(contactId);
 				contact.postValue(c);
 				logDuration(LOG, "Loading contact", start);
+				start = now();
+				checkFeaturesAndOnboarding(contactId);
+				logDuration(LOG, "Checking for image support", start);
 			} catch (NoSuchContactException e) {
 				contactDeleted.postValue(true);
 			} catch (DbException e) {
@@ -126,7 +154,7 @@ public class ConversationViewModel extends AndroidViewModel {
 			try {
 				contactManager.setContactAlias(requireNonNull(contactId),
 						alias.isEmpty() ? null : alias);
-				loadContact();
+				loadContact(contactId);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -148,6 +176,59 @@ public class ConversationViewModel extends AndroidViewModel {
 			try {
 				messagingGroupId.postValue(
 						messagingManager.getConversationId(contactId));
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	@DatabaseExecutor
+	private void checkFeaturesAndOnboarding(ContactId c) throws DbException {
+		// check if images are supported
+		boolean imagesSupported = db.transactionWithResult(true, txn ->
+				messagingManager.contactSupportsImages(txn, c));
+		imageSupport.postValue(imagesSupported);
+
+		// check if introductions are supported
+		Collection<Contact> contacts = contactManager.getActiveContacts();
+		boolean introductionSupported = contacts.size() > 1;
+		showIntroductionAction.postValue(introductionSupported);
+
+		Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
+		if (imagesSupported &&
+				settings.getBoolean(SHOW_ONBOARDING_IMAGE, true)) {
+			// check if we should show onboarding, only if images are supported
+			showImageOnboarding.postValue(true);
+			// allow observer to stop listening for changes
+			showIntroductionOnboarding.postValue(false);
+		} else {
+			// allow observer to stop listening for changes
+			showImageOnboarding.postValue(false);
+			// we only show one onboarding dialog at a time
+			if (introductionSupported &&
+					settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION, true)) {
+				showIntroductionOnboarding.postValue(true);
+			} else {
+				// allow observer to stop listening for changes
+				showIntroductionOnboarding.postValue(false);
+			}
+		}
+	}
+
+	void onImageOnboardingSeen() {
+		onOnboardingSeen(SHOW_ONBOARDING_IMAGE);
+	}
+
+	void onIntroductionOnboardingSeen() {
+		onOnboardingSeen(SHOW_ONBOARDING_INTRODUCTION);
+	}
+
+	private void onOnboardingSeen(String key) {
+		dbExecutor.execute(() -> {
+			try {
+				Settings settings = new Settings();
+				settings.putBoolean(key, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -260,6 +341,22 @@ public class ConversationViewModel extends AndroidViewModel {
 
 	LiveData<String> getContactDisplayName() {
 		return contactName;
+	}
+
+	LiveData<Boolean> hasImageSupport() {
+		return imageSupport;
+	}
+
+	LiveData<Boolean> showImageOnboarding() {
+		return showImageOnboarding;
+	}
+
+	LiveData<Boolean> showIntroductionOnboarding() {
+		return showIntroductionOnboarding;
+	}
+
+	LiveData<Boolean> showIntroductionAction() {
+		return showIntroductionAction;
 	}
 
 	LiveData<Boolean> isContactDeleted() {

@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.view;
 
+import android.app.Activity;
 import android.content.ClipData;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
@@ -8,6 +10,7 @@ import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.view.AbsSavedState;
+import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.AppCompatImageButton;
 import android.widget.Toast;
 
@@ -18,11 +21,15 @@ import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
+
 import static android.content.Intent.ACTION_GET_CONTENT;
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.content.Intent.CATEGORY_OPENABLE;
 import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
 import static android.os.Build.VERSION.SDK_INT;
+import static android.support.v4.content.ContextCompat.getColor;
 import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
@@ -30,6 +37,9 @@ import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
+import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
+import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
 @UiThread
 @NotNullByDefault
@@ -42,6 +52,7 @@ public class TextAttachmentController extends TextSendController
 	private final AttachImageListener imageListener;
 
 	private CharSequence textHint;
+	private boolean hasImageSupport = false;
 	private List<Uri> imageUris = emptyList();
 
 	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
@@ -78,7 +89,28 @@ public class TextAttachmentController extends TextSendController
 		return !imageUris.isEmpty();
 	}
 
+	/***
+	 * By default, image support is disabled.
+	 * Once you know that it is supported in the current context,
+	 * call this method to enable it.
+	 */
+	public void setImagesSupported() {
+		hasImageSupport = true;
+		imageButton.setImageResource(R.drawable.ic_image);
+	}
+
 	private void onImageButtonClicked() {
+		if (!hasImageSupport) {
+			Context ctx = imageButton.getContext();
+			Builder builder = new Builder(ctx, R.style.OnboardingDialogTheme);
+			builder.setTitle(
+					ctx.getString(R.string.dialog_title_no_image_support));
+			builder.setMessage(
+					ctx.getString(R.string.dialog_message_no_image_support));
+			builder.setPositiveButton(R.string.got_it, null);
+			builder.show();
+			return;
+		}
 		Intent intent = new Intent(SDK_INT >= 19 ?
 				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
 		intent.addCategory(CATEGORY_OPENABLE);
@@ -185,6 +217,25 @@ public class TextAttachmentController extends TextSendController
 	public void onCancel() {
 		textInput.clearText();
 		reset();
+	}
+
+	public void showImageOnboarding(Activity activity,
+			Runnable onOnboardingSeen) {
+		PromptStateChangeListener listener = (prompt, state) -> {
+			if (state == STATE_DISMISSED || state == STATE_FINISHED) {
+				onOnboardingSeen.run();
+			}
+		};
+		int color = resolveColorAttribute(activity, R.attr.colorControlNormal);
+		new MaterialTapTargetPrompt.Builder(activity,
+				R.style.OnboardingDialogTheme).setTarget(imageButton)
+				.setPrimaryText(R.string.dialog_title_image_support)
+				.setSecondaryText(R.string.dialog_message_image_support)
+				.setBackgroundColour(getColor(activity, R.color.briar_primary))
+				.setIcon(R.drawable.ic_image)
+				.setIconDrawableColourFilter(color)
+				.setPromptStateChangeListener(listener)
+				.show();
 	}
 
 	private static class SavedState extends AbsSavedState {

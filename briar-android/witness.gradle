@@ -134,8 +134,8 @@ dependencyVerification {
         'junit:junit:4.12:junit-4.12.jar:59721f0805e223d84b90677887d9ff567dc534d7c502ca903c0c2b17f05c116a',
         'nekohtml:nekohtml:1.9.6.2:nekohtml-1.9.6.2.jar:fdff6cfa9ed9cc911c842a5d2395f209ec621ef1239d46810e9e495809d3ae09',
         'nekohtml:xercesMinimal:1.9.6.2:xercesMinimal-1.9.6.2.jar:95b8b357d19f63797dd7d67622fd3f18374d64acbc6584faba1c7759a31e8438',
-        'net.bytebuddy:byte-buddy-agent:1.7.9:byte-buddy-agent-1.7.9.jar:ac1a993befb528c3271a83a9ad9c42d363d399e9deb26e0470e3c4962066c550',
-        'net.bytebuddy:byte-buddy:1.7.9:byte-buddy-1.7.9.jar:2ea2ada12b790d16ac7f6e6c065cb55cbcdb6ba519355f5958851159cad3b16a',
+        'net.bytebuddy:byte-buddy-agent:1.8.10:byte-buddy-agent-1.8.10.jar:f7403b1126137eb68a5cc3beaf543d965bafca87fad7d7d30082617748c19e05',
+        'net.bytebuddy:byte-buddy:1.8.10:byte-buddy-1.8.10.jar:8c29e0118256acf9fbadcd75143df2d8bd9bfb07623ccf95a14646be5a92380c',
         'net.sf.jopt-simple:jopt-simple:4.9:jopt-simple-4.9.jar:26c5856e954b5f864db76f13b86919b59c6eecf9fd930b96baa8884626baf2f5',
         'net.sf.kxml:kxml2:2.3.0:kxml2-2.3.0.jar:f264dd9f79a1fde10ce5ecc53221eff24be4c9331c830b7d52f2f08a7b633de2',
         'org.apache.ant:ant-launcher:1.9.4:ant-launcher-1.9.4.jar:7bccea20b41801ca17bcbc909a78c835d0f443f12d639c77bd6ae3d05861608d',
@@ -186,7 +186,7 @@ dependencyVerification {
         'org.jmock:jmock-testjar:2.8.2:jmock-testjar-2.8.2.jar:8900860f72c474e027cf97fe78dcbf154a1aa7fc62b6845c5fb4e4f3c7bc8760',
         'org.jmock:jmock:2.8.2:jmock-2.8.2.jar:6c73cb4a2e6dbfb61fd99c9a768539c170ab6568e57846bd60dbf19596b65b16',
         'org.jvnet.staxex:stax-ex:1.7.7:stax-ex-1.7.7.jar:a31ff7d77163c0deb09e7fee59ad35ae44c2cee2cc8552a116ccd1583d813fb4',
-        'org.mockito:mockito-core:2.13.0:mockito-core-2.13.0.jar:92a746b37cf8c5730a5e7b35fd7d8cd72700089435ff92ee03ed8384d4eb3377',
+        'org.mockito:mockito-core:2.19.0:mockito-core-2.19.0.jar:d6ac2e04164c5d5c89e73838dc1c8b3856ca6582d3f2daf91816fd9d7ba3c9a9',
         'org.objenesis:objenesis:2.6:objenesis-2.6.jar:5e168368fbc250af3c79aa5fef0c3467a2d64e5a7bd74005f25d8399aeb0708d',
         'org.ow2.asm:asm-analysis:6.0:asm-analysis-6.0.jar:2f1a6387219c3a6cc4856481f221b03bd9f2408a326d416af09af5d6f608c1f4',
         'org.ow2.asm:asm-commons:6.0:asm-commons-6.0.jar:f1bce5c648a96a017bdcd01fe5d59af9845297fd7b79b81c015a6fbbd9719abf',
@@ -203,6 +203,6 @@ dependencyVerification {
         'org.robolectric:shadows-support-v4:3.3.2:shadows-support-v4-3.3.2.jar:6f689264738266e70fe08db7c04b7b5a75155994f4e3f7f311960d90486bf005',
         'org.robolectric:utils:4.0.1:utils-4.0.1.jar:ee923ed66847271009ebeb246286b7206b160c2b6d1347fe820c00be06c280cb',
         'tools.fastlane:screengrab:1.2.0:screengrab-1.2.0.aar:af4ee23bb06f94404d3ab18e2ea69db8265539fc8da29f9ee45b7e472684ba83',
-        'uk.co.samuelwall:material-tap-target-prompt:2.12.4:material-tap-target-prompt-2.12.4.aar:6c0990ab3aa22de9f7d09dcb0a944e671128c31634ac8429012faa5c508202fb',
+        'uk.co.samuelwall:material-tap-target-prompt:2.14.0:material-tap-target-prompt-2.14.0.aar:12ab447ba97019adbecb20e048921ca30ed7a9f72a37b83f39a4333bd759b518',
     ]
 }

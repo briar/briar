@@ -46,7 +46,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
-import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -126,7 +125,6 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHME
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
-import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
@@ -144,8 +142,9 @@ public class ConversationActivity extends BriarActivity
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationActivity.class.getName());
-	private static final String SHOW_ONBOARDING_INTRODUCTION =
-			"showOnboardingIntroduction";
+
+	private static final int TRANSITION_DURATION_MS = 500;
+	private static final int ONBOARDING_DELAY_MS = 250;
 
 	@Inject
 	AndroidNotificationManager notificationManager;
@@ -154,21 +153,8 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	@CryptoExecutor
 	Executor cryptoExecutor;
-
-	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
-	private AttachmentController attachmentController;
-
-	private ConversationViewModel viewModel;
-	private ConversationVisitor visitor;
-	private ConversationAdapter adapter;
-	private Toolbar toolbar;
-	private CircleImageView toolbarAvatar;
-	private ImageView toolbarStatus;
-	private TextView toolbarTitle;
-	private BriarRecyclerView list;
-	private LinearLayoutManager layoutManager;
-	private TextInputView textInputView;
-	private TextSendController sendController;
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -191,17 +177,29 @@ public class ConversationActivity extends BriarActivity
 	volatile BlogSharingManager blogSharingManager;
 	@Inject
 	volatile GroupInvitationManager groupInvitationManager;
-	@Inject
-	ViewModelProvider.Factory viewModelFactory;
 
-	private volatile ContactId contactId;
-	@Nullable
-	private Parcelable layoutManagerState;
-
+	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
 		loadMessages();
 	};
+
+	private AttachmentController attachmentController;
+	private ConversationViewModel viewModel;
+	private ConversationVisitor visitor;
+	private ConversationAdapter adapter;
+	private Toolbar toolbar;
+	private CircleImageView toolbarAvatar;
+	private ImageView toolbarStatus;
+	private TextView toolbarTitle;
+	private BriarRecyclerView list;
+	private LinearLayoutManager layoutManager;
+	private TextInputView textInputView;
+	private TextSendController sendController;
+	@Nullable
+	private Parcelable layoutManagerState;
+
+	private volatile ContactId contactId;
 
 	@Override
 	public void onCreate(@Nullable Bundle state) {
@@ -209,6 +207,7 @@ public class ConversationActivity extends BriarActivity
 			// Spurious lint warning - using END causes a crash
 			@SuppressLint("RtlHardcoded")
 			Transition slide = new Slide(RIGHT);
+			slide.setDuration(TRANSITION_DURATION_MS);
 			setSceneTransitionAnimation(slide, null, slide);
 		}
 		super.onCreate(state);
@@ -243,8 +242,8 @@ public class ConversationActivity extends BriarActivity
 			requireNonNull(deleted);
 			if (deleted) finish();
 		});
-		viewModel.getAddedPrivateMessage()
-				.observe(this, this::onAddedPrivateMessage);
+		viewModel.getAddedPrivateMessage().observe(this,
+				this::onAddedPrivateMessage);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
 		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
@@ -263,6 +262,13 @@ public class ConversationActivity extends BriarActivity
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
 					imagePreview, this, this);
+			observeOnce(viewModel.hasImageSupport(), this, hasSupport -> {
+				if (hasSupport != null && hasSupport) {
+					// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+					((TextAttachmentController) sendController)
+							.setImagesSupported();
+				}
+			});
 		} else {
 			sendController = new TextSendController(textInputView, this, false);
 		}
@@ -283,7 +289,8 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_INTRODUCTION && result == RESULT_OK) {
@@ -348,10 +355,18 @@ public class ConversationActivity extends BriarActivity
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.conversation_actions, menu);
 
-		enableIntroductionActionIfAvailable(
-				menu.findItem(R.id.action_introduction));
-		enableAliasActionIfAvailable(
-				menu.findItem(R.id.action_set_alias));
+		// enable introduction action if available
+		observeOnce(viewModel.showIntroductionAction(), this, enable -> {
+			if (enable != null && enable) {
+				menu.findItem(R.id.action_introduction).setEnabled(true);
+				// show introduction onboarding, if needed
+				observeOnce(viewModel.showIntroductionOnboarding(), this,
+						this::showIntroductionOnboarding);
+			}
+		});
+		// enable alias action if available
+		observeOnce(viewModel.getContact(), this, contact ->
+				menu.findItem(R.id.action_set_alias).setEnabled(true));
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -461,6 +476,10 @@ public class ConversationActivity extends BriarActivity
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
 				textInputView.setEnabled(true);
+				// start observing onboarding after enabling (only once, because
+				// we only update this when an onboarding should be shown)
+				observeOnce(viewModel.showImageOnboarding(), this,
+						this::showImageOnboarding);
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
 				list.showData();
@@ -702,74 +721,70 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void enableIntroductionActionIfAvailable(MenuItem item) {
-		runOnDbThread(() -> {
-			try {
-				if (contactManager.getActiveContacts().size() > 1) {
-					enableIntroductionAction(item);
-					Settings settings =
-							settingsManager.getSettings(SETTINGS_NAMESPACE);
-					if (settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION,
-							true)) {
-						showIntroductionOnboarding();
-					}
-				}
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+	private void showImageOnboarding(@Nullable Boolean show) {
+		if (show == null || !show) return;
+		if (SDK_INT >= 21) {
+			// show onboarding only after the enter transition has ended
+			// otherwise the tap target animation won't play
+			textInputView.postDelayed(this::showImageOnboarding,
+					TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
+		} else {
+			showImageOnboarding();
+		}
 	}
 
-	private void enableAliasActionIfAvailable(MenuItem item) {
-		observeOnce(viewModel.getContact(), this, c -> item.setEnabled(true));
+	private void showImageOnboarding() {
+		// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+		((TextAttachmentController) sendController)
+				.showImageOnboarding(this, () ->
+						viewModel.onImageOnboardingSeen());
 	}
 
-	private void enableIntroductionAction(MenuItem item) {
-		runOnUiThreadUnlessDestroyed(() -> item.setEnabled(true));
+	private void showIntroductionOnboarding(@Nullable Boolean show) {
+		if (show == null || !show) return;
+		if (SDK_INT >= 21) {
+			// show onboarding only after the enter transition has ended
+			// otherwise the tap target animation won't play
+			textInputView.postDelayed(this::showIntroductionOnboarding,
+					TRANSITION_DURATION_MS + ONBOARDING_DELAY_MS);
+		} else {
+			showIntroductionOnboarding();
+		}
 	}
 
 	private void showIntroductionOnboarding() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			// find view of overflow icon
-			View target = null;
-			for (int i = 0; i < toolbar.getChildCount(); i++) {
-				if (toolbar.getChildAt(i) instanceof ActionMenuView) {
-					ActionMenuView menu =
-							(ActionMenuView) toolbar.getChildAt(i);
-					target = menu.getChildAt(menu.getChildCount() - 1);
-					break;
-				}
+		// find view of overflow icon
+		View target = null;
+		for (int i = 0; i < toolbar.getChildCount(); i++) {
+			if (toolbar.getChildAt(i) instanceof ActionMenuView) {
+				ActionMenuView menu = (ActionMenuView) toolbar.getChildAt(i);
+				// The overflow icon should be the last child of the menu
+				target = menu.getChildAt(menu.getChildCount() - 1);
+				// If the menu hasn't been populated yet, use the menu itself
+				// as the target
+				if (target == null) target = menu;
+				break;
 			}
-			if (target == null) {
-				LOG.warning("No Overflow Icon found!");
-				return;
-			}
+		}
+		if (target == null) {
+			LOG.warning("No Overflow Icon found!");
+			return;
+		}
 
-			PromptStateChangeListener listener = (prompt, state) -> {
-				if (state == STATE_DISMISSED || state == STATE_FINISHED) {
-					introductionOnboardingSeen();
-				}
-			};
-			new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
-					R.style.OnboardingDialogTheme).setTarget(target)
-					.setPrimaryText(R.string.introduction_onboarding_title)
-					.setSecondaryText(R.string.introduction_onboarding_text)
-					.setIcon(R.drawable.ic_more_vert_accent)
-					.setPromptStateChangeListener(listener)
-					.show();
-		});
-	}
-
-	private void introductionOnboardingSeen() {
-		runOnDbThread(() -> {
-			try {
-				Settings settings = new Settings();
-				settings.putBoolean(SHOW_ONBOARDING_INTRODUCTION, false);
-				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
+		PromptStateChangeListener listener = (prompt, state) -> {
+			if (state == STATE_DISMISSED || state == STATE_FINISHED) {
+				viewModel.onIntroductionOnboardingSeen();
 			}
-		});
+		};
+		new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
+				R.style.OnboardingDialogTheme).setTarget(target)
+				.setPrimaryText(R.string.introduction_onboarding_title)
+				.setSecondaryText(R.string.introduction_onboarding_text)
+				.setIcon(R.drawable.ic_more_vert_accent)
+				.setBackgroundColour(
+						ContextCompat.getColor(this, R.color.briar_primary))
+				.setPromptStateChangeListener(listener)
+				.show();
 	}
 
 	@Override
