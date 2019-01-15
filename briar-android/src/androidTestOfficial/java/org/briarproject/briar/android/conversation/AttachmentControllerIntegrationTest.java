@@ -47,7 +47,6 @@ public class AttachmentControllerIntegrationTest {
 	);
 	private final MessageId msgId = new MessageId(getRandomId());
 
-	@SuppressWarnings("ConstantConditions") // not needed for now
 	private final AttachmentController controller =
 			new AttachmentController(null, dimensions);
 
@@ -101,7 +100,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testUberGif() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(uberGif);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -116,7 +115,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testLottaPixels() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(lottaPixel);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -131,7 +130,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testImageIoCrash() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(imageIoCrash);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -146,7 +145,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testGimpCrash() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(gimpCrash);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -161,7 +160,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testOptiPngAfl() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(optiPngAfl);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -176,7 +175,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testLibrawError() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(librawError);
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -230,7 +229,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testHighError() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getAssetInputStream("error_high.jpg");
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
@@ -245,7 +244,7 @@ public class AttachmentControllerIntegrationTest {
 
 	@Test
 	public void testWideError() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpg");
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getAssetInputStream("error_wide.jpg");
 		Attachment a = new Attachment(is);
 		AttachmentItem item = controller.getAttachmentItem(h, a, true);
