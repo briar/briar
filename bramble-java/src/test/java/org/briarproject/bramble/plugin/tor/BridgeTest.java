@@ -44,7 +44,7 @@ public class BridgeTest extends BrambleTestCase {
 	public static Iterable<String> data() {
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
-		return component.getCircumventionProvider().getBridges();
+		return component.getCircumventionProvider().getBridges(false);
 	}
 
 	private final static long TIMEOUT = SECONDS.toMillis(30);
@@ -104,7 +104,12 @@ public class BridgeTest extends BrambleTestCase {
 			}
 
 			@Override
-			public List<String> getBridges() {
+			public boolean needsMeek(String countryCode) {
+				return false;
+			}
+
+			@Override
+			public List<String> getBridges(boolean useMeek) {
 				return singletonList(bridge);
 			}
 		};
