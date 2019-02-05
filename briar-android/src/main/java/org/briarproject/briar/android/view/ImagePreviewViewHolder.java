@@ -54,8 +54,8 @@ class ImagePreviewViewHolder extends ViewHolder {
 					public boolean onLoadFailed(@Nullable GlideException e,
 							Object model, Target<Drawable> target,
 							boolean isFirstResource) {
-						listener.onUriError(uri);
 						progressBar.setVisibility(INVISIBLE);
+						listener.onUriError(uri);
 						return false;
 					}
 
@@ -64,6 +64,7 @@ class ImagePreviewViewHolder extends ViewHolder {
 							Object model, Target<Drawable> target,
 							DataSource dataSource, boolean isFirstResource) {
 						progressBar.setVisibility(INVISIBLE);
+						listener.onPreviewLoaded();
 						return false;
 					}
 				})

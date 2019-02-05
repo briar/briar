@@ -79,6 +79,13 @@ public class ImagePreview extends ConstraintLayout {
 
 	interface ImagePreviewListener {
 
+		void onPreviewLoaded();
+
+		/**
+		 * Called when Glide can't load a preview image.
+		 *
+		 * Warning: Glide may call this multiple times.
+		 */
 		void onUriError(Uri uri);
 
 		void onCancel();

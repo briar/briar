@@ -54,6 +54,7 @@ public class TextAttachmentController extends TextSendController
 	private CharSequence textHint;
 	private boolean hasImageSupport = false;
 	private List<Uri> imageUris = emptyList();
+	private int previewsLoaded = 0;
 
 	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
 			SendListener listener, AttachImageListener imageListener) {
@@ -185,6 +186,8 @@ public class TextAttachmentController extends TextSendController
 		imageUris = emptyList();
 		// show the image button again, so images can get attached
 		showImageButton(true);
+		// no preview has been loaded
+		previewsLoaded = 0;
 	}
 
 	@Override
@@ -205,18 +208,37 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	@Override
+	public void onPreviewLoaded() {
+		previewsLoaded++;
+		checkAllPreviewsLoaded();
+	}
+
+	@Override
 	public void onUriError(Uri uri) {
-		imageUris.remove(uri);
+		boolean removed = imageUris.remove(uri);
+		if (!removed) {
+			// we have removed this Uri already, do not remove it again
+			return;
+		}
 		imagePreview.removeUri(uri);
 		if (imageUris.isEmpty()) onCancel();
 		Toast.makeText(textInput.getContext(), R.string.image_attach_error,
 				LENGTH_LONG).show();
+		checkAllPreviewsLoaded();
 	}
 
 	@Override
 	public void onCancel() {
 		textInput.clearText();
+		sendButton.setEnabled(true);
 		reset();
+	}
+
+	private void checkAllPreviewsLoaded() {
+		if (previewsLoaded == imageUris.size()) {
+			// all previews were loaded
+			// TODO allow sending
+		}
 	}
 
 	public void showImageOnboarding(Activity activity,
