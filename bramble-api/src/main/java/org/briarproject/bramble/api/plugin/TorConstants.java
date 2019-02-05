@@ -16,6 +16,7 @@ public interface TorConstants {
 	String PREF_TOR_NETWORK = "network2";
 	String PREF_TOR_PORT = "port";
 	String PREF_TOR_MOBILE = "useMobileData";
+	String PREF_TOR_ONLY_WHEN_CHARGING = "onlyWhenCharging";
 
 	int PREF_TOR_NETWORK_AUTOMATIC = 0;
 	int PREF_TOR_NETWORK_WITHOUT_BRIDGES = 1;
