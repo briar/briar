@@ -86,7 +86,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		TextSendController sendController =
 				new TextSendController(ui.input, this, true);
 		ui.input.setSendController(sendController);
-		ui.input.setEnabled(false);
+		ui.input.setReady(false);
 		ui.input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
 		showProgressBar();
 
@@ -116,7 +116,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 		ui.post.bindItem(item);
 		ui.post.hideReblogButton();
 
-		ui.input.setEnabled(true);
+		ui.input.setReady(true);
 		ui.scrollView.post(() -> ui.scrollView.fullScroll(FOCUS_DOWN));
 	}
 

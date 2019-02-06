@@ -65,7 +65,7 @@ public class LargeTextInputView extends TextInputView {
 	}
 
 	public void setButtonText(String text) {
-		((Button) findViewById(R.id.btn_send)).setText(text);
+		((Button) findViewById(R.id.compositeSendButton)).setText(text);
 	}
 
 }

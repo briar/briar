@@ -2,7 +2,6 @@ package org.briarproject.briar.android.view;
 
 import android.net.Uri;
 import android.os.Parcelable;
-import android.support.annotation.CallSuper;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
@@ -22,18 +21,17 @@ import static java.util.Collections.emptyList;
 public class TextSendController implements TextInputListener {
 
 	protected final EmojiTextInputView textInput;
-	protected final View sendButton;
+	protected final View compositeSendButton;
 	protected final SendListener listener;
-	protected boolean enabled = true;
-	protected final boolean allowEmptyText;
 
-	private boolean wasEmpty = true;
+	protected boolean ready = true, textIsEmpty = true;
+
+	private final boolean allowEmptyText;
 
 	public TextSendController(TextInputView v, SendListener listener,
 			boolean allowEmptyText) {
-		this.sendButton = v.findViewById(R.id.btn_send);
-		this.sendButton.setOnClickListener(view -> onSendEvent());
-		this.sendButton.setEnabled(allowEmptyText);
+		this.compositeSendButton = v.findViewById(R.id.compositeSendButton);
+		this.compositeSendButton.setOnClickListener(view -> onSendEvent());
 		this.listener = listener;
 		this.textInput = v.getEmojiTextInputView();
 		this.allowEmptyText = allowEmptyText;
@@ -41,8 +39,8 @@ public class TextSendController implements TextInputListener {
 
 	@Override
 	public void onTextIsEmptyChanged(boolean isEmpty) {
-		sendButton.setEnabled(enabled && (!isEmpty || canSendEmptyText()));
-		wasEmpty = isEmpty;
+		textIsEmpty = isEmpty;
+		updateViewState();
 	}
 
 	@Override
@@ -52,13 +50,24 @@ public class TextSendController implements TextInputListener {
 		}
 	}
 
+	public void setReady(boolean ready) {
+		this.ready = ready;
+		updateViewState();
+	}
+
+	protected void updateViewState() {
+		textInput.setEnabled(ready);
+		compositeSendButton
+				.setEnabled(ready && (!textIsEmpty || canSendEmptyText()));
+	}
+
 	protected final boolean canSend() {
 		if (textInput.isTooLong()) {
-			Snackbar.make(sendButton, R.string.text_too_long, LENGTH_SHORT)
-					.show();
+			Snackbar.make(compositeSendButton, R.string.text_too_long,
+					LENGTH_SHORT).show();
 			return false;
 		}
-		return enabled && (canSendEmptyText() || !textInput.isEmpty());
+		return ready && (canSendEmptyText() || !textInput.isEmpty());
 	}
 
 	protected boolean canSendEmptyText() {
@@ -73,12 +82,6 @@ public class TextSendController implements TextInputListener {
 	@Nullable
 	public Parcelable onRestoreInstanceState(Parcelable state) {
 		return state;
-	}
-
-	@CallSuper
-	public void setEnabled(boolean enabled) {
-		sendButton.setEnabled(enabled && (!wasEmpty || canSendEmptyText()));
-		this.enabled = enabled;
 	}
 
 	public interface SendListener {

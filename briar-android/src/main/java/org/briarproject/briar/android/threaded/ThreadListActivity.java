@@ -91,6 +91,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 				new TextSendController(textInput, this, false);
 		textInput.setSendController(sendController);
 		textInput.setMaxTextLength(getMaxTextLength());
+		textInput.setReady(true);
+
 		UnreadMessageButton upButton = findViewById(R.id.upButton);
 		UnreadMessageButton downButton = findViewById(R.id.downButton);
 

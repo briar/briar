@@ -276,7 +276,7 @@ public class ConversationActivity extends BriarActivity
 		}
 		textInputView.setSendController(sendController);
 		textInputView.setMaxTextLength(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
-		textInputView.setEnabled(false);
+		textInputView.setReady(false);
 		textInputView.addOnKeyboardShownListener(this::scrollToBottom);
 	}
 
@@ -477,7 +477,7 @@ public class ConversationActivity extends BriarActivity
 		runOnUiThreadUnlessDestroyed(() -> {
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
-				textInputView.setEnabled(true);
+				textInputView.setReady(true);
 				// start observing onboarding after enabling (only once, because
 				// we only update this when an onboarding should be shown)
 				observeOnce(viewModel.showImageOnboarding(), this,
