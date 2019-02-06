@@ -701,16 +701,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 
 			try {
-				if (!online || (!charging && onlyWhenCharging)) {
-					if (!online) {
-						LOG.info("Disabling network, device is offline");
-					} else {
-						LOG.info("Disabling network, device is on battery");
-					}
+				if (!online) {
+					LOG.info("Disabling network, device is offline");
+					enableNetwork(false);
+				} else if (!charging && onlyWhenCharging) {
+					LOG.info("Disabling network, device is on battery");
 					enableNetwork(false);
 				} else if (network == PREF_TOR_NETWORK_NEVER ||
 						(!useMobile && !wifi)) {
-					LOG.info("Disabling network due to setting");
+					LOG.info("Disabling network, device is using mobile data");
 					enableNetwork(false);
 				} else if (automatic && blocked && !bridgesWork) {
 					LOG.info("Disabling network, country is blocked");
