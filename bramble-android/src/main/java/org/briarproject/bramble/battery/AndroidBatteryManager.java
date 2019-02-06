@@ -19,9 +19,7 @@ import javax.inject.Inject;
 import static android.content.Intent.ACTION_BATTERY_CHANGED;
 import static android.content.Intent.ACTION_POWER_CONNECTED;
 import static android.content.Intent.ACTION_POWER_DISCONNECTED;
-import static android.os.BatteryManager.BATTERY_STATUS_CHARGING;
-import static android.os.BatteryManager.BATTERY_STATUS_FULL;
-import static android.os.BatteryManager.EXTRA_STATUS;
+import static android.os.BatteryManager.EXTRA_PLUGGED;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
@@ -48,9 +46,8 @@ class AndroidBatteryManager implements BatteryManager, Service {
 		IntentFilter filter = new IntentFilter(ACTION_BATTERY_CHANGED);
 		Intent i = appContext.registerReceiver(null, filter);
 		if (i == null) return false;
-		int status = i.getIntExtra(EXTRA_STATUS, -1);
-		return status == BATTERY_STATUS_CHARGING ||
-				status == BATTERY_STATUS_FULL;
+		int status = i.getIntExtra(EXTRA_PLUGGED, 0);
+		return status != 0;
 	}
 
 	@Override

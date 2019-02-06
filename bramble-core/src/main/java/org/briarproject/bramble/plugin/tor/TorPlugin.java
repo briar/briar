@@ -69,6 +69,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WITH_BRIDGES;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
@@ -648,8 +649,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (s.getNamespace().equals(ID.getString())) {
 				LOG.info("Tor settings updated");
 				settings = s.getSettings();
-				// Works around a bug introduced in Tor 0.3.4.8. Could be
-				// replaced with callback.transportDisabled() when fixed.
+				// Works around a bug introduced in Tor 0.3.4.8.
+				// https://trac.torproject.org/projects/tor/ticket/28027
+				// Could be replaced with callback.transportDisabled()
+				// when fixed.
 				disableNetwork();
 				updateConnectionStatus(networkManager.getNetworkStatus(),
 						batteryManager.isCharging());
@@ -685,6 +688,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			int network = settings.getInt(PREF_TOR_NETWORK,
 					PREF_TOR_NETWORK_AUTOMATIC);
 			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
+			boolean onlyWhenCharging =
+					settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
 			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
 			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
 
@@ -699,9 +704,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				if (!online) {
 					LOG.info("Disabling network, device is offline");
 					enableNetwork(false);
+				} else if (!charging && onlyWhenCharging) {
+					LOG.info("Disabling network, device is on battery");
+					enableNetwork(false);
 				} else if (network == PREF_TOR_NETWORK_NEVER ||
 						(!useMobile && !wifi)) {
-					LOG.info("Disabling network due to setting");
+					LOG.info("Disabling network, device is using mobile data");
 					enableNetwork(false);
 				} else if (automatic && blocked && !bridgesWork) {
 					LOG.info("Disabling network, country is blocked");

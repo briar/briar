@@ -75,6 +75,7 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENA
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -111,6 +112,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public static final String NOTIFY_SIGN_IN = "pref_key_notify_sign_in";
 	public static final String TOR_NETWORK = "pref_key_tor_network";
 	public static final String TOR_MOBILE = "pref_key_tor_mobile_data";
+	public static final String TOR_ONLY_WHEN_CHARGING =
+			"pref_key_tor_only_when_charging";
 
 	private static final Logger LOG =
 			Logger.getLogger(SettingsFragment.class.getName());
@@ -120,6 +123,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private ListPreference enableBluetooth;
 	private ListPreference torNetwork;
 	private SwitchPreference torMobile;
+	private SwitchPreference torOnlyWhenCharging;
 	private SwitchPreference screenLock;
 	private ListPreference screenLockTimeout;
 	private SwitchPreference notifyPrivateMessages;
@@ -165,6 +169,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
 		torNetwork = (ListPreference) findPreference(TOR_NETWORK);
 		torMobile = (SwitchPreference) findPreference(TOR_MOBILE);
+		torOnlyWhenCharging =
+				(SwitchPreference) findPreference(TOR_ONLY_WHEN_CHARGING);
 		screenLock = (SwitchPreference) findPreference(PREF_SCREEN_LOCK);
 		screenLockTimeout =
 				(ListPreference) findPreference(PREF_SCREEN_LOCK_TIMEOUT);
@@ -202,6 +208,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setOnPreferenceChangeListener(this);
 		torNetwork.setOnPreferenceChangeListener(this);
 		torMobile.setOnPreferenceChangeListener(this);
+		torOnlyWhenCharging.setOnPreferenceChangeListener(this);
 		screenLock.setOnPreferenceChangeListener(this);
 		screenLockTimeout.setOnPreferenceChangeListener(this);
 
@@ -362,6 +369,10 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					torSettings.getBoolean(PREF_TOR_MOBILE, true);
 			torMobile.setChecked(torMobileSetting);
 
+			boolean torChargingSetting =
+					torSettings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
+			torOnlyWhenCharging.setChecked(torChargingSetting);
+
 			displayScreenLockSetting();
 
 			if (SDK_INT < 26) {
@@ -423,6 +434,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setEnabled(enabled);
 		torNetwork.setEnabled(enabled);
 		torMobile.setEnabled(enabled);
+		torOnlyWhenCharging.setEnabled(enabled);
 		if (!enabled) screenLock.setEnabled(false);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
@@ -519,6 +531,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		} else if (preference == torMobile) {
 			boolean torMobileSetting = (Boolean) newValue;
 			storeTorMobileSetting(torMobileSetting);
+		} else if (preference == torOnlyWhenCharging) {
+			boolean torChargingSetting = (Boolean) newValue;
+			storeTorChargingSetting(torChargingSetting);
 		} else if (preference == screenLock) {
 			Settings s = new Settings();
 			s.putBoolean(PREF_SCREEN_LOCK, (Boolean) newValue);
@@ -582,6 +597,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	private void storeTorMobileSetting(boolean torMobileSetting) {
 		Settings s = new Settings();
 		s.putBoolean(PREF_TOR_MOBILE, torMobileSetting);
+		mergeSettings(s, TOR_NAMESPACE);
+	}
+
+	private void storeTorChargingSetting(boolean torChargingSetting) {
+		Settings s = new Settings();
+		s.putBoolean(PREF_TOR_ONLY_WHEN_CHARGING, torChargingSetting);
 		mergeSettings(s, TOR_NAMESPACE);
 	}
 

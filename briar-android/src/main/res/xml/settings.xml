@@ -57,6 +57,15 @@
 			android:widgetLayout="@layout/preference_switch_compat"
 			app:iconSpaceReserved="false"/>
 
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="pref_key_tor_only_when_charging"
+			android:persistent="false"
+			android:title="@string/tor_only_when_charging_title"
+			android:summary="@string/tor_only_when_charging_summary"
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
+
 	</PreferenceCategory>
 
 	<PreferenceCategory
