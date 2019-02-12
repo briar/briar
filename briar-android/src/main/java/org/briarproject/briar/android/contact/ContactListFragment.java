@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DbException;
@@ -55,6 +56,7 @@ import javax.inject.Inject;
 
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial.OnMenuItemClickListener;
+import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
@@ -66,6 +68,7 @@ import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_F
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_REMOTE_CONTACTS;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
@@ -118,12 +121,23 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 			@Nullable Bundle savedInstanceState) {
 		requireNonNull(getActivity()).setTitle(R.string.contact_list_button);
 
-		View contentView =
-				inflater.inflate(R.layout.fragment_contact_list, container,
-						false);
+		View contentView = inflater.inflate(R.layout.fragment_contact_list,
+				container, false);
 
-		FabSpeedDial speedDialView = contentView.findViewById(R.id.speedDial);
-		speedDialView.addOnMenuItemClickListener(this);
+		FabSpeedDial speedDial = contentView.findViewById(R.id.speedDial);
+		if (FEATURE_FLAG_REMOTE_CONTACTS) {
+			speedDial.addOnMenuItemClickListener(this);
+		} else {
+			speedDial.setMenu(new FabSpeedDialMenu(contentView.getContext()));
+			speedDial.addOnStateChangeListener(open -> {
+				if (open) {
+					Intent intent = new Intent(getContext(),
+							ContactExchangeActivity.class);
+					startActivity(intent);
+					speedDial.closeMenu();
+				}
+			});
+		}
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
@@ -265,7 +279,6 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		if (e instanceof ContactAddedEvent) {
 			LOG.info("Contact added, reloading");
 			loadContacts();
-			checkForPendingContacts();
 		} else if (e instanceof ContactConnectedEvent) {
 			setConnected(((ContactConnectedEvent) e).getContactId(), true);
 		} else if (e instanceof ContactDisconnectedEvent) {
@@ -286,6 +299,8 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 			if (pe.getPendingContactState() == WAITING_FOR_CONNECTION) {
 				checkForPendingContacts();
 			}
+		} else if (e instanceof ContactAddedRemotelyEvent) {
+			checkForPendingContacts();
 		}
 	}
 
