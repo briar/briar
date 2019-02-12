@@ -1,5 +1,6 @@
 package org.briarproject.bramble.db;
 
+import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -47,6 +48,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
@@ -91,6 +93,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final int OFFSET_PREV = -1;
 	private static final int OFFSET_CURR = 0;
 	private static final int OFFSET_NEXT = 1;
+
+	private static final int NUM_FAKES = 32 * 1024;
 
 	private static final String CREATE_SETTINGS =
 			"CREATE TABLE settings"
@@ -285,6 +289,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE)";
 
+	// In H2 the MEMORY keyword creates a persistent table with in-memory
+	// indexes, which must be dropped and recreated when reopening the database.
+	// In HyperSQL it creates a persistent table that's entirely cached in
+	// memory, which is the default. Dropping and recreating indexes is
+	// unnecessary.
+	private static final String CREATE_FAKES =
+			"CREATE MEMORY TABLE fakes (fakeId _HASH NOT NULL)";
+
+	private static final String DROP_INDEX_FAKES_BY_FAKE_ID =
+			"DROP INDEX IF EXISTS fakesByFakeId";
+
+	private static final String INDEX_FAKES_BY_FAKE_ID =
+			"CREATE INDEX fakesByFakeId ON fakes (fakeId)";
+
 	private static final String INDEX_CONTACTS_BY_AUTHOR_ID =
 			"CREATE INDEX IF NOT EXISTS contactsByAuthorId"
 					+ " ON contacts (authorId)";
@@ -376,6 +394,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			txn = startTransaction();
 			try {
 				storeLastCompacted(txn);
+				createInMemoryIndexes(txn);
+				commitTransaction(txn);
+			} catch (DbException e) {
+				abortTransaction(txn);
+				throw e;
+			}
+		} else {
+			txn = startTransaction();
+			try {
+				createInMemoryIndexes(txn);
 				commitTransaction(txn);
 			} catch (DbException e) {
 				abortTransaction(txn);
@@ -461,6 +489,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private void createTables(Connection txn) throws DbException {
 		Statement s = null;
+		PreparedStatement ps = null;
 		try {
 			s = txn.createStatement();
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_SETTINGS));
@@ -477,9 +506,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_TRANSPORTS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_OUTGOING_KEYS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_INCOMING_KEYS));
+			s.executeUpdate(dbTypes.replaceTypes(CREATE_FAKES));
 			s.close();
+			Random random = new Random();
+			long start = now();
+			ps = txn.prepareStatement("INSERT INTO fakes (fakeId) VALUES (?)");
+			int inserted = 0;
+			while (inserted < NUM_FAKES) {
+				int batchSize = Math.min(1024, NUM_FAKES - inserted);
+				for (int i = 0; i < batchSize; i++) {
+					byte[] id = new byte[UniqueId.LENGTH];
+					random.nextBytes(id);
+					ps.setBytes(1, id);
+					ps.addBatch();
+				}
+				ps.executeBatch();
+				inserted += batchSize;
+			}
+			ps.close();
+			LOG.info("Inserting " + NUM_FAKES + " fakes took "
+					+ (now() - start) + " ms");
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -495,6 +544,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_GROUP_ID);
 			s.executeUpdate(INDEX_STATUSES_BY_CONTACT_ID_TIMESTAMP);
 			s.close();
+		} catch (SQLException e) {
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	private void createInMemoryIndexes(Connection txn) throws DbException {
+		Statement s = null;
+		try {
+			long start = now();
+			s = txn.createStatement();
+			s.executeUpdate(dbTypes.replaceTypes(DROP_INDEX_FAKES_BY_FAKE_ID));
+			s.executeUpdate(dbTypes.replaceTypes(INDEX_FAKES_BY_FAKE_ID));
+			s.close();
+			LOG.info("Indexing fakes took " + (now() - start) + " ms");
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
@@ -1146,6 +1210,41 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return found;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public int countFakes(Connection txn, List<byte[]> ids)
+			throws DbException {
+		if (ids.isEmpty()) return 0;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			long start = now();
+			StringBuilder sb = new StringBuilder();
+			sb.append("SELECT COUNT (fakeId) FROM fakes WHERE fakeId IN (?");
+			for (int i = 1; i < ids.size(); i++) {
+				sb.append(",?");
+			}
+			sb.append(')');
+			String sql = sb.toString();
+			ps = txn.prepareStatement(sql);
+			for (int i = 0; i < ids.size(); i++) {
+				ps.setBytes(i + 1, ids.get(i));
+			}
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbException();
+			int count = rs.getInt(1);
+			if (rs.next()) throw new DbException();
+			rs.close();
+			ps.close();
+			LOG.info("Counting " + ids.size() + " fakes took "
+					+ (now() - start) + " ms, found " + count);
+			return count;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);

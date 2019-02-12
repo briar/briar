@@ -28,6 +28,7 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -187,6 +188,8 @@ interface Database<T> {
 	 */
 	boolean containsVisibleMessage(T txn, ContactId c, MessageId m)
 			throws DbException;
+
+	int countFakes(T txn, List<byte[]> ids) throws DbException;
 
 	/**
 	 * Returns the number of messages offered by the given contact.

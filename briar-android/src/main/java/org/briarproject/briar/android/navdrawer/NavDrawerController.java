@@ -21,4 +21,5 @@ public interface NavDrawerController extends ActivityLifecycleController {
 	void shouldAskForDozeWhitelisting(Context ctx,
 			ResultHandler<Boolean> handler);
 
+	void countFakes();
 }

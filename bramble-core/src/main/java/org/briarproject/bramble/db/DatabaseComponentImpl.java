@@ -314,6 +314,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public int countFakes(Transaction transaction, List<byte[]> ids)
+		throws DbException {
+		T txn = unbox(transaction);
+		return db.countFakes(txn, ids);
+	}
+
+	@Override
 	public void deleteMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();

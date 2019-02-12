@@ -3,6 +3,8 @@ package org.briarproject.briar.android.navdrawer;
 import android.app.Activity;
 import android.content.Context;
 
+import org.briarproject.bramble.api.UniqueId;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
@@ -21,6 +23,9 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -49,6 +54,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
 	private static final String EXPIRY_SHOW_UPDATE = "expiryShowUpdate";
 
+	private final DatabaseComponent db;
 	private final PluginManager pluginManager;
 	private final SettingsManager settingsManager;
 	private final EventBus eventBus;
@@ -57,9 +63,11 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	@Inject
 	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager, PluginManager pluginManager,
-			SettingsManager settingsManager, EventBus eventBus) {
+			DatabaseComponent db, LifecycleManager lifecycleManager,
+			PluginManager pluginManager, SettingsManager settingsManager,
+			EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
+		this.db = db;
 		this.pluginManager = pluginManager;
 		this.settingsManager = settingsManager;
 		this.eventBus = eventBus;
@@ -181,6 +189,25 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				handler.onResult(true);
+			}
+		});
+	}
+
+	@Override
+	public void countFakes() {
+		int numFakes = 1024;
+		Random random = new Random();
+		List<byte[]> ids = new ArrayList<>(numFakes);
+		for (int i = 0; i < numFakes; i++) {
+			byte[] id = new byte[UniqueId.LENGTH];
+			random.nextBytes(id);
+			ids.add(id);
+		}
+		runOnDbThread(() -> {
+			try {
+				db.transaction(true, txn -> db.countFakes(txn, ids));
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
 			}
 		});
 	}

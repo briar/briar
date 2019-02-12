@@ -223,6 +223,7 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	@Override
 	public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+		controller.countFakes();
 		drawerLayout.closeDrawer(START);
 		clearBackStack();
 		if (item.getItemId() == R.id.nav_btn_lock) {

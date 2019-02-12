@@ -132,6 +132,19 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	@Test
+	public void testFakes() throws Exception {
+		List<byte[]> ids = new ArrayList<>(1024);
+		for (int i = 0; i < 1024; i++) {
+			ids.add(getRandomId());
+		}
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+		assertEquals(0, db.countFakes(txn, ids));
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testPersistence() throws Exception {
 		// Store some records
 		Database<Connection> db = open(false);

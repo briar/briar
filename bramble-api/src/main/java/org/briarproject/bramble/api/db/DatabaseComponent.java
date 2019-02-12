@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -149,6 +150,8 @@ public interface DatabaseComponent {
 	 */
 	boolean containsLocalAuthor(Transaction txn, AuthorId local)
 			throws DbException;
+
+	int countFakes(Transaction txn, List<byte[]> ids) throws DbException;
 
 	/**
 	 * Deletes the message with the given ID. Unlike
