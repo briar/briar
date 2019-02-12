@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 
 import org.briarproject.briar.android.contact.add.remote.AddContactViewModel;
+import org.briarproject.briar.android.contact.add.remote.PendingRequestsViewModel;
 import org.briarproject.briar.android.conversation.ConversationViewModel;
 import org.briarproject.briar.android.conversation.ImageViewModel;
 
@@ -33,6 +34,12 @@ public abstract class ViewModelModule {
 	@ViewModelKey(AddContactViewModel.class)
 	abstract ViewModel bindAddContactViewModel(
 			AddContactViewModel addContactViewModel);
+
+	@Binds
+	@IntoMap
+	@ViewModelKey(PendingRequestsViewModel.class)
+	abstract ViewModel bindPendingRequestsViewModel(
+			PendingRequestsViewModel pendingRequestsViewModel);
 
 	@Binds
 	@Singleton

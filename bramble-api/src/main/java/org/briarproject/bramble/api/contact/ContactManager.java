@@ -85,7 +85,7 @@ public interface ContactManager {
 	 * Removes a {@link PendingContact} that is in state
 	 * {@link PendingContactState FAILED}.
 	 */
-	void removePendingContact(PendingContact pendingContact);
+	void removePendingContact(PendingContact pendingContact) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.

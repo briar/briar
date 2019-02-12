@@ -24,6 +24,7 @@ import org.junit.Test;
 import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -59,8 +60,10 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	public ContactManagerImplTest() {
 		Executor dbExecutor = new ImmediateExecutor();
+		ScheduledExecutorService scheduler =
+				context.mock(ScheduledExecutorService.class);
 		contactManager = new ContactManagerImpl(db, dbExecutor, keyManager,
-				identityManager);
+				identityManager, scheduler);
 	}
 
 	@Test

@@ -13,16 +13,11 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Logger.getLogger;
-
 @NotNullByDefault
 public class AddContactViewModel extends AndroidViewModel {
-
-	private static Logger LOG = getLogger(AddContactViewModel.class.getName());
 
 	private final ContactManager contactManager;
 	@DatabaseExecutor

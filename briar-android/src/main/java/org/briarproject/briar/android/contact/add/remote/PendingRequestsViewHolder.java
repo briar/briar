@@ -3,6 +3,7 @@ package org.briarproject.briar.android.contact.add.remote;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -10,33 +11,41 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.TextAvatarView;
 
-import static org.briarproject.bramble.util.StringUtils.toUtf8;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
 @NotNullByDefault
 public class PendingRequestsViewHolder extends ViewHolder {
 
+	private final PendingContactListener listener;
 	private final TextAvatarView avatar;
 	private final TextView name;
 	private final TextView time;
 	private final TextView status;
+	private final Button button;
 
-	public PendingRequestsViewHolder(View v) {
+	public PendingRequestsViewHolder(View v, PendingContactListener listener) {
 		super(v);
 		avatar = v.findViewById(R.id.avatar);
 		name = v.findViewById(R.id.name);
 		time = v.findViewById(R.id.time);
 		status = v.findViewById(R.id.status);
+		button = v.findViewById(R.id.button);
+		this.listener = listener;
 	}
 
 	public void bind(PendingContact item) {
 		avatar.setText(item.getAlias());
-		avatar.setBackgroundBytes(toUtf8(item.getAlias() + item.getTimestamp()));
+		avatar.setBackgroundBytes(item.getId().getBytes());
 		name.setText(item.getAlias());
 		time.setText(formatDate(time.getContext(), item.getTimestamp()));
+		button.setOnClickListener(
+				v -> listener.onFailedPendingContactRemoved(item));
 
 		int color = ContextCompat
 				.getColor(status.getContext(), R.color.briar_green);
+		int buttonVisibility = GONE;
 		switch (item.getState()) {
 			case WAITING_FOR_CONNECTION:
 				color = ContextCompat
@@ -50,15 +59,16 @@ public class PendingRequestsViewHolder extends ViewHolder {
 				status.setText(R.string.adding_contact);
 				break;
 			case FAILED:
-				// TODO add remove button
 				color = ContextCompat
 						.getColor(status.getContext(), R.color.briar_red);
 				status.setText(R.string.adding_contact_failed);
+				buttonVisibility = VISIBLE;
 				break;
 			default:
 				throw new IllegalStateException();
 		}
 		status.setTextColor(color);
+		button.setVisibility(buttonVisibility);
 	}
 
 }

@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
@@ -15,8 +14,12 @@ import org.briarproject.briar.android.util.BriarAdapter;
 public class PendingRequestsAdapter extends
 		BriarAdapter<PendingContact, PendingRequestsViewHolder> {
 
-	public PendingRequestsAdapter(Context ctx, Class<PendingContact> c) {
+	private final PendingContactListener listener;
+
+	public PendingRequestsAdapter(Context ctx, PendingContactListener listener,
+			Class<PendingContact> c) {
 		super(ctx, c);
+		this.listener = listener;
 	}
 
 	@Override
@@ -24,7 +27,7 @@ public class PendingRequestsAdapter extends
 			ViewGroup viewGroup, int i) {
 		View v = LayoutInflater.from(viewGroup.getContext()).inflate(
 				R.layout.list_item_pending_contact, viewGroup, false);
-		return new PendingRequestsViewHolder(v);
+		return new PendingRequestsViewHolder(v, listener);
 	}
 
 	@Override
@@ -50,16 +53,6 @@ public class PendingRequestsAdapter extends
 			PendingContact item2) {
 		return item1.getAlias().equals(item2.getAlias()) &&
 				item1.getTimestamp() == item2.getTimestamp();
-	}
-
-	// TODO use PendingContactId
-	public void remove(Contact contact) {
-		for (int i = 0; i < items.size(); i++) {
-			if (items.get(i).getAlias().equals(contact.getAuthor().getName())) {
-				items.removeItemAt(i);
-				return;
-			}
-		}
 	}
 
 }

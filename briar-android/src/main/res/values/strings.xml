@@ -192,11 +192,12 @@
 	<string name="link_copied_toast">Link copied</string>
 	<string name="pending_contact_requests_snackbar">"There are pending contact requests"</string>
 	<string name="pending_contact_requests">Pending contact requests</string>
+	<string name="no_pending_contacts">No pending contacts</string>
 	<string name="add_contact_remote_connecting">Connecting…</string>
 	<string name="scan_qr_code_title">Scan QR Code</string>
 	<string name="show_qr_code_title">Your QR Code</string>
 	<string name="camera_error_toast">Camera Error</string>
-	<string name="waiting_for_contact_to_come_online">Waiting for contact to come online…</string>
+	<string name="waiting_for_contact_to_come_online">Waiting for contact to come online…\n\nDid they enter your link already?</string>
 	<string name="connecting">Connecting…</string>
 	<string name="adding_contact">Adding contact…</string>
 	<string name="adding_contact_failed">Adding contact has failed</string>
