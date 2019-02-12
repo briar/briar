@@ -42,7 +42,7 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 
 import java.util.Set;
@@ -99,7 +99,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final Multiset<GroupId> groupCounts = new Multiset<>();
 	private final Multiset<GroupId> forumCounts = new Multiset<>();
 	private final Multiset<GroupId> blogCounts = new Multiset<>();
-	private int introductionTotal = 0;
+	private int contactAddedTotal = 0;
 	private int nextRequestId = 0;
 	private ContactId blockedContact = null;
 	private GroupId blockedGroup = null;
@@ -171,7 +171,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			clearGroupMessageNotification();
 			clearForumPostNotification();
 			clearBlogPostNotification();
-			clearIntroductionSuccessNotification();
+			clearContactAddedNotification();
 			return null;
 		});
 		try {
@@ -206,9 +206,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@UiThread
-	private void clearIntroductionSuccessNotification() {
-		introductionTotal = 0;
-		notificationManager.cancel(INTRODUCTION_SUCCESS_NOTIFICATION_ID);
+	private void clearContactAddedNotification() {
+		contactAddedTotal = 0;
+		notificationManager.cancel(CONTACT_ADDED_NOTIFICATION_ID);
 	}
 
 	@Override
@@ -230,8 +230,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			if (!b.isLocal()) showBlogPostNotification(b.getGroupId());
-		} else if (e instanceof IntroductionSucceededEvent) {
-			showIntroductionNotification();
+		} else if (e instanceof ContactAddedRemotelyEvent) {
+			showContactAddedNotification();
 		}
 	}
 
@@ -563,24 +563,24 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@UiThread
-	private void showIntroductionNotification() {
-		introductionTotal++;
-		updateIntroductionNotification();
+	private void showContactAddedNotification() {
+		contactAddedTotal++;
+		updateContactAddedNotification();
 	}
 
 	@UiThread
-	private void updateIntroductionNotification() {
+	private void updateContactAddedNotification() {
 		BriarNotificationBuilder b =
 				new BriarNotificationBuilder(appContext, CONTACT_CHANNEL_ID);
 		b.setSmallIcon(R.drawable.notification_introduction);
 		b.setColorRes(R.color.briar_primary);
 		b.setContentTitle(appContext.getText(R.string.app_name));
 		b.setContentText(appContext.getResources().getQuantityString(
-				R.plurals.introduction_notification_text, introductionTotal,
-				introductionTotal));
+				R.plurals.introduction_notification_text, contactAddedTotal,
+				contactAddedTotal));
 		b.setNotificationCategory(CATEGORY_MESSAGE);
 		setAlertProperties(b);
-		setDeleteIntent(b, INTRODUCTION_URI);
+		setDeleteIntent(b, CONTACT_ADDED_URI);
 		// Touching the notification shows the contact list
 		Intent i = new Intent(appContext, NavDrawerActivity.class);
 		i.putExtra(INTENT_CONTACTS, true);
@@ -591,14 +591,13 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		t.addNextIntent(i);
 		b.setContentIntent(t.getPendingIntent(nextRequestId++, 0));
 
-		notificationManager.notify(INTRODUCTION_SUCCESS_NOTIFICATION_ID,
+		notificationManager.notify(CONTACT_ADDED_NOTIFICATION_ID,
 				b.build());
 	}
 
 	@Override
-	public void clearAllIntroductionNotifications() {
-		androidExecutor.runOnUiThread(
-				this::clearIntroductionSuccessNotification);
+	public void clearAllContactAddedNotifications() {
+		androidExecutor.runOnUiThread(this::clearContactAddedNotification);
 	}
 
 	@Override

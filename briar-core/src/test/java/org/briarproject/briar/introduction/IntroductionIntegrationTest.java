@@ -32,7 +32,7 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -1275,10 +1275,10 @@ public class IntroductionIntegrationTest
 				// only broadcast for DECLINE messages in introducee role
 				latestEvent = e;
 				eventWaiter.resume();
-			} else if (e instanceof IntroductionSucceededEvent) {
+			} else if (e instanceof ContactAddedRemotelyEvent) {
 				latestEvent = e;
 				succeeded = true;
-				Contact contact = ((IntroductionSucceededEvent) e).getContact();
+				Contact contact = ((ContactAddedRemotelyEvent) e).getContact();
 				eventWaiter
 						.assertFalse(contact.getId().equals(contactId0From1));
 				eventWaiter.resume();

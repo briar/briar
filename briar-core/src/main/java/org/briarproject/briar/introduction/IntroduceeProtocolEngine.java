@@ -30,7 +30,7 @@ import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
-import org.briarproject.briar.api.introduction.event.IntroductionSucceededEvent;
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 
 import java.security.GeneralSecurityException;
 import java.util.Map;
@@ -453,7 +453,7 @@ class IntroduceeProtocolEngine
 					s.getRemote().transportProperties);
 
 			// Broadcast IntroductionSucceededEvent, because contact got added
-			IntroductionSucceededEvent e = new IntroductionSucceededEvent(c);
+			ContactAddedRemotelyEvent e = new ContactAddedRemotelyEvent(c);
 			txn.attach(e);
 		} catch (ContactExistsException e) {
 			// Ignore this, because the other introducee might have deleted us.

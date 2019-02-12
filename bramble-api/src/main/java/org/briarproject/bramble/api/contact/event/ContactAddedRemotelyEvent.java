@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.introduction.event;
+package org.briarproject.bramble.api.contact.event;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.event.Event;
@@ -8,11 +8,11 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class IntroductionSucceededEvent extends Event {
+public class ContactAddedRemotelyEvent extends Event {
 
 	private final Contact contact;
 
-	public IntroductionSucceededEvent(Contact contact) {
+	public ContactAddedRemotelyEvent(Contact contact) {
 		this.contact = contact;
 	}
 
