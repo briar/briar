@@ -7,7 +7,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
@@ -39,6 +38,7 @@ import org.briarproject.briar.android.contact.add.remote.PendingRequestsActivity
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
@@ -162,14 +162,12 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		list.setEmptyText(getString(R.string.no_contacts));
 		list.setEmptyAction(getString(R.string.no_contacts_action));
 
-		// TODO UiUtils helper method?
-		snackbar = Snackbar.make(contentView,
-				R.string.pending_contact_requests_snackbar, LENGTH_INDEFINITE);
-		snackbar.getView().setBackgroundResource(R.color.briar_primary);
-		snackbar.setAction(R.string.show, v -> startActivity(
-				new Intent(getContext(), PendingRequestsActivity.class)));
-		snackbar.setActionTextColor(ContextCompat
-				.getColor(getContext(), R.color.briar_button_text_positive));
+		snackbar = new BriarSnackbarBuilder()
+				.setAction(R.string.show, v ->
+						startActivity(new Intent(getContext(),
+								PendingRequestsActivity.class)))
+				.make(contentView, R.string.pending_contact_requests_snackbar,
+						LENGTH_INDEFINITE);
 
 		return contentView;
 	}

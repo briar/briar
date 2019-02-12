@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -34,6 +32,7 @@ import org.briarproject.briar.android.controller.handler.UiResultExceptionHandle
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareBlogActivity;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
@@ -44,6 +43,7 @@ import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.support.design.widget.Snackbar.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
@@ -356,17 +356,12 @@ public class BlogFragment extends BaseFragment
 	}
 
 	private void displaySnackbar(int stringId, boolean scroll) {
-		Snackbar snackbar =
-				Snackbar.make(list, stringId, Snackbar.LENGTH_LONG);
-		snackbar.getView().setBackgroundResource(R.color.briar_primary);
+		BriarSnackbarBuilder sb = new BriarSnackbarBuilder();
 		if (scroll) {
-			View.OnClickListener onClick = v -> list.smoothScrollToPosition(0);
-			snackbar.setActionTextColor(ContextCompat
-					.getColor(getContext(),
-							R.color.briar_button_text_positive));
-			snackbar.setAction(R.string.blogs_blog_post_scroll_to, onClick);
+			sb.setAction(R.string.blogs_blog_post_scroll_to,
+					v -> list.smoothScrollToPosition(0));
 		}
-		snackbar.show();
+		sb.make(list, stringId, LENGTH_LONG).show();
 	}
 
 	private void showDeleteDialog() {

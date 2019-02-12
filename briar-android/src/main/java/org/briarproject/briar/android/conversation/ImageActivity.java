@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -32,6 +31,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.PullDownLayout;
 
 import java.text.SimpleDateFormat;
@@ -308,9 +308,10 @@ public class ImageActivity extends BriarActivity
 				R.string.save_image_error : R.string.save_image_success;
 		int colorRes = error ?
 				R.color.briar_red : R.color.briar_primary;
-		Snackbar s = Snackbar.make(layout, stringRes, LENGTH_LONG);
-		s.getView().setBackgroundResource(colorRes);
-		s.show();
+		new BriarSnackbarBuilder()
+				.setBackgroundColor(colorRes)
+				.make(layout, stringRes, LENGTH_LONG)
+				.show();
 		viewModel.onSaveStateSeen();
 	}
 
