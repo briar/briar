@@ -229,11 +229,15 @@ public class ConversationViewModel extends AndroidViewModel {
 		}
 	}
 
+	@UiThread
 	void onImageOnboardingSeen() {
+		showImageOnboarding.setValue(false);
 		onOnboardingSeen(SHOW_ONBOARDING_IMAGE);
 	}
 
+	@UiThread
 	void onIntroductionOnboardingSeen() {
+		showIntroductionOnboarding.setValue(false);
 		onOnboardingSeen(SHOW_ONBOARDING_INTRODUCTION);
 	}
 

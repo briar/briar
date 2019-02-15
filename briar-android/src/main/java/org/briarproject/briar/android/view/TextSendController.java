@@ -67,7 +67,7 @@ public class TextSendController implements TextInputListener {
 					LENGTH_SHORT).show();
 			return false;
 		}
-		return ready && (canSendEmptyText() || !textInput.isEmpty());
+		return ready && (canSendEmptyText() || !textIsEmpty);
 	}
 
 	protected boolean canSendEmptyText() {
