@@ -25,4 +25,15 @@ public class AttachmentHeader {
 		return contentType;
 	}
 
+	@Override
+	public boolean equals(Object o) {
+		return o instanceof AttachmentHeader &&
+				messageId.equals(((AttachmentHeader) o).messageId);
+	}
+
+	@Override
+	public int hashCode() {
+		return messageId.hashCode();
+	}
+
 }

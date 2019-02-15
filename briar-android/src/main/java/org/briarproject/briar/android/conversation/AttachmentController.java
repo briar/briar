@@ -1,8 +1,11 @@
 package org.briarproject.briar.android.conversation;
 
+import android.content.ContentResolver;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
+import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.media.ExifInterface;
 import android.webkit.MimeTypeMap;
 
@@ -12,6 +15,7 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.conversation.ImageHelper.DecodeResult;
 import org.briarproject.briar.api.messaging.Attachment;
@@ -25,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static android.support.media.ExifInterface.ORIENTATION_ROTATE_270;
@@ -54,6 +59,7 @@ class AttachmentController {
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
 
+	private final List<AttachmentHeader> unsent = new CopyOnWriteArrayList<>();
 	private final Map<MessageId, List<AttachmentItem>> attachmentCache =
 			new ConcurrentHashMap<>();
 
@@ -114,6 +120,54 @@ class AttachmentController {
 		return attachments;
 	}
 
+	@DatabaseExecutor
+	AttachmentHeader createAttachmentHeader(ContentResolver contentResolver,
+			GroupId groupId, Uri uri)
+			throws IOException, DbException {
+		InputStream is = contentResolver.openInputStream(uri);
+		if (is == null) throw new IOException();
+		String contentType = contentResolver.getType(uri);
+		if (contentType == null) throw new IOException("null content type");
+		long timestamp = System.currentTimeMillis();
+		AttachmentHeader h = messagingManager
+				.addLocalAttachment(groupId, timestamp, contentType, is);
+		tryToClose(is, LOG, WARNING);
+		unsent.add(h);
+		return h;
+	}
+
+	@DatabaseExecutor
+	void deleteUnsentAttachments() {
+		for (AttachmentHeader h : unsent) {
+			try {
+				messagingManager.removeAttachment(h);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		}
+	}
+
+	List<AttachmentHeader> getUnsentAttachments() {
+		return new ArrayList<>(unsent);
+	}
+
+	void markAttachmentsSent() {
+		unsent.clear();
+	}
+
+	@DatabaseExecutor
+	AttachmentItem getAttachmentItem(ContentResolver contentResolver, Uri uri,
+			AttachmentHeader h, boolean needsSize) throws IOException {
+		InputStream is = null;
+		try {
+			is = contentResolver.openInputStream(uri);
+			if (is == null) throw new IOException();
+			return getAttachmentItem(h, new Attachment(is), needsSize);
+		} finally {
+			if (is != null) tryToClose(is, LOG, WARNING);
+		}
+	}
+
 	/**
 	 * Creates {@link AttachmentItem}s from the passed headers and Attachments.
 	 * <p>
@@ -135,6 +189,7 @@ class AttachmentController {
 	 * Creates an {@link AttachmentItem} from the {@link Attachment}'s
 	 * {@link InputStream} which will be closed when this method returns.
 	 */
+	@VisibleForTesting
 	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
 			boolean needsSize) {
 		MessageId messageId = h.getMessageId();

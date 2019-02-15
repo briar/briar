@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
@@ -27,6 +26,7 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.security.GeneralSecurityException;
 import java.util.List;
@@ -120,7 +120,8 @@ public class WriteBlogPostActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+	public void onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		// hide publish button, show progress bar

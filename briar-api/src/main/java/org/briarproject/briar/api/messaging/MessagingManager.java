@@ -42,6 +42,11 @@ public interface MessagingManager extends ConversationClient {
 			String contentType, InputStream is) throws DbException, IOException;
 
 	/**
+	 * Removes an unsent attachment.
+	 */
+	void removeAttachment(AttachmentHeader header) throws DbException;
+
+	/**
 	 * Returns the ID of the contact with the given private conversation.
 	 */
 	ContactId getContactId(GroupId g) throws DbException;

@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.introduction;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.ActionBar;
@@ -26,6 +25,7 @@ import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.api.introduction.IntroductionManager;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.List;
 import java.util.logging.Logger;
@@ -193,7 +193,8 @@ public class IntroductionMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+	public void onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers) {
 		// disable button to prevent accidental double invitations
 		ui.message.setReady(false);
 

@@ -6,7 +6,6 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -264,7 +263,7 @@ public class ConversationActivity extends BriarActivity
 		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
-					imagePreview, this, this);
+					imagePreview, this, this, viewModel);
 			observeOnce(viewModel.hasImageSupport(), this, hasSupport -> {
 				if (hasSupport != null && hasSupport) {
 					// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
@@ -658,12 +657,13 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
-		if (isNullOrEmpty(text) && imageUris.isEmpty())
+	public void onSendClick(@Nullable String text,
+			List<AttachmentHeader> attachmentHeaders) {
+		if (isNullOrEmpty(text) && attachmentHeaders.isEmpty())
 			throw new AssertionError();
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		viewModel.sendMessage(text, imageUris, timestamp);
+		viewModel.sendMessage(text, attachmentHeaders, timestamp);
 		textInputView.clearText();
 	}
 

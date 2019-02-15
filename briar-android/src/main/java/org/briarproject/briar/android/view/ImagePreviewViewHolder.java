@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.graphics.drawable.Drawable;
-import android.net.Uri;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView.ViewHolder;
@@ -42,9 +41,10 @@ class ImagePreviewViewHolder extends ViewHolder {
 		this.progressBar = v.findViewById(R.id.progressBar);
 	}
 
-	void bind(Uri uri) {
+	void bind(ImagePreviewItem item) {
+		if (item.waitForLoading()) return;
 		GlideApp.with(imageView)
-				.load(uri)
+				.load(item.getUri())
 				.diskCacheStrategy(NONE)
 				.error(ERROR_RES)
 				.downsample(FIT_CENTER)
@@ -55,7 +55,7 @@ class ImagePreviewViewHolder extends ViewHolder {
 							Object model, Target<Drawable> target,
 							boolean isFirstResource) {
 						progressBar.setVisibility(INVISIBLE);
-						listener.onUriError(uri);
+						listener.onError();
 						return false;
 					}
 

@@ -166,6 +166,11 @@ class MessagingManagerImpl extends ConversationClientImpl
 		return new AttachmentHeader(new MessageId(b), "image/png");
 	}
 
+	@Override
+	public void removeAttachment(AttachmentHeader header) throws DbException {
+		// TODO add real implementation
+	}
+
 	private ContactId getContactId(Transaction txn, GroupId g)
 			throws DbException {
 		try {

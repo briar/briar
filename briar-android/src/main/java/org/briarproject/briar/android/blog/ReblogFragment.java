@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.blog;
 
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +20,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.List;
 
@@ -121,7 +121,8 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+	public void onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers) {
 		ui.input.hideSoftKeyboard();
 		feedController.repeatPost(item, text,
 				new UiExceptionHandler<DbException>(this) {

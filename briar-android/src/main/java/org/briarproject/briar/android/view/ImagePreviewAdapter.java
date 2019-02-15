@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.view;
 
-import android.net.Uri;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
@@ -15,17 +14,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static java.util.Objects.requireNonNull;
 
 @NotNullByDefault
 class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 
-	private final List<Uri> items;
+	private final List<ImagePreviewItem> items;
 	private final ImagePreviewListener listener;
 	@LayoutRes
 	private final int layout;
 
-	ImagePreviewAdapter(Collection<Uri> items, ImagePreviewListener listener) {
+	ImagePreviewAdapter(Collection<ImagePreviewItem> items,
+			ImagePreviewListener listener) {
 		this.items = new ArrayList<>(items);
 		this.listener = listener;
 		this.layout = items.size() == 1 ?
@@ -52,11 +53,12 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 		return items.size();
 	}
 
-	void removeUri(Uri uri) {
-		int pos = items.indexOf(uri);
-		if (pos == -1) return;
-		items.remove(uri);
-		notifyItemRemoved(pos);
+	void loadItemPreview(ImagePreviewItem item) {
+		int pos = items.indexOf(item);
+		if (pos == NO_POSITION) throw new AssertionError();
+		ImagePreviewItem newItem = items.get(pos);
+		newItem.setWaitForLoading(false);
+		notifyItemChanged(pos, newItem);
 	}
 
 }

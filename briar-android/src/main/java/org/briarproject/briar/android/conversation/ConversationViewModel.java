@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -27,10 +26,11 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.android.view.TextAttachmentController.AttachmentManager;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
-import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -38,10 +38,11 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -50,7 +51,6 @@ import javax.inject.Inject;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -59,7 +59,8 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
 @NotNullByDefault
-public class ConversationViewModel extends AndroidViewModel {
+public class ConversationViewModel extends AndroidViewModel implements
+		AttachmentManager {
 
 	private static Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
@@ -73,6 +74,7 @@ public class ConversationViewModel extends AndroidViewModel {
 	@CryptoExecutor
 	private final Executor cryptoExecutor;
 	private final TransactionManager db;
+	private final AndroidExecutor androidExecutor;
 	private final MessagingManager messagingManager;
 	private final ContactManager contactManager;
 	private final SettingsManager settingsManager;
@@ -100,17 +102,20 @@ public class ConversationViewModel extends AndroidViewModel {
 			new MutableLiveData<>();
 	private final MutableLiveData<PrivateMessageHeader> addedHeader =
 			new MutableLiveData<>();
+	// TODO move to AttachmentController
+	private final Map<Uri, AttachmentItem> unsentItems = new HashMap<>();
 
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			@CryptoExecutor Executor cryptoExecutor, TransactionManager db,
-			MessagingManager messagingManager, ContactManager contactManager,
-			SettingsManager settingsManager,
+			AndroidExecutor androidExecutor, MessagingManager messagingManager,
+			ContactManager contactManager, SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
+		this.androidExecutor = androidExecutor;
 		this.db = db;
 		this.messagingManager = messagingManager;
 		this.contactManager = contactManager;
@@ -119,6 +124,12 @@ public class ConversationViewModel extends AndroidViewModel {
 		this.attachmentController = new AttachmentController(messagingManager,
 				getAttachmentDimensions(application.getResources()));
 		contactDeleted.setValue(false);
+	}
+
+	@Override
+	protected void onCleared() {
+		super.onCleared();
+		attachmentController.deleteUnsentAttachments();
 	}
 
 	/**
@@ -176,13 +187,54 @@ public class ConversationViewModel extends AndroidViewModel {
 		});
 	}
 
-	void sendMessage(@Nullable String text, List<Uri> uris, long timestamp) {
+	void sendMessage(@Nullable String text,
+			List<AttachmentHeader> attachmentHeaders, long timestamp) {
 		if (messagingGroupId.getValue() == null) loadGroupId();
 		observeForeverOnce(messagingGroupId, groupId -> {
 			if (groupId == null) return;
-			// calls through to creating and storing the message
-			storeAttachments(groupId, text, uris, timestamp);
+			createMessage(groupId, text, attachmentHeaders, timestamp);
 		});
+	}
+
+	@Override
+	public void storeAttachment(Uri uri, boolean needsSize, Runnable onSuccess,
+			Runnable onError) {
+		if (unsentItems.containsKey(uri)) {
+			// This can happen due to configuration (screen orientation) change.
+			// So don't create a new attachment, if we have one already.
+			androidExecutor.runOnUiThread(onSuccess);
+			return;
+		}
+		if (messagingGroupId.getValue() == null) loadGroupId();
+		observeForeverOnce(messagingGroupId, groupId -> dbExecutor.execute(()
+				-> {
+			if (groupId == null) throw new IllegalStateException();
+			long start = now();
+			try {
+				ContentResolver contentResolver =
+						getApplication().getContentResolver();
+				AttachmentHeader h = attachmentController
+						.createAttachmentHeader(contentResolver, groupId, uri);
+				unsentItems.put(uri, attachmentController
+						.getAttachmentItem(contentResolver, uri, h, needsSize));
+				androidExecutor.runOnUiThread(onSuccess);
+			} catch (DbException | IOException e) {
+				logException(LOG, WARNING, e);
+				androidExecutor.runOnUiThread(onError);
+			}
+			logDuration(LOG, "Storing attachment", start);
+		}));
+	}
+
+	@Override
+	public List<AttachmentHeader> getAttachments() {
+		return attachmentController.getUnsentAttachments();
+	}
+
+	@Override
+	public void removeAttachments() {
+		unsentItems.clear();
+		dbExecutor.execute(attachmentController::deleteUnsentAttachments);
 	}
 
 	private void loadGroupId() {
@@ -252,58 +304,8 @@ public class ConversationViewModel extends AndroidViewModel {
 		});
 	}
 
-	private void storeAttachments(GroupId groupId, @Nullable String text,
-			List<Uri> uris, long timestamp) {
-		dbExecutor.execute(() -> {
-			long start = now();
-			List<AttachmentHeader> attachments = new ArrayList<>();
-			List<AttachmentItem> items = new ArrayList<>();
-			boolean needsSize = uris.size() == 1;
-			for (Uri uri : uris) {
-				Pair<AttachmentHeader, AttachmentItem> pair =
-						createAttachmentHeader(groupId, uri, timestamp,
-								needsSize);
-				if (pair == null) continue;
-				attachments.add(pair.getFirst());
-				items.add(pair.getSecond());
-			}
-			logDuration(LOG, "Storing attachments", start);
-			createMessage(groupId, text, attachments, items, timestamp);
-		});
-	}
-
-	@Nullable
-	@DatabaseExecutor
-	private Pair<AttachmentHeader, AttachmentItem> createAttachmentHeader(
-			GroupId groupId, Uri uri, long timestamp, boolean needsSize) {
-		InputStream is = null;
-		try {
-			ContentResolver contentResolver =
-					getApplication().getContentResolver();
-			is = contentResolver.openInputStream(uri);
-			if (is == null) throw new IOException();
-			String contentType = contentResolver.getType(uri);
-			if (contentType == null) throw new IOException("null content type");
-			AttachmentHeader h = messagingManager
-					.addLocalAttachment(groupId, timestamp, contentType, is);
-			is.close();
-			// re-open stream to get AttachmentItem
-			is = contentResolver.openInputStream(uri);
-			if (is == null) throw new IOException();
-			AttachmentItem item = attachmentController
-					.getAttachmentItem(h, new Attachment(is), needsSize);
-			return new Pair<>(h, item);
-		} catch (DbException | IOException e) {
-			logException(LOG, WARNING, e);
-			return null;
-		} finally {
-			if (is != null) tryToClose(is, LOG, WARNING);
-		}
-	}
-
 	private void createMessage(GroupId groupId, @Nullable String text,
-			List<AttachmentHeader> attachments, List<AttachmentItem> aItems,
-			long timestamp) {
+			List<AttachmentHeader> attachments, long timestamp) {
 		cryptoExecutor.execute(() -> {
 			try {
 				// TODO remove when text can be null in the backend
@@ -311,7 +313,6 @@ public class ConversationViewModel extends AndroidViewModel {
 				PrivateMessage pm = privateMessageFactory
 						.createPrivateMessage(groupId, timestamp, msgText,
 								attachments);
-				attachmentController.put(pm.getMessage().getId(), aItems);
 				storeMessage(pm, msgText, attachments);
 			} catch (FormatException e) {
 				throw new RuntimeException(e);
@@ -331,6 +332,10 @@ public class ConversationViewModel extends AndroidViewModel {
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, true, false, false,
 						text != null, attachments);
+				attachmentController.put(m.getMessage().getId(),
+						new ArrayList<>(unsentItems.values()));
+				unsentItems.clear();
+				attachmentController.markAttachmentsSent();
 				// TODO add text to cache when available here
 				addedHeader.postValue(h);
 			} catch (DbException e) {

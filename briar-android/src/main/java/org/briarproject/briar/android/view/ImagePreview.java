@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
@@ -60,21 +59,22 @@ public class ImagePreview extends ConstraintLayout {
 		this.listener = listener;
 	}
 
-	void showPreview(Collection<Uri> imageUris) {
+	void showPreview(Collection<ImagePreviewItem> items) {
 		if (listener == null) throw new IllegalStateException();
-		if (imageUris.size() == 1) {
+		if (items.size() == 1) {
 			LayoutParams params = (LayoutParams) imageList.getLayoutParams();
 			params.width = MATCH_PARENT;
 			imageList.setLayoutParams(params);
 		}
 		setVisibility(VISIBLE);
-		imageList.setAdapter(new ImagePreviewAdapter(imageUris, listener));
+		ImagePreviewAdapter adapter = new ImagePreviewAdapter(items, listener);
+		imageList.setAdapter(adapter);
 	}
 
-	void removeUri(Uri uri) {
+	void loadPreviewImage(ImagePreviewItem item) {
 		ImagePreviewAdapter adapter =
-				(ImagePreviewAdapter) imageList.getAdapter();
-		requireNonNull(adapter).removeUri(uri);
+				((ImagePreviewAdapter) imageList.getAdapter());
+		requireNonNull(adapter).loadItemPreview(item);
 	}
 
 	interface ImagePreviewListener {
@@ -86,7 +86,7 @@ public class ImagePreview extends ConstraintLayout {
 		 *
 		 * Warning: Glide may call this multiple times.
 		 */
-		void onUriError(Uri uri);
+		void onError();
 
 		void onCancel();
 	}

@@ -16,6 +16,7 @@ import android.widget.Toast;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,6 +47,7 @@ public class TextAttachmentController extends TextSendController
 	private final ImagePreview imagePreview;
 	private final AttachImageListener imageListener;
 	private final CompositeSendButton sendButton;
+	private final AttachmentManager attachmentManager;
 
 	private CharSequence textHint;
 	private List<Uri> imageUris = emptyList();
@@ -53,10 +55,12 @@ public class TextAttachmentController extends TextSendController
 	private boolean loadingPreviews = false;
 
 	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
-			SendListener listener, AttachImageListener imageListener) {
+			SendListener listener, AttachImageListener imageListener,
+			AttachmentManager attachmentManager) {
 		super(v, listener, false);
 		this.imageListener = imageListener;
 		this.imagePreview = imagePreview;
+		this.attachmentManager = attachmentManager;
 		this.imagePreview.setImagePreviewListener(this);
 
 		sendButton = (CompositeSendButton) compositeSendButton;
@@ -84,7 +88,8 @@ public class TextAttachmentController extends TextSendController
 	@Override
 	public void onSendEvent() {
 		if (canSend()) {
-			listener.onSendClick(textInput.getText(), imageUris);
+			listener.onSendClick(textInput.getText(),
+					attachmentManager.getAttachments());
 			reset();
 		}
 	}
@@ -139,7 +144,15 @@ public class TextAttachmentController extends TextSendController
 		loadingPreviews = true;
 		updateViewState();
 		textInput.setHint(R.string.image_caption_hint);
-		imagePreview.showPreview(imageUris);
+		List<ImagePreviewItem> items = ImagePreviewItem.fromUris(imageUris);
+		imagePreview.showPreview(items);
+		// store attachments and show preview when successful
+		boolean needsSize = items.size() == 1;
+		for (ImagePreviewItem item : items) {
+			attachmentManager.storeAttachment(item.getUri(), needsSize,
+					() -> imagePreview.loadPreviewImage(item),
+					this::onError);
+		}
 	}
 
 	private void reset() {
@@ -180,22 +193,16 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	@Override
-	public void onUriError(Uri uri) {
-		boolean removed = imageUris.remove(uri);
-		if (!removed) {
-			// we have removed this Uri already, do not remove it again
-			return;
-		}
-		imagePreview.removeUri(uri);
-		if (imageUris.isEmpty()) onCancel();
+	public void onError() {
 		Toast.makeText(textInput.getContext(), R.string.image_attach_error,
 				LENGTH_LONG).show();
-		checkAllPreviewsLoaded();
+		onCancel();
 	}
 
 	@Override
 	public void onCancel() {
 		textInput.clearText();
+		attachmentManager.removeAttachments();
 		reset();
 	}
 
@@ -263,6 +270,22 @@ public class TextAttachmentController extends TextSendController
 
 	public interface AttachImageListener {
 		void onAttachImage(Intent intent);
+	}
+
+	public interface AttachmentManager {
+		/**
+		 * Stores a new attachment in the database.
+		 *
+		 * @param uri The Uri of the attachment to store.
+		 * @param onSuccess will be run on the UiThread when the attachment was stored successfully.
+		 * @param onError will be run on the UiThread when the attachment could not be stored.
+		 */
+		void storeAttachment(Uri uri, boolean needsSize, Runnable onSuccess,
+				Runnable onError);
+
+		List<AttachmentHeader> getAttachments();
+
+		void removeAttachments();
 	}
 
 }

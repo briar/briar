@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -19,6 +18,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.List;
 
@@ -83,7 +83,8 @@ public abstract class BaseMessageFragment extends BaseFragment
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+	public void onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers) {
 		// disable button to prevent accidental double actions
 		sendController.setReady(false);
 		message.hideSoftKeyboard();
