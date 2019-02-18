@@ -163,7 +163,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		if (is.available() == 0) throw new IOException();
 		byte[] b = new byte[MessageId.LENGTH];
 		new Random().nextBytes(b);
-		return new AttachmentHeader(new MessageId(b), "image/png");
+		return new AttachmentHeader(new MessageId(b), contentType);
 	}
 
 	@Override

@@ -38,11 +38,8 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -102,8 +99,6 @@ public class ConversationViewModel extends AndroidViewModel implements
 			new MutableLiveData<>();
 	private final MutableLiveData<PrivateMessageHeader> addedHeader =
 			new MutableLiveData<>();
-	// TODO move to AttachmentController
-	private final Map<Uri, AttachmentItem> unsentItems = new HashMap<>();
 
 	@Inject
 	ConversationViewModel(Application application,
@@ -199,12 +194,6 @@ public class ConversationViewModel extends AndroidViewModel implements
 	@Override
 	public void storeAttachment(Uri uri, boolean needsSize, Runnable onSuccess,
 			Runnable onError) {
-		if (unsentItems.containsKey(uri)) {
-			// This can happen due to configuration (screen orientation) change.
-			// So don't create a new attachment, if we have one already.
-			androidExecutor.runOnUiThread(onSuccess);
-			return;
-		}
 		if (messagingGroupId.getValue() == null) loadGroupId();
 		observeForeverOnce(messagingGroupId, groupId -> dbExecutor.execute(()
 				-> {
@@ -213,10 +202,8 @@ public class ConversationViewModel extends AndroidViewModel implements
 			try {
 				ContentResolver contentResolver =
 						getApplication().getContentResolver();
-				AttachmentHeader h = attachmentController
-						.createAttachmentHeader(contentResolver, groupId, uri);
-				unsentItems.put(uri, attachmentController
-						.getAttachmentItem(contentResolver, uri, h, needsSize));
+				attachmentController.createAttachmentHeader(contentResolver,
+						groupId, uri, needsSize);
 				androidExecutor.runOnUiThread(onSuccess);
 			} catch (DbException | IOException e) {
 				logException(LOG, WARNING, e);
@@ -227,13 +214,12 @@ public class ConversationViewModel extends AndroidViewModel implements
 	}
 
 	@Override
-	public List<AttachmentHeader> getAttachments() {
-		return attachmentController.getUnsentAttachments();
+	public List<AttachmentHeader> getAttachmentHeaders() {
+		return attachmentController.getUnsentAttachmentHeaders();
 	}
 
 	@Override
 	public void removeAttachments() {
-		unsentItems.clear();
 		dbExecutor.execute(attachmentController::deleteUnsentAttachments);
 	}
 
@@ -332,10 +318,7 @@ public class ConversationViewModel extends AndroidViewModel implements
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, true, false, false,
 						text != null, attachments);
-				attachmentController.put(m.getMessage().getId(),
-						new ArrayList<>(unsentItems.values()));
-				unsentItems.clear();
-				attachmentController.markAttachmentsSent();
+				attachmentController.onAttachmentsSent(m.getMessage().getId());
 				// TODO add text to cache when available here
 				addedHeader.postValue(h);
 			} catch (DbException e) {

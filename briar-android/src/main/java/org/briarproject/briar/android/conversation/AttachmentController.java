@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.logging.Logger;
 
 import static android.support.media.ExifInterface.ORIENTATION_ROTATE_270;
@@ -59,7 +58,8 @@ class AttachmentController {
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
 
-	private final List<AttachmentHeader> unsent = new CopyOnWriteArrayList<>();
+	private final Map<Uri, AttachmentItem> unsentItems =
+			new ConcurrentHashMap<>();
 	private final Map<MessageId, List<AttachmentItem>> attachmentCache =
 			new ConcurrentHashMap<>();
 
@@ -121,9 +121,15 @@ class AttachmentController {
 	}
 
 	@DatabaseExecutor
-	AttachmentHeader createAttachmentHeader(ContentResolver contentResolver,
-			GroupId groupId, Uri uri)
+	void createAttachmentHeader(ContentResolver contentResolver,
+			GroupId groupId, Uri uri, boolean needsSize)
 			throws IOException, DbException {
+		if (unsentItems.containsKey(uri)) {
+			// This can happen due to configuration (screen orientation) change.
+			// So don't create a new attachment, if we have one already.
+			return;
+		}
+		long start = now();
 		InputStream is = contentResolver.openInputStream(uri);
 		if (is == null) throw new IOException();
 		String contentType = contentResolver.getType(uri);
@@ -132,32 +138,47 @@ class AttachmentController {
 		AttachmentHeader h = messagingManager
 				.addLocalAttachment(groupId, timestamp, contentType, is);
 		tryToClose(is, LOG, WARNING);
-		unsent.add(h);
-		return h;
+		logDuration(LOG, "Storing attachment", start);
+		// get and store AttachmentItem for ImagePreview
+		AttachmentItem item =
+				getAttachmentItem(contentResolver, uri, h, needsSize);
+		if (item.hasError()) throw new IOException();
+		unsentItems.put(uri, item);
 	}
 
 	@DatabaseExecutor
 	void deleteUnsentAttachments() {
-		for (AttachmentHeader h : unsent) {
+		for (AttachmentItem item : unsentItems.values()) {
 			try {
-				messagingManager.removeAttachment(h);
+				messagingManager.removeAttachment(item.getHeader());
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		}
+		unsentItems.clear();
 	}
 
-	List<AttachmentHeader> getUnsentAttachments() {
-		return new ArrayList<>(unsent);
+	List<AttachmentHeader> getUnsentAttachmentHeaders() {
+		List<AttachmentHeader> headers =
+				new ArrayList<>(unsentItems.values().size());
+		for (AttachmentItem item : unsentItems.values()) {
+			headers.add(item.getHeader());
+		}
+		return headers;
 	}
 
-	void markAttachmentsSent() {
-		unsent.clear();
+	/**
+	 * Marks the attachments as sent and adds the items to the cache for display
+	 * @param id The MessageId of the sent message.
+	 */
+	void onAttachmentsSent(MessageId id) {
+		attachmentCache.put(id, new ArrayList<>(unsentItems.values()));
+		unsentItems.clear();
 	}
 
 	@DatabaseExecutor
-	AttachmentItem getAttachmentItem(ContentResolver contentResolver, Uri uri,
-			AttachmentHeader h, boolean needsSize) throws IOException {
+	private AttachmentItem getAttachmentItem(ContentResolver contentResolver,
+			Uri uri, AttachmentHeader h, boolean needsSize) throws IOException {
 		InputStream is = null;
 		try {
 			is = contentResolver.openInputStream(uri);
@@ -192,17 +213,15 @@ class AttachmentController {
 	@VisibleForTesting
 	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
 			boolean needsSize) {
-		MessageId messageId = h.getMessageId();
 		if (!needsSize) {
-			String mimeType = h.getContentType();
-			String extension = imageHelper.getExtensionFromMimeType(mimeType);
+			String extension =
+					imageHelper.getExtensionFromMimeType(h.getContentType());
 			boolean hasError = false;
 			if (extension == null) {
 				extension = "";
 				hasError = true;
 			}
-			return new AttachmentItem(messageId, 0, 0, mimeType, extension, 0,
-					0, hasError);
+			return new AttachmentItem(h, 0, 0, extension, 0, 0, hasError);
 		}
 
 		Size size = new Size();
@@ -240,10 +259,17 @@ class AttachmentController {
 		// get file extension
 		String extension = imageHelper.getExtensionFromMimeType(size.mimeType);
 		boolean hasError = extension == null || size.error;
+		if (!h.getContentType().equals(size.mimeType)) {
+			if (LOG.isLoggable(WARNING)) {
+				LOG.warning("Header has different mime type (" +
+						h.getContentType() + ") than image (" + size.mimeType +
+						").");
+			}
+			hasError = true;
+		}
 		if (extension == null) extension = "";
-		return new AttachmentItem(messageId, size.width, size.height,
-				size.mimeType, extension, thumbnailSize.width,
-				thumbnailSize.height, hasError);
+		return new AttachmentItem(h, size.width, size.height, extension,
+				thumbnailSize.width, thumbnailSize.height, hasError);
 	}
 
 	/**

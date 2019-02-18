@@ -89,7 +89,7 @@ public class TextAttachmentController extends TextSendController
 	public void onSendEvent() {
 		if (canSend()) {
 			listener.onSendClick(textInput.getText(),
-					attachmentManager.getAttachments());
+					attachmentManager.getAttachmentHeaders());
 			reset();
 		}
 	}
@@ -283,7 +283,7 @@ public class TextAttachmentController extends TextSendController
 		void storeAttachment(Uri uri, boolean needsSize, Runnable onSuccess,
 				Runnable onError);
 
-		List<AttachmentHeader> getAttachments();
+		List<AttachmentHeader> getAttachmentHeaders();
 
 		void removeAttachments();
 	}
