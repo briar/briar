@@ -27,11 +27,13 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.TextAttachmentController.AttachmentManager;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.api.messaging.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -54,6 +56,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.conversation.AttachmentDimensions.getAttachmentDimensions;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
 public class ConversationViewModel extends AndroidViewModel implements
@@ -192,9 +195,11 @@ public class ConversationViewModel extends AndroidViewModel implements
 	}
 
 	@Override
-	public void storeAttachment(Uri uri, boolean needsSize, Runnable onSuccess,
-			Runnable onError) {
+	public LiveData<AttachmentResult> storeAttachment(Uri uri,
+			boolean needsSize) {
 		if (messagingGroupId.getValue() == null) loadGroupId();
+		// use LiveData to not keep references to view scope
+		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
 		observeForeverOnce(messagingGroupId, groupId -> dbExecutor.execute(()
 				-> {
 			if (groupId == null) throw new IllegalStateException();
@@ -204,13 +209,20 @@ public class ConversationViewModel extends AndroidViewModel implements
 						getApplication().getContentResolver();
 				attachmentController.createAttachmentHeader(contentResolver,
 						groupId, uri, needsSize);
-				androidExecutor.runOnUiThread(onSuccess);
+				result.postValue(new AttachmentResult(uri));
+			} catch(FileTooBigException e) {
+				logException(LOG, WARNING, e);
+				int mb = MAX_IMAGE_SIZE / 1024 / 1024;
+				String errorMsg = getApplication()
+						.getString(R.string.image_attach_error_too_big, mb);
+				result.postValue(new AttachmentResult(errorMsg));
 			} catch (DbException | IOException e) {
 				logException(LOG, WARNING, e);
-				androidExecutor.runOnUiThread(onError);
+				result.postValue(new AttachmentResult((String) null));
 			}
 			logDuration(LOG, "Storing attachment", start);
 		}));
+		return result;
 	}
 
 	@Override

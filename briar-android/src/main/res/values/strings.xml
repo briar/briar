@@ -130,6 +130,7 @@
 	<string name="image_caption_hint">Add a caption (optional)</string>
 	<string name="image_attach">Attach image</string>
 	<string name="image_attach_error">Could not attach image(s)</string>
+	<string name="image_attach_error_too_big">Image too big. Limit is %d MB.</string>
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
 	<string name="set_alias_button">Change</string>

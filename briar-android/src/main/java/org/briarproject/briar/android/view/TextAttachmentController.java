@@ -1,6 +1,8 @@
 package org.briarproject.briar.android.view;
 
 import android.app.Activity;
+import android.arch.lifecycle.LifecycleOwner;
+import android.arch.lifecycle.LiveData;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.conversation.AttachmentResult;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 
@@ -149,9 +152,17 @@ public class TextAttachmentController extends TextSendController
 		// store attachments and show preview when successful
 		boolean needsSize = items.size() == 1;
 		for (ImagePreviewItem item : items) {
-			attachmentManager.storeAttachment(item.getUri(), needsSize,
-					() -> imagePreview.loadPreviewImage(item),
-					this::onError);
+			attachmentManager.storeAttachment(item.getUri(), needsSize)
+					.observe(imageListener, this::onAttachmentResultReceived);
+		}
+	}
+
+	private void onAttachmentResultReceived(AttachmentResult result) {
+		if (result.isError() || result.getUri() == null) {
+			onError(result.getErrorMsg());
+		} else {
+			ImagePreviewItem item = new ImagePreviewItem(result.getUri());
+			imagePreview.loadPreviewImage(item);
 		}
 	}
 
@@ -194,8 +205,16 @@ public class TextAttachmentController extends TextSendController
 
 	@Override
 	public void onError() {
-		Toast.makeText(textInput.getContext(), R.string.image_attach_error,
-				LENGTH_LONG).show();
+		onError(null);
+	}
+
+	@UiThread
+	private void onError(@Nullable String errorMsg) {
+		if (errorMsg == null) {
+			errorMsg = imagePreview.getContext()
+					.getString(R.string.image_attach_error);
+		}
+		Toast.makeText(textInput.getContext(), errorMsg, LENGTH_LONG).show();
 		onCancel();
 	}
 
@@ -268,7 +287,7 @@ public class TextAttachmentController extends TextSendController
 				};
 	}
 
-	public interface AttachImageListener {
+	public interface AttachImageListener extends LifecycleOwner {
 		void onAttachImage(Intent intent);
 	}
 
@@ -277,11 +296,10 @@ public class TextAttachmentController extends TextSendController
 		 * Stores a new attachment in the database.
 		 *
 		 * @param uri The Uri of the attachment to store.
-		 * @param onSuccess will be run on the UiThread when the attachment was stored successfully.
-		 * @param onError will be run on the UiThread when the attachment could not be stored.
+		 * @param needsSize true if this is the only image in the message
+		 * and therefore needs to know its size.
 		 */
-		void storeAttachment(Uri uri, boolean needsSize, Runnable onSuccess,
-				Runnable onError);
+		LiveData<AttachmentResult> storeAttachment(Uri uri, boolean needsSize);
 
 		List<AttachmentHeader> getAttachmentHeaders();
 

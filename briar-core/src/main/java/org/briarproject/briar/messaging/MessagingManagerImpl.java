@@ -18,14 +18,17 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.api.messaging.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
@@ -33,18 +36,18 @@ import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.io.ByteArrayInputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
-import java.util.Random;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @Immutable
@@ -55,15 +58,18 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
+	private final MessageFactory messageFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
-			ContactGroupFactory contactGroupFactory) {
+			ContactGroupFactory contactGroupFactory,
+			MessageFactory messageFactory) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
+		this.messageFactory = messageFactory;
 	}
 
 	@Override
@@ -158,17 +164,25 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
-			String contentType, InputStream is) throws IOException {
+			String contentType, InputStream is)
+			throws DbException, IOException {
 		// TODO add real implementation
-		if (is.available() == 0) throw new IOException();
-		byte[] b = new byte[MessageId.LENGTH];
-		new Random().nextBytes(b);
-		return new AttachmentHeader(new MessageId(b), contentType);
+		byte[] body = new byte[MAX_MESSAGE_BODY_LENGTH];
+		try {
+			IoUtils.read(is, body);
+		} catch (EOFException ignored) {
+		}
+		if (is.available() > 0) throw new FileTooBigException();
+		is.close();
+		Message m = messageFactory.createMessage(groupId, timestamp, body);
+		clientHelper.addLocalMessage(m, new BdfDictionary(), false);
+		return new AttachmentHeader(m.getId(), contentType);
 	}
 
 	@Override
 	public void removeAttachment(AttachmentHeader header) throws DbException {
-		// TODO add real implementation
+		db.transaction(false,
+				txn -> db.removeMessage(txn, header.getMessageId()));
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId g)
@@ -247,12 +261,10 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Attachment getAttachment(MessageId m) {
+	public Attachment getAttachment(MessageId mId) throws DbException {
 		// TODO add real implementation
-		byte[] bytes = fromHexString("89504E470D0A1A0A0000000D49484452" +
-				"000000010000000108060000001F15C4" +
-				"890000000A49444154789C6300010000" +
-				"0500010D0A2DB40000000049454E44AE426082");
+		Message m = clientHelper.getMessage(mId);
+		byte[] bytes = m.getBody();
 		return new Attachment(new ByteArrayInputStream(bytes));
 	}
 

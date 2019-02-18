@@ -37,6 +37,8 @@ public interface MessagingManager extends ConversationClient {
 
 	/**
 	 * Stores a local attachment message.
+	 *
+	 * @throws FileTooBigException
 	 */
 	AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
 			String contentType, InputStream is) throws DbException, IOException;

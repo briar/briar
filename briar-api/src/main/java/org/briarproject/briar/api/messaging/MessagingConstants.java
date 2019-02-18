@@ -20,7 +20,8 @@ public interface MessagingConstants {
 
 	/**
 	 * The maximum allowed size of image attachments.
+	 * TODO: Different limit for GIFs?
 	 */
-	int MAX_IMAGE_SIZE = 6 * 1024 * 1024;
+	int MAX_IMAGE_SIZE = MAX_MESSAGE_BODY_LENGTH; // 6 * 1024 * 1024;
 
 }

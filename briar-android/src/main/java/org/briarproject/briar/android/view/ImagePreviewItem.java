@@ -15,7 +15,7 @@ class ImagePreviewItem {
 	private final Uri uri;
 	private boolean waitForLoading = true;
 
-	private ImagePreviewItem(Uri uri) {
+	ImagePreviewItem(Uri uri) {
 		this.uri = uri;
 	}
 
