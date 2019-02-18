@@ -74,7 +74,6 @@ public class ConversationViewModel extends AndroidViewModel implements
 	@CryptoExecutor
 	private final Executor cryptoExecutor;
 	private final TransactionManager db;
-	private final AndroidExecutor androidExecutor;
 	private final MessagingManager messagingManager;
 	private final ContactManager contactManager;
 	private final SettingsManager settingsManager;
@@ -107,13 +106,12 @@ public class ConversationViewModel extends AndroidViewModel implements
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			@CryptoExecutor Executor cryptoExecutor, TransactionManager db,
-			AndroidExecutor androidExecutor, MessagingManager messagingManager,
-			ContactManager contactManager, SettingsManager settingsManager,
+			MessagingManager messagingManager, ContactManager contactManager,
+			SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.cryptoExecutor = cryptoExecutor;
-		this.androidExecutor = androidExecutor;
 		this.db = db;
 		this.messagingManager = messagingManager;
 		this.contactManager = contactManager;
@@ -197,16 +195,24 @@ public class ConversationViewModel extends AndroidViewModel implements
 	@Override
 	public LiveData<AttachmentResult> storeAttachment(Uri uri,
 			boolean needsSize) {
-		if (messagingGroupId.getValue() == null) loadGroupId();
 		// use LiveData to not keep references to view scope
 		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
+		// check first if mime type is supported
+		ContentResolver contentResolver =
+				getApplication().getContentResolver();
+		String mimeType = contentResolver.getType(uri);
+		if (!attachmentController.isValidMimeType(mimeType)) {
+			String errorMsg = getApplication().getString(
+					R.string.image_attach_error_invalid_mime_type, mimeType);
+			result.setValue(new AttachmentResult(errorMsg));
+			return result;
+		}
+		if (messagingGroupId.getValue() == null) loadGroupId();
 		observeForeverOnce(messagingGroupId, groupId -> dbExecutor.execute(()
 				-> {
 			if (groupId == null) throw new IllegalStateException();
 			long start = now();
 			try {
-				ContentResolver contentResolver =
-						getApplication().getContentResolver();
 				attachmentController.createAttachmentHeader(contentResolver,
 						groupId, uri, needsSize);
 				result.postValue(new AttachmentResult(uri));

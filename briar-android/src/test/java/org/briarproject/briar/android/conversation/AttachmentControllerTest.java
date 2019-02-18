@@ -95,23 +95,6 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testImageHealsWrongMimeType() {
-		AttachmentHeader h = getAttachmentHeader("image/png");
-
-		context.checking(new Expectations() {{
-			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
-			will(returnValue(new DecodeResult(160, 240, "image/jpeg")));
-			oneOf(imageHelper).getExtensionFromMimeType("image/jpeg");
-			will(returnValue("jpg"));
-		}});
-
-		AttachmentItem item = controller.getAttachmentItem(h, attachment, true);
-		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
-		assertFalse(item.hasError());
-	}
-
-	@Test
 	public void testBigJpegImage() {
 		String mimeType = "image/jpeg";
 		AttachmentHeader h = getAttachmentHeader(mimeType);

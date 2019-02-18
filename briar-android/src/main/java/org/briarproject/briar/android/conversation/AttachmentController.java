@@ -44,6 +44,7 @@ import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 
 @NotNullByDefault
 class AttachmentController {
@@ -144,6 +145,14 @@ class AttachmentController {
 				getAttachmentItem(contentResolver, uri, h, needsSize);
 		if (item.hasError()) throw new IOException();
 		unsentItems.put(uri, item);
+	}
+
+	boolean isValidMimeType(@Nullable String mimeType) {
+		if (mimeType == null) return false;
+		for (String supportedType : IMAGE_MIME_TYPES) {
+			if (supportedType.equals(mimeType)) return true;
+		}
+		return false;
 	}
 
 	@DatabaseExecutor
