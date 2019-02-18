@@ -4,6 +4,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.conversation.AttachmentItem;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,22 +14,12 @@ import java.util.List;
 class ImagePreviewItem {
 
 	private final Uri uri;
-	private boolean waitForLoading = true;
+	@Nullable
+	private AttachmentItem item;
 
 	ImagePreviewItem(Uri uri) {
 		this.uri = uri;
-	}
-
-	Uri getUri() {
-		return uri;
-	}
-
-	void setWaitForLoading(boolean waitForLoading) {
-		this.waitForLoading = waitForLoading;
-	}
-
-	boolean waitForLoading() {
-		return waitForLoading;
+		this.item = null;
 	}
 
 	static List<ImagePreviewItem> fromUris(Collection<Uri> uris) {
@@ -37,6 +28,19 @@ class ImagePreviewItem {
 			items.add(new ImagePreviewItem(uri));
 		}
 		return items;
+	}
+
+	Uri getUri() {
+		return uri;
+	}
+
+	public void setItem(AttachmentItem item) {
+		this.item = item;
+	}
+
+	@Nullable
+	public AttachmentItem getItem() {
+		return item;
 	}
 
 	@Override

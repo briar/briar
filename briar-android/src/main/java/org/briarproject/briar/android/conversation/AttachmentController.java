@@ -38,6 +38,7 @@ import static android.support.media.ExifInterface.ORIENTATION_TRANSVERSE;
 import static android.support.media.ExifInterface.TAG_IMAGE_LENGTH;
 import static android.support.media.ExifInterface.TAG_IMAGE_WIDTH;
 import static android.support.media.ExifInterface.TAG_ORIENTATION;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -122,13 +123,13 @@ class AttachmentController {
 	}
 
 	@DatabaseExecutor
-	void createAttachmentHeader(ContentResolver contentResolver,
+	AttachmentItem createAttachmentHeader(ContentResolver contentResolver,
 			GroupId groupId, Uri uri, boolean needsSize)
 			throws IOException, DbException {
 		if (unsentItems.containsKey(uri)) {
 			// This can happen due to configuration (screen orientation) change.
 			// So don't create a new attachment, if we have one already.
-			return;
+			return requireNonNull(unsentItems.get(uri));
 		}
 		long start = now();
 		InputStream is = contentResolver.openInputStream(uri);
@@ -145,6 +146,7 @@ class AttachmentController {
 				getAttachmentItem(contentResolver, uri, h, needsSize);
 		if (item.hasError()) throw new IOException();
 		unsentItems.put(uri, item);
+		return item;
 	}
 
 	boolean isValidMimeType(@Nullable String mimeType) {

@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.conversation.AttachmentResult;
 
 import java.util.Collection;
 
@@ -71,10 +72,10 @@ public class ImagePreview extends ConstraintLayout {
 		imageList.setAdapter(adapter);
 	}
 
-	void loadPreviewImage(ImagePreviewItem item) {
+	void loadPreviewImage(AttachmentResult result) {
 		ImagePreviewAdapter adapter =
 				((ImagePreviewAdapter) imageList.getAdapter());
-		requireNonNull(adapter).loadItemPreview(item);
+		requireNonNull(adapter).loadItemPreview(result);
 	}
 
 	interface ImagePreviewListener {

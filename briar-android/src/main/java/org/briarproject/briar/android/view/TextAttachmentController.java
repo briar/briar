@@ -161,8 +161,7 @@ public class TextAttachmentController extends TextSendController
 		if (result.isError() || result.getUri() == null) {
 			onError(result.getErrorMsg());
 		} else {
-			ImagePreviewItem item = new ImagePreviewItem(result.getUri());
-			imagePreview.loadPreviewImage(item);
+			imagePreview.loadPreviewImage(result);
 		}
 	}
 

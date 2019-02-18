@@ -42,7 +42,7 @@ class ImagePreviewViewHolder extends ViewHolder {
 	}
 
 	void bind(ImagePreviewItem item) {
-		if (item.waitForLoading()) return;
+		if (item.getItem() == null) return;
 		GlideApp.with(imageView)
 				.load(item.getUri())
 				.diskCacheStrategy(NONE)

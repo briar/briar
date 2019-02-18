@@ -213,9 +213,10 @@ public class ConversationViewModel extends AndroidViewModel implements
 			if (groupId == null) throw new IllegalStateException();
 			long start = now();
 			try {
-				attachmentController.createAttachmentHeader(contentResolver,
-						groupId, uri, needsSize);
-				result.postValue(new AttachmentResult(uri));
+				AttachmentItem item = attachmentController
+						.createAttachmentHeader(contentResolver, groupId, uri,
+								needsSize);
+				result.postValue(new AttachmentResult(uri, item));
 			} catch(FileTooBigException e) {
 				logException(LOG, WARNING, e);
 				int mb = MAX_IMAGE_SIZE / 1024 / 1024;
@@ -224,7 +225,7 @@ public class ConversationViewModel extends AndroidViewModel implements
 				result.postValue(new AttachmentResult(errorMsg));
 			} catch (DbException | IOException e) {
 				logException(LOG, WARNING, e);
-				result.postValue(new AttachmentResult((String) null));
+				result.postValue(new AttachmentResult(null));
 			}
 			logDuration(LOG, "Storing attachment", start);
 		}));

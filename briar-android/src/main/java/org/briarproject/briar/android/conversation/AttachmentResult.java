@@ -14,21 +14,30 @@ public class AttachmentResult {
 	@Nullable
 	private final Uri uri;
 	@Nullable
+	private final AttachmentItem item;
+	@Nullable
 	private final String errorMsg;
 
-	public AttachmentResult(Uri uri) {
+	public AttachmentResult(Uri uri, AttachmentItem item) {
 		this.uri = uri;
+		this.item = item;
 		this.errorMsg = null;
 	}
 
 	public AttachmentResult(@Nullable String errorMsg) {
 		this.uri = null;
+		this.item = null;
 		this.errorMsg = errorMsg;
 	}
 
 	@Nullable
 	public Uri getUri() {
 		return uri;
+	}
+
+	@Nullable
+	public AttachmentItem getItem() {
+		return item;
 	}
 
 	public boolean isError() {
