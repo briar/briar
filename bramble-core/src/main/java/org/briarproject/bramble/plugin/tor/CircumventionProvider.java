@@ -17,16 +17,24 @@ public interface CircumventionProvider {
 	String[] BLOCKED = {"CN", "IR", "EG", "BY", "TR", "SY", "VE"};
 
 	/**
-	 * Countries where vanilla bridge connection are likely to work.
+	 * Countries where obfs4 bridge connection are likely to work.
 	 * Should be a subset of {@link #BLOCKED}.
 	 */
-	String[] BRIDGES = { "EG", "BY", "TR", "SY", "VE" };
+	String[] BRIDGES = { "CN", "IR", "EG", "BY", "TR", "SY", "VE" };
+
+	/**
+	 * Countries where obfs4 bridges won't work and meek is needed.
+	 * Should be a subset of {@link #BRIDGES}.
+	 */
+	String[] NEEDS_MEEK = {"CN", "IR"};
 
 	boolean isTorProbablyBlocked(String countryCode);
 
 	boolean doBridgesWork(String countryCode);
 
+	boolean needsMeek(String countryCode);
+
 	@IoExecutor
-	List<String> getBridges();
+	List<String> getBridges(boolean meek);
 
 }

@@ -470,13 +470,19 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!enable) callback.transportDisabled();
 	}
 
-	private void enableBridges(boolean enable) throws IOException {
+	private void enableBridges(boolean enable, boolean needsMeek)
+			throws IOException {
 		if (enable) {
 			Collection<String> conf = new ArrayList<>();
 			conf.add("UseBridges 1");
-			conf.add("ClientTransportPlugin obfs4 exec " +
-					obfs4File.getAbsolutePath());
-			conf.addAll(circumventionProvider.getBridges());
+			if (needsMeek) {
+				conf.add("ClientTransportPlugin meek_lite exec " +
+						obfs4File.getAbsolutePath());
+			} else {
+				conf.add("ClientTransportPlugin obfs4 exec " +
+						obfs4File.getAbsolutePath());
+			}
+			conf.addAll(circumventionProvider.getBridges(needsMeek));
 			controlConnection.setConf(conf);
 		} else {
 			controlConnection.setConf("UseBridges", "0");
@@ -716,12 +722,17 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 					enableNetwork(false);
 				} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
 						(automatic && bridgesWork)) {
-					LOG.info("Enabling network, using bridges");
-					enableBridges(true);
+					if (circumventionProvider.needsMeek(country)) {
+						LOG.info("Enabling network, using meek bridges");
+						enableBridges(true, true);
+					} else {
+						LOG.info("Enabling network, using obfs4 bridges");
+						enableBridges(true, false);
+					}
 					enableNetwork(true);
 				} else {
 					LOG.info("Enabling network, not using bridges");
-					enableBridges(false);
+					enableBridges(false, false);
 					enableNetwork(true);
 				}
 				if (online && wifi && charging) {
