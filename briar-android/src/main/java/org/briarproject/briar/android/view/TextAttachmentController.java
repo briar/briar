@@ -31,6 +31,7 @@ import static android.content.Intent.ACTION_GET_CONTENT;
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.content.Intent.CATEGORY_OPENABLE;
 import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
+import static android.content.Intent.EXTRA_MIME_TYPES;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.content.ContextCompat.getColor;
 import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
@@ -39,6 +40,7 @@ import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
+import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
@@ -118,12 +120,18 @@ public class TextAttachmentController extends TextSendController
 			builder.show();
 			return;
 		}
+		Intent intent = getAttachFileIntent();
+		requireNonNull(imageListener).onAttachImage(intent);
+	}
+
+	private Intent getAttachFileIntent() {
 		Intent intent = new Intent(SDK_INT >= 19 ?
 				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
-		intent.addCategory(CATEGORY_OPENABLE);
 		intent.setType("image/*");
+		intent.addCategory(CATEGORY_OPENABLE);
+		if (SDK_INT >= 19) intent.putExtra(EXTRA_MIME_TYPES, IMAGE_MIME_TYPES);
 		if (SDK_INT >= 18) intent.putExtra(EXTRA_ALLOW_MULTIPLE, true);
-		requireNonNull(imageListener).onAttachImage(intent);
+		return intent;
 	}
 
 	public void onImageReceived(@Nullable Intent resultData) {
