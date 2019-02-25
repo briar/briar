@@ -2,10 +2,11 @@ package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.contact.ContactExchangeListener;
 import org.briarproject.bramble.api.contact.ContactExchangeTask;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.event.ContactExchangeFailedEvent;
+import org.briarproject.bramble.api.contact.event.ContactExchangeSucceededEvent;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -13,6 +14,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -63,6 +65,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private final ClientHelper clientHelper;
 	private final RecordReaderFactory recordReaderFactory;
 	private final RecordWriterFactory recordWriterFactory;
+	private final EventBus eventBus;
 	private final Clock clock;
 	private final ConnectionManager connectionManager;
 	private final ContactManager contactManager;
@@ -71,7 +74,6 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 
-	private volatile ContactExchangeListener listener;
 	private volatile LocalAuthor localAuthor;
 	private volatile DuplexTransportConnection conn;
 	private volatile TransportId transportId;
@@ -81,8 +83,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	@Inject
 	ContactExchangeTaskImpl(DatabaseComponent db, ClientHelper clientHelper,
 			RecordReaderFactory recordReaderFactory,
-			RecordWriterFactory recordWriterFactory, Clock clock,
-			ConnectionManager connectionManager, ContactManager contactManager,
+			RecordWriterFactory recordWriterFactory, EventBus eventBus,
+			Clock clock, ConnectionManager connectionManager,
+			ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager,
 			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory) {
@@ -90,6 +93,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		this.clientHelper = clientHelper;
 		this.recordReaderFactory = recordReaderFactory;
 		this.recordWriterFactory = recordWriterFactory;
+		this.eventBus = eventBus;
 		this.clock = clock;
 		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
@@ -100,11 +104,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	}
 
 	@Override
-	public void startExchange(ContactExchangeListener listener,
-			LocalAuthor localAuthor, SecretKey masterSecret,
+	public void startExchange(LocalAuthor localAuthor, SecretKey masterSecret,
 			DuplexTransportConnection conn, TransportId transportId,
 			boolean alice) {
-		this.listener = listener;
 		this.localAuthor = localAuthor;
 		this.conn = conn;
 		this.transportId = transportId;
@@ -123,8 +125,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			out = conn.getWriter().getOutputStream();
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
-			listener.contactExchangeFailed();
 			tryToClose(conn);
+			eventBus.broadcast(new ContactExchangeFailedEvent());
 			return;
 		}
 
@@ -134,7 +136,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			localProperties = transportPropertyManager.getLocalProperties();
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
-			listener.contactExchangeFailed();
+			eventBus.broadcast(new ContactExchangeFailedEvent());
 			tryToClose(conn);
 			return;
 		}
@@ -196,7 +198,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			}
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
-			listener.contactExchangeFailed();
+			eventBus.broadcast(new ContactExchangeFailedEvent());
 			tryToClose(conn);
 			return;
 		}
@@ -204,7 +206,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		// Verify the contact's signature
 		if (!verify(remoteInfo.author, remoteNonce, remoteInfo.signature)) {
 			LOG.warning("Invalid signature");
-			listener.contactExchangeFailed();
+			eventBus.broadcast(new ContactExchangeFailedEvent());
 			tryToClose(conn);
 			return;
 		}
@@ -221,15 +223,17 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 					conn);
 			// Pseudonym exchange succeeded
 			LOG.info("Pseudonym exchange succeeded");
-			listener.contactExchangeSucceeded(remoteInfo.author);
+			eventBus.broadcast(
+					new ContactExchangeSucceededEvent(remoteInfo.author));
 		} catch (ContactExistsException e) {
 			logException(LOG, WARNING, e);
 			tryToClose(conn);
-			listener.duplicateContact(remoteInfo.author);
+			eventBus.broadcast(
+					new ContactExchangeFailedEvent(remoteInfo.author));
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 			tryToClose(conn);
-			listener.contactExchangeFailed();
+			eventBus.broadcast(new ContactExchangeFailedEvent());
 		}
 	}
 

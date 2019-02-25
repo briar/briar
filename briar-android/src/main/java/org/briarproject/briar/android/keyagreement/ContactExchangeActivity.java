@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.contact.ContactExchangeListener;
 import org.briarproject.bramble.api.contact.ContactExchangeTask;
+import org.briarproject.bramble.api.contact.event.ContactExchangeFailedEvent;
+import org.briarproject.bramble.api.contact.event.ContactExchangeSucceededEvent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -28,7 +31,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ContactExchangeActivity extends KeyAgreementActivity implements
-		ContactExchangeListener {
+		EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactExchangeActivity.class.getName());
@@ -50,6 +53,20 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 		getSupportActionBar().setTitle(R.string.add_contact_title);
 	}
 
+	@Override
+	public void onStart() {
+		super.onStart();
+		// Listen to updates from contactExchangeTask
+		eventBus.addListener(this);
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+		// Stop listen to updates from contactExchangeTask
+		eventBus.addListener(this);
+	}
+
 	private void startContactExchange(KeyAgreementResult result) {
 		runOnDbThread(() -> {
 			LocalAuthor localAuthor;
@@ -63,15 +80,28 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 			}
 
 			// Exchange contact details
-			contactExchangeTask.startExchange(ContactExchangeActivity.this,
-					localAuthor, result.getMasterKey(),
-					result.getConnection(), result.getTransportId(),
-					result.wasAlice());
+			contactExchangeTask.startExchange(localAuthor,
+					result.getMasterKey(), result.getConnection(),
+					result.getTransportId(), result.wasAlice());
 		});
 	}
 
 	@Override
-	public void contactExchangeSucceeded(Author remoteAuthor) {
+	public void eventOccurred(Event e) {
+		if (e instanceof ContactExchangeSucceededEvent) {
+			contactExchangeSucceeded(
+					((ContactExchangeSucceededEvent) e).getRemoteAuthor());
+		} else if (e instanceof ContactExchangeFailedEvent) {
+			ContactExchangeFailedEvent fe = (ContactExchangeFailedEvent) e;
+			if (fe.wasDuplicateContact()) {
+				duplicateContact(fe.getDuplicateRemoteAuthor());
+			} else {
+				contactExchangeFailed();
+			}
+		}
+	}
+
+	private void contactExchangeSucceeded(Author remoteAuthor) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			String contactName = remoteAuthor.getName();
 			String format = getString(R.string.contact_added_toast);
@@ -82,8 +112,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 		});
 	}
 
-	@Override
-	public void duplicateContact(Author remoteAuthor) {
+	private void duplicateContact(Author remoteAuthor) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			String contactName = remoteAuthor.getName();
 			String format = getString(R.string.contact_already_exists);
@@ -94,8 +123,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 		});
 	}
 
-	@Override
-	public void contactExchangeFailed() {
+	private void contactExchangeFailed() {
 		runOnUiThreadUnlessDestroyed(() -> {
 			showErrorFragment(R.string.connection_error_explanation);
 		});
