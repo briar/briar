@@ -69,7 +69,7 @@ dependencyVerification {
         'org.bouncycastle:bcpkix-jdk15on:1.56:bcpkix-jdk15on-1.56.jar:7043dee4e9e7175e93e0b36f45b1ec1ecb893c5f755667e8b916eb8dd201c6ca',
         'org.bouncycastle:bcprov-jdk15on:1.56:bcprov-jdk15on-1.56.jar:963e1ee14f808ffb99897d848ddcdb28fa91ddda867eb18d303e82728f878349',
         'org.briarproject:obfs4proxy-android:0.0.9:obfs4proxy-android-0.0.9.zip:9b7e9181535ea8d8bbe8ae6338e08cf4c5fc1e357a779393e0ce49586d459ae0',
-        'org.briarproject:tor-android:0.3.5.7:tor-android-0.3.5.7.zip:9ac00f4d362029cd3d40bc3c3d0dc63e081414f8b28ba0c4692ab4a330758093',
+        'org.briarproject:tor-android:0.3.5.8:tor-android-0.3.5.8.zip:42a13a6f185be1a62f42e3f30ce66a3c099ac5ec890a65e7593111b65b44a54a',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.codehaus.groovy:groovy-all:2.4.12:groovy-all-2.4.12.jar:6a56af4bd48903d56bec62821876cadefafd007360cc6bd0d8f7aa8d72b38be4',
         'org.codehaus.mojo:animal-sniffer-annotations:1.14:animal-sniffer-annotations-1.14.jar:2068320bd6bad744c3673ab048f67e30bef8f518996fa380033556600669905d',

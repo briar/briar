@@ -21,7 +21,7 @@ dependencyVerification {
         'org.apache.ant:ant:1.9.4:ant-1.9.4.jar:649ae0730251de07b8913f49286d46bba7b92d47c5f332610aa426c4f02161d8',
         'org.beanshell:bsh:1.3.0:bsh-1.3.0.jar:9b04edc75d19db54f1b4e8b5355e9364384c6cf71eb0a1b9724c159d779879f8',
         'org.briarproject:obfs4proxy:0.0.7:obfs4proxy-0.0.7.zip:5b2f693262ce43a7e130f7cc7d5d1617925330640a2eb6d71085e95df8ee0642',
-        'org.briarproject:tor:0.3.4.8:tor-0.3.4.8.zip:bc0158c34002f471a4fe14a6a481816c918eb520a220bb027f64be902beb757f',
+        'org.briarproject:tor:0.3.5.8:tor-0.3.5.8.zip:96e83391f01984f28669235fc02fbb0243140a2b3b2c73aeffd0042c8d3ced18',
         'org.checkerframework:checker-compat-qual:2.5.3:checker-compat-qual-2.5.3.jar:d76b9afea61c7c082908023f0cbc1427fab9abd2df915c8b8a3e7a509bccbc6d',
         'org.codehaus.mojo:animal-sniffer-annotations:1.14:animal-sniffer-annotations-1.14.jar:2068320bd6bad744c3673ab048f67e30bef8f518996fa380033556600669905d',
         'org.hamcrest:hamcrest-core:1.3:hamcrest-core-1.3.jar:66fdef91e9739348df7a096aa384a5685f4e875584cce89386a7a47251c4d8e9',
