@@ -1,69 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
-	android:layout_height="wrap_content"
-	android:orientation="vertical"
-	android:padding="16dp">
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content">
 
-	<TextView
-		android:layout_width="match_parent"
+	<android.support.constraint.ConstraintLayout
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="@string/link_warning_title"
-		android:textColor="?android:attr/textColorPrimary"
-		android:textSize="@dimen/text_size_large"
-		android:textStyle="bold"/>
+		android:padding="16dp">
 
-	<TextView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_large"
-		android:text="@string/link_warning_intro"
-		android:textColor="?android:attr/textColorPrimary"
-		android:textSize="@dimen/text_size_medium"/>
+		<TextView
+			android:id="@+id/linkWarning"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:text="@string/link_warning_title"
+			android:textColor="?android:attr/textColorPrimary"
+			android:textSize="@dimen/text_size_large"
+			android:textStyle="bold"
+			app:layout_constraintBottom_toTopOf="@+id/linkIntro"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"/>
 
-	<TextView
-		android:id="@+id/urlView"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_large"
-		android:textColor="?android:attr/textColorPrimary"
-		android:textIsSelectable="true"
-		android:textSize="@dimen/text_size_medium"
-		android:typeface="monospace"
-		tools:text="http://very.bad.site.com"/>
+		<TextView
+			android:id="@+id/linkIntro"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:text="@string/link_warning_intro"
+			android:textColor="?android:attr/textColorPrimary"
+			android:textSize="@dimen/text_size_medium"
+			app:layout_constraintBottom_toTopOf="@+id/urlView"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/linkWarning"/>
 
-	<TextView
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginTop="@dimen/margin_large"
-		android:text="@string/link_warning_text"
-		android:textColor="?android:attr/textColorPrimary"
-		android:textSize="@dimen/text_size_medium"/>
+		<TextView
+			android:id="@+id/urlView"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginBottom="16dp"
+			android:layout_marginTop="16dp"
+			android:textColor="?android:attr/textColorPrimary"
+			android:textIsSelectable="true"
+			android:textSize="@dimen/text_size_medium"
+			android:typeface="monospace"
+			app:layout_constraintBottom_toTopOf="@+id/thinkBeforeOpen"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/linkIntro"
+			tools:text="http://very.bad.site.com/with/a/super/long/address/that/can/push/stuff/off/screen/so/much/that/buttons/are/not/visible/which/is/bad/for/users/when/they/dont/know/what/to/do/they/might/be/completely/lost/crying/in/despair/so/we/need/to/make/sure/that/they/see/all/buttons"/>
 
-	<LinearLayout
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/margin_xxlarge"
-		android:layout_marginStart="@dimen/margin_xxlarge"
-		android:gravity="end"
-		android:orientation="horizontal">
+		<TextView
+			android:id="@+id/thinkBeforeOpen"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/link_warning_text"
+			android:textColor="?android:attr/textColorPrimary"
+			android:textSize="@dimen/text_size_medium"
+			app:layout_constraintBottom_toTopOf="@+id/openButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/urlView"/>
 
 		<Button
 			android:id="@+id/cancelButton"
 			style="@style/BriarButtonFlat.Positive"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/cancel"/>
+			android:text="@string/cancel"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toStartOf="@+id/openButton"
+			app:layout_constraintHorizontal_bias="1.0"
+			app:layout_constraintHorizontal_chainStyle="packed"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/thinkBeforeOpen"/>
 
 		<Button
 			android:id="@+id/openButton"
 			style="@style/BriarButtonFlat.Negative"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/link_warning_open_link"/>
+			android:text="@string/link_warning_open_link"
+			app:layout_constraintBaseline_toBaselineOf="@+id/cancelButton"
+			app:layout_constraintEnd_toEndOf="@+id/thinkBeforeOpen"
+			app:layout_constraintStart_toEndOf="@+id/cancelButton"/>
 
-	</LinearLayout>
+	</android.support.constraint.ConstraintLayout>
 
-</LinearLayout>
+</ScrollView>
