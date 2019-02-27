@@ -82,11 +82,11 @@
 		android:layout_marginStart="@dimen/listitem_horizontal_margin"
 		android:layout_marginTop="@dimen/margin_medium"
 		android:textColor="?android:attr/textColorTertiary"
-		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/removeButton"
 		app:layout_constraintLeft_toRightOf="@+id/avatarView"
 		app:layout_constraintStart_toEndOf="@+id/avatarView"
 		app:layout_constraintTop_toBottomOf="@+id/messageCountView"
-		tools:text="@string/groups_group_is_empty"/>
+		tools:text="This group is empty, but has a long status text"/>
 
 	<Button
 		android:id="@+id/removeButton"
@@ -94,9 +94,11 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/groups_remove"
+		android:visibility="gone"
 		app:layout_constraintBottom_toBottomOf="@+id/divider"
 		app:layout_constraintRight_toRightOf="parent"
-		tools:visibility="gone"/>
+		app:layout_constraintTop_toTopOf="@+id/statusView"
+		tools:visibility="visible"/>
 
 	<View
 		android:id="@+id/divider"
