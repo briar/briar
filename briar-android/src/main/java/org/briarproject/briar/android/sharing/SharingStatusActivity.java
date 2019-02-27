@@ -2,6 +2,7 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
@@ -17,6 +18,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contact.ContactItem;
@@ -88,11 +90,18 @@ abstract class SharingStatusActivity extends BriarActivity
 	}
 
 	@Override
+	@CallSuper
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactLeftShareableEvent) {
 			ContactLeftShareableEvent c = (ContactLeftShareableEvent) e;
 			if (c.getGroupId().equals(getGroupId())) {
 				loadSharedWith();
+			}
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getId().equals(getGroupId())) {
+				runOnUiThreadUnlessDestroyed(
+						this::supportFinishAfterTransition);
 			}
 		}
 		// TODO ContactConnectedEvent and ContactDisconnectedEvent

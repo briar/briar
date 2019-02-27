@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -87,9 +88,15 @@ public class GroupMemberListActivity extends BriarActivity
 			// we can't use GroupInvitationResponseReceivedEvent, because
 			// a peer only becomes a member after joining the group by message
 			GroupMessageAddedEvent ge = (GroupMessageAddedEvent) e;
-			if (ge.getGroupId().equals(this.groupId) &&
+			if (ge.getGroupId().equals(groupId) &&
 					ge.getHeader() instanceof JoinMessageHeader) {
 				loadMembers();
+			}
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getId().equals(groupId)) {
+				runOnUiThreadUnlessDestroyed(
+						this::supportFinishAfterTransition);
 			}
 		}
 		// TODO ContactConnectedEvent and ContactDisconnectedEvent
