@@ -67,6 +67,10 @@ public class ImageActivity extends BriarActivity
 	final static String NAME = "name";
 	final static String DATE = "date";
 
+	@RequiresApi(api = 16)
+	private final static int UI_FLAGS_DEFAULT =
+			SYSTEM_UI_FLAG_LAYOUT_STABLE | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN;
+
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
@@ -138,9 +142,7 @@ public class ImageActivity extends BriarActivity
 
 		if (SDK_INT >= 16) {
 			viewModel.getOnImageClicked().observe(this, this::onImageClicked);
-			window.getDecorView().setSystemUiVisibility(
-					SYSTEM_UI_FLAG_LAYOUT_STABLE |
-							SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+			window.getDecorView().setSystemUiVisibility(UI_FLAGS_DEFAULT);
 		}
 	}
 
@@ -206,7 +208,14 @@ public class ImageActivity extends BriarActivity
 
 	@Override
 	public void onPullComplete() {
+		showStatusBarBeforeFinishing();
 		supportFinishAfterTransition();
+	}
+
+	@Override
+	public void onBackPressed() {
+		showStatusBarBeforeFinishing();
+		super.onBackPressed();
 	}
 
 	@RequiresApi(api = 16)
@@ -229,9 +238,8 @@ public class ImageActivity extends BriarActivity
 
 	@RequiresApi(api = 16)
 	private void hideSystemUi(View decorView) {
-		decorView.setSystemUiVisibility(SYSTEM_UI_FLAG_FULLSCREEN |
-				SYSTEM_UI_FLAG_LAYOUT_STABLE | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-		);
+		decorView.setSystemUiVisibility(
+				SYSTEM_UI_FLAG_FULLSCREEN | UI_FLAGS_DEFAULT);
 		appBarLayout.animate()
 				.translationYBy(-1 * appBarLayout.getHeight())
 				.alpha(0f)
@@ -241,14 +249,24 @@ public class ImageActivity extends BriarActivity
 
 	@RequiresApi(api = 16)
 	private void showSystemUi(View decorView) {
-		decorView.setSystemUiVisibility(
-				SYSTEM_UI_FLAG_LAYOUT_STABLE | SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-		);
+		decorView.setSystemUiVisibility(UI_FLAGS_DEFAULT);
 		appBarLayout.animate()
 				.translationYBy(appBarLayout.getHeight())
 				.alpha(1f)
 				.withStartAction(() -> appBarLayout.setVisibility(VISIBLE))
 				.start();
+	}
+
+	/**
+	 * If we don't show the status bar again before finishing this activity,
+	 * the return transition will "jump" down the size of the status bar
+	 * when the previous activity (with visible status bar) is shown.
+	 */
+	private void showStatusBarBeforeFinishing() {
+		if (SDK_INT >= 16 && appBarLayout.getVisibility() == GONE) {
+			View decorView = getWindow().getDecorView();
+			decorView.setSystemUiVisibility(UI_FLAGS_DEFAULT);
+		}
 	}
 
 	private void showSaveImageDialog() {
