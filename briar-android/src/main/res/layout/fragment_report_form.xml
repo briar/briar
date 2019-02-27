@@ -1,86 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<ScrollView
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
-	xmlns:tools="http://schemas.android.com/tools">
+	android:fillViewport="true">
 
-	<android.support.design.widget.TextInputLayout
-		android:id="@+id/user_comment_layout"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/margin_large"
-		android:layout_marginLeft="@dimen/margin_large"
-		android:layout_marginRight="@dimen/margin_large"
-		android:layout_marginStart="@dimen/margin_large"
-		android:layout_marginTop="@dimen/margin_large"
-		app:hintEnabled="false"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent">
-
-		<android.support.design.widget.TextInputEditText
-			android:id="@+id/user_comment"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:inputType="textMultiLine|textCapSentences"
-			android:maxLines="5"
-			tools:hint="@string/describe_crash"/>
-
-	</android.support.design.widget.TextInputLayout>
-
-	<android.support.design.widget.TextInputLayout
-		android:id="@+id/user_email_layout"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/margin_large"
-		android:layout_marginLeft="@dimen/margin_large"
-		android:layout_marginRight="@dimen/margin_large"
-		android:layout_marginStart="@dimen/margin_large"
-		app:hintEnabled="false"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/user_comment_layout">
-
-		<android.support.design.widget.TextInputEditText
-			android:id="@+id/user_email"
-			android:layout_width="match_parent"
-			android:layout_height="wrap_content"
-			android:hint="@string/optional_contact_email"
-			android:inputType="textEmailAddress"
-			android:maxLines="1"/>
-
-	</android.support.design.widget.TextInputLayout>
-
-	<CheckBox
-		android:id="@+id/include_debug_report"
-		android:layout_width="0dp"
-		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/margin_large"
-		android:layout_marginStart="@dimen/margin_large"
-		android:checked="false"
-		android:text="@string/include_debug_report_crash"
-		app:layout_constraintBottom_toBottomOf="@+id/chevron"
-		app:layout_constraintEnd_toStartOf="@+id/chevron"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/chevron"/>
-
-	<Button
-		android:id="@+id/chevron"
-		style="@style/BriarButtonFlat.Positive"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:text="@string/show"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/user_email_layout"/>
-
-	<ScrollView
-		android:id="@+id/report_scroll"
+	<android.support.constraint.ConstraintLayout
 		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@id/include_debug_report">
+		android:layout_height="wrap_content">
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/user_comment_layout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/margin_large"
+			android:layout_marginLeft="@dimen/margin_large"
+			android:layout_marginRight="@dimen/margin_large"
+			android:layout_marginStart="@dimen/margin_large"
+			android:layout_marginTop="@dimen/margin_large"
+			app:hintEnabled="false"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/user_comment"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:inputType="textMultiLine|textCapSentences"
+				android:maxLines="5"
+				tools:hint="@string/describe_crash"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<android.support.design.widget.TextInputLayout
+			android:id="@+id/user_email_layout"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginEnd="@dimen/margin_large"
+			android:layout_marginLeft="@dimen/margin_large"
+			android:layout_marginRight="@dimen/margin_large"
+			android:layout_marginStart="@dimen/margin_large"
+			app:hintEnabled="false"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/user_comment_layout">
+
+			<android.support.design.widget.TextInputEditText
+				android:id="@+id/user_email"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:hint="@string/optional_contact_email"
+				android:inputType="textEmailAddress"
+				android:maxLines="1"/>
+
+		</android.support.design.widget.TextInputLayout>
+
+		<CheckBox
+			android:id="@+id/include_debug_report"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:layout_marginLeft="@dimen/margin_large"
+			android:layout_marginStart="@dimen/margin_large"
+			android:checked="false"
+			android:text="@string/include_debug_report_crash"
+			app:layout_constraintBottom_toBottomOf="@+id/chevron"
+			app:layout_constraintEnd_toStartOf="@+id/chevron"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/chevron"/>
+
+		<Button
+			android:id="@+id/chevron"
+			style="@style/BriarButtonFlat.Positive"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:text="@string/show"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/user_email_layout"/>
 
 		<LinearLayout
 			android:id="@+id/report_content"
@@ -93,21 +91,23 @@
 			android:paddingStart="@dimen/margin_large"
 			android:paddingTop="@dimen/margin_small"
 			android:visibility="gone"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@id/include_debug_report"
 			tools:visibility="visible"/>
 
-	</ScrollView>
+		<ProgressBar
+			android:id="@+id/progress_wheel"
+			style="?android:attr/progressBarStyleLarge"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:indeterminate="true"
+			android:visibility="gone"
+			app:layout_constraintBottom_toBottomOf="parent"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/include_debug_report"
+			tools:visibility="visible"/>
 
-	<ProgressBar
-		android:id="@+id/progress_wheel"
-		style="?android:attr/progressBarStyleLarge"
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:indeterminate="true"
-		android:visibility="gone"
-		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/include_debug_report"
-		tools:visibility="visible"/>
+	</android.support.constraint.ConstraintLayout>
 
-</android.support.constraint.ConstraintLayout>
+</ScrollView>
