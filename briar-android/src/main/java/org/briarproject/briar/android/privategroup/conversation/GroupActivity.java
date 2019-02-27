@@ -179,6 +179,14 @@ public class GroupActivity extends
 	}
 
 	@Override
+	public void onItemReceived(GroupMessageItem item) {
+		super.onItemReceived(item);
+		if (item instanceof JoinMessageItem) {
+			if (((JoinMessageItem) item).isInitial()) loadSharingContacts();
+		}
+	}
+
+	@Override
 	protected int getMaxTextLength() {
 		return MAX_GROUP_POST_TEXT_LENGTH;
 	}
