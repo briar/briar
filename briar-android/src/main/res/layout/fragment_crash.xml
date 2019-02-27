@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<ScrollView
+		android:id="@+id/request_report"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:fillViewport="true">
+
+		<android.support.constraint.ConstraintLayout
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="@dimen/margin_large">
+
+			<android.support.v7.widget.AppCompatImageView
+				android:id="@+id/errorIcon"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_margin="16dp"
+				android:src="@drawable/ic_crash"
+				app:layout_constraintBottom_toTopOf="@+id/crashed"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="parent"
+				app:layout_constraintVertical_chainStyle="packed"
+				app:tint="?attr/colorControlNormal"
+				tools:ignore="ContentDescription"/>
+
+			<TextView
+				android:id="@+id/crashed"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:gravity="center"
+				android:text="@string/briar_crashed"
+				android:textColor="?android:attr/textColorSecondary"
+				android:textSize="@dimen/text_size_large"
+				app:layout_constraintBottom_toTopOf="@+id/fault"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/errorIcon"
+				tools:layout_editor_absoluteY="8dp"/>
+
+			<TextView
+				android:id="@+id/fault"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_large"
+				android:gravity="center"
+				android:text="@string/not_your_fault"
+				android:textColor="?android:attr/textColorSecondary"
+				android:textSize="@dimen/text_size_large"
+				app:layout_constraintBottom_toTopOf="@+id/pleaseSend"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/crashed"/>
+
+			<TextView
+				android:id="@+id/pleaseSend"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_large"
+				android:gravity="center"
+				android:text="@string/please_send_report"
+				android:textColor="?android:attr/textColorSecondary"
+				android:textSize="@dimen/text_size_large"
+				app:layout_constraintBottom_toTopOf="@+id/encrypted"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/fault"/>
+
+			<TextView
+				android:id="@+id/encrypted"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_large"
+				android:gravity="center"
+				android:text="@string/report_is_encrypted"
+				android:textColor="?android:attr/textColorSecondary"
+				android:textSize="@dimen/text_size_large"
+				app:layout_constraintBottom_toTopOf="@+id/acceptButton"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toBottomOf="@+id/pleaseSend"/>
+
+			<Button
+				android:id="@+id/declineButton"
+				style="@style/BriarButtonFlat.Negative"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:text="@string/close"
+				app:layout_constraintBottom_toBottomOf="@+id/acceptButton"
+				app:layout_constraintEnd_toStartOf="@+id/acceptButton"
+				app:layout_constraintHorizontal_weight="1"
+				app:layout_constraintStart_toStartOf="parent"
+				app:layout_constraintTop_toTopOf="@+id/acceptButton"/>
+
+			<Button
+				android:id="@+id/acceptButton"
+				style="@style/BriarButtonFlat.Positive"
+				android:layout_width="0dp"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="@dimen/margin_large"
+				android:text="@string/send_report"
+				app:layout_constraintBottom_toBottomOf="parent"
+				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintHorizontal_weight="1"
+				app:layout_constraintStart_toEndOf="@+id/declineButton"
+				app:layout_constraintTop_toBottomOf="@+id/encrypted"/>
+
+		</android.support.constraint.ConstraintLayout>
+
+	</ScrollView>
+
+</android.support.constraint.ConstraintLayout>

@@ -2,86 +2,32 @@ package org.briarproject.briar.android.reporting;
 
 import android.content.Context;
 import android.content.res.Configuration;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatDelegate;
 import android.support.v7.widget.Toolbar;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.EditText;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import org.acra.ReportField;
-import org.acra.collector.CrashReportData;
 import org.acra.dialog.BaseCrashReportDialog;
-import org.acra.file.CrashReportPersister;
-import org.acra.model.Element;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.util.UserFeedback;
-import org.json.JSONException;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.SHOW_FORCED;
-import static java.util.logging.Level.WARNING;
+import static java.util.Objects.requireNonNull;
 import static org.acra.ACRAConstants.EXTRA_REPORT_FILE;
-import static org.acra.ReportField.ANDROID_VERSION;
-import static org.acra.ReportField.APP_VERSION_CODE;
-import static org.acra.ReportField.APP_VERSION_NAME;
-import static org.acra.ReportField.PACKAGE_NAME;
-import static org.acra.ReportField.REPORT_ID;
-import static org.acra.ReportField.STACK_TRACE;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 
-public class DevReportActivity extends BaseCrashReportDialog
-		implements CompoundButton.OnCheckedChangeListener {
-
-	private static final Logger LOG =
-			Logger.getLogger(DevReportActivity.class.getName());
-
-	private static final String STATE_REVIEWING = "reviewing";
-	private static final Set<ReportField> requiredFields = new HashSet<>();
-
-	static {
-		requiredFields.add(REPORT_ID);
-		requiredFields.add(APP_VERSION_CODE);
-		requiredFields.add(APP_VERSION_NAME);
-		requiredFields.add(PACKAGE_NAME);
-		requiredFields.add(ANDROID_VERSION);
-		requiredFields.add(STACK_TRACE);
-	}
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public class DevReportActivity extends BaseCrashReportDialog {
 
 	private AppCompatDelegate delegate;
-	private Set<ReportField> excludedFields = new HashSet<>();
-	private EditText userCommentView = null;
-	private EditText userEmailView = null;
-	private CheckBox includeDebugReport = null;
-	private Button chevron = null;
-	private LinearLayout report = null;
-	private View progress = null;
-	private MenuItem sendReport = null;
-	private boolean reviewing = false;
 
 	private AppCompatDelegate getDelegate() {
 		if (delegate == null) {
@@ -110,68 +56,21 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
-	public void init(Bundle state) {
+	public void init(@Nullable Bundle state) {
 		super.init(state);
 
 		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 
 		getDelegate().setContentView(R.layout.activity_dev_report);
 
-		Toolbar tb = findViewById(R.id.toolbar);
-		getDelegate().setSupportActionBar(tb);
+		Toolbar toolbar = findViewById(R.id.toolbar);
+		getDelegate().setSupportActionBar(toolbar);
 
-		View requestReport = findViewById(R.id.request_report);
-		View reportForm = findViewById(R.id.report_form);
-		userCommentView = findViewById(R.id.user_comment);
-		userEmailView = findViewById(R.id.user_email);
-		includeDebugReport = findViewById(R.id.include_debug_report);
-		chevron = findViewById(R.id.chevron);
-		report = findViewById(R.id.report_content);
-		progress = findViewById(R.id.progress_wheel);
+		String title = getString(isFeedback() ? R.string.feedback_title :
+				R.string.crash_report_title);
+		requireNonNull(getDelegate().getSupportActionBar()).setTitle(title);
 
-		//noinspection ConstantConditions
-		getDelegate().getSupportActionBar().setTitle(
-				isFeedback() ? R.string.feedback_title :
-						R.string.crash_report_title);
-		userCommentView.setHint(isFeedback() ? R.string.enter_feedback :
-				R.string.describe_crash);
-
-		if (isFeedback()) {
-			includeDebugReport
-					.setText(getString(R.string.include_debug_report_feedback));
-			reportForm.setVisibility(VISIBLE);
-			requestReport.setVisibility(INVISIBLE);
-		} else {
-			includeDebugReport.setChecked(true);
-			reportForm.setVisibility(INVISIBLE);
-			requestReport.setVisibility(VISIBLE);
-		}
-
-		findViewById(R.id.acceptButton).setOnClickListener(v -> {
-			reviewing = true;
-			reportForm.setVisibility(VISIBLE);
-			requestReport.setVisibility(INVISIBLE);
-			((InputMethodManager) getSystemService(INPUT_METHOD_SERVICE))
-					.showSoftInput(userCommentView, SHOW_FORCED);
-		});
-		findViewById(R.id.declineButton).setOnClickListener(v -> closeReport());
-		chevron.setOnClickListener(v -> {
-			boolean show =
-					chevron.getText().equals(getString(R.string.show));
-			if (show) {
-				chevron.setText(R.string.hide);
-				refresh();
-			} else {
-				chevron.setText(R.string.show);
-				report.setVisibility(GONE);
-			}
-		});
-
-		if (state != null)
-			reviewing = state.getBoolean(STATE_REVIEWING, isFeedback());
-
-		if (!isFeedback() && !reviewing)
-			requestReport.setVisibility(VISIBLE);
+		if (state == null) showReportForm(isFeedback());
 	}
 
 	@Override
@@ -181,45 +80,15 @@ public class DevReportActivity extends BaseCrashReportDialog
 	}
 
 	@Override
-	public void onPostCreate(Bundle state) {
+	public void onPostCreate(@Nullable Bundle state) {
 		super.onPostCreate(state);
 		getDelegate().onPostCreate(state);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		if (chevron.isSelected()) refresh();
 	}
 
 	@Override
 	protected void onPostResume() {
 		super.onPostResume();
 		getDelegate().onPostResume();
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu items for use in the action bar
-		MenuInflater inflater = getDelegate().getMenuInflater();
-		inflater.inflate(R.menu.dev_report_actions, menu);
-		sendReport = menu.findItem(R.id.action_send_report);
-		return super.onCreateOptionsMenu(menu);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			case R.id.action_send_report:
-				processReport();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
 	}
 
 	@Override
@@ -232,12 +101,6 @@ public class DevReportActivity extends BaseCrashReportDialog
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		getDelegate().onConfigurationChanged(newConfig);
-	}
-
-	@Override
-	public void onSaveInstanceState(Bundle state) {
-		super.onSaveInstanceState(state);
-		state.putBoolean(STATE_REVIEWING, reviewing);
 	}
 
 	@Override
@@ -257,132 +120,33 @@ public class DevReportActivity extends BaseCrashReportDialog
 		closeReport();
 	}
 
-	@Override
-	public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-		ReportField field = (ReportField) buttonView.getTag();
-		if (field != null) {
-			if (isChecked) excludedFields.remove(field);
-			else excludedFields.add(field);
-		}
+	void sendCrashReport(String comment, String email) {
+		sendCrash(comment, email);
 	}
 
-	@SuppressWarnings("ThrowableResultOfMethodCallIgnored")
 	private boolean isFeedback() {
 		return getException() instanceof UserFeedback;
 	}
 
-	private void refresh() {
-		report.setVisibility(INVISIBLE);
-		progress.setVisibility(VISIBLE);
-		report.removeAllViews();
-		new AsyncTask<Void, Void, CrashReportData>() {
-
-			@Override
-			protected CrashReportData doInBackground(Void... args) {
-				File reportFile = (File) getIntent().getSerializableExtra(
-						EXTRA_REPORT_FILE);
-				CrashReportPersister persister = new CrashReportPersister();
-				try {
-					return persister.load(reportFile);
-				} catch (IOException | JSONException e) {
-					LOG.log(WARNING, "Could not load report file", e);
-					return null;
-				}
-			}
-
-			@Override
-			protected void onPostExecute(CrashReportData crashData) {
-				LayoutInflater inflater = getLayoutInflater();
-				if (crashData != null) {
-					for (Entry<ReportField, Element> e : crashData.entrySet()) {
-						ReportField field = e.getKey();
-						String value = e.getValue().toString()
-								.replaceAll("\\\\n", "\n");
-						boolean required = requiredFields.contains(field);
-						boolean excluded = excludedFields.contains(field);
-						View v = inflater.inflate(R.layout.list_item_crash,
-								report, false);
-						CheckBox cb = v.findViewById(R.id.include_in_report);
-						cb.setTag(field);
-						cb.setChecked(required || !excluded);
-						cb.setEnabled(!required);
-						cb.setOnCheckedChangeListener(DevReportActivity.this);
-						cb.setText(field.toString());
-						TextView content = v.findViewById(R.id.content);
-						content.setText(value);
-						report.addView(v);
-					}
-				} else {
-					View v = inflater.inflate(
-							android.R.layout.simple_list_item_1, report, false);
-					TextView error = v.findViewById(android.R.id.text1);
-					error.setText(R.string.could_not_load_report_data);
-					report.addView(v);
-				}
-				report.setVisibility(VISIBLE);
-				progress.setVisibility(GONE);
-			}
-		}.execute();
+	void showReportForm(boolean showReportForm) {
+		Fragment f;
+		if (showReportForm) {
+			File file =
+					(File) getIntent().getSerializableExtra(EXTRA_REPORT_FILE);
+			f = ReportFormFragment.newInstance(isFeedback(), file);
+			requireNonNull(getDelegate().getSupportActionBar()).show();
+		} else {
+			f = new CrashFragment();
+			requireNonNull(getDelegate().getSupportActionBar()).hide();
+		}
+		getSupportFragmentManager().beginTransaction()
+				.replace(R.id.fragmentContainer, f)
+				.commit();
 	}
 
-	private void processReport() {
-		userCommentView.setEnabled(false);
-		userEmailView.setEnabled(false);
-		sendReport.setEnabled(false);
-		progress.setVisibility(VISIBLE);
-		boolean includeReport = !isFeedback() || includeDebugReport.isChecked();
-		new AsyncTask<Void, Void, Boolean>() {
-
-			@Override
-			protected Boolean doInBackground(Void... args) {
-				File reportFile = (File) getIntent().getSerializableExtra(
-						EXTRA_REPORT_FILE);
-				CrashReportPersister persister = new CrashReportPersister();
-				try {
-					CrashReportData data = persister.load(reportFile);
-					if (includeReport) {
-						for (ReportField field : excludedFields) {
-							LOG.info("Removing field " + field.name());
-							data.remove(field);
-						}
-					} else {
-						Iterator<Entry<ReportField, Element>> iter =
-								data.entrySet().iterator();
-						while (iter.hasNext()) {
-							Entry<ReportField, Element> e = iter.next();
-							if (!requiredFields.contains(e.getKey())) {
-								iter.remove();
-							}
-						}
-					}
-					persister.store(data, reportFile);
-					return true;
-				} catch (IOException | JSONException e) {
-					LOG.log(WARNING, "Error processing report file", e);
-					return false;
-				}
-			}
-
-			@Override
-			protected void onPostExecute(Boolean success) {
-				if (success) {
-					// Retrieve user's comment and email address, if any
-					String comment = "";
-					if (userCommentView != null)
-						comment = userCommentView.getText().toString();
-					String email = "";
-					if (userEmailView != null) {
-						email = userEmailView.getText().toString();
-					}
-					sendCrash(comment, email);
-				}
-				finish();
-			}
-		}.execute();
-	}
-
-	private void closeReport() {
+	void closeReport() {
 		cancelReports();
 		finish();
 	}
+
 }
