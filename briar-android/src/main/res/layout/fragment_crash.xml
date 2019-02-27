@@ -7,10 +7,13 @@
 	android:layout_height="match_parent">
 
 	<ScrollView
-		android:id="@+id/request_report"
+		android:id="@+id/scrollView"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		android:fillViewport="true">
+		android:layout_height="0dp"
+		android:fillViewport="true"
+		app:layout_constraintBottom_toTopOf="@+id/acceptButton"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent">
 
 		<android.support.constraint.ConstraintLayout
 			android:layout_width="match_parent"
@@ -19,12 +22,14 @@
 
 			<android.support.v7.widget.AppCompatImageView
 				android:id="@+id/errorIcon"
-				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"
-				android:layout_margin="16dp"
+				android:layout_width="0dp"
+				android:layout_height="0dp"
+				android:padding="8dp"
 				android:src="@drawable/ic_crash"
 				app:layout_constraintBottom_toTopOf="@+id/crashed"
+				app:layout_constraintDimensionRatio="1:1"
 				app:layout_constraintEnd_toEndOf="parent"
+				app:layout_constraintHeight_max="128dp"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toTopOf="parent"
 				app:layout_constraintVertical_chainStyle="packed"
@@ -82,38 +87,37 @@
 				android:text="@string/report_is_encrypted"
 				android:textColor="?android:attr/textColorSecondary"
 				android:textSize="@dimen/text_size_large"
-				app:layout_constraintBottom_toTopOf="@+id/acceptButton"
+				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
 				app:layout_constraintTop_toBottomOf="@+id/pleaseSend"/>
 
-			<Button
-				android:id="@+id/declineButton"
-				style="@style/BriarButtonFlat.Negative"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:text="@string/close"
-				app:layout_constraintBottom_toBottomOf="@+id/acceptButton"
-				app:layout_constraintEnd_toStartOf="@+id/acceptButton"
-				app:layout_constraintHorizontal_weight="1"
-				app:layout_constraintStart_toStartOf="parent"
-				app:layout_constraintTop_toTopOf="@+id/acceptButton"/>
-
-			<Button
-				android:id="@+id/acceptButton"
-				style="@style/BriarButtonFlat.Positive"
-				android:layout_width="0dp"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="@dimen/margin_large"
-				android:text="@string/send_report"
-				app:layout_constraintBottom_toBottomOf="parent"
-				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintHorizontal_weight="1"
-				app:layout_constraintStart_toEndOf="@+id/declineButton"
-				app:layout_constraintTop_toBottomOf="@+id/encrypted"/>
-
 		</android.support.constraint.ConstraintLayout>
 
 	</ScrollView>
+
+	<Button
+		android:id="@+id/declineButton"
+		style="@style/BriarButtonFlat.Negative"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:text="@string/close"
+		app:layout_constraintBottom_toBottomOf="@+id/acceptButton"
+		app:layout_constraintEnd_toStartOf="@+id/acceptButton"
+		app:layout_constraintHorizontal_weight="1"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/acceptButton"/>
+
+	<Button
+		android:id="@+id/acceptButton"
+		style="@style/BriarButtonFlat.Positive"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:text="@string/send_report"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_weight="1"
+		app:layout_constraintStart_toEndOf="@+id/declineButton"
+		app:layout_constraintTop_toBottomOf="@+id/scrollView"/>
 
 </android.support.constraint.ConstraintLayout>
