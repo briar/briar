@@ -134,12 +134,6 @@ public class ForumActivity extends
 		return MAX_FORUM_POST_TEXT_LENGTH;
 	}
 
-	@Override
-	@StringRes
-	protected int getItemPostedString() {
-		return R.string.forum_new_entry_posted;
-	}
-
 	private void showUnsubscribeDialog() {
 		OnClickListener okListener = (dialog, which) -> deleteForum();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,

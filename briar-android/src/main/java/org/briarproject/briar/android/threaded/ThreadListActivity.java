@@ -401,7 +401,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		adapter.add(item);
 
 		if (isLocal) {
-			displaySnackbar(getItemPostedString());
 			scrollToItemAtTop(item);
 		} else {
 			updateUnreadCount();
@@ -417,8 +416,5 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		upButton.setUnreadCount(unreadCount.top);
 		downButton.setUnreadCount(unreadCount.bottom);
 	}
-
-	@StringRes
-	protected abstract int getItemPostedString();
 
 }

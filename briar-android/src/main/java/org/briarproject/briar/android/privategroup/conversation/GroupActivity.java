@@ -192,12 +192,6 @@ public class GroupActivity extends
 	}
 
 	@Override
-	@StringRes
-	protected int getItemPostedString() {
-		return R.string.groups_message_sent;
-	}
-
-	@Override
 	public void onReplyClick(GroupMessageItem item) {
 		if (!isDissolved) super.onReplyClick(item);
 	}
