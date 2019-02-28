@@ -20,6 +20,7 @@ import org.acra.annotation.ReportsCrashes;
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logging.CachingLogHandler;
 import org.briarproject.briar.android.reporting.BriarReportPrimer;
@@ -64,6 +65,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		reportDialogClass = DevReportActivity.class,
 		resDialogOkToast = R.string.dev_report_saved,
 		deleteOldUnsentReportsOnApplicationStart = false,
+		buildConfigClass = BuildConfig.class,
 		customReportContent = {
 				REPORT_ID,
 				APP_VERSION_CODE, APP_VERSION_NAME, PACKAGE_NAME,
