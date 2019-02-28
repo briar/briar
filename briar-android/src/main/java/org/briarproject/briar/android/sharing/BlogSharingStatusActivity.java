@@ -3,11 +3,14 @@ package org.briarproject.briar.android.sharing;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogSharingManager;
+import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 
 import java.util.Collection;
 
@@ -24,6 +27,19 @@ public class BlogSharingStatusActivity extends SharingStatusActivity {
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		super.eventOccurred(e);
+		if (e instanceof BlogInvitationResponseReceivedEvent) {
+			BlogInvitationResponseReceivedEvent r =
+					(BlogInvitationResponseReceivedEvent) e;
+			BlogInvitationResponse h = r.getMessageHeader();
+			if (h.getShareableId().equals(getGroupId()) && h.wasAccepted()) {
+				loadSharedWith();
+			}
+		}
 	}
 
 	@Override

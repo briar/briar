@@ -7,14 +7,20 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.api.privategroup.JoinMessageHeader;
+import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 
 import java.util.Collection;
 
@@ -23,10 +29,13 @@ import javax.inject.Inject;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class GroupMemberListActivity extends BriarActivity {
+public class GroupMemberListActivity extends BriarActivity
+		implements EventListener {
 
 	@Inject
 	GroupMemberListController controller;
+	@Inject
+	EventBus eventBus;
 
 	private MemberListAdapter adapter;
 	private BriarRecyclerView list;
@@ -61,6 +70,50 @@ public class GroupMemberListActivity extends BriarActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
+		loadMembers();
+		eventBus.addListener(this);
+		list.startPeriodicUpdate();
+	}
+
+	@Override
+	public void onStop() {
+		super.onStop();
+		eventBus.removeListener(this);
+		list.stopPeriodicUpdate();
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof GroupMessageAddedEvent) {
+			// we can't use GroupInvitationResponseReceivedEvent, because
+			// a peer only becomes a member after joining the group by message
+			GroupMessageAddedEvent ge = (GroupMessageAddedEvent) e;
+			if (ge.getGroupId().equals(groupId) &&
+					ge.getHeader() instanceof JoinMessageHeader) {
+				loadMembers();
+			}
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getId().equals(groupId)) {
+				runOnUiThreadUnlessDestroyed(
+						this::supportFinishAfterTransition);
+			}
+		}
+		// TODO ContactConnectedEvent and ContactDisconnectedEvent
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+			case android.R.id.home:
+				onBackPressed();
+				return true;
+			default:
+				return super.onOptionsItemSelected(item);
+		}
+	}
+
+	private void loadMembers() {
 		controller.loadMembers(groupId,
 				new UiResultExceptionHandler<Collection<MemberListItem>, DbException>(
 						this) {
@@ -74,24 +127,6 @@ public class GroupMemberListActivity extends BriarActivity {
 						handleDbException(exception);
 					}
 				});
-		list.startPeriodicUpdate();
-	}
-
-	@Override
-	public void onStop() {
-		super.onStop();
-		list.stopPeriodicUpdate();
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
-		}
 	}
 
 }

@@ -2,6 +2,7 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
@@ -10,14 +11,19 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -32,10 +38,13 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-abstract class SharingStatusActivity extends BriarActivity {
+abstract class SharingStatusActivity extends BriarActivity
+		implements EventListener {
 
 	@Inject
 	ConnectionRegistry connectionRegistry;
+	@Inject
+	EventBus eventBus;
 
 	private static final Logger LOG =
 			Logger.getLogger(SharingStatusActivity.class.getName());
@@ -68,6 +77,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
+		eventBus.addListener(this);
 		loadSharedWith();
 	}
 
@@ -75,7 +85,26 @@ abstract class SharingStatusActivity extends BriarActivity {
 	public void onStop() {
 		super.onStop();
 		adapter.clear();
+		eventBus.removeListener(this);
 		list.showProgressBar();
+	}
+
+	@Override
+	@CallSuper
+	public void eventOccurred(Event e) {
+		if (e instanceof ContactLeftShareableEvent) {
+			ContactLeftShareableEvent c = (ContactLeftShareableEvent) e;
+			if (c.getGroupId().equals(getGroupId())) {
+				loadSharedWith();
+			}
+		} else if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent g = (GroupRemovedEvent) e;
+			if (g.getGroup().getId().equals(getGroupId())) {
+				runOnUiThreadUnlessDestroyed(
+						this::supportFinishAfterTransition);
+			}
+		}
+		// TODO ContactConnectedEvent and ContactDisconnectedEvent
 	}
 
 	@Override
@@ -100,7 +129,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 		return groupId;
 	}
 
-	private void loadSharedWith() {
+	protected void loadSharedWith() {
 		runOnDbThread(() -> {
 			try {
 				List<ContactItem> contactItems = new ArrayList<>();
@@ -118,6 +147,7 @@ abstract class SharingStatusActivity extends BriarActivity {
 
 	private void displaySharedWith(List<ContactItem> contacts) {
 		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.clear();
 			if (contacts.isEmpty()) list.showData();
 			else adapter.addAll(contacts);
 		});
