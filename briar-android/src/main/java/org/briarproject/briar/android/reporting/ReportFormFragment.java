@@ -4,7 +4,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -194,10 +193,14 @@ public class ReportFormFragment extends Fragment
 			protected void onPostExecute(CrashReportData crashData) {
 				LayoutInflater inflater = getLayoutInflater();
 				if (crashData != null) {
-					for (Map.Entry<ReportField, Element> e : crashData.entrySet()) {
+					for (Map.Entry<ReportField, Element> e : crashData
+							.entrySet()) {
 						ReportField field = e.getKey();
-						String value = e.getValue().toString()
-								.replaceAll("\\\\n", "\n");
+						StringBuilder valueBuilder = new StringBuilder();
+						for (String pair : e.getValue().flatten()) {
+							valueBuilder.append(pair).append("\n");
+						}
+						String value = valueBuilder.toString();
 						boolean required = requiredFields.contains(field);
 						boolean excluded = excludedFields.contains(field);
 						View v = inflater.inflate(R.layout.list_item_crash,
