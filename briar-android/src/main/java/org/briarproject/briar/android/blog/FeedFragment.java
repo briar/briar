@@ -2,6 +2,7 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
@@ -54,7 +55,10 @@ public class FeedFragment extends BaseFragment implements
 	private BlogPostAdapter adapter;
 	private LinearLayoutManager layoutManager;
 	private BriarRecyclerView list;
-	private Blog personalBlog = null;
+	@Nullable
+	private Blog personalBlog;
+	@Nullable
+	private Parcelable layoutManagerState;
 
 	public static FeedFragment newInstance() {
 		FeedFragment f = new FeedFragment();
@@ -91,6 +95,11 @@ public class FeedFragment extends BaseFragment implements
 		list.setEmptyText(R.string.blogs_feed_empty_state);
 		list.setEmptyAction(R.string.blogs_feed_empty_state_action);
 
+		if (savedInstanceState != null) {
+			layoutManagerState =
+					savedInstanceState.getParcelable("layoutManager");
+		}
+
 		return v;
 	}
 
@@ -123,6 +132,15 @@ public class FeedFragment extends BaseFragment implements
 		// TODO save list position in database/preferences?
 	}
 
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (layoutManager != null) {
+			layoutManagerState = layoutManager.onSaveInstanceState();
+			outState.putParcelable("layoutManager", layoutManagerState);
+		}
+	}
+
 	private void loadPersonalBlog() {
 		feedController.loadPersonalBlog(
 				new UiResultExceptionHandler<Blog, DbException>(this) {
@@ -150,6 +168,12 @@ public class FeedFragment extends BaseFragment implements
 							if (clear) adapter.setItems(posts);
 							else adapter.addAll(posts);
 							if (posts.isEmpty()) list.showData();
+							if (layoutManagerState == null) {
+								list.scrollToPosition(0);  // Scroll to the top
+							} else {
+								layoutManager.onRestoreInstanceState(
+										layoutManagerState);
+							}
 						} else {
 							LOG.info("Concurrent update, reloading");
 							loadBlogPosts(clear);
