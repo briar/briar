@@ -281,7 +281,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			ContactListItem item = adapter.getItemAt(position);
 			if (item != null) {
 				item.setConnected(connected);
-				adapter.notifyItemChanged(position);
+				adapter.updateItemAt(position, item);
 			}
 		});
 	}
