@@ -41,8 +41,7 @@ public interface ContactExchangeTask {
 	/**
 	 * Exchanges contact information with a remote peer.
 	 */
-	void startExchange(ContactExchangeListener listener,
-			LocalAuthor localAuthor, SecretKey masterSecret,
+	void startExchange(LocalAuthor localAuthor, SecretKey masterSecret,
 			DuplexTransportConnection conn, TransportId transportId,
 			boolean alice);
 }
