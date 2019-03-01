@@ -6,12 +6,16 @@ import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import info.guardianproject.GuardianProjectRSA4096;
@@ -20,21 +24,27 @@ import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
 
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
 			Logger.getLogger(PanicResponderActivity.class.getName());
 
 	@Inject
+	protected LifecycleManager lifecycleManager;
+	@Inject
 	protected AccountManager accountManager;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
 		TrustedIntents trustedIntents = TrustedIntents.get(this);
@@ -83,14 +93,17 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private void deleteAllData() {
 		androidExecutor.runOnBackgroundThread(() -> {
-			accountManager.deleteAccount();
-			// TODO somehow delete/shred the database more thoroughly
-			PanicResponder.deleteAllAppData(PanicResponderActivity.this);
-
-			// nothing left to do after everything is deleted,
-			// so still sign out
-			LOG.info("Signing out...");
-			signOut(true);
+			lifecycleManager.stopServices();
+			try {
+				lifecycleManager.waitForShutdown();
+			} catch (InterruptedException e) {
+				logException(LOG, WARNING, e);
+			} finally {
+				accountManager.deleteAccount();
+				// nothing left to do after everything is deleted, so sign out
+				LOG.info("Signing out...");
+				signOut(true);
+			}
 		});
 	}
 }

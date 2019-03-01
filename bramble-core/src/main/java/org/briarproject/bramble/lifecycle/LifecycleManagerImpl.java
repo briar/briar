@@ -168,6 +168,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	@Override
 	public void stopServices() {
+		if (state == STOPPING) return;
 		try {
 			startStopSemaphore.acquire();
 		} catch (InterruptedException e) {

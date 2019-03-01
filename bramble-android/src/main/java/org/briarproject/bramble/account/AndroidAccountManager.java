@@ -12,10 +12,14 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
+import java.util.HashSet;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Arrays.asList;
 
 class AndroidAccountManager extends AccountManagerImpl
 		implements AccountManager {
@@ -90,19 +94,27 @@ class AndroidAccountManager extends AccountManagerImpl
 		}
 		// Delete files, except lib and shared_prefs directories
 		File dataDir = new File(appContext.getApplicationInfo().dataDir);
-		File[] children = dataDir.listFiles();
-		if (children == null) {
+		HashSet<File> files = new HashSet<>(asList(dataDir.listFiles()));
+		if (files.isEmpty()) {
 			LOG.warning("Could not list files in app data dir");
-		} else {
-			for (File child : children) {
-				String name = child.getName();
-				if (!name.equals("lib") && !name.equals("shared_prefs")) {
-					IoUtils.deleteFileOrDir(child);
-				}
+		}
+		files.add(appContext.getFilesDir());
+		files.add(appContext.getCacheDir());
+		files.add(appContext.getExternalCacheDir());
+		if (SDK_INT >= 19) {
+			files.addAll(asList(appContext.getExternalCacheDirs()));
+		}
+		if (SDK_INT >= 21) {
+			files.addAll(asList(appContext.getExternalMediaDirs()));
+		}
+		for (File file : files) {
+			String name = file.getName();
+			if (!name.equals("lib") && !name.equals("shared_prefs")) {
+				IoUtils.deleteFileOrDir(file);
 			}
 		}
 		// Recreate the cache dir as some OpenGL drivers expect it to exist
-		if (!new File(dataDir, "cache").mkdir())
+		if (!new File(dataDir, "cache").mkdirs())
 			LOG.warning("Could not recreate cache dir");
 	}
 }
