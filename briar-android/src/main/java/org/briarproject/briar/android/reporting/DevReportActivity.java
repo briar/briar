@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.reporting;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,10 +14,14 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
+import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.util.UserFeedback;
 
 import java.io.File;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static java.util.Objects.requireNonNull;
@@ -146,6 +151,11 @@ public class DevReportActivity extends BaseCrashReportDialog {
 
 	void closeReport() {
 		cancelReports();
+		Intent i = new Intent(this, HideUiActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK
+				| FLAG_ACTIVITY_NO_ANIMATION
+				| FLAG_ACTIVITY_CLEAR_TASK);
+		startActivity(i);
 		finish();
 	}
 
