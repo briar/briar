@@ -51,7 +51,6 @@ public abstract class BaseThreadItemViewHolder<I extends ThreadItem>
 		} else if (!item.isRead()) {
 			layout.setActivated(true);
 			animateFadeOut();
-			listener.onUnreadItemVisible(item);
 		} else {
 			layout.setActivated(false);
 		}
