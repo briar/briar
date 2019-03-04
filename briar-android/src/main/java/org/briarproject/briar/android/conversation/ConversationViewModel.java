@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
@@ -144,6 +145,18 @@ public class ConversationViewModel extends AndroidViewModel {
 				logDuration(LOG, "Checking for image support", start);
 			} catch (NoSuchContactException e) {
 				contactDeleted.postValue(true);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	void markMessageRead(GroupId g, MessageId m) {
+		dbExecutor.execute(() -> {
+			try {
+				long start = now();
+				messagingManager.setReadFlag(g, m, true);
+				logDuration(LOG, "Marking read", start);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}

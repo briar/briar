@@ -14,12 +14,14 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
+import org.briarproject.briar.android.util.ItemReturningAdapter;
 
 import javax.annotation.Nullable;
 
 @NotNullByDefault
 class ConversationAdapter
-		extends BriarAdapter<ConversationItem, ConversationItemViewHolder> {
+		extends BriarAdapter<ConversationItem, ConversationItemViewHolder>
+		implements ItemReturningAdapter<ConversationItem> {
 
 	private ConversationListener listener;
 	private final RecycledViewPool imageViewPool;
@@ -69,7 +71,6 @@ class ConversationAdapter
 	public void onBindViewHolder(ConversationItemViewHolder ui, int position) {
 		ConversationItem item = items.get(position);
 		ui.bind(item);
-		listener.onItemVisible(item);
 	}
 
 	@Override

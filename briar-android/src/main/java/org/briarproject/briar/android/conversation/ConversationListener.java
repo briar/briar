@@ -9,8 +9,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 @NotNullByDefault
 interface ConversationListener {
 
-	void onItemVisible(ConversationItem item);
-
 	void respondToRequest(ConversationRequestItem item, boolean accept);
 
 	void openRequestedShareable(ConversationRequestItem item);
