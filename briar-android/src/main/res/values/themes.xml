@@ -29,7 +29,7 @@
 		<item name="android:activityCloseExitAnimation">@anim/screen_new_out</item>
 	</style>
 
-	<style name="BriarDialogTheme" parent="Theme.AppCompat.DayNight.Dialog">
+	<style name="BriarDialogTheme" parent="Theme.AppCompat.DayNight.Dialog.MinWidth">
 		<item name="colorPrimary">@color/briar_primary</item>
 		<item name="colorPrimaryDark">@color/briar_primary_dark</item>
 		<item name="colorAccent">@color/briar_accent</item>

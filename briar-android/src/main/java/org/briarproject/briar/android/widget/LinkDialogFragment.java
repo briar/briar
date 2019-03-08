@@ -5,7 +5,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,10 +13,18 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 
 import java.util.List;
 
+import static android.content.Intent.ACTION_VIEW;
+import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
+import static java.util.Objects.requireNonNull;
+
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
 public class LinkDialogFragment extends DialogFragment {
 
 	private static final String TAG = LinkDialogFragment.class.getName();
@@ -34,17 +42,19 @@ public class LinkDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		url = getArguments().getString("url");
+		Bundle args = requireNonNull(getArguments());
+		url = requireNonNull(args.getString("url"));
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
 	}
 
 	@Override
-	public View onCreateView(@NonNull LayoutInflater inflater,
-			ViewGroup container, Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
 
 		View v = inflater.inflate(R.layout.fragment_link_dialog, container,
 				false);
@@ -53,10 +63,11 @@ public class LinkDialogFragment extends DialogFragment {
 		urlView.setText(url);
 
 		// prepare normal intent or intent chooser
-		Intent i = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-		PackageManager packageManager = getContext().getPackageManager();
+		Intent i = new Intent(ACTION_VIEW, Uri.parse(url));
+		PackageManager packageManager =
+				requireNonNull(getContext()).getPackageManager();
 		List activities = packageManager.queryIntentActivities(i,
-				PackageManager.MATCH_DEFAULT_ONLY);
+				MATCH_DEFAULT_ONLY);
 		boolean choice = activities.size() > 1;
 		Intent intent = choice ? Intent.createChooser(i,
 				getString(R.string.link_warning_open_link)) : i;
