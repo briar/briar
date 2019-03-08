@@ -120,7 +120,8 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
-	public void signOut(ResultHandler<Void> eventHandler) {
+	public void signOut(ResultHandler<Void> eventHandler,
+			boolean deleteAccount) {
 		new Thread(() -> {
 			try {
 				// Wait for the service to finish starting up
@@ -134,9 +135,16 @@ public class BriarControllerImpl implements BriarController {
 				service.waitForShutdown();
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for service");
+			} finally {
+				if (deleteAccount) accountManager.deleteAccount();
 			}
 			eventHandler.onResult(null);
 		}).start();
+	}
+
+	@Override
+	public void deleteAccount() {
+		accountManager.deleteAccount();
 	}
 
 	private void unbindService() {

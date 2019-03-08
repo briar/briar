@@ -185,13 +185,15 @@ public abstract class BriarActivity extends BaseActivity {
 		b.show();
 	}
 
-	protected void signOut(boolean removeFromRecentApps) {
+	protected void signOut(boolean removeFromRecentApps,
+			boolean deleteAccount) {
 		if (briarController.accountSignedIn()) {
 			// Don't use UiResultHandler because we want the result even if
 			// this activity has been destroyed
 			briarController.signOut(result -> runOnUiThread(
-					() -> exit(removeFromRecentApps)));
+					() -> exit(removeFromRecentApps)), deleteAccount);
 		} else {
+			if (deleteAccount) briarController.deleteAccount();
 			exit(removeFromRecentApps);
 		}
 	}

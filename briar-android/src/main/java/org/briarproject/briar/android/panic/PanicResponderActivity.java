@@ -5,7 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.preference.PreferenceManager;
 
-import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -24,8 +23,6 @@ import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
 
@@ -38,8 +35,6 @@ public class PanicResponderActivity extends BriarActivity {
 
 	@Inject
 	protected LifecycleManager lifecycleManager;
-	@Inject
-	protected AccountManager accountManager;
 	@Inject
 	protected AndroidExecutor androidExecutor;
 
@@ -74,7 +69,7 @@ public class PanicResponderActivity extends BriarActivity {
 				// non-destructive actions are allowed by non-connected trusted apps
 				if (sharedPref.getBoolean(KEY_LOCK, true)) {
 					LOG.info("Signing out...");
-					signOut(true);
+					signOut(true, false);
 				}
 			}
 		}
@@ -93,17 +88,8 @@ public class PanicResponderActivity extends BriarActivity {
 
 	private void deleteAllData() {
 		androidExecutor.runOnBackgroundThread(() -> {
-			lifecycleManager.stopServices();
-			try {
-				lifecycleManager.waitForShutdown();
-			} catch (InterruptedException e) {
-				logException(LOG, WARNING, e);
-			} finally {
-				accountManager.deleteAccount();
-				// nothing left to do after everything is deleted, so sign out
-				LOG.info("Signing out...");
-				signOut(true);
-			}
+			LOG.info("Signing out...");
+			signOut(true, true);
 		});
 	}
 }

@@ -93,10 +93,14 @@ class AndroidAccountManager extends AccountManagerImpl
 				LOG.warning("Could not clear shared preferences");
 		}
 		// Delete files, except lib and shared_prefs directories
+		HashSet<File> files = new HashSet<>();
 		File dataDir = new File(appContext.getApplicationInfo().dataDir);
-		HashSet<File> files = new HashSet<>(asList(dataDir.listFiles()));
-		if (files.isEmpty()) {
+		@Nullable
+		File[] fileArray = dataDir.listFiles();
+		if (fileArray == null) {
 			LOG.warning("Could not list files in app data dir");
+		} else {
+			files.addAll(asList(fileArray));
 		}
 		files.add(appContext.getFilesDir());
 		files.add(appContext.getCacheDir());
