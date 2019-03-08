@@ -7,7 +7,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.StringRes;
-import android.support.constraint.Group;
 import android.support.v7.widget.AppCompatImageView;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.RecyclerView.Adapter;
@@ -29,14 +28,13 @@ public class BriarRecyclerView extends FrameLayout {
 	private final Handler handler = new Handler(Looper.getMainLooper());
 
 	private RecyclerView recyclerView;
-	private Group emptyState;
 	private AppCompatImageView emptyImage;
 	private TextView emptyText, emptyAction;
 	private ProgressBar progressBar;
 	private RecyclerView.AdapterDataObserver emptyObserver;
 	@Nullable
 	private Runnable refresher = null;
-	private boolean isScrollingToEnd = false;
+	private boolean isScrollingToEnd;
 
 	public BriarRecyclerView(Context context) {
 		this(context, null, 0);
@@ -77,7 +75,6 @@ public class BriarRecyclerView extends FrameLayout {
 				R.layout.briar_recycler_view, this, true);
 
 		recyclerView = v.findViewById(R.id.recyclerView);
-		emptyState = v.findViewById(R.id.emptyState);
 		emptyImage = v.findViewById(R.id.emptyImage);
 		emptyText = v.findViewById(R.id.emptyText);
 		emptyAction = v.findViewById(R.id.emptyAction);
@@ -174,7 +171,9 @@ public class BriarRecyclerView extends FrameLayout {
 	public void showProgressBar() {
 		if (recyclerView == null) initViews();
 		recyclerView.setVisibility(INVISIBLE);
-		emptyState.setVisibility(INVISIBLE);
+		emptyImage.setVisibility(INVISIBLE);
+		emptyText.setVisibility(INVISIBLE);
+		emptyAction.setVisibility(INVISIBLE);
 		progressBar.setVisibility(VISIBLE);
 	}
 
@@ -183,11 +182,14 @@ public class BriarRecyclerView extends FrameLayout {
 		Adapter adapter = recyclerView.getAdapter();
 		if (adapter != null) {
 			if (adapter.getItemCount() == 0) {
-				emptyState.setVisibility(VISIBLE);
+				emptyImage.setVisibility(VISIBLE);
+				emptyText.setVisibility(VISIBLE);
+				emptyAction.setVisibility(VISIBLE);
 				recyclerView.setVisibility(INVISIBLE);
 			} else {
-				// use GONE here so empty view doesn't use space on small lists
-				emptyState.setVisibility(GONE);
+				emptyImage.setVisibility(INVISIBLE);
+				emptyText.setVisibility(INVISIBLE);
+				emptyAction.setVisibility(INVISIBLE);
 				recyclerView.setVisibility(VISIBLE);
 			}
 			progressBar.setVisibility(GONE);
