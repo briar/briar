@@ -38,7 +38,7 @@ public abstract class BaseContactListAdapter<I extends ContactItem, VH extends C
 
 	@Override
 	public boolean areItemsTheSame(I c1, I c2) {
-		return c1.getContact().getId().equals(c2.getContact().getId());
+		return c1.getContact().equals(c2.getContact());
 	}
 
 	@Override
@@ -47,8 +47,7 @@ public abstract class BaseContactListAdapter<I extends ContactItem, VH extends C
 	}
 
 	int findItemPosition(ContactId c) {
-		int count = getItemCount();
-		for (int i = 0; i < count; i++) {
+		for (int i = 0; i < getItemCount(); i++) {
 			I item = getItemAt(i);
 			if (item != null && item.getContact().getId().equals(c))
 				return i;
