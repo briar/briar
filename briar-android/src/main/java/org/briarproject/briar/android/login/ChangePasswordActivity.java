@@ -83,6 +83,10 @@ public class ChangePasswordActivity extends BriarActivity
 		newPasswordConfirmation.addTextChangedListener(tw);
 		newPasswordConfirmation.setOnEditorActionListener(this);
 		changePasswordButton.setOnClickListener(this);
+
+		if (state == null && currentPassword.requestFocus()) {
+			showSoftKeyboard(currentPassword);
+		}
 	}
 
 	@Override

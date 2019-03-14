@@ -21,9 +21,11 @@ import org.briarproject.briar.android.activity.BaseActivity;
 
 import javax.inject.Inject;
 
+import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
+import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -88,6 +90,16 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		} else {
 			viewModel.setContactAlias(alias);
 			getDialog().dismiss();
+		}
+	}
+
+	@Override
+	public void onStart() {
+		super.onStart();
+		if (aliasEditText.requestFocus()) {
+			requireNonNull(getDialog().getWindow())
+					.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+			showSoftKeyboard(aliasEditText);
 		}
 	}
 

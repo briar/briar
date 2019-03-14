@@ -94,7 +94,7 @@ public class CreateGroupFragment extends BaseFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		listener.showSoftKeyboard(nameEntry);
+		if (nameEntry.requestFocus()) listener.showSoftKeyboard(nameEntry);
 	}
 
 	@Override

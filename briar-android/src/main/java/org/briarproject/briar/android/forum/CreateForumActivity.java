@@ -94,7 +94,7 @@ public class CreateForumActivity extends BriarActivity {
 	@Override
 	public void onStart() {
 		super.onStart();
-		showSoftKeyboard(nameEntry);
+		if (nameEntry.requestFocus()) showSoftKeyboard(nameEntry);
 	}
 
 	@Override

@@ -2,7 +2,6 @@ package org.briarproject.briar.android.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.Fragment;
@@ -12,7 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
-import android.view.inputmethod.InputMethodManager;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -44,7 +42,6 @@ import javax.inject.Inject;
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
-import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
@@ -218,14 +215,11 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	public void showSoftKeyboard(View view) {
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).showSoftInput(view, SHOW_IMPLICIT);
+		UiUtils.showSoftKeyboard(view);
 	}
 
 	public void hideSoftKeyboard(View view) {
-		IBinder token = view.getWindowToken();
-		Object o = getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
+		UiUtils.hideSoftKeyboard(view);
 	}
 
 	@UiThread

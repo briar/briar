@@ -89,6 +89,7 @@ public class WriteBlogPostActivity extends BriarActivity
 	public void onStart() {
 		super.onStart();
 		notificationManager.blockNotification(groupId);
+		if (input.requestFocus()) showSoftKeyboard(input);
 	}
 
 	@Override

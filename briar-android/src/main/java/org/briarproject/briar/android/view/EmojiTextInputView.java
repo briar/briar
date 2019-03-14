@@ -13,8 +13,8 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
-import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import com.vanniktech.emoji.RecentEmoji;
 
@@ -31,8 +31,9 @@ import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static java.lang.Character.isWhitespace;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
+import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
-public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
+public class EmojiTextInputView extends LinearLayout implements
 		TextWatcher {
 
 	@Inject
@@ -41,12 +42,16 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 	private final AppCompatImageButton emojiToggle;
 	private final EmojiPopup emojiPopup;
 	private final EditText editText;
+	private final InputMethodManager imm;
 
 	@Nullable
 	private TextInputListener listener;
+	@Nullable
+	private OnKeyboardShownListener keyboardShownListener;
 	private int maxLength = Integer.MAX_VALUE;
 	private boolean emptyTextAllowed = false;
 	private boolean isEmpty = true;
+	private boolean keyboardOpen = false;
 
 	public EmojiTextInputView(Context context) {
 		this(context, null);
@@ -104,17 +109,26 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 		// stuff we can't do in edit mode goes below
 		if (isInEditMode()) {
 			emojiPopup = null;
+			imm = null;
 			return;
 		}
+		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
+		imm = (InputMethodManager) requireNonNull(o);
+
 		BriarApplication app =
 				(BriarApplication) context.getApplicationContext();
 		app.getApplicationComponent().inject(this);
 		emojiPopup = EmojiPopup.Builder
-				.fromRootView(this)
+				.fromRootView(getRootView())
 				.setRecentEmoji(recentEmoji)
 				.setOnEmojiPopupShownListener(this::showKeyboardIcon)
 				.setOnEmojiPopupDismissListener(this::showEmojiIcon)
-				.build((EmojiEditText) editText);
+				.setKeyboardAnimationStyle(R.style.emoji_fade_animation_style)
+				.setOnSoftKeyboardOpenListener(this::onKeyboardOpened)
+				.setOnSoftKeyboardCloseListener(this::onKeyboardClosed)
+				.setIconColor(resolveColorAttribute(getContext(),
+						R.attr.colorControlNormal))
+				.build(editText);
 		emojiToggle.setOnClickListener(v -> emojiPopup.toggle());
 	}
 
@@ -231,6 +245,10 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 		editText.setHint(hint);
 	}
 
+	boolean isKeyboardOpen() {
+		return keyboardOpen || imm.isFullscreenMode();
+	}
+
 	private void showEmojiIcon() {
 		emojiToggle.setImageResource(R.drawable.ic_emoji_toggle);
 	}
@@ -240,23 +258,43 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 	}
 
 	void showSoftKeyboard() {
-		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-		InputMethodManager imm = (InputMethodManager) requireNonNull(o);
 		imm.showSoftInput(editText, SHOW_IMPLICIT);
 	}
 
 	void hideSoftKeyboard() {
 		if (emojiPopup.isShowing()) emojiPopup.dismiss();
 		IBinder token = editText.getWindowToken();
-		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-		InputMethodManager imm = (InputMethodManager) requireNonNull(o);
 		imm.hideSoftInputFromWindow(token, 0);
+	}
+
+	private void onKeyboardOpened(
+			@SuppressWarnings("unused") int keyboardHeight) {
+		keyboardOpen = true;
+		if (keyboardShownListener != null)
+			keyboardShownListener.onKeyboardShown();
+	}
+
+	private void onKeyboardClosed() {
+		if (imm.isFullscreenMode()) {
+			onKeyboardOpened(0);
+			return;
+		}
+		keyboardOpen = false;
+	}
+
+	void setOnKeyboardShownListener(
+			@Nullable OnKeyboardShownListener listener) {
+		keyboardShownListener = listener;
 	}
 
 	interface TextInputListener {
 		void onTextIsEmptyChanged(boolean isEmpty);
 
 		void onSendEvent();
+	}
+
+	public interface OnKeyboardShownListener {
+		void onKeyboardShown();
 	}
 
 }

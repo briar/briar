@@ -15,7 +15,7 @@
 		app:errorEnabled="true"
 		app:hintEnabled="false">
 
-		<EditText
+		<android.support.design.widget.TextInputEditText
 			android:id="@+id/createForumNameEntry"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
