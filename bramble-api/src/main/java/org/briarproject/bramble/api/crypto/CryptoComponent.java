@@ -34,8 +34,7 @@ public interface CryptoComponent {
 	SecretKey deriveKey(String label, SecretKey k, byte[]... inputs);
 
 	/**
-	 * Derives a common shared secret from two public keys and one of the
-	 * corresponding private keys.
+	 * Derives a shared secret from two key pairs.
 	 *
 	 * @param label a namespaced label indicating the purpose of this shared
 	 * secret, to prevent it from being repurposed or colliding with a shared
@@ -46,6 +45,25 @@ public interface CryptoComponent {
 	 */
 	SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
 			KeyPair ourKeyPair, byte[]... inputs)
+			throws GeneralSecurityException;
+
+	/**
+	 * Derives a shared secret from two static and two ephemeral key pairs.
+	 *
+	 * @param label a namespaced label indicating the purpose of this shared
+	 * secret, to prevent it from being repurposed or colliding with a shared
+	 * secret derived for another purpose
+	 * @param theirStaticPublicKey the static public key of the remote party
+	 * @param theirEphemeralPublicKey the ephemeral public key of the remote
+	 * party
+	 * @param ourStaticKeyPair the static key pair of the local party
+	 * @param ourEphemeralKeyPair the ephemeral key pair of the local party
+	 * @param alice true if the local party is Alice
+	 * @return the shared secret
+	 */
+	SecretKey deriveSharedSecret(String label, PublicKey theirStaticPublicKey,
+			PublicKey theirEphemeralPublicKey, KeyPair ourStaticKeyPair,
+			KeyPair ourEphemeralKeyPair, boolean alice, byte[]... inputs)
 			throws GeneralSecurityException;
 
 	/**
