@@ -46,6 +46,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -54,13 +55,10 @@ import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
+class ContactExchangeTaskImpl implements ContactExchangeTask {
 
 	private static final Logger LOG =
-			Logger.getLogger(ContactExchangeTaskImpl.class.getName());
-
-	private static final String SIGNING_LABEL_EXCHANGE =
-			"org.briarproject.briar.contact/EXCHANGE";
+			getLogger(ContactExchangeTaskImpl.class.getName());
 
 	// Accept records with current protocol version, known record type
 	private static final Predicate<Record> ACCEPT = r ->
@@ -89,12 +87,6 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 
-	private volatile LocalAuthor localAuthor;
-	private volatile DuplexTransportConnection conn;
-	private volatile TransportId transportId;
-	private volatile SecretKey masterKey;
-	private volatile boolean alice;
-
 	@Inject
 	ContactExchangeTaskImpl(DatabaseComponent db, ClientHelper clientHelper,
 			RecordReaderFactory recordReaderFactory,
@@ -119,19 +111,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	}
 
 	@Override
-	public void startExchange(LocalAuthor localAuthor, SecretKey masterKey,
-			DuplexTransportConnection conn, TransportId transportId,
-			boolean alice) {
-		this.localAuthor = localAuthor;
-		this.conn = conn;
-		this.transportId = transportId;
-		this.masterKey = masterKey;
-		this.alice = alice;
-		start();
-	}
-
-	@Override
-	public void run() {
+	public void exchangeContacts(LocalAuthor localAuthor,
+			SecretKey masterKey, DuplexTransportConnection conn,
+			TransportId transportId, boolean alice) {
 		// Get the transport connection's input and output streams
 		InputStream in;
 		OutputStream out;
@@ -195,13 +177,11 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			if (alice) {
 				sendContactInfo(recordWriter, localAuthor, localProperties,
 						localSignature, localTimestamp);
-				recordWriter.flush();
 				remoteInfo = receiveContactInfo(recordReader);
 			} else {
 				remoteInfo = receiveContactInfo(recordReader);
 				sendContactInfo(recordWriter, localAuthor, localProperties,
 						localSignature, localTimestamp);
-				recordWriter.flush();
 			}
 			// Send EOF on the outgoing stream
 			streamWriter.sendEndOfStream();
@@ -227,8 +207,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 		try {
 			// Add the contact
-			ContactId contactId = addContact(remoteInfo.author, timestamp,
-					remoteInfo.properties);
+			ContactId contactId = addContact(remoteInfo.author, localAuthor,
+					masterKey, timestamp, alice, remoteInfo.properties);
 			// Reuse the connection as a transport connection
 			connectionManager.manageOutgoingConnection(contactId, transportId,
 					conn);
@@ -250,8 +230,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 	private byte[] sign(LocalAuthor author, byte[] nonce) {
 		try {
-			return crypto.sign(SIGNING_LABEL_EXCHANGE, nonce,
-					author.getPrivateKey());
+			return crypto.sign(SIGNING_LABEL, nonce, author.getPrivateKey());
 		} catch (GeneralSecurityException e) {
 			throw new AssertionError();
 		}
@@ -259,8 +238,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 	private boolean verify(Author author, byte[] nonce, byte[] signature) {
 		try {
-			return crypto.verifySignature(signature, SIGNING_LABEL_EXCHANGE,
-					nonce, author.getPublicKey());
+			return crypto.verifySignature(signature, SIGNING_LABEL, nonce,
+					author.getPublicKey());
 		} catch (GeneralSecurityException e) {
 			return false;
 		}
@@ -274,6 +253,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		BdfList payload = BdfList.of(authorList, props, signature, timestamp);
 		recordWriter.writeRecord(new Record(PROTOCOL_VERSION, CONTACT_INFO,
 				clientHelper.toByteArray(payload)));
+		recordWriter.flush();
 		LOG.info("Sent contact info");
 	}
 
@@ -295,7 +275,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		return new ContactInfo(author, properties, signature, timestamp);
 	}
 
-	private ContactId addContact(Author remoteAuthor, long timestamp,
+	private ContactId addContact(Author remoteAuthor, LocalAuthor localAuthor,
+			SecretKey masterKey, long timestamp, boolean alice,
 			Map<TransportId, TransportProperties> remoteProperties)
 			throws DbException {
 		return db.transactionWithResult(false, txn -> {

@@ -39,9 +39,14 @@ public interface ContactExchangeTask {
 	String BOB_NONCE_LABEL = "org.briarproject.bramble.contact/BOB_NONCE";
 
 	/**
+	 * Label for signing key binding nonces.
+	 */
+	String SIGNING_LABEL = "org.briarproject.briar.contact/EXCHANGE";
+
+	/**
 	 * Exchanges contact information with a remote peer.
 	 */
-	void startExchange(LocalAuthor localAuthor, SecretKey masterKey,
+	void exchangeContacts(LocalAuthor localAuthor, SecretKey masterKey,
 			DuplexTransportConnection conn, TransportId transportId,
 			boolean alice);
 }

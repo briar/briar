@@ -14,11 +14,13 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -35,6 +37,10 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 
 	private static final Logger LOG =
 			Logger.getLogger(ContactExchangeActivity.class.getName());
+
+	@Inject
+	@IoExecutor
+	Executor ioExecutor;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -63,12 +69,12 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	@Override
 	protected void onStop() {
 		super.onStop();
-		// Stop listen to updates from contactExchangeTask
+		// Stop listening to updates from contactExchangeTask
 		eventBus.addListener(this);
 	}
 
 	private void startContactExchange(KeyAgreementResult result) {
-		runOnDbThread(() -> {
+		ioExecutor.execute(() -> {
 			LocalAuthor localAuthor;
 			// Load the local pseudonym
 			try {
@@ -78,9 +84,8 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 				contactExchangeFailed();
 				return;
 			}
-
 			// Exchange contact details
-			contactExchangeTask.startExchange(localAuthor,
+			contactExchangeTask.exchangeContacts(localAuthor,
 					result.getMasterKey(), result.getConnection(),
 					result.getTransportId(), result.wasAlice());
 		});
