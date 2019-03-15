@@ -1,11 +1,16 @@
 package org.briarproject.bramble.api.transport;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Contains transport keys for sending streams to a given contact over a given
  * transport in a given rotation period.
  */
+@Immutable
+@NotNullByDefault
 public class OutgoingKeys {
 
 	private final SecretKey tagKey, headerKey;

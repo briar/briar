@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 
 /**
  * Crypto operations for the transport security protocol - see
- * https://code.briarproject.org/akwizgran/briar-spec/blob/master/protocols/BTP.md
+ * https://code.briarproject.org/briar/briar-spec/blob/master/protocols/BTP.md
  */
 public interface TransportCrypto {
 

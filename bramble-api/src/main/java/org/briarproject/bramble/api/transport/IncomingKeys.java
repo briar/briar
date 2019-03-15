@@ -1,6 +1,9 @@
 package org.briarproject.bramble.api.transport;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.transport.TransportConstants.REORDERING_WINDOW_SIZE;
 
@@ -8,6 +11,8 @@ import static org.briarproject.bramble.api.transport.TransportConstants.REORDERI
  * Contains transport keys for receiving streams from a given contact over a
  * given transport in a given rotation period.
  */
+@Immutable
+@NotNullByDefault
 public class IncomingKeys {
 
 	private final SecretKey tagKey, headerKey;
