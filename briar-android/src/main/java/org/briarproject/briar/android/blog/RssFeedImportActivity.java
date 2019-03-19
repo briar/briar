@@ -29,6 +29,7 @@ import javax.inject.Inject;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
@@ -71,6 +72,15 @@ public class RssFeedImportActivity extends BriarActivity {
 			public void afterTextChanged(Editable s) {
 				enableOrDisableImportButton();
 			}
+		});
+		urlInput.setOnEditorActionListener((v, actionId, event) -> {
+			if (actionId == IME_ACTION_DONE && importButton.isEnabled() &&
+					importButton.getVisibility() == VISIBLE) {
+				publish();
+				hideSoftKeyboard(urlInput);
+				return true;
+			}
+			return false;
 		});
 
 		importButton = findViewById(R.id.importButton);

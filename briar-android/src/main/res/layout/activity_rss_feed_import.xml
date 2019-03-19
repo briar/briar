@@ -25,6 +25,7 @@
 			android:background="@android:color/transparent"
 			android:gravity="top"
 			android:hint="@string/blogs_rss_feeds_import_hint"
+			android:imeOptions="actionDone"
 			android:inputType="textUri"
 			android:padding="@dimen/margin_medium"
 			android:textColor="?android:attr/textColorPrimary"/>

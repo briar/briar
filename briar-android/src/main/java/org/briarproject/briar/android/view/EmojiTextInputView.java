@@ -26,6 +26,7 @@ import javax.inject.Inject;
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_ENTER;
+import static android.view.inputmethod.EditorInfo.IME_ACTION_SEND;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
@@ -80,7 +81,15 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 		if (maxLines > 0) editText.setMaxLines(maxLines);
 		editText.setOnClickListener(v -> showSoftKeyboard());
 		editText.addTextChangedListener(this);
-		// support sending with Ctrl+Enter
+		editText.setOnEditorActionListener((v, actionId, event) -> {
+			if (actionId == IME_ACTION_SEND) {
+				listener.onSendEvent();
+				hideSoftKeyboard();
+				return true;
+			}
+			return false;
+		});
+		// also support sending with Ctrl+Enter
 		editText.setOnKeyListener((v, keyCode, event) -> {
 			if (listener != null && keyCode == KEYCODE_ENTER &&
 					event.isCtrlPressed()) {
