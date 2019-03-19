@@ -16,5 +16,8 @@ public interface BriarController extends ActivityLifecycleController {
 
 	void doNotAskAgainForDozeWhiteListing();
 
-	void signOut(ResultHandler<Void> eventHandler);
+	void signOut(ResultHandler<Void> eventHandler, boolean deleteAccount);
+
+	void deleteAccount();
+
 }

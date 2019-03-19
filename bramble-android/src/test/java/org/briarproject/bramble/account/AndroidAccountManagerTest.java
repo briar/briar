@@ -112,6 +112,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 		// Other directories should be deleted
 		File potatoDir = new File(testDir, ".potato");
 		File potatoFile = new File(potatoDir, "file");
+		File filesDir = new File(testDir, "filesDir");
+		File externalCacheDir = new File(testDir, "externalCacheDir");
 
 		context.checking(new Expectations() {{
 			oneOf(prefs).edit();
@@ -128,6 +130,12 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			oneOf(app).getApplicationInfo();
 			will(returnValue(applicationInfo));
+			oneOf(app).getFilesDir();
+			will(returnValue(filesDir));
+			oneOf(app).getCacheDir();
+			will(returnValue(cacheDir));
+			oneOf(app).getExternalCacheDir();
+			will(returnValue(externalCacheDir));
 		}});
 
 		assertTrue(dbDir.mkdirs());
@@ -140,6 +148,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 		assertTrue(cacheFile.createNewFile());
 		assertTrue(potatoDir.mkdirs());
 		assertTrue(potatoFile.createNewFile());
+		assertTrue(filesDir.mkdirs());
+		assertTrue(externalCacheDir.mkdirs());
 
 		accountManager.deleteAccount();
 
@@ -153,6 +163,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 		assertFalse(cacheFile.exists());
 		assertFalse(potatoDir.exists());
 		assertFalse(potatoFile.exists());
+		assertFalse(filesDir.exists());
+		assertFalse(externalCacheDir.exists());
 	}
 
 	@After
