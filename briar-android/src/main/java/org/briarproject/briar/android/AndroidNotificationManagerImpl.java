@@ -231,7 +231,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			showForumPostNotification(f.getGroupId());
 		} else if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
-			showBlogPostNotification(b.getGroupId());
+			if (!b.isLocal()) showBlogPostNotification(b.getGroupId());
 		} else if (e instanceof IntroductionSucceededEvent) {
 			showIntroductionNotification();
 		}
