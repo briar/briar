@@ -34,14 +34,14 @@ class ThreadScrollListener<I extends ThreadItem>
 	}
 
 	@Override
-	protected void onNewItemVisible(int firstVisible, int lastVisible,
+	protected void onItemsVisible(int firstVisible, int lastVisible,
 			int itemCount) {
-		super.onNewItemVisible(firstVisible, lastVisible, itemCount);
+		super.onItemsVisible(firstVisible, lastVisible, itemCount);
 		updateUnreadButtons(firstVisible, lastVisible, itemCount);
 	}
 
 	@Override
-	protected void onNewItemVisible(I item) {
+	protected void onItemVisible(I item) {
 		if (!item.isRead()) {
 			item.setRead(true);
 			controller.markItemRead(item);

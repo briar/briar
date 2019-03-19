@@ -36,7 +36,7 @@ public abstract class BriarRecyclerViewScrollListener<A extends ItemReturningAda
 		if (firstVisible != prevFirstVisible ||
 				lastVisible != prevLastVisible ||
 				itemCount != prevItemCount) {
-			onNewItemVisible(firstVisible, lastVisible, itemCount);
+			onItemsVisible(firstVisible, lastVisible, itemCount);
 			prevFirstVisible = firstVisible;
 			prevLastVisible = lastVisible;
 			prevItemCount = itemCount;
@@ -44,37 +44,18 @@ public abstract class BriarRecyclerViewScrollListener<A extends ItemReturningAda
 	}
 
 	@CallSuper
-	protected void onNewItemVisible(int firstVisible, int lastVisible,
+	protected void onItemsVisible(int firstVisible, int lastVisible,
 			int itemCount) {
-		boolean init = prevFirstVisible == NO_POSITION ||
-				prevLastVisible == NO_POSITION;
-		int visibleItems = prevLastVisible - prevFirstVisible;
-		boolean jump = Math.abs(firstVisible - prevFirstVisible) > visibleItems;
-
-		if (init || jump) {
-			// If the list has loaded, or we jump scrolled,
-			// all visible items are newly visible
-			for (int i = firstVisible; i <= lastVisible; i++)
-				onNewItemVisible(i);
-			return;
-		}
-
-		boolean up = firstVisible > prevFirstVisible ||
-				lastVisible > prevLastVisible;
-		if (up) {
-			for (int i = prevLastVisible + 1; i <= lastVisible; i++)
-				onNewItemVisible(i);
-		} else {
-			for (int i = firstVisible; i < prevFirstVisible; i++)
-				onNewItemVisible(i);
+		for (int i = firstVisible; i <= lastVisible; i++) {
+			onItemVisible(i);
 		}
 	}
 
-	private void onNewItemVisible(int position) {
+	private void onItemVisible(int position) {
 		I item = requireNonNull(adapter.getItemAt(position));
-		onNewItemVisible(item);
+		onItemVisible(item);
 	}
 
-	protected abstract void onNewItemVisible(I item);
+	protected abstract void onItemVisible(I item);
 
 }

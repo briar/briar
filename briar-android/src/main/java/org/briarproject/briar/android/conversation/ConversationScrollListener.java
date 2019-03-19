@@ -16,7 +16,7 @@ class ConversationScrollListener extends
 	}
 
 	@Override
-	protected void onNewItemVisible(ConversationItem item) {
+	protected void onItemVisible(ConversationItem item) {
 		if (!item.isRead()) {
 			viewModel.markMessageRead(item.getGroupId(), item.getId());
 			item.markRead();
