@@ -61,14 +61,15 @@ class ThreadScrollListener<I extends ThreadItem>
 			setUnreadButtons(0, 0);
 			return;
 		}
-		int unreadCounterFirst = 0, unreadCounterLast = 0;
-		for (int i = 0; i < count; i++) {
+		int unreadCounterFirst = 0;
+		for (int i = 0; i < firstVisible; i++) {
 			I item = requireNonNull(adapter.getItemAt(i));
-			if (i < firstVisible && !item.isRead()) {
-				unreadCounterFirst++;
-			} else if (i > lastVisible && !item.isRead()) {
-				unreadCounterLast++;
-			}
+			if (!item.isRead()) unreadCounterFirst++;
+		}
+		int unreadCounterLast = 0;
+		for (int i = lastVisible + 1; i < count; i++) {
+			I item = requireNonNull(adapter.getItemAt(i));
+			if (!item.isRead()) unreadCounterLast++;
 		}
 		setUnreadButtons(unreadCounterFirst, unreadCounterLast);
 	}
