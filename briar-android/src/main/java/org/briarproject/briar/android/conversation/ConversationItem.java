@@ -69,6 +69,10 @@ abstract class ConversationItem {
 		return read;
 	}
 
+	void markRead() {
+		read = true;
+	}
+
 	/**
 	 * Only useful for outgoing messages.
 	 */

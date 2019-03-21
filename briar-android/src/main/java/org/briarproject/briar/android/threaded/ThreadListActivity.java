@@ -9,7 +9,6 @@ import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.contact.ContactId;
@@ -43,10 +42,7 @@ import javax.inject.Inject;
 
 import static android.support.design.widget.Snackbar.make;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
-import static android.support.v7.widget.RecyclerView.SCROLL_STATE_IDLE;
-import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.briar.android.threaded.ThreadItemAdapter.UnreadCount;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -61,11 +57,11 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 			Logger.getLogger(ThreadListActivity.class.getName());
 
 	protected A adapter;
+	private ThreadScrollListener<I> scrollListener;
 	protected BriarRecyclerView list;
 	private LinearLayoutManager layoutManager;
 	protected TextInputView textInput;
 	protected GroupId groupId;
-	private UnreadMessageButton upButton, downButton;
 	@Nullable
 	private MessageId replyId;
 
@@ -76,7 +72,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 	@CallSuper
 	@Override
-	@SuppressWarnings("ConstantConditions")
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
@@ -93,37 +88,18 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 				new TextSendController(textInput, this, false);
 		textInput.setSendController(sendController);
 		textInput.setMaxTextLength(getMaxTextLength());
+		UnreadMessageButton upButton = findViewById(R.id.upButton);
+		UnreadMessageButton downButton = findViewById(R.id.downButton);
+
 		list = findViewById(R.id.list);
 		layoutManager = new LinearLayoutManager(this);
-		// FIXME pre-fetching messes with read state, find better solution #1289
-		layoutManager.setItemPrefetchEnabled(false);
 		list.setLayoutManager(layoutManager);
 		adapter = createAdapter(layoutManager);
 		list.setAdapter(adapter);
+		scrollListener = new ThreadScrollListener<>(adapter, getController(),
+				upButton, downButton);
+		list.getRecyclerView().addOnScrollListener(scrollListener);
 
-		list.getRecyclerView().addOnScrollListener(
-				new RecyclerView.OnScrollListener() {
-					@Override
-					public void onScrolled(RecyclerView recyclerView, int dx,
-							int dy) {
-						super.onScrolled(recyclerView, dx, dy);
-						if (dx == 0 && dy == 0) {
-							// scrollToPosition has been called and finished
-							updateUnreadCount();
-						}
-					}
-
-					@Override
-					public void onScrollStateChanged(RecyclerView recyclerView,
-							int newState) {
-						super.onScrollStateChanged(recyclerView, newState);
-						if (newState == SCROLL_STATE_IDLE) {
-							updateUnreadCount();
-						}
-					}
-				});
-		upButton = findViewById(R.id.upButton);
-		downButton = findViewById(R.id.downButton);
 		upButton.setOnClickListener(v -> {
 			int position = adapter.getVisibleUnreadPosTop();
 			if (position != NO_POSITION) {
@@ -211,7 +187,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		MessageId messageId = items.getFirstVisibleItemId();
 		if (messageId != null)
 			adapter.setItemWithIdVisible(messageId);
-		updateUnreadCount();
 		list.showData();
 	}
 
@@ -277,14 +252,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 			updateTextInput();
 		} else {
 			super.onBackPressed();
-		}
-	}
-
-	@Override
-	public void onUnreadItemVisible(I item) {
-		if (!item.isRead()) {
-			item.setRead(true);
-			getController().markItemRead(item);
 		}
 	}
 
@@ -403,18 +370,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		if (isLocal) {
 			scrollToItemAtTop(item);
 		} else {
-			updateUnreadCount();
+			scrollListener.updateUnreadButtons(layoutManager);
 		}
-	}
-
-	private void updateUnreadCount() {
-		UnreadCount unreadCount = adapter.getUnreadCount();
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Updating unread count: top=" + unreadCount.top +
-					" bottom=" + unreadCount.bottom);
-		}
-		upButton.setUnreadCount(unreadCount.top);
-		downButton.setUnreadCount(unreadCount.bottom);
 	}
 
 }

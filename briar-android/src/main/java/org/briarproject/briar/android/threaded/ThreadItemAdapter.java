@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.util.ItemReturningAdapter;
 import org.briarproject.briar.android.util.VersionedAdapter;
 
 import java.util.Collection;
@@ -21,7 +22,7 @@ import static android.support.v7.widget.RecyclerView.NO_POSITION;
 @UiThread
 public class ThreadItemAdapter<I extends ThreadItem>
 		extends RecyclerView.Adapter<BaseThreadItemViewHolder<I>>
-		implements VersionedAdapter {
+		implements VersionedAdapter, ItemReturningAdapter<I> {
 
 	static final int UNDEFINED = -1;
 
@@ -137,30 +138,6 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	}
 
 	/**
-	 * Gets the number of unread items above and below the current view port.
-	 *
-	 * Attention: Do not call this when the list is still scrolling,
-	 *            because then the view port is unknown.
-	 */
-	public UnreadCount getUnreadCount() {
-		int positionTop = layoutManager.findFirstVisibleItemPosition();
-		int positionBottom = layoutManager.findLastVisibleItemPosition();
-		if (positionTop == NO_POSITION && positionBottom == NO_POSITION)
-			return new UnreadCount(0, 0);
-
-		int unreadCounterTop = 0, unreadCounterBottom = 0;
-		for (int i = 0; i < items.size(); i++) {
-			I item = items.get(i);
-			if (i < positionTop && !item.isRead()) {
-				unreadCounterTop++;
-			} else if (i > positionBottom && !item.isRead()) {
-				unreadCounterBottom++;
-			}
-		}
-		return new UnreadCount(unreadCounterTop, unreadCounterBottom);
-	}
-
-	/**
 	 * Returns the position of the first unread item below the current viewport
 	 */
 	int getVisibleUnreadPosBottom() {
@@ -188,20 +165,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		return NO_POSITION;
 	}
 
-	static class UnreadCount {
-
-		final int top, bottom;
-
-		private UnreadCount(int top, int bottom) {
-			this.top = top;
-			this.bottom = bottom;
-		}
-	}
-
 	public interface ThreadItemListener<I> {
-
-		void onUnreadItemVisible(I item);
-
 		void onReplyClick(I item);
 	}
 

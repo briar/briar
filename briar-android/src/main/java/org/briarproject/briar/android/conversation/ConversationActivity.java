@@ -47,7 +47,6 @@ import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
@@ -256,6 +255,9 @@ public class ConversationActivity extends BriarActivity
 		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
+		ConversationScrollListener scrollListener =
+				new ConversationScrollListener(adapter, viewModel);
+		list.getRecyclerView().addOnScrollListener(scrollListener);
 
 		textInputView = findViewById(R.id.text_input_container);
 		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
@@ -785,23 +787,6 @@ public class ConversationActivity extends BriarActivity
 						ContextCompat.getColor(this, R.color.briar_primary))
 				.setPromptStateChangeListener(listener)
 				.show();
-	}
-
-	@Override
-	public void onItemVisible(ConversationItem item) {
-		if (!item.isRead()) markMessageRead(item.getGroupId(), item.getId());
-	}
-
-	private void markMessageRead(GroupId g, MessageId m) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				messagingManager.setReadFlag(g, m, true);
-				logDuration(LOG, "Marking read", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
 	}
 
 	@UiThread
