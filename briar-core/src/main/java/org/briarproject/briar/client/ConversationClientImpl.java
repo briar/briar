@@ -31,6 +31,15 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 		this.messageTracker = messageTracker;
 	}
 
+	/**
+	 * Initializes the group count with zero messages,
+	 * but uses the current time as latest message time for sorting.
+	 */
+	protected void initializeGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		messageTracker.initializeGroupCount(txn, g);
+	}
+
 	@Override
 	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
 			throws DbException {
