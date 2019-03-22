@@ -13,6 +13,12 @@ import javax.annotation.Nullable;
 public interface MessageTracker {
 
 	/**
+	 * Initializes the group count with zero messages,
+	 * but uses the current time as latest message time for sorting.
+	 */
+	void initializeGroupCount(Transaction txn, GroupId g) throws DbException;
+
+	/**
 	 * Gets the number of visible and unread messages in the group
 	 * as well as the timestamp of the latest message
 	 **/

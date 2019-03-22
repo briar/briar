@@ -93,6 +93,8 @@ class MessagingManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
+		// Initialize the group count with current time
+		initializeGroupCount(txn, g.getId());
 	}
 
 	@Override

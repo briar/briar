@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
 
 import javax.annotation.Nullable;
@@ -29,11 +30,22 @@ class MessageTrackerImpl implements MessageTracker {
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
+	private final Clock clock;
 
 	@Inject
-	MessageTrackerImpl(DatabaseComponent db, ClientHelper clientHelper) {
+	MessageTrackerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.clock = clock;
+	}
+
+	@Override
+	public void initializeGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		long now = clock.currentTimeMillis();
+		GroupCount groupCount = new GroupCount(0, 0, now);
+		storeGroupCount(txn, g, groupCount);
 	}
 
 	@Override
