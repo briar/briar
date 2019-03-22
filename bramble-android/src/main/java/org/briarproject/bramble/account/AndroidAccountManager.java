@@ -13,13 +13,13 @@ import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static java.util.Arrays.asList;
 
 class AndroidAccountManager extends AccountManagerImpl
 		implements AccountManager {
@@ -93,32 +93,42 @@ class AndroidAccountManager extends AccountManagerImpl
 				LOG.warning("Could not clear shared preferences");
 		}
 		// Delete files, except lib and shared_prefs directories
-		HashSet<File> files = new HashSet<>();
+		Set<File> files = new HashSet<>();
 		File dataDir = new File(appContext.getApplicationInfo().dataDir);
 		@Nullable
 		File[] fileArray = dataDir.listFiles();
 		if (fileArray == null) {
 			LOG.warning("Could not list files in app data dir");
 		} else {
-			files.addAll(asList(fileArray));
+			for (File file : fileArray) {
+				String name = file.getName();
+				if (!name.equals("lib") && !name.equals("shared_prefs")) {
+					files.add(file);
+				}
+			}
 		}
 		files.add(appContext.getFilesDir());
 		files.add(appContext.getCacheDir());
-		files.add(appContext.getExternalCacheDir());
+		addIfNotNull(files, appContext.getExternalCacheDir());
 		if (SDK_INT >= 19) {
-			files.addAll(asList(appContext.getExternalCacheDirs()));
+			for (File file : appContext.getExternalCacheDirs()) {
+				addIfNotNull(files, file);
+			}
 		}
 		if (SDK_INT >= 21) {
-			files.addAll(asList(appContext.getExternalMediaDirs()));
+			for (File file : appContext.getExternalMediaDirs()) {
+				addIfNotNull(files, file);
+			}
 		}
 		for (File file : files) {
-			String name = file.getName();
-			if (!name.equals("lib") && !name.equals("shared_prefs")) {
-				IoUtils.deleteFileOrDir(file);
-			}
+			IoUtils.deleteFileOrDir(file);
 		}
 		// Recreate the cache dir as some OpenGL drivers expect it to exist
 		if (!new File(dataDir, "cache").mkdirs())
 			LOG.warning("Could not recreate cache dir");
+	}
+
+	private void addIfNotNull(Set<File> files, @Nullable File file) {
+		if (file != null) files.add(file);
 	}
 }
