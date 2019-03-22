@@ -187,7 +187,6 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="groups_create_group_invitation_button">Pošalji poziv</string>
   <string name="groups_create_group_hint">Izaberite ime za vašu privatnu grupu</string>
   <string name="groups_invitation_sent">Grupna pozivnica je poslata</string>
-  <string name="groups_message_sent">Poruka poslata</string>
   <string name="groups_member_list">Lista članova</string>
   <string name="groups_invite_members">Pošaljite poziv članovima</string>
   <string name="groups_member_created_you">Vi ste kreirali grupu</string>
@@ -240,7 +239,6 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
     <item quantity="few">%d posta</item>
     <item quantity="other">%d postova</item>
   </plurals>
-  <string name="forum_new_entry_posted">Forum post objavljen</string>
   <string name="forum_new_message_hint">Novi post</string>
   <string name="forum_message_reply_hint">Novi odgovor</string>
   <string name="btn_reply">Odgovor</string>
@@ -433,7 +431,6 @@ Dotaknite + ikonu da uvezete kanal</string>
   <!--Link Warning-->
   <string name="link_warning_title">Link upozorenje</string>
   <string name="link_warning_intro">Upravo ćete otvoriti slijedeći link sa eksternom aplikacijom</string>
-  <string name="link_warning_text">Ovo može biti upotrijebljeno da vas identifikuju. Razmislite da li vjerujete osobi koja vam je poslala ovaj link i razmotrite da ga možda otvorite u Orfox-u.</string>
   <string name="link_warning_open_link">Otvori link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar izvještaj po krahu</string>

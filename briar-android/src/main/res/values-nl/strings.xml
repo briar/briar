@@ -133,6 +133,10 @@
   <string name="dialog_message_save_image">Opslaan van deze afbeelding staat andere apps toe deze te gebruiken.\n\n Weet je zeker dat het wil opslaan?</string>
   <string name="save_image_success">Afbeelding was opgeslagen</string>
   <string name="save_image_error">Kon afbeelding niet opslaan</string>
+  <string name="dialog_title_no_image_support">Afbeeldingen niet beschikbaar</string>
+  <string name="dialog_message_no_image_support">Briar van jouw contact ondersteunt nog geen afbeeldingen als bijlagen. Zodat zij upgraden zul je een ander icoon zien.</string>
+  <string name="dialog_title_image_support">Je kan nu afbeeldingen naar dit contact sturen</string>
+  <string name="dialog_message_image_support">Tik op dit icoon om afbeelding bij te sluiten.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Voeg contact toe</string>
   <string name="face_to_face">Je moet een persoon in levenden lijve ontmoeten om die als contact toe te voegen.\n\nDit voortkomt dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
@@ -193,7 +197,6 @@
   <string name="groups_create_group_invitation_button">Verstuur uitnodiging</string>
   <string name="groups_create_group_hint">Voer een naam in voor je privégroep</string>
   <string name="groups_invitation_sent">Groepsuitnodiging is verstuurd</string>
-  <string name="groups_message_sent">Bericht is verstuurd</string>
   <string name="groups_member_list">Ledenlijst</string>
   <string name="groups_invite_members">Nodig leden uit</string>
   <string name="groups_member_created_you">Je hebt de groep aangemaakt</string>
@@ -244,7 +247,6 @@
     <item quantity="one">%d post</item>
     <item quantity="other">%d posts</item>
   </plurals>
-  <string name="forum_new_entry_posted">Forumbericht gepubliceerd</string>
   <string name="forum_new_message_hint">Nieuw bericht</string>
   <string name="forum_message_reply_hint">Nieuwe reactie</string>
   <string name="btn_reply">Antwoord</string>
@@ -352,6 +354,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automatisch: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Gebruik mobiele data</string>
+  <string name="tor_only_when_charging_title">Verbind met internet (Tor) alleen tijdens opladen</string>
+  <string name="tor_only_when_charging_summary">Schakel internetverbinding uit als apparaat op batterij loopt</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Beveiliging</string>
   <string name="pref_lock_title">App-vergrendeling</string>
@@ -421,7 +425,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">Linkwaarschuwing</string>
   <string name="link_warning_intro">Je staat op het punt om de volgende link te open met een externe app.</string>
-  <string name="link_warning_text">Dit kan gebruikt worden om te achterhalen wie jij bent. Denk na of je de persoon vertrouwd die je deze link heeft gestuurd en overweeg deze link te openen met Orfox.</string>
   <string name="link_warning_open_link">Open link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar Crashrapport</string>

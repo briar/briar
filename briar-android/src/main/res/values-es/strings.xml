@@ -133,6 +133,10 @@
   <string name="dialog_message_save_image">Guardando esta imagen le permitirá a otras aplicaciones accederla.\n\n¿Estás seguro que quieres guardarla?</string>
   <string name="save_image_success">La imagen fue guardada</string>
   <string name="save_image_error">No se pudo guardar imagen</string>
+  <string name="dialog_title_no_image_support">Imágenes no disponibles</string>
+  <string name="dialog_message_no_image_support">El Briar de tu contacto todavía no soporta imágenes. Una vez que lo actualice verás un ícono diferente.</string>
+  <string name="dialog_title_image_support">Ahora puedes enviar imágenes a este contacto.</string>
+  <string name="dialog_message_image_support">Pulsa este ícono para adjuntar imágenes.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Añadir un contacto</string>
   <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
@@ -193,7 +197,6 @@
   <string name="groups_create_group_invitation_button">Enviar invitación</string>
   <string name="groups_create_group_hint">Elige un nombre para tu grupo privado</string>
   <string name="groups_invitation_sent">Se ha mandado la invitación de grupo</string>
-  <string name="groups_message_sent">Mensaje enviado</string>
   <string name="groups_member_list">Integrantes</string>
   <string name="groups_invite_members">Invitar miembros</string>
   <string name="groups_member_created_you">Tú creaste el grupo</string>
@@ -244,7 +247,6 @@
     <item quantity="one">%d publicación</item>
     <item quantity="other">%d publicaciones</item>
   </plurals>
-  <string name="forum_new_entry_posted">Publicación en foro ingresada</string>
   <string name="forum_new_message_hint">Nueva publicación</string>
   <string name="forum_message_reply_hint">Nueva respuesta</string>
   <string name="btn_reply">Responder</string>
@@ -352,6 +354,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automática: %1$s (en %2$s)</string>
   <string name="tor_mobile_data_title">Usar datos móviles</string>
+  <string name="tor_only_when_charging_title">Conectar vía Internet (Tor) solamente cuando está cargando</string>
+  <string name="tor_only_when_charging_summary">Deshabilita la conexión a Internet cuando el dispositivo está corriendo con batería.</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguridad</string>
   <string name="pref_lock_title">Bloqueo de apli</string>
@@ -421,7 +425,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">Advertencia sobre el enlace</string>
   <string name="link_warning_intro">Estás a punto de abrir el siguiente enlace con otra aplicación</string>
-  <string name="link_warning_text">Esto puede usarse para identificarte. Piensa si confías en la persona que te envió el enlace y considera la opción de abrirlo con Orfox.</string>
   <string name="link_warning_open_link">Abrir enlace</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de falla de Briar</string>

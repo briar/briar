@@ -133,6 +133,10 @@
   <string name="dialog_message_save_image">Ruajta e kësaj figure do t’u lejojë aplikacioneve të tjera ta përdorin.\n\nJeni i sigurt se doni të ruhet?</string>
   <string name="save_image_success">Figura u ruajt</string>
   <string name="save_image_error">Figura s’u ruajt dot</string>
+  <string name="dialog_title_no_image_support">Figura të Pakapshme</string>
+  <string name="dialog_message_no_image_support">Briar-i i kontaktit tuaj nuk i mbulon ende bashkëngjitjet figura. Sapo ta përditësojë, do të shihni tjetër ikonë.</string>
+  <string name="dialog_title_image_support">Tani mund t’i dërgoni figura këtij kontakti</string>
+  <string name="dialog_message_image_support">Prekeni këtë ikonë që të bashkëngjitni figura.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Shtoni një Kontakt</string>
   <string name="face_to_face">Duhet të takoheni me personin që doni ta shtoni si kontakt.\n\nKjo do të pengojë cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
@@ -193,7 +197,6 @@
   <string name="groups_create_group_invitation_button">Dërgoje Ftesën</string>
   <string name="groups_create_group_hint">Zgjidhni një emër për grupin tuaj privat</string>
   <string name="groups_invitation_sent">Ftesa e grupit u dërgua</string>
-  <string name="groups_message_sent">Mesazhi u dërgua</string>
   <string name="groups_member_list">Listë Anëtarësh</string>
   <string name="groups_invite_members">Ftoni Anëtarë</string>
   <string name="groups_member_created_you">E krijuat grupin</string>
@@ -244,7 +247,6 @@
     <item quantity="one">%d postim</item>
     <item quantity="other">%d postime</item>
   </plurals>
-  <string name="forum_new_entry_posted">U botua postim forumi</string>
   <string name="forum_new_message_hint">Postim i Ri</string>
   <string name="forum_message_reply_hint">Përgjigje e Re</string>
   <string name="btn_reply">Përgjigju</string>
@@ -352,6 +354,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automatike: %1$s (në %2$s)</string>
   <string name="tor_mobile_data_title">Përdor të dhëna celulare</string>
+  <string name="tor_only_when_charging_title">Lidhu përmes Internetit (Tor) vetëm kur bëhet ngarkim</string>
+  <string name="tor_only_when_charging_summary">Çaktivizon lidhjen në Internet, kur pajisja ushqehet nga bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Siguri</string>
   <string name="pref_lock_title">Kyçje aplikacioni</string>
@@ -421,7 +425,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Sinjalizim Lidhjeje</string>
   <string name="link_warning_intro">Ju ndan një hap nga hapja e lidhjes vijuese me një aplikacion të jashtëm.</string>
-  <string name="link_warning_text">Kjo mund të përdoret për t\’ju identifikuar. Mendohuni nëse e besoni apo jo personin që ju dërgoi këtë lidhje dhe shihni mundësinë e hapjes së saj me Orfox</string>
+  <string name="link_warning_text">Kjo mund të përdoret për t’ju identifikuar. Sillni në mend nëse i zini besë personit që ju dërgoi lidhjen dhe shihni mundësinë e hapjes së saj me Shfletuesin Tor.</string>
   <string name="link_warning_open_link">Hape Lidhjen</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Njoftim Vithisjesh Briar-i</string>

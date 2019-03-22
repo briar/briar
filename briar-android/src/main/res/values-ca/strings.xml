@@ -116,6 +116,9 @@
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
   <string name="message_hint">Escriviu un missatge</string>
+  <string name="image_caption_hint">Afegeix una captura (opcional)</string>
+  <string name="image_attach">Afegeix una imatge</string>
+  <string name="image_attach_error">La imatge no s\'ha pogut afegir </string>
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="set_alias_button">Canvia</string>
@@ -124,6 +127,17 @@
   <string name="dialog_message_delete_contact">Segur que voleu suprimir aquest contacte i tots els missatges que us heu intercanviat?</string>
   <string name="contact_deleted_toast">S\'ha suprimit el contacte</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Vos</string>
+  <string name="save_image">Desa imatge</string>
+  <string name="dialog_title_save_image">Voleu desar la imatge?</string>
+  <string name="dialog_message_save_image">Desant aquesta imatge es permetrà a altres aplicacions accedir-hi.\n\nConfirmeu que la voleu desar?</string>
+  <string name="save_image_success">La imatge s\'ha desat</string>
+  <string name="save_image_error">La imatge no s\'ha pogut desar </string>
+  <string name="dialog_title_no_image_support">Cap imatge disponible</string>
+  <string name="dialog_message_no_image_support">El vostre contacte de Briar encara no admet afegir imatges.
+Un cop s\'actualitzi ja li veureu una icona diferent </string>
+  <string name="dialog_title_image_support">Ara podeu enviar imatges a aquest contacte</string>
+  <string name="dialog_message_image_support">Premeu aquesta icona per afegir imatges.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Afegiu un contacte</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
@@ -184,7 +198,6 @@
   <string name="groups_create_group_invitation_button">Envia una invitació</string>
   <string name="groups_create_group_hint">Trieu un nom per al vostre grup privat</string>
   <string name="groups_invitation_sent">S\'ha enviat la invitació del grup</string>
-  <string name="groups_message_sent">Missatge enviat</string>
   <string name="groups_member_list">Llista de membres</string>
   <string name="groups_invite_members">Convida a nous membres</string>
   <string name="groups_member_created_you">Heu creat el grup</string>
@@ -235,7 +248,6 @@
     <item quantity="one">%d publicacio</item>
     <item quantity="other">%d apunts</item>
   </plurals>
-  <string name="forum_new_entry_posted">S\'ha publicat l\'apunt al fòrum</string>
   <string name="forum_new_message_hint">Apunt nou</string>
   <string name="forum_message_reply_hint">Resposta nova</string>
   <string name="btn_reply">Respon</string>
@@ -343,6 +355,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automàtic: %1$s (en %2$s)</string>
   <string name="tor_mobile_data_title">Usa dades mòbils</string>
+  <string name="tor_only_when_charging_title">Connecta a través d\'Internet (Tor) només quan s\'estigui carregant</string>
+  <string name="tor_only_when_charging_summary">Desactiva la connexió a Internet quan el dispositiu estigui funcionant amb la bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
   <string name="pref_lock_title">Bloqueig de l\'aplicació</string>
@@ -412,7 +426,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Avís d\'enllaç</string>
   <string name="link_warning_intro">L\'enllaç s\'obrirà amb una aplicació externa.</string>
-  <string name="link_warning_text">Això podria usar-se per a identificar-vos. Penseu si us en refieu prou de la persona que us ha enviat l\'enllaç. Avalueu si us convindria obrir-lo amb un navegador que faciliti l\'anonimat com Orfox.</string>
+  <string name="link_warning_text">Això es podria utilitzar-se per identificar-vos. Penseu si confieu en la persona que us ha enviat aquest enllaç i considereu obrir-lo amb el navegador Tor.</string>
   <string name="link_warning_open_link">Obre l\'enllaç</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de fallida de Briar</string>

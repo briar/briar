@@ -138,6 +138,10 @@
   <string name="dialog_message_save_image">Salvând imaginea veți permite altor aplicații să o acceseze.\n\nSigur doriți să o salvați?</string>
   <string name="save_image_success">Imaginea a fost salvată</string>
   <string name="save_image_error">Nu s-a putut șterge imaginea</string>
+  <string name="dialog_title_no_image_support">Imagini indisponibile</string>
+  <string name="dialog_message_no_image_support">Versiunea aplicației Briar a contactului dumneavoastră nu suportă încă atașamente imagini. Odată ce au actualizat veți vedea o iconiță diferită.</string>
+  <string name="dialog_title_image_support">Acum puteți trimite imagini către acest contact</string>
+  <string name="dialog_message_image_support">Atingeți această iconiță pentru a atașa imagini</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adaugă un contact</string>
   <string name="face_to_face">Trebuie să vă întâlniți cu persoana pe care doriți să o adăugați la contacte.\n\nAcest pas împiedică alte persoane să vă fure identitatea sau să vă citească mesajele în viitor.</string>
@@ -200,7 +204,6 @@
   <string name="groups_create_group_invitation_button">Trimite invitație</string>
   <string name="groups_create_group_hint">Alegeți un nume pentru grupul dumneavoastră privat</string>
   <string name="groups_invitation_sent">Invitația in grup a fost trimisă</string>
-  <string name="groups_message_sent">Mesaj trimis</string>
   <string name="groups_member_list">Lista de membrii</string>
   <string name="groups_invite_members">Invită membrii</string>
   <string name="groups_member_created_you">Ați creat grupul</string>
@@ -253,7 +256,6 @@
     <item quantity="few">%d mesaje</item>
     <item quantity="other">%d de mesaje</item>
   </plurals>
-  <string name="forum_new_entry_posted">Mesajul a fost scris pe forum</string>
   <string name="forum_new_message_hint">Mesaj nou</string>
   <string name="forum_message_reply_hint">Răspuns nou</string>
   <string name="btn_reply">Răspunde</string>
@@ -362,6 +364,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automat: %1$s (în %2$s)</string>
   <string name="tor_mobile_data_title">Utilizează date mobile</string>
+  <string name="tor_only_when_charging_title">Conectare prin Internet (rețeaua Tor) doar atunci când dispozitivul se încarcă</string>
+  <string name="tor_only_when_charging_summary">Se dezactivează conexiunea la Internet atunci când dispozitivul funcționează pe baterie</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Securitate</string>
   <string name="pref_lock_title">Blocare aplicație</string>
@@ -431,7 +435,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Avertizare adresă</string>
   <string name="link_warning_intro">Urmează să deschideți adresa următoare cu o aplicație externă</string>
-  <string name="link_warning_text">Acest lucru poate fi folosit pentru a vă identifica. Gândiți-vă dacă aveți încredere în persoana care v-a trimis acest link și luați în considerare deschiderea acestuia cu Orfox.</string>
+  <string name="link_warning_text">Acest lucru poate fi folosit pentru a vă identifica. Gândiți-vă dacă aveți încredere în persoana care v-a trimis acest link și luați în considerare deschiderea acestuia cu Tor Browser.</string>
   <string name="link_warning_open_link">Deschide adresă</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Raport de erori Briar</string>

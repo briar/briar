@@ -111,6 +111,8 @@
   <string name="date_no_private_messages">没有消息。</string>
   <string name="no_private_messages">尚无消息可供显示</string>
   <string name="message_hint">输入信息</string>
+  <string name="image_attach">附加图片</string>
+  <string name="image_attach_error">无法附加图片</string>
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
   <string name="set_alias_button">更改</string>
@@ -119,6 +121,15 @@
   <string name="dialog_message_delete_contact">确认要删除该联系人和与之交流的所有消息吗？</string>
   <string name="contact_deleted_toast">联系人已删除</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="save_image">保存图片</string>
+  <string name="dialog_title_save_image">确定保存图片吗？</string>
+  <string name="dialog_message_save_image">保存这张图片将会使其他应用可以访问到它。\n\n你确定要保存吗？</string>
+  <string name="save_image_success">图片已保存</string>
+  <string name="save_image_error">无法保存图片</string>
+  <string name="dialog_title_no_image_support">图片无法访问</string>
+  <string name="dialog_message_no_image_support">你的联系人的 Briar 尚未支持图片附件。一旦他们升级你就会看到不同图标。</string>
+  <string name="dialog_title_image_support">你现在可以向此联系人发送图片。</string>
+  <string name="dialog_message_image_support">轻按此图标即可附加图片。</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">添加联系人</string>
   <string name="face_to_face">您必须面对面添加联系人。\n\n这样将防止未来他人冒充您的身份并查看您的信息。</string>
@@ -177,7 +188,6 @@
   <string name="groups_create_group_invitation_button">发送邀请</string>
   <string name="groups_create_group_hint">为私密群聊命名</string>
   <string name="groups_invitation_sent">群聊邀请已发送</string>
-  <string name="groups_message_sent">消息已发送</string>
   <string name="groups_member_list">成员列表</string>
   <string name="groups_invite_members">邀请成员</string>
   <string name="groups_member_created_you">您创建了群聊</string>
@@ -226,7 +236,6 @@
   <plurals name="posts">
     <item quantity="other">%d 条帖子</item>
   </plurals>
-  <string name="forum_new_entry_posted">论坛帖子已发布</string>
   <string name="forum_new_message_hint">新帖子</string>
   <string name="forum_message_reply_hint">新回复</string>
   <string name="btn_reply">回复</string>
@@ -401,7 +410,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">链接警告</string>
   <string name="link_warning_intro">您将要在另一个应用中打开以下链接</string>
-  <string name="link_warning_text">这可能被用来辨认您的真实身份。请考虑您是否信任发送该链接给您的人，并考虑使用 Orfox 打开该链接。</string>
   <string name="link_warning_open_link">打开链接</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar 崩溃报告</string>

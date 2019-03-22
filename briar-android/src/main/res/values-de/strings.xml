@@ -8,7 +8,7 @@
   <string name="setup_password_explanation">Dein Briar-Konto wird verschlüsselt auf deinem Gerät und nicht in der Cloud gespeichert. Wenn du dein Passwort vergisst oder Briar deinstallierst, gibt es keine Möglichkeit, dein Konto wiederherzustellen.\n\nWähle ein langes Passwort, das schwer zu erraten ist, z.B. vier zufällige Wörter oder zehn zufällige Buchstaben, Zahlen und Symbole.</string>
   <string name="setup_doze_title">Hintergrundverbindungen</string>
   <string name="setup_doze_intro">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben.</string>
-  <string name="setup_doze_explanation">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben. Bitte deaktiviere die Batterieoptimierungen, damit Briar in Verbindung bleiben kann.</string>
+  <string name="setup_doze_explanation">Um Nachrichten zu empfangen, muss Briar im Hintergrund verbunden bleiben. Bitte deaktiviere die Akkuoptimierungen, damit Briar in Verbindung bleiben kann.</string>
   <string name="setup_doze_button">Erlaube Verbindungen</string>
   <string name="choose_nickname">Wähle deinen Benutzernamen</string>
   <string name="choose_password">Wähle dein Passwort</string>
@@ -66,7 +66,7 @@
   <string name="transport_lan">WLAN</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Von Briar abgemeldet</string>
-  <string name="reminder_notification_text">Tippe, um dich wieder anzumelden</string>
+  <string name="reminder_notification_text">Tippe, um dich wieder anzumelden.</string>
   <string name="reminder_notification_channel_title">Briar Anmeldeerinnerung</string>
   <string name="reminder_notification_dismiss">Verwerfen</string>
   <string name="ongoing_notification_title">In Briar angemeldet</string>
@@ -93,7 +93,7 @@
   <string name="hide">Ausblenden</string>
   <string name="ok">OK</string>
   <string name="cancel">Abbrechen</string>
-  <string name="got_it">Okay, verstanden.</string>
+  <string name="got_it">Verstanden</string>
   <string name="delete">Löschen</string>
   <string name="accept">Annehmen</string>
   <string name="decline">Ablehnen</string>
@@ -105,7 +105,7 @@
   <string name="open">Öffnen</string>
   <string name="no_data">Keine Daten</string>
   <string name="ellipsis">…</string>
-  <string name="text_too_long">Der eingegebene Text ist leider zu lang</string>
+  <string name="text_too_long">Der eingegebene Text ist zu lang</string>
   <string name="show_onboarding">Hilfe anzeigen</string>
   <string name="fix">Behoben</string>
   <string name="help">Hilfe</string>
@@ -130,9 +130,13 @@
   <string name="you">Sie</string>
   <string name="save_image">Bild speichern</string>
   <string name="dialog_title_save_image">Bild speichern?</string>
-  <string name="dialog_message_save_image">Gespeicherte Bilder können von vielen anderen Apps eingesehen werden.\n\nBist Du sicher, dass Du das Bild speichern möchtest?</string>
+  <string name="dialog_message_save_image">Gespeicherte Bilder können von vielen anderen Apps eingesehen werden.\n\nBist du sicher, dass du das Bild speichern möchtest?</string>
   <string name="save_image_success">Bild wurde gespeichert.</string>
   <string name="save_image_error">Konnte Bild nicht speichern.</string>
+  <string name="dialog_title_no_image_support">Bilder nicht verfügbar</string>
+  <string name="dialog_message_no_image_support">Der Briar deines Kontakts unterstützt noch keine Bildanhänge. Sobald die Aktualisierung abgeschlossen ist, siehst du ein anderes Symbol.</string>
+  <string name="dialog_title_image_support">Du kannst nun Bilder an diesen Kontakt senden</string>
+  <string name="dialog_message_image_support">Tippe auf das Symbol, um Bilder anzuhängen.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt hinzufügen</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
@@ -143,8 +147,8 @@
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
-  <string name="qr_code_too_old">Der QR-Code, den Du eingescannt hast, kommt von einer älteren Version von %s.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und probiere es erneut.</string>
-  <string name="qr_code_too_new">Der QR-Code, den Du gescannt hast, kommt von einer neueren Version von .\n\nBitte update %s auf die neueste Version und versuche es erneut.</string>
+  <string name="qr_code_too_old">Der QR-Code, den du eingescannt hast, kommt von einer älteren Version von %s.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und probiere es erneut.</string>
+  <string name="qr_code_too_new">Der QR-Code, den du gescannt hast, kommt von einer neueren Version von .\n\nBitte update %s auf die neueste Version und versuche es erneut.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
@@ -190,10 +194,9 @@
   <string name="groups_remove">Entfernen</string>
   <string name="groups_create_group_title">Private Gruppe erstellen</string>
   <string name="groups_create_group_button">Gruppe erstellen</string>
-  <string name="groups_create_group_invitation_button">Einladung schicken</string>
+  <string name="groups_create_group_invitation_button">Einladung senden</string>
   <string name="groups_create_group_hint">Wähle einen Namen für deine private Gruppe</string>
-  <string name="groups_invitation_sent">Gruppeneinladung versendet</string>
-  <string name="groups_message_sent">Nachricht gesendet</string>
+  <string name="groups_invitation_sent">Gruppeneinladung wurde versendet</string>
   <string name="groups_member_list">Mitgliederliste</string>
   <string name="groups_invite_members">Mitglieder einladen</string>
   <string name="groups_member_created_you">Du hast diese Gruppe erstellt</string>
@@ -208,7 +211,7 @@
   <string name="groups_dissolve_dialog_message">Willst du wirklich diese Gruppe auflösen?\n\nAlle anderen Mitglieder können ihre Unterhaltung nicht fortsetzen und erhalten möglicherweise nicht die neuesten Nachrichten.</string>
   <string name="groups_dissolve_button">Auflösen</string>
   <string name="groups_dissolved_dialog_title">Gruppe wurde aufgelöst</string>
-  <string name="groups_dissolved_dialog_message">Der Ersteller dieser Gruppe hat dieselbe aufgelöst.\n\nEs können keine weiteren Nachrichten mehr in dieser Gruppe geschrieben werden und möglicherweise wurden noch nicht alle Nachrichten empfangen.</string>
+  <string name="groups_dissolved_dialog_message">Der Ersteller dieser Gruppe hat diese aufgelöst.\n\nEs können keine weiteren Nachrichten mehr in dieser Gruppe geschrieben werden und möglicherweise wurden noch nicht alle Nachrichten empfangen.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Gruppeneinladungen</string>
   <string name="groups_invitations_invitation_sent">%1$s wurde in die Gruppe \"%2$s\" eingeladen.</string>
@@ -220,9 +223,9 @@
     <item quantity="other">%d offene Gruppeneinladungen</item>
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Gruppeneinladung von %s angenommen.</string>
-  <string name="groups_invitations_response_declined_sent">Gruppeneinladung von %s abgelehnt.</string>
+  <string name="groups_invitations_response_declined_sent">Du hast die Gruppeneinladung abgelehnt von %s abgelehnt.</string>
   <string name="groups_invitations_response_accepted_received">%s hat die Einladung zur Gruppe angenommen.</string>
-  <string name="groups_invitations_response_declined_received">%s hat die Einladung zur Gruppe abgelehnt.</string>
+  <string name="groups_invitations_response_declined_received">%s hat die Gruppeneinladung abgelehnt.</string>
   <string name="sharing_status_groups">Nur der Ersteller kann neue Mitglieder zu einer Gruppe einladen. Hier werden alle aktuellen Mitglieder dieser Gruppe angezeigt.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Kontakte teilen</string>
@@ -244,7 +247,6 @@
     <item quantity="one">%d Beitrag</item>
     <item quantity="other">%d Beiträge</item>
   </plurals>
-  <string name="forum_new_entry_posted">Beitrag im Forum veröffentlicht</string>
   <string name="forum_new_message_hint">Neuer Beitrag</string>
   <string name="forum_message_reply_hint">Neue Antwort</string>
   <string name="btn_reply">Antworten</string>
@@ -270,10 +272,10 @@
   <string name="forum_declined_toast">Einladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
   <string name="forum_invitation_already_sharing">Bereits geteilt.</string>
-  <string name="forum_invitation_response_accepted_sent">Du hast die Forumseinladung von %s akzeptiert.</string>
+  <string name="forum_invitation_response_accepted_sent">Du hast die Forumseinladung von %s angenommen.</string>
   <string name="forum_invitation_response_declined_sent">Du hast die Forumeinladung von %s abgelehnt.</string>
-  <string name="forum_invitation_response_accepted_received">%s hat die Forumeinladung akzeptiert.</string>
-  <string name="forum_invitation_response_declined_received">%s hat die Forumseinladung abgelehnt.</string>
+  <string name="forum_invitation_response_accepted_received">%s hat die Forumeinladung angenommen.</string>
+  <string name="forum_invitation_response_declined_received">%s hat die Forumeinladung abgelehnt.</string>
   <string name="sharing_status">Freigabestatus</string>
   <string name="sharing_status_forum">Jedes Mitglied eines Forums kann dieses mit seinen Kontakten teilen. Du teilst dieses Forum mit den folgenden Kontakten. Möglicherweise gibt es Mitglieder die nicht sichtbar sind.</string>
   <string name="shared_with">Geteilt mit %1$d (%2$d online)</string>
@@ -304,9 +306,9 @@
   <string name="blogs_sharing_error">Es gab einen Fehler beim Versuch, diesen Blog zu teilen.</string>
   <string name="blogs_sharing_button">Blog teilen</string>
   <string name="blogs_sharing_snackbar">Blog wurde mit ausgewählten Kontakten geteilt</string>
-  <string name="blogs_sharing_response_accepted_sent">Du hast die Blogeinladung von %s akzeptiert.</string>
+  <string name="blogs_sharing_response_accepted_sent">Du hast die Blogeinladung von %s angenommen.</string>
   <string name="blogs_sharing_response_declined_sent">Du hast die Blogeinladung von %s abgelehnt.</string>
-  <string name="blogs_sharing_response_accepted_received">%s hat die Blogeinladung akzeptiert.</string>
+  <string name="blogs_sharing_response_accepted_received">%s hat die Blogeinladung angenommen.</string>
   <string name="blogs_sharing_response_declined_received">%s hat die Blogeinladung abgelehnt.</string>
   <string name="blogs_sharing_invitation_received">%1$shat den Blog \"%2$s\" mit dir geteilt.</string>
   <string name="blogs_sharing_invitation_sent">Du teilst den Blog \"%1$s\" mit %2$s.</string>
@@ -352,10 +354,14 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automatisch: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Mobile Daten benutzen</string>
+  <string name="tor_only_when_charging_title">Verbindung über Internet (Tor) nur während des Ladevorgangs herstellen</string>
+  <string name="tor_only_when_charging_summary">Deaktiviert die Internetverbindung, wenn das Gerät mit Akku betrieben wird</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
+  <string name="pref_lock_title">App-Sperre</string>
   <string name="pref_lock_summary">Systemsperrbildschirm benutzen um Briar zu schützen, während angemeldet</string>
   <string name="pref_lock_disabled_summary">Um dieses Feature zu benutzen, aktiviere den Systemsperrbildschirm</string>
+  <string name="pref_lock_timeout_title">Zeitlimit der Inaktivität für die App-Sperr-Funktion</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar automatisch nach %s sperren, wenn unbenutzt.</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -419,7 +425,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Link-Warnung</string>
   <string name="link_warning_intro">Du willst folgenden Link mit einer externen App öffnen.</string>
-  <string name="link_warning_text">Dies kann zu deiner Identifzierung benutzt werden. Überlege, ob die Person, die dir diesen Link geschickt hat, vertrauenswürdig ist und ob du ihn nicht besser mit Orfox öffnest.</string>
+  <string name="link_warning_text">Dies kann zu deiner Identifizierung benutzt werden. Überlege, ob die Person, die dir diesen Link geschickt hat, vertrauenswürdig ist und ob du ihn nicht besser mit dem Tor Browser öffnest.</string>
   <string name="link_warning_open_link">Link öffnen</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar-Absturzbericht</string>
@@ -447,9 +453,9 @@
   <string name="permission_camera_title">Berechtigung Kamera</string>
   <string name="permission_camera_request_body">Um den QR-Code zu scannen, benötigt Briar Zugriff auf die Kamera.</string>
   <string name="permission_location_title">Berechtigung Standort</string>
-  <string name="permission_location_request_body">Um Bluetooth-Geräte zu  finden, braucht Briar Zugriff auf Deinen Standort.\n\nBriar speichert weder Deinen Standort noch gibt es ihn an andere weiter.</string>
+  <string name="permission_location_request_body">Um Bluetooth-Geräte zu  finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_location_title">Kamera und Standort</string>
-  <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, brauch Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf Deinen Standort.\n\nBriar speichert weder Deinen Standort noch gibt es ihn an andere weiter.</string>
+  <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, brauch Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
   <string name="qr_code">QR-Code</string>
   <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>

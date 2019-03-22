@@ -19,7 +19,7 @@
   <string name="create_account_button">Створити обліковий запис</string>
   <string name="more_info">Детальніше</string>
   <string name="don_t_ask_again">Не запитувати знову</string>
-  <string name="setup_huawei_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додадтки\".</string>
+  <string name="setup_huawei_text">Будь ласка, натисніть кнопку, що знаходиться нижче і впевніться у тому, що Briar захищено на екрані \"Захищені додатки\".</string>
   <string name="setup_huawei_button">Захистити Briar</string>
   <string name="setup_huawei_help">Якщо Briar немає у списку захищених додатків, він не зможе працювати у фоновому режимі.</string>
   <string name="warning_dozed">%s не вдалося запустити у фоновому режимі</string>
@@ -33,7 +33,7 @@
   <string name="startup_failed_notification_title">Briar не може запуститися</string>
   <string name="startup_failed_notification_text">Натисніть для детальнішої інформації.</string>
   <string name="startup_failed_activity_title">Помилка при запуску Briar</string>
-  <string name="startup_failed_db_error">З якоїсь причини база даних вашого Briar пошкоджена і не підлягає відновленню. Ваш обліковий запис, дані та усі контакти втрачені. На жаль, вам потрібно перевстановити Briar або створити новий обліковий запис, натиснувши \"Я забув свій пароль\".</string>
+  <string name="startup_failed_db_error">З якоїсь причини база даних вашого Briar пошкоджена і не підлягає відновленню. Ваш обліковий запис, дані та усі контакти втрачені. На жаль, вам потрібно перевстановити Briar або створити новий обліковий запис, натиснувши \"Я забув(-ла) свій пароль\".</string>
   <string name="startup_failed_data_too_old_error">Ваш обліковий запис було створено за допомогою старішої версії цього застосунку і його неможливо відкрити за допомогою поточної версії. Вам необхідно знову встановити старішу версію або створити новий обліковий запис, обравши рядок \"Я забув(-ла) свій пароль\" у спливному вікні паролів.</string>
   <string name="startup_failed_data_too_new_error">Ця версія програми застаріла. Будь ласка, оновіться до останньої версії та спробуйте знову.</string>
   <string name="startup_failed_service_error">Briar не зміг запустити потрібну втулку. Перевстановлення Briar зазвичай вирішує цю проблему. Однак, будь ласка, зазначте, що у цьому випадку ви втратите свій обліковий запис та усю пов\'язану з ним інформацію, оскільки Briar не використовує центральні сервери для зберігання інформації.</string>
@@ -104,7 +104,7 @@
   <string name="ok">Гаразд</string>
   <string name="cancel">Скасувати</string>
   <string name="got_it">Зрозуміло</string>
-  <string name="delete">Delete</string>
+  <string name="delete">Видалити</string>
   <string name="accept">Прийняти</string>
   <string name="decline">Відхилити</string>
   <string name="options">Параметри</string>
@@ -116,9 +116,9 @@
   <string name="no_data">Немає даних</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Цей текст занадто довгий</string>
-  <string name="show_onboarding">Показати вікно допомоги</string>
+  <string name="show_onboarding">Показати вікно довідки</string>
   <string name="fix">Виправити</string>
-  <string name="help">Довідкк</string>
+  <string name="help">Довідка</string>
   <string name="sorry">Вибачте</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Немає контактів для відображення</string>
@@ -129,7 +129,7 @@
   <string name="image_caption_hint">Додати заголовок (за бажанням)</string>
   <string name="image_attach">Прикріпити зображення</string>
   <string name="image_attach_error">Не вдалося прикріпити зображення</string>
-  <string name="set_contact_alias">Змінити назву контакту</string>
+  <string name="set_contact_alias">Змінити ім\'я контакту</string>
   <string name="set_contact_alias_hint">Назва контакту</string>
   <string name="set_alias_button">Змінити</string>
   <string name="delete_contact">Вилучити контакт</string>
@@ -143,6 +143,10 @@
   <string name="dialog_message_save_image">Зберігаючи це зображення, ви надаєте доступ до нього іншим програмам.\n\nВи впевнені, що хочете його зберегти?</string>
   <string name="save_image_success">Зображення було збережено</string>
   <string name="save_image_error">Не вдалося зберегти зображення</string>
+  <string name="dialog_title_no_image_support">Зображення недоступні</string>
+  <string name="dialog_message_no_image_support">Briar вашого контакту ще не підтримує прикріплення зображень. Щойно користувач(-ка) оновиться, ви бачитиме іншу піктограму.</string>
+  <string name="dialog_title_image_support">Тепер ви можете надсилати зображення цьому контакту</string>
+  <string name="dialog_message_image_support">Натисніть на цю піктограму, щоб прикріпити зображення.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Додати контакт</string>
   <string name="face_to_face">Ви маєте зустрітися з особою, яку ви бажаєте додати до списку контактів.\n\nЦе виключить можливість у майбутньому будь-кому видавати себе за вас або читати ваші повідомлення.</string>
@@ -153,13 +157,13 @@
   <string name="contact_added_toast">Додали контакт: %s</string>
   <string name="contact_already_exists">Контакт %s вже існує</string>
   <string name="qr_code_invalid">QR-код неправильний</string>
-  <string name="qr_code_too_old">QR-код, який ви відсканували, надійшов зі старішої версії від %s.\n\nБудь ласка, попросіть у свого контакта оновитися до останньої версіїї, а тоді спробуйте знову.</string>
-  <string name="qr_code_too_new">QR-код, який ви відсканували, надійшов з більш нової версії від %s.\n\nБудь ласка, оновіться до останньої версіїї, а тоді спробуйте знову.</string>
+  <string name="qr_code_too_old">QR-код, який ви просканували, надійшов зі старішої версії від %s.\n\nБудь ласка, попросіть у свого контакту оновитися до останньої версії, а тоді спробуйте знову.</string>
+  <string name="qr_code_too_new">QR-код, який ви просканували, надійшов з новішої версії від %s.\n\nБудь ласка, оновіться до останньої версії, а тоді спробуйте знову.</string>
   <string name="camera_error">Помилка камери</string>
   <string name="connecting_to_device">З\'єднання з пристроєм\u2026</string>
-  <string name="authenticating_with_device">Аутентифікація з пристроєм\u2026</string>
+  <string name="authenticating_with_device">Автентифікація з пристроєм\u2026</string>
   <string name="connection_error_title">Неможливо з\'єднатися з вашим контактом</string>
-  <string name="connection_error_explanation">Будь ласка, впевніться, що ви обидва під\'єднані до однієї Wi-Fi-мережі.</string>
+  <string name="connection_error_explanation">Будь ласка, впевніться, що ви обоє під\'єднані до однієї Wi-Fi-мережі.</string>
   <string name="connection_error_feedback">Якщо ця проблема збережеться, будь ласка, <a href="feedback">надішліть відгук</a>, щоб допомогти нам вдосконалити цей додаток.</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Поділитися своїми контактами</string>
@@ -178,11 +182,11 @@
   <string name="introduction_request_exists_received">%1$sпопросив вас представити %2$s, однак %2$sвже є у вашому списку контактів. Оскільки %1$sпро це може бути невідомо, ви все ще можете відповісти:</string>
   <string name="introduction_request_answered_received">%1$sпопросив представити вас %2$s.</string>
   <string name="introduction_response_accepted_sent">Ви прийняли запит на знайомство від %1$s.</string>
-  <string name="introduction_response_accepted_sent_info">Перед тим, як ви додасте %1$s до списку своїх контактів, вони також мають підтвердити цей запит. Це може зайняти якийсь час.</string>
+  <string name="introduction_response_accepted_sent_info">Перед тим, як ви додасте %1$s до списку своїх контактів, він/вона також має підтвердити цей запит. Це може зайняти якийсь час.</string>
   <string name="introduction_response_declined_sent">Ви відхилили запит на знайомство з %1$s.</string>
-  <string name="introduction_response_accepted_received">%1$sприйняв запит на знайомство із %2$s.</string>
-  <string name="introduction_response_declined_received">%1$sвідхилив запит на знайомство з %2$s.</string>
-  <string name="introduction_response_declined_received_by_introducee">%1$s повідомляє, що %2$s відхилив запит на знайомство.</string>
+  <string name="introduction_response_accepted_received">%1$sприйняв(-ла) запит на знайомство із %2$s.</string>
+  <string name="introduction_response_declined_received">%1$sвідхилив(-ла) запит на знайомство з %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s повідомляє, що %2$s відхилив(-ла) запит на знайомство.</string>
   <plurals name="introduction_notification_text">
     <item quantity="one">Новий контакт додано.</item>
     <item quantity="few">%d нові контакти додано.</item>
@@ -201,19 +205,18 @@
   </plurals>
   <string name="groups_group_is_empty">Ця група порожня</string>
   <string name="groups_group_is_dissolved">Цю групу було розформовано</string>
-  <string name="groups_remove">Забрати</string>
+  <string name="groups_remove">Прибрати</string>
   <string name="groups_create_group_title">Створити приватну групу</string>
   <string name="groups_create_group_button">Створити групу</string>
   <string name="groups_create_group_invitation_button">Надіслати запрошення</string>
   <string name="groups_create_group_hint">Оберіть назву своїй приватній групі</string>
   <string name="groups_invitation_sent">Відправлено запрошення до групи</string>
-  <string name="groups_message_sent">Повідомлення надіслано</string>
   <string name="groups_member_list">Список учасників</string>
   <string name="groups_invite_members">Запросити учасників</string>
   <string name="groups_member_created_you">Ви створили групу</string>
-  <string name="groups_member_created">%s створив групу</string>
+  <string name="groups_member_created">%s створив(-ла) групу</string>
   <string name="groups_member_joined_you">Ви приєдналися до групи</string>
-  <string name="groups_member_joined">%s приєднався до групи</string>
+  <string name="groups_member_joined">%s приєднався(-лась) до групи</string>
   <string name="groups_leave">Вийти з групи</string>
   <string name="groups_leave_dialog_title">Підтвердити свій вихід з групи</string>
   <string name="groups_leave_dialog_message">Ви впевнені, що хочете вийти з цієї групи?</string>
@@ -237,8 +240,8 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Ви прийняли запрошення до групи від %s.</string>
   <string name="groups_invitations_response_declined_sent">Ви відхилили запрошення до групи від %s.</string>
-  <string name="groups_invitations_response_accepted_received">%s прийняв запрошення до групи.</string>
-  <string name="groups_invitations_response_declined_received">%sвідхилив запрошення до групи.</string>
+  <string name="groups_invitations_response_accepted_received">%s прийняв(-ла) запрошення до групи.</string>
+  <string name="groups_invitations_response_declined_received">%sвідхилив(-ла) запрошення до групи.</string>
   <string name="sharing_status_groups">Лише засновник групи може запрошувати нових учасників до групи. Нижче зазначено усх актуальних учасників групи.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Відкрити контакти</string>
@@ -251,7 +254,7 @@
   <string name="no_forums">Немає форумів до показу</string>
   <string name="no_forums_action">Натисніть на символ \"+\", щоб створити форум або попросіть у своїх контактів поділитися з вами форумами.</string>
   <string name="create_forum_title">Створити форум</string>
-  <string name="choose_forum_hint">Оберіть ім\'я для свого форуму</string>
+  <string name="choose_forum_hint">Оберіть назву для свого форуму</string>
   <string name="create_forum_button">Створити форум</string>
   <string name="forum_created_toast">Форум було створено</string>
   <string name="no_forum_posts">Немає дописів для показу</string>
@@ -262,7 +265,6 @@
     <item quantity="many">%d дописів</item>
     <item quantity="other">%d допису</item>
   </plurals>
-  <string name="forum_new_entry_posted">На форумі було опубліковано допис</string>
   <string name="forum_new_message_hint">Новий допис</string>
   <string name="forum_message_reply_hint">Нова відповідь</string>
   <string name="btn_reply">Відповісти</string>
@@ -312,7 +314,7 @@
   <string name="blogs_blog_post_received">Отримано новий допис блогу</string>
   <string name="blogs_blog_post_scroll_to">Прокрутити до</string>
   <string name="blogs_feed_empty_state">Немає дописів для відображення</string>
-  <string name="blogs_feed_empty_state_action">Тут будуть з\'являтися дописи від ваших контактів та блоги, на які ви підписані.\n\nНатисніть на позначку \"Ручка\", щоб створити допис</string>
+  <string name="blogs_feed_empty_state_action">Тут будуть з\'являтися дописи від ваших контактів та блоги, на які ви підписані.\n\nНатисніть на піктограму \"Ручка\", щоб створити допис</string>
   <string name="blogs_remove_blog">Видалити блог</string>
   <string name="blogs_remove_blog_dialog_message">Ви впевнені, що хочете видалити цей блог?\n\nДописи буде видалено з вашого пристрою, але не з пристроїв інших осіб.\n\nБудь-які контакти, поміж яких ви поширили цей блог, можуть припинити отримувати оновлення.</string>
   <string name="blogs_remove_blog_ok">Видалити</string>
@@ -372,6 +374,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Автоматично: %1$s (через %2$s)</string>
   <string name="tor_mobile_data_title">Використовувати мобільну мережу</string>
+  <string name="tor_only_when_charging_title">З’єднуватись через інтернет (Tor) тільки під час заряджання</string>
+  <string name="tor_only_when_charging_summary">Вимикає з’єднання з інтернетом коли пристрій працює від батареї</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безпека</string>
   <string name="pref_lock_title">Блокування програми</string>
@@ -441,7 +445,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Попередження про посилання</string>
   <string name="link_warning_intro">Ви збираєтеся відкрити наступне посилання за допомогою зовнішньої програми.</string>
-  <string name="link_warning_text">Це може бути використано для вашої ідентифікації. Подумайте, чи довіряєте ви особі, яка надіслала вам це посилання та розгляньте варіант відкрити його за допомогою Orfox.</string>
+  <string name="link_warning_text">Це може бути використання для визначення вашої особи. Подумайте про те, чи довіряєте ви людині, яка надіслала вам це посилання, і подумайте про його відкриття за допомогою Tor Browser.</string>
   <string name="link_warning_open_link">Відкрити посилання</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Аварійний звіт Briar</string>

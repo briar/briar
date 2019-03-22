@@ -146,6 +146,10 @@
   <string name="dialog_message_save_image">שמירת תמונה זו תאפשר ליישומים להשיג גישה אל התמונה.\n\nהאם אתה בטוח שאתה רוצה לשמור?</string>
   <string name="save_image_success">תמונה נשמרה</string>
   <string name="save_image_error">לא היה ניתן לשמור תמונה</string>
+  <string name="dialog_title_no_image_support">תמונות בלתי זמינות</string>
+  <string name="dialog_message_no_image_support">Briar של איש הקשר שלך אינו תומך בצרופות תמונה. ברגע שהוא ישדרג, תראה צלמית שונה.</string>
+  <string name="dialog_title_image_support">אתה יכול כעת לשלוח תמונות אל איש קשר זה</string>
+  <string name="dialog_message_image_support">הקש על צלמית זו כדי לצרף תמונות.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">הוסף איש קשר</string>
   <string name="face_to_face">אתם חייבים להפגש עם האדם שאותו תרצו להוסיף כאיש קשר.
@@ -212,7 +216,6 @@
   <string name="groups_create_group_invitation_button">שלח הזמנה</string>
   <string name="groups_create_group_hint">בחרו שם לקבוצה הפרטית שלכם</string>
   <string name="groups_invitation_sent">הזמנה קבוצתית נשלחה</string>
-  <string name="groups_message_sent">הודעה נשלחה</string>
   <string name="groups_member_list">רשימת חברי קבוצה</string>
   <string name="groups_invite_members">הזמן חברי קבוצה</string>
   <string name="groups_member_created_you">יצרת את הקבוצה</string>
@@ -273,7 +276,6 @@
     <item quantity="many">%d רשומות</item>
     <item quantity="other">%d רשומות</item>
   </plurals>
-  <string name="forum_new_entry_posted">רשומת פורום פורסמה</string>
   <string name="forum_new_message_hint">רשומה חדשה</string>
   <string name="forum_message_reply_hint">תשובה חדשה</string>
   <string name="btn_reply">השב</string>
@@ -385,6 +387,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">אוטומטי: %1$s (תוך %2$s)</string>
   <string name="tor_mobile_data_title">השתמש בנתונים סלולריים</string>
+  <string name="tor_only_when_charging_title">התחבר דרך אינטרנט (Tor) רק בעת טעינה</string>
+  <string name="tor_only_when_charging_summary">משבית חיבור אינטרנט כשהמכשיר עובד על סוללה</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">אבטחה</string>
   <string name="pref_lock_title">נעילת יישום</string>
@@ -454,7 +458,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">אזהרת קישור</string>
   <string name="link_warning_intro">אתה עומד לפתוח את הקישור הבא עם יישום חיצוני.</string>
-  <string name="link_warning_text">זה יכול לשמש כדי לזהות אותך. חשוב על האם אתה בוטח באיש ששלח לך קישור זה ושקול לפתוח את הקישור עם Orfox.</string>
+  <string name="link_warning_text">זה יכול לשמש כדי לזהות אותך. חשוב על האם אתה בוטח באיש ששלח לך קישור זה ושקול לפתוח את הקישור עם דפדפן Tor.</string>
   <string name="link_warning_open_link">פתח קישור</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">דיווח על קריסת Briar</string>

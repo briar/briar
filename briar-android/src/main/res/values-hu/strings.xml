@@ -183,7 +183,6 @@
   <string name="groups_create_group_invitation_button">Meghívó küldése</string>
   <string name="groups_create_group_hint">Válasszon egy nevet a privát csoportjához</string>
   <string name="groups_invitation_sent">A csoportmeghívó elküldésre került</string>
-  <string name="groups_message_sent">Üzenet elküldve</string>
   <string name="groups_member_list">Tag lista</string>
   <string name="groups_invite_members">Tagok meghíívása</string>
   <string name="groups_member_created_you">Ön hozta létre a csoportot</string>
@@ -234,7 +233,6 @@
     <item quantity="one">%d bejegyzés</item>
     <item quantity="other">%d bejegyzés</item>
   </plurals>
-  <string name="forum_new_entry_posted">Fórum bejegyzés közzétéve</string>
   <string name="forum_new_message_hint">Új bejegyzés</string>
   <string name="forum_message_reply_hint">Új válasz</string>
   <string name="btn_reply">Válasz</string>
@@ -414,7 +412,6 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <!--Link Warning-->
   <string name="link_warning_title">Link figyelmeztetés</string>
   <string name="link_warning_intro">Épp megnyit egy linket egy külső alkalmazással.</string>
-  <string name="link_warning_text">Ez lehetővé teheti az azonosítását. Gondolja át megbízik-e a személyben aki ezt küldte és szükség esetén használjon Orfox-ot.</string>
   <string name="link_warning_open_link">Link megnyitása</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar összeomlási jelentés</string>

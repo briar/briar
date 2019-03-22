@@ -135,6 +135,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="dialog_message_save_image">L’enregistrament de l’imatge permetrà a d’autras aplicacions d’i accedir.\n\nVolètz vertadièrament l’enregistrar ?</string>
   <string name="save_image_success">L’imatge es enregistrada</string>
   <string name="save_image_error">Enregistrament de l’imatge impossible</string>
+  <string name="dialog_title_no_image_support">Imatges pas disponibles</string>
+  <string name="dialog_message_no_image_support">Vòstre contacte Briar pòt pas encara recebre d’imatges junts. Un còp qu’aurà mes a jorn sa version veiretz una icòna diferenta.</string>
+  <string name="dialog_title_image_support">Ara podètz enviar d’imatges a aqueste contacte</string>
+  <string name="dialog_message_image_support">Tocatz aquesta icòna per juntar d’imatges.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajustar un contacte</string>
   <string name="face_to_face">Vos cal vos amassar amb la persona que volètz apondre als contactes.\n\n Aquò es fach per evitar qu’òm vos raube l’identitat e que vòstres messatges sián legits per d’autres.</string>
@@ -195,7 +199,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="groups_create_group_invitation_button">Enviar de convidacions</string>
   <string name="groups_create_group_hint">Donatz un nom al grop privat</string>
   <string name="groups_invitation_sent">Convidacion enviada al grop</string>
-  <string name="groups_message_sent">Messatge mandat</string>
   <string name="groups_member_list">Tièra de membres</string>
   <string name="groups_invite_members">Convidar mai de monde</string>
   <string name="groups_member_created_you">Avètz creat lo grop</string>
@@ -246,7 +249,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
     <item quantity="one">%d publicacion</item>
     <item quantity="other">%d publicacions</item>
   </plurals>
-  <string name="forum_new_entry_posted">Publicacion de forum publicada</string>
   <string name="forum_new_message_hint">Nòva responsa</string>
   <string name="forum_message_reply_hint">Nòva responsa</string>
   <string name="btn_reply">Respondre</string>
@@ -357,6 +359,8 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automatic : %1$s (en %2$s)</string>
   <string name="tor_mobile_data_title">Utilizar la connexion del mobil</string>
+  <string name="tor_only_when_charging_title">Se connectar via Internet (Tor) pas qu’en cargament bateriá</string>
+  <string name="tor_only_when_charging_summary">Desactiva la connexion Internet quand l’aparelh manca de bateriá</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
   <string name="pref_lock_title">Verrolatge de l’aplicacion</string>
@@ -426,7 +430,7 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <!--Link Warning-->
   <string name="link_warning_title">Avertiment de ligam</string>
   <string name="link_warning_intro">Sètz a man de dobrir lo ligam seguent amb una aplicacion extèrna.</string>
-  <string name="link_warning_text">Aquò poiriá èsser utilizat per vos identificar. Estimatz la fisança qu’avètz de la persona que vos a enviat lo ligam e pensatz lo dobrir amb Orfox.</string>
+  <string name="link_warning_text">Aquò pòt servir a vos identificar. Soscatz se vos fisatz de la persona que vos a enviat aqueste ligam e pensatz de lo dobrir amb Tor Browser. </string>
   <string name="link_warning_open_link">Dobrir lo ligam</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Senhalar lo fracàs de Briar</string>

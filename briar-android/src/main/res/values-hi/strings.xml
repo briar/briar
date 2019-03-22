@@ -193,7 +193,6 @@
   <string name="groups_create_group_invitation_button">निमंत्रण भेजना</string>
   <string name="groups_create_group_hint">अपने निजी समूह के लिए एक नाम चुनें</string>
   <string name="groups_invitation_sent">समूह आमंत्रण भेजा गया है</string>
-  <string name="groups_message_sent">मैसेज बेजा गया</string>
   <string name="groups_member_list">सदस्य सूची</string>
   <string name="groups_invite_members">सदस्यों को आमंत्रित करो</string>
   <string name="groups_member_created_you">आपने समूह बनाया है</string>
@@ -244,7 +243,6 @@
     <item quantity="one">%dपदों</item>
     <item quantity="other">%dपदों</item>
   </plurals>
-  <string name="forum_new_entry_posted">फोरम पोस्ट प्रकाशित</string>
   <string name="forum_new_message_hint">नई पोस्ट</string>
   <string name="forum_message_reply_hint">नया उत्तर</string>
   <string name="btn_reply">जवाब दें</string>
@@ -421,7 +419,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">लिंक चेतावनी</string>
   <string name="link_warning_intro">आप बाहरी एप्लिकेशन के साथ निम्न लिंक खोलने वाले हैं</string>
-  <string name="link_warning_text">इसका इस्तेमाल आपको पहचानने के लिए किया जा सकता है इस बारे में सोचें कि क्या आपको उस व्यक्ति पर भरोसा है जिसने आपको यह लिंक भेजा है और इसे ऑर्फ़ॉक्स के साथ खोलने पर विचार किया है।</string>
   <string name="link_warning_open_link">खुली लिंक</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar  क्रैश रिपोर्ट</string>

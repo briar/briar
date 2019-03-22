@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Добро пожаловать в Briar</string>
-  <string name="setup_name_explanation">Ваш псевдоним будет показан рядом с любым публикуемым вами контентом. Его нельзя изменить после создания аккаунта.</string>
+  <string name="setup_name_explanation">Ваш псевдоним будет отображаться рядом с любым размещаемым вами контентом. Его нельзя изменить после создания аккаунта.</string>
   <string name="setup_next">Вперед</string>
   <string name="setup_password_intro">Придумайте пароль</string>
   <string name="setup_password_explanation">Ваш аккаунт Briar хранится в зашифрованном виде только на устройстве. Если вы забудете свой пароль или удалите Briar, то не сможете восстановить свою учетную запись.\n\nПридумайте длинный пароль, который трудно угадать, например четыре случайных слова или десять случайных букв, цифр и символов.</string>
@@ -14,14 +14,14 @@
   <string name="choose_password">Придумайте пароль</string>
   <string name="confirm_password">Подтвердите пароль</string>
   <string name="name_too_long">Слишком длинное имя</string>
-  <string name="password_too_weak">Cлишком слабый пароль</string>
+  <string name="password_too_weak">Пароль слишком слабый.</string>
   <string name="passwords_do_not_match">Пароли не совпадают</string>
   <string name="create_account_button">Создать учетную запись</string>
   <string name="more_info">Дополнительная информация</string>
   <string name="don_t_ask_again">Больше не спрашивать</string>
   <string name="setup_huawei_text">Нажмите кнопку ниже и убедитесь, что Briar отображается на экране защищенных приложений.</string>
   <string name="setup_huawei_button">Защитить Briar</string>
-  <string name="setup_huawei_help">Если Briar не добавлен в список защищенных приложений, он не сможет работать в фоновом режиме.</string>
+  <string name="setup_huawei_help">Если Briar не будет добавлен в список защищенных приложений, он не сможет работать в фоновом режиме.</string>
   <string name="warning_dozed">%s не удалось выполнить в фоновом режиме</string>
   <!--Login-->
   <string name="enter_password">Пароль</string>
@@ -31,7 +31,7 @@
   <string name="dialog_title_lost_password">Пароль утерян</string>
   <string name="dialog_message_lost_password">Ваш аккаунт Briar хранится в зашифрованном виде только на устройстве, поэтому мы не можем сбросить пароль. Удалить учетную запись и начать заново?\n\nВнимание: ваши идентификаторы, контакты и сообщения будут потеряны навсегда.</string>
   <string name="startup_failed_notification_title">Не удалось запустить Briar</string>
-  <string name="startup_failed_notification_text">Коснитесь для получения дополнительных сведений.</string>
+  <string name="startup_failed_notification_text">Нажмите для получения дополнительной информации.</string>
   <string name="startup_failed_activity_title">Сбой при запуске Briar</string>
   <string name="startup_failed_db_error">По неясным причинам, база данных Briar повреждена без возможности восстановления. Ваша учетная запись, ваши данные и все ваши контакты потеряны. К сожалению, вам придется переустановить Briar или создать новый аккаунт, выбрав \'я забыл свой пароль\' на этапе входа в аккаунт.</string>
   <string name="startup_failed_data_too_old_error">Ваша учетная запись была создана в старой версии Briar, поэтому открыть ее в этой версии приложения не удастся. Вам необходимо либо установить старую версию, либо создать новый аккаунт, выбрав \'я забыл свой пароль\' на этапе авторизации в приложении.</string>
@@ -145,6 +145,10 @@
   <string name="dialog_message_save_image">После сохранения изображения другие приложения получат к нему доступ.\n\nВы уверены, что хотите сохранить?</string>
   <string name="save_image_success">Изображение было сохранено</string>
   <string name="save_image_error">Не удалось сохранить изображение</string>
+  <string name="dialog_title_no_image_support">Изображения недоступны</string>
+  <string name="dialog_message_no_image_support">Briar вашего собеседника не поддерживает вложение изображений. Как только он обновится, вы увидите другую иконку.</string>
+  <string name="dialog_title_image_support">Теперь вы можете отправлять изображения этому контакту</string>
+  <string name="dialog_message_image_support">Нажмите на этот значок, чтобы прикрепить изображения.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Добавить контакт</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
@@ -208,8 +212,7 @@
   <string name="groups_create_group_button">Создать группу</string>
   <string name="groups_create_group_invitation_button">Отправить приглашение</string>
   <string name="groups_create_group_hint">Придумайте название вашей приватной группы</string>
-  <string name="groups_invitation_sent">Групповое приглашение отправлено</string>
-  <string name="groups_message_sent">Сообщение отправлено</string>
+  <string name="groups_invitation_sent">Приглашение в группу отправлено</string>
   <string name="groups_member_list">Список участников</string>
   <string name="groups_invite_members">Пригласить участников</string>
   <string name="groups_member_created_you">Вы создали группу</string>
@@ -264,7 +267,6 @@
     <item quantity="many">%d постов</item>
     <item quantity="other">%d постов</item>
   </plurals>
-  <string name="forum_new_entry_posted">Запись форума опубликована</string>
   <string name="forum_new_message_hint">Новый пост</string>
   <string name="forum_message_reply_hint">Новый ответ</string>
   <string name="btn_reply">Ответ</string>
@@ -360,7 +362,7 @@
   <string name="pref_theme_light">Светлая</string>
   <string name="pref_theme_dark">Темная</string>
   <string name="pref_theme_auto">Авто (День)</string>
-  <string name="pref_theme_system">По-умолчанию</string>
+  <string name="pref_theme_system">Системные настройки</string>
   <!--Settings Network-->
   <string name="network_settings_title">Сети</string>
   <string name="bluetooth_setting">Подключение через Bluetooth</string>
@@ -374,6 +376,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Автоматически: %1$s (%2$s)</string>
   <string name="tor_mobile_data_title">Использовать мобильные данные</string>
+  <string name="tor_only_when_charging_title">Подключаться через интернет (Tor) только при зарядке</string>
+  <string name="tor_only_when_charging_summary">Отключение интернет-соединения, при работе устройства от батареи</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безопасность</string>
   <string name="pref_lock_title">Блокировка приложения</string>
@@ -443,7 +447,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение о ссылке</string>
   <string name="link_warning_intro">Вы собираетесь открыть следующую ссылку в стороннем приложении.</string>
-  <string name="link_warning_text">Возможно вас хотят идентифицировать. Подумайте, доверяете ли вы человеку, который отправил вам эту ссылку и рассмотрите возможность открытия ее в Orfox.</string>
+  <string name="link_warning_text">Это может быть использовано для вашей идентификации. Подумайте, доверяете ли вы тому, кто отправил вам эту ссылку и рассмотрите возможность ее открытия в Tor Browser.</string>
   <string name="link_warning_open_link">Открыть ссылку</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Отчет о сбое Briar</string>
@@ -470,11 +474,11 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Доступ к камере</string>
   <string name="permission_camera_request_body">Для сканирования QR-кода Briar необходим доступ к камере.</string>
-  <string name="permission_location_title">Разрешение местоположения</string>
+  <string name="permission_location_title">Доступ к местоположению</string>
   <string name="permission_location_request_body">Для обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
   <string name="permission_camera_location_title">Камера и местоположение</string>
   <string name="permission_camera_location_request_body">Для сканирования QR-кода Briar необходим доступ к камере.\n\nДля обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
-  <string name="permission_camera_denied_body">Вы отказали в доступе к камере. Для добавления контактов необходимо использовать камеру.\n\nРассмотрите возможность предоставления доступа.</string>
+  <string name="permission_camera_denied_body">Доступ к камере запрещен, но для добавления контактов необходимо использовать камеру.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
   <!--App Locking-->

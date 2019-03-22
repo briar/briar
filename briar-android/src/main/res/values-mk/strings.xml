@@ -133,6 +133,10 @@
   <string name="dialog_message_save_image">Зачувувањето на сликата ќе им дозволи на други апликации да пристапат до неа.\n\nДали сте сигурни дека сакате да ја зачувате?</string>
   <string name="save_image_success">Сликата беше зачувана</string>
   <string name="save_image_error">Сликата не може да се зачува</string>
+  <string name="dialog_title_no_image_support">Недостапни слики</string>
+  <string name="dialog_message_no_image_support">Верзијата на Briar на контактот се уште не поддржува прикачувања на слики. Во моментот кога тој ќе го ажурира Briar, ќе видите различна икона.</string>
+  <string name="dialog_title_image_support">Сега можете да му испраќате слики на овој контакт</string>
+  <string name="dialog_message_image_support">Допрете ја оваа икона за да прикачите слики.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Додади контакт</string>
   <string name="face_to_face">Морате да се сретнете со лицето кое сакате да го додадете за контакт.\n\nОва спречува во иднина било кој да се преставува како вас или да ги чита вашите пораки во иднина.</string>
@@ -193,7 +197,6 @@
   <string name="groups_create_group_invitation_button">Испрати покана</string>
   <string name="groups_create_group_hint">Избери има за твојата приватна група</string>
   <string name="groups_invitation_sent">Групна покана беше испратена</string>
-  <string name="groups_message_sent">Пораката е испратена</string>
   <string name="groups_member_list">Листа на членови</string>
   <string name="groups_invite_members">Покани членови</string>
   <string name="groups_member_created_you">Вие ја создадовте групата</string>
@@ -244,7 +247,6 @@
     <item quantity="one">%dпост</item>
     <item quantity="other">%dобјави</item>
   </plurals>
-  <string name="forum_new_entry_posted">Објавата на форумот е објавена</string>
   <string name="forum_new_message_hint">Нова објава</string>
   <string name="forum_message_reply_hint">Нов одговор</string>
   <string name="btn_reply">Одговор</string>
@@ -352,6 +354,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Автоматски: %1$s (во %2$s)</string>
   <string name="tor_mobile_data_title">Користи мобилни податоци</string>
+  <string name="tor_only_when_charging_title">Поврзи преку Интернет (Tor) само за време на полнење</string>
+  <string name="tor_only_when_charging_summary">Оневозможи го Интернет поврзувањето кога уредот не е приклучен на полнач</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безбедност</string>
   <string name="pref_lock_title">Апликацијата е заклучена</string>
@@ -421,7 +425,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Линк предупредување</string>
   <string name="link_warning_intro">Ќе го отворите следниот линк во надворешна апликација.</string>
-  <string name="link_warning_text">Ова може да биде искористено за да ве идентификуваат. Размислте дали и верувате на личноста која ви го испратила овој линк и дали да го отворите со Orfox.</string>
+  <string name="link_warning_text">Ова може да биде искористено за ваше идентификување. Размислете дали и верувате на оваа личност која ви го испраќа овој линк и размислете истиот да го отворите со Tor прелистувачот.</string>
   <string name="link_warning_open_link">Отвори линк</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar извештај за срушување</string>

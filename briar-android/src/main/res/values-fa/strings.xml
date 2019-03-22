@@ -196,7 +196,6 @@
   <string name="groups_create_group_invitation_button">ارسال دعوت نامه</string>
   <string name="groups_create_group_hint">یک نام برای گروه شخصی خود انتخاب کنید</string>
   <string name="groups_invitation_sent">دعوت نامه گروه فرستاده شد</string>
-  <string name="groups_message_sent">پیام فرستاده شد</string>
   <string name="groups_member_list">لیست اعضا</string>
   <string name="groups_invite_members">دعوت اعضا</string>
   <string name="groups_member_created_you">شما گروه را ایجاد کردید</string>
@@ -253,7 +252,6 @@
     <item quantity="one">%d پست</item>
     <item quantity="other">%d پست</item>
   </plurals>
-  <string name="forum_new_entry_posted">پست فروم انتشار یافت</string>
   <string name="forum_new_message_hint">پست جدید</string>
   <string name="forum_message_reply_hint">پاسخ جدید</string>
   <string name="btn_reply">پاسخ</string>
@@ -446,7 +444,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">هشدار لینک</string>
   <string name="link_warning_intro">با باز کردن لینک زیر شما یک برنامه بیرونی را باز خواهید کرد.</string>
-  <string name="link_warning_text">این می تواند برای شناسایی شما مورد استفاده قرار بگیرد. قبل از باز کردن آن به قابل اطمینان بودن شخصی که آن را برای شما ارسال کرده فکر کنید و بعد برای احتیاط آن را با Orfox باز کنید.</string>
   <string name="link_warning_open_link">باز کردن لینک</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">گزارش خطای Briar (برایر)</string>

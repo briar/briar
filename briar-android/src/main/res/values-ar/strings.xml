@@ -52,6 +52,7 @@
   <string name="download_briar_button">تحميل Briar (براير) 1.0</string>
   <string name="startup_open_database">جارِ فك تشفير قاعدة البيانات...</string>
   <string name="startup_migrate_database">جارِ ترقية قاعدة البيانات...</string>
+  <string name="startup_compact_database">جارِ ضغظ قاعدة البيانات…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">فتح راسم التصفح</string>
   <string name="nav_drawer_close_description">غلق راسم التصفح</string>
@@ -135,6 +136,7 @@
   <string name="date_no_private_messages">لا رسائل.</string>
   <string name="no_private_messages">لا رسائل للعرض.</string>
   <string name="message_hint">كتابة رسالة</string>
+  <string name="image_attach">إرفاق صورة</string>
   <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
   <string name="set_alias_button">تغيير</string>
   <string name="delete_contact">حذف جهة الإتصال</string>
@@ -143,6 +145,11 @@
   <string name="contact_deleted_toast">تم حذف جهة اتصال</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">أنتَ/أنتِ</string>
+  <string name="save_image">حفظ الصورة</string>
+  <string name="dialog_title_save_image">حفظ الصورة؟</string>
+  <string name="save_image_success">تم حفظ الصورة</string>
+  <string name="dialog_title_no_image_support">الصور غير متوفرة</string>
+  <string name="dialog_message_image_support">اضغط على هذه الأيقونة لإرفاق صور.</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">إضافة جهة اتصال</string>
   <string name="face_to_face">لا بد من مقابلة الشخص الذي تريد/ين إضافته كجهة اتصال.\n\nهذا سيمنع أي شخص من انتحال شخصيتك أو قراءة رسائلك في المستقبل.</string>
@@ -209,7 +216,6 @@
   <string name="groups_create_group_invitation_button">إرسال دعوة</string>
   <string name="groups_create_group_hint">اختيار اسم لمجموعتك الخاصة</string>
   <string name="groups_invitation_sent">تم إرسال دعوة للمجموعة</string>
-  <string name="groups_message_sent">تم إرسال الرسالة</string>
   <string name="groups_member_list">قائمة الأعضاء</string>
   <string name="groups_invite_members">دعوة أعضاء</string>
   <string name="groups_member_created_you">أنت أنشأت المجموعة</string>
@@ -269,7 +275,6 @@
     <item quantity="many">%d منشور</item>
     <item quantity="other">%d منشور</item>
   </plurals>
-  <string name="forum_new_entry_posted">تم نشر منشور المنتدى</string>
   <string name="forum_new_message_hint">منشور جديد</string>
   <string name="forum_message_reply_hint">رد جديد</string>
   <string name="btn_reply">الرد</string>
@@ -447,7 +452,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">تنبيه بوجود رابط</string>
   <string name="link_warning_intro">أنت بصدد فتح هذا الرابط في تطبيق خارجي</string>
-  <string name="link_warning_text">يمكن أن يستعمل هذا في تحديد هويتك. يرجى التفكير في مدى ثقتك بالشخص الذي أرسل لك هذا الرابط و من الأفضل فتحه بإستعمال أورفوكس.</string>
   <string name="link_warning_open_link">افتح الرابط</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">تقرير إنهيار Briar (براير)</string>
@@ -474,6 +478,7 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">إذن الكاميرا</string>
   <string name="permission_camera_request_body">للتمكن من مسح رمز QR، يحتاج Briar (براير) إلى إستعمال الكاميرا.</string>
+  <string name="permission_camera_location_title">آلة التصوير والموقع</string>
   <string name="permission_camera_denied_body">قد رفضت إعطاء إذن الكاميرا، لكن إضافة جهات إتصال يتطلب إستعمال الكاميرا.\n\nالرجاء منح الإذن.</string>
   <string name="qr_code">رمز QR</string>
   <string name="show_qr_code_fullscreen">اظهار رمز QR بوضع ملء الشاشة</string>
@@ -486,8 +491,11 @@
   <string name="lock_tap_to_unlock">الرجاء اللمس لفك القفل</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">آليس</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">بوب</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">كارول</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
   <!--This is a message to be used in screenshots.-->

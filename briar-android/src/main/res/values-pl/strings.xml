@@ -196,7 +196,6 @@
   <string name="groups_create_group_invitation_button">Wyślij Zaproszenie</string>
   <string name="groups_create_group_hint">Wybierz nazwę dla twojej prywatnej grupy</string>
   <string name="groups_invitation_sent">Zaproszenie do grupy zostało wysłane</string>
-  <string name="groups_message_sent">Wiadomość wysłana</string>
   <string name="groups_member_list">Lista Użytkowników</string>
   <string name="groups_invite_members">Zaproś Użytkowników</string>
   <string name="groups_member_created_you">Stworzyłeś grupę</string>
@@ -251,7 +250,6 @@
     <item quantity="many">%d postów</item>
     <item quantity="other">%d postów</item>
   </plurals>
-  <string name="forum_new_entry_posted">Post na forum opublikowany</string>
   <string name="forum_new_message_hint">Nowy Post</string>
   <string name="forum_message_reply_hint">Nowa Odpowiedź</string>
   <string name="btn_reply">Odpowiedz</string>
@@ -427,7 +425,6 @@
   <!--Link Warning-->
   <string name="link_warning_title">Uważaj na link</string>
   <string name="link_warning_intro">Otwierasz link w zewnętrznej aplikacji.</string>
-  <string name="link_warning_text">Może to posłużyć aby Cię zidentyfikować. Zastanów się czy ufasz osobie która wysłała Ci ten link i rozważ otwarcie go za pomocą przeglądarki Orfox.</string>
   <string name="link_warning_open_link">Otwórz Link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Zgłoś błąd w Briar</string>
