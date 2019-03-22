@@ -3,6 +3,7 @@ package org.briarproject.briar.android.threaded;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.CallSuper;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
@@ -62,6 +63,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	private LinearLayoutManager layoutManager;
 	protected TextInputView textInput;
 	protected GroupId groupId;
+	@Nullable
+	private Parcelable layoutManagerState;
 	@Nullable
 	private MessageId replyId;
 
@@ -188,6 +191,11 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		if (messageId != null)
 			adapter.setItemWithIdVisible(messageId);
 		list.showData();
+		if (layoutManagerState == null) {
+			list.scrollToPosition(0);  // Scroll to the top
+		} else {
+			layoutManager.onRestoreInstanceState(layoutManagerState);
+		}
 	}
 
 	protected void loadSharingContacts() {
@@ -228,9 +236,19 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
+		if (layoutManager != null) {
+			layoutManagerState = layoutManager.onSaveInstanceState();
+			outState.putParcelable("layoutManager", layoutManagerState);
+		}
 		if (replyId != null) {
 			outState.putByteArray(KEY_REPLY_ID, replyId.getBytes());
 		}
+	}
+
+	@Override
+	protected void onRestoreInstanceState(Bundle savedInstanceState) {
+		super.onRestoreInstanceState(savedInstanceState);
+		layoutManagerState = savedInstanceState.getParcelable("layoutManager");
 	}
 
 	@Override

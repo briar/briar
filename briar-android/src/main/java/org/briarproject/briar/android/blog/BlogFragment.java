@@ -3,12 +3,14 @@ package org.briarproject.briar.android.blog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView.LayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -62,9 +64,12 @@ public class BlogFragment extends BaseFragment
 	BlogController blogController;
 	@Inject
 	SharingController sharingController;
+	@Nullable
+	private Parcelable layoutManagerState;
 
 	private GroupId groupId;
 	private BlogPostAdapter adapter;
+	private LayoutManager layoutManager;
 	private BriarRecyclerView list;
 	private MenuItem writeButton, deleteButton;
 	private boolean isMyBlog = false, canDeleteBlog = false;
@@ -101,10 +106,16 @@ public class BlogFragment extends BaseFragment
 		adapter = new BlogPostAdapter(requireNonNull(getActivity()), this,
 				getFragmentManager());
 		list = v.findViewById(R.id.postList);
-		list.setLayoutManager(new LinearLayoutManager(getActivity()));
+		layoutManager = new LinearLayoutManager(getActivity());
+		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
 		list.showProgressBar();
 		list.setEmptyText(getString(R.string.blogs_other_blog_empty_state));
+
+		if (savedInstanceState != null) {
+			layoutManagerState =
+					savedInstanceState.getParcelable("layoutManager");
+		}
 
 		return v;
 	}
@@ -124,6 +135,15 @@ public class BlogFragment extends BaseFragment
 		super.onStop();
 		sharingController.onStop();
 		list.stopPeriodicUpdate();
+	}
+
+	@Override
+	public void onSaveInstanceState(Bundle outState) {
+		super.onSaveInstanceState(outState);
+		if (layoutManager != null) {
+			layoutManagerState = layoutManager.onSaveInstanceState();
+			outState.putParcelable("layoutManager", layoutManagerState);
+		}
 	}
 
 	@Override
@@ -238,7 +258,12 @@ public class BlogFragment extends BaseFragment
 							list.showData();
 						} else {
 							adapter.addAll(posts);
-							if (reload) list.scrollToPosition(0);
+							if (reload || layoutManagerState == null) {
+								list.scrollToPosition(0);
+							} else {
+								layoutManager.onRestoreInstanceState(
+										layoutManagerState);
+							}
 						}
 					}
 
