@@ -16,14 +16,10 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 
 import javax.inject.Inject;
 
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
@@ -74,14 +70,6 @@ public class OpenDatabaseActivity extends BriarActivity
 	}
 
 	@Override
-	public void onBackPressed() {
-		Intent i = new Intent(this, HideUiActivity.class);
-		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TASK);
-		startActivity(i);
-		supportFinishAfterTransition();
-	}
-
-	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof LifecycleEvent) {
 			LifecycleState state = ((LifecycleEvent) e).getLifecycleState();
@@ -109,9 +97,7 @@ public class OpenDatabaseActivity extends BriarActivity
 	}
 
 	private void finishAndStartApp() {
-		Intent i = new Intent(this, NavDrawerActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
-		startActivity(i);
+		startActivity(new Intent(this, NavDrawerActivity.class));
 		supportFinishAfterTransition();
 	}
 
