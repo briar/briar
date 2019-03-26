@@ -185,6 +185,7 @@ public class IntroductionIntegrationTest
 		assertEquals(introducee2.getAuthor().getName(),
 				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
+		assertTrue(listener0.getResponse().canSucceed());
 
 		// sync second ACCEPT message
 		sync2To0(1, true);
@@ -193,6 +194,7 @@ public class IntroductionIntegrationTest
 		assertEquals(introducee1.getAuthor().getName(),
 				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
+		assertTrue(listener0.getResponse().canSucceed());
 
 		// sync forwarded ACCEPT messages to introducees
 		sync0To1(1, true);
@@ -290,6 +292,7 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		assertEquals(introducee2.getAuthor().getName(),
 				listener0.getResponse().getIntroducedAuthor().getName());
+		assertFalse(listener0.getResponse().canSucceed());
 
 		// sync second response
 		sync2To0(1, true);
@@ -307,6 +310,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(introducee1.getAuthor().getName(),
 				listener2.getResponse().getIntroducedAuthor().getName());
+		assertFalse(listener2.getResponse().canSucceed());
 
 		// note how the introducer does not forward the second response,
 		// because after the first decline the protocol finished
@@ -381,6 +385,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(contact2From0.getAuthor().getName(),
 				listener1.getResponse().getIntroducedAuthor().getName());
+		assertFalse(listener1.getResponse().canSucceed());
 
 		assertFalse(contactManager1
 				.contactExists(author2.getId(), author1.getId()));

@@ -20,16 +20,18 @@ public class IntroductionResponse extends ConversationResponse {
 	private final Author introducedAuthor;
 	private final AuthorInfo introducedAuthorInfo;
 	private final Role ourRole;
+	private final boolean canSucceed;
 
 	public IntroductionResponse(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, boolean accepted, Author author,
-			AuthorInfo introducedAuthorInfo, Role role) {
+			AuthorInfo introducedAuthorInfo, Role role, boolean canSucceed) {
 		super(messageId, groupId, time, local, read, sent, seen, sessionId,
 				accepted);
 		this.introducedAuthor = author;
 		this.introducedAuthorInfo = introducedAuthorInfo;
 		this.ourRole = role;
+		this.canSucceed = canSucceed;
 	}
 
 	public Author getIntroducedAuthor() {
@@ -40,6 +42,10 @@ public class IntroductionResponse extends ConversationResponse {
 		return introducedAuthorInfo;
 	}
 
+	public boolean canSucceed() {
+		return canSucceed;
+	}
+
 	public boolean isIntroducer() {
 		return ourRole == INTRODUCER;
 	}
@@ -48,4 +54,5 @@ public class IntroductionResponse extends ConversationResponse {
 	public <T> T accept(ConversationMessageVisitor<T> v) {
 		return v.visitIntroductionResponse(this);
 	}
+
 }

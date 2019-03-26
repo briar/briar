@@ -363,7 +363,7 @@ class IntroduceeProtocolEngine
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s,
-				s.getIntroducer().getId(), s.getRemote().author, m);
+				s.getIntroducer().getId(), s.getRemote().author, m, false);
 
 		// Determine next state
 		IntroduceeState state =

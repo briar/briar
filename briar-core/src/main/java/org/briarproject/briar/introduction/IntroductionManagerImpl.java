@@ -52,6 +52,9 @@ import javax.inject.Inject;
 
 import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.api.introduction.Role.INTRODUCER;
+import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
+import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.START;
 import static org.briarproject.briar.introduction.IntroductionConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
@@ -466,6 +469,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		Role role = sessionParser.getRole(bdfSession);
 		SessionId sessionId;
 		Author author;
+		boolean canSucceed;
 		if (role == INTRODUCER) {
 			IntroducerSession session =
 					sessionParser.parseIntroducerSession(bdfSession);
@@ -475,11 +479,15 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			} else {
 				author = session.getIntroduceeA().author;
 			}
+			IntroducerState s = session.getState();
+			canSucceed = s != START && s != A_DECLINED && s != B_DECLINED;
 		} else if (role == INTRODUCEE) {
 			IntroduceeSession session = sessionParser
 					.parseIntroduceeSession(contactGroupId, bdfSession);
 			sessionId = session.getSessionId();
 			author = session.getRemote().author;
+			IntroduceeState s = session.getState();
+			canSucceed = s != IntroduceeState.START && s != REMOTE_DECLINED;
 		} else throw new AssertionError();
 		AuthorInfo authorInfo = authorInfos.get(author.getId());
 		if (authorInfo == null) {
@@ -488,7 +496,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		}
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), meta.isRead(), status.isSent(), status.isSeen(),
-				sessionId, accept, author, authorInfo, role);
+				sessionId, accept, author, authorInfo, role, canSucceed);
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,
