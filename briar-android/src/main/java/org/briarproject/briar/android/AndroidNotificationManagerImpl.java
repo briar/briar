@@ -261,8 +261,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		b.setContentText(appContext.getText(text));
 		b.setWhen(0); // Don't show the time
 		b.setOngoing(true);
-		Intent i = new Intent(appContext, NavDrawerActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
+		Intent i = new Intent(appContext, SplashScreenActivity.class);
 		b.setContentIntent(PendingIntent.getActivity(appContext, 0, i, 0));
 		if (SDK_INT >= 21) {
 			b.setCategory(CATEGORY_SERVICE);
