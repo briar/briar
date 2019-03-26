@@ -399,7 +399,7 @@ public class IntroductionIntegrationTest
 		assertEquals(3, messages.size());
 		messages = db2.transactionWithResult(true, txn ->
 				introductionManager2.getMessageHeaders(txn, contactId0From2));
-		assertEquals(3, messages.size());
+		assertEquals(2, messages.size());
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
 		assertFalse(listener2.aborted);
@@ -553,10 +553,10 @@ public class IntroductionIntegrationTest
 				introductionManager0.getMessageHeaders(txn, contactId2From0))
 				.size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-		assertEquals(3, db1.transactionWithResult(true, txn ->
+		assertEquals(2, db1.transactionWithResult(true, txn ->
 				introductionManager1.getMessageHeaders(txn, contactId0From1))
 				.size());
-		assertGroupCount(messageTracker1, g1.getId(), 3, 2);
+		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 		assertEquals(3, db2.transactionWithResult(true, txn ->
 				introductionManager2.getMessageHeaders(txn, contactId0From2))
 				.size());

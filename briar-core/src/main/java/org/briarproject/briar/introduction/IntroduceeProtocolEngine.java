@@ -381,17 +381,6 @@ class IntroduceeProtocolEngine
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 
-		// Mark the response visible in the UI
-		markMessageVisibleInUi(txn, m.getMessageId());
-
-		// Track the incoming message
-		messageTracker
-				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
-
-		// Broadcast IntroductionResponseReceivedEvent
-		broadcastIntroductionResponseReceivedEvent(txn, s,
-				s.getIntroducer().getId(), s.getRemote().author, m);
-
 		// Move to START state
 		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),
 				s.getLocalTimestamp(), m.getMessageId());
