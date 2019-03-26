@@ -406,6 +406,51 @@ public class IntroductionIntegrationTest
 	}
 
 	@Test
+	public void testNewIntroductionAfterDecline() throws Exception {
+		addListeners(false, true);
+
+		// make introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync request messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+		eventWaiter.await(TIMEOUT, 2);
+
+		// sync first response
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// sync second response
+		sync2To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// sync both forwarded response
+		sync0To2(1, true);
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+
+		time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync request messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+		eventWaiter.await(TIMEOUT, 2);
+
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	@Test
 	public void testResponseAndAuthInOneSync() throws Exception {
 		addListeners(true, true);
 

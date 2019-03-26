@@ -365,10 +365,13 @@ class IntroduceeProtocolEngine
 		broadcastIntroductionResponseReceivedEvent(txn, s,
 				s.getIntroducer().getId(), s.getRemote().author, m);
 
-		// Move to REMOTE_DECLINED state
-		return IntroduceeSession.clear(s, REMOTE_DECLINED,
-				s.getLastLocalMessageId(), s.getLocalTimestamp(),
-				m.getMessageId());
+		// Determine next state
+		IntroduceeState state =
+				s.getState() == AWAIT_RESPONSES ? REMOTE_DECLINED : START;
+
+		// Move to the next state
+		return IntroduceeSession.clear(s, state, s.getLastLocalMessageId(),
+				s.getLocalTimestamp(), m.getMessageId());
 	}
 
 	private IntroduceeSession onRemoteResponseWhenDeclined(Transaction txn,
