@@ -106,7 +106,7 @@ public class BriarApplicationImpl extends Application
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		Localizer.getInstance()
-				.applicationConfigurationChanged(this);
+				.applicationConfigurationChanged(this, newConfig);
 	}
 
 	private void setTheme(Context ctx, SharedPreferences prefs) {

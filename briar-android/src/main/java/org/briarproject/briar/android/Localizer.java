@@ -119,20 +119,29 @@ public class Localizer {
 				Resources.getSystem().getConfiguration();
 		updateConfiguration(systemConfiguration, locale);
 		// DateUtils uses the system resources, so we need to update them too.
+		//noinspection deprecation
 		Resources.getSystem().updateConfiguration(systemConfiguration,
 				Resources.getSystem().getDisplayMetrics());
 	}
 
-	public void applicationConfigurationChanged(Context appContext) {
+	public void applicationConfigurationChanged(Context appContext,
+			Configuration newConfig) {
+		if (SDK_INT >= 24) {
+			if (newConfig.getLocales().get(0) == locale) return;
+		} else {
+			if (newConfig.locale == locale) return;
+		}
 		setLocaleAndSystemConfiguration(locale);
 		if (SDK_INT < 17) setLocaleLegacy(appContext);
 	}
 
-	// Indicates whether the language represented by locale
-	// should be offered to the user on this device.
-	// * Android doesn't pick up Asturian on API < 21
-	// * Android can't render Devanagari characters on API 15.
-	// * RTL languages are supported since API >= 17
+	/**
+	 * Indicates whether the language represented by locale
+	 * should be offered to the user on this device.
+	 * * Android doesn't pick up Asturian on API < 21
+	 * * Android can't render Devanagari characters on API 15.
+	 * * RTL languages are supported since API >= 17
+	 */
 	public static boolean isLocaleSupported(Locale locale) {
 		if (SDK_INT >= 21) return true;
 		if (locale.getLanguage().equals("ast")) return false;

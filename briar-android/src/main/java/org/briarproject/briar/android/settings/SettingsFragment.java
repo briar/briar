@@ -301,7 +301,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				continue;
 			}
 			String nativeName;
-			// Unsupported languages won't be translated to their native name.
+			// Unknown languages won't be translated to their native name.
 			if (locale.getLanguage().equals("ast")) {
 				nativeName = "Asturianu";
 			} else if (locale.getLanguage().equals("oc")) {
