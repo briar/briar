@@ -579,6 +579,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void updateContactAddedNotification() {
+		if (contactAddedTotal == 0) return;
 		BriarNotificationBuilder b =
 				new BriarNotificationBuilder(appContext, CONTACT_CHANNEL_ID);
 		b.setSmallIcon(R.drawable.notification_contact_added);
@@ -712,5 +713,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Override
 	public void unblockAllBlogPostNotifications() {
 		androidExecutor.runOnUiThread((Runnable) () -> blockBlogs = false);
+	}
+
+	@Override
+	public void restartNotifications(boolean locked, boolean mayAlertAgain) {
+		androidExecutor.runOnUiThread(() -> {
+			updateForegroundNotification(locked);
+			updateContactNotification(mayAlertAgain);
+			updateBlogPostNotification(mayAlertAgain);
+			updateForumPostNotification(mayAlertAgain);
+			updateGroupMessageNotification(mayAlertAgain);
+			updateContactAddedNotification();
+		});
 	}
 }

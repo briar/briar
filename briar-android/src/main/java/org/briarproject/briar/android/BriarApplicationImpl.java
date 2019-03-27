@@ -105,8 +105,9 @@ public class BriarApplicationImpl extends Application
 	@Override
 	public void onConfigurationChanged(@NonNull Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
-		Localizer.getInstance()
-				.applicationConfigurationChanged(this, newConfig);
+		Localizer.getInstance().applicationConfigurationChanged(this, newConfig,
+				applicationComponent.androidNotificationManager(),
+				applicationComponent.lockManager().isLocked());
 	}
 
 	private void setTheme(Context ctx, SharedPreferences prefs) {

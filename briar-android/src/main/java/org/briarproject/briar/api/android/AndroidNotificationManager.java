@@ -93,4 +93,7 @@ public interface AndroidNotificationManager {
 	void blockAllBlogPostNotifications();
 
 	void unblockAllBlogPostNotifications();
+
+	void restartNotifications(boolean locked, boolean mayAlertAgain);
+
 }

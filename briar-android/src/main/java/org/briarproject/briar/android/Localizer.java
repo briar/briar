@@ -7,6 +7,7 @@ import android.content.res.Resources;
 import android.support.v4.text.TextUtilsCompat;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import java.util.Locale;
 
@@ -124,13 +125,23 @@ public class Localizer {
 				Resources.getSystem().getDisplayMetrics());
 	}
 
-	public void applicationConfigurationChanged(Context appContext,
-			Configuration newConfig) {
+	private Locale getLocaleFromConfig(Configuration config) {
 		if (SDK_INT >= 24) {
-			if (newConfig.getLocales().get(0) == locale) return;
+			return config.getLocales().get(0);
 		} else {
-			if (newConfig.locale == locale) return;
+			return config.locale;
 		}
+	}
+
+	public void applicationConfigurationChanged(Context appContext,
+			Configuration newConfig,
+			AndroidNotificationManager androidNotificationManager,
+			boolean locked) {
+		Locale newLocale = getLocaleFromConfig(newConfig);
+		if (locale == null && newLocale != systemLocale) {
+			androidNotificationManager.restartNotifications(locked, false);
+		}
+		if (newLocale == locale) return;
 		setLocaleAndSystemConfiguration(locale);
 		if (SDK_INT < 17) setLocaleLegacy(appContext);
 	}
@@ -145,7 +156,8 @@ public class Localizer {
 	public static boolean isLocaleSupported(Locale locale) {
 		if (SDK_INT >= 21) return true;
 		if (locale.getLanguage().equals("ast")) return false;
-		if (SDK_INT == 15 && locale.getLanguage().equals("hi")) return false;
+		if (SDK_INT == 15 && locale.getLanguage().equals("hi"))
+			return false;
 		if (SDK_INT >= 17) return true;
 		return isLeftToRight(locale);
 	}
@@ -155,7 +167,8 @@ public class Localizer {
 		// TextUtilsCompat returns the wrong direction for Hebrew on some phones
 		String language = locale.getLanguage();
 		if (language.equals("iw") || language.equals("he")) return false;
-		int direction = TextUtilsCompat.getLayoutDirectionFromLocale(locale);
+		int direction =
+				TextUtilsCompat.getLayoutDirectionFromLocale(locale);
 		return direction == LAYOUT_DIRECTION_LTR;
 	}
 
