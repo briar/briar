@@ -46,8 +46,10 @@ public abstract class BriarRecyclerViewScrollListener<A extends ItemReturningAda
 	@CallSuper
 	protected void onItemsVisible(int firstVisible, int lastVisible,
 			int itemCount) {
-		for (int i = firstVisible; i <= lastVisible; i++) {
-			onItemVisible(i);
+		if (firstVisible != NO_POSITION && lastVisible != NO_POSITION) {
+			for (int i = firstVisible; i <= lastVisible; i++) {
+				onItemVisible(i);
+			}
 		}
 	}
 
