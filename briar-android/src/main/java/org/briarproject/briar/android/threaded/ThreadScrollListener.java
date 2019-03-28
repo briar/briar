@@ -23,7 +23,7 @@ class ThreadScrollListener<I extends ThreadItem>
 	private final ThreadListController<?, I> controller;
 	private final UnreadMessageButton upButton, downButton;
 
-	protected ThreadScrollListener(ThreadItemAdapter<I> adapter,
+	ThreadScrollListener(ThreadItemAdapter<I> adapter,
 			ThreadListController<?, I> controller,
 			UnreadMessageButton upButton,
 			UnreadMessageButton downButton) {
@@ -57,7 +57,7 @@ class ThreadScrollListener<I extends ThreadItem>
 
 	private void updateUnreadButtons(int firstVisible, int lastVisible,
 			int count) {
-		if (firstVisible == NO_POSITION && lastVisible == NO_POSITION) {
+		if (firstVisible == NO_POSITION || lastVisible == NO_POSITION) {
 			setUnreadButtons(0, 0);
 			return;
 		}
