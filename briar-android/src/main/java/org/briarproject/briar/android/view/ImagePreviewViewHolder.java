@@ -16,7 +16,6 @@ import com.bumptech.glide.request.target.Target;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
-import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
 import static android.view.View.INVISIBLE;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
@@ -29,14 +28,11 @@ class ImagePreviewViewHolder extends ViewHolder {
 	@DrawableRes
 	private static final int ERROR_RES = R.drawable.ic_image_broken;
 
-	private final ImagePreviewListener listener;
-
 	private final ImageView imageView;
 	private final ProgressBar progressBar;
 
-	ImagePreviewViewHolder(View v, ImagePreviewListener listener) {
+	ImagePreviewViewHolder(View v) {
 		super(v);
-		this.listener = listener;
 		this.imageView = v.findViewById(R.id.imageView);
 		this.progressBar = v.findViewById(R.id.progressBar);
 	}
@@ -55,7 +51,6 @@ class ImagePreviewViewHolder extends ViewHolder {
 							Object model, Target<Drawable> target,
 							boolean isFirstResource) {
 						progressBar.setVisibility(INVISIBLE);
-						listener.onError();
 						return false;
 					}
 
@@ -64,7 +59,6 @@ class ImagePreviewViewHolder extends ViewHolder {
 							Object model, Target<Drawable> target,
 							DataSource dataSource, boolean isFirstResource) {
 						progressBar.setVisibility(INVISIBLE);
-						listener.onPreviewLoaded();
 						return false;
 					}
 				})

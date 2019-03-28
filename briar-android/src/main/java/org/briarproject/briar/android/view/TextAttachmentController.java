@@ -27,6 +27,7 @@ import java.util.List;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
+import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
 import static android.content.Intent.ACTION_GET_CONTENT;
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.content.Intent.CATEGORY_OPENABLE;
@@ -56,8 +57,8 @@ public class TextAttachmentController extends TextSendController
 
 	private CharSequence textHint;
 	private List<Uri> imageUris = emptyList();
-	private int previewsLoaded = 0;
-	private boolean loadingPreviews = false;
+	private int urisLoaded = 0;
+	private boolean loadingUris = false;
 
 	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
 			SendListener listener, AttachImageListener imageListener,
@@ -76,10 +77,10 @@ public class TextAttachmentController extends TextSendController
 
 	@Override
 	protected void updateViewState() {
-		textInput.setEnabled(ready && !loadingPreviews);
-		boolean sendEnabled = ready && !loadingPreviews &&
+		textInput.setEnabled(ready && !loadingUris);
+		boolean sendEnabled = ready && !loadingUris &&
 				(!textIsEmpty || canSendEmptyText());
-		if (loadingPreviews) {
+		if (loadingUris) {
 			sendButton.showProgress(true);
 		} else if (imageUris.isEmpty()) {
 			sendButton.showProgress(false);
@@ -121,7 +122,9 @@ public class TextAttachmentController extends TextSendController
 			return;
 		}
 		Intent intent = getAttachFileIntent();
-		requireNonNull(imageListener).onAttachImage(intent);
+		if (imageListener.getLifecycle().getCurrentState() != DESTROYED) {
+			requireNonNull(imageListener).onAttachImage(intent);
+		}
 	}
 
 	private Intent getAttachFileIntent() {
@@ -152,7 +155,7 @@ public class TextAttachmentController extends TextSendController
 
 	private void onNewUris() {
 		if (imageUris.isEmpty()) return;
-		loadingPreviews = true;
+		loadingUris = true;
 		updateViewState();
 		textInput.setHint(R.string.image_caption_hint);
 		List<ImagePreviewItem> items = ImagePreviewItem.fromUris(imageUris);
@@ -170,6 +173,8 @@ public class TextAttachmentController extends TextSendController
 			onError(result.getErrorMsg());
 		} else {
 			imagePreview.loadPreviewImage(result);
+			urisLoaded++;
+			checkAllUrisLoaded();
 		}
 	}
 
@@ -180,9 +185,9 @@ public class TextAttachmentController extends TextSendController
 		imagePreview.setVisibility(GONE);
 		// reset image URIs
 		imageUris = emptyList();
-		// no preview has been loaded
-		previewsLoaded = 0;
-		loadingPreviews = false;
+		// no URIs has been loaded
+		urisLoaded = 0;
+		loadingUris = false;
 		// show the image button again, so images can get attached
 		updateViewState();
 	}
@@ -204,17 +209,6 @@ public class TextAttachmentController extends TextSendController
 		return state.getSuperState();
 	}
 
-	@Override
-	public void onPreviewLoaded() {
-		previewsLoaded++;
-		checkAllPreviewsLoaded();
-	}
-
-	@Override
-	public void onError() {
-		onError(null);
-	}
-
 	@UiThread
 	private void onError(@Nullable String errorMsg) {
 		if (errorMsg == null) {
@@ -232,10 +226,10 @@ public class TextAttachmentController extends TextSendController
 		reset();
 	}
 
-	private void checkAllPreviewsLoaded() {
-		if (previewsLoaded == imageUris.size()) {
-			loadingPreviews = false;
-			// all previews were loaded
+	private void checkAllUrisLoaded() {
+		if (urisLoaded == imageUris.size()) {
+			loadingUris = false;
+			// all images were turned into attachments
 			updateViewState();
 		}
 	}

@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.AttachmentResult;
-import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,14 +21,11 @@ import static java.util.Objects.requireNonNull;
 class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 
 	private final List<ImagePreviewItem> items;
-	private final ImagePreviewListener listener;
 	@LayoutRes
 	private final int layout;
 
-	ImagePreviewAdapter(Collection<ImagePreviewItem> items,
-			ImagePreviewListener listener) {
+	ImagePreviewAdapter(Collection<ImagePreviewItem> items) {
 		this.items = new ArrayList<>(items);
-		this.listener = listener;
 		this.layout = items.size() == 1 ?
 				R.layout.list_item_image_preview_single :
 				R.layout.list_item_image_preview;
@@ -40,7 +36,7 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 			int type) {
 		View v = LayoutInflater.from(viewGroup.getContext())
 				.inflate(layout, viewGroup, false);
-		return new ImagePreviewViewHolder(v, requireNonNull(listener));
+		return new ImagePreviewViewHolder(v);
 	}
 
 	@Override

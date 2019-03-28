@@ -68,7 +68,7 @@ public class ImagePreview extends ConstraintLayout {
 			imageList.setLayoutParams(params);
 		}
 		setVisibility(VISIBLE);
-		ImagePreviewAdapter adapter = new ImagePreviewAdapter(items, listener);
+		ImagePreviewAdapter adapter = new ImagePreviewAdapter(items);
 		imageList.setAdapter(adapter);
 	}
 
@@ -79,16 +79,6 @@ public class ImagePreview extends ConstraintLayout {
 	}
 
 	interface ImagePreviewListener {
-
-		void onPreviewLoaded();
-
-		/**
-		 * Called when Glide can't load a preview image.
-		 *
-		 * Warning: Glide may call this multiple times.
-		 */
-		void onError();
-
 		void onCancel();
 	}
 
