@@ -94,6 +94,7 @@ public class TextAttachmentController extends TextSendController
 	@Override
 	public void onSendEvent() {
 		if (canSend()) {
+			if (loadingUris) throw new AssertionError();
 			listener.onSendClick(textInput.getText(),
 					attachmentManager.getAttachmentHeaders());
 			reset();
@@ -139,6 +140,7 @@ public class TextAttachmentController extends TextSendController
 
 	public void onImageReceived(@Nullable Intent resultData) {
 		if (resultData == null) return;
+		if (loadingUris) throw new AssertionError();
 		if (resultData.getData() != null) {
 			imageUris = new ArrayList<>(1);
 			imageUris.add(resultData.getData());
@@ -155,6 +157,7 @@ public class TextAttachmentController extends TextSendController
 
 	private void onNewUris() {
 		if (imageUris.isEmpty()) return;
+		if (loadingUris || urisLoaded != 0) throw new AssertionError();
 		loadingUris = true;
 		updateViewState();
 		textInput.setHint(R.string.image_caption_hint);
@@ -169,6 +172,7 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	private void onAttachmentResultReceived(AttachmentResult result) {
+		if (!loadingUris) return;  // if this is false, the user cancelled
 		if (result.isError() || result.getUri() == null) {
 			onError(result.getErrorMsg());
 		} else {
@@ -227,6 +231,7 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	private void checkAllUrisLoaded() {
+		if (!loadingUris) throw new AssertionError();
 		if (urisLoaded == imageUris.size()) {
 			loadingUris = false;
 			// all images were turned into attachments
