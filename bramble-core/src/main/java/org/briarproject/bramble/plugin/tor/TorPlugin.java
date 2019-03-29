@@ -153,7 +153,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		jtorCTLFile = new File(torDirectory, "jtorctlog");
+		jtorCTLFile = new File(torDirectory, "jtorctl.out");
 		connectionStatus = new ConnectionStatus();
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
@@ -262,10 +262,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Open a control connection and authenticate using the cookie file
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			controlConnection = new TorControlConnection(controlSocket);
+			controlConnection.authenticate(read(cookieFile));
 			controlConnection.setConf("LOG", "debug file torlog");
 			controlConnection.setDebugging(
 					new PrintWriter(new FileOutputStream(jtorCTLFile), true));
-			controlConnection.authenticate(read(cookieFile));
 			// FIXME Spam the control port with enable/disable network commands
 			spamControlPort();
 			// Tell Tor to exit when the control connection is closed
