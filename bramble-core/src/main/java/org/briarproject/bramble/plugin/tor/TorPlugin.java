@@ -49,7 +49,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -298,17 +297,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void spamControlPort() {
 		ioExecutor.execute(() -> {
 			LOG.info("Spamming control port");
-			Random random = new Random();
 			try {
 				//noinspection InfiniteLoopStatement
-				while (true) {
-					boolean bridges = random.nextBoolean();
-					boolean meek = random.nextBoolean();
-					boolean network = random.nextBoolean();
-					LOG.info("Enable bridges " + bridges + ", meek " + meek
-							+ ", network " + network);
-					enableBridges(bridges, meek);
-					enableNetwork(network);
+				for (boolean bridges = true; ; bridges = !bridges) {
+					LOG.info("Enable bridges " + bridges);
+					enableBridges(bridges, false);
 				}
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
