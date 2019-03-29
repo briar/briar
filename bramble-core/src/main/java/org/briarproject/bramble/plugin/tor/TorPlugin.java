@@ -38,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
@@ -107,7 +108,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final ResourceProvider resourceProvider;
 	private final int maxLatency, maxIdleTime, socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, obfs4File, configFile;
-	private final File doneFile, cookieFile;
+	private final File doneFile, cookieFile, jtorCTLFile;
 	private final ConnectionStatus connectionStatus;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -152,6 +153,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
+		jtorCTLFile = new File(torDirectory, "jtorctlog");
 		connectionStatus = new ConnectionStatus();
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
@@ -260,6 +262,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Open a control connection and authenticate using the cookie file
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			controlConnection = new TorControlConnection(controlSocket);
+			controlConnection.setConf("LOG", "debug file torlog");
+			controlConnection.setDebugging(
+					new PrintWriter(new FileOutputStream(jtorCTLFile), true));
 			controlConnection.authenticate(read(cookieFile));
 			// FIXME Spam the control port with enable/disable network commands
 			spamControlPort();
