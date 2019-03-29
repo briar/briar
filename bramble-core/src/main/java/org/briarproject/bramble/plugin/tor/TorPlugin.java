@@ -209,8 +209,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// FIXME
 		long torPid = getPid(torProcess);
 		LOG.info("Tor PID: " + torPid);
-		pb = new ProcessBuilder("/usr/bin/strace", "-o", "strace.out", "-p",
-				String.valueOf(torPid));
+		pb = new ProcessBuilder("/usr/bin/strace", "-ff", "-o", "strace.out",
+				"-p", String.valueOf(torPid));
 		try {
 			pb.start();
 			LOG.info("Started strace");
