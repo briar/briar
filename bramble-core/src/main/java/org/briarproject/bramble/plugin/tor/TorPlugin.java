@@ -38,6 +38,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -48,6 +49,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -205,6 +207,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (SecurityException | IOException e) {
 			throw new PluginException(e);
 		}
+		// FIXME
+		LOG.info("Tor PID: " + getPid(torProcess));
 		// Log the process's standard output until it detaches
 		if (LOG.isLoggable(INFO)) {
 			Scanner stdout = new Scanner(torProcess.getInputStream());
@@ -249,6 +253,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			controlSocket = new Socket("127.0.0.1", CONTROL_PORT);
 			controlConnection = new TorControlConnection(controlSocket);
 			controlConnection.authenticate(read(cookieFile));
+			// FIXME Spam the control port with enable/disable network commands
+			spamControlPort();
 			// Tell Tor to exit when the control connection is closed
 			controlConnection.takeOwnership();
 			controlConnection.resetConf(Collections.singletonList(OWNER));
@@ -270,6 +276,44 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				batteryManager.isCharging());
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
+	}
+
+	// FIXME
+	private long getPid(Process p) {
+		long pid = -1;
+		try {
+			if (p.getClass().getName().equals("java.lang.UNIXProcess")) {
+				Field f = p.getClass().getDeclaredField("pid");
+				f.setAccessible(true);
+				pid = f.getLong(p);
+				f.setAccessible(false);
+			}
+		} catch (Exception e) {
+			logException(LOG, INFO, e);
+		}
+		return pid;
+	}
+
+	// FIXME
+	private void spamControlPort() {
+		ioExecutor.execute(() -> {
+			LOG.info("Spamming control port");
+			Random random = new Random();
+			try {
+				//noinspection InfiniteLoopStatement
+				while (true) {
+					boolean bridges = random.nextBoolean();
+					boolean meek = random.nextBoolean();
+					boolean network = random.nextBoolean();
+					LOG.info("Enable bridges " + bridges + ", meek " + meek
+							+ ", network " + network);
+					enableBridges(bridges, meek);
+					enableNetwork(network);
+				}
+			} catch (IOException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
 	}
 
 	private boolean assetsAreUpToDate() {
