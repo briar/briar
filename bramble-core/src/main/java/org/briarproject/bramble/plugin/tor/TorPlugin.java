@@ -207,7 +207,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			throw new PluginException(e);
 		}
 		// FIXME
-		LOG.info("Tor PID: " + getPid(torProcess));
+		long torPid = getPid(torProcess);
+		LOG.info("Tor PID: " + torPid);
+		pb = new ProcessBuilder("/usr/bin/strace", "-o", "strace.out", "-p",
+				String.valueOf(torPid));
+		try {
+			pb.start();
+			LOG.info("Started strace");
+		} catch (SecurityException | IOException e) {
+			logException(LOG, WARNING, e);
+		}
 		// Log the process's standard output until it detaches
 		if (LOG.isLoggable(INFO)) {
 			Scanner stdout = new Scanner(torProcess.getInputStream());
