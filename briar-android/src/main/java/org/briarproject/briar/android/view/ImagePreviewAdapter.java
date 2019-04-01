@@ -54,6 +54,7 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 
 	void removeUri(Uri uri) {
 		int pos = items.indexOf(uri);
+		if (pos == -1) return;
 		items.remove(uri);
 		notifyItemRemoved(pos);
 	}

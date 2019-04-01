@@ -99,9 +99,11 @@ public class TextInputView extends LinearLayout {
 
 	@Override
 	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-		textInput.setEnabled(enabled);
-		requireNonNull(textSendController).setEnabled(enabled);
+		throw new RuntimeException("Use controllers to enable/disable");
+	}
+
+	public void setReady(boolean ready) {
+		requireNonNull(textSendController).setReady(ready);
 	}
 
 	@Override

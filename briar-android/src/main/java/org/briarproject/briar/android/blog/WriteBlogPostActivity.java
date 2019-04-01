@@ -80,6 +80,7 @@ public class WriteBlogPostActivity extends BriarActivity
 				new TextSendController(input, this, false);
 		input.setSendController(sendController);
 		input.setMaxTextLength(MAX_BLOG_POST_TEXT_LENGTH);
+		input.setReady(true);
 
 		progressBar = findViewById(R.id.progressBar);
 	}

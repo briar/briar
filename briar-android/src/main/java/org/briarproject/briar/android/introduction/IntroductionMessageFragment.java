@@ -116,7 +116,7 @@ public class IntroductionMessageFragment extends BaseFragment
 				new TextSendController(ui.message, this, true);
 		ui.message.setSendController(sendController);
 		ui.message.setMaxTextLength(MAX_INTRODUCTION_TEXT_LENGTH);
-		ui.message.setEnabled(false);
+		ui.message.setReady(false);
 
 		// get contacts and then show view
 		prepareToSetUpViews(contactId1, contactId2);
@@ -171,7 +171,7 @@ public class IntroductionMessageFragment extends BaseFragment
 				// show views
 				ui.notPossible.setVisibility(GONE);
 				ui.message.setVisibility(VISIBLE);
-				ui.message.setEnabled(true);
+				ui.message.setReady(true);
 				ui.message.showSoftKeyboard();
 			} else {
 				ui.notPossible.setVisibility(VISIBLE);
@@ -195,7 +195,7 @@ public class IntroductionMessageFragment extends BaseFragment
 	@Override
 	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
 		// disable button to prevent accidental double invitations
-		ui.message.setEnabled(false);
+		ui.message.setReady(false);
 
 		makeIntroduction(contact1, contact2, text);
 

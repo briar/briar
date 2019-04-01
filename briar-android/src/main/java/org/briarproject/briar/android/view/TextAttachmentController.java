@@ -11,7 +11,6 @@ import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 import android.support.v4.view.AbsSavedState;
 import android.support.v7.app.AlertDialog.Builder;
-import android.support.v7.widget.AppCompatImageButton;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -32,8 +31,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.support.v4.content.ContextCompat.getColor;
 import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
-import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Collections.emptyList;
 import static java.util.Objects.requireNonNull;
@@ -46,14 +43,14 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 public class TextAttachmentController extends TextSendController
 		implements ImagePreviewListener {
 
-	private final AppCompatImageButton imageButton;
 	private final ImagePreview imagePreview;
-
 	private final AttachImageListener imageListener;
+	private final CompositeSendButton sendButton;
 
 	private CharSequence textHint;
-	private boolean hasImageSupport = false;
 	private List<Uri> imageUris = emptyList();
+	private int previewsLoaded = 0;
+	private boolean loadingPreviews = false;
 
 	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
 			SendListener listener, AttachImageListener imageListener) {
@@ -62,18 +59,26 @@ public class TextAttachmentController extends TextSendController
 		this.imagePreview = imagePreview;
 		this.imagePreview.setImagePreviewListener(this);
 
-		imageButton = v.findViewById(R.id.imageButton);
-		imageButton.setOnClickListener(view -> onImageButtonClicked());
+		sendButton = (CompositeSendButton) compositeSendButton;
+		sendButton.setOnImageClickListener(view -> onImageButtonClicked());
 
 		textHint = textInput.getHint();
-
-		// show image button
-		showImageButton(true);
 	}
 
 	@Override
-	public void onTextIsEmptyChanged(boolean isEmpty) {
-		if (imageUris.isEmpty()) showImageButton(isEmpty);
+	protected void updateViewState() {
+		textInput.setEnabled(ready && !loadingPreviews);
+		boolean sendEnabled = ready && !loadingPreviews &&
+				(!textIsEmpty || canSendEmptyText());
+		if (loadingPreviews) {
+			sendButton.showProgress(true);
+		} else if (imageUris.isEmpty()) {
+			sendButton.showProgress(false);
+			sendButton.showImageButton(textIsEmpty, sendEnabled);
+		} else {
+			sendButton.showProgress(false);
+			sendButton.showImageButton(false, sendEnabled);
+		}
 	}
 
 	@Override
@@ -89,19 +94,13 @@ public class TextAttachmentController extends TextSendController
 		return !imageUris.isEmpty();
 	}
 
-	/***
-	 * By default, image support is disabled.
-	 * Once you know that it is supported in the current context,
-	 * call this method to enable it.
-	 */
 	public void setImagesSupported() {
-		hasImageSupport = true;
-		imageButton.setImageResource(R.drawable.ic_image);
+		sendButton.setImagesSupported();
 	}
 
 	private void onImageButtonClicked() {
-		if (!hasImageSupport) {
-			Context ctx = imageButton.getContext();
+		if (!sendButton.hasImageSupport()) {
+			Context ctx = imagePreview.getContext();
 			Builder builder = new Builder(ctx, R.style.OnboardingDialogTheme);
 			builder.setTitle(
 					ctx.getString(R.string.dialog_title_no_image_support));
@@ -137,43 +136,10 @@ public class TextAttachmentController extends TextSendController
 
 	private void onNewUris() {
 		if (imageUris.isEmpty()) return;
-		showImageButton(false);
+		loadingPreviews = true;
+		updateViewState();
 		textInput.setHint(R.string.image_caption_hint);
 		imagePreview.showPreview(imageUris);
-	}
-
-	private void showImageButton(boolean showImageButton) {
-		if (showImageButton) {
-			imageButton.setVisibility(VISIBLE);
-			sendButton.setEnabled(false);
-			if (SDK_INT <= 15) {
-				sendButton.setVisibility(INVISIBLE);
-				imageButton.setEnabled(true);
-			} else {
-				sendButton.clearAnimation();
-				sendButton.animate().alpha(0f).withEndAction(() -> {
-					sendButton.setVisibility(INVISIBLE);
-					imageButton.setEnabled(true);
-				}).start();
-				imageButton.clearAnimation();
-				imageButton.animate().alpha(1f).start();
-			}
-		} else {
-			sendButton.setVisibility(VISIBLE);
-			// enable/disable buttons right away to allow fast sending
-			sendButton.setEnabled(enabled);
-			imageButton.setEnabled(false);
-			if (SDK_INT <= 15) {
-				imageButton.setVisibility(INVISIBLE);
-			} else {
-				sendButton.clearAnimation();
-				sendButton.animate().alpha(1f).start();
-				imageButton.clearAnimation();
-				imageButton.animate().alpha(0f).withEndAction(() ->
-						imageButton.setVisibility(INVISIBLE)
-				).start();
-			}
-		}
 	}
 
 	private void reset() {
@@ -183,8 +149,11 @@ public class TextAttachmentController extends TextSendController
 		imagePreview.setVisibility(GONE);
 		// reset image URIs
 		imageUris = emptyList();
+		// no preview has been loaded
+		previewsLoaded = 0;
+		loadingPreviews = false;
 		// show the image button again, so images can get attached
-		showImageButton(true);
+		updateViewState();
 	}
 
 	@Override
@@ -205,18 +174,37 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	@Override
+	public void onPreviewLoaded() {
+		previewsLoaded++;
+		checkAllPreviewsLoaded();
+	}
+
+	@Override
 	public void onUriError(Uri uri) {
-		imageUris.remove(uri);
+		boolean removed = imageUris.remove(uri);
+		if (!removed) {
+			// we have removed this Uri already, do not remove it again
+			return;
+		}
 		imagePreview.removeUri(uri);
 		if (imageUris.isEmpty()) onCancel();
 		Toast.makeText(textInput.getContext(), R.string.image_attach_error,
 				LENGTH_LONG).show();
+		checkAllPreviewsLoaded();
 	}
 
 	@Override
 	public void onCancel() {
 		textInput.clearText();
 		reset();
+	}
+
+	private void checkAllPreviewsLoaded() {
+		if (previewsLoaded == imageUris.size()) {
+			loadingPreviews = false;
+			// all previews were loaded
+			updateViewState();
+		}
 	}
 
 	public void showImageOnboarding(Activity activity,
@@ -228,7 +216,7 @@ public class TextAttachmentController extends TextSendController
 		};
 		int color = resolveColorAttribute(activity, R.attr.colorControlNormal);
 		new MaterialTapTargetPrompt.Builder(activity,
-				R.style.OnboardingDialogTheme).setTarget(imageButton)
+				R.style.OnboardingDialogTheme).setTarget(sendButton)
 				.setPrimaryText(R.string.dialog_title_image_support)
 				.setSecondaryText(R.string.dialog_message_image_support)
 				.setBackgroundColour(getColor(activity, R.color.briar_primary))
