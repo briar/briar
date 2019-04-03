@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
 	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical"
@@ -17,15 +18,24 @@
 		android:textSize="@dimen/text_size_large"
 		android:textStyle="bold"/>
 
-	<EditText
-		android:id="@+id/aliasEditText"
+	<android.support.design.widget.TextInputLayout
+		android:id="@+id/aliasEditLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginTop="16dp"
-		android:hint="@string/set_contact_alias_hint"
-		android:inputType="textPersonName"
-		android:textColor="?android:attr/textColorPrimary"
-		android:textSize="@dimen/text_size_medium"/>
+		app:errorEnabled="true"
+		app:hintEnabled="false">
+
+		<android.support.design.widget.TextInputEditText
+			android:id="@+id/aliasEditText"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="16dp"
+			android:hint="@string/set_contact_alias_hint"
+			android:inputType="textPersonName"
+			android:textColor="?android:attr/textColorPrimary"
+			android:textSize="@dimen/text_size_medium"/>
+
+	</android.support.design.widget.TextInputLayout>
 
 	<LinearLayout
 		android:layout_width="match_parent"

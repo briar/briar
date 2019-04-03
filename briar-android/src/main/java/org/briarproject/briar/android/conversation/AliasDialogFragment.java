@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatDialogFragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,8 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import javax.inject.Inject;
 
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 public class AliasDialogFragment extends AppCompatDialogFragment {
 
@@ -27,6 +30,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 	ViewModelProvider.Factory viewModelFactory;
 
 	private ConversationViewModel viewModel;
+	private TextInputLayout aliasEditLayout;
 	private EditText aliasEditText;
 
 	public static AliasDialogFragment newInstance() {
@@ -51,6 +55,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		View v = inflater.inflate(R.layout.fragment_alias_dialog, container,
 				false);
 
+		aliasEditLayout = v.findViewById(R.id.aliasEditLayout);
 		aliasEditText = v.findViewById(R.id.aliasEditText);
 		Contact contact = requireNonNull(viewModel.getContact().getValue());
 		String alias = contact.getAlias();
@@ -58,15 +63,22 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		if (alias != null) aliasEditText.setSelection(alias.length());
 
 		Button setButton = v.findViewById(R.id.setButton);
-		setButton.setOnClickListener(v1 -> {
-			viewModel.setContactAlias(aliasEditText.getText().toString());
-			getDialog().dismiss();
-		});
+		setButton.setOnClickListener(v1 -> onSetButtonClicked());
 
 		Button cancelButton = v.findViewById(R.id.cancelButton);
 		cancelButton.setOnClickListener(v1 -> getDialog().cancel());
 
 		return v;
+	}
+
+	private void onSetButtonClicked() {
+		String alias = aliasEditText.getText().toString();
+		if (toUtf8(alias).length > MAX_AUTHOR_NAME_LENGTH) {
+			aliasEditLayout.setError(getString(R.string.name_too_long));
+		} else {
+			viewModel.setContactAlias(alias);
+			getDialog().dismiss();
+		}
 	}
 
 }
