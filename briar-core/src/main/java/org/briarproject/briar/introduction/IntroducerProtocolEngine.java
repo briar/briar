@@ -294,7 +294,7 @@ class IntroducerProtocolEngine
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
-				other, m);
+				other, m, true);
 
 		// Move to the next state
 		return new IntroducerSession(s.getSessionId(), state,
@@ -349,7 +349,7 @@ class IntroducerProtocolEngine
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
-				other, m);
+				other, m, false);
 
 		return new IntroducerSession(s.getSessionId(), START,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
@@ -403,7 +403,7 @@ class IntroducerProtocolEngine
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
-				other, m);
+				other, m, false);
 
 		return new IntroducerSession(s.getSessionId(), state,
 				s.getRequestTimestamp(), introduceeA, introduceeB);
@@ -451,7 +451,7 @@ class IntroducerProtocolEngine
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s, sender.getId(),
-				other, m);
+				other, m, false);
 
 		return new IntroducerSession(s.getSessionId(), START,
 				s.getRequestTimestamp(), introduceeA, introduceeB);

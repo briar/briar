@@ -363,12 +363,15 @@ class IntroduceeProtocolEngine
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s,
-				s.getIntroducer().getId(), s.getRemote().author, m);
+				s.getIntroducer().getId(), s.getRemote().author, m, false);
 
-		// Move to REMOTE_DECLINED state
-		return IntroduceeSession.clear(s, REMOTE_DECLINED,
-				s.getLastLocalMessageId(), s.getLocalTimestamp(),
-				m.getMessageId());
+		// Determine next state
+		IntroduceeState state =
+				s.getState() == AWAIT_RESPONSES ? REMOTE_DECLINED : START;
+
+		// Move to the next state
+		return IntroduceeSession.clear(s, state, s.getLastLocalMessageId(),
+				s.getLocalTimestamp(), m.getMessageId());
 	}
 
 	private IntroduceeSession onRemoteResponseWhenDeclined(Transaction txn,
@@ -380,17 +383,6 @@ class IntroduceeProtocolEngine
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
-
-		// Mark the response visible in the UI
-		markMessageVisibleInUi(txn, m.getMessageId());
-
-		// Track the incoming message
-		messageTracker
-				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
-
-		// Broadcast IntroductionResponseReceivedEvent
-		broadcastIntroductionResponseReceivedEvent(txn, s,
-				s.getIntroducer().getId(), s.getRemote().author, m);
 
 		// Move to START state
 		return IntroduceeSession.clear(s, START, s.getLastLocalMessageId(),

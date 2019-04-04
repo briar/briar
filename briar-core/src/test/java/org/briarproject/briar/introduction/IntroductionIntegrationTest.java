@@ -185,6 +185,7 @@ public class IntroductionIntegrationTest
 		assertEquals(introducee2.getAuthor().getName(),
 				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
+		assertTrue(listener0.getResponse().canSucceed());
 
 		// sync second ACCEPT message
 		sync2To0(1, true);
@@ -193,6 +194,7 @@ public class IntroductionIntegrationTest
 		assertEquals(introducee1.getAuthor().getName(),
 				listener0.getResponse().getIntroducedAuthor().getName());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
+		assertTrue(listener0.getResponse().canSucceed());
 
 		// sync forwarded ACCEPT messages to introducees
 		sync0To1(1, true);
@@ -290,6 +292,7 @@ public class IntroductionIntegrationTest
 		// assert that the name on the decline event is correct
 		assertEquals(introducee2.getAuthor().getName(),
 				listener0.getResponse().getIntroducedAuthor().getName());
+		assertFalse(listener0.getResponse().canSucceed());
 
 		// sync second response
 		sync2To0(1, true);
@@ -307,6 +310,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(introducee1.getAuthor().getName(),
 				listener2.getResponse().getIntroducedAuthor().getName());
+		assertFalse(listener2.getResponse().canSucceed());
 
 		// note how the introducer does not forward the second response,
 		// because after the first decline the protocol finished
@@ -381,6 +385,7 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 		assertEquals(contact2From0.getAuthor().getName(),
 				listener1.getResponse().getIntroducedAuthor().getName());
+		assertFalse(listener1.getResponse().canSucceed());
 
 		assertFalse(contactManager1
 				.contactExists(author2.getId(), author1.getId()));
@@ -399,7 +404,52 @@ public class IntroductionIntegrationTest
 		assertEquals(3, messages.size());
 		messages = db2.transactionWithResult(true, txn ->
 				introductionManager2.getMessageHeaders(txn, contactId0From2));
-		assertEquals(3, messages.size());
+		assertEquals(2, messages.size());
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+	}
+
+	@Test
+	public void testNewIntroductionAfterDecline() throws Exception {
+		addListeners(false, true);
+
+		// make introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync request messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+		eventWaiter.await(TIMEOUT, 2);
+
+		// sync first response
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// sync second response
+		sync2To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// sync both forwarded response
+		sync0To2(1, true);
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		assertFalse(listener0.aborted);
+		assertFalse(listener1.aborted);
+		assertFalse(listener2.aborted);
+
+		time = clock.currentTimeMillis();
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, null, time);
+
+		// sync request messages
+		sync0To1(1, true);
+		sync0To2(1, true);
+		eventWaiter.await(TIMEOUT, 2);
+
 		assertFalse(listener0.aborted);
 		assertFalse(listener1.aborted);
 		assertFalse(listener2.aborted);
@@ -553,10 +603,10 @@ public class IntroductionIntegrationTest
 				introductionManager0.getMessageHeaders(txn, contactId2From0))
 				.size());
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
-		assertEquals(3, db1.transactionWithResult(true, txn ->
+		assertEquals(2, db1.transactionWithResult(true, txn ->
 				introductionManager1.getMessageHeaders(txn, contactId0From1))
 				.size());
-		assertGroupCount(messageTracker1, g1.getId(), 3, 2);
+		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 		assertEquals(3, db2.transactionWithResult(true, txn ->
 				introductionManager2.getMessageHeaders(txn, contactId0From2))
 				.size());

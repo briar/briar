@@ -252,12 +252,12 @@ class ConversationVisitor implements
 		if (r.isLocal()) {
 			String text;
 			if (r.wasAccepted()) {
+				String suffix = r.canSucceed() ? "\n\n" + ctx.getString(
+						R.string.introduction_response_accepted_sent_info,
+						introducedAuthor) : "";
 				text = ctx.getString(
 						R.string.introduction_response_accepted_sent,
-						introducedAuthor)
-						+ "\n\n" + ctx.getString(
-						R.string.introduction_response_accepted_sent_info,
-						introducedAuthor);
+						introducedAuthor) + suffix;
 			} else {
 				text = ctx.getString(
 						R.string.introduction_response_declined_sent,
