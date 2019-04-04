@@ -405,6 +405,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		boolean compact;
 		Connection txn = startTransaction();
 		try {
+			if (LOG.isLoggable(INFO)) logSchema(txn);
 			if (reopen) {
 				Settings s = getSettings(txn, DB_SETTINGS_NAMESPACE);
 				wasDirtyOnInitialisation = isDirty(s);
@@ -445,6 +446,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 	@Override
 	public boolean wasDirtyOnInitialisation() {
 		return wasDirtyOnInitialisation;
+	}
+
+	private void logSchema(Connection txn) throws DbException {
+		Statement s = null;
+		ResultSet rs = null;
+		try {
+			s = txn.createStatement();
+			rs = s.executeQuery(dbTypes.getSchemaQuery());
+			StringBuilder sb = new StringBuilder("Tables:");
+			while (rs.next()) sb.append('\n').append(rs.getString(1));
+			LOG.info(sb.toString());
+			rs.close();
+			s.close();
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
 	}
 
 	/**

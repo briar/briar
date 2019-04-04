@@ -41,8 +41,11 @@ class HyperSqlDatabase extends JdbcDatabase {
 	private static final String COUNTER_TYPE =
 			"INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY(START WITH 1)";
 	private static final String STRING_TYPE = "VARCHAR";
+	private static final String SCHEMA_QUERY =
+			"SELECT TABLE_NAME FROM INFORMATION_SCHEMA.SYSTEM_TABLES"
+					+ " WHERE TABLE_TYPE='TABLE'";
 	private static final DatabaseTypes dbTypes = new DatabaseTypes(HASH_TYPE,
-			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE);
+			SECRET_TYPE, BINARY_TYPE, COUNTER_TYPE, STRING_TYPE, SCHEMA_QUERY);
 
 	private final DatabaseConfig config;
 	private final String url;

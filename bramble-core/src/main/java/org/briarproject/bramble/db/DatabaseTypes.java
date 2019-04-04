@@ -3,15 +3,16 @@ package org.briarproject.bramble.db;
 class DatabaseTypes {
 
 	private final String hashType, secretType, binaryType;
-	private final String counterType, stringType;
+	private final String counterType, stringType, schemaQuery;
 
-	public DatabaseTypes(String hashType, String secretType, String binaryType,
-			String counterType, String stringType) {
+	DatabaseTypes(String hashType, String secretType, String binaryType,
+			String counterType, String stringType, String schemaQuery) {
 		this.hashType = hashType;
 		this.secretType = secretType;
 		this.binaryType = binaryType;
 		this.counterType = counterType;
 		this.stringType = stringType;
+		this.schemaQuery = schemaQuery;
 	}
 
 	/**
@@ -30,5 +31,9 @@ class DatabaseTypes {
 		s = s.replaceAll("_COUNTER", counterType);
 		s = s.replaceAll("_STRING", stringType);
 		return s;
+	}
+
+	String getSchemaQuery() {
+		return schemaQuery;
 	}
 }
