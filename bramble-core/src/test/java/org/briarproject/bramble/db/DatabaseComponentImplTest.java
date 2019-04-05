@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -51,6 +52,7 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.jmock.Expectations;
+import org.jmock.Sequence;
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -1457,5 +1459,44 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.getMessageDependents(transaction, messageId);
 		});
 		db.close();
+	}
+
+	@Test
+	public void testCommitActionsOccurInOrder() throws Exception {
+		TestEvent action1 = new TestEvent();
+		Runnable action2 = () -> {
+		};
+		TestEvent action3 = new TestEvent();
+		Runnable action4 = () -> {
+		};
+
+		Sequence sequence = context.sequence("sequence");
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			inSequence(sequence);
+			oneOf(database).commitTransaction(txn);
+			inSequence(sequence);
+			oneOf(eventBus).broadcast(action1);
+			inSequence(sequence);
+			oneOf(eventExecutor).execute(action2);
+			inSequence(sequence);
+			oneOf(eventBus).broadcast(action3);
+			inSequence(sequence);
+			oneOf(eventExecutor).execute(action4);
+			inSequence(sequence);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		db.transaction(false, transaction -> {
+			transaction.attach(action1);
+			transaction.attach(action2);
+			transaction.attach(action3);
+			transaction.attach(action4);
+		});
+	}
+
+	private static class TestEvent extends Event {
 	}
 }
