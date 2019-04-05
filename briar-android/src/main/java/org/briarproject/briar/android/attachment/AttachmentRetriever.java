@@ -1,9 +1,7 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
-import android.content.ContentResolver;
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
-import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.annotation.VisibleForTesting;
 import android.support.media.ExifInterface;
@@ -15,9 +13,8 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.android.conversation.ImageHelper.DecodeResult;
+import org.briarproject.briar.android.attachment.ImageHelper.DecodeResult;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -38,20 +35,18 @@ import static android.support.media.ExifInterface.ORIENTATION_TRANSVERSE;
 import static android.support.media.ExifInterface.TAG_IMAGE_LENGTH;
 import static android.support.media.ExifInterface.TAG_IMAGE_WIDTH;
 import static android.support.media.ExifInterface.TAG_ORIENTATION;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 
 @NotNullByDefault
-class AttachmentController {
+public class AttachmentRetriever {
 
 	private static final Logger LOG =
-			getLogger(AttachmentController.class.getName());
+			getLogger(AttachmentRetriever.class.getName());
 	private static final int READ_LIMIT = 1024 * 8192;
 
 	private final MessagingManager messagingManager;
@@ -60,12 +55,11 @@ class AttachmentController {
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
 
-	private final Map<Uri, AttachmentItem> unsentItems =
-			new ConcurrentHashMap<>();
 	private final Map<MessageId, List<AttachmentItem>> attachmentCache =
 			new ConcurrentHashMap<>();
 
-	AttachmentController(MessagingManager messagingManager,
+	@VisibleForTesting
+	AttachmentRetriever(MessagingManager messagingManager,
 			AttachmentDimensions dimensions, ImageHelper imageHelper) {
 		this.messagingManager = messagingManager;
 		this.imageHelper = imageHelper;
@@ -76,7 +70,7 @@ class AttachmentController {
 		maxHeight = dimensions.maxHeight;
 	}
 
-	AttachmentController(MessagingManager messagingManager,
+	public AttachmentRetriever(MessagingManager messagingManager,
 			AttachmentDimensions dimensions) {
 		this(messagingManager, dimensions, new ImageHelper() {
 			@Override
@@ -99,17 +93,17 @@ class AttachmentController {
 		});
 	}
 
-	void put(MessageId messageId, List<AttachmentItem> attachments) {
+	public void cachePut(MessageId messageId, List<AttachmentItem> attachments) {
 		attachmentCache.put(messageId, attachments);
 	}
 
 	@Nullable
-	List<AttachmentItem> get(MessageId messageId) {
+	public List<AttachmentItem> cacheGet(MessageId messageId) {
 		return attachmentCache.get(messageId);
 	}
 
 	@DatabaseExecutor
-	List<Pair<AttachmentHeader, Attachment>> getMessageAttachments(
+	public List<Pair<AttachmentHeader, Attachment>> getMessageAttachments(
 			List<AttachmentHeader> headers) throws DbException {
 		long start = now();
 		List<Pair<AttachmentHeader, Attachment>> attachments =
@@ -118,86 +112,13 @@ class AttachmentController {
 			Attachment a = messagingManager.getAttachment(h.getMessageId());
 			attachments.add(new Pair<>(h, a));
 		}
-		logDuration(LOG, "Loading attachment", start);
+		logDuration(LOG, "Loading attachments", start);
 		return attachments;
 	}
 
 	@DatabaseExecutor
-	AttachmentItem createAttachmentHeader(ContentResolver contentResolver,
-			GroupId groupId, Uri uri, boolean needsSize)
-			throws IOException, DbException {
-		if (unsentItems.containsKey(uri)) {
-			// This can happen due to configuration (screen orientation) change.
-			// So don't create a new attachment, if we have one already.
-			return requireNonNull(unsentItems.get(uri));
-		}
-		long start = now();
-		InputStream is = contentResolver.openInputStream(uri);
-		if (is == null) throw new IOException();
-		String contentType = contentResolver.getType(uri);
-		if (contentType == null) throw new IOException("null content type");
-		long timestamp = System.currentTimeMillis();
-		AttachmentHeader h = messagingManager
-				.addLocalAttachment(groupId, timestamp, contentType, is);
-		tryToClose(is, LOG, WARNING);
-		logDuration(LOG, "Storing attachment", start);
-		// get and store AttachmentItem for ImagePreview
-		AttachmentItem item =
-				getAttachmentItem(contentResolver, uri, h, needsSize);
-		if (item.hasError()) throw new IOException();
-		unsentItems.put(uri, item);
-		return item;
-	}
-
-	boolean isValidMimeType(@Nullable String mimeType) {
-		if (mimeType == null) return false;
-		for (String supportedType : IMAGE_MIME_TYPES) {
-			if (supportedType.equals(mimeType)) return true;
-		}
-		return false;
-	}
-
-	@DatabaseExecutor
-	void deleteUnsentAttachments() {
-		for (AttachmentItem item : unsentItems.values()) {
-			try {
-				messagingManager.removeAttachment(item.getHeader());
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		}
-		unsentItems.clear();
-	}
-
-	List<AttachmentHeader> getUnsentAttachmentHeaders() {
-		List<AttachmentHeader> headers =
-				new ArrayList<>(unsentItems.values().size());
-		for (AttachmentItem item : unsentItems.values()) {
-			headers.add(item.getHeader());
-		}
-		return headers;
-	}
-
-	/**
-	 * Marks the attachments as sent and adds the items to the cache for display
-	 * @param id The MessageId of the sent message.
-	 */
-	void onAttachmentsSent(MessageId id) {
-		attachmentCache.put(id, new ArrayList<>(unsentItems.values()));
-		unsentItems.clear();
-	}
-
-	@DatabaseExecutor
-	private AttachmentItem getAttachmentItem(ContentResolver contentResolver,
-			Uri uri, AttachmentHeader h, boolean needsSize) throws IOException {
-		InputStream is = null;
-		try {
-			is = contentResolver.openInputStream(uri);
-			if (is == null) throw new IOException();
-			return getAttachmentItem(h, new Attachment(is), needsSize);
-		} finally {
-			if (is != null) tryToClose(is, LOG, WARNING);
-		}
+	Attachment getMessageAttachment(AttachmentHeader h) throws DbException {
+		return messagingManager.getAttachment(h.getMessageId());
 	}
 
 	/**
@@ -205,7 +126,7 @@ class AttachmentController {
 	 * <p>
 	 * Note: This closes the {@link Attachment}'s {@link InputStream}.
 	 */
-	List<AttachmentItem> getAttachmentItems(
+	public List<AttachmentItem> getAttachmentItems(
 			List<Pair<AttachmentHeader, Attachment>> attachments) {
 		boolean needsSize = attachments.size() == 1;
 		List<AttachmentItem> items = new ArrayList<>(attachments.size());
@@ -221,7 +142,6 @@ class AttachmentController {
 	 * Creates an {@link AttachmentItem} from the {@link Attachment}'s
 	 * {@link InputStream} which will be closed when this method returns.
 	 */
-	@VisibleForTesting
 	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
 			boolean needsSize) {
 		if (!needsSize) {

@@ -8,7 +8,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.conversation.AttachmentResult;
+import org.briarproject.briar.android.attachment.AttachmentItemResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -50,7 +50,7 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 		return items.size();
 	}
 
-	void loadItemPreview(AttachmentResult result) {
+	void loadItemPreview(AttachmentItemResult result) {
 		ImagePreviewItem newItem =
 				new ImagePreviewItem(requireNonNull(result.getUri()));
 		int pos = items.indexOf(newItem);

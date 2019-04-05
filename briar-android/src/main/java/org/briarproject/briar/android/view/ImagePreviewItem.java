@@ -4,7 +4,7 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.conversation.AttachmentItem;
+import org.briarproject.briar.android.attachment.AttachmentItem;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,10 +28,6 @@ class ImagePreviewItem {
 			items.add(new ImagePreviewItem(uri));
 		}
 		return items;
-	}
-
-	Uri getUri() {
-		return uri;
 	}
 
 	public void setItem(AttachmentItem item) {

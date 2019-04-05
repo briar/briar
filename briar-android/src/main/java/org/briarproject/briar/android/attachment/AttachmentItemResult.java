@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
 import android.net.Uri;
 
@@ -9,7 +9,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class AttachmentResult {
+public class AttachmentItemResult {
 
 	@Nullable
 	private final Uri uri;
@@ -18,13 +18,13 @@ public class AttachmentResult {
 	@Nullable
 	private final String errorMsg;
 
-	public AttachmentResult(Uri uri, AttachmentItem item) {
+	public AttachmentItemResult(Uri uri, AttachmentItem item) {
 		this.uri = uri;
 		this.item = item;
 		this.errorMsg = null;
 	}
 
-	public AttachmentResult(@Nullable String errorMsg) {
+	public AttachmentItemResult(@Nullable String errorMsg) {
 		this.uri = null;
 		this.item = null;
 		this.errorMsg = errorMsg;

@@ -11,6 +11,7 @@ import com.bumptech.glide.load.Transformation;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.conversation.glide.BriarImageTransformation;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.conversation.glide.Radii;

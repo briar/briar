@@ -3,6 +3,7 @@ package org.briarproject.briar.android.conversation;
 import android.support.annotation.LayoutRes;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.util.List;

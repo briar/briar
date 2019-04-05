@@ -38,9 +38,9 @@ class ImagePreviewViewHolder extends ViewHolder {
 	}
 
 	void bind(ImagePreviewItem item) {
-		if (item.getItem() == null) return;
+		if (item.getItem() == null) return;  // shows progress bar
 		GlideApp.with(imageView)
-				.load(item.getUri())
+				.load(item.getItem())
 				.diskCacheStrategy(NONE)
 				.error(ERROR_RES)
 				.downsample(FIT_CENTER)

@@ -1,11 +1,16 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
 import android.content.res.Resources;
 import android.support.annotation.VisibleForTesting;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
-class AttachmentDimensions {
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+@NotNullByDefault
+public class AttachmentDimensions {
 
 	final int defaultSize;
 	final int minWidth, maxWidth;
@@ -21,7 +26,7 @@ class AttachmentDimensions {
 		this.maxHeight = maxHeight;
 	}
 
-	static AttachmentDimensions getAttachmentDimensions(Resources res) {
+	public static AttachmentDimensions getAttachmentDimensions(Resources res) {
 		int defaultSize =
 				res.getDimensionPixelSize(R.dimen.message_bubble_image_default);
 		int minWidth = res.getDimensionPixelSize(
@@ -33,7 +38,7 @@ class AttachmentDimensions {
 		int maxHeight = res.getDimensionPixelSize(
 				R.dimen.message_bubble_image_max_height);
 		return new AttachmentDimensions(defaultSize, minWidth, maxWidth,
-				minHeight, minHeight);
+				minHeight, maxHeight);
 	}
 
 }

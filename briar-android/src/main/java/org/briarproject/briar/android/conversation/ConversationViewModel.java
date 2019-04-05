@@ -5,7 +5,6 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
-import android.content.ContentResolver;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -20,26 +19,26 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.briar.R;
+import org.briarproject.briar.android.attachment.AttachmentCreator;
+import org.briarproject.briar.android.attachment.AttachmentManager;
+import org.briarproject.briar.android.attachment.AttachmentResult;
+import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.android.view.TextAttachmentController.AttachmentManager;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
-import org.briarproject.briar.api.messaging.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -53,14 +52,12 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.conversation.AttachmentDimensions.getAttachmentDimensions;
+import static org.briarproject.briar.android.attachment.AttachmentDimensions.getAttachmentDimensions;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
-import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
-public class ConversationViewModel extends AndroidViewModel implements
-		AttachmentManager {
+public class ConversationViewModel extends AndroidViewModel
+		implements AttachmentManager {
 
 	private static Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
@@ -78,10 +75,13 @@ public class ConversationViewModel extends AndroidViewModel implements
 	private final ContactManager contactManager;
 	private final SettingsManager settingsManager;
 	private final PrivateMessageFactory privateMessageFactory;
-	private final AttachmentController attachmentController;
+	private final AttachmentRetriever attachmentRetriever;
+	private final AttachmentCreator attachmentCreator;
 
 	@Nullable
 	private ContactId contactId = null;
+	@Nullable
+	private volatile GroupId messagingGroupId = null;
 	private final MutableLiveData<Contact> contact = new MutableLiveData<>();
 	private final LiveData<AuthorId> contactAuthorId =
 			Transformations.map(contact, c -> c.getAuthor().getId());
@@ -97,15 +97,14 @@ public class ConversationViewModel extends AndroidViewModel implements
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> contactDeleted =
 			new MutableLiveData<>();
-	private final MutableLiveData<GroupId> messagingGroupId =
-			new MutableLiveData<>();
 	private final MutableLiveData<PrivateMessageHeader> addedHeader =
 			new MutableLiveData<>();
 
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor cryptoExecutor, TransactionManager db,
+			@CryptoExecutor Executor cryptoExecutor,
+			@IoExecutor Executor ioExecutor, TransactionManager db,
 			MessagingManager messagingManager, ContactManager contactManager,
 			SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory) {
@@ -117,15 +116,17 @@ public class ConversationViewModel extends AndroidViewModel implements
 		this.contactManager = contactManager;
 		this.settingsManager = settingsManager;
 		this.privateMessageFactory = privateMessageFactory;
-		this.attachmentController = new AttachmentController(messagingManager,
+		this.attachmentRetriever = new AttachmentRetriever(messagingManager,
 				getAttachmentDimensions(application.getResources()));
+		this.attachmentCreator = new AttachmentCreator(getApplication(),
+				ioExecutor, messagingManager, attachmentRetriever);
 		contactDeleted.setValue(false);
 	}
 
 	@Override
 	protected void onCleared() {
 		super.onCleared();
-		attachmentController.deleteUnsentAttachments();
+		attachmentCreator.deleteUnsentAttachments();
 	}
 
 	/**
@@ -148,6 +149,10 @@ public class ConversationViewModel extends AndroidViewModel implements
 				Contact c = contactManager.getContact(contactId);
 				contact.postValue(c);
 				logDuration(LOG, "Loading contact", start);
+				start = now();
+				messagingGroupId =
+						messagingManager.getConversationId(contactId);
+				logDuration(LOG, "Load conversation GroupId", start);
 				start = now();
 				checkFeaturesAndOnboarding(contactId);
 				logDuration(LOG, "Checking for image support", start);
@@ -185,73 +190,29 @@ public class ConversationViewModel extends AndroidViewModel implements
 
 	void sendMessage(@Nullable String text,
 			List<AttachmentHeader> attachmentHeaders, long timestamp) {
-		if (messagingGroupId.getValue() == null) loadGroupId();
-		observeForeverOnce(messagingGroupId, groupId -> {
-			if (groupId == null) return;
-			createMessage(groupId, text, attachmentHeaders, timestamp);
-		});
+		GroupId groupId = messagingGroupId;
+		if (groupId == null) throw new IllegalStateException();
+		createMessage(groupId, text, attachmentHeaders, timestamp);
 	}
 
 	@Override
-	public LiveData<AttachmentResult> storeAttachment(Uri uri,
-			boolean needsSize) {
-		// use LiveData to not keep references to view scope
-		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
-		// check first if mime type is supported
-		ContentResolver contentResolver =
-				getApplication().getContentResolver();
-		String mimeType = contentResolver.getType(uri);
-		if (!attachmentController.isValidMimeType(mimeType)) {
-			String errorMsg = getApplication().getString(
-					R.string.image_attach_error_invalid_mime_type, mimeType);
-			result.setValue(new AttachmentResult(errorMsg));
-			return result;
-		}
-		if (messagingGroupId.getValue() == null) loadGroupId();
-		observeForeverOnce(messagingGroupId, groupId -> dbExecutor.execute(()
-				-> {
-			if (groupId == null) throw new IllegalStateException();
-			long start = now();
-			try {
-				AttachmentItem item = attachmentController
-						.createAttachmentHeader(contentResolver, groupId, uri,
-								needsSize);
-				result.postValue(new AttachmentResult(uri, item));
-			} catch(FileTooBigException e) {
-				logException(LOG, WARNING, e);
-				int mb = MAX_IMAGE_SIZE / 1024 / 1024;
-				String errorMsg = getApplication()
-						.getString(R.string.image_attach_error_too_big, mb);
-				result.postValue(new AttachmentResult(errorMsg));
-			} catch (DbException | IOException e) {
-				logException(LOG, WARNING, e);
-				result.postValue(new AttachmentResult(null));
-			}
-			logDuration(LOG, "Storing attachment", start);
-		}));
-		return result;
+	@UiThread
+	public AttachmentResult storeAttachments(Collection<Uri> uris) {
+		GroupId groupId = messagingGroupId;
+		if (groupId == null) throw new IllegalStateException();
+		return attachmentCreator.storeAttachments(groupId, uris);
 	}
 
 	@Override
-	public List<AttachmentHeader> getAttachmentHeaders() {
-		return attachmentController.getUnsentAttachmentHeaders();
+	@UiThread
+	public List<AttachmentHeader> getAttachmentHeadersForSending() {
+		return attachmentCreator.getAttachmentHeadersForSending();
 	}
 
 	@Override
-	public void removeAttachments() {
-		dbExecutor.execute(attachmentController::deleteUnsentAttachments);
-	}
-
-	private void loadGroupId() {
-		if (contactId == null) throw new IllegalStateException();
-		dbExecutor.execute(() -> {
-			try {
-				messagingGroupId.postValue(
-						messagingManager.getConversationId(contactId));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+	@UiThread
+	public void cancel() {
+		attachmentCreator.cancel();
 	}
 
 	@DatabaseExecutor
@@ -337,7 +298,7 @@ public class ConversationViewModel extends AndroidViewModel implements
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, true, false, false,
 						text != null, attachments);
-				attachmentController.onAttachmentsSent(m.getMessage().getId());
+				attachmentCreator.onAttachmentsSent(m.getMessage().getId());
 				// TODO add text to cache when available here
 				addedHeader.postValue(h);
 			} catch (DbException e) {
@@ -351,8 +312,8 @@ public class ConversationViewModel extends AndroidViewModel implements
 		addedHeader.setValue(null);
 	}
 
-	AttachmentController getAttachmentController() {
-		return attachmentController;
+	AttachmentRetriever getAttachmentRetriever() {
+		return attachmentRetriever;
 	}
 
 	LiveData<Contact> getContact() {

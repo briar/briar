@@ -1,8 +1,8 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.briar.android.conversation.ImageHelper.DecodeResult;
+import org.briarproject.briar.android.attachment.ImageHelper.DecodeResult;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class AttachmentControllerTest extends BrambleMockTestCase {
+public class AttachmentRetrieverTest extends BrambleMockTestCase {
 
 	private final AttachmentDimensions dimensions = new AttachmentDimensions(
 			100, 50, 200, 75, 300
@@ -32,8 +32,8 @@ public class AttachmentControllerTest extends BrambleMockTestCase {
 	private final MessagingManager messagingManager =
 			context.mock(MessagingManager.class);
 	private final ImageHelper imageHelper = context.mock(ImageHelper.class);
-	private final AttachmentController controller =
-			new AttachmentController(
+	private final AttachmentRetriever controller =
+			new AttachmentRetriever(
 					messagingManager,
 					dimensions,
 					imageHelper

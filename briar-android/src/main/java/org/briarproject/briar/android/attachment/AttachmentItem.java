@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -11,6 +11,8 @@ import org.briarproject.briar.api.messaging.AttachmentHeader;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.Immutable;
+
+import static java.util.Objects.requireNonNull;
 
 @Immutable
 @NotNullByDefault
@@ -57,8 +59,8 @@ public class AttachmentItem implements Parcelable {
 		MessageId messageId = new MessageId(messageIdByte);
 		width = in.readInt();
 		height = in.readInt();
-		String mimeType = in.readString();
-		extension = in.readString();
+		String mimeType = requireNonNull(in.readString());
+		extension = requireNonNull(in.readString());
 		thumbnailWidth = in.readInt();
 		thumbnailHeight = in.readInt();
 		hasError = in.readByte() != 0;
@@ -82,27 +84,27 @@ public class AttachmentItem implements Parcelable {
 		return height;
 	}
 
-	String getMimeType() {
+	public String getMimeType() {
 		return header.getContentType();
 	}
 
-	String getExtension() {
+	public String getExtension() {
 		return extension;
 	}
 
-	int getThumbnailWidth() {
+	public int getThumbnailWidth() {
 		return thumbnailWidth;
 	}
 
-	int getThumbnailHeight() {
+	public int getThumbnailHeight() {
 		return thumbnailHeight;
 	}
 
-	boolean hasError() {
+	public boolean hasError() {
 		return hasError;
 	}
 
-	String getTransitionName() {
+	public String getTransitionName() {
 		return String.valueOf(instanceId);
 	}
 

@@ -174,6 +174,10 @@ class MessagingManagerImpl extends ConversationClientImpl
 		}
 		if (is.available() > 0) throw new FileTooBigException();
 		is.close();
+		try {
+			Thread.sleep(1000);
+		} catch (InterruptedException ignored) {
+		}
 		Message m = messageFactory.createMessage(groupId, timestamp, body);
 		clientHelper.addLocalMessage(m, new BdfDictionary(), false);
 		return new AttachmentHeader(m.getId(), contentType);
