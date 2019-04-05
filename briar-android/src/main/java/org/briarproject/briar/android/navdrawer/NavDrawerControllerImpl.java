@@ -2,7 +2,6 @@ package org.briarproject.briar.android.navdrawer;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -84,7 +83,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	@Override
 	public void onActivityDestroy() {
-
 	}
 
 	@Override
@@ -94,19 +92,14 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("TransportEnabledEvent: " + id.getString());
 			}
-			transportStateUpdate(id, true);
+			listener.stateUpdate(id, true);
 		} else if (e instanceof TransportDisabledEvent) {
 			TransportId id = ((TransportDisabledEvent) e).getTransportId();
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("TransportDisabledEvent: " + id.getString());
 			}
-			transportStateUpdate(id, false);
+			listener.stateUpdate(id, false);
 		}
-	}
-
-	@UiThread
-	private void transportStateUpdate(TransportId id, boolean enabled) {
-		listener.stateUpdate(id, enabled);
 	}
 
 	@Override
@@ -190,7 +183,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	@Override
 	public boolean isTransportRunning(TransportId transportId) {
 		Plugin plugin = pluginManager.getPlugin(transportId);
-
 		return plugin != null && plugin.isRunning();
 	}
 

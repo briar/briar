@@ -303,11 +303,13 @@ public class KeyAgreementFragment extends BaseEventFragment
 		status.setText(listener.keyAgreementStarted());
 	}
 
+	@UiThread
 	private void keyAgreementAborted(boolean remoteAborted) {
 		reset();
 		listener.keyAgreementAborted(remoteAborted);
 	}
 
+	@UiThread
 	private void keyAgreementFinished(KeyAgreementResult result) {
 		statusView.setVisibility(VISIBLE);
 		status.setText(listener.keyAgreementFinished(result));
