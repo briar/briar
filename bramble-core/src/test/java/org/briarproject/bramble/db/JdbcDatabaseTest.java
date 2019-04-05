@@ -57,7 +57,6 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_N
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
@@ -88,7 +87,6 @@ import static org.junit.Assert.fail;
 public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	private static final int ONE_MEGABYTE = 1024 * 1024;
-	private static final int MAX_SIZE = 5 * ONE_MEGABYTE;
 	// All our transports use a maximum latency of 30 seconds
 	private static final int MAX_LATENCY = 30 * 1000;
 
@@ -451,29 +449,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertTrue(ids.isEmpty());
 
 		db.commitTransaction(txn);
-		db.close();
-	}
-
-	@Test
-	public void testGetFreeSpace() throws Exception {
-		Message message = getMessage(groupId, MAX_MESSAGE_BODY_LENGTH);
-		Database<Connection> db = open(false);
-
-		// Sanity check: there should be enough space on disk for this test
-		assertTrue(testDir.getFreeSpace() > MAX_SIZE);
-
-		// The free space should not be more than the allowed maximum size
-		long free = db.getFreeSpace();
-		assertTrue(free <= MAX_SIZE);
-		assertTrue(free > 0);
-
-		// Storing a message should reduce the free space
-		Connection txn = db.startTransaction();
-		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
-		db.commitTransaction(txn);
-		assertTrue(db.getFreeSpace() < free);
-
 		db.close();
 	}
 
@@ -1996,9 +1971,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	private Database<Connection> open(boolean resume,
 			MessageFactory messageFactory, Clock clock) throws Exception {
-		Database<Connection> db =
-				createDatabase(new TestDatabaseConfig(testDir, MAX_SIZE),
-						messageFactory, clock);
+		Database<Connection> db = createDatabase(
+				new TestDatabaseConfig(testDir), messageFactory, clock);
 		if (!resume) deleteTestDirectory(testDir);
 		db.open(key, null);
 		return db;

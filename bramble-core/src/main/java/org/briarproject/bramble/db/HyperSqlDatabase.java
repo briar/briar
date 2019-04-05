@@ -87,30 +87,6 @@ class HyperSqlDatabase extends JdbcDatabase {
 	}
 
 	@Override
-	public long getFreeSpace() {
-		File dir = config.getDatabaseDirectory();
-		long maxSize = config.getMaxSize();
-		long free = dir.getFreeSpace();
-		long used = getDiskSpace(dir);
-		long quota = maxSize - used;
-		return Math.min(free, quota);
-	}
-
-	private long getDiskSpace(File f) {
-		if (f.isDirectory()) {
-			long total = 0;
-			File[] children = f.listFiles();
-			if (children != null)
-				for (File child : children) total += getDiskSpace(child);
-			return total;
-		} else if (f.isFile()) {
-			return f.length();
-		} else {
-			return 0;
-		}
-	}
-
-	@Override
 	protected Connection createConnection() throws SQLException {
 		SecretKey key = this.key;
 		if (key == null) throw new IllegalStateException();

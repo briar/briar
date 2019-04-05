@@ -24,9 +24,4 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 	public File getDatabaseKeyDirectory() {
 		return keyDir;
 	}
-
-	@Override
-	public long getMaxSize() {
-		return Long.MAX_VALUE;
-	}
 }

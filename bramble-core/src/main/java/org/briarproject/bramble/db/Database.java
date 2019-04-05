@@ -238,13 +238,6 @@ interface Database<T> {
 	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
 
 	/**
-	 * Returns the amount of free storage space available to the database, in
-	 * bytes. This is based on the minimum of the space available on the device
-	 * where the database is stored and the database's configured size.
-	 */
-	long getFreeSpace() throws DbException;
-
-	/**
 	 * Returns the group with the given ID.
 	 * <p/>
 	 * Read-only.

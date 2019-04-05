@@ -21,7 +21,7 @@ public class TestDatabaseModule {
 	}
 
 	public TestDatabaseModule(File dir) {
-		config = new TestDatabaseConfig(dir, Long.MAX_VALUE);
+		config = new TestDatabaseConfig(dir);
 	}
 
 	@Provides
