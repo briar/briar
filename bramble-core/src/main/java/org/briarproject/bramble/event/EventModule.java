@@ -12,7 +12,7 @@ public class EventModule {
 
 	@Provides
 	@Singleton
-	EventBus provideEventBus() {
-		return new EventBusImpl();
+	EventBus provideEventBus(EventBusImpl eventBus) {
+		return eventBus;
 	}
 }

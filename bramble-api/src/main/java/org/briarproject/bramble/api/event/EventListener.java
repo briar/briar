@@ -12,5 +12,6 @@ public interface EventListener {
 	 * Called when an event is broadcast. Implementations of this method must
 	 * not block.
 	 */
+	@EventExecutor
 	void eventOccurred(Event e);
 }

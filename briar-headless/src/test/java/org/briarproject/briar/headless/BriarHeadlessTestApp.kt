@@ -4,6 +4,7 @@ import dagger.Component
 import org.briarproject.bramble.BrambleCoreEagerSingletons
 import org.briarproject.bramble.BrambleCoreModule
 import org.briarproject.bramble.account.AccountModule
+import org.briarproject.bramble.event.DefaultEventExecutorModule
 import org.briarproject.bramble.test.TestSecureRandomModule
 import org.briarproject.briar.BriarCoreEagerSingletons
 import org.briarproject.briar.BriarCoreModule
@@ -16,6 +17,7 @@ import javax.inject.Singleton
         BriarCoreModule::class,
         TestSecureRandomModule::class,
         AccountModule::class,
+        DefaultEventExecutorModule::class,
         HeadlessTestModule::class
     ]
 )

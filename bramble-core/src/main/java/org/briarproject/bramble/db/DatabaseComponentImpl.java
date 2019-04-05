@@ -160,13 +160,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public void endTransaction(Transaction transaction) {
 		try {
 			T txn = txnClass.cast(transaction.unbox());
-			if (!transaction.isCommitted()) db.abortTransaction(txn);
+			if (transaction.isCommitted()) {
+				for (Event e : transaction.getEvents()) eventBus.broadcast(e);
+			} else {
+				db.abortTransaction(txn);
+			}
 		} finally {
 			if (transaction.isReadOnly()) lock.readLock().unlock();
 			else lock.writeLock().unlock();
 		}
-		if (transaction.isCommitted())
-			for (Event e : transaction.getEvents()) eventBus.broadcast(e);
 	}
 
 	@Override

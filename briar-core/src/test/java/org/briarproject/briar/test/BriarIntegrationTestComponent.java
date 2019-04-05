@@ -15,6 +15,7 @@ import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
 import org.briarproject.bramble.db.DatabaseModule;
+import org.briarproject.bramble.event.DefaultEventExecutorModule;
 import org.briarproject.bramble.event.EventModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
@@ -63,6 +64,7 @@ import dagger.Component;
 		CryptoExecutorModule.class,
 		DataModule.class,
 		DatabaseModule.class,
+		DefaultEventExecutorModule.class,
 		EventModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,

@@ -13,6 +13,7 @@ import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
 import org.briarproject.bramble.db.DatabaseModule;
+import org.briarproject.bramble.event.DefaultEventExecutorModule;
 import org.briarproject.bramble.event.EventModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
@@ -46,6 +47,7 @@ import dagger.Component;
 		CryptoModule.class,
 		DataModule.class,
 		DatabaseModule.class,
+		DefaultEventExecutorModule.class,
 		EventModule.class,
 		IdentityModule.class,
 		LifecycleModule.class,
