@@ -2,6 +2,7 @@ package org.briarproject.briar.android.contact;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.UiThread;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
@@ -253,37 +254,34 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		}
 	}
 
+	@UiThread
 	private void updateItem(ContactId c, ConversationMessageHeader h) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			adapter.incrementRevision();
-			int position = adapter.findItemPosition(c);
-			ContactListItem item = adapter.getItemAt(position);
-			if (item != null) {
-				item.addMessage(h);
-				adapter.updateItemAt(position, item);
-			}
-		});
+		adapter.incrementRevision();
+		int position = adapter.findItemPosition(c);
+		ContactListItem item = adapter.getItemAt(position);
+		if (item != null) {
+			item.addMessage(h);
+			adapter.updateItemAt(position, item);
+		}
 	}
 
+	@UiThread
 	private void removeItem(ContactId c) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			adapter.incrementRevision();
-			int position = adapter.findItemPosition(c);
-			ContactListItem item = adapter.getItemAt(position);
-			if (item != null) adapter.remove(item);
-		});
+		adapter.incrementRevision();
+		int position = adapter.findItemPosition(c);
+		ContactListItem item = adapter.getItemAt(position);
+		if (item != null) adapter.remove(item);
 	}
 
+	@UiThread
 	private void setConnected(ContactId c, boolean connected) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			adapter.incrementRevision();
-			int position = adapter.findItemPosition(c);
-			ContactListItem item = adapter.getItemAt(position);
-			if (item != null) {
-				item.setConnected(connected);
-				adapter.updateItemAt(position, item);
-			}
-		});
+		adapter.incrementRevision();
+		int position = adapter.findItemPosition(c);
+		ContactListItem item = adapter.getItemAt(position);
+		if (item != null) {
+			item.setConnected(connected);
+			adapter.updateItemAt(position, item);
+		}
 	}
 
 }

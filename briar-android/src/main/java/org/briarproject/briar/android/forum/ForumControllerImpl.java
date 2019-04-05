@@ -79,7 +79,7 @@ class ForumControllerImpl extends
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
 			if (f.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum post received, adding...");
-				onForumPostReceived(f.getHeader(), f.getText());
+				listener.onItemReceived(buildItem(f.getHeader(), f.getText()));
 			}
 		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
@@ -87,13 +87,13 @@ class ForumControllerImpl extends
 			ForumInvitationResponse r = f.getMessageHeader();
 			if (r.getShareableId().equals(getGroupId()) && r.wasAccepted()) {
 				LOG.info("Forum invitation was accepted");
-				onForumInvitationAccepted(f.getContactId());
+				listener.onInvitationAccepted(f.getContactId());
 			}
 		} else if (e instanceof ContactLeftShareableEvent) {
 			ContactLeftShareableEvent c = (ContactLeftShareableEvent) e;
 			if (c.getGroupId().equals(getGroupId())) {
 				LOG.info("Forum left by contact");
-				onForumLeft(c.getContactId());
+				listener.onForumLeft(c.getContactId());
 			}
 		}
 	}
@@ -168,8 +168,7 @@ class ForumControllerImpl extends
 	}
 
 	@Override
-	protected ForumPostHeader addLocalMessage(ForumPost p)
-			throws DbException {
+	protected ForumPostHeader addLocalMessage(ForumPost p) throws DbException {
 		return forumManager.addLocalPost(p);
 	}
 
@@ -181,21 +180,6 @@ class ForumControllerImpl extends
 	@Override
 	protected ForumItem buildItem(ForumPostHeader header, String text) {
 		return new ForumItem(header, text);
-	}
-
-	private void onForumPostReceived(ForumPostHeader h, String text) {
-		ForumItem item = buildItem(h, text);
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.onItemReceived(item));
-	}
-
-	private void onForumInvitationAccepted(ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.onInvitationAccepted(c));
-	}
-
-	private void onForumLeft(ContactId c) {
-		listener.runOnUiThreadUnlessDestroyed(() -> listener.onForumLeft(c));
 	}
 
 }

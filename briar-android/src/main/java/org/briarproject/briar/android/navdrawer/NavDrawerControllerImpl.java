@@ -53,7 +53,8 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	private final SettingsManager settingsManager;
 	private final EventBus eventBus;
 
-	private volatile TransportStateListener listener;
+	// UI thread
+	private TransportStateListener listener;
 
 	@Inject
 	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
@@ -82,7 +83,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	@Override
 	public void onActivityDestroy() {
-
 	}
 
 	@Override
@@ -92,19 +92,14 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("TransportEnabledEvent: " + id.getString());
 			}
-			transportStateUpdate(id, true);
+			listener.stateUpdate(id, true);
 		} else if (e instanceof TransportDisabledEvent) {
 			TransportId id = ((TransportDisabledEvent) e).getTransportId();
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("TransportDisabledEvent: " + id.getString());
 			}
-			transportStateUpdate(id, false);
+			listener.stateUpdate(id, false);
 		}
-	}
-
-	private void transportStateUpdate(TransportId id, boolean enabled) {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.stateUpdate(id, enabled));
 	}
 
 	@Override
@@ -188,7 +183,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	@Override
 	public boolean isTransportRunning(TransportId transportId) {
 		Plugin plugin = pluginManager.getPlugin(transportId);
-
 		return plugin != null && plugin.isRunning();
 	}
 

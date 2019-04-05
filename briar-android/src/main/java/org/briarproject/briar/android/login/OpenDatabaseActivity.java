@@ -73,12 +73,9 @@ public class OpenDatabaseActivity extends BriarActivity
 	public void eventOccurred(Event e) {
 		if (e instanceof LifecycleEvent) {
 			LifecycleState state = ((LifecycleEvent) e).getLifecycleState();
-			if (state.isAfter(STARTING_SERVICES))
-				runOnUiThreadUnlessDestroyed(this::finishAndStartApp);
-			else if (state == MIGRATING_DATABASE)
-				runOnUiThreadUnlessDestroyed(this::showMigration);
-			else if (state == COMPACTING_DATABASE)
-				runOnUiThreadUnlessDestroyed(this::showCompaction);
+			if (state.isAfter(STARTING_SERVICES)) finishAndStartApp();
+			else if (state == MIGRATING_DATABASE) showMigration();
+			else if (state == COMPACTING_DATABASE) showCompaction();
 		}
 	}
 

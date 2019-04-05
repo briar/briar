@@ -17,6 +17,7 @@ public interface FeedController extends BaseController {
 
 	void loadPersonalBlog(ResultExceptionHandler<Blog, DbException> handler);
 
+	@UiThread
 	void setFeedListener(FeedListener listener);
 
 	@NotNullByDefault

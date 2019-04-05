@@ -285,38 +285,34 @@ public class KeyAgreementFragment extends BaseEventFragment
 		}
 	}
 
+	@UiThread
 	private void keyAgreementFailed() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			reset();
-			listener.keyAgreementFailed();
-		});
+		reset();
+		listener.keyAgreementFailed();
 	}
 
+	@UiThread
 	private void keyAgreementWaiting() {
-		runOnUiThreadUnlessDestroyed(
-				() -> status.setText(listener.keyAgreementWaiting()));
+		status.setText(listener.keyAgreementWaiting());
 	}
 
+	@UiThread
 	private void keyAgreementStarted() {
-		runOnUiThreadUnlessDestroyed(() -> {
-			qrCodeView.setVisibility(INVISIBLE);
-			statusView.setVisibility(VISIBLE);
-			status.setText(listener.keyAgreementStarted());
-		});
+		qrCodeView.setVisibility(INVISIBLE);
+		statusView.setVisibility(VISIBLE);
+		status.setText(listener.keyAgreementStarted());
 	}
 
+	@UiThread
 	private void keyAgreementAborted(boolean remoteAborted) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			reset();
-			listener.keyAgreementAborted(remoteAborted);
-		});
+		reset();
+		listener.keyAgreementAborted(remoteAborted);
 	}
 
+	@UiThread
 	private void keyAgreementFinished(KeyAgreementResult result) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			statusView.setVisibility(VISIBLE);
-			status.setText(listener.keyAgreementFinished(result));
-		});
+		statusView.setVisibility(VISIBLE);
+		status.setText(listener.keyAgreementFinished(result));
 	}
 
 	private void setQrCode(Payload localPayload) {

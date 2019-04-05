@@ -50,15 +50,18 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
 	private final EventBus eventBus;
+	private final MessageTracker messageTracker;
 	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
+
 	private volatile GroupId groupId;
 
 	protected final IdentityManager identityManager;
 	protected final AndroidNotificationManager notificationManager;
 	protected final Executor cryptoExecutor;
 	protected final Clock clock;
-	private final MessageTracker messageTracker;
-	protected volatile L listener;
+
+	// UI thread
+	protected L listener;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
@@ -121,8 +124,7 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 			GroupRemovedEvent s = (GroupRemovedEvent) e;
 			if (s.getGroup().getId().equals(getGroupId())) {
 				LOG.info("Group removed");
-				listener.runOnUiThreadUnlessDestroyed(
-						() -> listener.onGroupRemoved());
+				listener.onGroupRemoved();
 			}
 		}
 	}

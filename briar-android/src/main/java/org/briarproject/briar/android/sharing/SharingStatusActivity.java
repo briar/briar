@@ -100,8 +100,7 @@ abstract class SharingStatusActivity extends BriarActivity
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getId().equals(getGroupId())) {
-				runOnUiThreadUnlessDestroyed(
-						this::supportFinishAfterTransition);
+				supportFinishAfterTransition();
 			}
 		}
 		// TODO ContactConnectedEvent and ContactDisconnectedEvent

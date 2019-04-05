@@ -5,7 +5,6 @@ import android.support.annotation.UiThread;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.briar.android.DestroyableContext;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
@@ -19,6 +18,7 @@ interface GroupListController extends DbController {
 	/**
 	 * The listener must be set right after the controller was injected
 	 */
+	@UiThread
 	void setGroupListListener(GroupListListener listener);
 
 	@UiThread
@@ -35,7 +35,7 @@ interface GroupListController extends DbController {
 	void loadAvailableGroups(
 			ResultExceptionHandler<Integer, DbException> result);
 
-	interface GroupListListener extends DestroyableContext {
+	interface GroupListListener {
 
 		@UiThread
 		void onGroupMessageAdded(GroupMessageHeader header);

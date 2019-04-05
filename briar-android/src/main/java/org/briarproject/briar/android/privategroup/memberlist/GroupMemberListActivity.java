@@ -95,8 +95,7 @@ public class GroupMemberListActivity extends BriarActivity
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getId().equals(groupId)) {
-				runOnUiThreadUnlessDestroyed(
-						this::supportFinishAfterTransition);
+				supportFinishAfterTransition();
 			}
 		}
 		// TODO ContactConnectedEvent and ContactDisconnectedEvent

@@ -4,7 +4,6 @@ import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.DestroyableContext;
 
 import java.util.Collection;
 
@@ -62,7 +61,8 @@ public interface SharingController {
 	@UiThread
 	int getTotalCount();
 
-	interface SharingListener extends DestroyableContext {
+	interface SharingListener {
+
 		@UiThread
 		void onSharingInfoUpdated(int total, int online);
 	}

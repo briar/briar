@@ -34,13 +34,13 @@ import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class FeedControllerImpl extends BaseControllerImpl
-		implements FeedController {
+class FeedControllerImpl extends BaseControllerImpl implements FeedController {
 
 	private static final Logger LOG =
 			Logger.getLogger(FeedControllerImpl.class.getName());
 
-	private volatile FeedListener listener;
+	// UI thread
+	private FeedListener listener;
 
 	@Inject
 	FeedControllerImpl(@DatabaseExecutor Executor dbExecutor,
@@ -76,24 +76,20 @@ class FeedControllerImpl extends BaseControllerImpl
 		if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			LOG.info("Blog post added");
-			onBlogPostAdded(b.getHeader(), b.isLocal());
+			listener.onBlogPostAdded(b.getHeader(), b.isLocal());
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
 				LOG.info("Blog added");
-				onBlogAdded();
+				listener.onBlogAdded();
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
 				LOG.info("Blog removed");
-				onBlogRemoved();
+				listener.onBlogRemoved();
 			}
 		}
-	}
-
-	private void onBlogAdded() {
-		listener.runOnUiThreadUnlessDestroyed(() -> listener.onBlogAdded());
 	}
 
 	@Override

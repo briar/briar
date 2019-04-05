@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.controller;
 
+import android.support.annotation.UiThread;
+
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -22,10 +24,12 @@ public class SharingControllerImpl implements SharingController, EventListener {
 	private final EventBus eventBus;
 	private final ConnectionRegistry connectionRegistry;
 
-	@Nullable
-	private volatile SharingListener listener;
-	// only access on @UiThread
+	// UI thread
 	private final Set<ContactId> contacts = new HashSet<>();
+
+	// UI thread
+	@Nullable
+	private SharingListener listener;
 
 	@Inject
 	SharingControllerImpl(EventBus eventBus,
@@ -58,14 +62,13 @@ public class SharingControllerImpl implements SharingController, EventListener {
 		}
 	}
 
+	@UiThread
 	private void setConnected(ContactId c) {
-		if (listener == null) return;
-		listener.runOnUiThreadUnlessDestroyed(() -> {
-			if (contacts.contains(c)) {
-				int online = getOnlineCount();
-				listener.onSharingInfoUpdated(contacts.size(), online);
-			}
-		});
+		if (listener == null) throw new IllegalStateException();
+		if (contacts.contains(c)) {
+			int online = getOnlineCount();
+			listener.onSharingInfoUpdated(contacts.size(), online);
+		}
 	}
 
 	@Override

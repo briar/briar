@@ -23,7 +23,6 @@ import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
@@ -61,7 +60,8 @@ class GroupListControllerImpl extends DbControllerImpl
 	private final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
 
-	protected volatile GroupListListener listener;
+	// UI thread
+	private GroupListListener listener;
 
 	@Inject
 	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
@@ -85,9 +85,7 @@ class GroupListControllerImpl extends DbControllerImpl
 	@Override
 	@CallSuper
 	public void onStart() {
-		if (listener == null)
-			throw new IllegalStateException(
-					"GroupListListener needs to be attached");
+		if (listener == null) throw new IllegalStateException();
 		eventBus.addListener(this);
 		notificationManager.clearAllGroupMessageNotifications();
 	}
@@ -104,52 +102,29 @@ class GroupListControllerImpl extends DbControllerImpl
 		if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			LOG.info("Private group message added");
-			onGroupMessageAdded(g.getHeader());
+			listener.onGroupMessageAdded(g.getHeader());
 		} else if (e instanceof GroupInvitationRequestReceivedEvent) {
 			LOG.info("Private group invitation received");
-			onGroupInvitationReceived();
+			listener.onGroupInvitationReceived();
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			ClientId id = g.getGroup().getClientId();
 			if (id.equals(CLIENT_ID)) {
 				LOG.info("Private group added");
-				onGroupAdded(g.getGroup().getId());
+				listener.onGroupAdded(g.getGroup().getId());
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			ClientId id = g.getGroup().getClientId();
 			if (id.equals(CLIENT_ID)) {
 				LOG.info("Private group removed");
-				onGroupRemoved(g.getGroup().getId());
+				listener.onGroupRemoved(g.getGroup().getId());
 			}
 		} else if (e instanceof GroupDissolvedEvent) {
 			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
 			LOG.info("Private group dissolved");
-			onGroupDissolved(g.getGroupId());
+			listener.onGroupDissolved(g.getGroupId());
 		}
-	}
-
-	private void onGroupMessageAdded(GroupMessageHeader h) {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.onGroupMessageAdded(h));
-	}
-
-	private void onGroupInvitationReceived() {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.onGroupInvitationReceived());
-	}
-
-	private void onGroupAdded(GroupId g) {
-		listener.runOnUiThreadUnlessDestroyed(() -> listener.onGroupAdded(g));
-	}
-
-	private void onGroupRemoved(GroupId g) {
-		listener.runOnUiThreadUnlessDestroyed(() -> listener.onGroupRemoved(g));
-	}
-
-	private void onGroupDissolved(GroupId g) {
-		listener.runOnUiThreadUnlessDestroyed(
-				() -> listener.onGroupDissolved(g));
 	}
 
 	@Override
