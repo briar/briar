@@ -9,9 +9,12 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
+import org.briarproject.bramble.api.db.CommitAction;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.EventAction;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -188,10 +191,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 		blogManager.incomingMessage(txn, message, body, meta);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(blog1.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
@@ -227,10 +232,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 		blogManager.incomingMessage(txn, rssMessage, body, meta);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(rssBlog.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
@@ -296,10 +303,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 		blogManager.addLocalPost(post);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(blog1.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
@@ -344,10 +353,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 		blogManager.addLocalPost(post);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(rssBlog.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
@@ -421,10 +432,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 				postHeader);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(blog1.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
@@ -530,10 +543,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 				originalPostHeader);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(blog2.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
@@ -637,10 +652,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 				originalPostHeader);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(blog1.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
@@ -787,10 +804,12 @@ public class BlogManagerImplTest extends BriarTestCase {
 				originalCommentHeader);
 		context.assertIsSatisfied();
 
-		assertEquals(1, txn.getEvents().size());
-		assertTrue(txn.getEvents().get(0) instanceof BlogPostAddedEvent);
-
-		BlogPostAddedEvent e = (BlogPostAddedEvent) txn.getEvents().get(0);
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof BlogPostAddedEvent);
+		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(blog2.getId(), e.getGroupId());
 
 		BlogPostHeader h = e.getHeader();
