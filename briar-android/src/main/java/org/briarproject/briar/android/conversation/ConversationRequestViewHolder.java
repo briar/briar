@@ -53,6 +53,10 @@ class ConversationRequestViewHolder extends ConversationNoticeViewHolder {
 				listener.respondToRequest(request, false);
 			});
 		}
+		// enable buttons, because the disabled buttons from the click listener
+		// might get recycled and thus not work
+		acceptButton.setEnabled(true);
+		declineButton.setEnabled(true);
 	}
 
 }
