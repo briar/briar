@@ -337,8 +337,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		this.clock = clock;
 	}
 
-	@SuppressWarnings("unused")
-	protected void open(String driverClass, boolean reopen, SecretKey key,
+	protected void open(String driverClass, boolean reopen,
+			@SuppressWarnings("unused") SecretKey key,
 			@Nullable MigrationListener listener) throws DbException {
 		// Load the JDBC driver
 		try {
