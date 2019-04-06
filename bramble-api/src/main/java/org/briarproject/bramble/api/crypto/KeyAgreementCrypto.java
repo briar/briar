@@ -2,7 +2,7 @@ package org.briarproject.bramble.api.crypto;
 
 /**
  * Crypto operations for the key agreement protocol - see
- * https://code.briarproject.org/akwizgran/briar-spec/blob/master/protocols/BQP.md
+ * https://code.briarproject.org/briar/briar-spec/blob/master/protocols/BQP.md
  */
 public interface KeyAgreementCrypto {
 

@@ -2,8 +2,13 @@ package org.briarproject.bramble.api.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+@NotNullByDefault
 public class StreamContext {
 
 	private final ContactId contactId;

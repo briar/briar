@@ -1,10 +1,15 @@
 package org.briarproject.bramble.api.transport;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Keys for communicating with a given contact over a given transport.
  */
+@Immutable
+@NotNullByDefault
 public class TransportKeys {
 
 	private final TransportId transportId;
@@ -13,11 +18,11 @@ public class TransportKeys {
 
 	public TransportKeys(TransportId transportId, IncomingKeys inPrev,
 			IncomingKeys inCurr, IncomingKeys inNext, OutgoingKeys outCurr) {
-		if (inPrev.getRotationPeriod() != inCurr.getRotationPeriod() - 1)
+		if (inPrev.getRotationPeriod() != outCurr.getRotationPeriod() - 1)
 			throw new IllegalArgumentException();
-		if (inNext.getRotationPeriod() != inCurr.getRotationPeriod() + 1)
+		if (inCurr.getRotationPeriod() != outCurr.getRotationPeriod())
 			throw new IllegalArgumentException();
-		if (outCurr.getRotationPeriod() != inCurr.getRotationPeriod())
+		if (inNext.getRotationPeriod() != outCurr.getRotationPeriod() + 1)
 			throw new IllegalArgumentException();
 		this.transportId = transportId;
 		this.inPrev = inPrev;
