@@ -1,5 +1,6 @@
 package org.briarproject.bramble.keyagreement;
 
+import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
@@ -16,10 +17,11 @@ import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
-import java.io.EOFException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.atomic.AtomicReference;
+
+import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.RecordTypes.ABORT;
@@ -70,7 +72,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 
 		kat.sendKey(key);
 		assertNotNull(written.get());
-		assertRecordEquals(PROTOCOL_VERSION, KEY, key, written.get());
+		assertRecordEquals(KEY, key, written.get());
 	}
 
 	@Test
@@ -82,7 +84,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 
 		kat.sendConfirm(confirm);
 		assertNotNull(written.get());
-		assertRecordEquals(PROTOCOL_VERSION, CONFIRM, confirm, written.get());
+		assertRecordEquals(CONFIRM, confirm, written.get());
 	}
 
 	@Test
@@ -96,7 +98,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 
 		kat.sendAbort(true);
 		assertNotNull(written.get());
-		assertRecordEquals(PROTOCOL_VERSION, ABORT, new byte[0], written.get());
+		assertRecordEquals(ABORT, new byte[0], written.get());
 	}
 
 	@Test
@@ -110,32 +112,14 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 
 		kat.sendAbort(false);
 		assertNotNull(written.get());
-		assertRecordEquals(PROTOCOL_VERSION, ABORT, new byte[0], written.get());
+		assertRecordEquals(ABORT, new byte[0], written.get());
 	}
 
 	@Test(expected = AbortException.class)
 	public void testReceiveKeyThrowsExceptionIfAtEndOfStream()
 			throws Exception {
 		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(throwException(new EOFException()));
-		}});
-
-		kat.receiveKey();
-	}
-
-	@Test(expected = AbortException.class)
-	public void testReceiveKeyThrowsExceptionIfProtocolVersionIsUnrecognised()
-			throws Exception {
-		byte unknownVersion = (byte) (PROTOCOL_VERSION + 1);
-		byte[] key = getRandomBytes(123);
-
-		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(new Record(unknownVersion, KEY, key)));
-		}});
+		expectReadRecord(null);
 
 		kat.receiveKey();
 	}
@@ -144,10 +128,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 	public void testReceiveKeyThrowsExceptionIfAbortIsReceived()
 			throws Exception {
 		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(new Record(PROTOCOL_VERSION, ABORT, new byte[0])));
-		}});
+		expectReadRecord(new Record(PROTOCOL_VERSION, ABORT, new byte[0]));
 
 		kat.receiveKey();
 	}
@@ -158,61 +139,16 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 		byte[] confirm = getRandomBytes(123);
 
 		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(new Record(PROTOCOL_VERSION, CONFIRM, confirm)));
-		}});
+		expectReadRecord(new Record(PROTOCOL_VERSION, CONFIRM, confirm));
 
 		kat.receiveKey();
-	}
-
-	@Test
-	public void testReceiveKeySkipsUnrecognisedRecordTypes() throws Exception {
-		byte type1 = (byte) (ABORT + 1);
-		byte[] payload1 = getRandomBytes(123);
-		Record unknownRecord1 = new Record(PROTOCOL_VERSION, type1, payload1);
-		byte type2 = (byte) (ABORT + 2);
-		byte[] payload2 = new byte[0];
-		Record unknownRecord2 = new Record(PROTOCOL_VERSION, type2, payload2);
-		byte[] key = getRandomBytes(123);
-		Record keyRecord = new Record(PROTOCOL_VERSION, KEY, key);
-
-		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(unknownRecord1));
-			oneOf(recordReader).readRecord();
-			will(returnValue(unknownRecord2));
-			oneOf(recordReader).readRecord();
-			will(returnValue(keyRecord));
-		}});
-
-		assertArrayEquals(key, kat.receiveKey());
 	}
 
 	@Test(expected = AbortException.class)
 	public void testReceiveConfirmThrowsExceptionIfAtEndOfStream()
 			throws Exception {
 		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(throwException(new EOFException()));
-		}});
-
-		kat.receiveConfirm();
-	}
-
-	@Test(expected = AbortException.class)
-	public void testReceiveConfirmThrowsExceptionIfProtocolVersionIsUnrecognised()
-			throws Exception {
-		byte unknownVersion = (byte) (PROTOCOL_VERSION + 1);
-		byte[] confirm = getRandomBytes(123);
-
-		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(new Record(unknownVersion, CONFIRM, confirm)));
-		}});
+		expectReadRecord(null);
 
 		kat.receiveConfirm();
 	}
@@ -221,10 +157,7 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 	public void testReceiveConfirmThrowsExceptionIfAbortIsReceived()
 			throws Exception {
 		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(new Record(PROTOCOL_VERSION, ABORT, new byte[0])));
-		}});
+		expectReadRecord(new Record(PROTOCOL_VERSION, ABORT, new byte[0]));
 
 		kat.receiveConfirm();
 	}
@@ -235,37 +168,9 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 		byte[] key = getRandomBytes(123);
 
 		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(new Record(PROTOCOL_VERSION, KEY, key)));
-		}});
+		expectReadRecord(new Record(PROTOCOL_VERSION, KEY, key));
 
 		kat.receiveConfirm();
-	}
-
-	@Test
-	public void testReceiveConfirmSkipsUnrecognisedRecordTypes()
-			throws Exception {
-		byte type1 = (byte) (ABORT + 1);
-		byte[] payload1 = getRandomBytes(123);
-		Record unknownRecord1 = new Record(PROTOCOL_VERSION, type1, payload1);
-		byte type2 = (byte) (ABORT + 2);
-		byte[] payload2 = new byte[0];
-		Record unknownRecord2 = new Record(PROTOCOL_VERSION, type2, payload2);
-		byte[] confirm = getRandomBytes(123);
-		Record confirmRecord = new Record(PROTOCOL_VERSION, CONFIRM, confirm);
-
-		setup();
-		context.checking(new Expectations() {{
-			oneOf(recordReader).readRecord();
-			will(returnValue(unknownRecord1));
-			oneOf(recordReader).readRecord();
-			will(returnValue(unknownRecord2));
-			oneOf(recordReader).readRecord();
-			will(returnValue(confirmRecord));
-		}});
-
-		assertArrayEquals(confirm, kat.receiveConfirm());
 	}
 
 	private void setup() throws Exception {
@@ -297,10 +202,19 @@ public class KeyAgreementTransportTest extends BrambleMockTestCase {
 		return captured;
 	}
 
-	private void assertRecordEquals(byte expectedVersion, byte expectedType,
+	private void assertRecordEquals(byte expectedType,
 			byte[] expectedPayload, Record actual) {
-		assertEquals(expectedVersion, actual.getProtocolVersion());
+		assertEquals(PROTOCOL_VERSION, actual.getProtocolVersion());
 		assertEquals(expectedType, actual.getRecordType());
 		assertArrayEquals(expectedPayload, actual.getPayload());
+	}
+
+	private void expectReadRecord(@Nullable Record record) throws Exception {
+		context.checking(new Expectations() {{
+			//noinspection unchecked
+			oneOf(recordReader).readRecord(with(any(Predicate.class)),
+					with(any(Predicate.class)));
+			will(returnValue(record));
+		}});
 	}
 }
