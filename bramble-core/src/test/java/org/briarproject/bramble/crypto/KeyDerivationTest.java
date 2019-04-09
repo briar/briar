@@ -40,7 +40,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 
 	@Test
 	public void testCurrentKeysMatchCurrentKeysOfContact() {
-		// Start in rotation period 123
+		// Start in time period 123
 		TransportKeys kA = transportCrypto.deriveTransportKeys(transportId,
 				master, 123, true, true);
 		TransportKeys kB = transportCrypto.deriveTransportKeys(transportId,
@@ -72,7 +72,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 
 	@Test
 	public void testPreviousKeysMatchPreviousKeysOfContact() {
-		// Start in rotation period 123
+		// Start in time period 123
 		TransportKeys kA = transportCrypto.deriveTransportKeys(transportId,
 				master, 123, true, true);
 		TransportKeys kB = transportCrypto.deriveTransportKeys(transportId,
@@ -99,7 +99,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 
 	@Test
 	public void testNextKeysMatchNextKeysOfContact() {
-		// Start in rotation period 123
+		// Start in time period 123
 		TransportKeys kA = transportCrypto.deriveTransportKeys(transportId,
 				master, 123, true, true);
 		TransportKeys kB = transportCrypto.deriveTransportKeys(transportId,

@@ -9,27 +9,27 @@ import static org.briarproject.bramble.api.transport.TransportConstants.REORDERI
 
 /**
  * Contains transport keys for receiving streams from a given contact over a
- * given transport in a given rotation period.
+ * given transport in a given time period.
  */
 @Immutable
 @NotNullByDefault
 public class IncomingKeys {
 
 	private final SecretKey tagKey, headerKey;
-	private final long rotationPeriod, windowBase;
+	private final long timePeriod, windowBase;
 	private final byte[] windowBitmap;
 
 	public IncomingKeys(SecretKey tagKey, SecretKey headerKey,
-			long rotationPeriod) {
-		this(tagKey, headerKey, rotationPeriod, 0,
+			long timePeriod) {
+		this(tagKey, headerKey, timePeriod, 0,
 				new byte[REORDERING_WINDOW_SIZE / 8]);
 	}
 
 	public IncomingKeys(SecretKey tagKey, SecretKey headerKey,
-			long rotationPeriod, long windowBase, byte[] windowBitmap) {
+			long timePeriod, long windowBase, byte[] windowBitmap) {
 		this.tagKey = tagKey;
 		this.headerKey = headerKey;
-		this.rotationPeriod = rotationPeriod;
+		this.timePeriod = timePeriod;
 		this.windowBase = windowBase;
 		this.windowBitmap = windowBitmap;
 	}
@@ -42,8 +42,8 @@ public class IncomingKeys {
 		return headerKey;
 	}
 
-	public long getRotationPeriod() {
-		return rotationPeriod;
+	public long getTimePeriod() {
+		return timePeriod;
 	}
 
 	public long getWindowBase() {

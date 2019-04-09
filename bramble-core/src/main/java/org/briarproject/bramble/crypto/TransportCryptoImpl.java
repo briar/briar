@@ -36,45 +36,44 @@ class TransportCryptoImpl implements TransportCrypto {
 
 	@Override
 	public TransportKeys deriveTransportKeys(TransportId t,
-			SecretKey master, long rotationPeriod, boolean alice,
-			boolean active) {
+			SecretKey master, long timePeriod, boolean alice, boolean active) {
 		// Keys for the previous period are derived from the master secret
 		SecretKey inTagPrev = deriveTagKey(master, t, !alice);
 		SecretKey inHeaderPrev = deriveHeaderKey(master, t, !alice);
 		SecretKey outTagPrev = deriveTagKey(master, t, alice);
 		SecretKey outHeaderPrev = deriveHeaderKey(master, t, alice);
 		// Derive the keys for the current and next periods
-		SecretKey inTagCurr = rotateKey(inTagPrev, rotationPeriod);
-		SecretKey inHeaderCurr = rotateKey(inHeaderPrev, rotationPeriod);
-		SecretKey inTagNext = rotateKey(inTagCurr, rotationPeriod + 1);
-		SecretKey inHeaderNext = rotateKey(inHeaderCurr, rotationPeriod + 1);
-		SecretKey outTagCurr = rotateKey(outTagPrev, rotationPeriod);
-		SecretKey outHeaderCurr = rotateKey(outHeaderPrev, rotationPeriod);
+		SecretKey inTagCurr = rotateKey(inTagPrev, timePeriod);
+		SecretKey inHeaderCurr = rotateKey(inHeaderPrev, timePeriod);
+		SecretKey inTagNext = rotateKey(inTagCurr, timePeriod + 1);
+		SecretKey inHeaderNext = rotateKey(inHeaderCurr, timePeriod + 1);
+		SecretKey outTagCurr = rotateKey(outTagPrev, timePeriod);
+		SecretKey outHeaderCurr = rotateKey(outHeaderPrev, timePeriod);
 		// Initialise the reordering windows and stream counters
 		IncomingKeys inPrev = new IncomingKeys(inTagPrev, inHeaderPrev,
-				rotationPeriod - 1);
+				timePeriod - 1);
 		IncomingKeys inCurr = new IncomingKeys(inTagCurr, inHeaderCurr,
-				rotationPeriod);
+				timePeriod);
 		IncomingKeys inNext = new IncomingKeys(inTagNext, inHeaderNext,
-				rotationPeriod + 1);
+				timePeriod + 1);
 		OutgoingKeys outCurr = new OutgoingKeys(outTagCurr, outHeaderCurr,
-				rotationPeriod, active);
+				timePeriod, active);
 		// Collect and return the keys
 		return new TransportKeys(t, inPrev, inCurr, inNext, outCurr);
 	}
 
 	@Override
 	public TransportKeys rotateTransportKeys(TransportKeys k,
-			long rotationPeriod) {
-		if (k.getRotationPeriod() >= rotationPeriod) return k;
+			long timePeriod) {
+		if (k.getTimePeriod() >= timePeriod) return k;
 		IncomingKeys inPrev = k.getPreviousIncomingKeys();
 		IncomingKeys inCurr = k.getCurrentIncomingKeys();
 		IncomingKeys inNext = k.getNextIncomingKeys();
 		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
-		long startPeriod = outCurr.getRotationPeriod();
+		long startPeriod = outCurr.getTimePeriod();
 		boolean active = outCurr.isActive();
 		// Rotate the keys
-		for (long p = startPeriod + 1; p <= rotationPeriod; p++) {
+		for (long p = startPeriod + 1; p <= timePeriod; p++) {
 			inPrev = inCurr;
 			inCurr = inNext;
 			SecretKey inNextTag = rotateKey(inNext.getTagKey(), p + 1);
@@ -89,9 +88,9 @@ class TransportCryptoImpl implements TransportCrypto {
 				outCurr);
 	}
 
-	private SecretKey rotateKey(SecretKey k, long rotationPeriod) {
+	private SecretKey rotateKey(SecretKey k, long timePeriod) {
 		byte[] period = new byte[INT_64_BYTES];
-		ByteUtils.writeUint64(rotationPeriod, period, 0);
+		ByteUtils.writeUint64(timePeriod, period, 0);
 		return crypto.deriveKey(ROTATE_LABEL, k, period);
 	}
 

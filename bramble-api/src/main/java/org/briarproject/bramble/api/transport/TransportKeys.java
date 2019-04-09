@@ -18,11 +18,11 @@ public class TransportKeys {
 
 	public TransportKeys(TransportId transportId, IncomingKeys inPrev,
 			IncomingKeys inCurr, IncomingKeys inNext, OutgoingKeys outCurr) {
-		if (inPrev.getRotationPeriod() != outCurr.getRotationPeriod() - 1)
+		if (inPrev.getTimePeriod() != outCurr.getTimePeriod() - 1)
 			throw new IllegalArgumentException();
-		if (inCurr.getRotationPeriod() != outCurr.getRotationPeriod())
+		if (inCurr.getTimePeriod() != outCurr.getTimePeriod())
 			throw new IllegalArgumentException();
-		if (inNext.getRotationPeriod() != outCurr.getRotationPeriod() + 1)
+		if (inNext.getTimePeriod() != outCurr.getTimePeriod() + 1)
 			throw new IllegalArgumentException();
 		this.transportId = transportId;
 		this.inPrev = inPrev;
@@ -51,7 +51,7 @@ public class TransportKeys {
 		return outCurr;
 	}
 
-	public long getRotationPeriod() {
-		return outCurr.getRotationPeriod();
+	public long getTimePeriod() {
+		return outCurr.getTimePeriod();
 	}
 }

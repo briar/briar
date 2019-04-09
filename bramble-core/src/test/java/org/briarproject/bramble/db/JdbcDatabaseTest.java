@@ -653,10 +653,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testTransportKeys() throws Exception {
-		long rotationPeriod = 123, rotationPeriod1 = 234;
+		long timePeriod = 123, timePeriod1 = 234;
 		boolean active = random.nextBoolean();
-		TransportKeys keys = createTransportKeys(rotationPeriod, active);
-		TransportKeys keys1 = createTransportKeys(rotationPeriod1, active);
+		TransportKeys keys = createTransportKeys(timePeriod, active);
+		TransportKeys keys1 = createTransportKeys(timePeriod1, active);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -686,9 +686,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		}
 
 		// Rotate the transport keys
-		TransportKeys rotated = createTransportKeys(rotationPeriod + 1, active);
+		TransportKeys rotated = createTransportKeys(timePeriod + 1, active);
 		TransportKeys rotated1 =
-				createTransportKeys(rotationPeriod1 + 1, active);
+				createTransportKeys(timePeriod1 + 1, active);
 		db.updateTransportKeys(txn, new KeySet(keySetId, contactId, rotated));
 		db.updateTransportKeys(txn, new KeySet(keySetId1, contactId, rotated1));
 
@@ -716,7 +716,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private void assertKeysEquals(TransportKeys expected,
 			TransportKeys actual) {
 		assertEquals(expected.getTransportId(), actual.getTransportId());
-		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
 		assertKeysEquals(expected.getPreviousIncomingKeys(),
 				actual.getPreviousIncomingKeys());
 		assertKeysEquals(expected.getCurrentIncomingKeys(),
@@ -732,7 +732,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				actual.getTagKey().getBytes());
 		assertArrayEquals(expected.getHeaderKey().getBytes(),
 				actual.getHeaderKey().getBytes());
-		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
 		assertEquals(expected.getWindowBase(), actual.getWindowBase());
 		assertArrayEquals(expected.getWindowBitmap(), actual.getWindowBitmap());
 	}
@@ -742,15 +742,15 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				actual.getTagKey().getBytes());
 		assertArrayEquals(expected.getHeaderKey().getBytes(),
 				actual.getHeaderKey().getBytes());
-		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
 		assertEquals(expected.getStreamCounter(), actual.getStreamCounter());
 		assertEquals(expected.isActive(), actual.isActive());
 	}
 
 	@Test
 	public void testIncrementStreamCounter() throws Exception {
-		long rotationPeriod = 123;
-		TransportKeys keys = createTransportKeys(rotationPeriod, true);
+		long timePeriod = 123;
+		TransportKeys keys = createTransportKeys(timePeriod, true);
 		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
 
 		Database<Connection> db = open(false);
@@ -774,7 +774,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		TransportKeys k = ks.getTransportKeys();
 		assertEquals(transportId, k.getTransportId());
 		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
-		assertEquals(rotationPeriod, outCurr.getRotationPeriod());
+		assertEquals(timePeriod, outCurr.getTimePeriod());
 		assertEquals(streamCounter + 2, outCurr.getStreamCounter());
 
 		// The rest of the keys should be unaffected
@@ -791,8 +791,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testSetReorderingWindow() throws Exception {
 		boolean active = random.nextBoolean();
-		long rotationPeriod = 123;
-		TransportKeys keys = createTransportKeys(rotationPeriod, active);
+		long timePeriod = 123;
+		TransportKeys keys = createTransportKeys(timePeriod, active);
 		long base = keys.getCurrentIncomingKeys().getWindowBase();
 		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
 
@@ -808,7 +808,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Update the reordering window and retrieve the transport keys
 		random.nextBytes(bitmap);
-		db.setReorderingWindow(txn, keySetId, transportId, rotationPeriod,
+		db.setReorderingWindow(txn, keySetId, transportId, timePeriod,
 				base + 1, bitmap);
 		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
@@ -818,7 +818,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		TransportKeys k = ks.getTransportKeys();
 		assertEquals(transportId, k.getTransportId());
 		IncomingKeys inCurr = k.getCurrentIncomingKeys();
-		assertEquals(rotationPeriod, inCurr.getRotationPeriod());
+		assertEquals(timePeriod, inCurr.getTimePeriod());
 		assertEquals(base + 1, inCurr.getWindowBase());
 		assertArrayEquals(bitmap, inCurr.getWindowBitmap());
 
@@ -1978,24 +1978,23 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		return db;
 	}
 
-	private TransportKeys createTransportKeys(long rotationPeriod,
-			boolean active) {
+	private TransportKeys createTransportKeys(long timePeriod, boolean active) {
 		SecretKey inPrevTagKey = getSecretKey();
 		SecretKey inPrevHeaderKey = getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
-				rotationPeriod - 1, 123, new byte[4]);
+				timePeriod - 1, 123, new byte[4]);
 		SecretKey inCurrTagKey = getSecretKey();
 		SecretKey inCurrHeaderKey = getSecretKey();
 		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
-				rotationPeriod, 234, new byte[4]);
+				timePeriod, 234, new byte[4]);
 		SecretKey inNextTagKey = getSecretKey();
 		SecretKey inNextHeaderKey = getSecretKey();
 		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
-				rotationPeriod + 1, 345, new byte[4]);
+				timePeriod + 1, 345, new byte[4]);
 		SecretKey outCurrTagKey = getSecretKey();
 		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
-				rotationPeriod, 456, active);
+				timePeriod, 456, active);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 

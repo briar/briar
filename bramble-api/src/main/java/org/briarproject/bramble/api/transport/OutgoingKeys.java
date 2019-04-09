@@ -7,26 +7,26 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * Contains transport keys for sending streams to a given contact over a given
- * transport in a given rotation period.
+ * transport in a given time period.
  */
 @Immutable
 @NotNullByDefault
 public class OutgoingKeys {
 
 	private final SecretKey tagKey, headerKey;
-	private final long rotationPeriod, streamCounter;
+	private final long timePeriod, streamCounter;
 	private final boolean active;
 
 	public OutgoingKeys(SecretKey tagKey, SecretKey headerKey,
-			long rotationPeriod, boolean active) {
-		this(tagKey, headerKey, rotationPeriod, 0, active);
+			long timePeriod, boolean active) {
+		this(tagKey, headerKey, timePeriod, 0, active);
 	}
 
 	public OutgoingKeys(SecretKey tagKey, SecretKey headerKey,
-			long rotationPeriod, long streamCounter, boolean active) {
+			long timePeriod, long streamCounter, boolean active) {
 		this.tagKey = tagKey;
 		this.headerKey = headerKey;
-		this.rotationPeriod = rotationPeriod;
+		this.timePeriod = timePeriod;
 		this.streamCounter = streamCounter;
 		this.active = active;
 	}
@@ -39,8 +39,8 @@ public class OutgoingKeys {
 		return headerKey;
 	}
 
-	public long getRotationPeriod() {
-		return rotationPeriod;
+	public long getTimePeriod() {
+		return timePeriod;
 	}
 
 	public long getStreamCounter() {

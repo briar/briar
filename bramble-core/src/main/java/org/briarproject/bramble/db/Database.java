@@ -635,10 +635,10 @@ interface Database<T> {
 
 	/**
 	 * Sets the reordering window for the given key set and transport in the
-	 * given rotation period.
+	 * given time period.
 	 */
 	void setReorderingWindow(T txn, KeySetId k, TransportId t,
-			long rotationPeriod, long base, byte[] bitmap) throws DbException;
+			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.

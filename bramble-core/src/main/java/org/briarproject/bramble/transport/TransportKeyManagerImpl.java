@@ -51,7 +51,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final ScheduledExecutorService scheduler;
 	private final Clock clock;
 	private final TransportId transportId;
-	private final long rotationPeriodLength;
+	private final long timePeriodLength;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 	private final ReentrantLock lock = new ReentrantLock();
 
@@ -70,7 +70,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		this.scheduler = scheduler;
 		this.clock = clock;
 		this.transportId = transportId;
-		rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
+		timePeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
 	}
 
 	@Override
@@ -81,7 +81,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		try {
 			// Load the transport keys from the DB
 			Collection<KeySet> loaded = db.getTransportKeys(txn, transportId);
-			// Rotate the keys to the current rotation period
+			// Rotate the keys to the current time period
 			RotationResult rotationResult = rotateKeys(loaded, now);
 			// Initialise mutable state for all contacts
 			addKeys(rotationResult.current);
@@ -97,13 +97,13 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private RotationResult rotateKeys(Collection<KeySet> keys, long now) {
 		RotationResult rotationResult = new RotationResult();
-		long rotationPeriod = now / rotationPeriodLength;
+		long timePeriod = now / timePeriodLength;
 		for (KeySet ks : keys) {
 			TransportKeys k = ks.getTransportKeys();
 			TransportKeys k1 =
-					transportCrypto.rotateTransportKeys(k, rotationPeriod);
+					transportCrypto.rotateTransportKeys(k, timePeriod);
 			KeySet ks1 = new KeySet(ks.getKeySetId(), ks.getContactId(), k1);
-			if (k1.getRotationPeriod() > k.getRotationPeriod())
+			if (k1.getTimePeriod() > k.getTimePeriod())
 				rotationResult.rotated.add(ks1);
 			rotationResult.current.add(ks1);
 		}
@@ -155,7 +155,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	private void scheduleKeyRotation(long now) {
-		long delay = rotationPeriodLength - now % rotationPeriodLength;
+		long delay = timePeriodLength - now % timePeriodLength;
 		scheduler.schedule((Runnable) this::rotateKeys, delay, MILLISECONDS);
 	}
 
@@ -174,14 +174,14 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			long timestamp, boolean alice, boolean active) throws DbException {
 		lock.lock();
 		try {
-			// Work out what rotation period the timestamp belongs to
-			long rotationPeriod = timestamp / rotationPeriodLength;
+			// Work out what time period the timestamp belongs to
+			long timePeriod = timestamp / timePeriodLength;
 			// Derive the transport keys
 			TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
-					master, rotationPeriod, alice, active);
-			// Rotate the keys to the current rotation period if necessary
-			rotationPeriod = clock.currentTimeMillis() / rotationPeriodLength;
-			k = transportCrypto.rotateTransportKeys(k, rotationPeriod);
+					master, timePeriod, alice, active);
+			// Rotate the keys to the current time period if necessary
+			timePeriod = clock.currentTimeMillis() / timePeriodLength;
+			k = transportCrypto.rotateTransportKeys(k, timePeriod);
 			// Write the keys back to the DB
 			KeySetId keySetId = db.addTransportKeys(txn, c, k);
 			// Initialise mutable state for the contact
@@ -300,7 +300,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			}
 			// Write the window back to the DB
 			db.setReorderingWindow(txn, tagCtx.keySetId, transportId,
-					inKeys.getRotationPeriod(), window.getBase(),
+					inKeys.getTimePeriod(), window.getBase(),
 					window.getBitmap());
 			// If the outgoing keys are inactive, activate them
 			MutableKeySet ks = keys.get(tagCtx.keySetId);
@@ -322,7 +322,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		long now = clock.currentTimeMillis();
 		lock.lock();
 		try {
-			// Rotate the keys to the current rotation period
+			// Rotate the keys to the current time period
 			Collection<KeySet> snapshot = new ArrayList<>(keys.size());
 			for (MutableKeySet ks : keys.values()) {
 				snapshot.add(new KeySet(ks.getKeySetId(), ks.getContactId(),

@@ -11,19 +11,19 @@ public interface TransportCrypto {
 
 	/**
 	 * Derives initial transport keys for the given transport in the given
-	 * rotation period from the given master secret.
+	 * time period from the given master secret.
 	 *
 	 * @param alice whether the keys are for use by Alice or Bob.
 	 * @param active whether the keys are usable for outgoing streams.
 	 */
 	TransportKeys deriveTransportKeys(TransportId t, SecretKey master,
-			long rotationPeriod, boolean alice, boolean active);
+			long timePeriod, boolean alice, boolean active);
 
 	/**
-	 * Rotates the given transport keys to the given rotation period. If the
-	 * keys are for the given period or any later period they are not rotated.
+	 * Rotates the given transport keys to the given time period. If the keys
+	 * are for the given period or any later period they are not rotated.
 	 */
-	TransportKeys rotateTransportKeys(TransportKeys k, long rotationPeriod);
+	TransportKeys rotateTransportKeys(TransportKeys k, long timePeriod);
 
 	/**
 	 * Encodes the pseudo-random tag that is used to recognise a stream.

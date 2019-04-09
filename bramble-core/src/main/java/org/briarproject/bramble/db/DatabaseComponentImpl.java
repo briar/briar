@@ -956,13 +956,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void setReorderingWindow(Transaction transaction, KeySetId k,
-			TransportId t, long rotationPeriod, long base, byte[] bitmap)
+			TransportId t, long timePeriod, long base, byte[] bitmap)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
-		db.setReorderingWindow(txn, k, t, rotationPeriod, base, bitmap);
+		db.setReorderingWindow(txn, k, t, timePeriod, base, bitmap);
 	}
 
 	@Override
