@@ -20,6 +20,7 @@ import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class KeyDerivationTest extends BrambleTestCase {
@@ -137,7 +138,7 @@ public class KeyDerivationTest extends BrambleTestCase {
 	@Test
 	public void testTransportIdAffectsOutput() {
 		TransportId transportId1 = getTransportId();
-		assertFalse(transportId.getString().equals(transportId1.getString()));
+		assertNotEquals(transportId.getString(), transportId1.getString());
 		TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
 				master, 123, true, true);
 		TransportKeys k1 = transportCrypto.deriveTransportKeys(transportId1,
