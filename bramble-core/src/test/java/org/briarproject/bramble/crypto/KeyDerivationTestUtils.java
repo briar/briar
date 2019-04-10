@@ -2,9 +2,9 @@ package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.transport.AbstractTransportKeys;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
-import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -16,9 +16,9 @@ import static org.junit.Assert.assertTrue;
 
 class KeyDerivationTestUtils {
 
-	static void assertAllDifferent(TransportKeys... transportKeys) {
+	static void assertAllDifferent(AbstractTransportKeys... transportKeys) {
 		List<SecretKey> secretKeys = new ArrayList<>();
-		for (TransportKeys k : transportKeys) {
+		for (AbstractTransportKeys k : transportKeys) {
 			secretKeys.add(k.getPreviousIncomingKeys().getTagKey());
 			secretKeys.add(k.getPreviousIncomingKeys().getHeaderKey());
 			secretKeys.add(k.getCurrentIncomingKeys().getTagKey());

@@ -6,9 +6,13 @@ import org.briarproject.bramble.api.plugin.TransportId;
 
 import javax.annotation.concurrent.Immutable;
 
+/**
+ * Keys for communicating with a given contact over a given transport. Unlike
+ * {@link TransportKeys} these do not provide forward secrecy.
+ */
 @Immutable
 @NotNullByDefault
-public class StaticTransportKeys extends TransportKeys {
+public class StaticTransportKeys extends AbstractTransportKeys {
 
 	private final SecretKey rootKey;
 	private final boolean alice;
