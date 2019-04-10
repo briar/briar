@@ -116,7 +116,7 @@ class TransportCryptoImpl implements TransportCrypto {
 
 	@Override
 	public StaticTransportKeys deriveStaticTransportKeys(TransportId t,
-			SecretKey rootKey, boolean alice, long timePeriod) {
+			SecretKey rootKey, long timePeriod, boolean alice) {
 		if (timePeriod < 1) throw new IllegalArgumentException();
 		IncomingKeys inPrev = deriveStaticIncomingKeys(t, rootKey, alice,
 				timePeriod - 1);
@@ -165,7 +165,7 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	@Override
-	public StaticTransportKeys updateTransportKeys(StaticTransportKeys k,
+	public StaticTransportKeys updateStaticTransportKeys(StaticTransportKeys k,
 			long timePeriod) {
 		long elapsed = timePeriod - k.getTimePeriod();
 		TransportId t = k.getTransportId();
@@ -197,7 +197,7 @@ class TransportCryptoImpl implements TransportCrypto {
 					rootKey, alice);
 		} else {
 			// The keys are more than two periods old - derive fresh keys
-			return deriveStaticTransportKeys(t, rootKey, alice, timePeriod);
+			return deriveStaticTransportKeys(t, rootKey, timePeriod, alice);
 		}
 	}
 

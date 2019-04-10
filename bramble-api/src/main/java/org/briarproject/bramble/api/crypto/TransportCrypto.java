@@ -33,14 +33,14 @@ public interface TransportCrypto {
 	 * @param alice whether the keys are for use by Alice or Bob.
 	 */
 	StaticTransportKeys deriveStaticTransportKeys(TransportId t,
-			SecretKey rootKey, boolean alice, long timePeriod);
+			SecretKey rootKey, long timePeriod, boolean alice);
 
 	/**
 	 * Updates the given static transport keys to the given time period. If
 	 * the keys are for the given period or any later period they are not
 	 * updated.
 	 */
-	StaticTransportKeys updateTransportKeys(StaticTransportKeys k,
+	StaticTransportKeys updateStaticTransportKeys(StaticTransportKeys k,
 			long timePeriod);
 
 	/**
