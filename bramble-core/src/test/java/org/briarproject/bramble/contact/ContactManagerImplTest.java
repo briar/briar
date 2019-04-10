@@ -64,7 +64,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAddContact() throws Exception {
-		SecretKey master = getSecretKey();
+		SecretKey rootKey = getSecretKey();
 		long timestamp = System.currentTimeMillis();
 		boolean alice = new Random().nextBoolean();
 		Transaction txn = new Transaction(null, false);
@@ -73,14 +73,14 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
 			oneOf(db).addContact(txn, remote, local, verified, active);
 			will(returnValue(contactId));
-			oneOf(keyManager).addContact(txn, contactId, master, timestamp,
+			oneOf(keyManager).addContact(txn, contactId, rootKey, timestamp,
 					alice, active);
 			oneOf(db).getContact(txn, contactId);
 			will(returnValue(contact));
 		}});
 
 		assertEquals(contactId, contactManager.addContact(remote, local,
-				master, timestamp, alice, verified, active));
+				rootKey, timestamp, alice, verified, active));
 	}
 
 	@Test

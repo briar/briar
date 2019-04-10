@@ -170,7 +170,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public KeySetId addContact(Transaction txn, ContactId c, SecretKey master,
+	public KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
 			long timestamp, boolean alice, boolean active) throws DbException {
 		lock.lock();
 		try {
@@ -178,7 +178,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			long timePeriod = timestamp / timePeriodLength;
 			// Derive the transport keys
 			TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
-					master, timePeriod, alice, active);
+					rootKey, timePeriod, alice, active);
 			// Rotate the keys to the current time period if necessary
 			timePeriod = clock.currentTimeMillis() / timePeriodLength;
 			k = transportCrypto.rotateTransportKeys(k, timePeriod);

@@ -12,12 +12,12 @@ public interface TransportCrypto {
 
 	/**
 	 * Derives initial transport keys for the given transport in the given
-	 * time period from the given master secret.
+	 * time period from the given root key.
 	 *
 	 * @param alice whether the keys are for use by Alice or Bob.
 	 * @param active whether the keys are usable for outgoing streams.
 	 */
-	TransportKeys deriveTransportKeys(TransportId t, SecretKey master,
+	TransportKeys deriveTransportKeys(TransportId t, SecretKey rootKey,
 			long timePeriod, boolean alice, boolean active);
 
 	/**

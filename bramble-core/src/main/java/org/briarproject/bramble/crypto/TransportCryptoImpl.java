@@ -43,12 +43,12 @@ class TransportCryptoImpl implements TransportCrypto {
 
 	@Override
 	public TransportKeys deriveTransportKeys(TransportId t,
-			SecretKey master, long timePeriod, boolean alice, boolean active) {
-		// Keys for the previous period are derived from the master secret
-		SecretKey inTagPrev = deriveTagKey(master, t, !alice);
-		SecretKey inHeaderPrev = deriveHeaderKey(master, t, !alice);
-		SecretKey outTagPrev = deriveTagKey(master, t, alice);
-		SecretKey outHeaderPrev = deriveHeaderKey(master, t, alice);
+			SecretKey rootKey, long timePeriod, boolean alice, boolean active) {
+		// Keys for the previous period are derived from the root key
+		SecretKey inTagPrev = deriveTagKey(rootKey, t, !alice);
+		SecretKey inHeaderPrev = deriveHeaderKey(rootKey, t, !alice);
+		SecretKey outTagPrev = deriveTagKey(rootKey, t, alice);
+		SecretKey outHeaderPrev = deriveHeaderKey(rootKey, t, alice);
 		// Derive the keys for the current and next periods
 		SecretKey inTagCurr = rotateKey(inTagPrev, timePeriod);
 		SecretKey inHeaderCurr = rotateKey(inHeaderPrev, timePeriod);
@@ -70,8 +70,7 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	@Override
-	public TransportKeys rotateTransportKeys(TransportKeys k,
-			long timePeriod) {
+	public TransportKeys rotateTransportKeys(TransportKeys k, long timePeriod) {
 		if (k.getTimePeriod() >= timePeriod) return k;
 		IncomingKeys inPrev = k.getPreviousIncomingKeys();
 		IncomingKeys inCurr = k.getCurrentIncomingKeys();
@@ -101,18 +100,18 @@ class TransportCryptoImpl implements TransportCrypto {
 		return crypto.deriveKey(ROTATE_LABEL, k, period);
 	}
 
-	private SecretKey deriveTagKey(SecretKey master, TransportId t,
+	private SecretKey deriveTagKey(SecretKey rootKey, TransportId t,
 			boolean alice) {
 		String label = alice ? ALICE_TAG_LABEL : BOB_TAG_LABEL;
 		byte[] id = toUtf8(t.getString());
-		return crypto.deriveKey(label, master, id);
+		return crypto.deriveKey(label, rootKey, id);
 	}
 
-	private SecretKey deriveHeaderKey(SecretKey master, TransportId t,
+	private SecretKey deriveHeaderKey(SecretKey rootKey, TransportId t,
 			boolean alice) {
 		String label = alice ? ALICE_HEADER_LABEL : BOB_HEADER_LABEL;
 		byte[] id = toUtf8(t.getString());
-		return crypto.deriveKey(label, master, id);
+		return crypto.deriveKey(label, rootKey, id);
 	}
 
 	@Override
@@ -146,23 +145,23 @@ class TransportCryptoImpl implements TransportCrypto {
 		return new OutgoingKeys(tag, header, timePeriod, true);
 	}
 
-	private SecretKey deriveStaticTagKey(TransportId t, SecretKey root,
+	private SecretKey deriveStaticTagKey(TransportId t, SecretKey rootKey,
 			boolean alice, long timePeriod) {
 		String label = alice ? ALICE_STATIC_TAG_LABEL : BOB_STATIC_TAG_LABEL;
 		byte[] id = toUtf8(t.getString());
 		byte[] period = new byte[INT_64_BYTES];
 		writeUint64(timePeriod, period, 0);
-		return crypto.deriveKey(label, root, id, period);
+		return crypto.deriveKey(label, rootKey, id, period);
 	}
 
-	private SecretKey deriveStaticHeaderKey(TransportId t, SecretKey root,
+	private SecretKey deriveStaticHeaderKey(TransportId t, SecretKey rootKey,
 			boolean alice, long timePeriod) {
 		String label =
 				alice ? ALICE_STATIC_HEADER_LABEL : BOB_STATIC_HEADER_LABEL;
 		byte[] id = toUtf8(t.getString());
 		byte[] period = new byte[INT_64_BYTES];
 		writeUint64(timePeriod, period, 0);
-		return crypto.deriveKey(label, root, id, period);
+		return crypto.deriveKey(label, rootKey, id, period);
 	}
 
 	@Override

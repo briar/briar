@@ -77,7 +77,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private volatile LocalAuthor localAuthor;
 	private volatile DuplexTransportConnection conn;
 	private volatile TransportId transportId;
-	private volatile SecretKey masterSecret;
+	private volatile SecretKey masterKey;
 	private volatile boolean alice;
 
 	@Inject
@@ -104,13 +104,13 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	}
 
 	@Override
-	public void startExchange(LocalAuthor localAuthor, SecretKey masterSecret,
+	public void startExchange(LocalAuthor localAuthor, SecretKey masterKey,
 			DuplexTransportConnection conn, TransportId transportId,
 			boolean alice) {
 		this.localAuthor = localAuthor;
 		this.conn = conn;
 		this.transportId = transportId;
-		this.masterSecret = masterSecret;
+		this.masterKey = masterKey;
 		this.alice = alice;
 		start();
 	}
@@ -142,9 +142,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		}
 
 		// Derive the header keys for the transport streams
-		SecretKey aliceHeaderKey = crypto.deriveKey(ALICE_KEY_LABEL,
-				masterSecret, new byte[] {PROTOCOL_VERSION});
-		SecretKey bobHeaderKey = crypto.deriveKey(BOB_KEY_LABEL, masterSecret,
+		SecretKey aliceHeaderKey = crypto.deriveKey(ALICE_KEY_LABEL, masterKey,
+				new byte[] {PROTOCOL_VERSION});
+		SecretKey bobHeaderKey = crypto.deriveKey(BOB_KEY_LABEL, masterKey,
 				new byte[] {PROTOCOL_VERSION});
 
 		// Create the readers
@@ -163,9 +163,9 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 						.createRecordWriter(streamWriter.getOutputStream());
 
 		// Derive the nonces to be signed
-		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterSecret,
+		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterKey,
 				new byte[] {PROTOCOL_VERSION});
-		byte[] bobNonce = crypto.mac(BOB_NONCE_LABEL, masterSecret,
+		byte[] bobNonce = crypto.mac(BOB_NONCE_LABEL, masterKey,
 				new byte[] {PROTOCOL_VERSION});
 		byte[] localNonce = alice ? aliceNonce : bobNonce;
 		byte[] remoteNonce = alice ? bobNonce : aliceNonce;
@@ -293,7 +293,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			throws DbException {
 		return db.transactionWithResult(false, txn -> {
 			ContactId contactId = contactManager.addContact(txn, remoteAuthor,
-					localAuthor.getId(), masterSecret, timestamp, alice,
+					localAuthor.getId(), masterKey, timestamp, alice,
 					true, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);

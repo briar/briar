@@ -82,23 +82,23 @@ public interface TransportConstants {
 	int REORDERING_WINDOW_SIZE = 32;
 
 	/**
-	 * Label for deriving Alice's initial tag key from the master secret.
+	 * Label for deriving Alice's initial tag key from the root key.
 	 */
 	String ALICE_TAG_LABEL = "org.briarproject.bramble.transport/ALICE_TAG_KEY";
 
 	/**
-	 * Label for deriving Bob's initial tag key from the master secret.
+	 * Label for deriving Bob's initial tag key from the root key.
 	 */
 	String BOB_TAG_LABEL = "org.briarproject.bramble.transport/BOB_TAG_KEY";
 
 	/**
-	 * Label for deriving Alice's initial header key from the master secret.
+	 * Label for deriving Alice's initial header key from the root key.
 	 */
 	String ALICE_HEADER_LABEL =
 			"org.briarproject.bramble.transport/ALICE_HEADER_KEY";
 
 	/**
-	 * Label for deriving Bob's initial header key from the master secret.
+	 * Label for deriving Bob's initial header key from the root key.
 	 */
 	String BOB_HEADER_LABEL =
 			"org.briarproject.bramble.transport/BOB_HEADER_KEY";

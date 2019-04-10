@@ -69,10 +69,10 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey master, long timestamp, boolean alice, boolean verified,
+			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
 		ContactId c = db.addContact(txn, remote, local, verified, active);
-		keyManager.addContact(txn, c, master, timestamp, alice, active);
+		keyManager.addContact(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -88,11 +88,11 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
-			long timestamp, boolean alice, boolean verified, boolean active)
-			throws DbException {
+	public ContactId addContact(Author remote, AuthorId local,
+			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
+			boolean active) throws DbException {
 		return db.transactionWithResult(false, txn ->
-				addContact(txn, remote, local, master, timestamp, alice,
+				addContact(txn, remote, local, rootKey, timestamp, alice,
 						verified, active));
 	}
 

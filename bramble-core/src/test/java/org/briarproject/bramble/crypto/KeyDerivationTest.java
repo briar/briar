@@ -30,12 +30,12 @@ public class KeyDerivationTest extends BrambleTestCase {
 	private final TransportCrypto transportCrypto =
 			new TransportCryptoImpl(crypto);
 	private final TransportId transportId = getTransportId();
-	private final SecretKey master = getSecretKey();
+	private final SecretKey rootKey = getSecretKey();
 
 	@Test
 	public void testKeysAreDistinct() {
 		TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, true, true);
+				rootKey, 123, true, true);
 		assertAllDifferent(k);
 	}
 
@@ -43,9 +43,9 @@ public class KeyDerivationTest extends BrambleTestCase {
 	public void testCurrentKeysMatchCurrentKeysOfContact() {
 		// Start in time period 123
 		TransportKeys kA = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, true, true);
+				rootKey, 123, true, true);
 		TransportKeys kB = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, false, true);
+				rootKey, 123, false, true);
 		// Alice's incoming keys should equal Bob's outgoing keys
 		assertArrayEquals(kA.getCurrentIncomingKeys().getTagKey().getBytes(),
 				kB.getCurrentOutgoingKeys().getTagKey().getBytes());
@@ -75,9 +75,9 @@ public class KeyDerivationTest extends BrambleTestCase {
 	public void testPreviousKeysMatchPreviousKeysOfContact() {
 		// Start in time period 123
 		TransportKeys kA = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, true, true);
+				rootKey, 123, true, true);
 		TransportKeys kB = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, false, true);
+				rootKey, 123, false, true);
 		// Compare Alice's previous keys in period 456 with Bob's current keys
 		// in period 455
 		kA = transportCrypto.rotateTransportKeys(kA, 456);
@@ -102,9 +102,9 @@ public class KeyDerivationTest extends BrambleTestCase {
 	public void testNextKeysMatchNextKeysOfContact() {
 		// Start in time period 123
 		TransportKeys kA = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, true, true);
+				rootKey, 123, true, true);
 		TransportKeys kB = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, false, true);
+				rootKey, 123, false, true);
 		// Compare Alice's current keys in period 456 with Bob's next keys in
 		// period 455
 		kA = transportCrypto.rotateTransportKeys(kA, 456);
@@ -125,13 +125,13 @@ public class KeyDerivationTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testMasterKeyAffectsOutput() {
-		SecretKey master1 = getSecretKey();
-		assertFalse(Arrays.equals(master.getBytes(), master1.getBytes()));
+	public void testRootKeyAffectsOutput() {
+		SecretKey rootKey1 = getSecretKey();
+		assertFalse(Arrays.equals(rootKey.getBytes(), rootKey1.getBytes()));
 		TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, true, true);
+				rootKey, 123, true, true);
 		TransportKeys k1 = transportCrypto.deriveTransportKeys(transportId,
-				master1, 123, true, true);
+				rootKey1, 123, true, true);
 		assertAllDifferent(k, k1);
 	}
 
@@ -140,9 +140,9 @@ public class KeyDerivationTest extends BrambleTestCase {
 		TransportId transportId1 = getTransportId();
 		assertNotEquals(transportId.getString(), transportId1.getString());
 		TransportKeys k = transportCrypto.deriveTransportKeys(transportId,
-				master, 123, true, true);
+				rootKey, 123, true, true);
 		TransportKeys k1 = transportCrypto.deriveTransportKeys(transportId1,
-				master, 123, true, true);
+				rootKey, 123, true, true);
 		assertAllDifferent(k, k1);
 	}
 

@@ -28,7 +28,7 @@ public interface KeyManager {
 	 * @param active whether the derived keys can be used for outgoing streams
 	 */
 	Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
-			SecretKey master, long timestamp, boolean alice, boolean active)
+			SecretKey rootKey, long timestamp, boolean alice, boolean active)
 			throws DbException;
 
 	/**
