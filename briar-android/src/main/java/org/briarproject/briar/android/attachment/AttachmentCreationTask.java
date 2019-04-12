@@ -37,7 +37,7 @@ class AttachmentCreationTask {
 	private final List<Uri> uris;
 	private final boolean needsSize;
 	@Nullable
-	private AttachmentCreator attachmentCreator;
+	private volatile AttachmentCreator attachmentCreator;
 
 	private volatile boolean canceled = false;
 
@@ -61,9 +61,10 @@ class AttachmentCreationTask {
 	@IoExecutor
 	public void storeAttachments() {
 		for (Uri uri: uris) processUri(uri);
+		AttachmentCreator attachmentCreator = this.attachmentCreator;
 		if (!canceled && attachmentCreator != null)
 			attachmentCreator.onAttachmentCreationFinished();
-		attachmentCreator = null;
+		this.attachmentCreator = null;
 	}
 
 	@IoExecutor
@@ -71,16 +72,17 @@ class AttachmentCreationTask {
 		if (canceled) return;
 		try {
 			AttachmentHeader h = storeAttachment(uri);
+			AttachmentCreator attachmentCreator = this.attachmentCreator;
 			if (attachmentCreator != null) {
-				attachmentCreator
-						.onAttachmentHeaderReceived(uri, h, needsSize);
+				attachmentCreator.onAttachmentHeaderReceived(uri, h, needsSize);
 			}
 		} catch (DbException | IOException e) {
 			logException(LOG, WARNING, e);
+			AttachmentCreator attachmentCreator = this.attachmentCreator;
 			if (attachmentCreator != null) {
 				attachmentCreator.onAttachmentError(uri, e);
-				canceled = true;
 			}
+			canceled = true;
 		}
 	}
 
@@ -90,9 +92,10 @@ class AttachmentCreationTask {
 		long start = now();
 		String contentType = contentResolver.getType(uri);
 		if (contentType == null) throw new IOException("null content type");
-		if (!isValidMimeType(contentType))
-			throw new UnsupportedMimeTypeException("", contentType,
-					uri.toString());
+		if (!isValidMimeType(contentType)) {
+			String uriString = uri.toString();
+			throw new UnsupportedMimeTypeException("", contentType, uriString);
+		}
 		InputStream is = contentResolver.openInputStream(uri);
 		if (is == null) throw new IOException();
 		long timestamp = System.currentTimeMillis();

@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.List;
 
 @UiThread
-public interface AttachmentManager{
+public interface AttachmentManager {
 
 	AttachmentResult storeAttachments(Collection<Uri> uri);
 

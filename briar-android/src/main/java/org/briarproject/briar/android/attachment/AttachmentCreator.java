@@ -44,7 +44,7 @@ public class AttachmentCreator {
 	@IoExecutor
 	private final Executor ioExecutor;
 	private final MessagingManager messagingManager;
-	private final AttachmentRetriever controller;
+	private final AttachmentRetriever retriever;
 
 	private final Map<Uri, AttachmentItem> unsentItems =
 			new ConcurrentHashMap<>();
@@ -57,12 +57,11 @@ public class AttachmentCreator {
 	private AttachmentCreationTask task;
 
 	public AttachmentCreator(Application app, @IoExecutor Executor ioExecutor,
-			MessagingManager messagingManager,
-			AttachmentRetriever controller) {
+			MessagingManager messagingManager, AttachmentRetriever retriever) {
 		this.app = app;
 		this.ioExecutor = ioExecutor;
 		this.messagingManager = messagingManager;
-		this.controller = controller;
+		this.retriever = retriever;
 	}
 
 	@UiThread
@@ -101,8 +100,8 @@ public class AttachmentCreator {
 			boolean needsSize) {
 		// get and cache AttachmentItem for ImagePreview
 		try {
-			Attachment a = controller.getMessageAttachment(h);
-			AttachmentItem item = controller.getAttachmentItem(h, a, needsSize);
+			Attachment a = retriever.getMessageAttachment(h);
+			AttachmentItem item = retriever.getAttachmentItem(h, a, needsSize);
 			if (item.hasError()) throw new IOException();
 			unsentItems.put(uri, item);
 			MutableLiveData<AttachmentItemResult> result =
@@ -156,7 +155,7 @@ public class AttachmentCreator {
 	 * @param id The MessageId of the sent message.
 	 */
 	public void onAttachmentsSent(MessageId id) {
-		controller.cachePut(id, new ArrayList<>(unsentItems.values()));
+		retriever.cachePut(id, new ArrayList<>(unsentItems.values()));
 		resetState();
 	}
 

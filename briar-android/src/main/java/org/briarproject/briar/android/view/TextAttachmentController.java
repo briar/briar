@@ -138,6 +138,16 @@ public class TextAttachmentController extends TextSendController
 		return intent;
 	}
 
+	/**
+	 * This is called with the result Intent
+	 * returned by the Activity started with {@link #getAttachFileIntent()}.
+	 * <p>
+	 * This method must be called at most once per call to
+	 * {@link AttachImageListener#onAttachImage(Intent)}.
+	 * Normally, this is true if called from
+	 * {@link Activity#onActivityResult(int, int, Intent)} since this is called
+	 * at most once per call to {@link Activity#startActivityForResult(Intent, int)}.
+	 */
 	public void onImageReceived(@Nullable Intent resultData) {
 		if (resultData == null) return;
 		if (loadingUris || !imageUris.isEmpty()) throw new AssertionError();
