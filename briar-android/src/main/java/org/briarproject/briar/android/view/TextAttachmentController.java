@@ -153,17 +153,17 @@ public class TextAttachmentController extends TextSendController
 		if (loadingUris || !imageUris.isEmpty()) throw new AssertionError();
 		if (resultData.getData() != null) {
 			imageUris.add(resultData.getData());
-			onNewUris();
+			onNewUris(false);
 		} else if (SDK_INT >= 18 && resultData.getClipData() != null) {
 			ClipData clipData = resultData.getClipData();
 			for (int i = 0; i < clipData.getItemCount(); i++) {
 				imageUris.add(clipData.getItemAt(i).getUri());
 			}
-			onNewUris();
+			onNewUris(false);
 		}
 	}
 
-	private void onNewUris() {
+	private void onNewUris(boolean restart) {
 		if (imageUris.isEmpty()) return;
 		if (loadingUris) throw new AssertionError();
 		loadingUris = true;
@@ -172,7 +172,8 @@ public class TextAttachmentController extends TextSendController
 		List<ImagePreviewItem> items = ImagePreviewItem.fromUris(imageUris);
 		imagePreview.showPreview(items);
 		// store attachments and show preview when successful
-		AttachmentResult result = attachmentManager.storeAttachments(imageUris);
+		AttachmentResult result =
+				attachmentManager.storeAttachments(imageUris, restart);
 		for (LiveData<AttachmentItemResult> liveData : result
 				.getItemResults()) {
 			onLiveDataReturned(liveData);
@@ -240,7 +241,7 @@ public class TextAttachmentController extends TextSendController
 		SavedState state = (SavedState) inState;
 		if (!imageUris.isEmpty()) throw new AssertionError();
 		if (state.imageUris != null) imageUris.addAll(state.imageUris);
-		onNewUris();
+		onNewUris(true);
 		return state.getSuperState();
 	}
 

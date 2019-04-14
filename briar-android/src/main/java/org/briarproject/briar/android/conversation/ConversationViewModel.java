@@ -150,8 +150,7 @@ public class ConversationViewModel extends AndroidViewModel
 				contact.postValue(c);
 				logDuration(LOG, "Loading contact", start);
 				start = now();
-				messagingGroupId =
-						messagingManager.getConversationId(contactId);
+				messagingGroupId = messagingManager.getContactGroup(c).getId();
 				logDuration(LOG, "Load conversation GroupId", start);
 				start = now();
 				checkFeaturesAndOnboarding(contactId);
@@ -197,10 +196,11 @@ public class ConversationViewModel extends AndroidViewModel
 
 	@Override
 	@UiThread
-	public AttachmentResult storeAttachments(Collection<Uri> uris) {
+	public AttachmentResult storeAttachments(Collection<Uri> uris,
+			boolean restart) {
 		GroupId groupId = messagingGroupId;
 		if (groupId == null) throw new IllegalStateException();
-		return attachmentCreator.storeAttachments(groupId, uris);
+		return attachmentCreator.storeAttachments(groupId, uris, restart);
 	}
 
 	@Override

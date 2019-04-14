@@ -11,7 +11,7 @@ import java.util.List;
 @UiThread
 public interface AttachmentManager {
 
-	AttachmentResult storeAttachments(Collection<Uri> uri);
+	AttachmentResult storeAttachments(Collection<Uri> uri, boolean restart);
 
 	List<AttachmentHeader> getAttachmentHeadersForSending();
 

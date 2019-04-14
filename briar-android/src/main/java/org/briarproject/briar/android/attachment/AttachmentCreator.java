@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -46,6 +45,7 @@ public class AttachmentCreator {
 	private final MessagingManager messagingManager;
 	private final AttachmentRetriever retriever;
 
+	// store unsent items separately, as LiveData might not return latest value
 	private final Map<Uri, AttachmentItem> unsentItems =
 			new ConcurrentHashMap<>();
 	private final Map<Uri, MutableLiveData<AttachmentItemResult>>
@@ -66,32 +66,38 @@ public class AttachmentCreator {
 
 	@UiThread
 	public AttachmentResult storeAttachments(GroupId groupId,
-			Collection<Uri> uris) {
-		if (task != null && !isStoring()) throw new AssertionError();
+			Collection<Uri> uris, boolean restart) {
 		List<LiveData<AttachmentItemResult>> itemResults = new ArrayList<>();
-		List<Uri> urisToStore = new ArrayList<>();
-		for (Uri uri : uris) {
-			MutableLiveData<AttachmentItemResult> liveData =
-					new MutableLiveData<>();
-			itemResults.add(liveData);
-			liveDataResult.put(uri, liveData);
-			if (unsentItems.containsKey(uri)) {
-				// This can happen due to configuration changes.
-				// So don't create a new attachment, if we have one already.
-				AttachmentItem item = requireNonNull(unsentItems.get(uri));
-				AttachmentItemResult result =
-						new AttachmentItemResult(uri, item);
-				liveData.setValue(result);
-			} else {
-				urisToStore.add(uri);
+		if (restart) {
+			// This can happen due to configuration changes.
+			// So don't create new attachments, if we have (or creating) them.
+			// Instead, re-subscribe to the existing LiveData.
+			if (task == null || isNotStoring()) throw new AssertionError();
+			for (Uri uri : uris) {
+				// We don't want to expose mutable(!) LiveData
+				LiveData<AttachmentItemResult> liveData =
+						liveDataResult.get(uri);
+				if (liveData == null) throw new IllegalStateException();
+				itemResults.add(liveData);
 			}
+			if (liveDataFinished == null) throw new IllegalStateException();
+		} else {
+			if (task != null && isNotStoring()) throw new AssertionError();
+			List<Uri> urisToStore = new ArrayList<>();
+			for (Uri uri : uris) {
+				urisToStore.add(uri);
+				MutableLiveData<AttachmentItemResult> liveData =
+						new MutableLiveData<>();
+				liveDataResult.put(uri, liveData);
+				itemResults.add(liveData);
+			}
+			boolean needsSize = uris.size() == 1;
+			task = new AttachmentCreationTask(messagingManager,
+					app.getContentResolver(), this, groupId, urisToStore,
+					needsSize);
+			ioExecutor.execute(() -> task.storeAttachments());
+			liveDataFinished = new MutableLiveData<>();
 		}
-		boolean needsSize = uris.size() == 1;
-		task = new AttachmentCreationTask(messagingManager,
-				app.getContentResolver(), this, groupId, urisToStore,
-				needsSize);
-		ioExecutor.execute(() -> task.storeAttachments());
-		liveDataFinished = new MutableLiveData<>();
 		return new AttachmentResult(itemResults, liveDataFinished);
 	}
 
@@ -185,6 +191,7 @@ public class AttachmentCreator {
 
 	@UiThread
 	public void deleteUnsentAttachments() {
+		// Make a copy for the IoExecutor as we clear the unsentItems soon
 		List<AttachmentItem> itemsToDelete =
 				new ArrayList<>(unsentItems.values());
 		ioExecutor.execute(() -> {
@@ -198,8 +205,8 @@ public class AttachmentCreator {
 		});
 	}
 
-	private boolean isStoring() {
-		return liveDataFinished != null;
+	private boolean isNotStoring() {
+		return liveDataFinished == null;
 	}
 
 }
