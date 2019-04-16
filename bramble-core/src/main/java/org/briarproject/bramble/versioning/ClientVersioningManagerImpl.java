@@ -12,6 +12,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -58,6 +60,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
+	private final IdentityManager identityManager;
 	private final ContactGroupFactory contactGroupFactory;
 	private final Clock clock;
 	private final Group localGroup;
@@ -68,9 +71,11 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	@Inject
 	ClientVersioningManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			IdentityManager identityManager,
 			ContactGroupFactory contactGroupFactory, Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.identityManager = identityManager;
 		this.contactGroupFactory = contactGroupFactory;
 		this.clock = clock;
 		localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
@@ -154,7 +159,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group and share it with the contact
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.addGroup(txn, g);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 		// Attach the contact ID to the group
@@ -173,7 +178,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		db.removeGroup(txn, getContactGroup(c));
+		db.removeGroup(txn, getContactGroup(c, getLocalAuthorId(txn)));
 	}
 
 	@Override
@@ -308,7 +313,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 			List<ClientVersion> versions) throws DbException {
 		try {
 			// Find the latest local and remote updates
-			Group g = getContactGroup(c);
+			Group g = getContactGroup(c, getLocalAuthorId(txn));
 			LatestUpdates latest = findLatestUpdates(txn, g.getId());
 			// Load and parse the latest local update
 			if (latest.local == null) throw new DbException();
@@ -344,16 +349,20 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 		}
 	}
 
-	private Group getContactGroup(Contact c) {
+	private AuthorId getLocalAuthorId(Transaction txn) throws DbException {
+		return identityManager.getLocalAuthor(txn).getId();
+	}
+
+	private Group getContactGroup(Contact c, AuthorId local) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, c);
+				MAJOR_VERSION, c, local);
 	}
 
 	@Nullable
 	private LatestUpdates findLatestUpdates(Transaction txn, ContactId c)
 			throws DbException, FormatException {
 		Contact contact = db.getContact(txn, c);
-		Group g = getContactGroup(contact);
+		Group g = getContactGroup(contact, getLocalAuthorId(txn));
 		// Contact may be in the process of being added or removed, so
 		// contact group may not exist
 		if (!db.containsGroup(txn, g.getId())) return null;

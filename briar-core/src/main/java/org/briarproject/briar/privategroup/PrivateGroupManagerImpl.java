@@ -17,8 +17,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.AuthorInfo.Status;
-import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -83,7 +81,6 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 
 	private final PrivateGroupFactory privateGroupFactory;
 	private final ContactManager contactManager;
-	private final IdentityManager identityManager;
 	private final MessageTracker messageTracker;
 	private final List<PrivateGroupHook> hooks;
 
@@ -91,12 +88,10 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	PrivateGroupManagerImpl(ClientHelper clientHelper,
 			MetadataParser metadataParser, DatabaseComponent db,
 			PrivateGroupFactory privateGroupFactory,
-			ContactManager contactManager, IdentityManager identityManager,
-			MessageTracker messageTracker) {
+			ContactManager contactManager, MessageTracker messageTracker) {
 		super(db, clientHelper, metadataParser);
 		this.privateGroupFactory = privateGroupFactory;
 		this.contactManager = contactManager;
-		this.identityManager = identityManager;
 		this.messageTracker = messageTracker;
 		hooks = new CopyOnWriteArrayList<>();
 	}
@@ -398,18 +393,17 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		try {
 			Collection<GroupMember> members = new ArrayList<>();
 			Map<Author, Visibility> authors = getMembers(txn, g);
-			LocalAuthor la = identityManager.getLocalAuthor(txn);
 			PrivateGroup privateGroup = getPrivateGroup(txn, g);
 			for (Entry<Author, Visibility> m : authors.entrySet()) {
 				Author a = m.getKey();
-				AuthorInfo authorInfo = contactManager.getAuthorInfo(txn, a.getId());
+				AuthorInfo authorInfo =
+						contactManager.getAuthorInfo(txn, a.getId());
 				Status status = authorInfo.getStatus();
 				Visibility v = m.getValue();
 				ContactId c = null;
 				if (v != INVISIBLE &&
 						(status == VERIFIED || status == UNVERIFIED)) {
-					c = contactManager.getContact(txn, a.getId(), la.getId())
-							.getId();
+					c = contactManager.getContact(txn, a.getId()).getId();
 				}
 				boolean isCreator = privateGroup.getCreator().equals(a);
 				members.add(new GroupMember(a, authorInfo, isCreator, c, v));
@@ -483,8 +477,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		if (!foundMember) throw new ProtocolStateException();
 		if (changed) {
 			clientHelper.mergeGroupMetadata(txn, g, meta);
-			LocalAuthor la = identityManager.getLocalAuthor(txn);
-			ContactId c = contactManager.getContact(txn, a, la.getId()).getId();
+			ContactId c = contactManager.getContact(txn, a).getId();
 			Event e = new ContactRelationshipRevealedEvent(g, a, c, v);
 			txn.attach(e);
 		}

@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
@@ -36,6 +38,7 @@ import static org.briarproject.bramble.api.versioning.ClientVersioningManager.MA
 import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
+import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
@@ -48,12 +51,15 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final ClientHelper clientHelper = context.mock(ClientHelper.class);
+	private final IdentityManager identityManager =
+			context.mock(IdentityManager.class);
 	private final ContactGroupFactory contactGroupFactory =
 			context.mock(ContactGroupFactory.class);
 	private final Clock clock = context.mock(Clock.class);
 	private final ClientVersioningHook hook =
 			context.mock(ClientVersioningHook.class);
 
+	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Contact contact = getContact();
@@ -68,7 +74,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(localGroup));
 		}});
 		return new ClientVersioningManagerImpl(db, clientHelper,
-				contactGroupFactory, clock);
+				identityManager, contactGroupFactory, clock);
 	}
 
 	@Test
@@ -117,8 +123,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_LOCAL, true));
 
 		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			oneOf(db).addGroup(txn, contactGroup);
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
@@ -138,8 +146,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testRemovesGroupWhenRemovingContact() throws Exception {
 		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			oneOf(db).removeGroup(txn, contactGroup);
 		}});
@@ -174,10 +184,12 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).addLocalMessage(txn, localVersions, new Metadata(),
 					false);
 			// Inform contacts that client versions have changed
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			// Find the latest local and remote updates (no remote update)
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
@@ -261,10 +273,12 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).addLocalMessage(txn, newLocalVersions, new Metadata(),
 					false);
 			// Inform contacts that client versions have changed
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			// Find the latest local and remote updates (no remote update)
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
@@ -357,10 +371,12 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).addLocalMessage(txn, newLocalVersions, new Metadata(),
 					false);
 			// Inform contacts that client versions have changed
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact)));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			// Find the latest local and remote updates
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
@@ -970,8 +986,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(db).getContact(txn, contact.getId());
 			will(returnValue(contact));
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			oneOf(db).containsGroup(txn, contactGroup.getId());
 			will(returnValue(exists));

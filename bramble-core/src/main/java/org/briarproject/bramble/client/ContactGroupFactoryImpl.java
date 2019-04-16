@@ -39,8 +39,7 @@ class ContactGroupFactoryImpl implements ContactGroupFactory {
 
 	@Override
 	public Group createContactGroup(ClientId clientId, int majorVersion,
-			Contact contact) {
-		AuthorId local = contact.getLocalAuthorId();
+			Contact contact, AuthorId local) {
 		AuthorId remote = contact.getAuthor().getId();
 		byte[] descriptor = createGroupDescriptor(local, remote);
 		return groupFactory.createGroup(clientId, majorVersion, descriptor);

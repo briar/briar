@@ -14,6 +14,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
@@ -81,13 +83,15 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
+			IdentityManager identityManager,
 			ContactGroupFactory contactGroupFactory,
 			PrivateGroupFactory privateGroupFactory,
 			PrivateGroupManager privateGroupManager,
 			MessageParser messageParser, SessionParser sessionParser,
 			SessionEncoder sessionEncoder,
 			ProtocolEngineFactory engineFactory) {
-		super(db, clientHelper, metadataParser, messageTracker);
+		super(db, clientHelper, metadataParser, messageTracker,
+				identityManager);
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 		this.privateGroupFactory = privateGroupFactory;
@@ -114,7 +118,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.addGroup(txn, g);
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
@@ -138,13 +142,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		// Remove the contact group (all messages will be removed with it)
-		db.removeGroup(txn, getContactGroup(c));
+		db.removeGroup(txn, getContactGroup(c, getLocalAuthorId(txn)));
 	}
 
 	@Override
-	public Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c, AuthorId local) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, c);
+				MAJOR_VERSION, c, local);
 	}
 
 	@Override
@@ -267,7 +271,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		try {
 			// Look up the session, if there is one
 			Contact contact = db.getContact(txn, c);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// Create or parse the session
 			CreatorSession session;
@@ -308,7 +313,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			if (ss == null) throw new IllegalArgumentException();
 			// Parse the session
@@ -333,7 +339,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			StoredSession ss = getSession(txn, contactGroupId, getSessionId(g));
 			if (ss == null) throw new IllegalArgumentException();
 			// Parse the session
@@ -368,11 +375,12 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn,
-			ContactId c) throws DbException {
+	public Collection<ConversationMessageHeader> getMessageHeaders(
+			Transaction txn, ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
@@ -436,8 +444,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		Transaction txn = db.startTransaction(true);
 		try {
 			// Look up the available invite messages for each contact
+			AuthorId local = getLocalAuthorId(txn);
 			for (Contact c : db.getContacts(txn)) {
-				GroupId contactGroupId = getContactGroup(c).getId();
+				GroupId contactGroupId = getContactGroup(c, local).getId();
 				Map<MessageId, BdfDictionary> results =
 						clientHelper.getMessageMetadataAsDictionary(txn,
 								contactGroupId, query);
@@ -456,10 +465,11 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public boolean isInvitationAllowed(Contact c, GroupId privateGroupId)
 			throws DbException {
-		GroupId contactGroupId = getContactGroup(c).getId();
 		SessionId sessionId = getSessionId(privateGroupId);
 		Transaction txn = db.startTransaction(true);
 		try {
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(c, local).getId();
 			Visibility client = clientVersioningManager.getClientVisibility(txn,
 					c.getId(), PrivateGroupManager.CLIENT_ID,
 					PrivateGroupManager.MAJOR_VERSION);
@@ -492,15 +502,17 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void addingMember(Transaction txn, GroupId privateGroupId, Author a)
 			throws DbException {
 		// If the member is a contact, handle the add member action
-		for (Contact c : db.getContactsByAuthorId(txn, a.getId()))
-			addingMember(txn, privateGroupId, c);
+		if (db.containsContact(txn, a.getId())) {
+			addingMember(txn, privateGroupId, db.getContact(txn, a.getId()));
+		}
 	}
 
 	private void addingMember(Transaction txn, GroupId privateGroupId,
 			Contact c) throws DbException {
 		try {
 			// Look up the session for the contact, if there is one
-			GroupId contactGroupId = getContactGroup(c).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(c, local).getId();
 			SessionId sessionId = getSessionId(privateGroupId);
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// Create or parse the session
@@ -533,9 +545,10 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		SessionId sessionId = getSessionId(privateGroupId);
 		// If we have any sessions in progress, tell the contacts we're leaving
 		try {
+			AuthorId local = getLocalAuthorId(txn);
 			for (Contact c : db.getContacts(txn)) {
 				// Look up the session for the contact, if there is one
-				GroupId contactGroupId = getContactGroup(c).getId();
+				GroupId contactGroupId = getContactGroup(c, local).getId();
 				StoredSession ss = getSession(txn, contactGroupId, sessionId);
 				if (ss == null) continue; // No session for this contact
 				// Handle the action
@@ -574,7 +587,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	public void onClientVisibilityChanging(Transaction txn, Contact c,
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
@@ -603,7 +616,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	private Map<GroupId, Visibility> getPreferredVisibilities(Transaction txn,
 			Contact c) throws DbException, FormatException {
-		GroupId contactGroupId = getContactGroup(c).getId();
+		AuthorId local = getLocalAuthorId(txn);
+		GroupId contactGroupId = getContactGroup(c, local).getId();
 		BdfDictionary query = sessionParser.getAllSessionsQuery();
 		Map<MessageId, BdfDictionary> results = clientHelper
 				.getMessageMetadataAsDictionary(txn, contactGroupId, query);

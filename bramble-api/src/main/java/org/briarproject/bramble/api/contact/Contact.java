@@ -1,7 +1,6 @@
 package org.briarproject.bramble.api.contact;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.Nullable;
@@ -17,16 +16,14 @@ public class Contact {
 
 	private final ContactId id;
 	private final Author author;
-	private final AuthorId localAuthorId;
 	@Nullable
 	private final String alias;
 	@Nullable
 	private final byte[] handshakePublicKey;
 	private final boolean verified;
 
-	public Contact(ContactId id, Author author, AuthorId localAuthorId,
-			@Nullable String alias, @Nullable byte[] handshakePublicKey,
-			boolean verified) {
+	public Contact(ContactId id, Author author, @Nullable String alias,
+			@Nullable byte[] handshakePublicKey, boolean verified) {
 		if (alias != null) {
 			int aliasLength = toUtf8(alias).length;
 			if (aliasLength == 0 || aliasLength > MAX_AUTHOR_NAME_LENGTH)
@@ -38,7 +35,6 @@ public class Contact {
 		}
 		this.id = id;
 		this.author = author;
-		this.localAuthorId = localAuthorId;
 		this.alias = alias;
 		this.handshakePublicKey = handshakePublicKey;
 		this.verified = verified;
@@ -50,10 +46,6 @@ public class Contact {
 
 	public Author getAuthor() {
 		return author;
-	}
-
-	public AuthorId getLocalAuthorId() {
-		return localAuthorId;
 	}
 
 	@Nullable

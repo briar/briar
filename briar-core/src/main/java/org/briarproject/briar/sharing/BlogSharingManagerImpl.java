@@ -28,7 +28,6 @@ import javax.inject.Inject;
 class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 		implements BlogSharingManager, RemoveBlogHook {
 
-	private final IdentityManager identityManager;
 	private final BlogManager blogManager;
 
 	@Inject
@@ -43,8 +42,8 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 			IdentityManager identityManager, BlogManager blogManager) {
 		super(db, clientHelper, clientVersioningManager, metadataParser,
 				messageParser, sessionEncoder, sessionParser, messageTracker,
-				contactGroupFactory, engine, invitationFactory);
-		this.identityManager = identityManager;
+				identityManager, contactGroupFactory, engine,
+				invitationFactory);
 		this.blogManager = blogManager;
 	}
 
@@ -80,8 +79,8 @@ class BlogSharingManagerImpl extends SharingManagerImpl<Blog>
 
 		// Pre-share both blogs, if they have not been shared already
 		try {
-			preShareGroup(txn, c, ourBlog.getGroup());
-			preShareGroup(txn, c, theirBlog.getGroup());
+			preShareGroup(txn, c, ourBlog.getGroup(), localAuthor.getId());
+			preShareGroup(txn, c, theirBlog.getGroup(), localAuthor.getId());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

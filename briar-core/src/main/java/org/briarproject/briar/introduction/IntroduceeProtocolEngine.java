@@ -249,9 +249,7 @@ class IntroduceeProtocolEngine
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
 		// Broadcast IntroductionRequestReceivedEvent
-		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-		Contact c = contactManager.getContact(txn, s.getIntroducer().getId(),
-				localAuthor.getId());
+		Contact c = contactManager.getContact(txn, s.getIntroducer().getId());
 		AuthorInfo authorInfo =
 				contactManager.getAuthorInfo(txn, m.getAuthor().getId());
 		IntroductionRequest request = new IntroductionRequest(m.getMessageId(),
@@ -432,14 +430,13 @@ class IntroduceeProtocolEngine
 
 		Map<TransportId, TransportKeySetId> keys = null;
 		try {
-			contactManager.addContact(txn, s.getRemote().author,
-					localAuthor.getId(), false);
+			contactManager.addContact(txn, s.getRemote().author, false);
 
 			// Only add transport properties and keys when the contact was added
 			// This will be changed once we have a way to reset state for peers
 			// that were contacts already at some point in the past.
 			Contact c = contactManager.getContact(txn,
-					s.getRemote().author.getId(), localAuthor.getId());
+					s.getRemote().author.getId());
 
 			// add the keys to the new contact
 			//noinspection ConstantConditions

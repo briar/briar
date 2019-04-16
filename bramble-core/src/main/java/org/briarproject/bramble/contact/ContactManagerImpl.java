@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -68,10 +67,10 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
-			boolean active) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified);
+	public ContactId addContact(Transaction txn, Author a, SecretKey rootKey,
+			long timestamp, boolean alice, boolean verified, boolean active)
+			throws DbException {
+		ContactId c = db.addContact(txn, a, verified);
 		keyManager.addContact(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
@@ -79,20 +78,20 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean verified) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified);
+	public ContactId addContact(Transaction txn, Author a, boolean verified)
+			throws DbException {
+		ContactId c = db.addContact(txn, a, verified);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
 	}
 
 	@Override
-	public ContactId addContact(Author remote, AuthorId local,
-			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
-			boolean active) throws DbException {
+	public ContactId addContact(Author a, SecretKey rootKey, long timestamp,
+			boolean alice, boolean verified, boolean active)
+			throws DbException {
 		return db.transactionWithResult(false, txn ->
-				addContact(txn, remote, local, rootKey, timestamp, alice,
+				addContact(txn, a, rootKey, timestamp, alice,
 						verified, active));
 	}
 
@@ -144,23 +143,13 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
-			throws DbException {
-		return db.transactionWithResult(true, txn ->
-				getContact(txn, remoteAuthorId, localAuthorId));
+	public Contact getContact(AuthorId a) throws DbException {
+		return db.transactionWithResult(true, txn -> getContact(txn, a));
 	}
 
 	@Override
-	public Contact getContact(Transaction txn, AuthorId remoteAuthorId,
-			AuthorId localAuthorId) throws DbException {
-		Collection<Contact> contacts =
-				db.getContactsByAuthorId(txn, remoteAuthorId);
-		for (Contact c : contacts) {
-			if (c.getLocalAuthorId().equals(localAuthorId)) {
-				return c;
-			}
-		}
-		throw new NoSuchContactException();
+	public Contact getContact(Transaction txn, AuthorId a) throws DbException {
+		return db.getContact(txn, a);
 	}
 
 	@Override
@@ -191,16 +180,14 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public boolean contactExists(Transaction txn, AuthorId remoteAuthorId,
-			AuthorId localAuthorId) throws DbException {
-		return db.containsContact(txn, remoteAuthorId, localAuthorId);
+	public boolean contactExists(Transaction txn, AuthorId a)
+			throws DbException {
+		return db.containsContact(txn, a);
 	}
 
 	@Override
-	public boolean contactExists(AuthorId remoteAuthorId,
-			AuthorId localAuthorId) throws DbException {
-		return db.transactionWithResult(true, txn ->
-				contactExists(txn, remoteAuthorId, localAuthorId));
+	public boolean contactExists(AuthorId a) throws DbException {
+		return db.transactionWithResult(true, txn -> contactExists(txn, a));
 	}
 
 	@Override
@@ -222,12 +209,12 @@ class ContactManagerImpl implements ContactManager {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		if (localAuthor.getId().equals(authorId))
 			return new AuthorInfo(OURSELVES);
-		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
-		if (contacts.isEmpty()) return new AuthorInfo(UNKNOWN);
-		if (contacts.size() > 1) throw new AssertionError();
-		Contact c = contacts.iterator().next();
-		if (c.isVerified()) return new AuthorInfo(VERIFIED, c.getAlias());
-		else return new AuthorInfo(UNVERIFIED, c.getAlias());
+		if (db.containsContact(txn, authorId)) {
+			Contact c = db.getContact(txn, authorId);
+			if (c.isVerified()) return new AuthorInfo(VERIFIED, c.getAlias());
+			else return new AuthorInfo(UNVERIFIED, c.getAlias());
+		}
+		return new AuthorInfo(UNKNOWN);
 	}
 
 }

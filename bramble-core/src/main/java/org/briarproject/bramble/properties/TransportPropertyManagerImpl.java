@@ -13,6 +13,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -44,6 +46,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
+	private final IdentityManager identityManager;
 	private final ClientVersioningManager clientVersioningManager;
 	private final MetadataParser metadataParser;
 	private final ContactGroupFactory contactGroupFactory;
@@ -53,11 +56,13 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Inject
 	TransportPropertyManagerImpl(DatabaseComponent db,
 			ClientHelper clientHelper,
+			IdentityManager identityManager,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
 			ContactGroupFactory contactGroupFactory, Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
+		this.identityManager = identityManager;
 		this.clientVersioningManager = clientVersioningManager;
 		this.metadataParser = metadataParser;
 		this.contactGroupFactory = contactGroupFactory;
@@ -77,7 +82,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
@@ -93,14 +98,14 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		db.removeGroup(txn, getContactGroup(c));
+		db.removeGroup(txn, getContactGroup(c, getLocalAuthorId(txn)));
 	}
 
 	@Override
 	public void onClientVisibilityChanging(Transaction txn, Contact c,
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
@@ -132,7 +137,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public void addRemoteProperties(Transaction txn, ContactId c,
 			Map<TransportId, TransportProperties> props) throws DbException {
-		Group g = getContactGroup(db.getContact(txn, c));
+		Group g = getContactGroup(db.getContact(txn, c), getLocalAuthorId(txn));
 		for (Entry<TransportId, TransportProperties> e : props.entrySet()) {
 			storeMessage(txn, g.getId(), e.getKey(), e.getValue(), 0,
 					false, false);
@@ -191,15 +196,16 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			TransportId t) throws DbException {
 		return db.transactionWithResult(true, txn -> {
 			Map<ContactId, TransportProperties> remote = new HashMap<>();
+			AuthorId local = getLocalAuthorId(txn);
 			for (Contact c : db.getContacts(txn))
-				remote.put(c.getId(), getRemoteProperties(txn, c, t));
+				remote.put(c.getId(), getRemoteProperties(txn, c, local, t));
 			return remote;
 		});
 	}
 
 	private TransportProperties getRemoteProperties(Transaction txn, Contact c,
-			TransportId t) throws DbException {
-		Group g = getContactGroup(c);
+			AuthorId local, TransportId t) throws DbException {
+		Group g = getContactGroup(c, local);
 		try {
 			// Find the latest remote update
 			LatestUpdate latest = findLatest(txn, g.getId(), t, false);
@@ -216,8 +222,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	@Override
 	public TransportProperties getRemoteProperties(ContactId c, TransportId t)
 			throws DbException {
-		return db.transactionWithResult(true, txn ->
-				getRemoteProperties(txn, db.getContact(txn, c), t));
+		return db.transactionWithResult(true, txn -> {
+			Contact contact = db.getContact(txn ,c);
+			AuthorId local = getLocalAuthorId(txn);
+			return getRemoteProperties(txn, contact, local, t);
+		});
 	}
 
 	@Override
@@ -250,8 +259,9 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					if (latest != null)
 						db.removeMessage(txn, latest.messageId);
 					// Store the merged properties in each contact's group
+					AuthorId localAuthorId = getLocalAuthorId(txn);
 					for (Contact c : db.getContacts(txn)) {
-						Group g = getContactGroup(c);
+						Group g = getContactGroup(c, localAuthorId);
 						latest = findLatest(txn, g.getId(), t, true);
 						version = latest == null ? 1 : latest.version + 1;
 						storeMessage(txn, g.getId(), t, merged, version,
@@ -267,9 +277,13 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		}
 	}
 
-	private Group getContactGroup(Contact c) {
+	private AuthorId getLocalAuthorId(Transaction txn) throws DbException {
+		return identityManager.getLocalAuthor(txn).getId();
+	}
+
+	private Group getContactGroup(Contact c, AuthorId local) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, c);
+				MAJOR_VERSION, c, local);
 	}
 
 	private void storeMessage(Transaction txn, GroupId g, TransportId t,

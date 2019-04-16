@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseModule;
@@ -416,7 +417,7 @@ public class ForumSharingIntegrationTest
 
 		// response and invitation got tracked
 		Group group = contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, contact0From1);
+				MAJOR_VERSION, contact0From1, author1.getId());
 		assertEquals(2, c1.getMessageTracker().getGroupCount(group.getId())
 				.getMsgCount());
 
@@ -448,7 +449,7 @@ public class ForumSharingIntegrationTest
 
 		// assert that the invitation arrived
 		Group group = contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, contact0From1);
+				MAJOR_VERSION, contact0From1, author1.getId());
 		assertEquals(1, c1.getMessageTracker().getGroupCount(group.getId())
 				.getMsgCount());
 
@@ -777,8 +778,9 @@ public class ForumSharingIntegrationTest
 				.contains(contact0From1));
 
 		// send an accept message for the same forum
-		Message m = messageEncoder.encodeAcceptMessage(
-				forumSharingManager0.getContactGroup(contact1From0).getId(),
+		GroupId contactGroupId = forumSharingManager0.getContactGroup(
+				contact1From0, author0.getId()).getId();
+		Message m = messageEncoder.encodeAcceptMessage(contactGroupId,
 				forum0.getId(), clock.currentTimeMillis(), invitationId);
 		c0.getClientHelper().addLocalMessage(m, new BdfDictionary(), true);
 

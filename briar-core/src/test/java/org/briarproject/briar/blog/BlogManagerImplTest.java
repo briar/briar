@@ -130,8 +130,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	@Test
 	public void testRemovingContact() throws DbException {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact(blog2.getAuthor(),
-				blog1.getAuthor().getId(), true);
+		Contact contact = getContact(blog2.getAuthor(), true);
 
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());
@@ -150,8 +149,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	@Test
 	public void testRemovingContactAfterRemovingBlog() throws DbException {
 		Transaction txn = new Transaction(null, false);
-		Contact contact = getContact(blog2.getAuthor(),
-				blog1.getAuthor().getId(), true);
+		Contact contact = getContact(blog2.getAuthor(), true);
 
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());

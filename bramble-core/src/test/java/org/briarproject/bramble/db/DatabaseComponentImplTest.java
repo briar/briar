@@ -131,7 +131,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		metadata.put("foo", new byte[] {'b', 'a', 'r'});
 		transportId = getTransportId();
 		maxLatency = Integer.MAX_VALUE;
-		contact = getContact(author, localAuthor.getId(), true);
+		contact = getContact(author, true);
 		contactId = contact.getId();
 		alias = contact.getAlias();
 		keySetId = new TransportKeySetId(345);
@@ -163,14 +163,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).addLocalAuthor(txn, localAuthor);
 			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
 			// addContact()
-			oneOf(database).containsLocalAuthor(txn, localAuthor.getId());
-			will(returnValue(true));
 			oneOf(database).containsLocalAuthor(txn, author.getId());
 			will(returnValue(false));
-			oneOf(database).containsContact(txn, author.getId(),
-					localAuthor.getId());
+			oneOf(database).containsContact(txn, author.getId());
 			will(returnValue(false));
-			oneOf(database).addContact(txn, author, localAuthor.getId(), true);
+			oneOf(database).addContact(txn, author, true);
 			will(returnValue(contactId));
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
@@ -217,8 +214,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		assertFalse(db.open(key, null));
 		db.transaction(false, transaction -> {
 			db.addLocalAuthor(transaction, localAuthor);
-			assertEquals(contactId, db.addContact(transaction, author,
-					localAuthor.getId(), true));
+			assertEquals(contactId, db.addContact(transaction, author, true));
 			assertEquals(singletonList(contact),
 					db.getContacts(transaction));
 			db.addGroup(transaction, group); // First time - listeners called
@@ -279,11 +275,13 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(18).of(database).startTransaction();
 			will(returnValue(txn));
 			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).abortTransaction(txn);
+			oneOf(database).containsContact(txn, author.getId());
+			will(returnValue(false));
+			exactly(18).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -341,6 +339,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.getContact(transaction, contactId));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.getContact(transaction, author.getId()));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -436,24 +442,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the pseudonym is in the DB (which it's not)
-			exactly(3).of(database).startTransaction();
+			exactly(2).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(3).of(database).containsLocalAuthor(txn,
+			exactly(2).of(database).containsLocalAuthor(txn,
 					localAuthor.getId());
 			will(returnValue(false));
-			exactly(3).of(database).abortTransaction(txn);
+			exactly(2).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
-
-		try {
-			db.transaction(false, transaction ->
-					db.addContact(transaction, author, localAuthor.getId(),
-							true));
-			fail();
-		} catch (NoSuchLocalAuthorException expected) {
-			// Expected
-		}
 
 		try {
 			db.transaction(false, transaction ->
@@ -1403,8 +1400,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsLocalAuthor(txn, localAuthor.getId());
-			will(returnValue(true));
 			// Contact is a local identity
 			oneOf(database).containsLocalAuthor(txn, author.getId());
 			will(returnValue(true));
@@ -1416,8 +1411,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.addContact(transaction, author, localAuthor.getId(),
-							true));
+					db.addContact(transaction, author, true));
 			fail();
 		} catch (ContactExistsException expected) {
 			// Expected
@@ -1429,13 +1423,10 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
-			oneOf(database).containsLocalAuthor(txn, localAuthor.getId());
-			will(returnValue(true));
 			oneOf(database).containsLocalAuthor(txn, author.getId());
 			will(returnValue(false));
-			// Contact already exists for this local identity
-			oneOf(database).containsContact(txn, author.getId(),
-					localAuthor.getId());
+			// Contact already exists
+			oneOf(database).containsContact(txn, author.getId());
 			will(returnValue(true));
 			oneOf(database).abortTransaction(txn);
 		}});
@@ -1445,8 +1436,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.addContact(transaction, author, localAuthor.getId(),
-							true));
+					db.addContact(transaction, author, true));
 			fail();
 		} catch (ContactExistsException expected) {
 			// Expected

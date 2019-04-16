@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -39,7 +40,7 @@ public interface ConversationManager {
 	@NotNullByDefault
 	interface ConversationClient {
 
-		Group getContactGroup(Contact c);
+		Group getContactGroup(Contact c, AuthorId local);
 
 		Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn,
 				ContactId contactId) throws DbException;

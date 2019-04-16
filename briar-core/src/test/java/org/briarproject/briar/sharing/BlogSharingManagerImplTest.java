@@ -62,8 +62,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Author author = getAuthor();
-	private final Contact contact =
-			getContact(author, localAuthor.getId(), true);
+	private final Contact contact = getContact(author, true);
 	private final ContactId contactId = contact.getId();
 	private final Collection<Contact> contacts =
 			Collections.singletonList(contact);
@@ -123,8 +122,10 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
 		context.checking(new Expectations() {{
 			// Create the contact group and share it with the contact
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			oneOf(db).addGroup(txn, contactGroup);
 			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
@@ -202,7 +203,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		Message message = getMessage(contactGroup.getId());
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));
@@ -237,10 +238,12 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		Session session = new Session(contactGroup.getId(), blog.getId());
 
 		context.checking(new Expectations() {{
+			oneOf(identityManager).getLocalAuthor(txn);
+			will(returnValue(localAuthor));
 			oneOf(db).getContacts(txn);
 			will(returnValue(contacts));
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
-					MAJOR_VERSION, contact);
+					MAJOR_VERSION, contact, localAuthor.getId());
 			will(returnValue(contactGroup));
 			oneOf(sessionParser)
 					.getSessionQuery(new SessionId(blog.getId().getBytes()));

@@ -35,7 +35,7 @@ abstract class ControllerTest {
     protected val group: Group = getGroup(getClientId(), 0)
     protected val author: Author = getAuthor()
     protected val localAuthor: LocalAuthor = getLocalAuthor()
-    protected val contact: Contact = getContact(author, localAuthor.id, true)
+    protected val contact: Contact = getContact(author, true)
     protected val message: Message = getMessage(group.id)
     protected val text: String = getRandomString(5)
     protected val timestamp = 42L

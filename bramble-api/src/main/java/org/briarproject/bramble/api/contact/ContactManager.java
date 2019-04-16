@@ -24,33 +24,30 @@ public interface ContactManager {
 	void registerContactHook(ContactHook hook);
 
 	/**
-	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * derives and stores transport keys for each transport, and returns an ID
-	 * for the contact.
+	 * Stores a contact with the given pseudonym, derives and stores transport
+	 * keys for each transport, and returns an ID for the contact.
 	 *
 	 * @param alice true if the local party is Alice
 	 */
-	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
-			boolean active) throws DbException;
-
-	/**
-	 * Stores a contact associated with the given local and remote pseudonyms
-	 * and returns an ID for the contact.
-	 */
-	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean verified) throws DbException;
-
-	/**
-	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * derives and stores transport keys for each transport, and returns an ID
-	 * for the contact.
-	 *
-	 * @param alice true if the local party is Alice
-	 */
-	ContactId addContact(Author remote, AuthorId local, SecretKey rootKey,
+	ContactId addContact(Transaction txn, Author a, SecretKey rootKey,
 			long timestamp, boolean alice, boolean verified, boolean active)
 			throws DbException;
+
+	/**
+	 * Stores a contact with the given pseudonym and returns an ID for the
+	 * contact.
+	 */
+	ContactId addContact(Transaction txn, Author a, boolean verified)
+			throws DbException;
+
+	/**
+	 * Stores a contact with the given pseudonym, derives and stores transport
+	 * keys for each transport, and returns an ID for the contact.
+	 *
+	 * @param alice true if the local party is Alice
+	 */
+	ContactId addContact(Author a, SecretKey rootKey, long timestamp,
+			boolean alice, boolean verified, boolean active) throws DbException;
 
 	/**
 	 * Returns the static link that needs to be sent to the contact to be added.
@@ -88,22 +85,14 @@ public interface ContactManager {
 	Contact getContact(ContactId c) throws DbException;
 
 	/**
-	 * Returns the contact with the given remoteAuthorId
-	 * that was added by the LocalAuthor with the given localAuthorId
-	 *
-	 * @throws org.briarproject.bramble.api.db.NoSuchContactException
+	 * Returns the contact with the given ID.
 	 */
-	Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
-			throws DbException;
+	Contact getContact(AuthorId a) throws DbException;
 
 	/**
-	 * Returns the contact with the given remoteAuthorId
-	 * that was added by the LocalAuthor with the given localAuthorId
-	 *
-	 * @throws org.briarproject.bramble.api.db.NoSuchContactException
+	 * Returns the contact with the given ID.
 	 */
-	Contact getContact(Transaction txn, AuthorId remoteAuthorId,
-			AuthorId localAuthorId) throws DbException;
+	Contact getContact(Transaction txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns all active contacts.
@@ -133,16 +122,14 @@ public interface ContactManager {
 			throws DbException;
 
 	/**
-	 * Return true if a contact with this name and public key already exists
+	 * Returns true if a contact with this pseudonym already exists.
 	 */
-	boolean contactExists(Transaction txn, AuthorId remoteAuthorId,
-			AuthorId localAuthorId) throws DbException;
+	boolean contactExists(Transaction txn, AuthorId a) throws DbException;
 
 	/**
-	 * Return true if a contact with this name and public key already exists
+	 * Returns true if a contact with this pseudonym already exists.
 	 */
-	boolean contactExists(AuthorId remoteAuthorId, AuthorId localAuthorId)
-			throws DbException;
+	boolean contactExists(AuthorId a) throws DbException;
 
 	/**
 	 * Returns the {@link AuthorInfo} for the given author.

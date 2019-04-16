@@ -232,18 +232,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public ContactId addContact(Transaction transaction, Author remote,
-			AuthorId local, boolean verified)
-			throws DbException {
+	public ContactId addContact(Transaction transaction, Author a,
+			boolean verified) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
-			throw new NoSuchLocalAuthorException();
-		if (db.containsLocalAuthor(txn, remote.getId()))
+		if (db.containsLocalAuthor(txn, a.getId()))
 			throw new ContactExistsException();
-		if (db.containsContact(txn, remote.getId(), local))
+		if (db.containsContact(txn, a.getId()))
 			throw new ContactExistsException();
-		ContactId c = db.addContact(txn, remote, local, verified);
+		ContactId c = db.addContact(txn, a, verified);
 		transaction.attach(new ContactAddedEvent(c));
 		return c;
 	}
@@ -342,12 +339,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public boolean containsContact(Transaction transaction, AuthorId remote,
-			AuthorId local) throws DbException {
+	public boolean containsContact(Transaction transaction, AuthorId a)
+			throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
-			throw new NoSuchLocalAuthorException();
-		return db.containsContact(txn, remote, local);
+		return db.containsContact(txn, a);
 	}
 
 	@Override
@@ -488,26 +483,19 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Contact getContact(Transaction transaction, AuthorId a)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, a))
+			throw new NoSuchContactException();
+		return db.getContact(txn, a);
+	}
+
+	@Override
 	public Collection<Contact> getContacts(Transaction transaction)
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.getContacts(txn);
-	}
-
-	@Override
-	public Collection<Contact> getContactsByAuthorId(Transaction transaction,
-			AuthorId remote) throws DbException {
-		T txn = unbox(transaction);
-		return db.getContactsByAuthorId(txn, remote);
-	}
-
-	@Override
-	public Collection<ContactId> getContacts(Transaction transaction,
-			AuthorId a) throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
-			throw new NoSuchLocalAuthorException();
-		return db.getContacts(txn, a);
 	}
 
 	@Override

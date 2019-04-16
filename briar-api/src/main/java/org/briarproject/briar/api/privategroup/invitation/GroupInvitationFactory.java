@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 
@@ -20,8 +21,8 @@ public interface GroupInvitationFactory {
 	 * included in the member's join message.
 	 */
 	@CryptoExecutor
-	byte[] signInvitation(Contact c, GroupId privateGroupId, long timestamp,
-			byte[] privateKey);
+	byte[] signInvitation(LocalAuthor creator, Contact member,
+			GroupId privateGroupId, long timestamp);
 
 	/**
 	 * Returns a token to be signed by the creator when inviting a member to

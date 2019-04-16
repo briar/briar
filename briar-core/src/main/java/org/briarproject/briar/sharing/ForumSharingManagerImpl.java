@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
@@ -27,13 +28,14 @@ class ForumSharingManagerImpl extends SharingManagerImpl<Forum>
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageParser<Forum> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
-			MessageTracker messageTracker,
+			MessageTracker messageTracker, IdentityManager identityManager,
 			ContactGroupFactory contactGroupFactory,
 			ProtocolEngine<Forum> engine,
 			InvitationFactory<Forum, ForumInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, metadataParser,
 				messageParser, sessionEncoder, sessionParser, messageTracker,
-				contactGroupFactory, engine, invitationFactory);
+				identityManager, contactGroupFactory, engine,
+				invitationFactory);
 	}
 
 	@Override

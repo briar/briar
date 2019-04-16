@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -134,8 +135,10 @@ public class IntroductionIntegrationTest
 				.makeIntroduction(introducee1, introducee2, "Hi!", time);
 
 		// check that messages are tracked properly
-		Group g1 = introductionManager0.getContactGroup(introducee1);
-		Group g2 = introductionManager0.getContactGroup(introducee2);
+		Group g1 = introductionManager0.getContactGroup(introducee1,
+				author0.getId());
+		Group g2 = introductionManager0.getContactGroup(introducee2,
+				author0.getId());
 		assertGroupCount(messageTracker0, g1.getId(), 1, 0);
 		assertGroupCount(messageTracker0, g2.getId(), 1, 0);
 
@@ -228,10 +231,8 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.succeeded);
 		assertTrue(listener2.succeeded);
 
-		assertTrue(contactManager1
-				.contactExists(author2.getId(), author1.getId()));
-		assertTrue(contactManager2
-				.contactExists(author1.getId(), author2.getId()));
+		assertTrue(contactManager1.contactExists(author2.getId()));
+		assertTrue(contactManager2.contactExists(author1.getId()));
 
 		// make sure that introduced contacts are not verified
 		for (Contact c : contactManager1.getContacts()) {
@@ -318,13 +319,13 @@ public class IntroductionIntegrationTest
 		assertFalse(listener1.succeeded);
 		assertFalse(listener2.succeeded);
 
-		assertFalse(contactManager1
-				.contactExists(author2.getId(), author1.getId()));
-		assertFalse(contactManager2
-				.contactExists(author1.getId(), author2.getId()));
+		assertFalse(contactManager1.contactExists(author2.getId()));
+		assertFalse(contactManager2.contactExists(author1.getId()));
 
-		Group g1 = introductionManager0.getContactGroup(introducee1);
-		Group g2 = introductionManager0.getContactGroup(introducee2);
+		Group g1 = introductionManager0.getContactGroup(introducee1,
+				author0.getId());
+		Group g2 = introductionManager0.getContactGroup(introducee2,
+				author0.getId());
 		Collection<ConversationMessageHeader> messages =
 				db0.transactionWithResult(true, txn -> introductionManager0
 						.getMessageHeaders(txn, contactId1From0));
@@ -387,10 +388,8 @@ public class IntroductionIntegrationTest
 				listener1.getResponse().getIntroducedAuthor().getName());
 		assertFalse(listener1.getResponse().canSucceed());
 
-		assertFalse(contactManager1
-				.contactExists(author2.getId(), author1.getId()));
-		assertFalse(contactManager2
-				.contactExists(author1.getId(), author2.getId()));
+		assertFalse(contactManager1.contactExists(author2.getId()));
+		assertFalse(contactManager2.contactExists(author1.getId()));
 
 		Collection<ConversationMessageHeader> messages =
 				db0.transactionWithResult(true, txn -> introductionManager0
@@ -499,10 +498,8 @@ public class IntroductionIntegrationTest
 		sync1To0(2, true);
 		sync0To2(2, true);
 
-		assertTrue(contactManager1
-				.contactExists(author2.getId(), author1.getId()));
-		assertTrue(contactManager2
-				.contactExists(author1.getId(), author2.getId()));
+		assertTrue(contactManager1.contactExists(author2.getId()));
+		assertTrue(contactManager2.contactExists(author1.getId()));
 
 		assertDefaultUiMessages();
 		assertFalse(listener0.aborted);
@@ -593,8 +590,10 @@ public class IntroductionIntegrationTest
 		introduceeSession = getIntroduceeSession(c1);
 		assertEquals(IntroduceeState.START, introduceeSession.getState());
 
-		Group g1 = introductionManager0.getContactGroup(introducee1);
-		Group g2 = introductionManager0.getContactGroup(introducee2);
+		Group g1 = introductionManager0.getContactGroup(introducee1,
+				author0.getId());
+		Group g2 = introductionManager0.getContactGroup(introducee2,
+				author0.getId());
 		assertEquals(2, db0.transactionWithResult(true, txn ->
 				introductionManager0.getMessageHeaders(txn, contactId1From0))
 				.size());
@@ -787,8 +786,8 @@ public class IntroductionIntegrationTest
 		sync0To1(1, true);
 
 		// save ACCEPT from introducee1
-		AcceptMessage m = (AcceptMessage) getMessageFor(c1.getClientHelper(),
-				contact0From1, ACCEPT);
+		AcceptMessage m = (AcceptMessage) getMessageFor(introductionManager1,
+				c1.getClientHelper(), contact0From1, author1.getId(), ACCEPT);
 
 		// sync ACCEPT back to introducer
 		sync1To0(1, true);
@@ -824,8 +823,8 @@ public class IntroductionIntegrationTest
 		sync0To1(1, true);
 
 		// save ACCEPT from introducee1
-		AcceptMessage m = (AcceptMessage) getMessageFor(c1.getClientHelper(),
-				contact0From1, ACCEPT);
+		AcceptMessage m = (AcceptMessage) getMessageFor(introductionManager1,
+				c1.getClientHelper(), contact0From1, author1.getId(), ACCEPT);
 
 		// sync ACCEPT back to introducer
 		sync1To0(1, true);
@@ -859,8 +858,8 @@ public class IntroductionIntegrationTest
 		sync0To1(1, true);
 
 		// save DECLINE from introducee1
-		DeclineMessage m = (DeclineMessage) getMessageFor(c1.getClientHelper(),
-				contact0From1, DECLINE);
+		DeclineMessage m = (DeclineMessage) getMessageFor(introductionManager1,
+				c1.getClientHelper(), contact0From1, author1.getId(), DECLINE);
 
 		// sync DECLINE back to introducer
 		sync1To0(1, true);
@@ -903,8 +902,8 @@ public class IntroductionIntegrationTest
 		sync0To2(1, true);
 
 		// save AUTH from introducee1
-		AuthMessage m = (AuthMessage) getMessageFor(c1.getClientHelper(),
-				contact0From1, AUTH);
+		AuthMessage m = (AuthMessage) getMessageFor(introductionManager1,
+				c1.getClientHelper(), contact0From1, author1.getId(), AUTH);
 
 		// sync first AUTH message
 		sync1To0(1, true);
@@ -1006,13 +1005,11 @@ public class IntroductionIntegrationTest
 		// 0 and 1 remove and re-add each other
 		contactManager0.removeContact(contactId1From0);
 		contactManager1.removeContact(contactId0From1);
-		contactId1From0 = contactManager0
-				.addContact(author1, author0.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId1From0 = contactManager0.addContact(author1, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
 		contact1From0 = contactManager0.getContact(contactId1From0);
-		contactId0From1 = contactManager1
-				.addContact(author0, author1.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId0From1 = contactManager1.addContact(author0, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
 		contact0From1 = contactManager1.getContact(contactId0From1);
 
 		// Sync initial client versioning updates and transport properties
@@ -1060,9 +1057,9 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// get response to be forwarded
-		AcceptMessage message =
-				(AcceptMessage) getMessageFor(c0.getClientHelper(),
-						contact2From0, ACCEPT);
+		AcceptMessage message = (AcceptMessage) getMessageFor(
+				introductionManager0, c0.getClientHelper(), contact2From0,
+				author0.getId(), ACCEPT);
 
 		// allow visitor to modify response
 		AcceptMessage m = visitor.visit(message);
@@ -1345,10 +1342,10 @@ public class IntroductionIntegrationTest
 		}
 	}
 
-	private AbstractIntroductionMessage getMessageFor(ClientHelper ch,
-			Contact contact, MessageType type)
+	private AbstractIntroductionMessage getMessageFor(IntroductionManager im,
+			ClientHelper ch, Contact contact, AuthorId local, MessageType type)
 			throws FormatException, DbException {
-		Group g = introductionManager0.getContactGroup(contact);
+		Group g = im.getContactGroup(contact, local);
 		BdfDictionary query = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_MESSAGE_TYPE, type.getValue())
 		);
@@ -1400,8 +1397,8 @@ public class IntroductionIntegrationTest
 				.getMessageMetadataAsDictionary(getLocalGroup().getId());
 		assertEquals(1, dicts.size());
 		BdfDictionary d = dicts.values().iterator().next();
-		Group introducerGroup =
-				introductionManager2.getContactGroup(contact0From2);
+		Group introducerGroup = introductionManager2
+				.getContactGroup(contact0From2, author2.getId());
 		return c.getSessionParser()
 				.parseIntroduceeSession(introducerGroup.getId(), d);
 	}

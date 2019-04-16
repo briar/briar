@@ -126,7 +126,7 @@ public class BlogSharingIntegrationTest
 
 		// get sharing group and assert group message count
 		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, contact1From0).getId();
+				MAJOR_VERSION, contact1From0, author0.getId()).getId();
 		assertGroupCount(messageTracker0, g, 1, 0);
 
 		// check that request message state is correct
@@ -217,7 +217,7 @@ public class BlogSharingIntegrationTest
 
 		// get sharing group and assert group message count
 		GroupId g = contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, contact1From0).getId();
+				MAJOR_VERSION, contact1From0, author0.getId()).getId();
 		assertGroupCount(messageTracker0, g, 1, 0);
 
 		// sync first request message

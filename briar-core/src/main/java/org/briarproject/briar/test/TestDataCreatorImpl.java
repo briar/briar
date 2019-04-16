@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.AuthorFactory;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -148,17 +147,15 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private List<Contact> createContacts(int numContacts) throws DbException {
 		List<Contact> contacts = new ArrayList<>(numContacts);
-		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (int i = 0; i < numContacts; i++) {
 			LocalAuthor author = getRandomAuthor();
-			Contact contact = addContact(localAuthor.getId(), author);
+			Contact contact = addContact(author);
 			contacts.add(contact);
 		}
 		return contacts;
 	}
 
-	private Contact addContact(AuthorId localAuthorId, LocalAuthor author)
-			throws DbException {
+	private Contact addContact(LocalAuthor author) throws DbException {
 
 		// prepare to add contact
 		SecretKey secretKey = getSecretKey();
@@ -172,9 +169,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		Contact contact;
 		Transaction txn = db.startTransaction(false);
 		try {
-			ContactId contactId = contactManager
-					.addContact(txn, author, localAuthorId, secretKey,
-							timestamp, true, verified, true);
+			ContactId contactId = contactManager.addContact(txn, author,
+					secretKey, timestamp, true, verified, true);
 			if (random.nextBoolean()) {
 				contactManager
 						.setContactAlias(txn, contactId, getRandomAuthorName());
@@ -196,8 +192,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	@Override
 	public Contact addContact(String name) throws DbException {
-		LocalAuthor localAuthor = identityManager.getLocalAuthor();
-		return addContact(localAuthor.getId(), getAuthor(name));
+		return addContact(getAuthor(name));
 	}
 
 	private LocalAuthor getAuthor(String name) {
@@ -301,8 +296,10 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private void createPrivateMessages(List<Contact> contacts,
 			int numPrivateMsgs) throws DbException {
+		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (Contact contact : contacts) {
-			Group group = messagingManager.getContactGroup(contact);
+			Group group = messagingManager.getContactGroup(contact,
+					localAuthor.getId());
 			for (int i = 0; i < numPrivateMsgs; i++) {
 				try {
 					createRandomPrivateMessage(group.getId(), i);
@@ -343,13 +340,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		} finally {
 			db.endTransaction(txn);
 		}
-	}
-
-	@Override
-	public void addPrivateMessage(Contact contact, String text, long time,
-			boolean local) throws DbException, FormatException {
-		Group group = messagingManager.getContactGroup(contact);
-		createPrivateMessage(group.getId(), text, time, local);
 	}
 
 	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)

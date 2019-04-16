@@ -102,11 +102,11 @@ public interface DatabaseComponent {
 			NullableDbCallable<R, E> task) throws DbException, E;
 
 	/**
-	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * and returns an ID for the contact.
+	 * Stores a contact with the given pseudonym and returns an ID for the
+	 * contact.
 	 */
-	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean verified) throws DbException;
+	ContactId addContact(Transaction txn, Author a, boolean verified)
+			throws DbException;
 
 	/**
 	 * Stores a group.
@@ -158,13 +158,11 @@ public interface DatabaseComponent {
 			TransportKeys k) throws DbException;
 
 	/**
-	 * Returns true if the database contains the given contact for the given
-	 * local pseudonym.
+	 * Returns true if the database contains the given contact.
 	 * <p/>
 	 * Read-only.
 	 */
-	boolean containsContact(Transaction txn, AuthorId remote, AuthorId local)
-			throws DbException;
+	boolean containsContact(Transaction txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given group.
@@ -255,27 +253,18 @@ public interface DatabaseComponent {
 	Contact getContact(Transaction txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns the contact with the given author ID.
+	 * <p/>
+	 * Read-only.
+	 */
+	Contact getContact(Transaction txn, AuthorId a) throws DbException;
+
+	/**
 	 * Returns all contacts.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<Contact> getContacts(Transaction txn) throws DbException;
-
-	/**
-	 * Returns a possibly empty collection of contacts with the given author ID.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<Contact> getContactsByAuthorId(Transaction txn, AuthorId remote)
-			throws DbException;
-
-	/**
-	 * Returns all contacts associated with the given local pseudonym.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<ContactId> getContacts(Transaction txn, AuthorId a)
-			throws DbException;
 
 	/**
 	 * Returns the group with the given ID.

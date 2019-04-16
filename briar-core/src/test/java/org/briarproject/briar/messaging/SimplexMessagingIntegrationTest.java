@@ -110,8 +110,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		lifecycleManager.waitForStartup();
 		// Add the other user as a contact
 		ContactManager contactManager = device.getContactManager();
-		return contactManager.addContact(remote, local.getId(), rootKey,
-				timestamp, alice, true, true);
+		return contactManager.addContact(remote, rootKey, timestamp, alice,
+				true, true);
 	}
 
 	private void sendMessage(SimplexMessagingIntegrationTestComponent device,

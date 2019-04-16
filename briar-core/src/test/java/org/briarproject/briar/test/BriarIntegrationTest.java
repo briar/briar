@@ -283,21 +283,17 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	protected void addDefaultContacts() throws Exception {
-		contactId1From0 = contactManager0
-				.addContact(author1, author0.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId1From0 = contactManager0.addContact(author1, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
 		contact1From0 = contactManager0.getContact(contactId1From0);
-		contactId0From1 = contactManager1
-				.addContact(author0, author1.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId0From1 = contactManager1.addContact(author0, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
 		contact0From1 = contactManager1.getContact(contactId0From1);
-		contactId2From0 = contactManager0
-				.addContact(author2, author0.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId2From0 = contactManager0.addContact(author2, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
 		contact2From0 = contactManager0.getContact(contactId2From0);
-		contactId0From2 = contactManager2
-				.addContact(author0, author2.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId0From2 = contactManager2.addContact(author0, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
 		contact0From2 = contactManager2.getContact(contactId0From2);
 
 		// Sync initial client versioning updates
@@ -315,12 +311,10 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	protected void addContacts1And2(boolean haveTransportProperties)
 			throws Exception {
-		contactId2From1 = contactManager1
-				.addContact(author2, author1.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
-		contactId1From2 = contactManager2
-				.addContact(author1, author2.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId2From1 = contactManager1.addContact(author2, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
+		contactId1From2 = contactManager2.addContact(author1, getSecretKey(),
+				clock.currentTimeMillis(), true, true, true);
 
 		// Sync initial client versioning updates
 		sync1To2(1, true);

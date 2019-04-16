@@ -92,7 +92,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 43;
+	static final int CODE_SCHEMA_VERSION = 44;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -127,12 +127,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " alias _STRING," // Null if no alias has been set
 					+ " publicKey _BINARY NOT NULL,"
 					+ " handshakePublicKey _BINARY," // Null if key is unknown
-					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
-					+ " PRIMARY KEY (contactId),"
-					+ " FOREIGN KEY (localAuthorId)"
-					+ " REFERENCES localAuthors (authorId)"
-					+ " ON DELETE CASCADE)";
+					+ " PRIMARY KEY (contactId))";
 
 	private static final String CREATE_GROUPS =
 			"CREATE TABLE groups"
@@ -486,7 +482,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration39_40(),
 				new Migration40_41(dbTypes),
 				new Migration41_42(dbTypes),
-				new Migration42_43(dbTypes)
+				new Migration42_43(dbTypes),
+				new Migration43_44()
 		);
 	}
 
@@ -662,23 +659,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public ContactId addContact(Connection txn, Author remote, AuthorId local,
-			boolean verified) throws DbException {
+	public ContactId addContact(Connection txn, Author a, boolean verified)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
-					+ " (authorId, formatVersion, name, publicKey,"
-					+ " localAuthorId, verified)"
-					+ " VALUES (?, ?, ?, ?, ?, ?)";
+					+ " (authorId, formatVersion, name, publicKey, verified)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, remote.getId().getBytes());
-			ps.setInt(2, remote.getFormatVersion());
-			ps.setString(3, remote.getName());
-			ps.setBytes(4, remote.getPublicKey());
-			ps.setBytes(5, local.getBytes());
-			ps.setBoolean(6, verified);
+			ps.setBytes(1, a.getId().getBytes());
+			ps.setInt(2, a.getFormatVersion());
+			ps.setString(3, a.getName());
+			ps.setBytes(4, a.getPublicKey());
+			ps.setBoolean(5, verified);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1180,16 +1175,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public boolean containsContact(Connection txn, AuthorId remote,
-			AuthorId local) throws DbException {
+	public boolean containsContact(Connection txn, AuthorId a)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT NULL FROM contacts"
-					+ " WHERE authorId = ? AND localAuthorId = ?";
+			String sql = "SELECT NULL FROM contacts WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, remote.getBytes());
-			ps.setBytes(2, local.getBytes());
+			ps.setBytes(1, a.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
@@ -1432,7 +1425,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT authorId, formatVersion, name, alias,"
-					+ " publicKey, handshakePublicKey, localAuthorId, verified"
+					+ " publicKey, handshakePublicKey, verified"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1445,14 +1438,44 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String alias = rs.getString(4);
 			byte[] publicKey = rs.getBytes(5);
 			byte[] handshakePublicKey = rs.getBytes(6);
-			AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
-			boolean verified = rs.getBoolean(8);
+			boolean verified = rs.getBoolean(7);
 			rs.close();
 			ps.close();
 			Author author =
 					new Author(authorId, formatVersion, name, publicKey);
-			return new Contact(c, author, localAuthorId, alias,
-					handshakePublicKey, verified);
+			return new Contact(c, author, alias, handshakePublicKey, verified);
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Contact getContact(Connection txn, AuthorId a) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId, formatVersion, name, alias,"
+					+ " publicKey, handshakePublicKey, verified"
+					+ " FROM contacts"
+					+ " WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, a.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			ContactId contactId = new ContactId(rs.getInt(1));
+			int formatVersion = rs.getInt(2);
+			String name = rs.getString(3);
+			String alias = rs.getString(4);
+			byte[] publicKey = rs.getBytes(5);
+			byte[] handshakePublicKey = rs.getBytes(6);
+			boolean verified = rs.getBoolean(7);
+			rs.close();
+			ps.close();
+			Author author = new Author(a, formatVersion, name, publicKey);
+			return new Contact(contactId, author, alias, handshakePublicKey,
+					verified);
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
@@ -1466,8 +1489,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, formatVersion, name,"
-					+ " alias, publicKey, handshakePublicKey, localAuthorId,"
-					+ " verified"
+					+ " alias, publicKey, handshakePublicKey, verified"
 					+ " FROM contacts";
 			s = txn.createStatement();
 			rs = s.executeQuery(sql);
@@ -1480,12 +1502,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String alias = rs.getString(5);
 				byte[] publicKey = rs.getBytes(6);
 				byte[] handshakePublicKey = rs.getBytes(7);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(8));
-				boolean verified = rs.getBoolean(9);
+				boolean verified = rs.getBoolean(8);
 				Author author =
 						new Author(authorId, formatVersion, name, publicKey);
-				contacts.add(new Contact(contactId, author, localAuthorId,
-						alias, handshakePublicKey, verified));
+				contacts.add(new Contact(contactId, author, alias,
+						handshakePublicKey, verified));
 			}
 			rs.close();
 			s.close();
@@ -1493,67 +1514,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(s, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public Collection<ContactId> getContacts(Connection txn, AuthorId local)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT contactId FROM contacts"
-					+ " WHERE localAuthorId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, local.getBytes());
-			rs = ps.executeQuery();
-			List<ContactId> ids = new ArrayList<>();
-			while (rs.next()) ids.add(new ContactId(rs.getInt(1)));
-			rs.close();
-			ps.close();
-			return ids;
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public Collection<Contact> getContactsByAuthorId(Connection txn,
-			AuthorId remote) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT contactId, formatVersion, name, alias,"
-					+ " publicKey, handshakePublicKey, localAuthorId, verified"
-					+ " FROM contacts"
-					+ " WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, remote.getBytes());
-			rs = ps.executeQuery();
-			List<Contact> contacts = new ArrayList<>();
-			while (rs.next()) {
-				ContactId contactId = new ContactId(rs.getInt(1));
-				int formatVersion = rs.getInt(2);
-				String name = rs.getString(3);
-				String alias = rs.getString(4);
-				byte[] publicKey = rs.getBytes(5);
-				byte[] handshakePublicKey = rs.getBytes(6);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
-				boolean verified = rs.getBoolean(8);
-				Author author =
-						new Author(remote, formatVersion, name, publicKey);
-				contacts.add(new Contact(contactId, author, localAuthorId,
-						alias, handshakePublicKey, verified));
-			}
-			rs.close();
-			ps.close();
-			return contacts;
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
-			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}

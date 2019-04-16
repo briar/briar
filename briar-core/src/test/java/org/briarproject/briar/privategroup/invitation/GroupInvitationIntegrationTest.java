@@ -176,9 +176,9 @@ public class GroupInvitationIntegrationTest
 		groupInvitationManager1
 				.respondToInvitation(contactId0From1, privateGroup0, true);
 
-		messages = db1.transactionWithResult(true,
-				txn -> groupInvitationManager1
-						.getMessageHeaders(txn, contactId0From1));
+		messages = db1.transactionWithResult(true, txn ->
+				groupInvitationManager1.getMessageHeaders(txn,
+						contactId0From1));
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
@@ -199,9 +199,9 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = db1.transactionWithResult(true, txn ->
-				groupInvitationManager0
-						.getMessageHeaders(txn, contactId1From0));
+		messages = db0.transactionWithResult(true, txn ->
+				groupInvitationManager0.getMessageHeaders(txn,
+						contactId1From0));
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
@@ -228,13 +228,15 @@ public class GroupInvitationIntegrationTest
 		sendInvitation(timestamp, null);
 
 		// 0 has one read outgoing message
-		Group g1 = groupInvitationManager0.getContactGroup(contact1From0);
+		Group g1 = groupInvitationManager0.getContactGroup(contact1From0,
+				author0.getId());
 		assertGroupCount(messageTracker0, g1.getId(), 1, 0, timestamp);
 
 		sync0To1(1, true);
 
 		// 1 has one unread message
-		Group g0 = groupInvitationManager1.getContactGroup(contact0From1);
+		Group g0 = groupInvitationManager1.getContactGroup(contact0From1,
+				author1.getId());
 		assertGroupCount(messageTracker1, g0.getId(), 1, 1, timestamp);
 		ConversationMessageHeader m = db1.transactionWithResult(true, txn ->
 				groupInvitationManager1.getMessageHeaders(txn, contactId0From1)
@@ -460,8 +462,8 @@ public class GroupInvitationIntegrationTest
 
 	private void sendInvitation(long timestamp, @Nullable String text) throws
 			DbException {
-		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
-				privateGroup0.getId(), timestamp, author0.getPrivateKey());
+		byte[] signature = groupInvitationFactory.signInvitation(author0,
+				contact1From0, privateGroup0.getId(), timestamp);
 		groupInvitationManager0
 				.sendInvitation(privateGroup0.getId(), contactId1From0, text,
 						timestamp, signature);

@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -23,12 +25,14 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 		implements ConversationClient {
 
 	protected final MessageTracker messageTracker;
+	protected final IdentityManager identityManager;
 
 	protected ConversationClientImpl(DatabaseComponent db,
 			ClientHelper clientHelper, MetadataParser metadataParser,
-			MessageTracker messageTracker) {
+			MessageTracker messageTracker, IdentityManager identityManager) {
 		super(db, clientHelper, metadataParser);
 		this.messageTracker = messageTracker;
+		this.identityManager = identityManager;
 	}
 
 	/**
@@ -40,11 +44,16 @@ public abstract class ConversationClientImpl extends BdfIncomingMessageHook
 		messageTracker.initializeGroupCount(txn, g);
 	}
 
+	protected AuthorId getLocalAuthorId(Transaction txn) throws DbException {
+		return identityManager.getLocalAuthor(txn).getId();
+	}
+
 	@Override
 	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
 			throws DbException {
 		Contact contact = db.getContact(txn, contactId);
-		GroupId groupId = getContactGroup(contact).getId();
+		AuthorId local = getLocalAuthorId(txn);
+		GroupId groupId = getContactGroup(contact, local).getId();
 		return messageTracker.getGroupCount(txn, groupId);
 	}
 

@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -34,14 +35,15 @@ class GroupInvitationFactoryImpl implements GroupInvitationFactory {
 	}
 
 	@Override
-	public byte[] signInvitation(Contact c, GroupId privateGroupId,
-			long timestamp, byte[] privateKey) {
-		AuthorId creatorId = c.getLocalAuthorId();
-		AuthorId memberId = c.getAuthor().getId();
+	public byte[] signInvitation(LocalAuthor creator, Contact member,
+			GroupId privateGroupId, long timestamp) {
+		AuthorId creatorId = creator.getId();
+		AuthorId memberId = member.getAuthor().getId();
 		BdfList token = createInviteToken(creatorId, memberId, privateGroupId,
 				timestamp);
 		try {
-			return clientHelper.sign(SIGNING_LABEL_INVITE, token, privateKey);
+			return clientHelper.sign(SIGNING_LABEL_INVITE, token,
+					creator.getPrivateKey());
 		} catch (GeneralSecurityException e) {
 			throw new IllegalArgumentException(e);
 		} catch (FormatException e) {

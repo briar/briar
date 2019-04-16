@@ -330,8 +330,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroup.getSalt(),
 						getRandomString(MAX_GROUP_INVITATION_TEXT_LENGTH),
 						signature);
-		Contact notCreatorContact = getContact(contactId, getAuthor(),
-				localAuthor.getId(), true);
+		Contact notCreatorContact = getContact(contactId, getAuthor(), true);
 
 		expectGetContactId();
 		context.checking(new Expectations() {{

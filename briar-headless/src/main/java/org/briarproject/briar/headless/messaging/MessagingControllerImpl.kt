@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
+import org.briarproject.bramble.api.identity.IdentityManager
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.blog.BlogInvitationRequest
@@ -46,6 +47,7 @@ internal class MessagingControllerImpl
 @Inject
 constructor(
     private val messagingManager: MessagingManager,
+    private val identityManager: IdentityManager,
     private val conversationManager: ConversationManager,
     private val privateMessageFactory: PrivateMessageFactory,
     private val contactManager: ContactManager,
@@ -71,7 +73,7 @@ constructor(
         if (utf8IsTooLong(message, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
             throw BadRequestResponse("Message text is too long")
 
-        val group = messagingManager.getContactGroup(contact)
+        val group = messagingManager.getContactGroup(contact, identityManager.localAuthor.id)
         val now = clock.currentTimeMillis()
         val m = privateMessageFactory.createPrivateMessage(group.id, now, message, emptyList())
 

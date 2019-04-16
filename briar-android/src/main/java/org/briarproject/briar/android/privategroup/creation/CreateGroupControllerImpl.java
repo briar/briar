@@ -153,8 +153,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 			long timestamp = clock.currentTimeMillis();
 			List<InvitationContext> contexts = new ArrayList<>();
 			for (Contact c : contacts) {
-				byte[] signature = groupInvitationFactory.signInvitation(c, g,
-						timestamp, localAuthor.getPrivateKey());
+				byte[] signature = groupInvitationFactory.signInvitation(
+						localAuthor, c, g, timestamp);
 				contexts.add(new InvitationContext(c.getId(), timestamp,
 						signature));
 			}

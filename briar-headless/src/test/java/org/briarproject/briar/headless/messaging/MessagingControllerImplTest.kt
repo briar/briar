@@ -40,6 +40,7 @@ internal class MessagingControllerImplTest : ControllerTest() {
 
     private val controller = MessagingControllerImpl(
         messagingManager,
+        identityManager,
         conversationManager,
         privateMessageFactory,
         contactManager,
@@ -114,7 +115,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
 
         expectGetContact()
         every { ctx.body() } returns """{"text": "$text"}"""
-        every { messagingManager.getContactGroup(contact) } returns group
+        every { identityManager.localAuthor } returns localAuthor
+        every { messagingManager.getContactGroup(contact, localAuthor.id) } returns group
         every { clock.currentTimeMillis() } returns timestamp
         every {
             privateMessageFactory.createPrivateMessage(

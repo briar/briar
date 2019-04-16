@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
@@ -79,7 +78,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	private final IntroducerProtocolEngine introducerEngine;
 	private final IntroduceeProtocolEngine introduceeEngine;
 	private final IntroductionCrypto crypto;
-	private final IdentityManager identityManager;
 
 	private final Group localGroup;
 
@@ -90,6 +88,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
 			MessageTracker messageTracker,
+			IdentityManager identityManager,
 			ContactGroupFactory contactGroupFactory,
 			ContactManager contactManager,
 			MessageParser messageParser,
@@ -97,9 +96,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			SessionParser sessionParser,
 			IntroducerProtocolEngine introducerEngine,
 			IntroduceeProtocolEngine introduceeEngine,
-			IntroductionCrypto crypto,
-			IdentityManager identityManager) {
-		super(db, clientHelper, metadataParser, messageTracker);
+			IntroductionCrypto crypto) {
+		super(db, clientHelper, metadataParser, messageTracker,
+				identityManager);
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 		this.contactManager = contactManager;
@@ -109,7 +108,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		this.introducerEngine = introducerEngine;
 		this.introduceeEngine = introduceeEngine;
 		this.crypto = crypto;
-		this.identityManager = identityManager;
 		this.localGroup =
 				contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
@@ -126,7 +124,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
@@ -148,21 +146,21 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		abortOrRemoveSessionWithIntroducee(txn, c);
 
 		// Remove the contact group (all messages will be removed with it)
-		db.removeGroup(txn, getContactGroup(c));
+		db.removeGroup(txn, getContactGroup(c, getLocalAuthorId(txn)));
 	}
 
 	@Override
 	public void onClientVisibilityChanging(Transaction txn, Contact c,
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
 	@Override
-	public Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c, AuthorId local) {
 		return contactGroupFactory
-				.createContactGroup(CLIENT_ID, MAJOR_VERSION, c);
+				.createContactGroup(CLIENT_ID, MAJOR_VERSION, c, local);
 	}
 
 	@Override
@@ -328,17 +326,18 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		try {
 			// Look up the session, if there is one
 			Author introducer = identityManager.getLocalAuthor(txn);
-			SessionId sessionId =
-					crypto.getSessionId(introducer, c1.getAuthor(),
-							c2.getAuthor());
+			SessionId sessionId = crypto.getSessionId(introducer,
+					c1.getAuthor(), c2.getAuthor());
 			StoredSession ss = getSession(txn, sessionId);
 			// Create or parse the session
 			IntroducerSession session;
 			MessageId storageId;
 			if (ss == null) {
 				// This is the first request - create a new session
-				GroupId groupId1 = getContactGroup(c1).getId();
-				GroupId groupId2 = getContactGroup(c2).getId();
+				GroupId groupId1 =
+						getContactGroup(c1, introducer.getId()).getId();
+				GroupId groupId2 =
+						getContactGroup(c2, introducer.getId()).getId();
 				boolean alice = crypto.isAlice(c1.getAuthor().getId(),
 						c2.getAuthor().getId());
 				// use fixed deterministic roles for the introducees
@@ -382,7 +381,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			}
 			// Parse the session
 			Contact contact = db.getContact(txn, contactId);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			IntroduceeSession session = sessionParser
 					.parseIntroduceeSession(contactGroupId, ss.bdfSession);
 			// Handle the join or leave action
@@ -408,7 +408,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			Transaction txn, ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
@@ -521,13 +522,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		BdfDictionary query = sessionEncoder.getIntroducerSessionsQuery();
 		Map<MessageId, BdfDictionary> sessions;
 		try {
-			sessions = clientHelper
-					.getMessageMetadataAsDictionary(txn, localGroup.getId(),
-							query);
+			sessions = clientHelper.getMessageMetadataAsDictionary(txn,
+					localGroup.getId(), query);
 		} catch (FormatException e) {
 			throw new DbException();
 		}
-		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		for (Entry<MessageId, BdfDictionary> session : sessions.entrySet()) {
 			IntroducerSession s;
 			try {
@@ -537,18 +536,18 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			}
 			if (s.getIntroduceeA().author.equals(c.getAuthor())) {
 				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
-						s.getIntroduceeB(), localAuthor);
+						s.getIntroduceeB());
 			} else if (s.getIntroduceeB().author.equals(c.getAuthor())) {
 				abortOrRemoveSessionWithIntroducee(txn, s, session.getKey(),
-						s.getIntroduceeA(), localAuthor);
+						s.getIntroduceeA());
 			}
 		}
 	}
 
 	private void abortOrRemoveSessionWithIntroducee(Transaction txn,
-			IntroducerSession s, MessageId storageId, Introducee i,
-			LocalAuthor localAuthor) throws DbException {
-		if (db.containsContact(txn, i.author.getId(), localAuthor.getId())) {
+			IntroducerSession s, MessageId storageId, Introducee i)
+			throws DbException {
+		if (db.containsContact(txn, i.author.getId())) {
 			IntroducerSession session =
 					introducerEngine.onIntroduceeRemoved(txn, i, s);
 			storeSession(txn, storageId, session);

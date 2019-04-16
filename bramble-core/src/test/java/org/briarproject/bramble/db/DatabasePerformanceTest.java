@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
@@ -131,11 +130,10 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 
 	@Test
 	public void testContainsContactByAuthorId() throws Exception {
-		String name = "containsContact(T, AuthorId, AuthorId)";
+		String name = "containsContact(T, AuthorId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			AuthorId remote = pickRandom(contacts).getAuthor().getId();
-			db.containsContact(txn, remote, localAuthor.getId());
+			db.containsContact(txn, pickRandom(contacts).getAuthor().getId());
 			db.commitTransaction(txn);
 		});
 	}
@@ -202,11 +200,21 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetContact() throws Exception {
+	public void testGetContactByContactId() throws Exception {
 		String name = "getContact(T, ContactId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getContact(txn, pickRandom(contacts).getId());
+			db.commitTransaction(txn);
+		});
+	}
+
+	@Test
+	public void testGetContactByAuthorId() throws Exception {
+		String name = "getContact(T, AuthorId)";
+		benchmark(name, db -> {
+			Connection txn = db.startTransaction();
+			db.getContact(txn, pickRandom(contacts).getAuthor().getId());
 			db.commitTransaction(txn);
 		});
 	}
@@ -217,27 +225,6 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
 			db.getContacts(txn);
-			db.commitTransaction(txn);
-		});
-	}
-
-	@Test
-	public void testGetContactsByRemoteAuthorId() throws Exception {
-		String name = "getContactsByAuthorId(T, AuthorId)";
-		benchmark(name, db -> {
-			Connection txn = db.startTransaction();
-			AuthorId remote = pickRandom(contacts).getAuthor().getId();
-			db.getContactsByAuthorId(txn, remote);
-			db.commitTransaction(txn);
-		});
-	}
-
-	@Test
-	public void testGetContactsByLocalAuthorId() throws Exception {
-		String name = "getContacts(T, AuthorId)";
-		benchmark(name, db -> {
-			Connection txn = db.startTransaction();
-			db.getContacts(txn, localAuthor.getId());
 			db.commitTransaction(txn);
 		});
 	}
@@ -545,8 +532,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 		db.addLocalAuthor(txn, localAuthor);
 		for (int i = 0; i < CONTACTS; i++) {
-			ContactId c = db.addContact(txn, getAuthor(), localAuthor.getId(),
-					random.nextBoolean());
+			ContactId c = db.addContact(txn, getAuthor(), random.nextBoolean());
 			contacts.add(db.getContact(txn, c));
 			contactGroups.put(c, new ArrayList<>());
 			for (int j = 0; j < GROUPS_PER_CONTACT; j++) {

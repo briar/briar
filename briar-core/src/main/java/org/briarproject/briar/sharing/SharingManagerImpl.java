@@ -13,6 +13,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -70,10 +72,11 @@ abstract class SharingManagerImpl<S extends Shareable>
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageParser<S> messageParser,
 			SessionEncoder sessionEncoder, SessionParser sessionParser,
-			MessageTracker messageTracker,
+			MessageTracker messageTracker, IdentityManager identityManager,
 			ContactGroupFactory contactGroupFactory, ProtocolEngine<S> engine,
 			InvitationFactory<S, ?> invitationFactory) {
-		super(db, clientHelper, metadataParser, messageTracker);
+		super(db, clientHelper, metadataParser, messageTracker,
+				identityManager);
 		this.clientVersioningManager = clientVersioningManager;
 		this.messageParser = messageParser;
 		this.sessionEncoder = sessionEncoder;
@@ -105,7 +108,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.addGroup(txn, g);
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), getClientId(), getMajorVersion());
@@ -123,13 +126,13 @@ abstract class SharingManagerImpl<S extends Shareable>
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
 		// Remove the contact group (all messages will be removed with it)
-		db.removeGroup(txn, getContactGroup(c));
+		db.removeGroup(txn, getContactGroup(c, getLocalAuthorId(txn)));
 	}
 
 	@Override
-	public Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c, AuthorId local) {
 		return contactGroupFactory.createContactGroup(getClientId(),
-				getMajorVersion(), c);
+				getMajorVersion(), c, local);
 	}
 
 	@Override
@@ -160,10 +163,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 	 * and the Contact c in state SHARING.
 	 * If a session already exists, this does nothing.
 	 */
-	void preShareGroup(Transaction txn, Contact c, Group g)
+	void preShareGroup(Transaction txn, Contact c, Group g, AuthorId local)
 			throws DbException, FormatException {
 		// Return if a session already exists with the contact
-		GroupId contactGroupId = getContactGroup(c).getId();
+		GroupId contactGroupId = getContactGroup(c, local).getId();
 		StoredSession existingSession = getSession(txn, contactGroupId,
 				getSessionId(g.getId()));
 		if (existingSession != null) return;
@@ -257,11 +260,13 @@ abstract class SharingManagerImpl<S extends Shareable>
 		Transaction txn = db.startTransaction(false);
 		try {
 			Contact contact = db.getContact(txn, contactId);
-			if (!canBeShared(txn, shareableId, contact))
+			if (!canBeShared(txn, shareableId, contact)) {
 				// we might have received an invitation in the meantime
 				return;
+			}
 			// Look up the session, if there is one
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// Create or parse the session
 			Session session;
@@ -301,7 +306,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		try {
 			// Look up the session
 			Contact contact = db.getContact(txn, c);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			StoredSession ss = getSession(txn, contactGroupId, id);
 			if (ss == null) throw new IllegalArgumentException();
 			// Parse the session
@@ -325,7 +331,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 			Transaction txn, ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
-			GroupId contactGroupId = getContactGroup(contact).getId();
+			AuthorId local = getLocalAuthorId(txn);
+			GroupId contactGroupId = getContactGroup(contact, local).getId();
 			BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
 			Map<MessageId, BdfDictionary> results = clientHelper
 					.getMessageMetadataAsDictionary(txn, contactGroupId, query);
@@ -385,8 +392,9 @@ abstract class SharingManagerImpl<S extends Shareable>
 		Transaction txn = db.startTransaction(true);
 		try {
 			// get invitations from each contact
+			AuthorId local = getLocalAuthorId(txn);
 			for (Contact c : db.getContacts(txn)) {
-				GroupId contactGroupId = getContactGroup(c).getId();
+				GroupId contactGroupId = getContactGroup(c, local).getId();
 				Map<MessageId, BdfDictionary> results =
 						clientHelper.getMessageMetadataAsDictionary(txn,
 								contactGroupId, query);
@@ -456,7 +464,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), getShareableClientId(), getShareableMajorVersion());
 		if (client != SHARED) return false;
-		GroupId contactGroupId = getContactGroup(c).getId();
+		AuthorId local = getLocalAuthorId(txn);
+		GroupId contactGroupId = getContactGroup(c, local).getId();
 		SessionId sessionId = getSessionId(g);
 		try {
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
@@ -475,9 +484,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 		SessionId sessionId = getSessionId(shareable.getId());
 		// If we have any sessions in progress, tell the contacts we're leaving
 		try {
+			AuthorId local = getLocalAuthorId(txn);
 			for (Contact c : db.getContacts(txn)) {
 				// Look up the session for the contact, if there is one
-				GroupId contactGroupId = getContactGroup(c).getId();
+				GroupId contactGroupId = getContactGroup(c, local).getId();
 				StoredSession ss = getSession(txn, contactGroupId, sessionId);
 				if (ss == null) continue; // No session for this contact
 				// Let the engine perform a LEAVE action
@@ -496,7 +506,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 	public void onClientVisibilityChanging(Transaction txn, Contact c,
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
@@ -525,7 +535,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 	private Map<GroupId, Visibility> getPreferredVisibilities(Transaction txn,
 			Contact c) throws DbException, FormatException {
-		GroupId contactGroupId = getContactGroup(c).getId();
+		AuthorId local = getLocalAuthorId(txn);
+		GroupId contactGroupId = getContactGroup(c, local).getId();
 		BdfDictionary query = sessionParser.getAllSessionsQuery();
 		Map<MessageId, BdfDictionary> results = clientHelper
 				.getMessageMetadataAsDictionary(txn, contactGroupId, query);

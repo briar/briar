@@ -12,6 +12,8 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
@@ -59,8 +61,10 @@ class MessagingManagerImpl extends ConversationClientImpl
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
+			IdentityManager identityManager,
 			ContactGroupFactory contactGroupFactory) {
-		super(db, clientHelper, metadataParser, messageTracker);
+		super(db, clientHelper, metadataParser, messageTracker,
+				identityManager);
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
 	}
@@ -79,7 +83,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public void addingContact(Transaction txn, Contact c) throws DbException {
 		// Create a group to share with the contact
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.addGroup(txn, g);
 		// Apply the client's visibility to the contact group
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
@@ -98,21 +102,21 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Group getContactGroup(Contact c) {
+	public Group getContactGroup(Contact c, AuthorId local) {
 		return contactGroupFactory.createContactGroup(CLIENT_ID,
-				MAJOR_VERSION, c);
+				MAJOR_VERSION, c, local);
 	}
 
 	@Override
 	public void removingContact(Transaction txn, Contact c) throws DbException {
-		db.removeGroup(txn, getContactGroup(c));
+		db.removeGroup(txn, getContactGroup(c, getLocalAuthorId(txn)));
 	}
 
 	@Override
 	public void onClientVisibilityChanging(Transaction txn, Contact c,
 			Visibility v) throws DbException {
 		// Apply the client's visibility to the contact group
-		Group g = getContactGroup(c);
+		Group g = getContactGroup(c, getLocalAuthorId(txn));
 		db.setGroupVisibility(txn, c.getId(), g.getId(), v);
 	}
 
@@ -188,15 +192,14 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public GroupId getConversationId(ContactId c) throws DbException {
-		Contact contact;
-		Transaction txn = db.startTransaction(true);
-		try {
-			contact = db.getContact(txn, c);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		return getContactGroup(contact).getId();
+		return db.transactionWithResult(true, txn -> getConversationId(txn, c));
+	}
+
+	private GroupId getConversationId(Transaction txn, ContactId c)
+		throws DbException {
+		Contact contact = db.getContact(txn, c);
+		AuthorId local = getLocalAuthorId(txn);
+		return getContactGroup(contact, local).getId();
 	}
 
 	@Override
@@ -206,7 +209,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		Collection<MessageStatus> statuses;
 		GroupId g;
 		try {
-			g = getContactGroup(db.getContact(txn, c)).getId();
+			g = getConversationId(txn, c);
 			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
 			statuses = db.getMessageStatus(txn, c, g);
 		} catch (FormatException e) {

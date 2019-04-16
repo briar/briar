@@ -163,19 +163,15 @@ public class TestUtils {
 	}
 
 	public static Contact getContact() {
-		return getContact(getAuthor(), new AuthorId(getRandomId()),
-				random.nextBoolean());
+		return getContact(getAuthor(), random.nextBoolean());
 	}
 
-	public static Contact getContact(Author remote, AuthorId local,
-			boolean verified) {
-		return getContact(getContactId(), remote, local, verified);
+	public static Contact getContact(Author a, boolean verified) {
+		return getContact(getContactId(), a, verified);
 	}
 
-	public static Contact getContact(ContactId c, Author remote, AuthorId local,
-			boolean verified) {
-		return new Contact(c, remote, local,
-				getRandomString(MAX_AUTHOR_NAME_LENGTH),
+	public static Contact getContact(ContactId c, Author a, boolean verified) {
+		return new Contact(c, a, getRandomString(MAX_AUTHOR_NAME_LENGTH),
 				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), verified);
 	}
 

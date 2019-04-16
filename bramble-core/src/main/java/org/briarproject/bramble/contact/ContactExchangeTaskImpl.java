@@ -293,8 +293,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			throws DbException {
 		return db.transactionWithResult(false, txn -> {
 			ContactId contactId = contactManager.addContact(txn, remoteAuthor,
-					localAuthor.getId(), masterKey, timestamp, alice,
-					true, true);
+					masterKey, timestamp, alice, true, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);
 			return contactId;

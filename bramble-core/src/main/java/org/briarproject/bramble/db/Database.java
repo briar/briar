@@ -87,11 +87,10 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
-	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * and returns an ID for the contact.
+	 * Stores a contact with the given pseudonym and returns an ID for the
+	 * contact.
 	 */
-	ContactId addContact(T txn, Author remote, AuthorId local, boolean verified)
-			throws DbException;
+	ContactId addContact(T txn, Author a, boolean verified) throws DbException;
 
 	/**
 	 * Stores a group.
@@ -164,13 +163,11 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns true if the database contains the given contact for the given
-	 * local pseudonym.
+	 * Returns true if the database contains the given contact.
 	 * <p/>
 	 * Read-only.
 	 */
-	boolean containsContact(T txn, AuthorId remote, AuthorId local)
-			throws DbException;
+	boolean containsContact(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given contact.
@@ -253,26 +250,18 @@ interface Database<T> {
 	Contact getContact(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns the contact with the given author ID.
+	 * <p/>
+	 * Read-only.
+	 */
+	Contact getContact(T txn, AuthorId a) throws DbException;
+
+	/**
 	 * Returns all contacts.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<Contact> getContacts(T txn) throws DbException;
-
-	/**
-	 * Returns a possibly empty collection of contacts with the given author ID.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<Contact> getContactsByAuthorId(T txn, AuthorId remote)
-			throws DbException;
-
-	/**
-	 * Returns all contacts associated with the given local pseudonym.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns the group with the given ID.

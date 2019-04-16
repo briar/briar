@@ -18,11 +18,10 @@ public interface ContactGroupFactory {
 	 * Creates a group for the given client to share with the given contact.
 	 */
 	Group createContactGroup(ClientId clientId, int majorVersion,
-			Contact contact);
+			Contact contact, AuthorId local);
 
 	/**
-	 * Creates a group for the given client to share between the given authors
-	 * identified by their AuthorIds.
+	 * Creates a group for the given client to share between the given authors.
 	 */
 	Group createContactGroup(ClientId clientId, int majorVersion,
 			AuthorId authorId1, AuthorId authorId2);

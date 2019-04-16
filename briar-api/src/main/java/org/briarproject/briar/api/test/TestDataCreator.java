@@ -1,6 +1,5 @@
 package org.briarproject.briar.api.test;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -24,9 +23,4 @@ public interface TestDataCreator {
 
 	@IoExecutor
 	Contact addContact(String name) throws DbException;
-
-	@IoExecutor
-	void addPrivateMessage(Contact contact, String text, long time,
-			boolean local) throws DbException, FormatException;
-
 }

@@ -253,8 +253,7 @@ public class PrivateGroupManagerIntegrationTest
 		long inviteTime = joinTime;
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		byte[] creatorSignature = groupInvitationFactory
-				.signInvitation(c1, privateGroup0.getId(), inviteTime,
-						author0.getPrivateKey());
+				.signInvitation(author0, c1, privateGroup0.getId(), inviteTime);
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
@@ -306,8 +305,7 @@ public class PrivateGroupManagerIntegrationTest
 		// signature uses joiner's key, not creator's key
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		creatorSignature = groupInvitationFactory
-				.signInvitation(c1, privateGroup0.getId(), inviteTime,
-						author1.getPrivateKey());
+				.signInvitation(author1, c1, privateGroup0.getId(), inviteTime);
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
@@ -400,8 +398,7 @@ public class PrivateGroupManagerIntegrationTest
 		long inviteTime = joinTime - 1;
 		Contact c2 = contactManager0.getContact(contactId2From0);
 		byte[] creatorSignature = groupInvitationFactory
-				.signInvitation(c2, privateGroup0.getId(), inviteTime,
-						author0.getPrivateKey());
+				.signInvitation(author0, c2, privateGroup0.getId(), inviteTime);
 		GroupMessage joinMsg2 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author2,
 						inviteTime, creatorSignature);
@@ -522,8 +519,7 @@ public class PrivateGroupManagerIntegrationTest
 		long inviteTime = joinTime - 1;
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		byte[] creatorSignature = groupInvitationFactory
-				.signInvitation(c1, privateGroup0.getId(), inviteTime,
-						author0.getPrivateKey());
+				.signInvitation(author0, c1, privateGroup0.getId(), inviteTime);
 		GroupMessage joinMsg1 = groupMessageFactory
 				.createJoinMessage(privateGroup0.getId(), joinTime, author1,
 						inviteTime, creatorSignature);
