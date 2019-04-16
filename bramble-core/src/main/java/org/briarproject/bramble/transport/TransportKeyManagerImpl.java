@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.transport.ReorderingWindow.Change;
 
@@ -56,7 +56,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final ReentrantLock lock = new ReentrantLock();
 
 	// The following are locking: lock
-	private final Map<KeySetId, MutableKeySet> keys = new HashMap<>();
+	private final Map<TransportKeySetId, MutableKeySet> keys = new HashMap<>();
 	private final Map<Bytes, TagContext> inContexts = new HashMap<>();
 	private final Map<ContactId, MutableKeySet> outContexts = new HashMap<>();
 
@@ -80,7 +80,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		lock.lock();
 		try {
 			// Load the transport keys from the DB
-			Collection<KeySet> loaded = db.getTransportKeys(txn, transportId);
+			Collection<TransportKeySet> loaded =
+					db.getTransportKeys(txn, transportId);
 			// Rotate the keys to the current time period
 			RotationResult rotationResult = rotateKeys(loaded, now);
 			// Initialise mutable state for all contacts
@@ -95,14 +96,16 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		scheduleKeyRotation(now);
 	}
 
-	private RotationResult rotateKeys(Collection<KeySet> keys, long now) {
+	private RotationResult rotateKeys(Collection<TransportKeySet> keys,
+			long now) {
 		RotationResult rotationResult = new RotationResult();
 		long timePeriod = now / timePeriodLength;
-		for (KeySet ks : keys) {
-			TransportKeys k = ks.getTransportKeys();
-			TransportKeys k1 =
-					transportCrypto.rotateTransportKeys(k, timePeriod);
-			KeySet ks1 = new KeySet(ks.getKeySetId(), ks.getContactId(), k1);
+		for (TransportKeySet ks : keys) {
+			TransportKeys k = ks.getKeys();
+			TransportKeys k1 = transportCrypto.rotateTransportKeys(k,
+					timePeriod);
+			TransportKeySet ks1 = new TransportKeySet(ks.getKeySetId(),
+					ks.getContactId(), k1);
 			if (k1.getTimePeriod() > k.getTimePeriod())
 				rotationResult.rotated.add(ks1);
 			rotationResult.current.add(ks1);
@@ -111,15 +114,15 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	// Locking: lock
-	private void addKeys(Collection<KeySet> keys) {
-		for (KeySet ks : keys) {
+	private void addKeys(Collection<TransportKeySet> keys) {
+		for (TransportKeySet ks : keys) {
 			addKeys(ks.getKeySetId(), ks.getContactId(),
-					new MutableTransportKeys(ks.getTransportKeys()));
+					new MutableTransportKeys(ks.getKeys()));
 		}
 	}
 
 	// Locking: lock
-	private void addKeys(KeySetId keySetId, ContactId contactId,
+	private void addKeys(TransportKeySetId keySetId, ContactId contactId,
 			MutableTransportKeys m) {
 		MutableKeySet ks = new MutableKeySet(keySetId, contactId, m);
 		keys.put(keySetId, ks);
@@ -130,7 +133,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	// Locking: lock
-	private void encodeTags(KeySetId keySetId, ContactId contactId,
+	private void encodeTags(TransportKeySetId keySetId, ContactId contactId,
 			MutableIncomingKeys inKeys) {
 		for (long streamNumber : inKeys.getWindow().getUnseen()) {
 			TagContext tagCtx =
@@ -170,8 +173,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
-			long timestamp, boolean alice, boolean active) throws DbException {
+	public TransportKeySetId addContact(Transaction txn, ContactId c,
+			SecretKey rootKey, long timestamp, boolean alice, boolean active)
+			throws DbException {
 		lock.lock();
 		try {
 			// Work out what time period the timestamp belongs to
@@ -183,7 +187,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			timePeriod = clock.currentTimeMillis() / timePeriodLength;
 			k = transportCrypto.rotateTransportKeys(k, timePeriod);
 			// Write the keys back to the DB
-			KeySetId keySetId = db.addTransportKeys(txn, c, k);
+			TransportKeySetId keySetId = db.addTransportKeys(txn, c, k);
 			// Initialise mutable state for the contact
 			addKeys(keySetId, c, new MutableTransportKeys(k));
 			return keySetId;
@@ -193,7 +197,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public void activateKeys(Transaction txn, KeySetId k) throws DbException {
+	public void activateKeys(Transaction txn, TransportKeySetId k)
+			throws DbException {
 		lock.lock();
 		try {
 			MutableKeySet ks = keys.get(k);
@@ -323,10 +328,10 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		lock.lock();
 		try {
 			// Rotate the keys to the current time period
-			Collection<KeySet> snapshot = new ArrayList<>(keys.size());
+			Collection<TransportKeySet> snapshot = new ArrayList<>(keys.size());
 			for (MutableKeySet ks : keys.values()) {
-				snapshot.add(new KeySet(ks.getKeySetId(), ks.getContactId(),
-						ks.getTransportKeys().snapshot()));
+				snapshot.add(new TransportKeySet(ks.getKeySetId(),
+						ks.getContactId(), ks.getTransportKeys().snapshot()));
 			}
 			RotationResult rotationResult = rotateKeys(snapshot, now);
 			// Rebuild the mutable state for all contacts
@@ -346,12 +351,12 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private static class TagContext {
 
-		private final KeySetId keySetId;
+		private final TransportKeySetId keySetId;
 		private final ContactId contactId;
 		private final MutableIncomingKeys inKeys;
 		private final long streamNumber;
 
-		private TagContext(KeySetId keySetId, ContactId contactId,
+		private TagContext(TransportKeySetId keySetId, ContactId contactId,
 				MutableIncomingKeys inKeys, long streamNumber) {
 			this.keySetId = keySetId;
 			this.contactId = contactId;
@@ -362,7 +367,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private static class RotationResult {
 
-		private final Collection<KeySet> current = new ArrayList<>();
-		private final Collection<KeySet> rotated = new ArrayList<>();
+		private final Collection<TransportKeySet> current = new ArrayList<>();
+		private final Collection<TransportKeySet> rotated = new ArrayList<>();
 	}
 }

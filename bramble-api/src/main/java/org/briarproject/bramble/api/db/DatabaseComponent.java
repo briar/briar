@@ -20,8 +20,8 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -129,7 +129,7 @@ public interface DatabaseComponent {
 	 * Stores the given transport keys for the given contact and returns a
 	 * key set ID.
 	 */
-	KeySetId addTransportKeys(Transaction txn, ContactId c,
+	TransportKeySetId addTransportKeys(Transaction txn, ContactId c,
 			TransportKeys k) throws DbException;
 
 	/**
@@ -429,14 +429,14 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<KeySet> getTransportKeys(Transaction txn, TransportId t)
+	Collection<TransportKeySet> getTransportKeys(Transaction txn, TransportId t)
 			throws DbException;
 
 	/**
 	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(Transaction txn, TransportId t, KeySetId k)
-			throws DbException;
+	void incrementStreamCounter(Transaction txn, TransportId t,
+			TransportKeySetId k) throws DbException;
 
 	/**
 	 * Merges the given metadata with the existing metadata for the given
@@ -509,8 +509,8 @@ public interface DatabaseComponent {
 	/**
 	 * Removes the given transport keys from the database.
 	 */
-	void removeTransportKeys(Transaction txn, TransportId t, KeySetId k)
-			throws DbException;
+	void removeTransportKeys(Transaction txn, TransportId t,
+			TransportKeySetId k) throws DbException;
 
 	/**
 	 * Marks the given contact as verified.
@@ -556,18 +556,19 @@ public interface DatabaseComponent {
 	 * Sets the reordering window for the given key set and transport in the
 	 * given time period.
 	 */
-	void setReorderingWindow(Transaction txn, KeySetId k, TransportId t,
-			long timePeriod, long base, byte[] bitmap) throws DbException;
+	void setReorderingWindow(Transaction txn, TransportKeySetId k,
+			TransportId t, long timePeriod, long base, byte[] bitmap)
+			throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
-	void setTransportKeysActive(Transaction txn, TransportId t, KeySetId k)
-			throws DbException;
+	void setTransportKeysActive(Transaction txn, TransportId t,
+			TransportKeySetId k) throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.
 	 */
-	void updateTransportKeys(Transaction txn, Collection<KeySet> keys)
+	void updateTransportKeys(Transaction txn, Collection<TransportKeySet> keys)
 			throws DbException;
 }

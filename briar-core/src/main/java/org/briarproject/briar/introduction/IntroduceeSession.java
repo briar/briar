@@ -8,7 +8,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.Role;
 
@@ -17,9 +17,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_ACTIVATE;
 import static org.briarproject.briar.introduction.IntroduceeState.START;
-import static org.briarproject.briar.api.introduction.Role.INTRODUCEE;
 
 @Immutable
 @NotNullByDefault
@@ -33,12 +33,12 @@ class IntroduceeSession extends Session<IntroduceeState>
 	@Nullable
 	private final byte[] masterKey;
 	@Nullable
-	private final Map<TransportId, KeySetId> transportKeys;
+	private final Map<TransportId, TransportKeySetId> transportKeys;
 
 	IntroduceeSession(SessionId sessionId, IntroduceeState state,
 			long requestTimestamp, GroupId contactGroupId, Author introducer,
 			Local local, Remote remote, @Nullable byte[] masterKey,
-			@Nullable Map<TransportId, KeySetId> transportKeys) {
+			@Nullable Map<TransportId, TransportKeySetId> transportKeys) {
 		super(sessionId, state, requestTimestamp);
 		this.contactGroupId = contactGroupId;
 		this.introducer = introducer;
@@ -113,7 +113,8 @@ class IntroduceeSession extends Session<IntroduceeState>
 	}
 
 	static IntroduceeSession awaitActivate(IntroduceeSession s, AuthMessage m,
-			Message sent, @Nullable Map<TransportId, KeySetId> transportKeys) {
+			Message sent,
+			@Nullable Map<TransportId, TransportKeySetId> transportKeys) {
 		Local local = new Local(s.local, sent.getId(), sent.getTimestamp());
 		Remote remote = new Remote(s.remote, m.getMessageId());
 		return new IntroduceeSession(s.getSessionId(), AWAIT_ACTIVATE,
@@ -180,7 +181,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 	}
 
 	@Nullable
-	Map<TransportId, KeySetId> getTransportKeys() {
+	Map<TransportId, TransportKeySetId> getTransportKeys() {
 		return transportKeys;
 	}
 

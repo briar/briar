@@ -27,9 +27,9 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.sql.Connection;
@@ -958,7 +958,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public KeySetId addTransportKeys(Connection txn, ContactId c,
+	public TransportKeySetId addTransportKeys(Connection txn, ContactId c,
 			TransportKeys k) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -985,7 +985,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
 			if (!rs.next()) throw new DbStateException();
-			KeySetId keySetId = new KeySetId(rs.getInt(1));
+			TransportKeySetId keySetId = new TransportKeySetId(rs.getInt(1));
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -2191,8 +2191,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<KeySet> getTransportKeys(Connection txn, TransportId t)
-			throws DbException {
+	public Collection<TransportKeySet> getTransportKeys(Connection txn,
+			TransportId t) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
@@ -2225,11 +2225,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps = txn.prepareStatement(sql);
 			ps.setString(1, t.getString());
 			rs = ps.executeQuery();
-			Collection<KeySet> keys = new ArrayList<>();
+			Collection<TransportKeySet> keys = new ArrayList<>();
 			for (int i = 0; rs.next(); i++) {
 				// There should be three times as many incoming keys
 				if (inKeys.size() < (i + 1) * 3) throw new DbStateException();
-				KeySetId keySetId = new KeySetId(rs.getInt(1));
+				TransportKeySetId keySetId =
+						new TransportKeySetId(rs.getInt(1));
 				ContactId contactId = new ContactId(rs.getInt(2));
 				long timePeriod = rs.getLong(3);
 				SecretKey tagKey = new SecretKey(rs.getBytes(4));
@@ -2243,7 +2244,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				IncomingKeys inNext = inKeys.get(i * 3 + 2);
 				TransportKeys transportKeys = new TransportKeys(t, inPrev,
 						inCurr, inNext, outCurr);
-				keys.add(new KeySet(keySetId, contactId, transportKeys));
+				keys.add(new TransportKeySet(keySetId, contactId,
+						transportKeys));
 			}
 			rs.close();
 			ps.close();
@@ -2257,7 +2259,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void incrementStreamCounter(Connection txn, TransportId t,
-			KeySetId k) throws DbException {
+			TransportKeySetId k) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE outgoingKeys SET stream = stream + 1"
@@ -2730,8 +2732,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void removeTransportKeys(Connection txn, TransportId t, KeySetId k)
-			throws DbException {
+	public void removeTransportKeys(Connection txn, TransportId t,
+			TransportKeySetId k) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			// Delete any existing outgoing keys - this will also remove any
@@ -2934,8 +2936,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void setReorderingWindow(Connection txn, KeySetId k, TransportId t,
-			long timePeriod, long base, byte[] bitmap) throws DbException {
+	public void setReorderingWindow(Connection txn, TransportKeySetId k,
+			TransportId t, long timePeriod, long base, byte[] bitmap)
+			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE incomingKeys SET base = ?, bitmap = ?"
@@ -2958,7 +2961,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void setTransportKeysActive(Connection txn, TransportId t,
-			KeySetId k) throws DbException {
+			TransportKeySetId k) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE outgoingKeys SET active = true"
@@ -3013,7 +3016,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void updateTransportKeys(Connection txn, KeySet ks)
+	public void updateTransportKeys(Connection txn, TransportKeySet ks)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -3022,7 +3025,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " tagKey = ?, headerKey = ?, stream = ?"
 					+ " WHERE transportId = ? AND keySetId = ?";
 			ps = txn.prepareStatement(sql);
-			TransportKeys k = ks.getTransportKeys();
+			TransportKeys k = ks.getKeys();
 			OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
 			ps.setLong(1, outCurr.getTimePeriod());
 			ps.setBytes(2, outCurr.getTagKey().getBytes());

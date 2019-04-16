@@ -10,20 +10,20 @@ import javax.annotation.concurrent.Immutable;
  */
 @Immutable
 @NotNullByDefault
-public class KeySet {
+public class TransportKeySet {
 
-	private final KeySetId keySetId;
+	private final TransportKeySetId keySetId;
 	private final ContactId contactId;
-	private final TransportKeys transportKeys;
+	private final TransportKeys keys;
 
-	public KeySet(KeySetId keySetId, ContactId contactId,
-			TransportKeys transportKeys) {
+	public TransportKeySet(TransportKeySetId keySetId, ContactId contactId,
+			TransportKeys keys) {
 		this.keySetId = keySetId;
 		this.contactId = contactId;
-		this.transportKeys = transportKeys;
+		this.keys = keys;
 	}
 
-	public KeySetId getKeySetId() {
+	public TransportKeySetId getKeySetId() {
 		return keySetId;
 	}
 
@@ -31,8 +31,8 @@ public class KeySet {
 		return contactId;
 	}
 
-	public TransportKeys getTransportKeys() {
-		return transportKeys;
+	public TransportKeys getKeys() {
+		return keys;
 	}
 
 	@Override
@@ -42,6 +42,7 @@ public class KeySet {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof KeySet && keySetId.equals(((KeySet) o).keySetId);
+		return o instanceof TransportKeySet &&
+				keySetId.equals(((TransportKeySet) o).keySetId);
 	}
 }

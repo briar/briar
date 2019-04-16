@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
@@ -23,8 +24,8 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -33,11 +34,14 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * A low-level interface to the database (DatabaseComponent provides a
- * high-level interface). Most operations take a transaction argument, which is
- * obtained by calling {@link #startTransaction()}. Every transaction must be
- * terminated by calling either {@link #abortTransaction(Object) abortTransaction(T)} or
- * {@link #commitTransaction(Object) commitTransaction(T)}, even if an exception is thrown.
+ * A low-level interface to the database ({@link DatabaseComponent} provides a
+ * high-level interface).
+ * <p>
+ * Most operations take a transaction argument, which is obtained by calling
+ * {@link #startTransaction()}. Every transaction must be terminated by calling
+ * either {@link #abortTransaction(Object) abortTransaction(T)} or
+ * {@link #commitTransaction(Object) commitTransaction(T)}, even if an
+ * exception is thrown.
  */
 @NotNullByDefault
 interface Database<T> {
@@ -131,7 +135,7 @@ interface Database<T> {
 	 * Stores the given transport keys for the given contact and returns a
 	 * key set ID.
 	 */
-	KeySetId addTransportKeys(T txn, ContactId c, TransportKeys k)
+	TransportKeySetId addTransportKeys(T txn, ContactId c, TransportKeys k)
 			throws DbException;
 
 	/**
@@ -489,13 +493,13 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<KeySet> getTransportKeys(T txn, TransportId t)
+	Collection<TransportKeySet> getTransportKeys(T txn, TransportId t)
 			throws DbException;
 
 	/**
 	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(T txn, TransportId t, KeySetId k)
+	void incrementStreamCounter(T txn, TransportId t, TransportKeySetId k)
 			throws DbException;
 
 	/**
@@ -589,7 +593,7 @@ interface Database<T> {
 	/**
 	 * Removes the given transport keys from the database.
 	 */
-	void removeTransportKeys(T txn, TransportId t, KeySetId k)
+	void removeTransportKeys(T txn, TransportId t, TransportKeySetId k)
 			throws DbException;
 
 	/**
@@ -637,13 +641,13 @@ interface Database<T> {
 	 * Sets the reordering window for the given key set and transport in the
 	 * given time period.
 	 */
-	void setReorderingWindow(T txn, KeySetId k, TransportId t,
+	void setReorderingWindow(T txn, TransportKeySetId k, TransportId t,
 			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
-	void setTransportKeysActive(T txn, TransportId t, KeySetId k)
+	void setTransportKeysActive(T txn, TransportId t, TransportKeySetId k)
 			throws DbException;
 
 	/**
@@ -657,5 +661,5 @@ interface Database<T> {
 	/**
 	 * Updates the given transport keys following key rotation.
 	 */
-	void updateTransportKeys(T txn, KeySet ks) throws DbException;
+	void updateTransportKeys(T txn, TransportKeySet ks) throws DbException;
 }

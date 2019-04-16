@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.briar.introduction.IntroduceeSession.Common;
 import org.briarproject.briar.introduction.IntroduceeSession.Local;
 import org.briarproject.briar.introduction.IntroduceeSession.Remote;
@@ -143,10 +143,10 @@ class SessionEncoderImpl implements SessionEncoder {
 
 	@Nullable
 	private BdfDictionary encodeTransportKeys(
-			@Nullable Map<TransportId, KeySetId> keys) {
+			@Nullable Map<TransportId, TransportKeySetId> keys) {
 		if (keys == null) return null;
 		BdfDictionary d = new BdfDictionary();
-		for (Map.Entry<TransportId, KeySetId> e : keys.entrySet()) {
+		for (Map.Entry<TransportId, TransportKeySetId> e : keys.entrySet()) {
 			d.put(e.getKey().getString(), e.getValue().getInt());
 		}
 		return d;

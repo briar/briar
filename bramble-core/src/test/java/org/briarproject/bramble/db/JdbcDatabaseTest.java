@@ -21,9 +21,9 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleTestCase;
@@ -103,7 +103,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final MessageId messageId;
 	private final TransportId transportId;
 	private final ContactId contactId;
-	private final KeySetId keySetId, keySetId1;
+	private final TransportKeySetId keySetId, keySetId1;
 	private final Random random = new Random();
 
 	JdbcDatabaseTest() {
@@ -117,8 +117,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		messageId = message.getId();
 		transportId = getTransportId();
 		contactId = new ContactId(1);
-		keySetId = new KeySetId(1);
-		keySetId1 = new KeySetId(2);
+		keySetId = new TransportKeySetId(1);
+		keySetId1 = new TransportKeySetId(2);
 	}
 
 	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
@@ -673,15 +673,16 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(keySetId1, db.addTransportKeys(txn, contactId, keys1));
 
 		// Retrieve the transport keys
-		Collection<KeySet> allKeys = db.getTransportKeys(txn, transportId);
+		Collection<TransportKeySet> allKeys =
+				db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (KeySet ks : allKeys) {
+		for (TransportKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
 			if (ks.getKeySetId().equals(keySetId)) {
-				assertKeysEquals(keys, ks.getTransportKeys());
+				assertKeysEquals(keys, ks.getKeys());
 			} else {
 				assertEquals(keySetId1, ks.getKeySetId());
-				assertKeysEquals(keys1, ks.getTransportKeys());
+				assertKeysEquals(keys1, ks.getKeys());
 			}
 		}
 
@@ -689,19 +690,21 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		TransportKeys rotated = createTransportKeys(timePeriod + 1, active);
 		TransportKeys rotated1 =
 				createTransportKeys(timePeriod1 + 1, active);
-		db.updateTransportKeys(txn, new KeySet(keySetId, contactId, rotated));
-		db.updateTransportKeys(txn, new KeySet(keySetId1, contactId, rotated1));
+		db.updateTransportKeys(txn, new TransportKeySet(keySetId, contactId,
+				rotated));
+		db.updateTransportKeys(txn, new TransportKeySet(keySetId1, contactId,
+				rotated1));
 
 		// Retrieve the transport keys again
 		allKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (KeySet ks : allKeys) {
+		for (TransportKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
 			if (ks.getKeySetId().equals(keySetId)) {
-				assertKeysEquals(rotated, ks.getTransportKeys());
+				assertKeysEquals(rotated, ks.getKeys());
 			} else {
 				assertEquals(keySetId1, ks.getKeySetId());
-				assertKeysEquals(rotated1, ks.getTransportKeys());
+				assertKeysEquals(rotated1, ks.getKeys());
 			}
 		}
 
@@ -766,12 +769,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Increment the stream counter twice and retrieve the transport keys
 		db.incrementStreamCounter(txn, transportId, keySetId);
 		db.incrementStreamCounter(txn, transportId, keySetId);
-		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
+		Collection<TransportKeySet> newKeys =
+				db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		KeySet ks = newKeys.iterator().next();
+		TransportKeySet ks = newKeys.iterator().next();
 		assertEquals(keySetId, ks.getKeySetId());
 		assertEquals(contactId, ks.getContactId());
-		TransportKeys k = ks.getTransportKeys();
+		TransportKeys k = ks.getKeys();
 		assertEquals(transportId, k.getTransportId());
 		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
 		assertEquals(timePeriod, outCurr.getTimePeriod());
@@ -810,12 +814,13 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		random.nextBytes(bitmap);
 		db.setReorderingWindow(txn, keySetId, transportId, timePeriod,
 				base + 1, bitmap);
-		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
+		Collection<TransportKeySet> newKeys =
+				db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		KeySet ks = newKeys.iterator().next();
+		TransportKeySet ks = newKeys.iterator().next();
 		assertEquals(keySetId, ks.getKeySetId());
 		assertEquals(contactId, ks.getContactId());
-		TransportKeys k = ks.getTransportKeys();
+		TransportKeys k = ks.getKeys();
 		assertEquals(transportId, k.getTransportId());
 		IncomingKeys inCurr = k.getCurrentIncomingKeys();
 		assertEquals(timePeriod, inCurr.getTimePeriod());

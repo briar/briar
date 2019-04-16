@@ -45,9 +45,9 @@ import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.api.transport.IncomingKeys;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
@@ -111,7 +111,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final int maxLatency;
 	private final ContactId contactId;
 	private final Contact contact;
-	private final KeySetId keySetId;
+	private final TransportKeySetId keySetId;
 
 	public DatabaseComponentImplTest() {
 		clientId = getClientId();
@@ -132,7 +132,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthor.getId(), alias,
 				true, true);
-		keySetId = new KeySetId(345);
+		keySetId = new TransportKeySetId(345);
 	}
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
@@ -1117,8 +1117,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test
 	public void testTransportKeys() throws Exception {
 		TransportKeys transportKeys = createTransportKeys();
-		KeySet ks = new KeySet(keySetId, contactId, transportKeys);
-		Collection<KeySet> keys = singletonList(ks);
+		TransportKeySet ks =
+				new TransportKeySet(keySetId, contactId, transportKeys);
+		Collection<TransportKeySet> keys = singletonList(ks);
 
 		context.checking(new Expectations() {{
 			// startTransaction()

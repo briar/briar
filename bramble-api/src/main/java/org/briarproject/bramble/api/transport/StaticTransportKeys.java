@@ -7,8 +7,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Keys for communicating with a given contact over a given transport. Unlike
- * {@link TransportKeys} these do not provide forward secrecy.
+ * Keys for communicating with a given contact or pending contact over a given
+ * transport. Unlike {@link TransportKeys} these do not provide forward secrecy.
  */
 @Immutable
 @NotNullByDefault

@@ -19,8 +19,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -95,10 +95,10 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
-			SecretKey rootKey, long timestamp, boolean alice, boolean active)
-			throws DbException {
-		Map<TransportId, KeySetId> ids = new HashMap<>();
+	public Map<TransportId, TransportKeySetId> addContact(Transaction txn,
+			ContactId c, SecretKey rootKey, long timestamp, boolean alice,
+			boolean active) throws DbException {
+		Map<TransportId, TransportKeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
@@ -108,9 +108,9 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
-			throws DbException {
-		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
+	public void activateKeys(Transaction txn, Map<TransportId,
+			TransportKeySetId> keys) throws DbException {
+		for (Entry<TransportId, TransportKeySetId> e : keys.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = managers.get(t);
 			if (m == null) {
