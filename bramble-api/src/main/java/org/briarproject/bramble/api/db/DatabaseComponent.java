@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -20,6 +21,9 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.validation.MessageState;
+import org.briarproject.bramble.api.transport.StaticTransportKeySet;
+import org.briarproject.bramble.api.transport.StaticTransportKeySetId;
+import org.briarproject.bramble.api.transport.StaticTransportKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -118,6 +122,20 @@ public interface DatabaseComponent {
 	 */
 	void addLocalMessage(Transaction txn, Message m, Metadata meta,
 			boolean shared) throws DbException;
+
+	/**
+	 * Stores the given static transport keys for the given contact and returns
+	 * a key set ID.
+	 */
+	StaticTransportKeySetId addStaticTransportKeys(Transaction txn, ContactId c,
+			StaticTransportKeys k) throws DbException;
+
+	/**
+	 * Stores the given static transport keys for the given pending contact and
+	 * returns a key set ID.
+	 */
+	StaticTransportKeySetId addStaticTransportKeys(Transaction txn,
+			PendingContactId p, StaticTransportKeys k) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -425,12 +443,27 @@ public interface DatabaseComponent {
 	Settings getSettings(Transaction txn, String namespace) throws DbException;
 
 	/**
+	 * Returns all static transport keys for the given transport.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<StaticTransportKeySet> getStaticTransportKeys(Transaction txn,
+			TransportId t) throws DbException;
+
+	/**
 	 * Returns all transport keys for the given transport.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<TransportKeySet> getTransportKeys(Transaction txn, TransportId t)
 			throws DbException;
+
+	/**
+	 * Increments the outgoing stream counter for the given static transport
+	 * keys.
+	 */
+	void incrementStreamCounter(Transaction txn, TransportId t,
+			StaticTransportKeySetId k) throws DbException;
 
 	/**
 	 * Increments the outgoing stream counter for the given transport keys.
@@ -502,6 +535,12 @@ public interface DatabaseComponent {
 	void removeMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
+	 * Removes the given static transport keys from the database.
+	 */
+	void removeStaticTransportKeys(Transaction txn, TransportId t,
+			StaticTransportKeySetId k) throws DbException;
+
+	/**
 	 * Removes a transport (and all associated state) from the database.
 	 */
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
@@ -565,6 +604,13 @@ public interface DatabaseComponent {
 	 */
 	void setTransportKeysActive(Transaction txn, TransportId t,
 			TransportKeySetId k) throws DbException;
+
+	/**
+	 * Stores the given static transport keys, deleting any keys they have
+	 * replaced.
+	 */
+	void updateStaticTransportKeys(Transaction txn,
+			Collection<StaticTransportKeySet> keys) throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.

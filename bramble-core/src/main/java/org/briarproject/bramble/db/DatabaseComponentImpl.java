@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
@@ -59,6 +60,9 @@ import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.api.sync.validation.MessageState;
+import org.briarproject.bramble.api.transport.StaticTransportKeySet;
+import org.briarproject.bramble.api.transport.StaticTransportKeySetId;
+import org.briarproject.bramble.api.transport.StaticTransportKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -279,6 +283,32 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			if (shared) transaction.attach(new MessageSharedEvent(m.getId()));
 		}
 		db.mergeMessageMetadata(txn, m.getId(), meta);
+	}
+
+	@Override
+	public StaticTransportKeySetId addStaticTransportKeys(
+			Transaction transaction, ContactId c, StaticTransportKeys k)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		if (!db.containsTransport(txn, k.getTransportId()))
+			throw new NoSuchTransportException();
+		return db.addStaticTransportKeys(txn, c, k);
+	}
+
+	@Override
+	public StaticTransportKeySetId addStaticTransportKeys(
+			Transaction transaction, PendingContactId p,
+			StaticTransportKeys k) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsPendingContact(txn, p))
+			throw new NoSuchContactException();
+		if (!db.containsTransport(txn, k.getTransportId()))
+			throw new NoSuchTransportException();
+		return db.addStaticTransportKeys(txn, p, k);
 	}
 
 	@Override
@@ -663,12 +693,27 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Collection<StaticTransportKeySet> getStaticTransportKeys(
+			Transaction transaction, TransportId t) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		return db.getStaticTransportKeys(txn, t);
+	}
+
+	@Override
 	public Collection<TransportKeySet> getTransportKeys(Transaction transaction,
 			TransportId t) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		return db.getTransportKeys(txn, t);
+	}
+
+	@Override
+	public void incrementStreamCounter(Transaction txn, TransportId t,
+			StaticTransportKeySetId k) throws DbException {
+
 	}
 
 	@Override
@@ -845,6 +890,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void removeStaticTransportKeys(Transaction transaction,
+			TransportId t, StaticTransportKeySetId k) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.removeStaticTransportKeys(txn, t, k);
+	}
+
+	@Override
 	public void removeTransport(Transaction transaction, TransportId t)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -973,6 +1028,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.setTransportKeysActive(txn, t, k);
+	}
+
+	@Override
+	public void updateStaticTransportKeys(Transaction transaction,
+			Collection<StaticTransportKeySet> keys) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		for (StaticTransportKeySet ks : keys) {
+			TransportId t = ks.getKeys().getTransportId();
+			if (db.containsTransport(txn, t))
+				db.updateStaticTransportKeys(txn, ks);
+		}
 	}
 
 	@Override

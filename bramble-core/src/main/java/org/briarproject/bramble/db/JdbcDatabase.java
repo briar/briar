@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
@@ -28,6 +29,9 @@ import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
+import org.briarproject.bramble.api.transport.StaticTransportKeySet;
+import org.briarproject.bramble.api.transport.StaticTransportKeySetId;
+import org.briarproject.bramble.api.transport.StaticTransportKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -55,6 +59,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.sql.Types.BINARY;
 import static java.sql.Types.INTEGER;
 import static java.sql.Types.VARCHAR;
 import static java.util.logging.Level.INFO;
@@ -283,23 +288,26 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	private static final String CREATE_PENDING_CONTACTS =
 			"CREATE TABLE pendingContacts"
-			+ " (pendingContactId _HASH NOT NULL,"
-			+ " PRIMARY KEY (pendingContactId))";
+					+ " (pendingContactId _HASH NOT NULL,"
+					+ " PRIMARY KEY (pendingContactId))";
 
 	private static final String CREATE_OUTGOING_STATIC_KEYS =
 			"CREATE TABLE outgoingStaticKeys"
 					+ " (transportId _STRING NOT NULL,"
-					+ " staticKeySetId _COUNTER,"
-					+ " rootKey _SECRET NOT NULL,"
+					+ " keySetId _COUNTER,"
 					+ " timePeriod BIGINT NOT NULL,"
-					+ " stream BIGINT NOT NULL,"
 					+ " contactId INT," // Null if contact is pending
 					+ " pendingContactId _HASH," // Null if not pending
-					+ " PRIMARY KEY (transportId, staticKeySetId),"
+					+ " rootKey _SECRET NOT NULL,"
+					+ " alice BOOLEAN NOT NULL,"
+					+ " tagKey _SECRET NOT NULL,"
+					+ " headerKey _SECRET NOT NULL,"
+					+ " stream BIGINT NOT NULL,"
+					+ " PRIMARY KEY (transportId, keySetId),"
 					+ " FOREIGN KEY (transportId)"
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE,"
-					+ " UNIQUE (staticKeySetId),"
+					+ " UNIQUE (keySetId),"
 					+ " FOREIGN KEY (contactId)"
 					+ " REFERENCES contacts (contactId)"
 					+ " ON DELETE CASCADE,"
@@ -310,18 +318,19 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_INCOMING_STATIC_KEYS =
 			"CREATE TABLE incomingStaticKeys"
 					+ " (transportId _STRING NOT NULL,"
-					+ " staticKeySetId INT NOT NULL,"
+					+ " keySetId INT NOT NULL,"
 					+ " timePeriod BIGINT NOT NULL,"
+					+ " tagKey _SECRET NOT NULL,"
+					+ " headerKey _SECRET NOT NULL,"
 					+ " base BIGINT NOT NULL,"
 					+ " bitmap _BINARY NOT NULL,"
 					+ " periodOffset INT NOT NULL,"
-					+ " PRIMARY KEY (transportId, staticKeySetId,"
-					+ " periodOffset),"
+					+ " PRIMARY KEY (transportId, keySetId, periodOffset),"
 					+ " FOREIGN KEY (transportId)"
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE,"
-					+ " FOREIGN KEY (staticKeySetId)"
-					+ " REFERENCES outgoingStaticKeys (staticKeySetId)"
+					+ " FOREIGN KEY (keySetId)"
+					+ " REFERENCES outgoingStaticKeys (keySetId)"
 					+ " ON DELETE CASCADE)";
 
 	private static final String INDEX_CONTACTS_BY_AUTHOR_ID =
@@ -939,6 +948,104 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public StaticTransportKeySetId addStaticTransportKeys(Connection txn,
+			ContactId c, StaticTransportKeys k) throws DbException {
+		return addStaticTransportKeys(txn, c, null, k);
+	}
+
+	@Override
+	public StaticTransportKeySetId addStaticTransportKeys(Connection txn,
+			PendingContactId p, StaticTransportKeys k) throws DbException {
+		return addStaticTransportKeys(txn, null, p, k);
+	}
+
+	private StaticTransportKeySetId addStaticTransportKeys(Connection txn,
+			@Nullable ContactId c, @Nullable PendingContactId p,
+			StaticTransportKeys k) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Store the outgoing keys
+			String sql = "INSERT INTO outgoingStaticKeys (contactId,"
+					+ " pendingContactId, transportId, rootKey, alice,"
+					+ " timePeriod, tagKey, headerKey, stream)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			if (c == null) ps.setNull(1, INTEGER);
+			else ps.setInt(1, c.getInt());
+			if (p == null) ps.setNull(2, BINARY);
+			else ps.setBytes(2, p.getBytes());
+			ps.setString(3, k.getTransportId().getString());
+			ps.setBytes(4, k.getRootKey().getBytes());
+			ps.setBoolean(5, k.isAlice());
+			OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
+			ps.setLong(6, outCurr.getTimePeriod());
+			ps.setBytes(7, outCurr.getTagKey().getBytes());
+			ps.setBytes(8, outCurr.getHeaderKey().getBytes());
+			ps.setLong(9, outCurr.getStreamCounter());
+			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
+			ps.close();
+			// Get the new (highest) key set ID
+			sql = "SELECT keySetId FROM outgoingStaticKeys"
+					+ " ORDER BY keySetId DESC LIMIT 1";
+			ps = txn.prepareStatement(sql);
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			StaticTransportKeySetId keySetId = new
+					StaticTransportKeySetId(rs.getInt(1));
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			// Store the incoming keys
+			sql = "INSERT INTO incomingStaticKeys (keySetId, transportId,"
+					+ " timePeriod, tagKey, headerKey, base, bitmap,"
+					+ " periodOffset)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, keySetId.getInt());
+			ps.setString(2, k.getTransportId().getString());
+			// Previous time period
+			IncomingKeys inPrev = k.getPreviousIncomingKeys();
+			ps.setLong(3, inPrev.getTimePeriod());
+			ps.setBytes(4, inPrev.getTagKey().getBytes());
+			ps.setBytes(5, inPrev.getHeaderKey().getBytes());
+			ps.setLong(6, inPrev.getWindowBase());
+			ps.setBytes(7, inPrev.getWindowBitmap());
+			ps.setInt(8, OFFSET_PREV);
+			ps.addBatch();
+			// Current time period
+			IncomingKeys inCurr = k.getCurrentIncomingKeys();
+			ps.setLong(3, inCurr.getTimePeriod());
+			ps.setBytes(4, inCurr.getTagKey().getBytes());
+			ps.setBytes(5, inCurr.getHeaderKey().getBytes());
+			ps.setLong(6, inCurr.getWindowBase());
+			ps.setBytes(7, inCurr.getWindowBitmap());
+			ps.setInt(8, OFFSET_CURR);
+			ps.addBatch();
+			// Next time period
+			IncomingKeys inNext = k.getNextIncomingKeys();
+			ps.setLong(3, inNext.getTimePeriod());
+			ps.setBytes(4, inNext.getTagKey().getBytes());
+			ps.setBytes(5, inNext.getHeaderKey().getBytes());
+			ps.setLong(6, inNext.getWindowBase());
+			ps.setBytes(7, inNext.getWindowBitmap());
+			ps.setInt(8, OFFSET_NEXT);
+			ps.addBatch();
+			int[] batchAffected = ps.executeBatch();
+			if (batchAffected.length != 3) throw new DbStateException();
+			for (int rows : batchAffected)
+				if (rows != 1) throw new DbStateException();
+			ps.close();
+			return keySetId;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void addTransport(Connection txn, TransportId t, int maxLatency)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -1136,6 +1243,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "SELECT NULL FROM messages WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getBytes());
+			rs = ps.executeQuery();
+			boolean found = rs.next();
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return found;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public boolean containsPendingContact(Connection txn, PendingContactId p)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT NULL FROM pendingContacts"
+					+ " WHERE pendingContactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, p.getBytes());
 			rs = ps.executeQuery();
 			boolean found = rs.next();
 			if (rs.next()) throw new DbStateException();
@@ -2191,6 +2321,87 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public Collection<StaticTransportKeySet> getStaticTransportKeys(
+			Connection txn, TransportId t) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Retrieve the incoming keys
+			String sql = "SELECT timePeriod, tagKey, headerKey, base, bitmap"
+					+ " FROM incomingStaticKeys"
+					+ " WHERE transportId = ?"
+					+ " ORDER BY keySetId, periodOffset";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, t.getString());
+			rs = ps.executeQuery();
+			List<IncomingKeys> inKeys = new ArrayList<>();
+			while (rs.next()) {
+				long timePeriod = rs.getLong(1);
+				SecretKey tagKey = new SecretKey(rs.getBytes(2));
+				SecretKey headerKey = new SecretKey(rs.getBytes(3));
+				long windowBase = rs.getLong(4);
+				byte[] windowBitmap = rs.getBytes(5);
+				inKeys.add(new IncomingKeys(tagKey, headerKey, timePeriod,
+						windowBase, windowBitmap));
+			}
+			rs.close();
+			ps.close();
+			// Retrieve the outgoing keys in the same order
+			sql = "SELECT keySetId, contactId, pendingContactId, timePeriod,"
+					+ " tagKey, headerKey, rootKey, alice, stream"
+					+ " FROM outgoingStaticKeys"
+					+ " WHERE transportId = ?"
+					+ " ORDER BY keySetId";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, t.getString());
+			rs = ps.executeQuery();
+			Collection<StaticTransportKeySet> keys = new ArrayList<>();
+			for (int i = 0; rs.next(); i++) {
+				// There should be three times as many incoming keys
+				if (inKeys.size() < (i + 1) * 3) throw new DbStateException();
+				StaticTransportKeySetId keySetId =
+						new StaticTransportKeySetId(rs.getInt(1));
+				ContactId contactId = null;
+				int cId = rs.getInt(2);
+				if (!rs.wasNull()) contactId = new ContactId(cId);
+				PendingContactId pendingContactId = null;
+				byte[] pId = rs.getBytes(3);
+				if (!rs.wasNull()) pendingContactId = new PendingContactId(pId);
+				long timePeriod = rs.getLong(4);
+				SecretKey tagKey = new SecretKey(rs.getBytes(5));
+				SecretKey headerKey = new SecretKey(rs.getBytes(6));
+				SecretKey rootKey = new SecretKey(rs.getBytes(7));
+				boolean alice = rs.getBoolean(8);
+				long streamCounter = rs.getLong(9);
+				OutgoingKeys outCurr = new OutgoingKeys(tagKey, headerKey,
+						timePeriod, streamCounter, true);
+				IncomingKeys inPrev = inKeys.get(i * 3);
+				IncomingKeys inCurr = inKeys.get(i * 3 + 1);
+				IncomingKeys inNext = inKeys.get(i * 3 + 2);
+				StaticTransportKeys staticTransportKeys =
+						new StaticTransportKeys(t, inPrev, inCurr, inNext,
+								outCurr, rootKey, alice);
+				if (contactId == null) {
+					if (pendingContactId == null) throw new DbStateException();
+					keys.add(new StaticTransportKeySet(keySetId,
+							pendingContactId, staticTransportKeys));
+				} else {
+					if (pendingContactId != null) throw new DbStateException();
+					keys.add(new StaticTransportKeySet(keySetId, contactId,
+							staticTransportKeys));
+				}
+			}
+			rs.close();
+			ps.close();
+			return keys;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<TransportKeySet> getTransportKeys(Connection txn,
 			TransportId t) throws DbException {
 		PreparedStatement ps = null;
@@ -2252,6 +2463,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 			return keys;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void incrementStreamCounter(Connection txn, TransportId t,
+			StaticTransportKeySetId k) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE outgoingStaticKeys SET stream = stream + 1"
+					+ " WHERE transportId = ? AND keySetId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, t.getString());
+			ps.setInt(2, k.getInt());
+			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
@@ -2339,8 +2569,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 					g.getBytes(), meta, "groupMetadata", "groupId");
 			if (added.isEmpty()) return;
 			// Insert any keys that don't already exist
-			String sql = "INSERT INTO groupMetadata (groupId, metaKey, value)"
-					+ " VALUES (?, ?, ?)";
+			String sql =
+					"INSERT INTO groupMetadata (groupId, metaKey, value)"
+							+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			for (Entry<String, byte[]> e : added.entrySet()) {
@@ -2488,7 +2719,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != s.size()) throw new DbStateException();
+			if (batchAffected.length != s.size())
+				throw new DbStateException();
 			for (int rows : batchAffected) {
 				if (rows < 0) throw new DbStateException();
 				if (rows > 1) throw new DbStateException();
@@ -2509,7 +2741,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				updateIndex++;
 			}
 			batchAffected = ps.executeBatch();
-			if (batchAffected.length != inserted) throw new DbStateException();
+			if (batchAffected.length != inserted)
+				throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
 			ps.close();
@@ -2610,7 +2843,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void removeGroupVisibility(Connection txn, ContactId c, GroupId g)
+	public void removeGroupVisibility(Connection txn, ContactId c, GroupId
+			g)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2655,7 +2889,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void removeMessage(Connection txn, MessageId m) throws DbException {
+	public void removeMessage(Connection txn, MessageId m) throws
+			DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM messages WHERE messageId = ?";
@@ -2707,6 +2942,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 				throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void removeStaticTransportKeys(Connection txn, TransportId t,
+			StaticTransportKeySetId k) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Delete any existing outgoing keys - this will also remove any
+			// incoming keys with the same key set ID
+			String sql = "DELETE FROM outgoingStaticKeys"
+					+ " WHERE transportId = ? AND keySetId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setString(1, t.getString());
+			ps.setInt(2, k.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
@@ -2776,7 +3032,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE contacts SET verified = ? WHERE contactId = ?";
+			String sql =
+					"UPDATE contacts SET verified = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, true);
 			ps.setInt(2, c.getInt());
@@ -2794,7 +3051,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE contacts SET active = ? WHERE contactId = ?";
+			String sql =
+					"UPDATE contacts SET active = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, active);
 			ps.setInt(2, c.getInt());
@@ -2812,7 +3070,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			@Nullable String alias) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE contacts SET alias = ? WHERE contactId = ?";
+			String sql =
+					"UPDATE contacts SET alias = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			if (alias == null) ps.setNull(1, VARCHAR);
 			else ps.setString(1, alias);
@@ -2883,11 +3142,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void setMessageState(Connection txn, MessageId m, MessageState state)
+	public void setMessageState(Connection txn, MessageId m, MessageState
+			state)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql = "UPDATE messages SET state = ? WHERE messageId = ?";
+			String sql =
+					"UPDATE messages SET state = ? WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());
@@ -2895,7 +3156,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 			// Update denormalised column in messageMetadata
-			sql = "UPDATE messageMetadata SET state = ? WHERE messageId = ?";
+			sql =
+					"UPDATE messageMetadata SET state = ? WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());
@@ -2922,7 +3184,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Update denormalised column in messageDependencies if dependency
 			// is present and in same group as dependent
 			sql = "UPDATE messageDependencies SET dependencyState = ?"
-					+ " WHERE dependencyId = ? AND dependencyState IS NOT NULL";
+					+
+					" WHERE dependencyId = ? AND dependencyState IS NOT NULL";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());
@@ -2979,7 +3242,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void updateExpiryTimeAndEta(Connection txn, ContactId c, MessageId m,
+	public void updateExpiryTimeAndEta(Connection txn, ContactId
+			c, MessageId m,
 			int maxLatency) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -3038,6 +3302,73 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.close();
 			// Update the incoming keys
 			sql = "UPDATE incomingKeys SET timePeriod = ?,"
+					+ " tagKey = ?, headerKey = ?, base = ?, bitmap = ?"
+					+ " WHERE transportId = ? AND keySetId = ?"
+					+ " AND periodOffset = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setString(6, k.getTransportId().getString());
+			ps.setInt(7, ks.getKeySetId().getInt());
+			// Previous time period
+			IncomingKeys inPrev = k.getPreviousIncomingKeys();
+			ps.setLong(1, inPrev.getTimePeriod());
+			ps.setBytes(2, inPrev.getTagKey().getBytes());
+			ps.setBytes(3, inPrev.getHeaderKey().getBytes());
+			ps.setLong(4, inPrev.getWindowBase());
+			ps.setBytes(5, inPrev.getWindowBitmap());
+			ps.setInt(8, OFFSET_PREV);
+			ps.addBatch();
+			// Current time period
+			IncomingKeys inCurr = k.getCurrentIncomingKeys();
+			ps.setLong(1, inCurr.getTimePeriod());
+			ps.setBytes(2, inCurr.getTagKey().getBytes());
+			ps.setBytes(3, inCurr.getHeaderKey().getBytes());
+			ps.setLong(4, inCurr.getWindowBase());
+			ps.setBytes(5, inCurr.getWindowBitmap());
+			ps.setInt(8, OFFSET_CURR);
+			ps.addBatch();
+			// Next time period
+			IncomingKeys inNext = k.getNextIncomingKeys();
+			ps.setLong(1, inNext.getTimePeriod());
+			ps.setBytes(2, inNext.getTagKey().getBytes());
+			ps.setBytes(3, inNext.getHeaderKey().getBytes());
+			ps.setLong(4, inNext.getWindowBase());
+			ps.setBytes(5, inNext.getWindowBitmap());
+			ps.setInt(8, OFFSET_NEXT);
+			ps.addBatch();
+			int[] batchAffected = ps.executeBatch();
+			if (batchAffected.length != 3) throw new DbStateException();
+			for (int rows : batchAffected)
+				if (rows < 0 || rows > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void updateStaticTransportKeys(Connection txn,
+			StaticTransportKeySet ks) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			// Update the outgoing keys
+			String sql = "UPDATE outgoingStaticKeys SET timePeriod = ?,"
+					+ " tagKey = ?, headerKey = ?, stream = ?"
+					+ " WHERE transportId = ? AND keySetId = ?";
+			ps = txn.prepareStatement(sql);
+			StaticTransportKeys k = ks.getKeys();
+			OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
+			ps.setLong(1, outCurr.getTimePeriod());
+			ps.setBytes(2, outCurr.getTagKey().getBytes());
+			ps.setBytes(3, outCurr.getHeaderKey().getBytes());
+			ps.setLong(4, outCurr.getStreamCounter());
+			ps.setString(5, k.getTransportId().getString());
+			ps.setInt(6, ks.getKeySetId().getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+			// Update the incoming keys
+			sql = "UPDATE incomingStaticKeys SET timePeriod = ?,"
 					+ " tagKey = ?, headerKey = ?, base = ?, bitmap = ?"
 					+ " WHERE transportId = ? AND keySetId = ?"
 					+ " AND periodOffset = ?";

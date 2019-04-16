@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
@@ -24,6 +25,9 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
+import org.briarproject.bramble.api.transport.StaticTransportKeySet;
+import org.briarproject.bramble.api.transport.StaticTransportKeySetId;
+import org.briarproject.bramble.api.transport.StaticTransportKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -36,7 +40,7 @@ import javax.annotation.Nullable;
 /**
  * A low-level interface to the database ({@link DatabaseComponent} provides a
  * high-level interface).
- * <p>
+ * <p/>
  * Most operations take a transaction argument, which is obtained by calling
  * {@link #startTransaction()}. Every transaction must be terminated by calling
  * either {@link #abortTransaction(Object) abortTransaction(T)} or
@@ -126,6 +130,20 @@ interface Database<T> {
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
+	 * Stores the given static transport keys for the given contact and returns
+	 * a key set ID.
+	 */
+	StaticTransportKeySetId addStaticTransportKeys(T txn, ContactId c,
+			StaticTransportKeys k) throws DbException;
+
+	/**
+	 * Stores the given static transport keys for the given pending contact and
+	 * returns a key set ID.
+	 */
+	StaticTransportKeySetId addStaticTransportKeys(T txn, PendingContactId p,
+			StaticTransportKeys k) throws DbException;
+
+	/**
 	 * Stores a transport.
 	 */
 	void addTransport(T txn, TransportId t, int maxLatency)
@@ -174,6 +192,14 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	boolean containsMessage(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns true if the database contains the given pending contact.
+	 * <p/>
+	 * Read-only.
+	 */
+	boolean containsPendingContact(T txn, PendingContactId p)
+			throws DbException;
 
 	/**
 	 * Returns true if the database contains the given transport.
@@ -489,11 +515,26 @@ interface Database<T> {
 	Settings getSettings(T txn, String namespace) throws DbException;
 
 	/**
+	 * Returns all static transport keys for the given transport.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<StaticTransportKeySet> getStaticTransportKeys(T txn,
+			TransportId t) throws DbException;
+
+	/**
 	 * Returns all transport keys for the given transport.
 	 * <p/>
 	 * Read-only.
 	 */
 	Collection<TransportKeySet> getTransportKeys(T txn, TransportId t)
+			throws DbException;
+
+	/**
+	 * Increments the outgoing stream counter for the given static transport
+	 * keys.
+	 */
+	void incrementStreamCounter(T txn, TransportId t, StaticTransportKeySetId k)
 			throws DbException;
 
 	/**
@@ -586,6 +627,12 @@ interface Database<T> {
 			Collection<MessageId> requested) throws DbException;
 
 	/**
+	 * Removes the given static transport keys from the database.
+	 */
+	void removeStaticTransportKeys(T txn, TransportId t,
+			StaticTransportKeySetId k) throws DbException;
+
+	/**
 	 * Removes a transport (and all associated state) from the database.
 	 */
 	void removeTransport(T txn, TransportId t) throws DbException;
@@ -656,6 +703,12 @@ interface Database<T> {
 	 * of the transport over which it was sent.
 	 */
 	void updateExpiryTimeAndEta(T txn, ContactId c, MessageId m, int maxLatency)
+			throws DbException;
+
+	/**
+	 * Updates the given static transport keys following key rotation.
+	 */
+	void updateStaticTransportKeys(T txn, StaticTransportKeySet ks)
 			throws DbException;
 
 	/**
