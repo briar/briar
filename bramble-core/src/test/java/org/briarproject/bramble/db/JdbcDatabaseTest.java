@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
@@ -55,6 +56,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -73,6 +75,7 @@ import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
+import static org.briarproject.bramble.test.TestUtils.getPendingContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -107,6 +110,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final ContactId contactId;
 	private final TransportKeySetId keySetId, keySetId1;
 	private final StaticTransportKeySetId staticKeySetId, staticKeySetId1;
+	private final PendingContact pendingContact;
 	private final Random random = new Random();
 
 	JdbcDatabaseTest() {
@@ -124,6 +128,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		keySetId1 = new TransportKeySetId(2);
 		staticKeySetId = new StaticTransportKeySetId(1);
 		staticKeySetId1 = new StaticTransportKeySetId(2);
+		pendingContact = getPendingContact();
 	}
 
 	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
@@ -788,6 +793,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(2, allKeys.size());
 		for (StaticTransportKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
+			assertNull(ks.getPendingContactId());
 			if (ks.getKeySetId().equals(staticKeySetId)) {
 				assertKeysEquals(keys, ks.getKeys());
 			} else {
@@ -811,6 +817,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(2, allKeys.size());
 		for (StaticTransportKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
+			assertNull(ks.getPendingContactId());
 			if (ks.getKeySetId().equals(staticKeySetId)) {
 				assertKeysEquals(updated, ks.getKeys());
 			} else {
@@ -842,6 +849,78 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				actual.getNextIncomingKeys());
 		assertKeysEquals(expected.getCurrentOutgoingKeys(),
 				actual.getCurrentOutgoingKeys());
+	}
+
+	@Test
+	public void testStaticTransportKeysForPendingContact() throws Exception {
+		long timePeriod = 123, timePeriod1 = 234;
+		boolean alice = random.nextBoolean();
+		SecretKey rootKey = getSecretKey();
+		SecretKey rootKey1 = getSecretKey();
+		StaticTransportKeys keys =
+				createStaticTransportKeys(timePeriod, rootKey, alice);
+		StaticTransportKeys keys1 =
+				createStaticTransportKeys(timePeriod1, rootKey1, alice);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Initially there should be no static transport keys in the database
+		assertEquals(emptyList(), db.getStaticTransportKeys(txn, transportId));
+
+		// Add the pending contact, the transport and the static transport keys
+		db.addPendingContact(txn, pendingContact);
+		db.addTransport(txn, transportId, 123);
+		assertEquals(staticKeySetId,
+				db.addStaticTransportKeys(txn, pendingContact.getId(), keys));
+		assertEquals(staticKeySetId1,
+				db.addStaticTransportKeys(txn, pendingContact.getId(), keys1));
+
+		// Retrieve the static transport keys
+		Collection<StaticTransportKeySet> allKeys =
+				db.getStaticTransportKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (StaticTransportKeySet ks : allKeys) {
+			assertNull(ks.getContactId());
+			assertEquals(pendingContact.getId(), ks.getPendingContactId());
+			if (ks.getKeySetId().equals(staticKeySetId)) {
+				assertKeysEquals(keys, ks.getKeys());
+			} else {
+				assertEquals(staticKeySetId1, ks.getKeySetId());
+				assertKeysEquals(keys1, ks.getKeys());
+			}
+		}
+
+		// Update the transport keys
+		StaticTransportKeys updated =
+				createStaticTransportKeys(timePeriod + 1, rootKey, alice);
+		StaticTransportKeys updated1 =
+				createStaticTransportKeys(timePeriod1 + 1, rootKey1, alice);
+		db.updateStaticTransportKeys(txn, new StaticTransportKeySet(
+				staticKeySetId, pendingContact.getId(), updated));
+		db.updateStaticTransportKeys(txn, new StaticTransportKeySet(
+				staticKeySetId1, pendingContact.getId(), updated1));
+
+		// Retrieve the static transport keys again
+		allKeys = db.getStaticTransportKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (StaticTransportKeySet ks : allKeys) {
+			assertNull(ks.getContactId());
+			assertEquals(pendingContact.getId(), ks.getPendingContactId());
+			if (ks.getKeySetId().equals(staticKeySetId)) {
+				assertKeysEquals(updated, ks.getKeys());
+			} else {
+				assertEquals(staticKeySetId1, ks.getKeySetId());
+				assertKeysEquals(updated1, ks.getKeys());
+			}
+		}
+
+		// Removing the pending contact should remove the static transport keys
+		db.removePendingContact(txn, pendingContact.getId());
+		assertEquals(emptyList(), db.getStaticTransportKeys(txn, transportId));
+
+		db.commitTransaction(txn);
+		db.close();
 	}
 
 	@Test
@@ -2159,6 +2238,39 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		s = db.getSettings(txn, DB_SETTINGS_NAMESPACE);
 		assertEquals(now + MAX_COMPACTION_INTERVAL_MS + 1,
 				s.getLong(LAST_COMPACTED_KEY, 0));
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testPendingContacts() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		assertEquals(emptyList(), db.getPendingContacts(txn));
+
+		db.addPendingContact(txn, pendingContact);
+		Collection<PendingContact> pendingContacts =
+				db.getPendingContacts(txn);
+		assertEquals(1, pendingContacts.size());
+		PendingContact retrieved = pendingContacts.iterator().next();
+		assertEquals(pendingContact.getId(), retrieved.getId());
+		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
+		assertEquals(pendingContact.getState(), retrieved.getState());
+		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
+
+		db.setPendingContactState(txn, pendingContact.getId(), FAILED);
+		pendingContacts = db.getPendingContacts(txn);
+		assertEquals(1, pendingContacts.size());
+		retrieved = pendingContacts.iterator().next();
+		assertEquals(pendingContact.getId(), retrieved.getId());
+		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
+		assertEquals(FAILED, retrieved.getState());
+		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
+
+		db.removePendingContact(txn, pendingContact.getId());
+		assertEquals(emptyList(), db.getPendingContacts(txn));
+
 		db.commitTransaction(txn);
 		db.close();
 	}
