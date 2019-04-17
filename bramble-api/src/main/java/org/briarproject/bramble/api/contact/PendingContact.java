@@ -8,13 +8,6 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class PendingContact {
 
-	public enum PendingContactState {
-		WAITING_FOR_CONNECTION,
-		CONNECTED,
-		ADDING_CONTACT,
-		FAILED
-	}
-
 	private final PendingContactId id;
 	private final String alias;
 	private final PendingContactState state;
@@ -26,6 +19,10 @@ public class PendingContact {
 		this.alias = alias;
 		this.state = state;
 		this.timestamp = timestamp;
+	}
+
+	public PendingContactId getId() {
+		return id;
 	}
 
 	public String getAlias() {

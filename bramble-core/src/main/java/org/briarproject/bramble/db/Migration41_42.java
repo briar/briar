@@ -46,6 +46,9 @@ class Migration41_42 implements Migration<Connection> {
 					+ " DROP COLUMN contactId");
 			s.execute(dbTypes.replaceTypes("CREATE TABLE pendingContacts"
 					+ " (pendingContactId _HASH NOT NULL,"
+					+ " alias _STRING NOT NULL,"
+					+ " state INT NOT NULL,"
+					+ " timestamp BIGINT NOT NULL,"
 					+ " PRIMARY KEY (pendingContactId))"));
 			s.execute(dbTypes.replaceTypes("CREATE TABLE outgoingStaticKeys"
 					+ " (transportId _STRING NOT NULL,"

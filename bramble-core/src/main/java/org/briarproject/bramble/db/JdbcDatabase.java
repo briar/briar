@@ -2,7 +2,9 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
@@ -289,6 +291,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_PENDING_CONTACTS =
 			"CREATE TABLE pendingContacts"
 					+ " (pendingContactId _HASH NOT NULL,"
+					+ " alias _STRING NOT NULL,"
+					+ " state INT NOT NULL,"
+					+ " timestamp BIGINT NOT NULL,"
 					+ " PRIMARY KEY (pendingContactId))";
 
 	private static final String CREATE_OUTGOING_STATIC_KEYS =
@@ -948,6 +953,28 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void addPendingContact(Connection txn, PendingContact p)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "INSERT INTO pendingContacts (pendingContactId,"
+					+ " alias, state, timestamp)"
+					+ " VALUES (?, ?, ?, ?)";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, p.getId().getBytes());
+			ps.setString(2, p.getAlias());
+			ps.setInt(3, p.getState().getValue());
+			ps.setLong(4, p.getTimestamp());
+			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public StaticTransportKeySetId addStaticTransportKeys(Connection txn,
 			ContactId c, StaticTransportKeys k) throws DbException {
 		return addStaticTransportKeys(txn, c, null, k);
@@ -1428,14 +1455,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 	@Override
 	public Collection<Contact> getContacts(Connection txn)
 			throws DbException {
-		PreparedStatement ps = null;
+		Statement s = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, formatVersion, name,"
 					+ " alias, publicKey, localAuthorId, verified, active"
 					+ " FROM contacts";
-			ps = txn.prepareStatement(sql);
-			rs = ps.executeQuery();
+			s = txn.createStatement();
+			rs = s.executeQuery(sql);
 			List<Contact> contacts = new ArrayList<>();
 			while (rs.next()) {
 				ContactId contactId = new ContactId(rs.getInt(1));
@@ -1453,11 +1480,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 						alias, verified, active));
 			}
 			rs.close();
-			ps.close();
+			s.close();
 			return contacts;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
-			tryToClose(ps, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
 		}
 	}
@@ -2259,6 +2286,36 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public Collection<PendingContact> getPendingContacts(Connection txn)
+			throws DbException {
+		Statement s = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT pendingContactId, alias, state, timestamp"
+					+ " FROM pendingContacts";
+			s = txn.createStatement();
+			rs = s.executeQuery(sql);
+			List<PendingContact> pendingContacts = new ArrayList<>();
+			while (rs.next()) {
+				PendingContactId id = new PendingContactId(rs.getBytes(1));
+				String alias = rs.getString(2);
+				PendingContactState state =
+						PendingContactState.fromValue(rs.getInt(3));
+				long timestamp = rs.getLong(4);
+				pendingContacts.add(new PendingContact(id, alias, state,
+						timestamp));
+			}
+			rs.close();
+			s.close();
+			return pendingContacts;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<MessageId> getRequestedMessagesToSend(Connection txn,
 			ContactId c, int maxLength, int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
@@ -2950,6 +3007,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void removePendingContact(Connection txn, PendingContactId p)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "DELETE FROM pendingContacts"
+					+ " WHERE pendingContactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, p.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void removeStaticTransportKeys(Connection txn, TransportId t,
 			StaticTransportKeySetId k) throws DbException {
 		PreparedStatement ps = null;
@@ -3191,6 +3266,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(2, m.getBytes());
 			affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setPendingContactState(Connection txn, PendingContactId p,
+			PendingContactState state) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE pendingContacts SET state = ?"
+					+ " WHERE pendingContactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, state.getValue());
+			ps.setBytes(2, p.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);

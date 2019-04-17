@@ -2,7 +2,9 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
@@ -128,6 +130,11 @@ interface Database<T> {
 	 * Records that a message has been offered by the given contact.
 	 */
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
+
+	/**
+	 * Stores a pending contact.
+	 */
+	void addPendingContact(T txn, PendingContact p) throws DbException;
 
 	/**
 	 * Stores the given static transport keys for the given contact and returns
@@ -498,6 +505,13 @@ interface Database<T> {
 	long getNextSendTime(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns all pending contacts.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<PendingContact> getPendingContacts(T txn) throws DbException;
+
+	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact and have been requested by the contact, up to the given
 	 * total length.
@@ -627,6 +641,11 @@ interface Database<T> {
 			Collection<MessageId> requested) throws DbException;
 
 	/**
+	 * Removes a pending contact (and all associated state) from the database.
+	 */
+	void removePendingContact(T txn, PendingContactId p) throws DbException;
+
+	/**
 	 * Removes the given static transport keys from the database.
 	 */
 	void removeStaticTransportKeys(T txn, TransportId t,
@@ -683,6 +702,12 @@ interface Database<T> {
 	 */
 	void setMessageState(T txn, MessageId m, MessageState state)
 			throws DbException;
+
+	/**
+	 * Sets the state of the given pending contact.
+	 */
+	void setPendingContactState(T txn, PendingContactId p,
+			PendingContactState state) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given key set and transport in the
