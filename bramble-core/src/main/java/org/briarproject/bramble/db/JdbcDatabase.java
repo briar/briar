@@ -291,6 +291,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final String CREATE_PENDING_CONTACTS =
 			"CREATE TABLE pendingContacts"
 					+ " (pendingContactId _HASH NOT NULL,"
+					+ " publicKey _BINARY NOT NULL,"
 					+ " alias _STRING NOT NULL,"
 					+ " state INT NOT NULL,"
 					+ " timestamp BIGINT NOT NULL,"
@@ -1057,13 +1058,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO pendingContacts (pendingContactId,"
-					+ " alias, state, timestamp)"
-					+ " VALUES (?, ?, ?, ?)";
+					+ " publicKey, alias, state, timestamp)"
+					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, p.getId().getBytes());
-			ps.setString(2, p.getAlias());
-			ps.setInt(3, p.getState().getValue());
-			ps.setLong(4, p.getTimestamp());
+			ps.setBytes(2, p.getPublicKey());
+			ps.setString(3, p.getAlias());
+			ps.setInt(4, p.getState().getValue());
+			ps.setLong(5, p.getTimestamp());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -2372,19 +2374,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Statement s = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT pendingContactId, alias, state, timestamp"
+			String sql = "SELECT pendingContactId, publicKey, alias, state,"
+					+ " timestamp"
 					+ " FROM pendingContacts";
 			s = txn.createStatement();
 			rs = s.executeQuery(sql);
 			List<PendingContact> pendingContacts = new ArrayList<>();
 			while (rs.next()) {
 				PendingContactId id = new PendingContactId(rs.getBytes(1));
-				String alias = rs.getString(2);
+				byte[] publicKey = rs.getBytes(2);
+				String alias = rs.getString(3);
 				PendingContactState state =
-						PendingContactState.fromValue(rs.getInt(3));
-				long timestamp = rs.getLong(4);
-				pendingContacts.add(new PendingContact(id, alias, state,
-						timestamp));
+						PendingContactState.fromValue(rs.getInt(4));
+				long timestamp = rs.getLong(5);
+				pendingContacts.add(new PendingContact(id, publicKey, alias,
+						state, timestamp));
 			}
 			rs.close();
 			s.close();

@@ -77,7 +77,8 @@ public interface ContactManager {
 	Collection<PendingContact> getPendingContacts();
 
 	/**
-	 * Removes a {@link PendingContact} that is in state {@link FAILED}.
+	 * Removes a {@link PendingContact} that is in state
+	 * {@link PendingContactState FAILED}.
 	 */
 	void removePendingContact(PendingContact pendingContact);
 

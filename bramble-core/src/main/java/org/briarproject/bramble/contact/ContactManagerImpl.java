@@ -32,6 +32,7 @@ import javax.inject.Inject;
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
@@ -123,8 +124,8 @@ class ContactManagerImpl implements ContactManager {
 	public PendingContact addRemoteContactRequest(String link, String alias) {
 		// TODO replace with real implementation
 		PendingContactId id = new PendingContactId(link.getBytes());
-		return new PendingContact(id, alias, WAITING_FOR_CONNECTION,
-				System.currentTimeMillis());
+		return new PendingContact(id, new byte[MAX_PUBLIC_KEY_LENGTH], alias,
+				WAITING_FOR_CONNECTION, System.currentTimeMillis());
 	}
 
 	@Override

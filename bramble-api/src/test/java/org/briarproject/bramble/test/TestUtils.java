@@ -149,8 +149,10 @@ public class TestUtils {
 
 	public static PendingContact getPendingContact(int nameLength) {
 		PendingContactId id = new PendingContactId(getRandomId());
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		String alias = getRandomString(nameLength);
-		return new PendingContact(id, alias, WAITING_FOR_CONNECTION, timestamp);
+		return new PendingContact(id, publicKey, alias, WAITING_FOR_CONNECTION,
+				timestamp);
 	}
 
 	public static double getMedian(Collection<? extends Number> samples) {
