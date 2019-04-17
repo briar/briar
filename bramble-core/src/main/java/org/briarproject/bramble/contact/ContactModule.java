@@ -28,4 +28,10 @@ public class ContactModule {
 			ContactExchangeTaskImpl contactExchangeTask) {
 		return contactExchangeTask;
 	}
+
+	@Provides
+	PendingContactFactory providePendingContactFactory(
+			PendingContactFactoryImpl pendingContactFactory) {
+		return pendingContactFactory;
+	}
 }

@@ -59,17 +59,18 @@ public interface ContactManager {
 			throws DbException;
 
 	/**
-	 * Returns the static link that needs to be sent to the contact to be added.
+	 * Returns the handshake link that needs to be sent to a contact we want
+	 * to add.
 	 */
 	String getHandshakeLink() throws DbException;
 
 	/**
-	 * Requests a new contact to be added via the given {@code link}.
+	 * Adds a new pending contact identified by the given handshake link.
 	 *
-	 * @param link The link received from the contact we want to add.
+	 * @param link The handshake link received from the contact we want to add.
 	 * @param alias The alias the user has given this contact.
 	 */
-	void addPendingContact(String link, String alias)
+	PendingContact addPendingContact(String link, String alias)
 			throws DbException, FormatException;
 
 	/**
@@ -78,10 +79,9 @@ public interface ContactManager {
 	Collection<PendingContact> getPendingContacts() throws DbException;
 
 	/**
-	 * Removes a {@link PendingContact} that is in state
-	 * {@link PendingContactState FAILED}.
+	 * Removes a {@link PendingContact}.
 	 */
-	void removePendingContact(PendingContactId pendingContact) throws DbException;
+	void removePendingContact(PendingContactId p) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.

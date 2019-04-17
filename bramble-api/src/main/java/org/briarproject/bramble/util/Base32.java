@@ -37,7 +37,7 @@ public class Base32 {
 		return s.toString();
 	}
 
-	public static byte[] decode(String s) {
+	public static byte[] decode(String s, boolean strict) {
 		ByteArrayOutputStream b = new ByteArrayOutputStream();
 		int digitIndex = 0, digitCount = s.length(), currentByte = 0x00;
 		int byteMask = 0x80, codeMask = 0x10;
@@ -61,7 +61,7 @@ public class Base32 {
 			}
 		}
 		// If any extra bits were used for encoding, they should all be zero
-		if (byteMask != 0x80 && currentByte != 0x00)
+		if (strict && byteMask != 0x80 && currentByte != 0x00)
 			throw new IllegalArgumentException();
 		return b.toByteArray();
 	}

@@ -47,6 +47,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final KeyManager keyManager = context.mock(KeyManager.class);
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
+	private final PendingContactFactory pendingContactFactory =
+			context.mock(PendingContactFactory.class);
 	private final ContactManager contactManager;
 	private final Author remote = getAuthor();
 	private final LocalAuthor localAuthor = getLocalAuthor();
@@ -56,8 +58,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final ContactId contactId = contact.getId();
 
 	public ContactManagerImplTest() {
-		contactManager =
-				new ContactManagerImpl(db, keyManager, identityManager);
+		contactManager = new ContactManagerImpl(db, keyManager,
+				identityManager, pendingContactFactory);
 	}
 
 	@Test
