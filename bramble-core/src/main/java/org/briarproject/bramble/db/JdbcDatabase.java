@@ -2630,9 +2630,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					g.getBytes(), meta, "groupMetadata", "groupId");
 			if (added.isEmpty()) return;
 			// Insert any keys that don't already exist
-			String sql =
-					"INSERT INTO groupMetadata (groupId, metaKey, value)"
-							+ " VALUES (?, ?, ?)";
+			String sql = "INSERT INTO groupMetadata (groupId, metaKey, value)"
+					+ " VALUES (?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, g.getBytes());
 			for (Entry<String, byte[]> e : added.entrySet()) {
@@ -2780,8 +2779,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				ps.addBatch();
 			}
 			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != s.size())
-				throw new DbStateException();
+			if (batchAffected.length != s.size()) throw new DbStateException();
 			for (int rows : batchAffected) {
 				if (rows < 0) throw new DbStateException();
 				if (rows > 1) throw new DbStateException();
@@ -2802,8 +2800,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				updateIndex++;
 			}
 			batchAffected = ps.executeBatch();
-			if (batchAffected.length != inserted)
-				throw new DbStateException();
+			if (batchAffected.length != inserted) throw new DbStateException();
 			for (int rows : batchAffected)
 				if (rows != 1) throw new DbStateException();
 			ps.close();
@@ -2904,8 +2901,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void removeGroupVisibility(Connection txn, ContactId c, GroupId
-			g)
+	public void removeGroupVisibility(Connection txn, ContactId c, GroupId g)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
@@ -2971,8 +2967,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void removeMessage(Connection txn, MessageId m) throws
-			DbException {
+	public void removeMessage(Connection txn, MessageId m) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM messages WHERE messageId = ?";
@@ -3111,8 +3106,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql =
-					"UPDATE contacts SET verified = ? WHERE contactId = ?";
+			String sql = "UPDATE contacts SET verified = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, true);
 			ps.setInt(2, c.getInt());
@@ -3130,8 +3124,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql =
-					"UPDATE contacts SET active = ? WHERE contactId = ?";
+			String sql = "UPDATE contacts SET active = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, active);
 			ps.setInt(2, c.getInt());
@@ -3149,8 +3142,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			@Nullable String alias) throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql =
-					"UPDATE contacts SET alias = ? WHERE contactId = ?";
+			String sql = "UPDATE contacts SET alias = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			if (alias == null) ps.setNull(1, VARCHAR);
 			else ps.setString(1, alias);
@@ -3221,13 +3213,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void setMessageState(Connection txn, MessageId m, MessageState
-			state)
+	public void setMessageState(Connection txn, MessageId m, MessageState state)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
-			String sql =
-					"UPDATE messages SET state = ? WHERE messageId = ?";
+			String sql = "UPDATE messages SET state = ? WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());
@@ -3235,8 +3225,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 			// Update denormalised column in messageMetadata
-			sql =
-					"UPDATE messageMetadata SET state = ? WHERE messageId = ?";
+			sql = "UPDATE messageMetadata SET state = ? WHERE messageId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());
@@ -3263,8 +3252,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			// Update denormalised column in messageDependencies if dependency
 			// is present and in same group as dependent
 			sql = "UPDATE messageDependencies SET dependencyState = ?"
-					+
-					" WHERE dependencyId = ? AND dependencyState IS NOT NULL";
+					+ " WHERE dependencyId = ? AND dependencyState IS NOT NULL";
 			ps = txn.prepareStatement(sql);
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, m.getBytes());
@@ -3364,8 +3352,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void updateExpiryTimeAndEta(Connection txn, ContactId
-			c, MessageId m,
+	public void updateExpiryTimeAndEta(Connection txn, ContactId c, MessageId m,
 			int maxLatency) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
