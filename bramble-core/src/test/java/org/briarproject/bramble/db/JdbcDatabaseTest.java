@@ -21,11 +21,11 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.transport.HandshakeKeySet;
+import org.briarproject.bramble.api.transport.HandshakeKeySetId;
+import org.briarproject.bramble.api.transport.HandshakeKeys;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
-import org.briarproject.bramble.api.transport.StaticTransportKeySet;
-import org.briarproject.bramble.api.transport.StaticTransportKeySetId;
-import org.briarproject.bramble.api.transport.StaticTransportKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -109,7 +109,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final TransportId transportId;
 	private final ContactId contactId;
 	private final TransportKeySetId keySetId, keySetId1;
-	private final StaticTransportKeySetId staticKeySetId, staticKeySetId1;
+	private final HandshakeKeySetId handshakeKeySetId, handshakeKeySetId1;
 	private final PendingContact pendingContact;
 	private final Random random = new Random();
 
@@ -126,8 +126,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		contactId = new ContactId(1);
 		keySetId = new TransportKeySetId(1);
 		keySetId1 = new TransportKeySetId(2);
-		staticKeySetId = new StaticTransportKeySetId(1);
-		staticKeySetId1 = new StaticTransportKeySetId(2);
+		handshakeKeySetId = new HandshakeKeySetId(1);
+		handshakeKeySetId1 = new HandshakeKeySetId(2);
 		pendingContact = getPendingContact();
 	}
 
@@ -761,81 +761,79 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testStaticTransportKeys() throws Exception {
+	public void testHandshakeKeys() throws Exception {
 		long timePeriod = 123, timePeriod1 = 234;
 		boolean alice = random.nextBoolean();
 		SecretKey rootKey = getSecretKey();
 		SecretKey rootKey1 = getSecretKey();
-		StaticTransportKeys keys =
-				createStaticTransportKeys(timePeriod, rootKey, alice);
-		StaticTransportKeys keys1 =
-				createStaticTransportKeys(timePeriod1, rootKey1, alice);
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
+		HandshakeKeys keys1 = createHandshakeKeys(timePeriod1, rootKey1, alice);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Initially there should be no static transport keys in the database
-		assertEquals(emptyList(), db.getStaticTransportKeys(txn, transportId));
+		// Initially there should be no handshake keys in the database
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
 
-		// Add the contact, the transport and the static transport keys
+		// Add the contact, the transport and the handshake keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		assertEquals(staticKeySetId,
-				db.addStaticTransportKeys(txn, contactId, keys));
-		assertEquals(staticKeySetId1,
-				db.addStaticTransportKeys(txn, contactId, keys1));
+		assertEquals(handshakeKeySetId,
+				db.addHandshakeKeys(txn, contactId, keys));
+		assertEquals(handshakeKeySetId1,
+				db.addHandshakeKeys(txn, contactId, keys1));
 
-		// Retrieve the static transport keys
-		Collection<StaticTransportKeySet> allKeys =
-				db.getStaticTransportKeys(txn, transportId);
+		// Retrieve the handshake keys
+		Collection<HandshakeKeySet> allKeys =
+				db.getHandshakeKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (StaticTransportKeySet ks : allKeys) {
+		for (HandshakeKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
 			assertNull(ks.getPendingContactId());
-			if (ks.getKeySetId().equals(staticKeySetId)) {
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
 				assertKeysEquals(keys, ks.getKeys());
 			} else {
-				assertEquals(staticKeySetId1, ks.getKeySetId());
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
 				assertKeysEquals(keys1, ks.getKeys());
 			}
 		}
 
-		// Update the transport keys
-		StaticTransportKeys updated =
-				createStaticTransportKeys(timePeriod + 1, rootKey, alice);
-		StaticTransportKeys updated1 =
-				createStaticTransportKeys(timePeriod1 + 1, rootKey1, alice);
-		db.updateStaticTransportKeys(txn, new StaticTransportKeySet(
-				staticKeySetId, contactId, updated));
-		db.updateStaticTransportKeys(txn, new StaticTransportKeySet(
-				staticKeySetId1, contactId, updated1));
+		// Update the handshake keys
+		HandshakeKeys updated =
+				createHandshakeKeys(timePeriod + 1, rootKey, alice);
+		HandshakeKeys updated1 =
+				createHandshakeKeys(timePeriod1 + 1, rootKey1, alice);
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId,
+				contactId, updated));
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId1,
+				contactId, updated1));
 
-		// Retrieve the static transport keys again
-		allKeys = db.getStaticTransportKeys(txn, transportId);
+		// Retrieve the handshake keys again
+		allKeys = db.getHandshakeKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (StaticTransportKeySet ks : allKeys) {
+		for (HandshakeKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
 			assertNull(ks.getPendingContactId());
-			if (ks.getKeySetId().equals(staticKeySetId)) {
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
 				assertKeysEquals(updated, ks.getKeys());
 			} else {
-				assertEquals(staticKeySetId1, ks.getKeySetId());
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
 				assertKeysEquals(updated1, ks.getKeys());
 			}
 		}
 
-		// Removing the contact should remove the static transport keys
+		// Removing the contact should remove the handshake keys
 		db.removeContact(txn, contactId);
-		assertEquals(emptyList(), db.getStaticTransportKeys(txn, transportId));
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
 	}
 
-	private void assertKeysEquals(StaticTransportKeys expected,
-			StaticTransportKeys actual) {
+	private void assertKeysEquals(HandshakeKeys expected,
+			HandshakeKeys actual) {
 		assertEquals(expected.getTransportId(), actual.getTransportId());
 		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
 		assertArrayEquals(expected.getRootKey().getBytes(),
@@ -852,72 +850,70 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testStaticTransportKeysForPendingContact() throws Exception {
+	public void testHandshakeKeysForPendingContact() throws Exception {
 		long timePeriod = 123, timePeriod1 = 234;
 		boolean alice = random.nextBoolean();
 		SecretKey rootKey = getSecretKey();
 		SecretKey rootKey1 = getSecretKey();
-		StaticTransportKeys keys =
-				createStaticTransportKeys(timePeriod, rootKey, alice);
-		StaticTransportKeys keys1 =
-				createStaticTransportKeys(timePeriod1, rootKey1, alice);
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
+		HandshakeKeys keys1 = createHandshakeKeys(timePeriod1, rootKey1, alice);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Initially there should be no static transport keys in the database
-		assertEquals(emptyList(), db.getStaticTransportKeys(txn, transportId));
+		// Initially there should be no handshake keys in the database
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
 
-		// Add the pending contact, the transport and the static transport keys
+		// Add the pending contact, the transport and the handshake keys
 		db.addPendingContact(txn, pendingContact);
 		db.addTransport(txn, transportId, 123);
-		assertEquals(staticKeySetId,
-				db.addStaticTransportKeys(txn, pendingContact.getId(), keys));
-		assertEquals(staticKeySetId1,
-				db.addStaticTransportKeys(txn, pendingContact.getId(), keys1));
+		assertEquals(handshakeKeySetId, db.addHandshakeKeys(txn,
+				pendingContact.getId(), keys));
+		assertEquals(handshakeKeySetId1, db.addHandshakeKeys(txn,
+				pendingContact.getId(), keys1));
 
-		// Retrieve the static transport keys
-		Collection<StaticTransportKeySet> allKeys =
-				db.getStaticTransportKeys(txn, transportId);
+		// Retrieve the handshake keys
+		Collection<HandshakeKeySet> allKeys =
+				db.getHandshakeKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (StaticTransportKeySet ks : allKeys) {
+		for (HandshakeKeySet ks : allKeys) {
 			assertNull(ks.getContactId());
 			assertEquals(pendingContact.getId(), ks.getPendingContactId());
-			if (ks.getKeySetId().equals(staticKeySetId)) {
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
 				assertKeysEquals(keys, ks.getKeys());
 			} else {
-				assertEquals(staticKeySetId1, ks.getKeySetId());
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
 				assertKeysEquals(keys1, ks.getKeys());
 			}
 		}
 
-		// Update the transport keys
-		StaticTransportKeys updated =
-				createStaticTransportKeys(timePeriod + 1, rootKey, alice);
-		StaticTransportKeys updated1 =
-				createStaticTransportKeys(timePeriod1 + 1, rootKey1, alice);
-		db.updateStaticTransportKeys(txn, new StaticTransportKeySet(
-				staticKeySetId, pendingContact.getId(), updated));
-		db.updateStaticTransportKeys(txn, new StaticTransportKeySet(
-				staticKeySetId1, pendingContact.getId(), updated1));
+		// Update the handshake keys
+		HandshakeKeys updated =
+				createHandshakeKeys(timePeriod + 1, rootKey, alice);
+		HandshakeKeys updated1 =
+				createHandshakeKeys(timePeriod1 + 1, rootKey1, alice);
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId,
+				pendingContact.getId(), updated));
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId1,
+				pendingContact.getId(), updated1));
 
-		// Retrieve the static transport keys again
-		allKeys = db.getStaticTransportKeys(txn, transportId);
+		// Retrieve the handshake keys again
+		allKeys = db.getHandshakeKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (StaticTransportKeySet ks : allKeys) {
+		for (HandshakeKeySet ks : allKeys) {
 			assertNull(ks.getContactId());
 			assertEquals(pendingContact.getId(), ks.getPendingContactId());
-			if (ks.getKeySetId().equals(staticKeySetId)) {
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
 				assertKeysEquals(updated, ks.getKeys());
 			} else {
-				assertEquals(staticKeySetId1, ks.getKeySetId());
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
 				assertKeysEquals(updated1, ks.getKeys());
 			}
 		}
 
-		// Removing the pending contact should remove the static transport keys
+		// Removing the pending contact should remove the handshake keys
 		db.removePendingContact(txn, pendingContact.getId());
-		assertEquals(emptyList(), db.getStaticTransportKeys(txn, transportId));
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
 
 		db.commitTransaction(txn);
 		db.close();
@@ -970,31 +966,29 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		long timePeriod = 123;
 		SecretKey rootKey = getSecretKey();
 		boolean alice = random.nextBoolean();
-		StaticTransportKeys keys =
-				createStaticTransportKeys(timePeriod, rootKey, alice);
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
 		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact, transport and static transport keys
+		// Add the contact, transport and handshake keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		assertEquals(staticKeySetId,
-				db.addStaticTransportKeys(txn, contactId, keys));
+		assertEquals(handshakeKeySetId, db.addHandshakeKeys(txn, contactId, keys));
 
-		// Increment the stream counter twice and retrieve the keys
-		db.incrementStreamCounter(txn, transportId, staticKeySetId);
-		db.incrementStreamCounter(txn, transportId, staticKeySetId);
-		Collection<StaticTransportKeySet> newKeys =
-				db.getStaticTransportKeys(txn, transportId);
+		// Increment the stream counter twice and retrieve the handshake keys
+		db.incrementStreamCounter(txn, transportId, handshakeKeySetId);
+		db.incrementStreamCounter(txn, transportId, handshakeKeySetId);
+		Collection<HandshakeKeySet> newKeys =
+				db.getHandshakeKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		StaticTransportKeySet ks = newKeys.iterator().next();
-		assertEquals(staticKeySetId, ks.getKeySetId());
+		HandshakeKeySet ks = newKeys.iterator().next();
+		assertEquals(handshakeKeySetId, ks.getKeySetId());
 		assertEquals(contactId, ks.getContactId());
-		StaticTransportKeys k = ks.getKeys();
+		HandshakeKeys k = ks.getKeys();
 		assertEquals(transportId, k.getTransportId());
 		assertArrayEquals(rootKey.getBytes(), k.getRootKey().getBytes());
 		assertEquals(alice, k.isAlice());
@@ -1064,33 +1058,32 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		long timePeriod = 123;
 		SecretKey rootKey = getSecretKey();
 		boolean alice = random.nextBoolean();
-		StaticTransportKeys keys =
-				createStaticTransportKeys(timePeriod, rootKey, alice);
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
 		long base = keys.getCurrentIncomingKeys().getWindowBase();
 		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add the contact, transport and static transport keys
+		// Add the contact, transport and handshake keys
 		db.addLocalAuthor(txn, localAuthor);
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		assertEquals(staticKeySetId,
-				db.addStaticTransportKeys(txn, contactId, keys));
+		assertEquals(handshakeKeySetId,
+				db.addHandshakeKeys(txn, contactId, keys));
 
-		// Update the reordering window and retrieve the static transport keys
+		// Update the reordering window and retrieve the handshake keys
 		random.nextBytes(bitmap);
-		db.setStaticReorderingWindow(txn, staticKeySetId, transportId,
-				timePeriod, base + 1, bitmap);
-		Collection<StaticTransportKeySet> newKeys =
-				db.getStaticTransportKeys(txn, transportId);
+		db.setReorderingWindow(txn, handshakeKeySetId, transportId, timePeriod,
+				base + 1, bitmap);
+		Collection<HandshakeKeySet> newKeys =
+				db.getHandshakeKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		StaticTransportKeySet ks = newKeys.iterator().next();
-		assertEquals(staticKeySetId, ks.getKeySetId());
+		HandshakeKeySet ks = newKeys.iterator().next();
+		assertEquals(handshakeKeySetId, ks.getKeySetId());
 		assertEquals(contactId, ks.getContactId());
-		StaticTransportKeys k = ks.getKeys();
+		HandshakeKeys k = ks.getKeys();
 		assertEquals(transportId, k.getTransportId());
 		assertArrayEquals(rootKey.getBytes(), k.getRootKey().getBytes());
 		assertEquals(alice, k.isAlice());
@@ -2308,7 +2301,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 
-	private StaticTransportKeys createStaticTransportKeys(long timePeriod,
+	private HandshakeKeys createHandshakeKeys(long timePeriod,
 			SecretKey rootKey, boolean alice) {
 		SecretKey inPrevTagKey = getSecretKey();
 		SecretKey inPrevHeaderKey = getSecretKey();
@@ -2326,8 +2319,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
 				timePeriod, 456, true);
-		return new StaticTransportKeys(transportId, inPrev, inCurr, inNext,
-				outCurr, rootKey, alice);
+		return new HandshakeKeys(transportId, inPrev, inCurr, inNext, outCurr,
+				rootKey, alice);
 	}
 
 	@After

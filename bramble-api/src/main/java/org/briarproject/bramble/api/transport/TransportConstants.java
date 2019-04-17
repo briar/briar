@@ -109,26 +109,26 @@ public interface TransportConstants {
 	String ROTATE_LABEL = "org.briarproject.bramble.transport/ROTATE";
 
 	/**
-	 * Label for deriving Alice's static tag key from the root key.
+	 * Label for deriving Alice's handshake tag key from the root key.
 	 */
-	String ALICE_STATIC_TAG_LABEL =
+	String ALICE_HANDSHAKE_TAG_LABEL =
 			"org.briarproject.bramble.transport/ALICE_STATIC_TAG_KEY";
 
 	/**
-	 * Label for deriving Bob's static tag key from the root key.
+	 * Label for deriving Bob's handshake tag key from the root key.
 	 */
-	String BOB_STATIC_TAG_LABEL =
+	String BOB_HANDSHAKE_TAG_LABEL =
 			"org.briarproject.bramble.transport/BOB_STATIC_TAG_KEY";
 
 	/**
-	 * Label for deriving Alice's static header key from the root key.
+	 * Label for deriving Alice's handshake header key from the root key.
 	 */
-	String ALICE_STATIC_HEADER_LABEL =
+	String ALICE_HANDSHAKE_HEADER_LABEL =
 			"org.briarproject.bramble.transport/ALICE_STATIC_HEADER_KEY";
 
 	/**
-	 * Label for deriving Bob's static header key from the root key.
+	 * Label for deriving Bob's handshake header key from the root key.
 	 */
-	String BOB_STATIC_HEADER_LABEL =
+	String BOB_HANDSHAKE_HEADER_LABEL =
 			"org.briarproject.bramble.transport/BOB_STATIC_HEADER_KEY";
 }

@@ -6,7 +6,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A set of transport keys for communicating with a contact.
+ * A set of keys for communicating with a given contact over a given transport.
+ * Unlike a {@link HandshakeKeySet} these keys provide forward secrecy.
  */
 @Immutable
 @NotNullByDefault

@@ -21,9 +21,9 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.StaticTransportKeySet;
-import org.briarproject.bramble.api.transport.StaticTransportKeySetId;
-import org.briarproject.bramble.api.transport.StaticTransportKeys;
+import org.briarproject.bramble.api.transport.HandshakeKeySet;
+import org.briarproject.bramble.api.transport.HandshakeKeySetId;
+import org.briarproject.bramble.api.transport.HandshakeKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -113,6 +113,20 @@ public interface DatabaseComponent {
 	void addGroup(Transaction txn, Group g) throws DbException;
 
 	/**
+	 * Stores the given handshake keys for the given contact and returns a
+	 * key set ID.
+	 */
+	HandshakeKeySetId addHandshakeKeys(Transaction txn, ContactId c,
+			HandshakeKeys k) throws DbException;
+
+	/**
+	 * Stores the given handshake keys for the given pending contact and
+	 * returns a key set ID.
+	 */
+	HandshakeKeySetId addHandshakeKeys(Transaction txn, PendingContactId p,
+			HandshakeKeys k) throws DbException;
+
+	/**
 	 * Stores a local pseudonym.
 	 */
 	void addLocalAuthor(Transaction txn, LocalAuthor a) throws DbException;
@@ -122,20 +136,6 @@ public interface DatabaseComponent {
 	 */
 	void addLocalMessage(Transaction txn, Message m, Metadata meta,
 			boolean shared) throws DbException;
-
-	/**
-	 * Stores the given static transport keys for the given contact and returns
-	 * a key set ID.
-	 */
-	StaticTransportKeySetId addStaticTransportKeys(Transaction txn, ContactId c,
-			StaticTransportKeys k) throws DbException;
-
-	/**
-	 * Stores the given static transport keys for the given pending contact and
-	 * returns a key set ID.
-	 */
-	StaticTransportKeySetId addStaticTransportKeys(Transaction txn,
-			PendingContactId p, StaticTransportKeys k) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -286,6 +286,14 @@ public interface DatabaseComponent {
 	 */
 	Visibility getGroupVisibility(Transaction txn, ContactId c, GroupId g)
 			throws DbException;
+
+	/**
+	 * Returns all handshake keys for the given transport.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<HandshakeKeySet> getHandshakeKeys(Transaction txn,
+			TransportId t) throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.
@@ -443,14 +451,6 @@ public interface DatabaseComponent {
 	Settings getSettings(Transaction txn, String namespace) throws DbException;
 
 	/**
-	 * Returns all static transport keys for the given transport.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<StaticTransportKeySet> getStaticTransportKeys(Transaction txn,
-			TransportId t) throws DbException;
-
-	/**
 	 * Returns all transport keys for the given transport.
 	 * <p/>
 	 * Read-only.
@@ -459,11 +459,10 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given static transport
-	 * keys.
+	 * Increments the outgoing stream counter for the given handshake keys.
 	 */
 	void incrementStreamCounter(Transaction txn, TransportId t,
-			StaticTransportKeySetId k) throws DbException;
+			HandshakeKeySetId k) throws DbException;
 
 	/**
 	 * Increments the outgoing stream counter for the given transport keys.
@@ -525,6 +524,12 @@ public interface DatabaseComponent {
 	void removeGroup(Transaction txn, Group g) throws DbException;
 
 	/**
+	 * Removes the given handshake keys from the database.
+	 */
+	void removeHandshakeKeys(Transaction txn, TransportId t,
+			HandshakeKeySetId k) throws DbException;
+
+	/**
 	 * Removes a local pseudonym (and all associated state) from the database.
 	 */
 	void removeLocalAuthor(Transaction txn, AuthorId a) throws DbException;
@@ -533,12 +538,6 @@ public interface DatabaseComponent {
 	 * Removes a message (and all associated state) from the database.
 	 */
 	void removeMessage(Transaction txn, MessageId m) throws DbException;
-
-	/**
-	 * Removes the given static transport keys from the database.
-	 */
-	void removeStaticTransportKeys(Transaction txn, TransportId t,
-			StaticTransportKeySetId k) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.
@@ -606,11 +605,10 @@ public interface DatabaseComponent {
 			TransportKeySetId k) throws DbException;
 
 	/**
-	 * Stores the given static transport keys, deleting any keys they have
-	 * replaced.
+	 * Stores the given handshake keys, deleting any keys they have replaced.
 	 */
-	void updateStaticTransportKeys(Transaction txn,
-			Collection<StaticTransportKeySet> keys) throws DbException;
+	void updateHandshakeKeys(Transaction txn, Collection<HandshakeKeySet> keys)
+			throws DbException;
 
 	/**
 	 * Stores the given transport keys, deleting any keys they have replaced.

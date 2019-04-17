@@ -7,17 +7,18 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Keys for communicating with a given contact or pending contact over a given
- * transport. Unlike {@link TransportKeys} these do not provide forward secrecy.
+ * Keys for handshaking with a given contact or pending contact over a given
+ * transport. Unlike {@link TransportKeys} these keys do not provide forward
+ * secrecy.
  */
 @Immutable
 @NotNullByDefault
-public class StaticTransportKeys extends AbstractTransportKeys {
+public class HandshakeKeys extends AbstractTransportKeys {
 
 	private final SecretKey rootKey;
 	private final boolean alice;
 
-	public StaticTransportKeys(TransportId transportId, IncomingKeys inPrev,
+	public HandshakeKeys(TransportId transportId, IncomingKeys inPrev,
 			IncomingKeys inCurr, IncomingKeys inNext, OutgoingKeys outCurr,
 			SecretKey rootKey, boolean alice) {
 		super(transportId, inPrev, inCurr, inNext, outCurr);

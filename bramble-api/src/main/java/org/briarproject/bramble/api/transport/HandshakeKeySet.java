@@ -8,37 +8,38 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * A set of transport keys for communicating with a contact or pending contact.
- * Unlike a {@link TransportKeySet} these keys do not provide forward secrecy.
+ * A set of keys for handshaking with a given contact or pending contact over a
+ * given transport. Unlike a {@link TransportKeySet} these keys do not provide
+ * forward secrecy.
  */
 @Immutable
 @NotNullByDefault
-public class StaticTransportKeySet {
+public class HandshakeKeySet {
 
-	private final StaticTransportKeySetId keySetId;
+	private final HandshakeKeySetId keySetId;
 	@Nullable
 	private final ContactId contactId;
 	@Nullable
 	private final PendingContactId pendingContactId;
-	private final StaticTransportKeys keys;
+	private final HandshakeKeys keys;
 
-	public StaticTransportKeySet(StaticTransportKeySetId keySetId,
-			ContactId contactId, StaticTransportKeys keys) {
+	public HandshakeKeySet(HandshakeKeySetId keySetId, ContactId contactId,
+			HandshakeKeys keys) {
 		this.keySetId = keySetId;
 		this.contactId = contactId;
 		this.keys = keys;
 		pendingContactId = null;
 	}
 
-	public StaticTransportKeySet(StaticTransportKeySetId keySetId,
-			PendingContactId pendingContactId, StaticTransportKeys keys) {
+	public HandshakeKeySet(HandshakeKeySetId keySetId,
+			PendingContactId pendingContactId, HandshakeKeys keys) {
 		this.keySetId = keySetId;
 		this.pendingContactId = pendingContactId;
 		this.keys = keys;
 		contactId = null;
 	}
 
-	public StaticTransportKeySetId getKeySetId() {
+	public HandshakeKeySetId getKeySetId() {
 		return keySetId;
 	}
 
@@ -52,7 +53,7 @@ public class StaticTransportKeySet {
 		return pendingContactId;
 	}
 
-	public StaticTransportKeys getKeys() {
+	public HandshakeKeys getKeys() {
 		return keys;
 	}
 
@@ -63,7 +64,7 @@ public class StaticTransportKeySet {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof StaticTransportKeySet &&
-				keySetId.equals(((StaticTransportKeySet) o).keySetId);
+		return o instanceof HandshakeKeySet &&
+				keySetId.equals(((HandshakeKeySet) o).keySetId);
 	}
 }

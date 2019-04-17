@@ -7,7 +7,7 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * Keys for communicating with a given contact over a given transport. Unlike
- * {@link StaticTransportKeys}, these keys provide forward secrecy.
+ * {@link HandshakeKeys} these keys provide forward secrecy.
  */
 @Immutable
 @NotNullByDefault

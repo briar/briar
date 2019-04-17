@@ -27,9 +27,9 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.StaticTransportKeySet;
-import org.briarproject.bramble.api.transport.StaticTransportKeySetId;
-import org.briarproject.bramble.api.transport.StaticTransportKeys;
+import org.briarproject.bramble.api.transport.HandshakeKeySet;
+import org.briarproject.bramble.api.transport.HandshakeKeySetId;
+import org.briarproject.bramble.api.transport.HandshakeKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -106,6 +106,20 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Stores the given handshake keys for the given contact and returns a
+	 * key set ID.
+	 */
+	HandshakeKeySetId addHandshakeKeys(T txn, ContactId c, HandshakeKeys k)
+			throws DbException;
+
+	/**
+	 * Stores the given handshake keys for the given pending contact and
+	 * returns a key set ID.
+	 */
+	HandshakeKeySetId addHandshakeKeys(T txn, PendingContactId p,
+			HandshakeKeys k) throws DbException;
+
+	/**
 	 * Stores a local pseudonym.
 	 */
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
@@ -135,20 +149,6 @@ interface Database<T> {
 	 * Stores a pending contact.
 	 */
 	void addPendingContact(T txn, PendingContact p) throws DbException;
-
-	/**
-	 * Stores the given static transport keys for the given contact and returns
-	 * a key set ID.
-	 */
-	StaticTransportKeySetId addStaticTransportKeys(T txn, ContactId c,
-			StaticTransportKeys k) throws DbException;
-
-	/**
-	 * Stores the given static transport keys for the given pending contact and
-	 * returns a key set ID.
-	 */
-	StaticTransportKeySetId addStaticTransportKeys(T txn, PendingContactId p,
-			StaticTransportKeys k) throws DbException;
 
 	/**
 	 * Stores a transport.
@@ -312,6 +312,14 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Map<ContactId, Boolean> getGroupVisibility(T txn, GroupId g)
+			throws DbException;
+
+	/**
+	 * Returns all handshake keys for the given transport.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<HandshakeKeySet> getHandshakeKeys(T txn, TransportId t)
 			throws DbException;
 
 	/**
@@ -529,14 +537,6 @@ interface Database<T> {
 	Settings getSettings(T txn, String namespace) throws DbException;
 
 	/**
-	 * Returns all static transport keys for the given transport.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<StaticTransportKeySet> getStaticTransportKeys(T txn,
-			TransportId t) throws DbException;
-
-	/**
 	 * Returns all transport keys for the given transport.
 	 * <p/>
 	 * Read-only.
@@ -545,10 +545,9 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given static transport
-	 * keys.
+	 * Increments the outgoing stream counter for the given handshake keys.
 	 */
-	void incrementStreamCounter(T txn, TransportId t, StaticTransportKeySetId k)
+	void incrementStreamCounter(T txn, TransportId t, HandshakeKeySetId k)
 			throws DbException;
 
 	/**
@@ -624,6 +623,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Removes the given handshake keys from the database.
+	 */
+	void removeHandshakeKeys(T txn, TransportId t, HandshakeKeySetId k)
+			throws DbException;
+
+	/**
 	 * Removes a local pseudonym (and all associated state) from the database.
 	 */
 	void removeLocalAuthor(T txn, AuthorId a) throws DbException;
@@ -644,12 +649,6 @@ interface Database<T> {
 	 * Removes a pending contact (and all associated state) from the database.
 	 */
 	void removePendingContact(T txn, PendingContactId p) throws DbException;
-
-	/**
-	 * Removes the given static transport keys from the database.
-	 */
-	void removeStaticTransportKeys(T txn, TransportId t,
-			StaticTransportKeySetId k) throws DbException;
 
 	/**
 	 * Removes a transport (and all associated state) from the database.
@@ -710,19 +709,18 @@ interface Database<T> {
 			PendingContactState state) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given key set and transport in the
-	 * given time period.
+	 * Sets the reordering window for the given transport key set in the given
+	 * time period.
 	 */
 	void setReorderingWindow(T txn, TransportKeySetId k, TransportId t,
 			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given static key set and transport in
-	 * the given time period.
+	 * Sets the reordering window for the given handshake key set in the given
+	 * time period.
 	 */
-	void setStaticReorderingWindow(T txn, StaticTransportKeySetId k,
-			TransportId t, long timePeriod, long base, byte[] bitmap)
-			throws DbException;
+	void setReorderingWindow(T txn, HandshakeKeySetId k, TransportId t,
+			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.
@@ -739,10 +737,9 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Updates the given static transport keys following key rotation.
+	 * Updates the given handshake keys.
 	 */
-	void updateStaticTransportKeys(T txn, StaticTransportKeySet ks)
-			throws DbException;
+	void updateHandshakeKeys(T txn, HandshakeKeySet ks) throws DbException;
 
 	/**
 	 * Updates the given transport keys following key rotation.

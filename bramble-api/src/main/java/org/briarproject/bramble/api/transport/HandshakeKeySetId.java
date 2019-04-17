@@ -6,16 +6,16 @@ import javax.annotation.concurrent.Immutable;
 
 /**
  * Type-safe wrapper for an integer that uniquely identifies a
- * {@link StaticTransportKeySet set of static transport keys} within the scope
- * of the local device.
+ * {@link HandshakeKeySet set of handshake keys} within the scope of the local
+ * device.
  */
 @Immutable
 @NotNullByDefault
-public class StaticTransportKeySetId {
+public class HandshakeKeySetId {
 
 	private final int id;
 
-	public StaticTransportKeySetId(int id) {
+	public HandshakeKeySetId(int id) {
 		this.id = id;
 	}
 
@@ -30,7 +30,7 @@ public class StaticTransportKeySetId {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof StaticTransportKeySetId &&
-				id == ((StaticTransportKeySetId) o).id;
+		return o instanceof HandshakeKeySetId &&
+				id == ((HandshakeKeySetId) o).id;
 	}
 }

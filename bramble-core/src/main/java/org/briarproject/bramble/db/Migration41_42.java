@@ -50,7 +50,7 @@ class Migration41_42 implements Migration<Connection> {
 					+ " state INT NOT NULL,"
 					+ " timestamp BIGINT NOT NULL,"
 					+ " PRIMARY KEY (pendingContactId))"));
-			s.execute(dbTypes.replaceTypes("CREATE TABLE outgoingStaticKeys"
+			s.execute(dbTypes.replaceTypes("CREATE TABLE outgoingHandshakeKeys"
 					+ " (transportId _STRING NOT NULL,"
 					+ " keySetId _COUNTER,"
 					+ " timePeriod BIGINT NOT NULL,"
@@ -72,7 +72,7 @@ class Migration41_42 implements Migration<Connection> {
 					+ " FOREIGN KEY (pendingContactId)"
 					+ " REFERENCES pendingContacts (pendingContactId)"
 					+ " ON DELETE CASCADE)"));
-			s.execute(dbTypes.replaceTypes("CREATE TABLE incomingStaticKeys"
+			s.execute(dbTypes.replaceTypes("CREATE TABLE incomingHandshakeKeys"
 					+ " (transportId _STRING NOT NULL,"
 					+ " keySetId INT NOT NULL,"
 					+ " timePeriod BIGINT NOT NULL,"
@@ -86,7 +86,7 @@ class Migration41_42 implements Migration<Connection> {
 					+ " REFERENCES transports (transportId)"
 					+ " ON DELETE CASCADE,"
 					+ " FOREIGN KEY (keySetId)"
-					+ " REFERENCES outgoingStaticKeys (keySetId)"
+					+ " REFERENCES outgoingHandshakeKeys (keySetId)"
 					+ " ON DELETE CASCADE)"));
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);

@@ -6,8 +6,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Abstract superclass for {@link TransportKeys} and
- * {@link StaticTransportKeys}.
+ * Abstract superclass for {@link TransportKeys} and {@link HandshakeKeys}.
  */
 @Immutable
 @NotNullByDefault
