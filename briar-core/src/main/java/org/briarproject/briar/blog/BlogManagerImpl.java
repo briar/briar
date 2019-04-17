@@ -240,7 +240,9 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			MessageId postId = p.getMessage().getId();
 			BlogPostHeader h =
 					getPostHeaderFromMetadata(txn, groupId, postId, meta);
-			BlogPostAddedEvent event = new BlogPostAddedEvent(groupId, h, true);
+			boolean local = !b.isRssFeed();
+			BlogPostAddedEvent event =
+					new BlogPostAddedEvent(groupId, h, local);
 			txn.attach(event);
 		} catch (FormatException e) {
 			throw new DbException(e);

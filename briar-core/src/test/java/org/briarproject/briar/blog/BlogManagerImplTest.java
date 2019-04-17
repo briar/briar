@@ -310,6 +310,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		assertTrue(event instanceof BlogPostAddedEvent);
 		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(blog1.getId(), e.getGroupId());
+		assertTrue(e.isLocal());
 
 		BlogPostHeader h = e.getHeader();
 		assertEquals(POST, h.getType());
@@ -360,6 +361,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 		assertTrue(event instanceof BlogPostAddedEvent);
 		BlogPostAddedEvent e = (BlogPostAddedEvent) event;
 		assertEquals(rssBlog.getId(), e.getGroupId());
+		assertFalse(e.isLocal());
 
 		BlogPostHeader h = e.getHeader();
 		assertEquals(POST, h.getType());
