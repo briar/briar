@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
@@ -22,8 +23,10 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
+import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
 import org.briarproject.bramble.api.db.NullableDbCallable;
+import org.briarproject.bramble.api.db.PendingContactExistsException;
 import org.briarproject.bramble.api.db.TaskAction;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
@@ -275,7 +278,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsPendingContact(txn, p))
-			throw new NoSuchContactException();
+			throw new NoSuchPendingContactException();
 		if (!db.containsTransport(txn, k.getTransportId()))
 			throw new NoSuchTransportException();
 		return db.addHandshakeKeys(txn, p, k);
@@ -307,6 +310,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			if (shared) transaction.attach(new MessageSharedEvent(m.getId()));
 		}
 		db.mergeMessageMetadata(txn, m.getId(), meta);
+	}
+
+	@Override
+	public void addPendingContact(Transaction transaction, PendingContact p)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (db.containsPendingContact(txn, p.getId()))
+			throw new PendingContactExistsException();
+		db.addPendingContact(txn, p);
 	}
 
 	@Override
@@ -351,6 +364,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.containsLocalAuthor(txn, local);
+	}
+
+	@Override
+	public boolean containsPendingContact(Transaction transaction,
+			PendingContactId p) throws DbException {
+		T txn = unbox(transaction);
+		return db.containsPendingContact(txn, p);
 	}
 
 	@Override
@@ -693,6 +713,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Collection<PendingContact> getPendingContacts(
+			Transaction transaction) throws DbException {
+		T txn = unbox(transaction);
+		return db.getPendingContacts(txn);
+	}
+
+	@Override
 	public Settings getSettings(Transaction transaction, String namespace)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -709,9 +736,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void incrementStreamCounter(Transaction txn, TransportId t,
+	public void incrementStreamCounter(Transaction transaction, TransportId t,
 			HandshakeKeySetId k) throws DbException {
-		// TODO
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.incrementStreamCounter(txn, t, k);
 	}
 
 	@Override
@@ -898,6 +929,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void removePendingContact(Transaction transaction,
+			PendingContactId p) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsPendingContact(txn, p))
+			throw new NoSuchPendingContactException();
+		db.removePendingContact(txn, p);
+	}
+
+	@Override
 	public void removeTransport(Transaction transaction, TransportId t)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -1010,6 +1051,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Override
 	public void setReorderingWindow(Transaction transaction,
 			TransportKeySetId k, TransportId t, long timePeriod, long base,
+			byte[] bitmap) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsTransport(txn, t))
+			throw new NoSuchTransportException();
+		db.setReorderingWindow(txn, k, t, timePeriod, base, bitmap);
+	}
+
+	@Override
+	public void setReorderingWindow(Transaction transaction,
+			HandshakeKeySetId k, TransportId t, long timePeriod, long base,
 			byte[] bitmap) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);

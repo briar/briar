@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
@@ -138,6 +139,12 @@ public interface DatabaseComponent {
 			boolean shared) throws DbException;
 
 	/**
+	 * Stores a pending contact.
+	 */
+	void addPendingContact(Transaction txn, PendingContact p)
+			throws DbException;
+
+	/**
 	 * Stores a transport.
 	 */
 	void addTransport(Transaction txn, TransportId t, int maxLatency)
@@ -153,19 +160,33 @@ public interface DatabaseComponent {
 	/**
 	 * Returns true if the database contains the given contact for the given
 	 * local pseudonym.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsContact(Transaction txn, AuthorId remote, AuthorId local)
 			throws DbException;
 
 	/**
 	 * Returns true if the database contains the given group.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsGroup(Transaction txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given local author.
+	 * <p/>
+	 * Read-only.
 	 */
 	boolean containsLocalAuthor(Transaction txn, AuthorId local)
+			throws DbException;
+
+	/**
+	 * Returns true if the database contains the given pending contact.
+	 * <p/>
+	 * Read-only.
+	 */
+	boolean containsPendingContact(Transaction txn, PendingContactId p)
 			throws DbException;
 
 	/**
@@ -292,8 +313,8 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<HandshakeKeySet> getHandshakeKeys(Transaction txn,
-			TransportId t) throws DbException;
+	Collection<HandshakeKeySet> getHandshakeKeys(Transaction txn, TransportId t)
+			throws DbException;
 
 	/**
 	 * Returns the local pseudonym with the given ID.
@@ -444,6 +465,14 @@ public interface DatabaseComponent {
 	long getNextSendTime(Transaction txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns all pending contacts.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<PendingContact> getPendingContacts(Transaction txn)
+			throws DbException;
+
+	/**
 	 * Returns all settings in the given namespace.
 	 * <p/>
 	 * Read-only.
@@ -540,6 +569,12 @@ public interface DatabaseComponent {
 	void removeMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
+	 * Removes a pending contact (and all associated state) from the database.
+	 */
+	void removePendingContact(Transaction txn, PendingContactId p)
+			throws DbException;
+
+	/**
 	 * Removes a transport (and all associated state) from the database.
 	 */
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
@@ -591,10 +626,18 @@ public interface DatabaseComponent {
 			Collection<MessageId> dependencies) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given key set and transport in the
-	 * given time period.
+	 * Sets the reordering window for the given transport key set in the given
+	 * time period.
 	 */
 	void setReorderingWindow(Transaction txn, TransportKeySetId k,
+			TransportId t, long timePeriod, long base, byte[] bitmap)
+			throws DbException;
+
+	/**
+	 * Sets the reordering window for the given handshake key set in the given
+	 * time period.
+	 */
+	void setReorderingWindow(Transaction txn, HandshakeKeySetId k,
 			TransportId t, long timePeriod, long base, byte[] bitmap)
 			throws DbException;
 
