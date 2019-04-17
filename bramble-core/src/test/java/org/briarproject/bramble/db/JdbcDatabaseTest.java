@@ -962,7 +962,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testIncrementStaticStreamCounter() throws Exception {
+	public void testIncrementStreamCounterForHandshakeKeys() throws Exception {
 		long timePeriod = 123;
 		SecretKey rootKey = getSecretKey();
 		boolean alice = random.nextBoolean();
@@ -977,7 +977,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
 				true, true));
 		db.addTransport(txn, transportId, 123);
-		assertEquals(handshakeKeySetId, db.addHandshakeKeys(txn, contactId, keys));
+		assertEquals(handshakeKeySetId,
+				db.addHandshakeKeys(txn, contactId, keys));
 
 		// Increment the stream counter twice and retrieve the handshake keys
 		db.incrementStreamCounter(txn, transportId, handshakeKeySetId);
@@ -1054,7 +1055,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testSetStaticReorderingWindow() throws Exception {
+	public void testSetReorderingWindowForHandshakeKeys() throws Exception {
 		long timePeriod = 123;
 		SecretKey rootKey = getSecretKey();
 		boolean alice = random.nextBoolean();
