@@ -692,6 +692,14 @@ interface Database<T> {
 			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
+	 * Sets the reordering window for the given static key set and transport in
+	 * the given time period.
+	 */
+	void setStaticReorderingWindow(T txn, StaticTransportKeySetId k,
+			TransportId t, long timePeriod, long base, byte[] bitmap)
+			throws DbException;
+
+	/**
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
 	void setTransportKeysActive(T txn, TransportId t, TransportKeySetId k)

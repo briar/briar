@@ -3223,6 +3223,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void setStaticReorderingWindow(Connection txn,
+			StaticTransportKeySetId k, TransportId t, long timePeriod,
+			long base, byte[] bitmap) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE incomingStaticKeys SET base = ?, bitmap = ?"
+					+ " WHERE transportId = ? AND keySetId = ?"
+					+ " AND timePeriod = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setLong(1, base);
+			ps.setBytes(2, bitmap);
+			ps.setString(3, t.getString());
+			ps.setInt(4, k.getInt());
+			ps.setLong(5, timePeriod);
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void setTransportKeysActive(Connection txn, TransportId t,
 			TransportKeySetId k) throws DbException {
 		PreparedStatement ps = null;
