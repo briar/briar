@@ -44,7 +44,7 @@ class PendingContactFactoryImpl implements PendingContactFactory {
 
 	private PublicKey parseHandshakeLink(String link) throws FormatException {
 		Matcher matcher = LINK_REGEX.matcher(link);
-		if (!matcher.matches()) throw new FormatException();
+		if (!matcher.find()) throw new FormatException();
 		link = matcher.group(); // Discard anything before or after the link
 		if (link.startsWith("briar://")) link = link.substring(8);
 		byte[] base32 = Base32.decode(link, false);
