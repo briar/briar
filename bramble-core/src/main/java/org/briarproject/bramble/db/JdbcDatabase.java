@@ -1680,7 +1680,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] privateKey = rs.getBytes(4);
 			byte[] handshakePublicKey = rs.getBytes(5);
 			byte[] handshakePrivateKey = rs.getBytes(6);
-			long created = rs.getLong(5);
+			long created = rs.getLong(7);
 			LocalAuthor localAuthor = new LocalAuthor(a, formatVersion, name,
 					publicKey, privateKey, handshakePublicKey,
 					handshakePrivateKey, created);
