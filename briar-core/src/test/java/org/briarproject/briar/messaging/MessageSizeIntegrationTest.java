@@ -2,7 +2,6 @@ package org.briarproject.briar.messaging;
 
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -70,12 +69,8 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	@Test
 	public void testForumPostFitsIntoRecord() throws Exception {
 		// Create a maximum-length author
-		int formatVersion = Integer.MAX_VALUE;
 		String authorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] authorPublic = new byte[MAX_PUBLIC_KEY_LENGTH];
-		PrivateKey privateKey = crypto.generateSignatureKeyPair().getPrivate();
-		LocalAuthor author = authorFactory.createLocalAuthor(formatVersion,
-				authorName, authorPublic, privateKey.getEncoded());
+		LocalAuthor author = authorFactory.createLocalAuthor(authorName, false);
 		// Create a maximum-length forum post
 		GroupId groupId = new GroupId(getRandomId());
 		long timestamp = Long.MAX_VALUE;

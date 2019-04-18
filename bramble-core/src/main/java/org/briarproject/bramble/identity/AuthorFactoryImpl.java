@@ -1,6 +1,7 @@
 package org.briarproject.bramble.identity;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -43,17 +44,21 @@ class AuthorFactoryImpl implements AuthorFactory {
 	}
 
 	@Override
-	public LocalAuthor createLocalAuthor(String name, byte[] publicKey,
-			byte[] privateKey) {
-		return createLocalAuthor(FORMAT_VERSION, name, publicKey, privateKey);
-	}
-
-	@Override
-	public LocalAuthor createLocalAuthor(int formatVersion, String name,
-			byte[] publicKey, byte[] privateKey) {
-		AuthorId id = getId(formatVersion, name, publicKey);
-		return new LocalAuthor(id, formatVersion, name, publicKey, privateKey,
-				clock.currentTimeMillis());
+	public LocalAuthor createLocalAuthor(String name, boolean handshakeKeys) {
+		KeyPair signatureKeyPair = crypto.generateSignatureKeyPair();
+		byte[] sigPub = signatureKeyPair.getPublic().getEncoded();
+		byte[] sigPriv = signatureKeyPair.getPrivate().getEncoded();
+		AuthorId id = getId(FORMAT_VERSION, name, sigPub);
+		if (handshakeKeys) {
+			KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
+			byte[] handPub = handshakeKeyPair.getPublic().getEncoded();
+			byte[] handPriv = handshakeKeyPair.getPrivate().getEncoded();
+			return new LocalAuthor(id, FORMAT_VERSION, name, sigPub, sigPriv,
+					handPub, handPriv, clock.currentTimeMillis());
+		} else {
+			return new LocalAuthor(id, FORMAT_VERSION, name, sigPub, sigPriv,
+					clock.currentTimeMillis());
+		}
 	}
 
 	private AuthorId getId(int formatVersion, String name, byte[] publicKey) {

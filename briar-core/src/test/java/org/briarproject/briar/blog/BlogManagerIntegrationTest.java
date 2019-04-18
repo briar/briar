@@ -21,9 +21,7 @@ import java.util.Iterator;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
@@ -51,9 +49,7 @@ public class BlogManagerIntegrationTest
 		author0 = identityManager0.getLocalAuthor();
 		author1 = identityManager1.getLocalAuthor();
 		rssAuthor = c0.getAuthorFactory().createLocalAuthor(
-				getRandomString(MAX_AUTHOR_NAME_LENGTH),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
-				getRandomBytes(123));
+				getRandomString(MAX_AUTHOR_NAME_LENGTH), false);
 
 		blogManager0 = c0.getBlogManager();
 		blogManager1 = c1.getBlogManager();

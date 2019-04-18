@@ -18,14 +18,7 @@ public interface AuthorFactory {
 
 	/**
 	 * Creates a local author with the current format version and the given
-	 * name and keys.
+	 * name.
 	 */
-	LocalAuthor createLocalAuthor(String name, byte[] publicKey,
-			byte[] privateKey);
-
-	/**
-	 * Creates a local author with the given format version, name and keys.
-	 */
-	LocalAuthor createLocalAuthor(int formatVersion, String name,
-			byte[] publicKey, byte[] privateKey);
+	LocalAuthor createLocalAuthor(String name, boolean handshakeKeys);
 }

@@ -1,7 +1,5 @@
 package org.briarproject.bramble.identity;
 
-import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -27,7 +25,6 @@ class IdentityManagerImpl implements IdentityManager {
 			Logger.getLogger(IdentityManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
-	private final CryptoComponent crypto;
 	private final AuthorFactory authorFactory;
 
 	// The local author is immutable so we can cache it
@@ -35,21 +32,15 @@ class IdentityManagerImpl implements IdentityManager {
 	private volatile LocalAuthor cachedAuthor;
 
 	@Inject
-	IdentityManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			AuthorFactory authorFactory) {
+	IdentityManagerImpl(DatabaseComponent db, AuthorFactory authorFactory) {
 		this.db = db;
-		this.crypto = crypto;
 		this.authorFactory = authorFactory;
 	}
 
 	@Override
 	public LocalAuthor createLocalAuthor(String name) {
 		long start = now();
-		KeyPair keyPair = crypto.generateSignatureKeyPair();
-		byte[] publicKey = keyPair.getPublic().getEncoded();
-		byte[] privateKey = keyPair.getPrivate().getEncoded();
-		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name,
-				publicKey, privateKey);
+		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name, true);
 		logDuration(LOG, "Creating local author", start);
 		return localAuthor;
 	}

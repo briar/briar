@@ -5,8 +5,6 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -74,7 +72,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private final ClientHelper clientHelper;
 	private final MessageTracker messageTracker;
 	private final BlogPostFactory blogPostFactory;
-	private final CryptoComponent cryptoComponent;
 
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
@@ -94,9 +91,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	TestDataCreatorImpl(AuthorFactory authorFactory, Clock clock,
 			PrivateMessageFactory privateMessageFactory,
 			ClientHelper clientHelper, MessageTracker messageTracker,
-			BlogPostFactory blogPostFactory, CryptoComponent cryptoComponent,
-			DatabaseComponent db, IdentityManager identityManager,
-			ContactManager contactManager,
+			BlogPostFactory blogPostFactory, DatabaseComponent db,
+			IdentityManager identityManager, ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager,
 			MessagingManager messagingManager, BlogManager blogManager,
 			ForumManager forumManager, @IoExecutor Executor ioExecutor) {
@@ -106,7 +102,6 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.clientHelper = clientHelper;
 		this.messageTracker = messageTracker;
 		this.blogPostFactory = blogPostFactory;
-		this.cryptoComponent = cryptoComponent;
 		this.db = db;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
@@ -150,14 +145,14 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		List<Contact> contacts = new ArrayList<>(numContacts);
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (int i = 0; i < numContacts; i++) {
-			LocalAuthor author = getRandomAuthor();
-			Contact contact = addContact(localAuthor.getId(), author);
+			LocalAuthor remote = getRandomAuthor();
+			Contact contact = addContact(localAuthor.getId(), remote);
 			contacts.add(contact);
 		}
 		return contacts;
 	}
 
-	private Contact addContact(AuthorId localAuthorId, LocalAuthor author)
+	private Contact addContact(AuthorId localAuthorId, LocalAuthor remote)
 			throws DbException {
 
 		// prepare to add contact
@@ -173,7 +168,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		Transaction txn = db.startTransaction(false);
 		try {
 			ContactId contactId = contactManager
-					.addContact(txn, author, localAuthorId, secretKey,
+					.addContact(txn, remote, localAuthorId, secretKey,
 							timestamp, true, verified, true);
 			if (random.nextBoolean()) {
 				contactManager
@@ -187,24 +182,18 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Added contact " + author.getName());
+			LOG.info("Added contact " + remote.getName());
 			LOG.info("with transport properties: " + props.toString());
 		}
-		localAuthors.put(contact, author);
+		localAuthors.put(contact, remote);
 		return contact;
 	}
 
 	@Override
 	public Contact addContact(String name) throws DbException {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
-		return addContact(localAuthor.getId(), getAuthor(name));
-	}
-
-	private LocalAuthor getAuthor(String name) {
-		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
-		byte[] publicKey = keyPair.getPublic().getEncoded();
-		byte[] privateKey = keyPair.getPrivate().getEncoded();
-		return authorFactory.createLocalAuthor(name, publicKey, privateKey);
+		LocalAuthor remote = authorFactory.createLocalAuthor(name, false);
+		return addContact(localAuthor.getId(), remote);
 	}
 
 	private String getRandomAuthorName() {
@@ -213,7 +202,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private LocalAuthor getRandomAuthor() {
-		return getAuthor(getRandomAuthorName());
+		return authorFactory.createLocalAuthor(getRandomAuthorName(), false);
 	}
 
 	private SecretKey getSecretKey() {
