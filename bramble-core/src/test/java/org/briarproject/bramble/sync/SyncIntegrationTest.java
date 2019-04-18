@@ -22,7 +22,6 @@ import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.test.BrambleTestCase;
-import org.briarproject.bramble.test.TestUtils;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -37,6 +36,8 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_GROUP_DESCRIPT
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getContactId;
+import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -73,11 +74,11 @@ public class SyncIntegrationTest extends BrambleTestCase {
 				DaggerSyncIntegrationTestComponent.builder().build();
 		component.inject(this);
 
-		contactId = new ContactId(234);
+		contactId = getContactId();
 		transportId = getTransportId();
 		// Create the transport keys
-		tagKey = TestUtils.getSecretKey();
-		headerKey = TestUtils.getSecretKey();
+		tagKey = getSecretKey();
+		headerKey = getSecretKey();
 		streamNumber = 123;
 		// Create a group
 		ClientId clientId = getClientId();

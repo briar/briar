@@ -1,14 +1,10 @@
 package org.briarproject.bramble.transport;
 
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
-import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
@@ -21,7 +17,6 @@ import org.jmock.lib.concurrent.DeterministicExecutor;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Random;
@@ -29,12 +24,10 @@ import java.util.Random;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
-import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
@@ -49,14 +42,12 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 
 	private final DeterministicExecutor executor = new DeterministicExecutor();
 	private final Transaction txn = new Transaction(null, false);
-	private final ContactId contactId = new ContactId(123);
-	private final ContactId inactiveContactId = new ContactId(234);
+	private final ContactId contactId = getContactId();
 	private final TransportKeySetId keySetId = new TransportKeySetId(345);
 	private final TransportId transportId = getTransportId();
 	private final TransportId unknownTransportId = getTransportId();
-	private final StreamContext streamContext =
-			new StreamContext(contactId, transportId, getSecretKey(),
-					getSecretKey(), 1);
+	private final StreamContext streamContext = new StreamContext(contactId,
+			transportId, getSecretKey(), getSecretKey(), 1);
 	private final byte[] tag = getRandomBytes(TAG_LENGTH);
 	private final Random random = new Random();
 
@@ -66,13 +57,6 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	@Before
 	public void testStartService() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		Author remoteAuthor = getAuthor();
-		AuthorId localAuthorId = new AuthorId(getRandomId());
-		Collection<Contact> contacts = new ArrayList<>();
-		contacts.add(new Contact(contactId, remoteAuthor, localAuthorId,
-				getRandomString(5), true, true));
-		contacts.add(new Contact(inactiveContactId, remoteAuthor, localAuthorId,
-				getRandomString(5), true, false));
 		SimplexPluginFactory pluginFactory =
 				context.mock(SimplexPluginFactory.class);
 		Collection<SimplexPluginFactory> factories =
@@ -92,8 +76,6 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(transportKeyManager));
 			oneOf(pluginConfig).getDuplexFactories();
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
-			oneOf(db).getContacts(txn);
-			will(returnValue(contacts));
 			oneOf(transportKeyManager).start(txn);
 		}});
 
@@ -116,11 +98,6 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 		Map<TransportId, TransportKeySetId> ids = keyManager.addContact(txn,
 				contactId, secretKey, timestamp, alice, active);
 		assertEquals(singletonMap(transportId, keySetId), ids);
-	}
-
-	@Test
-	public void testGetStreamContextForInactiveContact() throws Exception {
-		assertNull(keyManager.getStreamContext(inactiveContactId, transportId));
 	}
 
 	@Test
@@ -161,32 +138,14 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testContactRemovedEvent() throws Exception {
+	public void testContactRemovedEvent() {
 		ContactRemovedEvent event = new ContactRemovedEvent(contactId);
 
-		context.checking(new Expectations() {{
+		context.checking(new DbExpectations() {{
 			oneOf(transportKeyManager).removeContact(contactId);
 		}});
 
 		keyManager.eventOccurred(event);
 		executor.runUntilIdle();
-		assertNull(keyManager.getStreamContext(contactId, transportId));
-	}
-
-	@Test
-	public void testContactStatusChangedEvent() throws Exception {
-		ContactStatusChangedEvent event =
-				new ContactStatusChangedEvent(inactiveContactId, true);
-
-		context.checking(new DbExpectations() {{
-			oneOf(db).transactionWithNullableResult(with(false),
-					withNullableDbCallable(txn));
-			oneOf(transportKeyManager).getStreamContext(txn, inactiveContactId);
-			will(returnValue(streamContext));
-		}});
-
-		keyManager.eventOccurred(event);
-		assertEquals(streamContext,
-				keyManager.getStreamContext(inactiveContactId, transportId));
 	}
 }

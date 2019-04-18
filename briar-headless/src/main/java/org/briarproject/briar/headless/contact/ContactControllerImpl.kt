@@ -16,7 +16,7 @@ internal class ContactControllerImpl
 constructor(private val contactManager: ContactManager) : ContactController {
 
     override fun list(ctx: Context): Context {
-        val contacts = contactManager.activeContacts.map { contact ->
+        val contacts = contactManager.contacts.map { contact ->
             contact.output()
         }
         return ctx.json(contacts)

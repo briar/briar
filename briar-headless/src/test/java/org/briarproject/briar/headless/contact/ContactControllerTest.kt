@@ -19,14 +19,14 @@ internal class ContactControllerTest : ControllerTest() {
 
     @Test
     fun testEmptyContactList() {
-        every { contactManager.activeContacts } returns emptyList<Contact>()
+        every { contactManager.contacts } returns emptyList<Contact>()
         every { ctx.json(emptyList<Any>()) } returns ctx
         controller.list(ctx)
     }
 
     @Test
     fun testList() {
-        every { contactManager.activeContacts } returns listOf(contact)
+        every { contactManager.contacts } returns listOf(contact)
         every { ctx.json(listOf(contact.output())) } returns ctx
         controller.list(ctx)
     }

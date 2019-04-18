@@ -23,9 +23,8 @@ public interface KeyManager {
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
+	 *  @param alice true if the local party is Alice
 	 *
-	 * @param alice true if the local party is Alice
-	 * @param active whether the derived keys can be used for outgoing streams
 	 */
 	Map<TransportId, TransportKeySetId> addContact(Transaction txn, ContactId c,
 			SecretKey rootKey, long timestamp, boolean alice, boolean active)

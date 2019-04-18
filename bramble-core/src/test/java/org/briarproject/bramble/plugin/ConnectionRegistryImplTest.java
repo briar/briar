@@ -17,6 +17,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.NoSuchElementException;
 
+import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -28,8 +29,8 @@ public class ConnectionRegistryImplTest extends BrambleTestCase {
 	private final TransportId transportId, transportId1;
 
 	public ConnectionRegistryImplTest() {
-		contactId = new ContactId(1);
-		contactId1 = new ContactId(2);
+		contactId = getContactId();
+		contactId1 = getContactId();
 		transportId = getTransportId();
 		transportId1 = getTransportId();
 	}

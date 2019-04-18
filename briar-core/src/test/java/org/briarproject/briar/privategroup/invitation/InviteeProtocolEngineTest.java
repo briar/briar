@@ -3,7 +3,6 @@ package org.briarproject.briar.privategroup.invitation;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -18,6 +17,7 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -31,6 +31,7 @@ import static org.briarproject.briar.privategroup.invitation.InviteeState.LEFT;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.START;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -53,43 +54,43 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	// onInviteAction
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromStart() throws Exception {
+	public void testOnInviteActionFromStart() {
 		engine.onInviteAction(txn, getDefaultSession(START), null,
 				messageTimestamp, signature);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromLeft() throws Exception {
+	public void testOnInviteActionFromLeft() {
 		engine.onInviteAction(txn, getDefaultSession(ACCEPTED), null,
 				messageTimestamp, signature);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromInvited() throws Exception {
+	public void testOnInviteActionFromInvited() {
 		engine.onInviteAction(txn, getDefaultSession(INVITED), null,
 				messageTimestamp, signature);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromDissolved() throws Exception {
+	public void testOnInviteActionFromDissolved() {
 		engine.onInviteAction(txn, getDefaultSession(DISSOLVED), null,
 				messageTimestamp, signature);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromAccepted() throws Exception {
+	public void testOnInviteActionFromAccepted() {
 		engine.onInviteAction(txn, getDefaultSession(ACCEPTED), null,
 				messageTimestamp, signature);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromJoined() throws Exception {
+	public void testOnInviteActionFromJoined() {
 		engine.onInviteAction(txn, getDefaultSession(JOINED), null,
 				messageTimestamp, signature);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
-	public void testOnInviteActionFromError() throws Exception {
+	public void testOnInviteActionFromError() {
 		engine.onInviteAction(txn, getDefaultSession(ERROR), null,
 				messageTimestamp, signature);
 	}
@@ -263,43 +264,43 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	// onMemberAddedAction
 
 	@Test
-	public void testOnMemberAddedFromStart() throws Exception {
+	public void testOnMemberAddedFromStart() {
 		InviteeSession session = getDefaultSession(START);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 	}
 
 	@Test
-	public void testOnMemberAddedFromInvited() throws Exception {
+	public void testOnMemberAddedFromInvited() {
 		InviteeSession session = getDefaultSession(INVITED);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 	}
 
 	@Test
-	public void testOnMemberAddedFromAccepted() throws Exception {
+	public void testOnMemberAddedFromAccepted() {
 		InviteeSession session = getDefaultSession(ACCEPTED);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 	}
 
 	@Test
-	public void testOnMemberAddedFromJoined() throws Exception {
+	public void testOnMemberAddedFromJoined() {
 		InviteeSession session = getDefaultSession(JOINED);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 	}
 
 	@Test
-	public void testOnMemberAddedFromLeft() throws Exception {
+	public void testOnMemberAddedFromLeft() {
 		InviteeSession session = getDefaultSession(LEFT);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 	}
 
 	@Test
-	public void testOnMemberAddedFromDissolved() throws Exception {
+	public void testOnMemberAddedFromDissolved() {
 		InviteeSession session = getDefaultSession(DISSOLVED);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 	}
 
 	@Test
-	public void testOnMemberAddedFromError() throws Exception {
+	public void testOnMemberAddedFromError() {
 		InviteeSession session = getDefaultSession(ERROR);
 		assertEquals(session, engine.onMemberAddedAction(txn, session));
 	}
@@ -329,9 +330,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 						privateGroup.getSalt(),
 						getRandomString(MAX_GROUP_INVITATION_TEXT_LENGTH),
 						signature);
-		Author notCreator = getAuthor();
-		Contact notCreatorContact = new Contact(contactId, notCreator,
-				localAuthor.getId(), getRandomString(5), true, true);
+		Contact notCreatorContact = getContact(contactId, getAuthor(),
+				localAuthor.getId(), true);
 
 		expectGetContactId();
 		context.checking(new Expectations() {{
@@ -510,8 +510,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
 		assertNotNull(invalidJoinMessage.getPreviousMessageId());
-		assertFalse(session.getLastRemoteMessageId()
-				.equals(invalidJoinMessage.getPreviousMessageId()));
+		assertNotEquals(session.getLastRemoteMessageId(),
+				invalidJoinMessage.getPreviousMessageId());
 
 		expectAbortWhenSubscribedToGroup();
 		InviteeSession newSession =
@@ -530,8 +530,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
 		assertNotNull(properJoinMessage.getPreviousMessageId());
-		assertTrue(session.getLastRemoteMessageId()
-				.equals(properJoinMessage.getPreviousMessageId()));
+		assertEquals(session.getLastRemoteMessageId(),
+				properJoinMessage.getPreviousMessageId());
 
 		expectSetPrivateGroupVisibility(SHARED);
 
@@ -646,8 +646,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
 		assertNotNull(properLeaveMessage.getPreviousMessageId());
-		assertTrue(session.getLastRemoteMessageId()
-				.equals(properLeaveMessage.getPreviousMessageId()));
+		assertEquals(session.getLastRemoteMessageId(),
+				properLeaveMessage.getPreviousMessageId());
 
 		expectMarkInvitesUnavailableToAnswer();
 		InviteeSession newSession =
@@ -676,8 +676,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 				session.getInviteTimestamp());
 		assertNotNull(session.getLastRemoteMessageId());
 		assertNotNull(properLeaveMessage.getPreviousMessageId());
-		assertTrue(session.getLastRemoteMessageId()
-				.equals(properLeaveMessage.getPreviousMessageId()));
+		assertEquals(session.getLastRemoteMessageId(),
+				properLeaveMessage.getPreviousMessageId());
 
 		expectMarkInvitesUnavailableToAnswer();
 		InviteeSession newSession =

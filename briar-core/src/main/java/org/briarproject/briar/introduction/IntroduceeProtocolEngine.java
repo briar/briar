@@ -434,7 +434,7 @@ class IntroduceeProtocolEngine
 		try {
 			contactManager
 					.addContact(txn, s.getRemote().author, localAuthor.getId(),
-							false, true);
+							false);
 
 			// Only add transport properties and keys when the contact was added
 			// This will be changed once we have a way to reset state for peers

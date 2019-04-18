@@ -234,12 +234,12 @@ public class IntroductionIntegrationTest
 				.contactExists(author1.getId(), author2.getId()));
 
 		// make sure that introduced contacts are not verified
-		for (Contact c : contactManager1.getActiveContacts()) {
+		for (Contact c : contactManager1.getContacts()) {
 			if (c.getAuthor().equals(author2)) {
 				assertFalse(c.isVerified());
 			}
 		}
-		for (Contact c : contactManager2.getActiveContacts()) {
+		for (Contact c : contactManager2.getContacts()) {
 			if (c.getAuthor().equals(author1)) {
 				assertFalse(c.isVerified());
 			}

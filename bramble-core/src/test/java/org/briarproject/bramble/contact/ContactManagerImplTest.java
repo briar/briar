@@ -20,9 +20,7 @@ import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Random;
 
 import static java.util.Collections.emptyList;
@@ -33,6 +31,7 @@ import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
@@ -49,17 +48,16 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
 	private final ContactManager contactManager;
-	private final ContactId contactId = new ContactId(42);
 	private final Author remote = getAuthor();
-	private final AuthorId local = new AuthorId(getRandomId());
 	private final LocalAuthor localAuthor = getLocalAuthor();
-	private final String alias = getRandomString(MAX_AUTHOR_NAME_LENGTH);
+	private final AuthorId local = localAuthor.getId();
 	private final boolean verified = false, active = true;
-	private final Contact contact =
-			new Contact(contactId, remote, local, alias, verified, active);
+	private final Contact contact = getContact(remote, local, verified);
+	private final ContactId contactId = contact.getId();
 
 	public ContactManagerImplTest() {
-		contactManager = new ContactManagerImpl(db, keyManager, identityManager);
+		contactManager =
+				new ContactManagerImpl(db, keyManager, identityManager);
 	}
 
 	@Test
@@ -71,7 +69,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
-			oneOf(db).addContact(txn, remote, local, verified, active);
+			oneOf(db).addContact(txn, remote, local, verified);
 			will(returnValue(contactId));
 			oneOf(keyManager).addContact(txn, contactId, rootKey, timestamp,
 					alice, active);
@@ -98,7 +96,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetContactByAuthor() throws Exception {
 		Transaction txn = new Transaction(null, true);
-		Collection<Contact> contacts = Collections.singleton(contact);
+		Collection<Contact> contacts = singletonList(contact);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getContactsByAuthorId(txn, remote.getId());
@@ -123,7 +121,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test(expected = NoSuchContactException.class)
 	public void testGetContactByUnknownLocalAuthor() throws Exception {
 		Transaction txn = new Transaction(null, true);
-		Collection<Contact> contacts = Collections.singleton(contact);
+		Collection<Contact> contacts = singletonList(contact);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getContactsByAuthorId(txn, remote.getId());
@@ -134,11 +132,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testGetActiveContacts() throws Exception {
-		Collection<Contact> activeContacts = Collections.singletonList(contact);
-		Collection<Contact> contacts = new ArrayList<>(activeContacts);
-		contacts.add(new Contact(new ContactId(3), remote, local, alias, true,
-				false));
+	public void testGetContacts() throws Exception {
+		Collection<Contact> contacts = singletonList(contact);
 		Transaction txn = new Transaction(null, true);
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
@@ -146,7 +141,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contacts));
 		}});
 
-		assertEquals(activeContacts, contactManager.getActiveContacts());
+		assertEquals(contacts, contactManager.getContacts());
 	}
 
 	@Test
@@ -163,18 +158,10 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testSetContactActive() throws Exception {
-		Transaction txn = new Transaction(null, false);
-		context.checking(new Expectations() {{
-			oneOf(db).setContactActive(txn, contactId, active);
-		}});
-
-		contactManager.setContactActive(txn, contactId, active);
-	}
-
-	@Test
 	public void testSetContactAlias() throws Exception {
 		Transaction txn = new Transaction(null, false);
+		String alias = getRandomString(MAX_AUTHOR_NAME_LENGTH);
+
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(db).setContactAlias(txn, contactId, alias);
@@ -205,21 +192,18 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testGetAuthorInfo() throws Exception {
 		Transaction txn = new Transaction(null, true);
-		Collection<Contact> contacts = singletonList(
-				new Contact(new ContactId(1), remote, localAuthor.getId(),
-						alias, false, true));
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(localAuthor));
 			oneOf(db).getContactsByAuthorId(txn, remote.getId());
-			will(returnValue(contacts));
+			will(returnValue(singletonList(contact)));
 		}});
 		AuthorInfo authorInfo =
 				contactManager.getAuthorInfo(txn, remote.getId());
 		assertEquals(UNVERIFIED, authorInfo.getStatus());
-		assertEquals(alias, contact.getAlias());
+		assertEquals(contact.getAlias(), authorInfo.getAlias());
 	}
 
 	@Test
@@ -239,21 +223,17 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 		assertNull(authorInfo.getAlias());
 
 		// check unverified contact
-		Collection<Contact> contacts = singletonList(
-				new Contact(new ContactId(1), remote, localAuthor.getId(),
-						alias, false, true));
-		checkAuthorInfoContext(txn, remote.getId(), contacts);
+		checkAuthorInfoContext(txn, remote.getId(), singletonList(contact));
 		authorInfo = contactManager.getAuthorInfo(txn, remote.getId());
 		assertEquals(UNVERIFIED, authorInfo.getStatus());
-		assertEquals(alias, contact.getAlias());
+		assertEquals(contact.getAlias(), authorInfo.getAlias());
 
 		// check verified contact
-		contacts = singletonList(new Contact(new ContactId(1), remote,
-				localAuthor.getId(), alias, true, true));
-		checkAuthorInfoContext(txn, remote.getId(), contacts);
+		Contact verified = getContact(remote, local, true);
+		checkAuthorInfoContext(txn, remote.getId(), singletonList(verified));
 		authorInfo = contactManager.getAuthorInfo(txn, remote.getId());
 		assertEquals(VERIFIED, authorInfo.getStatus());
-		assertEquals(alias, contact.getAlias());
+		assertEquals(verified.getAlias(), authorInfo.getAlias());
 
 		// check ourselves
 		context.checking(new Expectations() {{

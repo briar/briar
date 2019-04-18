@@ -204,7 +204,7 @@ public class ConversationViewModel extends AndroidViewModel {
 		imageSupport.postValue(imagesSupported);
 
 		// check if introductions are supported
-		Collection<Contact> contacts = contactManager.getActiveContacts();
+		Collection<Contact> contacts = contactManager.getContacts();
 		boolean introductionSupported = contacts.size() > 1;
 		showIntroductionAction.postValue(introductionSupported);
 

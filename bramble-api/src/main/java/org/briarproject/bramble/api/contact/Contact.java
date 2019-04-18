@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @Immutable
@@ -19,21 +20,28 @@ public class Contact {
 	private final AuthorId localAuthorId;
 	@Nullable
 	private final String alias;
-	private final boolean verified, active;
+	@Nullable
+	private final byte[] handshakePublicKey;
+	private final boolean verified;
 
 	public Contact(ContactId id, Author author, AuthorId localAuthorId,
-			@Nullable String alias, boolean verified, boolean active) {
+			@Nullable String alias, @Nullable byte[] handshakePublicKey,
+			boolean verified) {
 		if (alias != null) {
 			int aliasLength = toUtf8(alias).length;
 			if (aliasLength == 0 || aliasLength > MAX_AUTHOR_NAME_LENGTH)
 				throw new IllegalArgumentException();
 		}
+		if (handshakePublicKey != null && (handshakePublicKey.length == 0 ||
+				handshakePublicKey.length > MAX_PUBLIC_KEY_LENGTH)) {
+			throw new IllegalArgumentException();
+		}
 		this.id = id;
 		this.author = author;
 		this.localAuthorId = localAuthorId;
 		this.alias = alias;
+		this.handshakePublicKey = handshakePublicKey;
 		this.verified = verified;
-		this.active = active;
 	}
 
 	public ContactId getId() {
@@ -53,12 +61,13 @@ public class Contact {
 		return alias;
 	}
 
-	public boolean isVerified() {
-		return verified;
+	@Nullable
+	public byte[] getHandshakePublicKey() {
+		return handshakePublicKey;
 	}
 
-	public boolean isActive() {
-		return active;
+	public boolean isVerified() {
+		return verified;
 	}
 
 	@Override

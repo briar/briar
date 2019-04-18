@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
@@ -80,12 +80,10 @@ class Poller implements EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof ContactStatusChangedEvent) {
-			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
-			if (c.isActive()) {
-				// Connect to the newly activated contact
-				connectToContact(c.getContactId());
-			}
+		if (e instanceof ContactAddedEvent) {
+			ContactAddedEvent c = (ContactAddedEvent) e;
+			// Connect to the newly activated contact
+			connectToContact(c.getContactId());
 		} else if (e instanceof ConnectionClosedEvent) {
 			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
 			// Reschedule polling, the polling interval may have decreased

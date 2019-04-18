@@ -78,7 +78,7 @@ class RevealContactsControllerImpl extends DbControllerImpl
 		Collection<GroupMember> members =
 				groupManager.getMembers(g);
 		Collection<Contact> contacts =
-				contactManager.getActiveContacts();
+				contactManager.getContacts();
 		Collection<RevealableContactItem> items =
 				new ArrayList<>(members.size());
 		for (GroupMember m : members) {

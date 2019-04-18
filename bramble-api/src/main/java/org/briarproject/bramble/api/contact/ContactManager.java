@@ -39,7 +39,7 @@ public interface ContactManager {
 	 * and returns an ID for the contact.
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean verified, boolean active) throws DbException;
+			boolean verified) throws DbException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
@@ -108,7 +108,7 @@ public interface ContactManager {
 	/**
 	 * Returns all active contacts.
 	 */
-	Collection<Contact> getActiveContacts() throws DbException;
+	Collection<Contact> getContacts() throws DbException;
 
 	/**
 	 * Removes a contact and all associated state.
@@ -119,12 +119,6 @@ public interface ContactManager {
 	 * Removes a contact and all associated state.
 	 */
 	void removeContact(Transaction txn, ContactId c) throws DbException;
-
-	/**
-	 * Marks a contact as active or inactive.
-	 */
-	void setContactActive(Transaction txn, ContactId c, boolean active)
-			throws DbException;
 
 	/**
 	 * Sets an alias name for the contact or unsets it if alias is null.

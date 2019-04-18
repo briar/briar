@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.KeyManager;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
@@ -72,7 +71,7 @@ class ContactManagerImpl implements ContactManager {
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified, active);
+		ContactId c = db.addContact(txn, remote, local, verified);
 		keyManager.addContact(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
@@ -81,8 +80,8 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean verified, boolean active) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified, active);
+			boolean verified) throws DbException {
+		ContactId c = db.addContact(txn, remote, local, verified);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -165,23 +164,13 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public Collection<Contact> getActiveContacts() throws DbException {
-		Collection<Contact> contacts =
-				db.transactionWithResult(true, db::getContacts);
-		List<Contact> active = new ArrayList<>(contacts.size());
-		for (Contact c : contacts) if (c.isActive()) active.add(c);
-		return active;
+	public Collection<Contact> getContacts() throws DbException {
+		return db.transactionWithResult(true, db::getContacts);
 	}
 
 	@Override
 	public void removeContact(ContactId c) throws DbException {
 		db.transaction(false, txn -> removeContact(txn, c));
-	}
-
-	@Override
-	public void setContactActive(Transaction txn, ContactId c, boolean active)
-			throws DbException {
-		db.setContactActive(txn, c, active);
 	}
 
 	@Override

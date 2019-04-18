@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.Plugin;
@@ -36,6 +36,7 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
 public class PollerTest extends BrambleMockTestCase {
@@ -56,7 +57,7 @@ public class PollerTest extends BrambleMockTestCase {
 
 	private final Executor ioExecutor = new ImmediateExecutor();
 	private final TransportId transportId = getTransportId();
-	private final ContactId contactId = new ContactId(234);
+	private final ContactId contactId = getContactId();
 	private final TransportProperties properties = new TransportProperties();
 	private final int pollingInterval = 60 * 1000;
 	private final long now = System.currentTimeMillis();
@@ -67,7 +68,7 @@ public class PollerTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testConnectOnContactStatusChanged() throws Exception {
+	public void testConnectOnContactAdded() throws Exception {
 		// Two simplex plugins: one supports polling, the other doesn't
 		SimplexPlugin simplexPlugin = context.mock(SimplexPlugin.class);
 		SimplexPlugin simplexPlugin1 =
@@ -143,7 +144,7 @@ public class PollerTest extends BrambleMockTestCase {
 				connectionRegistry, pluginManager, transportPropertyManager,
 				random, clock);
 
-		p.eventOccurred(new ContactStatusChangedEvent(contactId, true));
+		p.eventOccurred(new ContactAddedEvent(contactId));
 	}
 
 	@Test

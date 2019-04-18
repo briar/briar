@@ -36,7 +36,6 @@ import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -44,9 +43,11 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
+import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -97,10 +98,10 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	private final GroupInvitationManagerImpl groupInvitationManager;
 
 	private final Transaction txn = new Transaction(null, false);
-	private final ContactId contactId = new ContactId(0);
 	private final Author author = getAuthor();
-	private final Contact contact = new Contact(contactId, author,
-			new AuthorId(getRandomId()), getRandomString(5), true, true);
+	private final Contact contact = getContact(author,
+			new AuthorId(getRandomId()), true);
+	private final ContactId contactId = contact.getId();
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group privateGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
@@ -844,12 +845,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRemovingGroupEndsSessions() throws Exception {
-		Contact contact2 = new Contact(new ContactId(2), author,
-				author.getId(), getRandomString(5), true, true);
-		Contact contact3 = new Contact(new ContactId(3), author,
-				author.getId(), getRandomString(5), true, true);
-		Collection<Contact> contacts =
-				Arrays.asList(contact, contact2, contact3);
+		Contact contact2 = getContact();
+		Contact contact3 = getContact();
+		Collection<Contact> contacts = asList(contact, contact2, contact3);
 
 		Group contactGroup2 = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Group contactGroup3 = getGroup(CLIENT_ID, MAJOR_VERSION);

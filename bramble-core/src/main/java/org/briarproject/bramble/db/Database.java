@@ -90,8 +90,8 @@ interface Database<T> {
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
-	ContactId addContact(T txn, Author remote, AuthorId local, boolean verified,
-			boolean active) throws DbException;
+	ContactId addContact(T txn, Author remote, AuthorId local, boolean verified)
+			throws DbException;
 
 	/**
 	 * Stores a group.
@@ -671,12 +671,6 @@ interface Database<T> {
 	 * Marks the given contact as verified.
 	 */
 	void setContactVerified(T txn, ContactId c) throws DbException;
-
-	/**
-	 * Marks the given contact as active or inactive.
-	 */
-	void setContactActive(T txn, ContactId c, boolean active)
-			throws DbException;
 
 	/**
 	 * Sets an alias name for a contact.

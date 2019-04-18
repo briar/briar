@@ -14,18 +14,12 @@ import javax.annotation.concurrent.Immutable;
 public class ContactAddedEvent extends Event {
 
 	private final ContactId contactId;
-	private final boolean active;
 
-	public ContactAddedEvent(ContactId contactId, boolean active) {
+	public ContactAddedEvent(ContactId contactId) {
 		this.contactId = contactId;
-		this.active = active;
 	}
 
 	public ContactId getContactId() {
 		return contactId;
-	}
-
-	public boolean isActive() {
-		return active;
 	}
 }
