@@ -141,7 +141,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	public void testContactRemovedEvent() {
 		ContactRemovedEvent event = new ContactRemovedEvent(contactId);
 
-		context.checking(new DbExpectations() {{
+		context.checking(new Expectations() {{
 			oneOf(transportKeyManager).removeContact(contactId);
 		}});
 

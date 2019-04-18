@@ -432,22 +432,20 @@ class IntroduceeProtocolEngine
 
 		Map<TransportId, TransportKeySetId> keys = null;
 		try {
-			contactManager
-					.addContact(txn, s.getRemote().author, localAuthor.getId(),
-							false);
+			contactManager.addContact(txn, s.getRemote().author,
+					localAuthor.getId(), false);
 
 			// Only add transport properties and keys when the contact was added
 			// This will be changed once we have a way to reset state for peers
 			// that were contacts already at some point in the past.
-			Contact c = contactManager
-					.getContact(txn, s.getRemote().author.getId(),
-							localAuthor.getId());
+			Contact c = contactManager.getContact(txn,
+					s.getRemote().author.getId(), localAuthor.getId());
 
 			// add the keys to the new contact
 			//noinspection ConstantConditions
-			keys = keyManager
-					.addContact(txn, c.getId(), new SecretKey(s.getMasterKey()),
-							timestamp, s.getLocal().alice, false);
+			keys = keyManager.addContact(txn, c.getId(),
+					new SecretKey(s.getMasterKey()), timestamp,
+					s.getLocal().alice, false);
 
 			// add signed transport properties for the contact
 			//noinspection ConstantConditions

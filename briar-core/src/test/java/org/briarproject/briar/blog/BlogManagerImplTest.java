@@ -91,8 +91,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	public BlogManagerImplTest() {
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
 		blogManager = new BlogManagerImpl(db, contactManager, identityManager,
-				clientHelper,
-				metadataParser, blogFactory, blogPostFactory);
+				clientHelper, metadataParser, blogFactory, blogPostFactory);
 
 		localAuthor1 = getLocalAuthor();
 		localAuthor2 = getLocalAuthor();
