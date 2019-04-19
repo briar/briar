@@ -9,6 +9,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 public interface PrivateKey {
 
 	/**
+	 * Returns the type of this key pair.
+	 */
+	String getKeyType();
+
+	/**
 	 * Returns the encoded representation of this key.
 	 */
 	byte[] getEncoded();

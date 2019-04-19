@@ -8,9 +8,19 @@ public interface CryptoConstants {
 	int MAX_AGREEMENT_PUBLIC_KEY_BYTES = 32;
 
 	/**
+	 * The key type for agreement key pairs.
+	 */
+	String KEY_TYPE_AGREEMENT = "Curve25519";
+
+	/**
 	 * The maximum length of a signature public key in bytes.
 	 */
 	int MAX_SIGNATURE_PUBLIC_KEY_BYTES = 32;
+
+	/**
+	 * The key type for signature key pairs.
+	 */
+	String KEY_TYPE_SIGNATURE = "Ed25519";
 
 	/**
 	 * The maximum length of a signature in bytes.

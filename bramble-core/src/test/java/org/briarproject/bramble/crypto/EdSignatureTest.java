@@ -1,6 +1,8 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
+import org.briarproject.bramble.api.crypto.SignaturePublicKey;
 import org.junit.Test;
 
 import java.security.GeneralSecurityException;
@@ -157,11 +159,11 @@ public class EdSignatureTest extends SignatureTest {
 			byte[] signatureBytes = fromHexString(vector[3]);
 
 			EdSignature signature = new EdSignature();
-			signature.initSign(new EdPrivateKey(privateKeyBytes));
+			signature.initSign(new SignaturePrivateKey(privateKeyBytes));
 			signature.update(messageBytes);
 			assertArrayEquals(signatureBytes, signature.sign());
 
-			signature.initVerify(new EdPublicKey(publicKeyBytes));
+			signature.initVerify(new SignaturePublicKey(publicKeyBytes));
 			signature.update(messageBytes);
 			assertTrue(signature.verify(signatureBytes));
 		}

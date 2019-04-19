@@ -49,6 +49,7 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class MessageEncrypter {
 
+	private static final String KEY_TYPE = "SEC1_brainpoolp512r1";
 	private static final ECDomainParameters PARAMETERS;
 	private static final int MESSAGE_KEY_BITS = 512;
 	private static final int MAC_KEY_BITS = 256;
@@ -69,7 +70,7 @@ public class MessageEncrypter {
 	MessageEncrypter(SecureRandom random) {
 		generator = new ECKeyPairGenerator();
 		generator.init(new ECKeyGenerationParameters(PARAMETERS, random));
-		parser = new Sec1KeyParser(PARAMETERS, MESSAGE_KEY_BITS);
+		parser = new Sec1KeyParser(KEY_TYPE, PARAMETERS, MESSAGE_KEY_BITS);
 		KeyEncoder encoder = new PublicKeyEncoder();
 		ephemeralGenerator = new EphemeralKeyPairGenerator(generator, encoder);
 		ephemeralParser = new PublicKeyParser(PARAMETERS);
@@ -80,11 +81,11 @@ public class MessageEncrypter {
 		// Return a wrapper that uses the SEC 1 encoding
 		ECPublicKeyParameters ecPublicKey =
 				(ECPublicKeyParameters) keyPair.getPublic();
-		PublicKey publicKey = new Sec1PublicKey(ecPublicKey);
+		PublicKey publicKey = new Sec1PublicKey(KEY_TYPE, ecPublicKey);
 		ECPrivateKeyParameters ecPrivateKey =
 				(ECPrivateKeyParameters) keyPair.getPrivate();
 		PrivateKey privateKey =
-				new Sec1PrivateKey(ecPrivateKey, MESSAGE_KEY_BITS);
+				new Sec1PrivateKey(KEY_TYPE, ecPrivateKey, MESSAGE_KEY_BITS);
 		return new KeyPair(publicKey, privateKey);
 	}
 

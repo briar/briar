@@ -1,5 +1,6 @@
 package org.briarproject.bramble.crypto;
 
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -58,7 +59,7 @@ public class KeyAgreementTest extends BrambleTestCase {
 	@Test(expected = GeneralSecurityException.class)
 	public void testRejectsInvalidPublicKey() throws Exception {
 		KeyPair keyPair = crypto.generateAgreementKeyPair();
-		PublicKey invalid = new Curve25519PublicKey(new byte[32]);
+		PublicKey invalid = new AgreementPublicKey(new byte[32]);
 		crypto.deriveSharedSecret(SHARED_SECRET_LABEL, invalid, keyPair,
 				inputs);
 	}
