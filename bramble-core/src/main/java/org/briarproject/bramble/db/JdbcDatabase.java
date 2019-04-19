@@ -1782,7 +1782,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT authorId, formatVersion, name, publicKey,"
-					+ " privateKey, created"
+					+ " privateKey, handshakePublicKey, handshakePrivateKey,"
+					+ " created"
 					+ " FROM localAuthors";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
@@ -1793,9 +1794,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String name = rs.getString(3);
 				byte[] publicKey = rs.getBytes(4);
 				byte[] privateKey = rs.getBytes(5);
-				long created = rs.getLong(6);
+				byte[] handshakePublicKey = rs.getBytes(6);
+				byte[] handshakePrivateKey = rs.getBytes(7);
+				long created = rs.getLong(8);
 				authors.add(new LocalAuthor(authorId, formatVersion, name,
-						publicKey, privateKey, created));
+						publicKey, privateKey, handshakePublicKey,
+						handshakePrivateKey, created));
 			}
 			rs.close();
 			ps.close();
