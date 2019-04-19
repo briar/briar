@@ -43,12 +43,13 @@ class TransportCryptoImpl implements TransportCrypto {
 
 	@Override
 	public TransportKeys deriveTransportKeys(TransportId t,
-			SecretKey rootKey, long timePeriod, boolean alice, boolean active) {
+			SecretKey rootKey, long timePeriod, boolean weAreAlice,
+			boolean active) {
 		// Keys for the previous period are derived from the root key
-		SecretKey inTagPrev = deriveTagKey(rootKey, t, !alice);
-		SecretKey inHeaderPrev = deriveHeaderKey(rootKey, t, !alice);
-		SecretKey outTagPrev = deriveTagKey(rootKey, t, alice);
-		SecretKey outHeaderPrev = deriveHeaderKey(rootKey, t, alice);
+		SecretKey inTagPrev = deriveTagKey(rootKey, t, !weAreAlice);
+		SecretKey inHeaderPrev = deriveHeaderKey(rootKey, t, !weAreAlice);
+		SecretKey outTagPrev = deriveTagKey(rootKey, t, weAreAlice);
+		SecretKey outHeaderPrev = deriveHeaderKey(rootKey, t, weAreAlice);
 		// Derive the keys for the current and next periods
 		SecretKey inTagCurr = rotateKey(inTagPrev, timePeriod);
 		SecretKey inHeaderCurr = rotateKey(inHeaderPrev, timePeriod);
@@ -101,54 +102,57 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	private SecretKey deriveTagKey(SecretKey rootKey, TransportId t,
-			boolean alice) {
-		String label = alice ? ALICE_TAG_LABEL : BOB_TAG_LABEL;
+			boolean keyBelongsToAlice) {
+		String label = keyBelongsToAlice ? ALICE_TAG_LABEL : BOB_TAG_LABEL;
 		byte[] id = toUtf8(t.getString());
 		return crypto.deriveKey(label, rootKey, id);
 	}
 
 	private SecretKey deriveHeaderKey(SecretKey rootKey, TransportId t,
-			boolean alice) {
-		String label = alice ? ALICE_HEADER_LABEL : BOB_HEADER_LABEL;
+			boolean keyBelongsToAlice) {
+		String label = keyBelongsToAlice ? ALICE_HEADER_LABEL :
+				BOB_HEADER_LABEL;
 		byte[] id = toUtf8(t.getString());
 		return crypto.deriveKey(label, rootKey, id);
 	}
 
 	@Override
 	public HandshakeKeys deriveHandshakeKeys(TransportId t, SecretKey rootKey,
-			long timePeriod, boolean alice) {
+			long timePeriod, boolean weAreAlice) {
 		if (timePeriod < 1) throw new IllegalArgumentException();
-		IncomingKeys inPrev = deriveIncomingHandshakeKeys(t, rootKey, alice,
-				timePeriod - 1);
-		IncomingKeys inCurr = deriveIncomingHandshakeKeys(t, rootKey, alice,
-				timePeriod);
-		IncomingKeys inNext = deriveIncomingHandshakeKeys(t, rootKey, alice,
-				timePeriod + 1);
-		OutgoingKeys outCurr = deriveOutgoingHandshakeKeys(t, rootKey, alice,
-				timePeriod);
+		IncomingKeys inPrev = deriveIncomingHandshakeKeys(t, rootKey,
+				weAreAlice, timePeriod - 1);
+		IncomingKeys inCurr = deriveIncomingHandshakeKeys(t, rootKey,
+				weAreAlice, timePeriod);
+		IncomingKeys inNext = deriveIncomingHandshakeKeys(t, rootKey,
+				weAreAlice, timePeriod + 1);
+		OutgoingKeys outCurr = deriveOutgoingHandshakeKeys(t, rootKey,
+				weAreAlice, timePeriod);
 		return new HandshakeKeys(t, inPrev, inCurr, inNext, outCurr, rootKey,
-				alice);
+				weAreAlice);
 	}
 
 	private IncomingKeys deriveIncomingHandshakeKeys(TransportId t,
-			SecretKey rootKey, boolean alice, long timePeriod) {
-		SecretKey tag = deriveHandshakeTagKey(t, rootKey, !alice, timePeriod);
-		SecretKey header = deriveHandshakeHeaderKey(t, rootKey, !alice,
+			SecretKey rootKey, boolean weAreAlice, long timePeriod) {
+		SecretKey tag = deriveHandshakeTagKey(t, rootKey, !weAreAlice,
+				timePeriod);
+		SecretKey header = deriveHandshakeHeaderKey(t, rootKey, !weAreAlice,
 				timePeriod);
 		return new IncomingKeys(tag, header, timePeriod);
 	}
 
 	private OutgoingKeys deriveOutgoingHandshakeKeys(TransportId t,
-			SecretKey rootKey, boolean alice, long timePeriod) {
-		SecretKey tag = deriveHandshakeTagKey(t, rootKey, alice, timePeriod);
-		SecretKey header = deriveHandshakeHeaderKey(t, rootKey, alice,
+			SecretKey rootKey, boolean weAreAlice, long timePeriod) {
+		SecretKey tag = deriveHandshakeTagKey(t, rootKey, weAreAlice,
+				timePeriod);
+		SecretKey header = deriveHandshakeHeaderKey(t, rootKey, weAreAlice,
 				timePeriod);
 		return new OutgoingKeys(tag, header, timePeriod, true);
 	}
 
 	private SecretKey deriveHandshakeTagKey(TransportId t, SecretKey rootKey,
-			boolean alice, long timePeriod) {
-		String label = alice ? ALICE_HANDSHAKE_TAG_LABEL :
+			boolean keyBelongsToAlice, long timePeriod) {
+		String label = keyBelongsToAlice ? ALICE_HANDSHAKE_TAG_LABEL :
 				BOB_HANDSHAKE_TAG_LABEL;
 		byte[] id = toUtf8(t.getString());
 		byte[] period = new byte[INT_64_BYTES];
@@ -157,8 +161,8 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	private SecretKey deriveHandshakeHeaderKey(TransportId t, SecretKey rootKey,
-			boolean alice, long timePeriod) {
-		String label = alice ? ALICE_HANDSHAKE_HEADER_LABEL :
+			boolean keyBelongsToAlice, long timePeriod) {
+		String label = keyBelongsToAlice ? ALICE_HANDSHAKE_HEADER_LABEL :
 				BOB_HANDSHAKE_HEADER_LABEL;
 		byte[] id = toUtf8(t.getString());
 		byte[] period = new byte[INT_64_BYTES];
@@ -171,34 +175,36 @@ class TransportCryptoImpl implements TransportCrypto {
 		long elapsed = timePeriod - k.getTimePeriod();
 		TransportId t = k.getTransportId();
 		SecretKey rootKey = k.getRootKey();
-		boolean alice = k.isAlice();
+		boolean weAreAlice = k.isAlice();
 		if (elapsed <= 0) {
 			// The keys are for the given period or later - don't update them
 			return k;
 		} else if (elapsed == 1) {
-			// The keys are one period old - shift by one period
+			// The keys are one period old - shift by one period, keeping the
+			// reordering windows for keys we retain
 			IncomingKeys inPrev = k.getCurrentIncomingKeys();
 			IncomingKeys inCurr = k.getNextIncomingKeys();
 			IncomingKeys inNext = deriveIncomingHandshakeKeys(t, rootKey,
-					alice, timePeriod + 1);
+					weAreAlice, timePeriod + 1);
 			OutgoingKeys outCurr = deriveOutgoingHandshakeKeys(t, rootKey,
-					alice, timePeriod);
+					weAreAlice, timePeriod);
 			return new HandshakeKeys(t, inPrev, inCurr, inNext, outCurr,
-					rootKey, alice);
+					rootKey, weAreAlice);
 		} else if (elapsed == 2) {
-			// The keys are two periods old - shift by two periods
+			// The keys are two periods old - shift by two periods, keeping
+			// the reordering windows for keys we retain
 			IncomingKeys inPrev = k.getNextIncomingKeys();
 			IncomingKeys inCurr = deriveIncomingHandshakeKeys(t, rootKey,
-					alice, timePeriod);
+					weAreAlice, timePeriod);
 			IncomingKeys inNext = deriveIncomingHandshakeKeys(t, rootKey,
-					alice, timePeriod + 1);
+					weAreAlice, timePeriod + 1);
 			OutgoingKeys outCurr = deriveOutgoingHandshakeKeys(t, rootKey,
-					alice, timePeriod);
+					weAreAlice, timePeriod);
 			return new HandshakeKeys(t, inPrev, inCurr, inNext, outCurr,
-					rootKey, alice);
+					rootKey, weAreAlice);
 		} else {
 			// The keys are more than two periods old - derive fresh keys
-			return deriveHandshakeKeys(t, rootKey, timePeriod, alice);
+			return deriveHandshakeKeys(t, rootKey, timePeriod, weAreAlice);
 		}
 	}
 
