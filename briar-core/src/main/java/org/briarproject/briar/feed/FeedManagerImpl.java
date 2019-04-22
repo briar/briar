@@ -20,11 +20,11 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
-import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
@@ -32,6 +32,7 @@ import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogManager.RemoveBlogHook;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.feed.Feed;
@@ -75,8 +76,8 @@ import static org.briarproject.briar.util.HtmlUtils.clean;
 
 @ThreadSafe
 @NotNullByDefault
-class FeedManagerImpl implements FeedManager, Client, EventListener,
-		BlogManager.RemoveBlogHook {
+class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
+		RemoveBlogHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(FeedManagerImpl.class.getName());
@@ -136,7 +137,7 @@ class FeedManagerImpl implements FeedManager, Client, EventListener,
 	}
 
 	@Override
-	public void createLocalState(Transaction txn) throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		Group g = getLocalGroup();
 		// Return if we've already set the local group up
 		if (db.containsGroup(txn, g.getId())) return;

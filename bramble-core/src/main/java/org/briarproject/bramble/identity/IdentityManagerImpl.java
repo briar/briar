@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.logging.Logger;
@@ -14,15 +15,16 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @ThreadSafe
 @NotNullByDefault
-class IdentityManagerImpl implements IdentityManager {
+class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 
 	private static final Logger LOG =
-			Logger.getLogger(IdentityManagerImpl.class.getName());
+			getLogger(IdentityManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final AuthorFactory authorFactory;
@@ -52,13 +54,13 @@ class IdentityManagerImpl implements IdentityManager {
 	}
 
 	@Override
-	public void storeLocalAuthor() throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		LocalAuthor cached = cachedAuthor;
 		if (cached == null) {
 			LOG.info("No local author to store");
 			return;
 		}
-		db.transaction(false, txn -> db.addLocalAuthor(txn, cached));
+		db.addLocalAuthor(txn, cached);
 		LOG.info("Local author stored");
 	}
 
@@ -89,5 +91,4 @@ class IdentityManagerImpl implements IdentityManager {
 	private LocalAuthor loadLocalAuthor(Transaction txn) throws DbException {
 		return db.getLocalAuthors(txn).iterator().next();
 	}
-
 }

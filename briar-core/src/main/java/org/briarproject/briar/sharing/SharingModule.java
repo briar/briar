@@ -25,6 +25,8 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
+
 @Module
 public class SharingModule {
 
@@ -76,7 +78,7 @@ public class SharingModule {
 			ConversationManager conversationManager, BlogManager blogManager,
 			ClientVersioningManager clientVersioningManager,
 			BlogSharingManagerImpl blogSharingManager) {
-		lifecycleManager.registerClient(blogSharingManager);
+		lifecycleManager.registerOpenDatabaseHook(blogSharingManager, NORMAL);
 		contactManager.registerContactHook(blogSharingManager);
 		validationManager.registerIncomingMessageHook(
 				BlogSharingManager.CLIENT_ID, BlogSharingManager.MAJOR_VERSION,
@@ -135,7 +137,7 @@ public class SharingModule {
 			ConversationManager conversationManager, ForumManager forumManager,
 			ClientVersioningManager clientVersioningManager,
 			ForumSharingManagerImpl forumSharingManager) {
-		lifecycleManager.registerClient(forumSharingManager);
+		lifecycleManager.registerOpenDatabaseHook(forumSharingManager, NORMAL);
 		contactManager.registerContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(
 				ForumSharingManager.CLIENT_ID,

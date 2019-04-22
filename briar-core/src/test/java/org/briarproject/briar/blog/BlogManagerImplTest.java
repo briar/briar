@@ -112,7 +112,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 	}
 
 	@Test
-	public void testCreateLocalState() throws DbException {
+	public void testOpenDatabaseHook() throws DbException {
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -123,7 +123,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(db).addGroup(txn, blog1.getGroup());
 		}});
 
-		blogManager.createLocalState(txn);
+		blogManager.onDatabaseOpened(txn);
 		context.assertIsSatisfied();
 	}
 

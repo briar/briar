@@ -18,6 +18,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
 import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 
@@ -36,7 +37,7 @@ public class BlogModule {
 	BlogManager provideBlogManager(BlogManagerImpl blogManager,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager) {
-		lifecycleManager.registerClient(blogManager);
+		lifecycleManager.registerOpenDatabaseHook(blogManager, NORMAL);
 		contactManager.registerContactHook(blogManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				blogManager);

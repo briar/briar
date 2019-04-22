@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.AuthorFactory;
-import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
@@ -27,7 +26,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final Collection<LocalAuthor> localAuthors =
 			singletonList(localAuthor);
-	private IdentityManager identityManager;
+	private IdentityManagerImpl identityManager;
 
 	@Before
 	public void setUp() {
@@ -35,15 +34,20 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testRegisterAndStoreLocalAuthor() throws Exception {
+	public void testOpenDatabaseHookWithoutLocalAuthorRegistered()
+			throws Exception {
+		identityManager.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testOpenDatabaseHookWithLocalAuthorRegistered()
+			throws Exception {
 		context.checking(new DbExpectations() {{
-			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(db).addLocalAuthor(txn, localAuthor);
 		}});
 
 		identityManager.registerLocalAuthor(localAuthor);
-		assertEquals(localAuthor, identityManager.getLocalAuthor());
-		identityManager.storeLocalAuthor();
+		identityManager.onDatabaseOpened(txn);
 	}
 
 	@Test

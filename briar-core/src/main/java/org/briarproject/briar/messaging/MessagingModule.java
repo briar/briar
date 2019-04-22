@@ -17,6 +17,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
 import static org.briarproject.briar.api.messaging.MessagingManager.CLIENT_ID;
 import static org.briarproject.briar.api.messaging.MessagingManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.messaging.MessagingManager.MINOR_VERSION;
@@ -58,7 +59,7 @@ public class MessagingModule {
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
 			MessagingManagerImpl messagingManager) {
-		lifecycleManager.registerClient(messagingManager);
+		lifecycleManager.registerOpenDatabaseHook(messagingManager, NORMAL);
 		contactManager.registerContactHook(messagingManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);

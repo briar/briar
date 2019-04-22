@@ -16,6 +16,7 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.introduction.IntroductionManager.MINOR_VERSION;
@@ -51,7 +52,7 @@ public class IntroductionModule {
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
 			IntroductionManagerImpl introductionManager) {
-		lifecycleManager.registerClient(introductionManager);
+		lifecycleManager.registerOpenDatabaseHook(introductionManager, NORMAL);
 		contactManager.registerContactHook(introductionManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
 				MAJOR_VERSION, introductionManager);

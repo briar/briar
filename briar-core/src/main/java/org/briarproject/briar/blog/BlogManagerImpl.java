@@ -18,8 +18,8 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -68,7 +68,7 @@ import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
 
 @NotNullByDefault
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
-		ContactHook, Client {
+		OpenDatabaseHook, ContactHook {
 
 	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
@@ -90,7 +90,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
-	public void createLocalState(Transaction txn) throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		// Create our personal blog if necessary
 		LocalAuthor a = identityManager.getLocalAuthor(txn);
 		Blog b = blogFactory.createBlog(a);

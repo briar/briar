@@ -3,10 +3,10 @@ package org.briarproject.bramble.test;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Client;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
@@ -32,7 +32,8 @@ public class TestLifecycleModule {
 			}
 
 			@Override
-			public void registerClient(Client c) {
+			public void registerOpenDatabaseHook(OpenDatabaseHook hook,
+					Priority p) {
 			}
 
 			@Override

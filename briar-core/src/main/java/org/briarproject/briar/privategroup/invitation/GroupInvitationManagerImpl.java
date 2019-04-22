@@ -14,8 +14,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -62,7 +62,7 @@ import static org.briarproject.briar.privategroup.invitation.Role.PEER;
 @Immutable
 @NotNullByDefault
 class GroupInvitationManagerImpl extends ConversationClientImpl
-		implements GroupInvitationManager, Client, ContactHook,
+		implements GroupInvitationManager, OpenDatabaseHook, ContactHook,
 		PrivateGroupHook, ClientVersioningHook {
 
 	private final ClientVersioningManager clientVersioningManager;
@@ -101,7 +101,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void createLocalState(Transaction txn) throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		// Create a local group to indicate that we've set this client up
 		Group localGroup = contactGroupFactory.createLocalGroup(CLIENT_ID,
 				MAJOR_VERSION);
