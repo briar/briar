@@ -1,5 +1,7 @@
 package org.briarproject.bramble.identity;
 
+import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -9,6 +11,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -27,6 +30,7 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 			getLogger(IdentityManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
+	private final CryptoComponent crypto;
 	private final AuthorFactory authorFactory;
 
 	// The local author is immutable so we can cache it
@@ -34,8 +38,10 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	private volatile LocalAuthor cachedAuthor;
 
 	@Inject
-	IdentityManagerImpl(DatabaseComponent db, AuthorFactory authorFactory) {
+	IdentityManagerImpl(DatabaseComponent db, CryptoComponent crypto,
+			AuthorFactory authorFactory) {
 		this.db = db;
+		this.crypto = crypto;
 		this.authorFactory = authorFactory;
 	}
 
@@ -57,38 +63,56 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	public void onDatabaseOpened(Transaction txn) throws DbException {
 		LocalAuthor cached = cachedAuthor;
 		if (cached == null) {
-			LOG.info("No local author to store");
-			return;
+			LocalAuthor loaded = loadLocalAuthor(txn);
+			if (loaded.getHandshakePublicKey() == null) {
+				KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
+				byte[] handshakePublicKey =
+						handshakeKeyPair.getPublic().getEncoded();
+				byte[] handshakePrivateKey =
+						handshakeKeyPair.getPrivate().getEncoded();
+				db.setHandshakeKeyPair(txn, loaded.getId(),
+						handshakePublicKey, handshakePrivateKey);
+				cachedAuthor = new LocalAuthor(loaded.getId(),
+						loaded.getFormatVersion(), loaded.getName(),
+						loaded.getPublicKey(), loaded.getPrivateKey(),
+						handshakePublicKey, handshakePrivateKey,
+						loaded.getTimeCreated());
+				LOG.info("Handshake key pair added");
+			} else {
+				cachedAuthor = loaded;
+				LOG.info("Local author loaded");
+			}
+		} else {
+			db.addLocalAuthor(txn, cached);
+			LOG.info("Local author stored");
 		}
-		db.addLocalAuthor(txn, cached);
-		LOG.info("Local author stored");
 	}
 
 	@Override
 	public LocalAuthor getLocalAuthor() throws DbException {
-		if (cachedAuthor == null) {
-			cachedAuthor =
+		LocalAuthor cached = cachedAuthor;
+		if (cached == null) {
+			cachedAuthor = cached =
 					db.transactionWithResult(true, this::loadLocalAuthor);
 			LOG.info("Local author loaded");
 		}
-		LocalAuthor cached = cachedAuthor;
-		if (cached == null) throw new AssertionError();
 		return cached;
 	}
 
 
 	@Override
 	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
-		if (cachedAuthor == null) {
-			cachedAuthor = loadLocalAuthor(txn);
+		LocalAuthor cached = cachedAuthor;
+		if (cached == null) {
+			cachedAuthor = cached = loadLocalAuthor(txn);
 			LOG.info("Local author loaded");
 		}
-		LocalAuthor cached = cachedAuthor;
-		if (cached == null) throw new AssertionError();
 		return cached;
 	}
 
 	private LocalAuthor loadLocalAuthor(Transaction txn) throws DbException {
-		return db.getLocalAuthors(txn).iterator().next();
+		Collection<LocalAuthor> authors = db.getLocalAuthors(txn);
+		if (authors.size() != 1) throw new IllegalStateException();
+		return authors.iterator().next();
 	}
 }

@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -100,24 +101,32 @@ public class TestUtils {
 	}
 
 	public static LocalAuthor getLocalAuthor() {
-		return getLocalAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
+		return getLocalAuthor(false);
 	}
 
-	public static LocalAuthor getLocalAuthor(int nameLength) {
+	public static LocalAuthor getLocalAuthor(boolean withHandshakeKeys) {
 		AuthorId id = new AuthorId(getRandomId());
+		int nameLength = 1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH);
 		String name = getRandomString(nameLength);
 		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey,
-				timestamp);
+		if (withHandshakeKeys) {
+			byte[] handshakePublicKey =
+					getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+			byte[] handshakePrivateKey =
+					getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+			return new LocalAuthor(id, FORMAT_VERSION, name, publicKey,
+					privateKey, handshakePublicKey, handshakePrivateKey,
+					timestamp);
+		} else {
+			return new LocalAuthor(id, FORMAT_VERSION, name, publicKey,
+					privateKey, timestamp);
+		}
 	}
 
 	public static Author getAuthor() {
-		return getAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
-	}
-
-	public static Author getAuthor(int nameLength) {
 		AuthorId id = new AuthorId(getRandomId());
+		int nameLength = 1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH);
 		String name = getRandomString(nameLength);
 		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		return new Author(id, FORMAT_VERSION, name, publicKey);
