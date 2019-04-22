@@ -1681,10 +1681,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 			byte[] handshakePublicKey = rs.getBytes(5);
 			byte[] handshakePrivateKey = rs.getBytes(6);
 			long created = rs.getLong(7);
-			LocalAuthor localAuthor = new LocalAuthor(a, formatVersion, name,
-					publicKey, privateKey, handshakePublicKey,
-					handshakePrivateKey, created);
 			if (rs.next()) throw new DbStateException();
+			LocalAuthor localAuthor;
+			if (handshakePublicKey == null) {
+				if (handshakePrivateKey != null) throw new DbStateException();
+				localAuthor = new LocalAuthor(a, formatVersion, name,
+						publicKey, privateKey, created);
+			} else {
+				if (handshakePrivateKey == null) throw new DbStateException();
+				localAuthor = new LocalAuthor(a, formatVersion, name,
+						publicKey, privateKey, handshakePublicKey,
+						handshakePrivateKey, created);
+			}
 			rs.close();
 			ps.close();
 			return localAuthor;
@@ -3173,6 +3181,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(3, g.getBytes());
 			affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setHandshakeKeyPair(Connection txn, AuthorId local,
+			byte[] publicKey, byte[] privateKey) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE localAuthors"
+					+ " SET handshakePublicKey = ?, handshakePrivateKey = ?"
+					+ " WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, publicKey);
+			ps.setBytes(2, privateKey);
+			ps.setBytes(3, local.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);

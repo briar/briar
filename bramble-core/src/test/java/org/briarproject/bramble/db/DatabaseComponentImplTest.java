@@ -65,6 +65,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -79,6 +80,7 @@ import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
@@ -436,12 +438,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the pseudonym is in the DB (which it's not)
-			exactly(3).of(database).startTransaction();
+			exactly(4).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(3).of(database).containsLocalAuthor(txn,
+			exactly(4).of(database).containsLocalAuthor(txn,
 					localAuthor.getId());
 			will(returnValue(false));
-			exactly(3).of(database).abortTransaction(txn);
+			exactly(4).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -466,6 +468,17 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.removeLocalAuthor(transaction, localAuthor.getId()));
+			fail();
+		} catch (NoSuchLocalAuthorException expected) {
+			// Expected
+		}
+
+		try {
+			byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+			byte[] privateKey = getRandomBytes(123);
+			db.transaction(false, transaction ->
+					db.setHandshakeKeyPair(transaction, localAuthor.getId(),
+							publicKey, privateKey));
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected

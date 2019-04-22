@@ -1036,6 +1036,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setHandshakeKeyPair(Transaction transaction, AuthorId local,
+			byte[] publicKey, byte[] privateKey) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsLocalAuthor(txn, local))
+			throw new NoSuchLocalAuthorException();
+		db.setHandshakeKeyPair(txn, local, publicKey, privateKey);
+	}
+
+	@Override
 	public void setReorderingWindow(Transaction transaction,
 			TransportKeySetId k, TransportId t, long timePeriod, long base,
 			byte[] bitmap) throws DbException {

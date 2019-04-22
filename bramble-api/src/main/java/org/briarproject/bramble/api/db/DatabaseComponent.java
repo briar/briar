@@ -620,6 +620,12 @@ public interface DatabaseComponent {
 			Collection<MessageId> dependencies) throws DbException;
 
 	/**
+	 * Sets the handshake key pair for the local pseudonym with the given ID.
+	 */
+	void setHandshakeKeyPair(Transaction txn, AuthorId local, byte[] publicKey,
+			byte[] privateKey) throws DbException;
+
+	/**
 	 * Sets the reordering window for the given transport key set in the given
 	 * time period.
 	 */

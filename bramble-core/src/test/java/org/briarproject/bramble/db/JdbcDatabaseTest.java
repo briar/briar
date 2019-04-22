@@ -57,6 +57,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -76,6 +77,7 @@ import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getPendingContact;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -2232,6 +2234,29 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		db.removePendingContact(txn, pendingContact.getId());
 		assertEquals(emptyList(), db.getPendingContacts(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetHandshakeKeyPair() throws Exception {
+		assertNull(localAuthor.getHandshakePublicKey());
+		assertNull(localAuthor.getHandshakePrivateKey());
+		byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		byte[] privateKey = getRandomBytes(123);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		db.addLocalAuthor(txn, localAuthor);
+		LocalAuthor retrieved = db.getLocalAuthor(txn, localAuthor.getId());
+		assertNull(retrieved.getHandshakePublicKey());
+		assertNull(retrieved.getHandshakePrivateKey());
+		db.setHandshakeKeyPair(txn, localAuthor.getId(), publicKey, privateKey);
+		retrieved = db.getLocalAuthor(txn, localAuthor.getId());
+		assertArrayEquals(publicKey, retrieved.getHandshakePublicKey());
+		assertArrayEquals(privateKey, retrieved.getHandshakePrivateKey());
 
 		db.commitTransaction(txn);
 		db.close();

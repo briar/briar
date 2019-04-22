@@ -686,6 +686,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Sets the handshake key pair for the local pseudonym with the given ID.
+	 */
+	void setHandshakeKeyPair(T txn, AuthorId local, byte[] publicKey,
+			byte[] privateKey) throws DbException;
+
+	/**
 	 * Marks the given message as shared.
 	 */
 	void setMessageShared(T txn, MessageId m) throws DbException;
