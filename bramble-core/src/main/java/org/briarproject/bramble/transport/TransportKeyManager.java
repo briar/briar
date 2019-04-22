@@ -5,8 +5,8 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 
 import javax.annotation.Nullable;
 
@@ -15,10 +15,11 @@ interface TransportKeyManager {
 
 	void start(Transaction txn) throws DbException;
 
-	KeySetId addContact(Transaction txn, ContactId c, SecretKey master,
-			long timestamp, boolean alice, boolean active) throws DbException;
+	TransportKeySetId addContact(Transaction txn, ContactId c,
+			SecretKey rootKey, long timestamp, boolean alice, boolean active)
+			throws DbException;
 
-	void activateKeys(Transaction txn, KeySetId k) throws DbException;
+	void activateKeys(Transaction txn, TransportKeySetId k) throws DbException;
 
 	void removeContact(ContactId c);
 

@@ -18,30 +18,30 @@ public interface ContactExchangeTask {
 	byte PROTOCOL_VERSION = 1;
 
 	/**
-	 * Label for deriving Alice's header key from the master secret.
+	 * Label for deriving Alice's header key from the master key.
 	 */
 	String ALICE_KEY_LABEL =
 			"org.briarproject.bramble.contact/ALICE_HEADER_KEY";
 
 	/**
-	 * Label for deriving Bob's header key from the master secret.
+	 * Label for deriving Bob's header key from the master key.
 	 */
 	String BOB_KEY_LABEL = "org.briarproject.bramble.contact/BOB_HEADER_KEY";
 
 	/**
-	 * Label for deriving Alice's key binding nonce from the master secret.
+	 * Label for deriving Alice's key binding nonce from the master key.
 	 */
 	String ALICE_NONCE_LABEL = "org.briarproject.bramble.contact/ALICE_NONCE";
 
 	/**
-	 * Label for deriving Bob's key binding nonce from the master secret.
+	 * Label for deriving Bob's key binding nonce from the master key.
 	 */
 	String BOB_NONCE_LABEL = "org.briarproject.bramble.contact/BOB_NONCE";
 
 	/**
 	 * Exchanges contact information with a remote peer.
 	 */
-	void startExchange(LocalAuthor localAuthor, SecretKey masterSecret,
+	void startExchange(LocalAuthor localAuthor, SecretKey masterKey,
 			DuplexTransportConnection conn, TransportId transportId,
 			boolean alice);
 }

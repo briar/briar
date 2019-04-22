@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Arrays;
 
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_SECRET_LABEL;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_KEY_LABEL;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.SHARED_SECRET_LABEL;
 
@@ -90,7 +90,7 @@ class KeyAgreementProtocol {
 	/**
 	 * Perform the BQP protocol.
 	 *
-	 * @return the negotiated master secret.
+	 * @return the negotiated master key.
 	 * @throws AbortException when the protocol may have been tampered with.
 	 * @throws IOException for all other other connection errors.
 	 */
@@ -115,7 +115,7 @@ class KeyAgreementProtocol {
 				receiveConfirm(s, theirPublicKey);
 				sendConfirm(s, theirPublicKey);
 			}
-			return crypto.deriveKey(MASTER_SECRET_LABEL, s);
+			return crypto.deriveKey(MASTER_KEY_LABEL, s);
 		} catch (AbortException e) {
 			sendAbort(e.getCause() != null);
 			throw e;

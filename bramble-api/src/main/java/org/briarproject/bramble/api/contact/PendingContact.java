@@ -8,24 +8,27 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class PendingContact {
 
-	public enum PendingContactState {
-		WAITING_FOR_CONNECTION,
-		CONNECTED,
-		ADDING_CONTACT,
-		FAILED
-	}
-
 	private final PendingContactId id;
+	private final byte[] publicKey;
 	private final String alias;
 	private final PendingContactState state;
 	private final long timestamp;
 
-	public PendingContact(PendingContactId id, String alias,
-			PendingContactState state, long timestamp) {
+	public PendingContact(PendingContactId id, byte[] publicKey,
+			String alias, PendingContactState state, long timestamp) {
 		this.id = id;
+		this.publicKey = publicKey;
 		this.alias = alias;
 		this.state = state;
 		this.timestamp = timestamp;
+	}
+
+	public PendingContactId getId() {
+		return id;
+	}
+
+	public byte[] getPublicKey() {
+		return publicKey;
 	}
 
 	public String getAlias() {
@@ -50,5 +53,4 @@ public class PendingContact {
 		return o instanceof PendingContact &&
 				id.equals(((PendingContact) o).id);
 	}
-
 }

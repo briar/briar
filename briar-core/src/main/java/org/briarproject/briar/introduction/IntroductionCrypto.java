@@ -41,7 +41,8 @@ interface IntroductionCrypto {
 	/**
 	 * Derives a MAC key from the session's master key for Alice or Bob.
 	 *
-	 * @param masterKey The key returned by {@link #deriveMasterKey(IntroduceeSession)}
+	 * @param masterKey The key returned by
+	 * {@link #deriveMasterKey(IntroduceeSession)}
 	 * @param alice true for Alice's MAC key, false for Bob's
 	 * @return The MAC key
 	 */

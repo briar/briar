@@ -40,8 +40,8 @@ public interface KeyAgreementConstants {
 			"org.briarproject.bramble.keyagreement/SHARED_SECRET";
 
 	/**
-	 * Label for deriving the master secret.
+	 * Label for deriving the master key.
 	 */
-	String MASTER_SECRET_LABEL =
+	String MASTER_KEY_LABEL =
 			"org.briarproject.bramble.keyagreement/MASTER_SECRET";
 }

@@ -17,7 +17,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_SECRET_LABEL;
+import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_KEY_LABEL;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.SHARED_SECRET_LABEL;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -74,7 +74,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		Payload ourPayload = new Payload(aliceCommit, null);
 		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 		SecretKey sharedSecret = getSecretKey();
-		SecretKey masterSecret = getSecretKey();
+		SecretKey masterKey = getSecretKey();
 
 		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
 				crypto, keyAgreementCrypto, payloadEncoder, transport,
@@ -134,13 +134,13 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 					true, false);
 			will(returnValue(bobConfirm));
 
-			// Alice computes master secret
-			oneOf(crypto).deriveKey(MASTER_SECRET_LABEL, sharedSecret);
-			will(returnValue(masterSecret));
+			// Alice derives master key
+			oneOf(crypto).deriveKey(MASTER_KEY_LABEL, sharedSecret);
+			will(returnValue(masterKey));
 		}});
 
 		// execute
-		assertThat(masterSecret, is(equalTo(protocol.perform())));
+		assertThat(masterKey, is(equalTo(protocol.perform())));
 	}
 
 	@Test
@@ -150,7 +150,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		Payload ourPayload = new Payload(bobCommit, null);
 		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
 		SecretKey sharedSecret = getSecretKey();
-		SecretKey masterSecret = getSecretKey();
+		SecretKey masterKey = getSecretKey();
 
 		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
 				crypto, keyAgreementCrypto, payloadEncoder, transport,
@@ -209,13 +209,13 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobConfirm));
 			oneOf(transport).sendConfirm(bobConfirm);
 
-			// Bob computes master secret
-			oneOf(crypto).deriveKey(MASTER_SECRET_LABEL, sharedSecret);
-			will(returnValue(masterSecret));
+			// Bob derives master key
+			oneOf(crypto).deriveKey(MASTER_KEY_LABEL, sharedSecret);
+			will(returnValue(masterKey));
 		}});
 
 		// execute
-		assertThat(masterSecret, is(equalTo(protocol.perform())));
+		assertThat(masterKey, is(equalTo(protocol.perform())));
 	}
 
 	@Test(expected = AbortException.class)
@@ -373,8 +373,8 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			// Alice aborts
 			oneOf(transport).sendAbort(false);
 
-			// Alice never computes master secret
-			never(crypto).deriveKey(MASTER_SECRET_LABEL, sharedSecret);
+			// Alice never derives master key
+			never(crypto).deriveKey(MASTER_KEY_LABEL, sharedSecret);
 		}});
 
 		// execute

@@ -82,30 +82,58 @@ public interface TransportConstants {
 	int REORDERING_WINDOW_SIZE = 32;
 
 	/**
-	 * Label for deriving Alice's initial tag key from the master secret.
+	 * Label for deriving Alice's initial tag key from the root key in
+	 * rotation mode.
 	 */
 	String ALICE_TAG_LABEL = "org.briarproject.bramble.transport/ALICE_TAG_KEY";
 
 	/**
-	 * Label for deriving Bob's initial tag key from the master secret.
+	 * Label for deriving Bob's initial tag key from the root key in rotation
+	 * mode.
 	 */
 	String BOB_TAG_LABEL = "org.briarproject.bramble.transport/BOB_TAG_KEY";
 
 	/**
-	 * Label for deriving Alice's initial header key from the master secret.
+	 * Label for deriving Alice's initial header key from the root key in
+	 * rotation mode.
 	 */
 	String ALICE_HEADER_LABEL =
 			"org.briarproject.bramble.transport/ALICE_HEADER_KEY";
 
 	/**
-	 * Label for deriving Bob's initial header key from the master secret.
+	 * Label for deriving Bob's initial header key from the root key in
+	 * rotation mode.
 	 */
 	String BOB_HEADER_LABEL =
 			"org.briarproject.bramble.transport/BOB_HEADER_KEY";
 
 	/**
-	 * Label for deriving the next period's key in key rotation.
+	 * Label for deriving the next period's key in rotation mode.
 	 */
 	String ROTATE_LABEL = "org.briarproject.bramble.transport/ROTATE";
 
+	/**
+	 * Label for deriving Alice's tag key from the root key in handshake mode.
+	 */
+	String ALICE_HANDSHAKE_TAG_LABEL =
+			"org.briarproject.bramble.transport/ALICE_HANDSHAKE_TAG_KEY";
+
+	/**
+	 * Label for deriving Bob's tag key from the root key in handshake mode.
+	 */
+	String BOB_HANDSHAKE_TAG_LABEL =
+			"org.briarproject.bramble.transport/BOB_HANDSHAKE_TAG_KEY";
+
+	/**
+	 * Label for deriving Alice's header key from the root key in handshake
+	 * mode.
+	 */
+	String ALICE_HANDSHAKE_HEADER_LABEL =
+			"org.briarproject.bramble.transport/ALICE_HANDSHAKE_HEADER_KEY";
+
+	/**
+	 * Label for deriving Bob's header key from the root key in handshake mode.
+	 */
+	String BOB_HANDSHAKE_HEADER_LABEL =
+			"org.briarproject.bramble.transport/BOB_HANDSHAKE_HEADER_KEY";
 }

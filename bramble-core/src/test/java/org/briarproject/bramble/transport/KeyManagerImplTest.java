@@ -12,8 +12,8 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
@@ -51,7 +51,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	private final Transaction txn = new Transaction(null, false);
 	private final ContactId contactId = new ContactId(123);
 	private final ContactId inactiveContactId = new ContactId(234);
-	private final KeySetId keySetId = new KeySetId(345);
+	private final TransportKeySetId keySetId = new TransportKeySetId(345);
 	private final TransportId transportId = getTransportId();
 	private final TransportId unknownTransportId = getTransportId();
 	private final StreamContext streamContext =
@@ -113,8 +113,8 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(keySetId));
 		}});
 
-		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
-				secretKey, timestamp, alice, active);
+		Map<TransportId, TransportKeySetId> ids = keyManager.addContact(txn,
+				contactId, secretKey, timestamp, alice, active);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 

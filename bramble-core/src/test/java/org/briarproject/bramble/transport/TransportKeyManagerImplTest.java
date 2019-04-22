@@ -8,10 +8,10 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.IncomingKeys;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.StreamContext;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
@@ -57,31 +57,31 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 
 	private final TransportId transportId = getTransportId();
 	private final long maxLatency = 30 * 1000; // 30 seconds
-	private final long rotationPeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
+	private final long timePeriodLength = maxLatency + MAX_CLOCK_DIFFERENCE;
 	private final ContactId contactId = new ContactId(123);
 	private final ContactId contactId1 = new ContactId(234);
-	private final KeySetId keySetId = new KeySetId(345);
-	private final KeySetId keySetId1 = new KeySetId(456);
+	private final TransportKeySetId keySetId = new TransportKeySetId(345);
+	private final TransportKeySetId keySetId1 = new TransportKeySetId(456);
 	private final SecretKey tagKey = TestUtils.getSecretKey();
 	private final SecretKey headerKey = TestUtils.getSecretKey();
-	private final SecretKey masterKey = TestUtils.getSecretKey();
+	private final SecretKey rootKey = TestUtils.getSecretKey();
 	private final Random random = new Random();
 
 	@Test
 	public void testKeysAreRotatedAtStartup() throws Exception {
 		TransportKeys shouldRotate = createTransportKeys(900, 0, true);
 		TransportKeys shouldNotRotate = createTransportKeys(1000, 0, true);
-		Collection<KeySet> loaded = asList(
-				new KeySet(keySetId, contactId, shouldRotate),
-				new KeySet(keySetId1, contactId1, shouldNotRotate)
+		Collection<TransportKeySet> loaded = asList(
+				new TransportKeySet(keySetId, contactId, shouldRotate),
+				new TransportKeySet(keySetId1, contactId1, shouldNotRotate)
 		);
 		TransportKeys rotated = createTransportKeys(1000, 0, true);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			// Get the current time (1 ms after start of rotation period 1000)
+			// Get the current time (1 ms after start of time period 1000)
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000 + 1));
+			will(returnValue(timePeriodLength * 1000 + 1));
 			// Load the transport keys
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
@@ -98,11 +98,11 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
-			oneOf(db).updateTransportKeys(txn,
-					singletonList(new KeySet(keySetId, contactId, rotated)));
-			// Schedule key rotation at the start of the next rotation period
+			oneOf(db).updateTransportKeys(txn, singletonList(
+					new TransportKeySet(keySetId, contactId, rotated)));
+			// Schedule key rotation at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(rotationPeriodLength - 1), with(MILLISECONDS));
+					with(timePeriodLength - 1), with(MILLISECONDS));
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
@@ -120,12 +120,12 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+			oneOf(transportCrypto).deriveTransportKeys(transportId, rootKey,
 					999, alice, true);
 			will(returnValue(transportKeys));
-			// Get the current time (1 ms after start of rotation period 1000)
+			// Get the current time (1 ms after start of time period 1000)
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000 + 1));
+			will(returnValue(timePeriodLength * 1000 + 1));
 			// Rotate the transport keys
 			oneOf(transportCrypto).rotateTransportKeys(transportKeys, 1000);
 			will(returnValue(rotated));
@@ -144,10 +144,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		// The timestamp is 1 ms before the start of rotation period 1000
-		long timestamp = rotationPeriodLength * 1000 - 1;
+		// The timestamp is 1 ms before the start of time period 1000
+		long timestamp = timePeriodLength * 1000 - 1;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				masterKey, timestamp, alice, true));
+				rootKey, timestamp, alice, true));
 		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
 	}
 
@@ -177,10 +177,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		// The timestamp is at the start of rotation period 1000
-		long timestamp = rotationPeriodLength * 1000;
+		// The timestamp is at the start of time period 1000
+		long timestamp = timePeriodLength * 1000;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				masterKey, timestamp, alice, true));
+				rootKey, timestamp, alice, true));
 		assertFalse(transportKeyManager.canSendOutgoingStreams(contactId));
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
 	}
@@ -203,10 +203,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		// The timestamp is at the start of rotation period 1000
-		long timestamp = rotationPeriodLength * 1000;
+		// The timestamp is at the start of time period 1000
+		long timestamp = timePeriodLength * 1000;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				masterKey, timestamp, alice, true));
+				rootKey, timestamp, alice, true));
 		// The first request should return a stream context
 		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
 		StreamContext ctx = transportKeyManager.getStreamContext(txn,
@@ -235,10 +235,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		// The timestamp is at the start of rotation period 1000
-		long timestamp = rotationPeriodLength * 1000;
+		// The timestamp is at the start of time period 1000
+		long timestamp = timePeriodLength * 1000;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				masterKey, timestamp, alice, active));
+				rootKey, timestamp, alice, active));
 		assertEquals(active,
 				transportKeyManager.canSendOutgoingStreams(contactId));
 		// The tag should not be recognised
@@ -256,12 +256,12 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		List<byte[]> tags = new ArrayList<>();
 
 		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+			oneOf(transportCrypto).deriveTransportKeys(transportId, rootKey,
 					1000, alice, true);
 			will(returnValue(transportKeys));
-			// Get the current time (the start of rotation period 1000)
+			// Get the current time (the start of time period 1000)
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000));
+			will(returnValue(timePeriodLength * 1000));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(transportCrypto).encodeTag(
@@ -280,7 +280,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 					with(tagKey), with(PROTOCOL_VERSION),
 					with((long) REORDERING_WINDOW_SIZE));
 			will(new EncodeTagAction(tags));
-			// Save the reordering window (previous rotation period, base 1)
+			// Save the reordering window (previous time period, base 1)
 			oneOf(db).setReorderingWindow(txn, keySetId, transportId, 999,
 					1, new byte[REORDERING_WINDOW_SIZE / 8]);
 		}});
@@ -288,12 +288,12 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		// The timestamp is at the start of rotation period 1000
-		long timestamp = rotationPeriodLength * 1000;
+		// The timestamp is at the start of time period 1000
+		long timestamp = timePeriodLength * 1000;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				masterKey, timestamp, alice, true));
+				rootKey, timestamp, alice, true));
 		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
-		// Use the first tag (previous rotation period, stream number 0)
+		// Use the first tag (previous time period, stream number 0)
 		assertEquals(REORDERING_WINDOW_SIZE * 3, tags.size());
 		byte[] tag = tags.get(0);
 		// The first request should return a stream context
@@ -313,16 +313,16 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testKeysAreRotatedToCurrentPeriod() throws Exception {
 		TransportKeys transportKeys = createTransportKeys(1000, 0, true);
-		Collection<KeySet> loaded =
-				singletonList(new KeySet(keySetId, contactId, transportKeys));
+		Collection<TransportKeySet> loaded = singletonList(
+				new TransportKeySet(keySetId, contactId, transportKeys));
 		TransportKeys rotated = createTransportKeys(1001, 0, true);
 		Transaction txn = new Transaction(null, false);
 		Transaction txn1 = new Transaction(null, false);
 
 		context.checking(new DbExpectations() {{
-			// Get the current time (the start of rotation period 1000)
+			// Get the current time (the start of time period 1000)
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000));
+			will(returnValue(timePeriodLength * 1000));
 			// Load the transport keys
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
@@ -336,17 +336,17 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
-			// Schedule key rotation at the start of the next rotation period
+			// Schedule key rotation at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(rotationPeriodLength), with(MILLISECONDS));
+					with(timePeriodLength), with(MILLISECONDS));
 			will(new RunAction());
 			oneOf(dbExecutor).execute(with(any(Runnable.class)));
 			will(new RunAction());
 			// Start a transaction for key rotation
 			oneOf(db).transaction(with(false), withDbRunnable(txn1));
-			// Get the current time (the start of rotation period 1001)
+			// Get the current time (the start of time period 1001)
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1001));
+			will(returnValue(timePeriodLength * 1001));
 			// Rotate the transport keys
 			oneOf(transportCrypto).rotateTransportKeys(
 					with(any(TransportKeys.class)), with(1001L));
@@ -359,11 +359,11 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys that were rotated
-			oneOf(db).updateTransportKeys(txn1,
-					singletonList(new KeySet(keySetId, contactId, rotated)));
-			// Schedule key rotation at the start of the next rotation period
+			oneOf(db).updateTransportKeys(txn1, singletonList(
+					new TransportKeySet(keySetId, contactId, rotated)));
+			// Schedule key rotation at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(rotationPeriodLength), with(MILLISECONDS));
+					with(timePeriodLength), with(MILLISECONDS));
 		}});
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
@@ -391,10 +391,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		// The timestamp is at the start of rotation period 1000
-		long timestamp = rotationPeriodLength * 1000;
+		// The timestamp is at the start of time period 1000
+		long timestamp = timePeriodLength * 1000;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				masterKey, timestamp, alice, false));
+				rootKey, timestamp, alice, false));
 		// The keys are inactive so no stream context should be returned
 		assertFalse(transportKeyManager.canSendOutgoingStreams(contactId));
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
@@ -421,12 +421,12 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		List<byte[]> tags = new ArrayList<>();
 
 		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+			oneOf(transportCrypto).deriveTransportKeys(transportId, rootKey,
 					1000, alice, false);
 			will(returnValue(transportKeys));
-			// Get the current time (the start of rotation period 1000)
+			// Get the current time (the start of time period 1000)
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000));
+			will(returnValue(timePeriodLength * 1000));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(transportCrypto).encodeTag(
@@ -445,7 +445,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 					with(tagKey), with(PROTOCOL_VERSION),
 					with((long) REORDERING_WINDOW_SIZE));
 			will(new EncodeTagAction(tags));
-			// Save the reordering window (previous rotation period, base 1)
+			// Save the reordering window (previous time period, base 1)
 			oneOf(db).setReorderingWindow(txn, keySetId, transportId, 999,
 					1, new byte[REORDERING_WINDOW_SIZE / 8]);
 			// Activate the keys
@@ -457,10 +457,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		// The timestamp is at the start of rotation period 1000
-		long timestamp = rotationPeriodLength * 1000;
+		// The timestamp is at the start of time period 1000
+		long timestamp = timePeriodLength * 1000;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				masterKey, timestamp, alice, false));
+				rootKey, timestamp, alice, false));
 		// The keys are inactive so no stream context should be returned
 		assertFalse(transportKeyManager.canSendOutgoingStreams(contactId));
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
@@ -488,12 +488,12 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	private void expectAddContactNoRotation(boolean alice, boolean active,
 			TransportKeys transportKeys, Transaction txn) throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveTransportKeys(transportId, masterKey,
+			oneOf(transportCrypto).deriveTransportKeys(transportId, rootKey,
 					1000, alice, active);
 			will(returnValue(transportKeys));
-			// Get the current time (the start of rotation period 1000)
+			// Get the current time (the start of time period 1000)
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(rotationPeriodLength * 1000));
+			will(returnValue(timePeriodLength * 1000));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(transportCrypto).encodeTag(
@@ -510,16 +510,16 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private TransportKeys createTransportKeys(long rotationPeriod,
+	private TransportKeys createTransportKeys(long timePeriod,
 			long streamCounter, boolean active) {
 		IncomingKeys inPrev = new IncomingKeys(tagKey, headerKey,
-				rotationPeriod - 1);
+				timePeriod - 1);
 		IncomingKeys inCurr = new IncomingKeys(tagKey, headerKey,
-				rotationPeriod);
+				timePeriod);
 		IncomingKeys inNext = new IncomingKeys(tagKey, headerKey,
-				rotationPeriod + 1);
+				timePeriod + 1);
 		OutgoingKeys outCurr = new OutgoingKeys(tagKey, headerKey,
-				rotationPeriod, streamCounter, active);
+				timePeriod, streamCounter, active);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
 	}
 

@@ -11,18 +11,18 @@ import javax.annotation.concurrent.NotThreadSafe;
 class MutableIncomingKeys {
 
 	private final SecretKey tagKey, headerKey;
-	private final long rotationPeriod;
+	private final long timePeriod;
 	private final ReorderingWindow window;
 
 	MutableIncomingKeys(IncomingKeys in) {
 		tagKey = in.getTagKey();
 		headerKey = in.getHeaderKey();
-		rotationPeriod = in.getRotationPeriod();
+		timePeriod = in.getTimePeriod();
 		window = new ReorderingWindow(in.getWindowBase(), in.getWindowBitmap());
 	}
 
 	IncomingKeys snapshot() {
-		return new IncomingKeys(tagKey, headerKey, rotationPeriod,
+		return new IncomingKeys(tagKey, headerKey, timePeriod,
 				window.getBase(), window.getBitmap());
 	}
 
@@ -34,8 +34,8 @@ class MutableIncomingKeys {
 		return headerKey;
 	}
 
-	long getRotationPeriod() {
-		return rotationPeriod;
+	long getTimePeriod() {
+		return timePeriod;
 	}
 
 	ReorderingWindow getWindow() {

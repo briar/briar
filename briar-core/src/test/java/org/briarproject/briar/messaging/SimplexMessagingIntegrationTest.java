@@ -56,7 +56,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final File testDir = getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
-	private final SecretKey master = getSecretKey();
+	private final SecretKey rootKey = getSecretKey();
 	private final long timestamp = System.currentTimeMillis();
 
 	private SimplexMessagingIntegrationTestComponent alice, bob;
@@ -110,7 +110,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		lifecycleManager.waitForStartup();
 		// Add the other user as a contact
 		ContactManager contactManager = device.getContactManager();
-		return contactManager.addContact(remote, local.getId(), master,
+		return contactManager.addContact(remote, local.getId(), rootKey,
 				timestamp, alice, true, true);
 	}
 

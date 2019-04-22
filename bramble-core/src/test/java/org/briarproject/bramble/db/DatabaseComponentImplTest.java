@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
@@ -13,6 +14,7 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
+import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -44,10 +46,11 @@ import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.transport.HandshakeKeys;
 import org.briarproject.bramble.api.transport.IncomingKeys;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
@@ -111,7 +114,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final int maxLatency;
 	private final ContactId contactId;
 	private final Contact contact;
-	private final KeySetId keySetId;
+	private final TransportKeySetId keySetId;
+	private final PendingContactId pendingContactId;
 
 	public DatabaseComponentImplTest() {
 		clientId = getClientId();
@@ -132,7 +136,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		contactId = new ContactId(234);
 		contact = new Contact(contactId, author, localAuthor.getId(), alias,
 				true, true);
-		keySetId = new KeySetId(345);
+		keySetId = new TransportKeySetId(345);
+		pendingContactId = new PendingContactId(getRandomId());
 	}
 
 	private DatabaseComponent createDatabaseComponent(Database<Object> database,
@@ -279,14 +284,23 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(18).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(18).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).abortTransaction(txn);
+			exactly(18).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addHandshakeKeys(transaction, contactId,
+							createHandshakeKeys()));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
 
 		try {
 			db.transaction(false, transaction ->
@@ -719,6 +733,39 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
+	public void testVariousMethodsThrowExceptionIfPendingContactIsMissing()
+			throws Exception {
+		context.checking(new Expectations() {{
+			// Check whether the pending contact is in the DB (which it's not)
+			exactly(2).of(database).startTransaction();
+			will(returnValue(txn));
+			exactly(2).of(database).containsPendingContact(txn,
+					pendingContactId);
+			will(returnValue(false));
+			exactly(2).of(database).abortTransaction(txn);
+		}});
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addHandshakeKeys(transaction, pendingContactId,
+							createHandshakeKeys()));
+			fail();
+		} catch (NoSuchPendingContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.removePendingContact(transaction, pendingContactId));
+			fail();
+		} catch (NoSuchPendingContactException expected) {
+			// Expected
+		}
+	}
+
+	@Test
 	public void testGenerateAck() throws Exception {
 		Collection<MessageId> messagesToAck = asList(messageId, messageId1);
 		context.checking(new Expectations() {{
@@ -1117,8 +1164,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test
 	public void testTransportKeys() throws Exception {
 		TransportKeys transportKeys = createTransportKeys();
-		KeySet ks = new KeySet(keySetId, contactId, transportKeys);
-		Collection<KeySet> keys = singletonList(ks);
+		TransportKeySet ks =
+				new TransportKeySet(keySetId, contactId, transportKeys);
+		Collection<TransportKeySet> keys = singletonList(ks);
 
 		context.checking(new Expectations() {{
 			// startTransaction()
@@ -1243,6 +1291,27 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			assertFalse(s.isSent());
 			assertFalse(s.isSeen());
 		});
+	}
+
+	private HandshakeKeys createHandshakeKeys() {
+		SecretKey inPrevTagKey = getSecretKey();
+		SecretKey inPrevHeaderKey = getSecretKey();
+		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
+				1, 123, new byte[4]);
+		SecretKey inCurrTagKey = getSecretKey();
+		SecretKey inCurrHeaderKey = getSecretKey();
+		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
+				2, 234, new byte[4]);
+		SecretKey inNextTagKey = getSecretKey();
+		SecretKey inNextHeaderKey = getSecretKey();
+		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
+				3, 345, new byte[4]);
+		SecretKey outCurrTagKey = getSecretKey();
+		SecretKey outCurrHeaderKey = getSecretKey();
+		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
+				2, 456, true);
+		return new HandshakeKeys(transportId, inPrev, inCurr, inNext, outCurr,
+				getSecretKey(), true);
 	}
 
 	private TransportKeys createTransportKeys() {

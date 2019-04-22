@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
@@ -20,10 +21,13 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.transport.HandshakeKeySet;
+import org.briarproject.bramble.api.transport.HandshakeKeySetId;
+import org.briarproject.bramble.api.transport.HandshakeKeys;
 import org.briarproject.bramble.api.transport.IncomingKeys;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.system.SystemClock;
 import org.briarproject.bramble.test.BrambleTestCase;
@@ -52,6 +56,7 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -70,6 +75,7 @@ import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
+import static org.briarproject.bramble.test.TestUtils.getPendingContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -90,7 +96,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	// All our transports use a maximum latency of 30 seconds
 	private static final int MAX_LATENCY = 30 * 1000;
 
-
 	private final SecretKey key = getSecretKey();
 	private final File testDir = getTestDirectory();
 	private final GroupId groupId;
@@ -103,7 +108,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final MessageId messageId;
 	private final TransportId transportId;
 	private final ContactId contactId;
-	private final KeySetId keySetId, keySetId1;
+	private final TransportKeySetId keySetId, keySetId1;
+	private final HandshakeKeySetId handshakeKeySetId, handshakeKeySetId1;
+	private final PendingContact pendingContact;
 	private final Random random = new Random();
 
 	JdbcDatabaseTest() {
@@ -117,8 +124,11 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		messageId = message.getId();
 		transportId = getTransportId();
 		contactId = new ContactId(1);
-		keySetId = new KeySetId(1);
-		keySetId1 = new KeySetId(2);
+		keySetId = new TransportKeySetId(1);
+		keySetId1 = new TransportKeySetId(2);
+		handshakeKeySetId = new HandshakeKeySetId(1);
+		handshakeKeySetId1 = new HandshakeKeySetId(2);
+		pendingContact = getPendingContact();
 	}
 
 	protected abstract JdbcDatabase createDatabase(DatabaseConfig config,
@@ -653,10 +663,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testTransportKeys() throws Exception {
-		long rotationPeriod = 123, rotationPeriod1 = 234;
+		long timePeriod = 123, timePeriod1 = 234;
 		boolean active = random.nextBoolean();
-		TransportKeys keys = createTransportKeys(rotationPeriod, active);
-		TransportKeys keys1 = createTransportKeys(rotationPeriod1, active);
+		TransportKeys keys = createTransportKeys(timePeriod, active);
+		TransportKeys keys1 = createTransportKeys(timePeriod1, active);
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -673,35 +683,38 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(keySetId1, db.addTransportKeys(txn, contactId, keys1));
 
 		// Retrieve the transport keys
-		Collection<KeySet> allKeys = db.getTransportKeys(txn, transportId);
+		Collection<TransportKeySet> allKeys =
+				db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (KeySet ks : allKeys) {
+		for (TransportKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
 			if (ks.getKeySetId().equals(keySetId)) {
-				assertKeysEquals(keys, ks.getTransportKeys());
+				assertKeysEquals(keys, ks.getKeys());
 			} else {
 				assertEquals(keySetId1, ks.getKeySetId());
-				assertKeysEquals(keys1, ks.getTransportKeys());
+				assertKeysEquals(keys1, ks.getKeys());
 			}
 		}
 
 		// Rotate the transport keys
-		TransportKeys rotated = createTransportKeys(rotationPeriod + 1, active);
+		TransportKeys rotated = createTransportKeys(timePeriod + 1, active);
 		TransportKeys rotated1 =
-				createTransportKeys(rotationPeriod1 + 1, active);
-		db.updateTransportKeys(txn, new KeySet(keySetId, contactId, rotated));
-		db.updateTransportKeys(txn, new KeySet(keySetId1, contactId, rotated1));
+				createTransportKeys(timePeriod1 + 1, active);
+		db.updateTransportKeys(txn, new TransportKeySet(keySetId, contactId,
+				rotated));
+		db.updateTransportKeys(txn, new TransportKeySet(keySetId1, contactId,
+				rotated1));
 
 		// Retrieve the transport keys again
 		allKeys = db.getTransportKeys(txn, transportId);
 		assertEquals(2, allKeys.size());
-		for (KeySet ks : allKeys) {
+		for (TransportKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
 			if (ks.getKeySetId().equals(keySetId)) {
-				assertKeysEquals(rotated, ks.getTransportKeys());
+				assertKeysEquals(rotated, ks.getKeys());
 			} else {
 				assertEquals(keySetId1, ks.getKeySetId());
-				assertKeysEquals(rotated1, ks.getTransportKeys());
+				assertKeysEquals(rotated1, ks.getKeys());
 			}
 		}
 
@@ -716,7 +729,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private void assertKeysEquals(TransportKeys expected,
 			TransportKeys actual) {
 		assertEquals(expected.getTransportId(), actual.getTransportId());
-		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
 		assertKeysEquals(expected.getPreviousIncomingKeys(),
 				actual.getPreviousIncomingKeys());
 		assertKeysEquals(expected.getCurrentIncomingKeys(),
@@ -732,7 +745,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				actual.getTagKey().getBytes());
 		assertArrayEquals(expected.getHeaderKey().getBytes(),
 				actual.getHeaderKey().getBytes());
-		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
 		assertEquals(expected.getWindowBase(), actual.getWindowBase());
 		assertArrayEquals(expected.getWindowBitmap(), actual.getWindowBitmap());
 	}
@@ -742,15 +755,174 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				actual.getTagKey().getBytes());
 		assertArrayEquals(expected.getHeaderKey().getBytes(),
 				actual.getHeaderKey().getBytes());
-		assertEquals(expected.getRotationPeriod(), actual.getRotationPeriod());
+		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
 		assertEquals(expected.getStreamCounter(), actual.getStreamCounter());
 		assertEquals(expected.isActive(), actual.isActive());
 	}
 
 	@Test
+	public void testHandshakeKeys() throws Exception {
+		long timePeriod = 123, timePeriod1 = 234;
+		boolean alice = random.nextBoolean();
+		SecretKey rootKey = getSecretKey();
+		SecretKey rootKey1 = getSecretKey();
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
+		HandshakeKeys keys1 = createHandshakeKeys(timePeriod1, rootKey1, alice);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Initially there should be no handshake keys in the database
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
+
+		// Add the contact, the transport and the handshake keys
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				true, true));
+		db.addTransport(txn, transportId, 123);
+		assertEquals(handshakeKeySetId,
+				db.addHandshakeKeys(txn, contactId, keys));
+		assertEquals(handshakeKeySetId1,
+				db.addHandshakeKeys(txn, contactId, keys1));
+
+		// Retrieve the handshake keys
+		Collection<HandshakeKeySet> allKeys =
+				db.getHandshakeKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (HandshakeKeySet ks : allKeys) {
+			assertEquals(contactId, ks.getContactId());
+			assertNull(ks.getPendingContactId());
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
+				assertKeysEquals(keys, ks.getKeys());
+			} else {
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
+				assertKeysEquals(keys1, ks.getKeys());
+			}
+		}
+
+		// Update the handshake keys
+		HandshakeKeys updated =
+				createHandshakeKeys(timePeriod + 1, rootKey, alice);
+		HandshakeKeys updated1 =
+				createHandshakeKeys(timePeriod1 + 1, rootKey1, alice);
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId,
+				contactId, updated));
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId1,
+				contactId, updated1));
+
+		// Retrieve the handshake keys again
+		allKeys = db.getHandshakeKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (HandshakeKeySet ks : allKeys) {
+			assertEquals(contactId, ks.getContactId());
+			assertNull(ks.getPendingContactId());
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
+				assertKeysEquals(updated, ks.getKeys());
+			} else {
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
+				assertKeysEquals(updated1, ks.getKeys());
+			}
+		}
+
+		// Removing the contact should remove the handshake keys
+		db.removeContact(txn, contactId);
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	private void assertKeysEquals(HandshakeKeys expected,
+			HandshakeKeys actual) {
+		assertEquals(expected.getTransportId(), actual.getTransportId());
+		assertEquals(expected.getTimePeriod(), actual.getTimePeriod());
+		assertArrayEquals(expected.getRootKey().getBytes(),
+				actual.getRootKey().getBytes());
+		assertEquals(expected.isAlice(), actual.isAlice());
+		assertKeysEquals(expected.getPreviousIncomingKeys(),
+				actual.getPreviousIncomingKeys());
+		assertKeysEquals(expected.getCurrentIncomingKeys(),
+				actual.getCurrentIncomingKeys());
+		assertKeysEquals(expected.getNextIncomingKeys(),
+				actual.getNextIncomingKeys());
+		assertKeysEquals(expected.getCurrentOutgoingKeys(),
+				actual.getCurrentOutgoingKeys());
+	}
+
+	@Test
+	public void testHandshakeKeysForPendingContact() throws Exception {
+		long timePeriod = 123, timePeriod1 = 234;
+		boolean alice = random.nextBoolean();
+		SecretKey rootKey = getSecretKey();
+		SecretKey rootKey1 = getSecretKey();
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
+		HandshakeKeys keys1 = createHandshakeKeys(timePeriod1, rootKey1, alice);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Initially there should be no handshake keys in the database
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
+
+		// Add the pending contact, the transport and the handshake keys
+		db.addPendingContact(txn, pendingContact);
+		db.addTransport(txn, transportId, 123);
+		assertEquals(handshakeKeySetId, db.addHandshakeKeys(txn,
+				pendingContact.getId(), keys));
+		assertEquals(handshakeKeySetId1, db.addHandshakeKeys(txn,
+				pendingContact.getId(), keys1));
+
+		// Retrieve the handshake keys
+		Collection<HandshakeKeySet> allKeys =
+				db.getHandshakeKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (HandshakeKeySet ks : allKeys) {
+			assertNull(ks.getContactId());
+			assertEquals(pendingContact.getId(), ks.getPendingContactId());
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
+				assertKeysEquals(keys, ks.getKeys());
+			} else {
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
+				assertKeysEquals(keys1, ks.getKeys());
+			}
+		}
+
+		// Update the handshake keys
+		HandshakeKeys updated =
+				createHandshakeKeys(timePeriod + 1, rootKey, alice);
+		HandshakeKeys updated1 =
+				createHandshakeKeys(timePeriod1 + 1, rootKey1, alice);
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId,
+				pendingContact.getId(), updated));
+		db.updateHandshakeKeys(txn, new HandshakeKeySet(handshakeKeySetId1,
+				pendingContact.getId(), updated1));
+
+		// Retrieve the handshake keys again
+		allKeys = db.getHandshakeKeys(txn, transportId);
+		assertEquals(2, allKeys.size());
+		for (HandshakeKeySet ks : allKeys) {
+			assertNull(ks.getContactId());
+			assertEquals(pendingContact.getId(), ks.getPendingContactId());
+			if (ks.getKeySetId().equals(handshakeKeySetId)) {
+				assertKeysEquals(updated, ks.getKeys());
+			} else {
+				assertEquals(handshakeKeySetId1, ks.getKeySetId());
+				assertKeysEquals(updated1, ks.getKeys());
+			}
+		}
+
+		// Removing the pending contact should remove the handshake keys
+		db.removePendingContact(txn, pendingContact.getId());
+		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
 	public void testIncrementStreamCounter() throws Exception {
-		long rotationPeriod = 123;
-		TransportKeys keys = createTransportKeys(rotationPeriod, true);
+		long timePeriod = 123;
+		TransportKeys keys = createTransportKeys(timePeriod, true);
 		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
 
 		Database<Connection> db = open(false);
@@ -766,15 +938,63 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Increment the stream counter twice and retrieve the transport keys
 		db.incrementStreamCounter(txn, transportId, keySetId);
 		db.incrementStreamCounter(txn, transportId, keySetId);
-		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
+		Collection<TransportKeySet> newKeys =
+				db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		KeySet ks = newKeys.iterator().next();
+		TransportKeySet ks = newKeys.iterator().next();
 		assertEquals(keySetId, ks.getKeySetId());
 		assertEquals(contactId, ks.getContactId());
-		TransportKeys k = ks.getTransportKeys();
+		TransportKeys k = ks.getKeys();
 		assertEquals(transportId, k.getTransportId());
 		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
-		assertEquals(rotationPeriod, outCurr.getRotationPeriod());
+		assertEquals(timePeriod, outCurr.getTimePeriod());
+		assertEquals(streamCounter + 2, outCurr.getStreamCounter());
+
+		// The rest of the keys should be unaffected
+		assertKeysEquals(keys.getPreviousIncomingKeys(),
+				k.getPreviousIncomingKeys());
+		assertKeysEquals(keys.getCurrentIncomingKeys(),
+				k.getCurrentIncomingKeys());
+		assertKeysEquals(keys.getNextIncomingKeys(), k.getNextIncomingKeys());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testIncrementStreamCounterForHandshakeKeys() throws Exception {
+		long timePeriod = 123;
+		SecretKey rootKey = getSecretKey();
+		boolean alice = random.nextBoolean();
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
+		long streamCounter = keys.getCurrentOutgoingKeys().getStreamCounter();
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add the contact, transport and handshake keys
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				true, true));
+		db.addTransport(txn, transportId, 123);
+		assertEquals(handshakeKeySetId,
+				db.addHandshakeKeys(txn, contactId, keys));
+
+		// Increment the stream counter twice and retrieve the handshake keys
+		db.incrementStreamCounter(txn, transportId, handshakeKeySetId);
+		db.incrementStreamCounter(txn, transportId, handshakeKeySetId);
+		Collection<HandshakeKeySet> newKeys =
+				db.getHandshakeKeys(txn, transportId);
+		assertEquals(1, newKeys.size());
+		HandshakeKeySet ks = newKeys.iterator().next();
+		assertEquals(handshakeKeySetId, ks.getKeySetId());
+		assertEquals(contactId, ks.getContactId());
+		HandshakeKeys k = ks.getKeys();
+		assertEquals(transportId, k.getTransportId());
+		assertArrayEquals(rootKey.getBytes(), k.getRootKey().getBytes());
+		assertEquals(alice, k.isAlice());
+		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
+		assertEquals(timePeriod, outCurr.getTimePeriod());
 		assertEquals(streamCounter + 2, outCurr.getStreamCounter());
 
 		// The rest of the keys should be unaffected
@@ -791,8 +1011,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testSetReorderingWindow() throws Exception {
 		boolean active = random.nextBoolean();
-		long rotationPeriod = 123;
-		TransportKeys keys = createTransportKeys(rotationPeriod, active);
+		long timePeriod = 123;
+		TransportKeys keys = createTransportKeys(timePeriod, active);
 		long base = keys.getCurrentIncomingKeys().getWindowBase();
 		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
 
@@ -808,17 +1028,68 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Update the reordering window and retrieve the transport keys
 		random.nextBytes(bitmap);
-		db.setReorderingWindow(txn, keySetId, transportId, rotationPeriod,
+		db.setReorderingWindow(txn, keySetId, transportId, timePeriod,
 				base + 1, bitmap);
-		Collection<KeySet> newKeys = db.getTransportKeys(txn, transportId);
+		Collection<TransportKeySet> newKeys =
+				db.getTransportKeys(txn, transportId);
 		assertEquals(1, newKeys.size());
-		KeySet ks = newKeys.iterator().next();
+		TransportKeySet ks = newKeys.iterator().next();
 		assertEquals(keySetId, ks.getKeySetId());
 		assertEquals(contactId, ks.getContactId());
-		TransportKeys k = ks.getTransportKeys();
+		TransportKeys k = ks.getKeys();
 		assertEquals(transportId, k.getTransportId());
 		IncomingKeys inCurr = k.getCurrentIncomingKeys();
-		assertEquals(rotationPeriod, inCurr.getRotationPeriod());
+		assertEquals(timePeriod, inCurr.getTimePeriod());
+		assertEquals(base + 1, inCurr.getWindowBase());
+		assertArrayEquals(bitmap, inCurr.getWindowBitmap());
+
+		// The rest of the keys should be unaffected
+		assertKeysEquals(keys.getPreviousIncomingKeys(),
+				k.getPreviousIncomingKeys());
+		assertKeysEquals(keys.getNextIncomingKeys(), k.getNextIncomingKeys());
+		assertKeysEquals(keys.getCurrentOutgoingKeys(),
+				k.getCurrentOutgoingKeys());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetReorderingWindowForHandshakeKeys() throws Exception {
+		long timePeriod = 123;
+		SecretKey rootKey = getSecretKey();
+		boolean alice = random.nextBoolean();
+		HandshakeKeys keys = createHandshakeKeys(timePeriod, rootKey, alice);
+		long base = keys.getCurrentIncomingKeys().getWindowBase();
+		byte[] bitmap = keys.getCurrentIncomingKeys().getWindowBitmap();
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add the contact, transport and handshake keys
+		db.addLocalAuthor(txn, localAuthor);
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				true, true));
+		db.addTransport(txn, transportId, 123);
+		assertEquals(handshakeKeySetId,
+				db.addHandshakeKeys(txn, contactId, keys));
+
+		// Update the reordering window and retrieve the handshake keys
+		random.nextBytes(bitmap);
+		db.setReorderingWindow(txn, handshakeKeySetId, transportId, timePeriod,
+				base + 1, bitmap);
+		Collection<HandshakeKeySet> newKeys =
+				db.getHandshakeKeys(txn, transportId);
+		assertEquals(1, newKeys.size());
+		HandshakeKeySet ks = newKeys.iterator().next();
+		assertEquals(handshakeKeySetId, ks.getKeySetId());
+		assertEquals(contactId, ks.getContactId());
+		HandshakeKeys k = ks.getKeys();
+		assertEquals(transportId, k.getTransportId());
+		assertArrayEquals(rootKey.getBytes(), k.getRootKey().getBytes());
+		assertEquals(alice, k.isAlice());
+		IncomingKeys inCurr = k.getCurrentIncomingKeys();
+		assertEquals(timePeriod, inCurr.getTimePeriod());
 		assertEquals(base + 1, inCurr.getWindowBase());
 		assertArrayEquals(bitmap, inCurr.getWindowBitmap());
 
@@ -1965,6 +2236,39 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.close();
 	}
 
+	@Test
+	public void testPendingContacts() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		assertEquals(emptyList(), db.getPendingContacts(txn));
+
+		db.addPendingContact(txn, pendingContact);
+		Collection<PendingContact> pendingContacts =
+				db.getPendingContacts(txn);
+		assertEquals(1, pendingContacts.size());
+		PendingContact retrieved = pendingContacts.iterator().next();
+		assertEquals(pendingContact.getId(), retrieved.getId());
+		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
+		assertEquals(pendingContact.getState(), retrieved.getState());
+		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
+
+		db.setPendingContactState(txn, pendingContact.getId(), FAILED);
+		pendingContacts = db.getPendingContacts(txn);
+		assertEquals(1, pendingContacts.size());
+		retrieved = pendingContacts.iterator().next();
+		assertEquals(pendingContact.getId(), retrieved.getId());
+		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
+		assertEquals(FAILED, retrieved.getState());
+		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
+
+		db.removePendingContact(txn, pendingContact.getId());
+		assertEquals(emptyList(), db.getPendingContacts(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
 	private Database<Connection> open(boolean resume) throws Exception {
 		return open(resume, new TestMessageFactory(), new SystemClock());
 	}
@@ -1978,25 +2282,46 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		return db;
 	}
 
-	private TransportKeys createTransportKeys(long rotationPeriod,
-			boolean active) {
+	private TransportKeys createTransportKeys(long timePeriod, boolean active) {
 		SecretKey inPrevTagKey = getSecretKey();
 		SecretKey inPrevHeaderKey = getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
-				rotationPeriod - 1, 123, new byte[4]);
+				timePeriod - 1, 123, new byte[4]);
 		SecretKey inCurrTagKey = getSecretKey();
 		SecretKey inCurrHeaderKey = getSecretKey();
 		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
-				rotationPeriod, 234, new byte[4]);
+				timePeriod, 234, new byte[4]);
 		SecretKey inNextTagKey = getSecretKey();
 		SecretKey inNextHeaderKey = getSecretKey();
 		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
-				rotationPeriod + 1, 345, new byte[4]);
+				timePeriod + 1, 345, new byte[4]);
 		SecretKey outCurrTagKey = getSecretKey();
 		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
-				rotationPeriod, 456, active);
+				timePeriod, 456, active);
 		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr);
+	}
+
+	private HandshakeKeys createHandshakeKeys(long timePeriod,
+			SecretKey rootKey, boolean alice) {
+		SecretKey inPrevTagKey = getSecretKey();
+		SecretKey inPrevHeaderKey = getSecretKey();
+		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
+				timePeriod - 1, 123, new byte[4]);
+		SecretKey inCurrTagKey = getSecretKey();
+		SecretKey inCurrHeaderKey = getSecretKey();
+		IncomingKeys inCurr = new IncomingKeys(inCurrTagKey, inCurrHeaderKey,
+				timePeriod, 234, new byte[4]);
+		SecretKey inNextTagKey = getSecretKey();
+		SecretKey inNextHeaderKey = getSecretKey();
+		IncomingKeys inNext = new IncomingKeys(inNextTagKey, inNextHeaderKey,
+				timePeriod + 1, 345, new byte[4]);
+		SecretKey outCurrTagKey = getSecretKey();
+		SecretKey outCurrHeaderKey = getSecretKey();
+		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
+				timePeriod, 456, true);
+		return new HandshakeKeys(transportId, inPrev, inCurr, inNext, outCurr,
+				rootKey, alice);
 	}
 
 	@After

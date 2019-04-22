@@ -30,8 +30,9 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.api.contact.PendingContact.PendingContactState.WAITING_FOR_CONNECTION;
+import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
@@ -69,10 +70,10 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey master, long timestamp, boolean alice, boolean verified,
+			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
 		ContactId c = db.addContact(txn, remote, local, verified, active);
-		keyManager.addContact(txn, c, master, timestamp, alice, active);
+		keyManager.addContact(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -88,11 +89,11 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public ContactId addContact(Author remote, AuthorId local, SecretKey master,
-			long timestamp, boolean alice, boolean verified, boolean active)
-			throws DbException {
+	public ContactId addContact(Author remote, AuthorId local,
+			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
+			boolean active) throws DbException {
 		return db.transactionWithResult(false, txn ->
-				addContact(txn, remote, local, master, timestamp, alice,
+				addContact(txn, remote, local, rootKey, timestamp, alice,
 						verified, active));
 	}
 
@@ -123,8 +124,8 @@ class ContactManagerImpl implements ContactManager {
 	public PendingContact addRemoteContactRequest(String link, String alias) {
 		// TODO replace with real implementation
 		PendingContactId id = new PendingContactId(link.getBytes());
-		return new PendingContact(id, alias, WAITING_FOR_CONNECTION,
-				System.currentTimeMillis());
+		return new PendingContact(id, new byte[MAX_PUBLIC_KEY_LENGTH], alias,
+				WAITING_FOR_CONNECTION, System.currentTimeMillis());
 	}
 
 	@Override

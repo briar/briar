@@ -2,9 +2,13 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
+import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
@@ -23,8 +27,11 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.KeySet;
-import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.bramble.api.transport.HandshakeKeySet;
+import org.briarproject.bramble.api.transport.HandshakeKeySetId;
+import org.briarproject.bramble.api.transport.HandshakeKeys;
+import org.briarproject.bramble.api.transport.TransportKeySet;
+import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -33,11 +40,14 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 /**
- * A low-level interface to the database (DatabaseComponent provides a
- * high-level interface). Most operations take a transaction argument, which is
- * obtained by calling {@link #startTransaction()}. Every transaction must be
- * terminated by calling either {@link #abortTransaction(Object) abortTransaction(T)} or
- * {@link #commitTransaction(Object) commitTransaction(T)}, even if an exception is thrown.
+ * A low-level interface to the database ({@link DatabaseComponent} provides a
+ * high-level interface).
+ * <p/>
+ * Most operations take a transaction argument, which is obtained by calling
+ * {@link #startTransaction()}. Every transaction must be terminated by calling
+ * either {@link #abortTransaction(Object) abortTransaction(T)} or
+ * {@link #commitTransaction(Object) commitTransaction(T)}, even if an
+ * exception is thrown.
  */
 @NotNullByDefault
 interface Database<T> {
@@ -96,6 +106,20 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Stores the given handshake keys for the given contact and returns a
+	 * key set ID.
+	 */
+	HandshakeKeySetId addHandshakeKeys(T txn, ContactId c, HandshakeKeys k)
+			throws DbException;
+
+	/**
+	 * Stores the given handshake keys for the given pending contact and
+	 * returns a key set ID.
+	 */
+	HandshakeKeySetId addHandshakeKeys(T txn, PendingContactId p,
+			HandshakeKeys k) throws DbException;
+
+	/**
 	 * Stores a local pseudonym.
 	 */
 	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
@@ -122,6 +146,11 @@ interface Database<T> {
 	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
+	 * Stores a pending contact.
+	 */
+	void addPendingContact(T txn, PendingContact p) throws DbException;
+
+	/**
 	 * Stores a transport.
 	 */
 	void addTransport(T txn, TransportId t, int maxLatency)
@@ -131,7 +160,7 @@ interface Database<T> {
 	 * Stores the given transport keys for the given contact and returns a
 	 * key set ID.
 	 */
-	KeySetId addTransportKeys(T txn, ContactId c, TransportKeys k)
+	TransportKeySetId addTransportKeys(T txn, ContactId c, TransportKeys k)
 			throws DbException;
 
 	/**
@@ -170,6 +199,14 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	boolean containsMessage(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns true if the database contains the given pending contact.
+	 * <p/>
+	 * Read-only.
+	 */
+	boolean containsPendingContact(T txn, PendingContactId p)
+			throws DbException;
 
 	/**
 	 * Returns true if the database contains the given transport.
@@ -275,6 +312,14 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Map<ContactId, Boolean> getGroupVisibility(T txn, GroupId g)
+			throws DbException;
+
+	/**
+	 * Returns all handshake keys for the given transport.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<HandshakeKeySet> getHandshakeKeys(T txn, TransportId t)
 			throws DbException;
 
 	/**
@@ -468,6 +513,13 @@ interface Database<T> {
 	long getNextSendTime(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns all pending contacts.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<PendingContact> getPendingContacts(T txn) throws DbException;
+
+	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact and have been requested by the contact, up to the given
 	 * total length.
@@ -489,13 +541,19 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<KeySet> getTransportKeys(T txn, TransportId t)
+	Collection<TransportKeySet> getTransportKeys(T txn, TransportId t)
+			throws DbException;
+
+	/**
+	 * Increments the outgoing stream counter for the given handshake keys.
+	 */
+	void incrementStreamCounter(T txn, TransportId t, HandshakeKeySetId k)
 			throws DbException;
 
 	/**
 	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(T txn, TransportId t, KeySetId k)
+	void incrementStreamCounter(T txn, TransportId t, TransportKeySetId k)
 			throws DbException;
 
 	/**
@@ -565,6 +623,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Removes the given handshake keys from the database.
+	 */
+	void removeHandshakeKeys(T txn, TransportId t, HandshakeKeySetId k)
+			throws DbException;
+
+	/**
 	 * Removes a local pseudonym (and all associated state) from the database.
 	 */
 	void removeLocalAuthor(T txn, AuthorId a) throws DbException;
@@ -582,6 +646,11 @@ interface Database<T> {
 			Collection<MessageId> requested) throws DbException;
 
 	/**
+	 * Removes a pending contact (and all associated state) from the database.
+	 */
+	void removePendingContact(T txn, PendingContactId p) throws DbException;
+
+	/**
 	 * Removes a transport (and all associated state) from the database.
 	 */
 	void removeTransport(T txn, TransportId t) throws DbException;
@@ -589,7 +658,7 @@ interface Database<T> {
 	/**
 	 * Removes the given transport keys from the database.
 	 */
-	void removeTransportKeys(T txn, TransportId t, KeySetId k)
+	void removeTransportKeys(T txn, TransportId t, TransportKeySetId k)
 			throws DbException;
 
 	/**
@@ -634,16 +703,29 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Sets the reordering window for the given key set and transport in the
-	 * given rotation period.
+	 * Sets the state of the given pending contact.
 	 */
-	void setReorderingWindow(T txn, KeySetId k, TransportId t,
-			long rotationPeriod, long base, byte[] bitmap) throws DbException;
+	void setPendingContactState(T txn, PendingContactId p,
+			PendingContactState state) throws DbException;
+
+	/**
+	 * Sets the reordering window for the given transport key set in the given
+	 * time period.
+	 */
+	void setReorderingWindow(T txn, TransportKeySetId k, TransportId t,
+			long timePeriod, long base, byte[] bitmap) throws DbException;
+
+	/**
+	 * Sets the reordering window for the given handshake key set in the given
+	 * time period.
+	 */
+	void setReorderingWindow(T txn, HandshakeKeySetId k, TransportId t,
+			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
-	void setTransportKeysActive(T txn, TransportId t, KeySetId k)
+	void setTransportKeysActive(T txn, TransportId t, TransportKeySetId k)
 			throws DbException;
 
 	/**
@@ -655,7 +737,12 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Updates the given handshake keys.
+	 */
+	void updateHandshakeKeys(T txn, HandshakeKeySet ks) throws DbException;
+
+	/**
 	 * Updates the given transport keys following key rotation.
 	 */
-	void updateTransportKeys(T txn, KeySet ks) throws DbException;
+	void updateTransportKeys(T txn, TransportKeySet ks) throws DbException;
 }

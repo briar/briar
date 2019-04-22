@@ -11,20 +11,20 @@ import javax.annotation.concurrent.NotThreadSafe;
 class MutableOutgoingKeys {
 
 	private final SecretKey tagKey, headerKey;
-	private final long rotationPeriod;
+	private final long timePeriod;
 	private long streamCounter;
 	private boolean active;
 
 	MutableOutgoingKeys(OutgoingKeys out) {
 		tagKey = out.getTagKey();
 		headerKey = out.getHeaderKey();
-		rotationPeriod = out.getRotationPeriod();
+		timePeriod = out.getTimePeriod();
 		streamCounter = out.getStreamCounter();
 		active = out.isActive();
 	}
 
 	OutgoingKeys snapshot() {
-		return new OutgoingKeys(tagKey, headerKey, rotationPeriod,
+		return new OutgoingKeys(tagKey, headerKey, timePeriod,
 				streamCounter, active);
 	}
 
@@ -36,8 +36,8 @@ class MutableOutgoingKeys {
 		return headerKey;
 	}
 
-	long getRotationPeriod() {
-		return rotationPeriod;
+	long getTimePeriod() {
+		return timePeriod;
 	}
 
 	long getStreamCounter() {

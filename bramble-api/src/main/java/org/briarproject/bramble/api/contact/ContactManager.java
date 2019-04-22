@@ -13,8 +13,6 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.bramble.api.contact.PendingContact.PendingContactState.FAILED;
-
 @NotNullByDefault
 public interface ContactManager {
 
@@ -33,7 +31,7 @@ public interface ContactManager {
 	 * @param alice true if the local party is Alice
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			SecretKey master, long timestamp, boolean alice, boolean verified,
+			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException;
 
 	/**
@@ -50,7 +48,7 @@ public interface ContactManager {
 	 *
 	 * @param alice true if the local party is Alice
 	 */
-	ContactId addContact(Author remote, AuthorId local, SecretKey master,
+	ContactId addContact(Author remote, AuthorId local, SecretKey rootKey,
 			long timestamp, boolean alice, boolean verified, boolean active)
 			throws DbException;
 
@@ -79,7 +77,8 @@ public interface ContactManager {
 	Collection<PendingContact> getPendingContacts();
 
 	/**
-	 * Removes a {@link PendingContact} that is in state {@link FAILED}.
+	 * Removes a {@link PendingContact} that is in state
+	 * {@link PendingContactState FAILED}.
 	 */
 	void removePendingContact(PendingContact pendingContact);
 

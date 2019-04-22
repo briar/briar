@@ -114,9 +114,9 @@ class KeyAgreementTaskImpl extends Thread implements KeyAgreementTask,
 				keyAgreementCrypto, payloadEncoder, transport, remotePayload,
 				localPayload, localKeyPair, alice);
 		try {
-			SecretKey master = protocol.perform();
+			SecretKey masterKey = protocol.perform();
 			KeyAgreementResult result =
-					new KeyAgreementResult(master, transport.getConnection(),
+					new KeyAgreementResult(masterKey, transport.getConnection(),
 							transport.getTransportId(), alice);
 			LOG.info("Finished BQP protocol");
 			// Broadcast result to caller

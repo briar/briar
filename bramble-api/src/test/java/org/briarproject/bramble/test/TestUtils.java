@@ -1,6 +1,8 @@
 package org.briarproject.bramble.test;
 
 import org.briarproject.bramble.api.UniqueId;
+import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -25,6 +27,7 @@ import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
+import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -138,6 +141,18 @@ public class TestUtils {
 		MessageId id = new MessageId(getRandomId());
 		byte[] body = getRandomBytes(bodyLength);
 		return new Message(id, groupId, timestamp, body);
+	}
+
+	public static PendingContact getPendingContact() {
+		return getPendingContact(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
+	}
+
+	public static PendingContact getPendingContact(int nameLength) {
+		PendingContactId id = new PendingContactId(getRandomId());
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		String alias = getRandomString(nameLength);
+		return new PendingContact(id, publicKey, alias, WAITING_FOR_CONNECTION,
+				timestamp);
 	}
 
 	public static double getMedian(Collection<? extends Number> samples) {
