@@ -16,10 +16,13 @@ import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Rule;
 import org.junit.Test;
 
+import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.MASTER_KEY_LABEL;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.SHARED_SECRET_LABEL;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.hamcrest.Matchers.equalTo;
@@ -34,21 +37,17 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		setImposteriser(ClassImposteriser.INSTANCE);
 	}};
 
-	private final PublicKey alicePubKey =
-			context.mock(PublicKey.class, "alice");
-	private final byte[] alicePubKeyBytes = getRandomBytes(32);
+	private final PublicKey alicePubKey = getAgreementPublicKey();
 	private final byte[] aliceCommit = getRandomBytes(COMMIT_LENGTH);
 	private final byte[] alicePayload = getRandomBytes(COMMIT_LENGTH + 8);
 	private final byte[] aliceConfirm = getRandomBytes(SecretKey.LENGTH);
 
-	private final PublicKey bobPubKey = context.mock(PublicKey.class, "bob");
-	private final byte[] bobPubKeyBytes = getRandomBytes(32);
+	private final PublicKey bobPubKey = getAgreementPublicKey();
 	private final byte[] bobCommit = getRandomBytes(COMMIT_LENGTH);
 	private final byte[] bobPayload = getRandomBytes(COMMIT_LENGTH + 19);
 	private final byte[] bobConfirm = getRandomBytes(SecretKey.LENGTH);
 
-	private final PublicKey badPubKey = context.mock(PublicKey.class, "bad");
-	private final byte[] badPubKeyBytes = getRandomBytes(32);
+	private final PublicKey badPubKey = getAgreementPublicKey();
 	private final byte[] badCommit = getRandomBytes(COMMIT_LENGTH);
 	private final byte[] badConfirm = getRandomBytes(SecretKey.LENGTH);
 
@@ -64,15 +63,13 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	PayloadEncoder payloadEncoder;
 	@Mock
 	KeyAgreementTransport transport;
-	@Mock
-	PublicKey ourPubKey;
 
 	@Test
 	public void testAliceProtocol() throws Exception {
 		// set up
-		Payload theirPayload = new Payload(bobCommit, null);
-		Payload ourPayload = new Payload(aliceCommit, null);
-		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(bobCommit, emptyList());
+		Payload ourPayload = new Payload(aliceCommit, emptyList());
+		KeyPair ourKeyPair = new KeyPair(alicePubKey, getAgreementPrivateKey());
 		SecretKey sharedSecret = getSecretKey();
 		SecretKey masterKey = getSecretKey();
 
@@ -87,24 +84,18 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(alicePayload));
 			allowing(payloadEncoder).encode(theirPayload);
 			will(returnValue(bobPayload));
-			allowing(ourPubKey).getEncoded();
-			will(returnValue(alicePubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
-			allowing(alicePubKey).getEncoded();
-			will(returnValue(alicePubKeyBytes));
-			allowing(bobPubKey).getEncoded();
-			will(returnValue(bobPubKeyBytes));
 
 			// Alice sends her public key
-			oneOf(transport).sendKey(alicePubKeyBytes);
+			oneOf(transport).sendKey(alicePubKey.getEncoded());
 
 			// Alice receives Bob's public key
 			oneOf(callbacks).connectionWaiting();
 			oneOf(transport).receiveKey();
-			will(returnValue(bobPubKeyBytes));
+			will(returnValue(bobPubKey.getEncoded()));
 			oneOf(callbacks).initialRecordReceived();
-			oneOf(keyParser).parsePublicKey(bobPubKeyBytes);
+			oneOf(keyParser).parsePublicKey(bobPubKey.getEncoded());
 			will(returnValue(bobPubKey));
 
 			// Alice verifies Bob's public key
@@ -114,7 +105,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			// Alice computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, bobPubKey,
 					ourKeyPair, new byte[] {PROTOCOL_VERSION},
-					alicePubKeyBytes, bobPubKeyBytes);
+					alicePubKey.getEncoded(), bobPubKey.getEncoded());
 			will(returnValue(sharedSecret));
 
 			// Alice sends her confirmation record
@@ -146,9 +137,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test
 	public void testBobProtocol() throws Exception {
 		// set up
-		Payload theirPayload = new Payload(aliceCommit, null);
-		Payload ourPayload = new Payload(bobCommit, null);
-		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(aliceCommit, emptyList());
+		Payload ourPayload = new Payload(bobCommit, emptyList());
+		KeyPair ourKeyPair = new KeyPair(bobPubKey, getAgreementPrivateKey());
 		SecretKey sharedSecret = getSecretKey();
 		SecretKey masterKey = getSecretKey();
 
@@ -163,20 +154,14 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobPayload));
 			allowing(payloadEncoder).encode(theirPayload);
 			will(returnValue(alicePayload));
-			allowing(ourPubKey).getEncoded();
-			will(returnValue(bobPubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
-			allowing(alicePubKey).getEncoded();
-			will(returnValue(alicePubKeyBytes));
-			allowing(bobPubKey).getEncoded();
-			will(returnValue(bobPubKeyBytes));
 
 			// Bob receives Alice's public key
 			oneOf(transport).receiveKey();
-			will(returnValue(alicePubKeyBytes));
+			will(returnValue(alicePubKey.getEncoded()));
 			oneOf(callbacks).initialRecordReceived();
-			oneOf(keyParser).parsePublicKey(alicePubKeyBytes);
+			oneOf(keyParser).parsePublicKey(alicePubKey.getEncoded());
 			will(returnValue(alicePubKey));
 
 			// Bob verifies Alice's public key
@@ -184,12 +169,12 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(aliceCommit));
 
 			// Bob sends his public key
-			oneOf(transport).sendKey(bobPubKeyBytes);
+			oneOf(transport).sendKey(bobPubKey.getEncoded());
 
 			// Bob computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, alicePubKey,
 					ourKeyPair, new byte[] {PROTOCOL_VERSION},
-					alicePubKeyBytes, bobPubKeyBytes);
+					alicePubKey.getEncoded(), bobPubKey.getEncoded());
 			will(returnValue(sharedSecret));
 
 			// Bob receives Alices's confirmation record
@@ -221,9 +206,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testAliceProtocolAbortOnBadKey() throws Exception {
 		// set up
-		Payload theirPayload = new Payload(bobCommit, null);
-		Payload ourPayload = new Payload(aliceCommit, null);
-		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(bobCommit, emptyList());
+		Payload ourPayload = new Payload(aliceCommit, emptyList());
+		KeyPair ourKeyPair = new KeyPair(alicePubKey, getAgreementPrivateKey());
 
 		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
 				crypto, keyAgreementCrypto, payloadEncoder, transport,
@@ -232,20 +217,18 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		// expectations
 		context.checking(new Expectations() {{
 			// Helpers
-			allowing(ourPubKey).getEncoded();
-			will(returnValue(alicePubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
 
 			// Alice sends her public key
-			oneOf(transport).sendKey(alicePubKeyBytes);
+			oneOf(transport).sendKey(alicePubKey.getEncoded());
 
 			// Alice receives a bad public key
 			oneOf(callbacks).connectionWaiting();
 			oneOf(transport).receiveKey();
-			will(returnValue(badPubKeyBytes));
+			will(returnValue(badPubKey.getEncoded()));
 			oneOf(callbacks).initialRecordReceived();
-			oneOf(keyParser).parsePublicKey(badPubKeyBytes);
+			oneOf(keyParser).parsePublicKey(badPubKey.getEncoded());
 			will(returnValue(badPubKey));
 
 			// Alice verifies Bob's public key
@@ -258,7 +241,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			// Alice never computes shared secret
 			never(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, badPubKey,
 					ourKeyPair, new byte[] {PROTOCOL_VERSION},
-					alicePubKeyBytes, bobPubKeyBytes);
+					alicePubKey.getEncoded(), bobPubKey.getEncoded());
 		}});
 
 		// execute
@@ -268,9 +251,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testBobProtocolAbortOnBadKey() throws Exception {
 		// set up
-		Payload theirPayload = new Payload(aliceCommit, null);
-		Payload ourPayload = new Payload(bobCommit, null);
-		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(aliceCommit, emptyList());
+		Payload ourPayload = new Payload(bobCommit, emptyList());
+		KeyPair ourKeyPair = new KeyPair(bobPubKey, getAgreementPrivateKey());
 
 		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
 				crypto, keyAgreementCrypto, payloadEncoder, transport,
@@ -279,16 +262,14 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 		// expectations
 		context.checking(new Expectations() {{
 			// Helpers
-			allowing(ourPubKey).getEncoded();
-			will(returnValue(bobPubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
 
 			// Bob receives a bad public key
 			oneOf(transport).receiveKey();
-			will(returnValue(badPubKeyBytes));
+			will(returnValue(badPubKey.getEncoded()));
 			oneOf(callbacks).initialRecordReceived();
-			oneOf(keyParser).parsePublicKey(badPubKeyBytes);
+			oneOf(keyParser).parsePublicKey(badPubKey.getEncoded());
 			will(returnValue(badPubKey));
 
 			// Bob verifies Alice's public key
@@ -299,7 +280,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			oneOf(transport).sendAbort(false);
 
 			// Bob never sends his public key
-			never(transport).sendKey(bobPubKeyBytes);
+			never(transport).sendKey(bobPubKey.getEncoded());
 		}});
 
 		// execute
@@ -309,9 +290,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testAliceProtocolAbortOnBadConfirm() throws Exception {
 		// set up
-		Payload theirPayload = new Payload(bobCommit, null);
-		Payload ourPayload = new Payload(aliceCommit, null);
-		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(bobCommit, emptyList());
+		Payload ourPayload = new Payload(aliceCommit, emptyList());
+		KeyPair ourKeyPair = new KeyPair(alicePubKey, getAgreementPrivateKey());
 		SecretKey sharedSecret = getSecretKey();
 
 		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
@@ -325,22 +306,18 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(alicePayload));
 			allowing(payloadEncoder).encode(theirPayload);
 			will(returnValue(bobPayload));
-			allowing(ourPubKey).getEncoded();
-			will(returnValue(alicePubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
-			allowing(bobPubKey).getEncoded();
-			will(returnValue(bobPubKeyBytes));
 
 			// Alice sends her public key
-			oneOf(transport).sendKey(alicePubKeyBytes);
+			oneOf(transport).sendKey(alicePubKey.getEncoded());
 
 			// Alice receives Bob's public key
 			oneOf(callbacks).connectionWaiting();
 			oneOf(transport).receiveKey();
-			will(returnValue(bobPubKeyBytes));
+			will(returnValue(bobPubKey.getEncoded()));
 			oneOf(callbacks).initialRecordReceived();
-			oneOf(keyParser).parsePublicKey(bobPubKeyBytes);
+			oneOf(keyParser).parsePublicKey(bobPubKey.getEncoded());
 			will(returnValue(bobPubKey));
 
 			// Alice verifies Bob's public key
@@ -350,7 +327,7 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			// Alice computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, bobPubKey,
 					ourKeyPair, new byte[] {PROTOCOL_VERSION},
-					alicePubKeyBytes, bobPubKeyBytes);
+					alicePubKey.getEncoded(), bobPubKey.getEncoded());
 			will(returnValue(sharedSecret));
 
 			// Alice sends her confirmation record
@@ -384,9 +361,9 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 	@Test(expected = AbortException.class)
 	public void testBobProtocolAbortOnBadConfirm() throws Exception {
 		// set up
-		Payload theirPayload = new Payload(aliceCommit, null);
-		Payload ourPayload = new Payload(bobCommit, null);
-		KeyPair ourKeyPair = new KeyPair(ourPubKey, null);
+		Payload theirPayload = new Payload(aliceCommit, emptyList());
+		Payload ourPayload = new Payload(bobCommit, emptyList());
+		KeyPair ourKeyPair = new KeyPair(bobPubKey, getAgreementPrivateKey());
 		SecretKey sharedSecret = getSecretKey();
 
 		KeyAgreementProtocol protocol = new KeyAgreementProtocol(callbacks,
@@ -400,18 +377,14 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(bobPayload));
 			allowing(payloadEncoder).encode(theirPayload);
 			will(returnValue(alicePayload));
-			allowing(ourPubKey).getEncoded();
-			will(returnValue(bobPubKeyBytes));
 			allowing(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
-			allowing(alicePubKey).getEncoded();
-			will(returnValue(alicePubKeyBytes));
 
 			// Bob receives Alice's public key
 			oneOf(transport).receiveKey();
-			will(returnValue(alicePubKeyBytes));
+			will(returnValue(alicePubKey.getEncoded()));
 			oneOf(callbacks).initialRecordReceived();
-			oneOf(keyParser).parsePublicKey(alicePubKeyBytes);
+			oneOf(keyParser).parsePublicKey(alicePubKey.getEncoded());
 			will(returnValue(alicePubKey));
 
 			// Bob verifies Alice's public key
@@ -419,12 +392,12 @@ public class KeyAgreementProtocolTest extends BrambleTestCase {
 			will(returnValue(aliceCommit));
 
 			// Bob sends his public key
-			oneOf(transport).sendKey(bobPubKeyBytes);
+			oneOf(transport).sendKey(bobPubKey.getEncoded());
 
 			// Bob computes shared secret
 			oneOf(crypto).deriveSharedSecret(SHARED_SECRET_LABEL, alicePubKey,
 					ourKeyPair, new byte[] {PROTOCOL_VERSION},
-					alicePubKeyBytes, bobPubKeyBytes);
+					alicePubKey.getEncoded(), bobPubKey.getEncoded());
 			will(returnValue(sharedSecret));
 
 			// Bob receives a bad confirmation record

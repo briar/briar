@@ -2,6 +2,7 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
@@ -105,13 +106,13 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public Message encodeAcceptMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId,
-			byte[] ephemeralPublicKey, long acceptTimestamp,
+			PublicKey ephemeralPublicKey, long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties) {
 		BdfList body = BdfList.of(
 				ACCEPT.getValue(),
 				sessionId,
 				previousMessageId,
-				ephemeralPublicKey,
+				ephemeralPublicKey.getEncoded(),
 				acceptTimestamp,
 				clientHelper.toDictionary(transportProperties)
 		);

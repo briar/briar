@@ -30,7 +30,7 @@ import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_VISIBLE_IN
 abstract class MessageParserImpl<S extends Shareable>
 		implements MessageParser<S> {
 
-	private final ClientHelper clientHelper;
+	protected final ClientHelper clientHelper;
 
 	MessageParserImpl(ClientHelper clientHelper) {
 		this.clientHelper = clientHelper;

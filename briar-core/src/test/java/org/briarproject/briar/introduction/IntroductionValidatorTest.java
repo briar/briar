@@ -2,6 +2,7 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfMessageContext;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -14,8 +15,9 @@ import org.junit.Test;
 import javax.annotation.Nullable;
 
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -40,6 +42,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	private final MessageId previousMsgId = new MessageId(getRandomId());
 	private final String text = getRandomString(MAX_INTRODUCTION_TEXT_LENGTH);
 	private final BdfDictionary meta = new BdfDictionary();
+	private final PublicKey ephemeralPublicKey = getAgreementPublicKey();
 	private final long acceptTimestamp = 42;
 	private final BdfDictionary transportProperties = BdfDictionary.of(
 			new BdfEntry("transportId",  new BdfDictionary())
@@ -123,8 +126,9 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	@Test
 	public void testAcceptsAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
 				acceptTimestamp, transportProperties);
+		expectParsePublicKey();
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).parseAndValidateTransportPropertiesMap(
 					transportProperties);
@@ -139,32 +143,31 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooShortBodyForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp);
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
+				acceptTimestamp);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
 				acceptTimestamp, transportProperties, null);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidSessionIdForAccept() throws Exception {
-		BdfList body =
-				BdfList.of(ACCEPT.getValue(), null, previousMsgId.getBytes(),
-						getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp,
-						transportProperties);
+		BdfList body = BdfList.of(ACCEPT.getValue(), null,
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
+				acceptTimestamp, transportProperties);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidPreviousMsgIdForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(), 1,
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), acceptTimestamp,
+				ephemeralPublicKey.getEncoded(), acceptTimestamp,
 				transportProperties);
 		validator.validateMessage(message, group, body);
 	}
@@ -173,16 +176,17 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsTooLongPublicKeyForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), acceptTimestamp,
-				transportProperties);
+				getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES + 1),
+				acceptTimestamp, transportProperties);
 		validator.validateMessage(message, group, body);
 	}
 
 	@Test(expected = FormatException.class)
 	public void testRejectsNegativeTimestampForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(), getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
 				-1, transportProperties);
+		expectParsePublicKey();
 		validator.validateMessage(message, group, body);
 	}
 
@@ -190,9 +194,9 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsEmptyTransportPropertiesForAccept()
 			throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH + 1), acceptTimestamp,
-				new BdfDictionary());
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
+				acceptTimestamp, new BdfDictionary());
+		expectParsePublicKey();
 		validator.validateMessage(message, group, body);
 	}
 
@@ -271,8 +275,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidPreviousMsgIdForAuth() throws Exception {
 		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
-				1, getRandomBytes(MAC_BYTES),
-				signature);
+				1, getRandomBytes(MAC_BYTES), signature);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -294,8 +297,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongMacForAuth() throws Exception {
 		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(),
-				getRandomBytes(MAC_BYTES + 1), signature);
+				previousMsgId.getBytes(), getRandomBytes(MAC_BYTES + 1),
+				signature);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -360,9 +363,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsInvalidSessionIdForActivate() throws Exception {
-		BdfList body =
-				BdfList.of(ACTIVATE.getValue(), null, previousMsgId.getBytes(),
-						mac);
+		BdfList body = BdfList.of(ACTIVATE.getValue(), null,
+				previousMsgId.getBytes(), mac);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -375,9 +377,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsPreviousMsgIdNullForActivate() throws Exception {
-		BdfList body =
-				BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(), null,
-						mac);
+		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
+				null, mac);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -434,6 +435,13 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	// Introduction Helper Methods
 	//
 
+	private void expectParsePublicKey() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).parseAndValidateAgreementPublicKey(
+					ephemeralPublicKey.getEncoded());
+			will(returnValue(ephemeralPublicKey));
+		}});
+	}
 	private void expectEncodeRequestMetadata() {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeRequestMetadata(message.getTimestamp());
@@ -443,9 +451,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 
 	private void expectEncodeMetadata(MessageType type) {
 		context.checking(new Expectations() {{
-			oneOf(messageEncoder)
-					.encodeMetadata(type, sessionId, message.getTimestamp(),
-							false, false, false);
+			oneOf(messageEncoder).encodeMetadata(type, sessionId,
+					message.getTimestamp(), false, false, false);
 			will(returnValue(meta));
 		}});
 	}

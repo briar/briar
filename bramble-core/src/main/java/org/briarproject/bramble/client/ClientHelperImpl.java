@@ -3,6 +3,9 @@ package org.briarproject.bramble.client;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyParser;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.BdfReader;
@@ -305,14 +308,15 @@ class ClientHelperImpl implements ClientHelper {
 	}
 
 	@Override
-	public byte[] sign(String label, BdfList toSign, byte[] privateKey)
+	public byte[] sign(String label, BdfList toSign, PrivateKey privateKey)
 			throws FormatException, GeneralSecurityException {
 		return crypto.sign(label, toByteArray(toSign), privateKey);
 	}
 
 	@Override
 	public void verifySignature(byte[] signature, String label, BdfList signed,
-			byte[] publicKey) throws FormatException, GeneralSecurityException {
+			PublicKey publicKey)
+			throws FormatException, GeneralSecurityException {
 		if (!crypto.verifySignature(signature, label, toByteArray(signed),
 				publicKey)) {
 			throw new GeneralSecurityException("Invalid signature");
@@ -327,9 +331,27 @@ class ClientHelperImpl implements ClientHelper {
 		if (formatVersion != FORMAT_VERSION) throw new FormatException();
 		String name = author.getString(1);
 		checkLength(name, 1, MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = author.getRaw(2);
-		checkLength(publicKey, 1, MAX_PUBLIC_KEY_LENGTH);
+		byte[] publicKeyBytes = author.getRaw(2);
+		checkLength(publicKeyBytes, 1, MAX_PUBLIC_KEY_LENGTH);
+		KeyParser parser = crypto.getSignatureKeyParser();
+		PublicKey publicKey;
+		try {
+			publicKey = parser.parsePublicKey(publicKeyBytes);
+		} catch (GeneralSecurityException e) {
+			throw new FormatException();
+		}
 		return authorFactory.createAuthor(formatVersion, name, publicKey);
+	}
+
+	@Override
+	public PublicKey parseAndValidateAgreementPublicKey(byte[] publicKeyBytes)
+			throws FormatException {
+		KeyParser parser = crypto.getAgreementKeyParser();
+		try {
+			return parser.parsePublicKey(publicKeyBytes);
+		} catch (GeneralSecurityException e) {
+			throw new FormatException();
+		}
 	}
 
 	@Override

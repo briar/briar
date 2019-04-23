@@ -2,6 +2,8 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -86,7 +88,7 @@ class MessageParserImpl implements MessageParser {
 		byte[] previousMsgBytes = body.getOptionalRaw(2);
 		MessageId previousMessageId = (previousMsgBytes == null ? null :
 				new MessageId(previousMsgBytes));
-		byte[] ephemeralPublicKey = body.getRaw(3);
+		PublicKey ephemeralPublicKey = new AgreementPublicKey(body.getRaw(3));
 		long acceptTimestamp = body.getLong(4);
 		Map<TransportId, TransportProperties> transportProperties = clientHelper
 				.parseAndValidateTransportPropertiesMap(body.getDictionary(5));

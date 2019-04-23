@@ -2,6 +2,7 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.identity.Author;
@@ -24,7 +25,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -66,8 +67,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	private final MessageId previousMsgId = new MessageId(getRandomId());
 	private final Author author;
 	private final String text = getRandomString(MAX_INTRODUCTION_TEXT_LENGTH);
-	private final byte[] ephemeralPublicKey =
-			getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+	private final PublicKey ephemeralPublicKey = getAgreementPublicKey();
 	private final byte[] mac = getRandomBytes(MAC_BYTES);
 	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_BYTES);
 
@@ -173,7 +173,8 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(m.getTimestamp(), am.getTimestamp());
 		assertEquals(previousMsgId, am.getPreviousMessageId());
 		assertEquals(sessionId, am.getSessionId());
-		assertArrayEquals(ephemeralPublicKey, am.getEphemeralPublicKey());
+		assertArrayEquals(ephemeralPublicKey.getEncoded(),
+				am.getEphemeralPublicKey().getEncoded());
 		assertEquals(acceptTimestamp, am.getAcceptTimestamp());
 		assertEquals(transportProperties, am.getTransportProperties());
 	}

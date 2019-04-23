@@ -1,6 +1,7 @@
 package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -28,7 +29,7 @@ interface IntroductionCrypto {
 	/**
 	 * Generates an agreement key pair.
 	 */
-	KeyPair generateKeyPair();
+	KeyPair generateAgreementKeyPair();
 
 	/**
 	 * Derives a session master key for Alice or Bob.
@@ -74,7 +75,7 @@ interface IntroductionCrypto {
 	 * (from {@link LocalAuthor#getPrivateKey()})
 	 * @return The signature as a byte array
 	 */
-	byte[] sign(SecretKey macKey, byte[] privateKey)
+	byte[] sign(SecretKey macKey, PrivateKey privateKey)
 			throws GeneralSecurityException;
 
 	/**

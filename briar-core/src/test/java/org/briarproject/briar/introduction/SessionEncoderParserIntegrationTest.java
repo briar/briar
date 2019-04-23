@@ -2,6 +2,8 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.identity.Author;
@@ -21,7 +23,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
@@ -37,6 +40,7 @@ import static org.briarproject.briar.test.BriarTestUtils.getRealAuthor;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -64,13 +68,10 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 	private final MessageId lastRemoteMessageId2 = new MessageId(getRandomId());
 	private final Author author1;
 	private final Author author2;
-	private final byte[] ephemeralPublicKey =
-			getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-	private final byte[] ephemeralPrivateKey =
-			getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+	private final PublicKey ephemeralPublicKey = getAgreementPublicKey();
+	private final PrivateKey ephemeralPrivateKey = getAgreementPrivateKey();
 	private final byte[] masterKey = getRandomBytes(SecretKey.LENGTH);
-	private final byte[] remoteEphemeralPublicKey =
-			getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+	private final PublicKey remoteEphemeralPublicKey = getAgreementPublicKey();
 	private final Map<TransportId, TransportProperties> transportProperties =
 			getTransportPropertiesMap(3);
 	private final Map<TransportId, TransportProperties>
@@ -193,13 +194,22 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(localTimestamp, s1.getLocal().lastMessageTimestamp);
 		assertEquals(s1.getLocal().lastMessageTimestamp,
 				s2.getLocal().lastMessageTimestamp);
-		assertArrayEquals(ephemeralPublicKey, s1.getLocal().ephemeralPublicKey);
-		assertArrayEquals(s1.getLocal().ephemeralPublicKey,
-				s2.getLocal().ephemeralPublicKey);
-		assertArrayEquals(ephemeralPrivateKey,
-				s1.getLocal().ephemeralPrivateKey);
-		assertArrayEquals(s1.getLocal().ephemeralPrivateKey,
-				s2.getLocal().ephemeralPrivateKey);
+		PublicKey s1LocalEphemeralPub = s1.getLocal().ephemeralPublicKey;
+		PublicKey s2LocalEphemeralPub = s2.getLocal().ephemeralPublicKey;
+		assertNotNull(s1LocalEphemeralPub);
+		assertNotNull(s2LocalEphemeralPub);
+		assertArrayEquals(ephemeralPublicKey.getEncoded(),
+				s1LocalEphemeralPub.getEncoded());
+		assertArrayEquals(s1LocalEphemeralPub.getEncoded(),
+				s2LocalEphemeralPub.getEncoded());
+		PrivateKey s1LocalEphemeralPriv = s1.getLocal().ephemeralPrivateKey;
+		PrivateKey s2LocalEphemeralPriv = s2.getLocal().ephemeralPrivateKey;
+		assertNotNull(s1LocalEphemeralPriv);
+		assertNotNull(s2LocalEphemeralPriv);
+		assertArrayEquals(ephemeralPrivateKey.getEncoded(),
+				s1LocalEphemeralPriv.getEncoded());
+		assertArrayEquals(s1LocalEphemeralPriv.getEncoded(),
+				s2LocalEphemeralPriv.getEncoded());
 		assertEquals(transportProperties, s1.getLocal().transportProperties);
 		assertEquals(s1.getLocal().transportProperties,
 				s2.getLocal().transportProperties);
@@ -217,10 +227,14 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(lastRemoteMessageId, s1.getRemote().lastMessageId);
 		assertEquals(s1.getRemote().lastMessageId,
 				s2.getRemote().lastMessageId);
-		assertArrayEquals(remoteEphemeralPublicKey,
-				s1.getRemote().ephemeralPublicKey);
-		assertArrayEquals(s1.getRemote().ephemeralPublicKey,
-				s2.getRemote().ephemeralPublicKey);
+		PublicKey s1RemoteEphemeralPub = s1.getRemote().ephemeralPublicKey;
+		PublicKey s2RemoteEphemeralPub = s2.getRemote().ephemeralPublicKey;
+		assertNotNull(s1RemoteEphemeralPub);
+		assertNotNull(s2RemoteEphemeralPub);
+		assertArrayEquals(remoteEphemeralPublicKey.getEncoded(),
+				s1RemoteEphemeralPub.getEncoded());
+		assertArrayEquals(s1RemoteEphemeralPub.getEncoded(),
+				s2RemoteEphemeralPub.getEncoded());
 		assertEquals(remoteTransportProperties,
 				s1.getRemote().transportProperties);
 		assertEquals(s1.getRemote().transportProperties,
@@ -311,7 +325,7 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 				ephemeralPublicKey, ephemeralPrivateKey, transportProperties,
 				acceptTimestamp, localMacKey);
 		Remote remote = new Remote(false, author2, lastRemoteMessageId,
-				remoteEphemeralPublicKey,  remoteTransportProperties,
+				remoteEphemeralPublicKey, remoteTransportProperties,
 				remoteAcceptTimestamp, remoteMacKey);
 		return new IntroduceeSession(sessionId, LOCAL_ACCEPTED,
 				requestTimestamp, groupId1, author1, local, remote,

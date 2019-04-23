@@ -2,6 +2,8 @@ package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestSecureRandomProvider;
 import org.briarproject.bramble.test.TestUtils;
@@ -19,23 +21,24 @@ public abstract class SignatureTest extends BrambleTestCase {
 
 	protected final CryptoComponent crypto;
 
-	private final byte[] publicKey, privateKey;
+	private final PublicKey publicKey;
+	private final PrivateKey privateKey;
 	private final String label = StringUtils.getRandomString(42);
 	private final byte[] inputBytes = TestUtils.getRandomBytes(123);
 
 	protected abstract KeyPair generateKeyPair();
 
 	protected abstract byte[] sign(String label, byte[] toSign,
-			byte[] privateKey) throws GeneralSecurityException;
+			PrivateKey privateKey) throws GeneralSecurityException;
 
 	protected abstract boolean verify(byte[] signature, String label,
-			byte[] signed, byte[] publicKey) throws GeneralSecurityException;
+			byte[] signed, PublicKey publicKey) throws GeneralSecurityException;
 
 	SignatureTest() {
 		crypto = new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 		KeyPair k = generateKeyPair();
-		publicKey = k.getPublic().getEncoded();
-		privateKey = k.getPrivate().getEncoded();
+		publicKey = k.getPublic();
+		privateKey = k.getPrivate();
 	}
 
 	@Test
@@ -51,7 +54,7 @@ public abstract class SignatureTest extends BrambleTestCase {
 	public void testDifferentKeysProduceDifferentSignatures() throws Exception {
 		// Generate second private key
 		KeyPair k2 = generateKeyPair();
-		byte[] privateKey2 = k2.getPrivate().getEncoded();
+		PrivateKey privateKey2 = k2.getPrivate();
 		// Calculate the signature with each key
 		byte[] sig1 = sign(label, inputBytes, privateKey);
 		byte[] sig2 = sign(label, inputBytes, privateKey2);
@@ -92,7 +95,7 @@ public abstract class SignatureTest extends BrambleTestCase {
 	public void testDifferentKeyFailsVerification() throws Exception {
 		// Generate second private key
 		KeyPair k2 = generateKeyPair();
-		byte[] privateKey2 = k2.getPrivate().getEncoded();
+		PrivateKey privateKey2 = k2.getPrivate();
 		// calculate the signature with different key, should fail to verify
 		byte[] sig = sign(label, inputBytes, privateKey2);
 		assertFalse(verify(sig, label, inputBytes, publicKey));

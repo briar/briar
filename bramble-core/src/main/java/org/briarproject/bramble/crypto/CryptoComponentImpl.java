@@ -36,6 +36,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -200,21 +201,22 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public byte[] sign(String label, byte[] toSign, byte[] privateKey)
+	public byte[] sign(String label, byte[] toSign, PrivateKey privateKey)
 			throws GeneralSecurityException {
-		PrivateKey key = signatureKeyParser.parsePrivateKey(privateKey);
 		Signature sig = new EdSignature();
-		sig.initSign(key);
+		sig.initSign(privateKey);
 		updateSignature(sig, label, toSign);
 		return sig.sign();
 	}
 
 	@Override
 	public boolean verifySignature(byte[] signature, String label,
-			byte[] signed, byte[] publicKey) throws GeneralSecurityException {
-		PublicKey key = signatureKeyParser.parsePublicKey(publicKey);
+			byte[] signed, PublicKey publicKey)
+			throws GeneralSecurityException {
+		if (!publicKey.getKeyType().equals(KEY_TYPE_SIGNATURE))
+			throw new IllegalArgumentException();
 		Signature sig = new EdSignature();
-		sig.initVerify(key);
+		sig.initVerify(publicKey);
 		updateSignature(sig, label, signed);
 		return sig.verify(signature);
 	}

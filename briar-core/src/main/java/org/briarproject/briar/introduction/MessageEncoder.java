@@ -1,5 +1,6 @@
 package org.briarproject.briar.introduction;
 
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -35,7 +36,7 @@ interface MessageEncoder {
 
 	Message encodeAcceptMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId,
-			byte[] ephemeralPublicKey, long acceptTimestamp,
+			PublicKey ephemeralPublicKey, long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties);
 
 	Message encodeDeclineMessage(GroupId contactGroupId, long timestamp,

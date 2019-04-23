@@ -1,13 +1,13 @@
 package org.briarproject.bramble.api.identity;
 
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-
-import java.util.Arrays;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
 
 @Immutable
 @NotNullByDefault
@@ -15,15 +15,24 @@ public class Identity {
 
 	private final LocalAuthor localAuthor;
 	@Nullable
-	private final byte[] handshakePublicKey, handshakePrivateKey;
+	private final PublicKey handshakePublicKey;
+	@Nullable
+	private final PrivateKey handshakePrivateKey;
 	private final long created;
 
 	public Identity(LocalAuthor localAuthor,
-			@Nullable byte[] handshakePublicKey,
-			@Nullable byte[] handshakePrivateKey, long created) {
+			@Nullable PublicKey handshakePublicKey,
+			@Nullable PrivateKey handshakePrivateKey, long created) {
 		if (handshakePublicKey != null) {
-			int keyLength = handshakePublicKey.length;
-			if (keyLength == 0 || keyLength > MAX_AGREEMENT_PUBLIC_KEY_BYTES)
+			if (handshakePrivateKey == null)
+				throw new IllegalArgumentException();
+			if (!handshakePublicKey.getKeyType().equals(KEY_TYPE_AGREEMENT))
+				throw new IllegalArgumentException();
+		}
+		if (handshakePrivateKey != null) {
+			if (handshakePublicKey == null)
+				throw new IllegalArgumentException();
+			if (!handshakePrivateKey.getKeyType().equals(KEY_TYPE_AGREEMENT))
 				throw new IllegalArgumentException();
 		}
 		this.localAuthor = localAuthor;
@@ -57,7 +66,7 @@ public class Identity {
 	 * Returns the public key used for handshaking, or null if no key exists.
 	 */
 	@Nullable
-	public byte[] getHandshakePublicKey() {
+	public PublicKey getHandshakePublicKey() {
 		return handshakePublicKey;
 	}
 
@@ -65,7 +74,7 @@ public class Identity {
 	 * Returns the private key used for handshaking, or null if no key exists.
 	 */
 	@Nullable
-	public byte[] getHandshakePrivateKey() {
+	public PrivateKey getHandshakePrivateKey() {
 		return handshakePrivateKey;
 	}
 
@@ -75,22 +84,5 @@ public class Identity {
 	 */
 	public long getTimeCreated() {
 		return created;
-	}
-
-	@Override
-	public int hashCode() {
-		return localAuthor.getId().hashCode();
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o instanceof Identity) {
-			Identity i = (Identity) o;
-			return created == i.created &&
-					localAuthor.equals(i.localAuthor) &&
-					Arrays.equals(handshakePublicKey, i.handshakePublicKey) &&
-					Arrays.equals(handshakePrivateKey, i.handshakePrivateKey);
-		}
-		return false;
 	}
 }

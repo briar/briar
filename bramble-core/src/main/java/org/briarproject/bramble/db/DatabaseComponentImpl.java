@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactVerifiedEvent;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.CommitAction;
 import org.briarproject.bramble.api.db.CommitAction.Visitor;
@@ -1037,7 +1039,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void setHandshakeKeyPair(Transaction transaction, AuthorId local,
-			byte[] publicKey, byte[] privateKey) throws DbException {
+			PublicKey publicKey, PrivateKey privateKey) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, local))

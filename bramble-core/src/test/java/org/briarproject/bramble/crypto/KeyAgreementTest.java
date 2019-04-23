@@ -65,7 +65,7 @@ public class KeyAgreementTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testRfc7748TestVector() throws Exception {
+	public void testRfc7748TestVector() {
 		// Private keys need to be clamped because curve25519-java does the
 		// clamping at key generation time, not multiplication time
 		byte[] aPriv = Curve25519KeyParser.clamp(fromHexString(ALICE_PRIVATE));

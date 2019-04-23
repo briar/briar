@@ -29,6 +29,7 @@ import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_CONTACT;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_US;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 /**
@@ -164,7 +165,7 @@ public class PrivateGroupIntegrationTest
 				getGroupMember(groupManager2, author1.getId()).getVisibility());
 
 		// 1 reveals the contact relationship to 2
-		assertTrue(contactId2From1 != null);
+		assertNotNull(contactId2From1);
 		groupInvitationManager1.revealRelationship(contactId2From1, groupId0);
 		sync1To2(1, true);
 		sync2To1(1, true);

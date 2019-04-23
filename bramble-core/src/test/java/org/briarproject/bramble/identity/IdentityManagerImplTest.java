@@ -18,6 +18,8 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.junit.Assert.assertEquals;
 
@@ -28,21 +30,16 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	private final AuthorFactory authorFactory =
 			context.mock(AuthorFactory.class);
 	private final Clock clock = context.mock(Clock.class);
-	private final PublicKey handshakePublicKey = context.mock(PublicKey.class);
-	private final PrivateKey handshakePrivateKey =
-			context.mock(PrivateKey.class);
 
 	private final Transaction txn = new Transaction(null, false);
 	private final Identity identityWithKeys = getIdentity();
 	private final LocalAuthor localAuthor = identityWithKeys.getLocalAuthor();
 	private final Identity identityWithoutKeys = new Identity(localAuthor,
 			null, null, identityWithKeys.getTimeCreated());
+	private final PublicKey handshakePublicKey = getAgreementPublicKey();
+	private final PrivateKey handshakePrivateKey = getAgreementPrivateKey();
 	private final KeyPair handshakeKeyPair =
 			new KeyPair(handshakePublicKey, handshakePrivateKey);
-	private final byte[] handshakePublicKeyBytes =
-			identityWithKeys.getHandshakePublicKey();
-	private final byte[] handshakePrivateKeyBytes =
-			identityWithKeys.getHandshakePrivateKey();
 
 	private IdentityManagerImpl identityManager;
 
@@ -69,12 +66,8 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(singletonList(identityWithoutKeys)));
 			oneOf(crypto).generateAgreementKeyPair();
 			will(returnValue(handshakeKeyPair));
-			oneOf(handshakePublicKey).getEncoded();
-			will(returnValue(handshakePublicKeyBytes));
-			oneOf(handshakePrivateKey).getEncoded();
-			will(returnValue(handshakePrivateKeyBytes));
 			oneOf(db).setHandshakeKeyPair(txn, localAuthor.getId(),
-					handshakePublicKeyBytes, handshakePrivateKeyBytes);
+					handshakePublicKey, handshakePrivateKey);
 		}});
 
 		identityManager.onDatabaseOpened(txn);
@@ -104,10 +97,6 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(singletonList(identityWithoutKeys)));
 			oneOf(crypto).generateAgreementKeyPair();
 			will(returnValue(handshakeKeyPair));
-			oneOf(handshakePublicKey).getEncoded();
-			will(returnValue(handshakePublicKeyBytes));
-			oneOf(handshakePrivateKey).getEncoded();
-			will(returnValue(handshakePrivateKeyBytes));
 		}});
 
 		assertEquals(localAuthor, identityManager.getLocalAuthor());

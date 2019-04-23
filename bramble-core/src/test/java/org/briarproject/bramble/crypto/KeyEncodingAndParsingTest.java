@@ -23,7 +23,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 			new CryptoComponentImpl(new TestSecureRandomProvider(), null);
 
 	@Test
-	public void testAgreementPublicKeyLength() throws Exception {
+	public void testAgreementPublicKeyLength() {
 		// Generate 10 agreement key pairs
 		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateAgreementKeyPair();
@@ -70,7 +70,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testAgreementKeyParserByFuzzing() throws Exception {
+	public void testAgreementKeyParserByFuzzing() {
 		KeyParser parser = crypto.getAgreementKeyParser();
 		// Generate a key pair to get the proper public key length
 		KeyPair p = crypto.generateAgreementKeyPair();
@@ -92,7 +92,7 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testSignaturePublicKeyLength() throws Exception {
+	public void testSignaturePublicKeyLength() {
 		// Generate 10 signature key pairs
 		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
@@ -107,10 +107,10 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		// Generate 10 signature key pairs
 		for (int i = 0; i < 10; i++) {
 			KeyPair keyPair = crypto.generateSignatureKeyPair();
-			byte[] key = keyPair.getPrivate().getEncoded();
+			PrivateKey privateKey = keyPair.getPrivate();
 			// Sign some random data and check the length of the signature
 			byte[] toBeSigned = getRandomBytes(1234);
-			byte[] signature = crypto.sign("label", toBeSigned, key);
+			byte[] signature = crypto.sign("label", toBeSigned, privateKey);
 			assertTrue(signature.length <= MAX_SIGNATURE_BYTES);
 		}
 	}
@@ -123,16 +123,15 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		PublicKey publicKey = keyPair.getPublic();
 		PrivateKey privateKey = keyPair.getPrivate();
 		byte[] message = getRandomBytes(123);
-		byte[] signature = crypto.sign("test", message,
-				privateKey.getEncoded());
+		byte[] signature = crypto.sign("test", message, privateKey);
 		// Verify the signature
 		assertTrue(crypto.verifySignature(signature, "test", message,
-				publicKey.getEncoded()));
+				publicKey));
 		// Encode and parse the public key - no exceptions should be thrown
 		publicKey = parser.parsePublicKey(publicKey.getEncoded());
 		// Verify the signature again
 		assertTrue(crypto.verifySignature(signature, "test", message,
-				publicKey.getEncoded()));
+				publicKey));
 	}
 
 	@Test
@@ -143,23 +142,21 @@ public class KeyEncodingAndParsingTest extends BrambleTestCase {
 		PublicKey publicKey = keyPair.getPublic();
 		PrivateKey privateKey = keyPair.getPrivate();
 		byte[] message = getRandomBytes(123);
-		byte[] signature = crypto.sign("test", message,
-				privateKey.getEncoded());
+		byte[] signature = crypto.sign("test", message, privateKey);
 		// Verify the signature
 		assertTrue(crypto.verifySignature(signature, "test", message,
-				publicKey.getEncoded()));
+				publicKey));
 		// Encode and parse the private key - no exceptions should be thrown
 		privateKey = parser.parsePrivateKey(privateKey.getEncoded());
 		// Sign the data again - the signatures should be the same
-		byte[] signature1 = crypto.sign("test", message,
-				privateKey.getEncoded());
+		byte[] signature1 = crypto.sign("test", message, privateKey);
 		assertTrue(crypto.verifySignature(signature1, "test", message,
-				publicKey.getEncoded()));
+				publicKey));
 		assertArrayEquals(signature, signature1);
 	}
 
 	@Test
-	public void testSignatureKeyParserByFuzzing() throws Exception {
+	public void testSignatureKeyParserByFuzzing() {
 		KeyParser parser = crypto.getSignatureKeyParser();
 		// Generate a key pair to get the proper public key length
 		KeyPair p = crypto.generateSignatureKeyPair();

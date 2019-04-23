@@ -1,5 +1,6 @@
 package org.briarproject.briar.introduction;
 
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -17,14 +18,13 @@ import javax.annotation.concurrent.Immutable;
 class AcceptMessage extends AbstractIntroductionMessage {
 
 	private final SessionId sessionId;
-	private final byte[] ephemeralPublicKey;
+	private final PublicKey ephemeralPublicKey;
 	private final long acceptTimestamp;
 	private final Map<TransportId, TransportProperties> transportProperties;
 
 	protected AcceptMessage(MessageId messageId, GroupId groupId,
 			long timestamp, @Nullable MessageId previousMessageId,
-			SessionId sessionId,
-			byte[] ephemeralPublicKey,
+			SessionId sessionId, PublicKey ephemeralPublicKey,
 			long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties) {
 		super(messageId, groupId, timestamp, previousMessageId);
@@ -38,7 +38,7 @@ class AcceptMessage extends AbstractIntroductionMessage {
 		return sessionId;
 	}
 
-	public byte[] getEphemeralPublicKey() {
+	public PublicKey getEphemeralPublicKey() {
 		return ephemeralPublicKey;
 	}
 

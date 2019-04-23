@@ -4,6 +4,8 @@ import com.rometools.rome.feed.synd.SyndFeed;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -70,7 +72,8 @@ class FeedFactoryImpl implements FeedFactory {
 		String url = d.getString(KEY_FEED_URL);
 
 		BdfList authorList = d.getList(KEY_FEED_AUTHOR);
-		byte[] privateKey = d.getRaw(KEY_FEED_PRIVATE_KEY);
+		PrivateKey privateKey =
+				new SignaturePrivateKey(d.getRaw(KEY_FEED_PRIVATE_KEY));
 		Author author = clientHelper.parseAndValidateAuthor(authorList);
 		LocalAuthor localAuthor = new LocalAuthor(author.getId(),
 				author.getFormatVersion(), author.getName(),

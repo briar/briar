@@ -21,7 +21,7 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.ID_LAB
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.RAW_LINK_BYTES;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
@@ -34,12 +34,11 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final Clock clock = context.mock(Clock.class);
 	private final KeyParser keyParser = context.mock(KeyParser.class);
-	private final PublicKey publicKey = context.mock(PublicKey.class);
 
 	private final PendingContactFactory pendingContactFactory =
 			new PendingContactFactoryImpl(crypto, clock);
 	private final String alias = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-	private final byte[] publicKeyBytes = getRandomBytes(RAW_LINK_BYTES - 1);
+	private final PublicKey publicKey = getAgreementPublicKey();
 	private final byte[] idBytes = getRandomId();
 	private final long timestamp = System.currentTimeMillis();
 
@@ -64,7 +63,7 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
-			oneOf(keyParser).parsePublicKey(with(equal(publicKeyBytes)));
+			oneOf(keyParser).parsePublicKey(publicKey.getEncoded());
 			will(throwException(new GeneralSecurityException()));
 		}});
 
@@ -95,11 +94,9 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(crypto).getAgreementKeyParser();
 			will(returnValue(keyParser));
-			oneOf(keyParser).parsePublicKey(with(equal(publicKeyBytes)));
+			oneOf(keyParser).parsePublicKey(publicKey.getEncoded());
 			will(returnValue(publicKey));
-			allowing(publicKey).getEncoded();
-			will(returnValue(publicKeyBytes));
-			oneOf(crypto).hash(ID_LABEL, publicKeyBytes);
+			oneOf(crypto).hash(ID_LABEL, publicKey.getEncoded());
 			will(returnValue(idBytes));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timestamp));
@@ -108,7 +105,8 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 		PendingContact p =
 				pendingContactFactory.createPendingContact(link, alias);
 		assertArrayEquals(idBytes, p.getId().getBytes());
-		assertArrayEquals(publicKeyBytes, p.getPublicKey());
+		assertArrayEquals(publicKey.getEncoded(),
+				p.getPublicKey().getEncoded());
 		assertEquals(alias, p.getAlias());
 		assertEquals(WAITING_FOR_CONNECTION, p.getState());
 		assertEquals(timestamp, p.getTimestamp());
@@ -121,6 +119,7 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 	private String encodeLink(int formatVersion) {
 		byte[] rawLink = new byte[RAW_LINK_BYTES];
 		rawLink[0] = (byte) formatVersion;
+		byte[] publicKeyBytes = publicKey.getEncoded();
 		arraycopy(publicKeyBytes, 0, rawLink, 1, publicKeyBytes.length);
 		String base32 = Base32.encode(rawLink).toLowerCase();
 		assertEquals(BASE32_LINK_BYTES, base32.length());

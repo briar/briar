@@ -458,8 +458,8 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 	}
 
-	private void sendInvitation(long timestamp, @Nullable String text) throws
-			DbException {
+	private void sendInvitation(long timestamp, @Nullable String text)
+			throws DbException {
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
 				privateGroup0.getId(), timestamp, author0.getPrivateKey());
 		groupInvitationManager0
