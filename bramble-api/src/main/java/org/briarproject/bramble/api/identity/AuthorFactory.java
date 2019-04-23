@@ -19,6 +19,9 @@ public interface AuthorFactory {
 	/**
 	 * Creates a local author with the current format version and the given
 	 * name.
+	 *
+	 * @param handshakeKeys true if the local author should include handshake
+	 * keys.
 	 */
 	LocalAuthor createLocalAuthor(String name, boolean handshakeKeys);
 }
