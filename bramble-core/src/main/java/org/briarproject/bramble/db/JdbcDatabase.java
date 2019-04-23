@@ -92,7 +92,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 42;
+	static final int CODE_SCHEMA_VERSION = 43;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
