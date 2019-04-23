@@ -1,9 +1,7 @@
 package org.briarproject.bramble.transport;
 
-import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
-import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -46,7 +44,6 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final Executor dbExecutor;
 	private final PluginConfig pluginConfig;
 	private final TransportKeyManagerFactory transportKeyManagerFactory;
-	private final Map<ContactId, Boolean> activeContacts;
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -58,8 +55,6 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		this.dbExecutor = dbExecutor;
 		this.pluginConfig = pluginConfig;
 		this.transportKeyManagerFactory = transportKeyManagerFactory;
-		// Use a ConcurrentHashMap as a thread-safe set
-		activeContacts = new ConcurrentHashMap<>();
 		managers = new ConcurrentHashMap<>();
 	}
 
@@ -73,8 +68,6 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 			transports.put(f.getId(), f.getMaxLatency());
 		try {
 			db.transaction(false, txn -> {
-				for (Contact c : db.getContacts(txn))
-					if (c.isActive()) activeContacts.put(c.getId(), true);
 				for (Entry<TransportId, Integer> e : transports.entrySet())
 					db.addTransport(txn, e.getKey(), e.getValue());
 				for (Entry<TransportId, Integer> e : transports.entrySet()) {
@@ -130,8 +123,6 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
-		// Don't allow outgoing streams to inactive contacts
-		if (!activeContacts.containsKey(c)) return null;
 		TransportKeyManager m = managers.get(t);
 		if (m == null) {
 			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
@@ -157,15 +148,10 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			removeContact(((ContactRemovedEvent) e).getContactId());
-		} else if (e instanceof ContactStatusChangedEvent) {
-			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
-			if (c.isActive()) activeContacts.put(c.getContactId(), true);
-			else activeContacts.remove(c.getContactId());
 		}
 	}
 
 	private void removeContact(ContactId c) {
-		activeContacts.remove(c);
 		dbExecutor.execute(() -> {
 			for (TransportKeyManager m : managers.values()) m.removeContact(c);
 		});

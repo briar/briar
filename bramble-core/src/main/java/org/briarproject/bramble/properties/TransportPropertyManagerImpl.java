@@ -199,8 +199,6 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	private TransportProperties getRemoteProperties(Transaction txn, Contact c,
 			TransportId t) throws DbException {
-		// Don't return properties for inactive contacts
-		if (!c.isActive()) return new TransportProperties();
 		Group g = getContactGroup(c);
 		try {
 			// Find the latest remote update

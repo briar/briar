@@ -3,7 +3,6 @@ package org.briarproject.briar.blog;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
@@ -37,6 +36,7 @@ import org.junit.Test;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
@@ -90,8 +90,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 
 	public BlogManagerImplTest() {
 		MetadataParser metadataParser = context.mock(MetadataParser.class);
-		blogManager = new BlogManagerImpl(db, contactManager, identityManager, clientHelper,
-				metadataParser, blogFactory, blogPostFactory);
+		blogManager = new BlogManagerImpl(db, contactManager, identityManager,
+				clientHelper, metadataParser, blogFactory, blogPostFactory);
 
 		localAuthor1 = getLocalAuthor();
 		localAuthor2 = getLocalAuthor();
@@ -130,10 +130,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 	@Test
 	public void testRemovingContact() throws DbException {
 		Transaction txn = new Transaction(null, false);
-
-		ContactId contactId = new ContactId(0);
-		Contact contact = new Contact(contactId, blog2.getAuthor(),
-				blog1.getAuthor().getId(), getRandomString(5), true, true);
+		Contact contact = getContact(blog2.getAuthor(),
+				blog1.getAuthor().getId(), true);
 
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());
@@ -152,10 +150,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 	@Test
 	public void testRemovingContactAfterRemovingBlog() throws DbException {
 		Transaction txn = new Transaction(null, false);
-
-		ContactId contactId = new ContactId(0);
-		Contact contact = new Contact(contactId, blog2.getAuthor(),
-				blog1.getAuthor().getId(), getRandomString(5), true, true);
+		Contact contact = getContact(blog2.getAuthor(),
+				blog1.getAuthor().getId(), true);
 
 		context.checking(new Expectations() {{
 			oneOf(blogFactory).createBlog(blog2.getAuthor());

@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
-import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -76,13 +75,13 @@ import static org.briarproject.bramble.api.transport.TransportConstants.REORDERI
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -124,7 +123,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		groupId = group.getId();
 		author = getAuthor();
 		localAuthor = getLocalAuthor();
-		alias = getRandomString(5);
 		message = getMessage(groupId);
 		message1 = getMessage(groupId);
 		messageId = message.getId();
@@ -133,9 +131,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		metadata.put("foo", new byte[] {'b', 'a', 'r'});
 		transportId = getTransportId();
 		maxLatency = Integer.MAX_VALUE;
-		contactId = new ContactId(234);
-		contact = new Contact(contactId, author, localAuthor.getId(), alias,
-				true, true);
+		contact = getContact(author, localAuthor.getId(), true);
+		contactId = contact.getId();
+		alias = contact.getAlias();
 		keySetId = new TransportKeySetId(345);
 		pendingContactId = new PendingContactId(getRandomId());
 	}
@@ -172,12 +170,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsContact(txn, author.getId(),
 					localAuthor.getId());
 			will(returnValue(false));
-			oneOf(database).addContact(txn, author, localAuthor.getId(),
-					true, true);
+			oneOf(database).addContact(txn, author, localAuthor.getId(), true);
 			will(returnValue(contactId));
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(
-					ContactStatusChangedEvent.class)));
 			// getContacts()
 			oneOf(database).getContacts(txn);
 			will(returnValue(singletonList(contact)));
@@ -223,7 +218,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		db.transaction(false, transaction -> {
 			db.addLocalAuthor(transaction, localAuthor);
 			assertEquals(contactId, db.addContact(transaction, author,
-					localAuthor.getId(), true, true));
+					localAuthor.getId(), true));
 			assertEquals(singletonList(contact),
 					db.getContacts(transaction));
 			db.addGroup(transaction, group); // First time - listeners called
@@ -284,11 +279,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(18).of(database).startTransaction();
+			exactly(17).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(18).of(database).containsContact(txn, contactId);
+			exactly(17).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(18).of(database).abortTransaction(txn);
+			exactly(17).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -420,14 +415,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.setContactActive(transaction, contactId, true));
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
-
-		try {
-			db.transaction(false, transaction ->
 					db.setContactAlias(transaction, contactId, alias));
 			fail();
 		} catch (NoSuchContactException expected) {
@@ -462,7 +449,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.addContact(transaction, author, localAuthor.getId(),
-							true, true));
+							true));
 			fail();
 		} catch (NoSuchLocalAuthorException expected) {
 			// Expected
@@ -1430,7 +1417,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.addContact(transaction, author, localAuthor.getId(),
-							true, true));
+							true));
 			fail();
 		} catch (ContactExistsException expected) {
 			// Expected
@@ -1459,7 +1446,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.addContact(transaction, author, localAuthor.getId(),
-							true, true));
+							true));
 			fail();
 		} catch (ContactExistsException expected) {
 			// Expected

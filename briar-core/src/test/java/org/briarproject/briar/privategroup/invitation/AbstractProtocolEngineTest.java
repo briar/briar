@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
@@ -27,7 +26,7 @@ import org.jmock.Expectations;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
-import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -64,10 +63,12 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	final Clock clock = context.mock(Clock.class);
 
 	final Transaction txn = new Transaction(null, false);
+	final Contact contact = getContact();
+	final ContactId contactId = contact.getId();
+	final Author author = contact.getAuthor();
 	final GroupId contactGroupId = new GroupId(getRandomId());
 	final Group privateGroupGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	final GroupId privateGroupId = privateGroupGroup.getId();
-	final Author author = getAuthor();
 	final PrivateGroup privateGroup = new PrivateGroup(privateGroupGroup,
 			getRandomString(MAX_GROUP_NAME_LENGTH), author,
 			getRandomBytes(GROUP_SALT_LENGTH));
@@ -79,11 +80,6 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	final long messageTimestamp = message.getTimestamp();
 	final long inviteTimestamp = messageTimestamp - 1;
 	final long localTimestamp = inviteTimestamp - 1;
-	private final BdfDictionary meta =
-			BdfDictionary.of(new BdfEntry("me", "ta"));
-	final ContactId contactId = new ContactId(5);
-	final Contact contact = new Contact(contactId, author,
-			new AuthorId(getRandomId()), getRandomString(5), true, true);
 
 	final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
@@ -168,6 +164,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	private void expectSendMessage(MessageType type, boolean visible)
 			throws Exception {
+		BdfDictionary meta = BdfDictionary.of(new BdfEntry("me", "ta"));
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, privateGroupId,
 					message.getTimestamp(), true, true, visible, false, false);

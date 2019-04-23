@@ -19,6 +19,7 @@ import java.util.concurrent.Executor;
 
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 
@@ -33,7 +34,7 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 			context.mock(SyncRecordWriter.class);
 
 	private final Executor dbExecutor = new ImmediateExecutor();
-	private final ContactId contactId = new ContactId(234);
+	private final ContactId contactId = getContactId();
 	private final Message message = getMessage(new GroupId(getRandomId()));
 	private final MessageId messageId = message.getId();
 

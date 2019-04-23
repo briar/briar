@@ -106,7 +106,7 @@ public interface DatabaseComponent {
 	 * and returns an ID for the contact.
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
-			boolean verified, boolean active) throws DbException;
+			boolean verified) throws DbException;
 
 	/**
 	 * Stores a group.
@@ -589,12 +589,6 @@ public interface DatabaseComponent {
 	 * Marks the given contact as verified.
 	 */
 	void setContactVerified(Transaction txn, ContactId c) throws DbException;
-
-	/**
-	 * Marks the given contact as active or inactive.
-	 */
-	void setContactActive(Transaction txn, ContactId c, boolean active)
-			throws DbException;
 
 	/**
 	 * Sets an alias name for the contact or unsets it if alias is null.

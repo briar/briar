@@ -49,8 +49,6 @@ import static org.junit.Assert.assertTrue;
 
 public abstract class DatabasePerformanceTest extends BrambleTestCase {
 
-	private static final int ONE_MEGABYTE = 1024 * 1024;
-
 	/**
 	 * How many contacts to simulate.
 	 */
@@ -548,7 +546,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		db.addLocalAuthor(txn, localAuthor);
 		for (int i = 0; i < CONTACTS; i++) {
 			ContactId c = db.addContact(txn, getAuthor(), localAuthor.getId(),
-					random.nextBoolean(), true);
+					random.nextBoolean());
 			contacts.add(db.getContact(txn, c));
 			contactGroups.put(c, new ArrayList<>());
 			for (int j = 0; j < GROUPS_PER_CONTACT; j++) {

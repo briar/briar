@@ -34,11 +34,11 @@ import java.util.Map;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
+import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
 import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
@@ -61,11 +61,10 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	private final BlogManager blogManager = context.mock(BlogManager.class);
 
 	private final LocalAuthor localAuthor = getLocalAuthor();
-	private final ContactId contactId = new ContactId(0);
 	private final Author author = getAuthor();
 	private final Contact contact =
-			new Contact(contactId, author, localAuthor.getId(),
-					getRandomString(5), true, true);
+			getContact(author, localAuthor.getId(), true);
+	private final ContactId contactId = contact.getId();
 	private final Collection<Contact> contacts =
 			Collections.singletonList(contact);
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);

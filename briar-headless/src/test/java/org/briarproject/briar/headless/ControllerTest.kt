@@ -5,7 +5,6 @@ import io.javalin.Context
 import io.javalin.core.util.ContextUtil
 import io.mockk.mockk
 import org.briarproject.bramble.api.contact.Contact
-import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.contact.ContactManager
 import org.briarproject.bramble.api.identity.Author
 import org.briarproject.bramble.api.identity.IdentityManager
@@ -36,8 +35,7 @@ abstract class ControllerTest {
     protected val group: Group = getGroup(getClientId(), 0)
     protected val author: Author = getAuthor()
     protected val localAuthor: LocalAuthor = getLocalAuthor()
-    protected val contact =
-        Contact(ContactId(1), author, localAuthor.id, getRandomString(5), true, true)
+    protected val contact: Contact = getContact(author, localAuthor.id, true)
     protected val message: Message = getMessage(group.id)
     protected val text: String = getRandomString(5)
     protected val timestamp = 42L

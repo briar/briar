@@ -44,7 +44,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -64,6 +63,7 @@ import javax.annotation.Nullable;
 import static java.sql.Types.BINARY;
 import static java.sql.Types.INTEGER;
 import static java.sql.Types.VARCHAR;
+import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
@@ -113,6 +113,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " name _STRING NOT NULL,"
 					+ " publicKey _BINARY NOT NULL,"
 					+ " privateKey _BINARY NOT NULL,"
+					+ " handshakePublicKey _BINARY," // Null if not generated
+					+ " handshakePrivateKey _BINARY," // Null if not generated
 					+ " created BIGINT NOT NULL,"
 					+ " PRIMARY KEY (authorId))";
 
@@ -122,11 +124,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " authorId _HASH NOT NULL,"
 					+ " formatVersion INT NOT NULL,"
 					+ " name _STRING NOT NULL,"
-					+ " alias _STRING," // Null if no alias exists
+					+ " alias _STRING," // Null if no alias has been set
 					+ " publicKey _BINARY NOT NULL,"
+					+ " handshakePublicKey _BINARY," // Null if key is unknown
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
-					+ " active BOOLEAN NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
@@ -479,11 +481,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
-		return Arrays.asList(
+		return asList(
 				new Migration38_39(),
 				new Migration39_40(),
 				new Migration40_41(dbTypes),
-				new Migration41_42(dbTypes)
+				new Migration41_42(dbTypes),
+				new Migration42_43(dbTypes)
 		);
 	}
 
@@ -660,16 +663,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public ContactId addContact(Connection txn, Author remote, AuthorId local,
-			boolean verified, boolean active) throws DbException {
+			boolean verified) throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
 					+ " (authorId, formatVersion, name, publicKey,"
-					+ " localAuthorId,"
-					+ " verified, active)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
+					+ " localAuthorId, verified)"
+					+ " VALUES (?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setInt(2, remote.getFormatVersion());
@@ -677,7 +679,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(4, remote.getPublicKey());
 			ps.setBytes(5, local.getBytes());
 			ps.setBoolean(6, verified);
-			ps.setBoolean(7, active);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -878,16 +879,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO localAuthors"
-					+ " (authorId, formatVersion, name, publicKey,"
-					+ " privateKey, created)"
-					+ " VALUES (?, ?, ?, ?, ?, ?)";
+					+ " (authorId, formatVersion, name, publicKey, privateKey,"
+					+ " handshakePublicKey, handshakePrivateKey, created)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, a.getId().getBytes());
 			ps.setInt(2, a.getFormatVersion());
 			ps.setString(3, a.getName());
 			ps.setBytes(4, a.getPublicKey());
 			ps.setBytes(5, a.getPrivateKey());
-			ps.setLong(6, a.getTimeCreated());
+			if (a.getHandshakePublicKey() == null) ps.setNull(6, BINARY);
+			else ps.setBytes(6, a.getHandshakePublicKey());
+			if (a.getHandshakePrivateKey() == null) ps.setNull(7, BINARY);
+			else ps.setBytes(7, a.getHandshakePrivateKey());
+			ps.setLong(8, a.getTimeCreated());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1427,7 +1432,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT authorId, formatVersion, name, alias,"
-					+ " publicKey, localAuthorId, verified, active"
+					+ " publicKey, handshakePublicKey, localAuthorId, verified"
 					+ " FROM contacts"
 					+ " WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1439,15 +1444,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(3);
 			String alias = rs.getString(4);
 			byte[] publicKey = rs.getBytes(5);
-			AuthorId localAuthorId = new AuthorId(rs.getBytes(6));
-			boolean verified = rs.getBoolean(7);
-			boolean active = rs.getBoolean(8);
+			byte[] handshakePublicKey = rs.getBytes(6);
+			AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
+			boolean verified = rs.getBoolean(8);
 			rs.close();
 			ps.close();
 			Author author =
 					new Author(authorId, formatVersion, name, publicKey);
-			return new Contact(c, author, localAuthorId, alias, verified,
-					active);
+			return new Contact(c, author, localAuthorId, alias,
+					handshakePublicKey, verified);
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
@@ -1456,13 +1461,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<Contact> getContacts(Connection txn)
-			throws DbException {
+	public Collection<Contact> getContacts(Connection txn) throws DbException {
 		Statement s = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, authorId, formatVersion, name,"
-					+ " alias, publicKey, localAuthorId, verified, active"
+					+ " alias, publicKey, handshakePublicKey, localAuthorId,"
+					+ " verified"
 					+ " FROM contacts";
 			s = txn.createStatement();
 			rs = s.executeQuery(sql);
@@ -1474,13 +1479,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 				String name = rs.getString(4);
 				String alias = rs.getString(5);
 				byte[] publicKey = rs.getBytes(6);
+				byte[] handshakePublicKey = rs.getBytes(7);
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(8));
+				boolean verified = rs.getBoolean(9);
 				Author author =
 						new Author(authorId, formatVersion, name, publicKey);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
-				boolean verified = rs.getBoolean(8);
-				boolean active = rs.getBoolean(9);
 				contacts.add(new Contact(contactId, author, localAuthorId,
-						alias, verified, active));
+						alias, handshakePublicKey, verified));
 			}
 			rs.close();
 			s.close();
@@ -1522,7 +1527,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT contactId, formatVersion, name, alias,"
-					+ " publicKey, localAuthorId, verified, active"
+					+ " publicKey, handshakePublicKey, localAuthorId, verified"
 					+ " FROM contacts"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1530,18 +1535,18 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs = ps.executeQuery();
 			List<Contact> contacts = new ArrayList<>();
 			while (rs.next()) {
-				ContactId c = new ContactId(rs.getInt(1));
+				ContactId contactId = new ContactId(rs.getInt(1));
 				int formatVersion = rs.getInt(2);
 				String name = rs.getString(3);
 				String alias = rs.getString(4);
 				byte[] publicKey = rs.getBytes(5);
-				AuthorId localAuthorId = new AuthorId(rs.getBytes(6));
-				boolean verified = rs.getBoolean(7);
-				boolean active = rs.getBoolean(8);
+				byte[] handshakePublicKey = rs.getBytes(6);
+				AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
+				boolean verified = rs.getBoolean(8);
 				Author author =
 						new Author(remote, formatVersion, name, publicKey);
-				contacts.add(new Contact(c, author, localAuthorId, alias,
-						verified, active));
+				contacts.add(new Contact(contactId, author, localAuthorId,
+						alias, handshakePublicKey, verified));
 			}
 			rs.close();
 			ps.close();
@@ -1661,8 +1666,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT formatVersion, name, publicKey,"
-					+ " privateKey, created"
+			String sql = "SELECT formatVersion, name, publicKey, privateKey,"
+					+ " handshakePublicKey, handshakePrivateKey, created"
 					+ " FROM localAuthors"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
@@ -1673,9 +1678,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String name = rs.getString(2);
 			byte[] publicKey = rs.getBytes(3);
 			byte[] privateKey = rs.getBytes(4);
-			long created = rs.getLong(5);
+			byte[] handshakePublicKey = rs.getBytes(5);
+			byte[] handshakePrivateKey = rs.getBytes(6);
+			long created = rs.getLong(7);
 			LocalAuthor localAuthor = new LocalAuthor(a, formatVersion, name,
-					publicKey, privateKey, created);
+					publicKey, privateKey, handshakePublicKey,
+					handshakePrivateKey, created);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
@@ -3109,24 +3117,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String sql = "UPDATE contacts SET verified = ? WHERE contactId = ?";
 			ps = txn.prepareStatement(sql);
 			ps.setBoolean(1, true);
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void setContactActive(Connection txn, ContactId c, boolean active)
-			throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE contacts SET active = ? WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBoolean(1, active);
 			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();

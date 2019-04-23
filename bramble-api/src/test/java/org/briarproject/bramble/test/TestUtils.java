@@ -1,6 +1,8 @@
 package org.briarproject.bramble.test;
 
 import org.briarproject.bramble.api.UniqueId;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -44,6 +46,7 @@ public class TestUtils {
 			new AtomicInteger((int) (Math.random() * 1000 * 1000));
 	private static final Random random = new Random();
 	private static final long timestamp = System.currentTimeMillis();
+	private static final AtomicInteger nextContactId = new AtomicInteger(1);
 
 	public static File getTestDirectory() {
 		int name = nextTestDir.getAndIncrement();
@@ -153,6 +156,27 @@ public class TestUtils {
 		String alias = getRandomString(nameLength);
 		return new PendingContact(id, publicKey, alias, WAITING_FOR_CONNECTION,
 				timestamp);
+	}
+
+	public static ContactId getContactId() {
+		return new ContactId(nextContactId.getAndIncrement());
+	}
+
+	public static Contact getContact() {
+		return getContact(getAuthor(), new AuthorId(getRandomId()),
+				random.nextBoolean());
+	}
+
+	public static Contact getContact(Author remote, AuthorId local,
+			boolean verified) {
+		return getContact(getContactId(), remote, local, verified);
+	}
+
+	public static Contact getContact(ContactId c, Author remote, AuthorId local,
+			boolean verified) {
+		return new Contact(c, remote, local,
+				getRandomString(MAX_AUTHOR_NAME_LENGTH),
+				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), verified);
 	}
 
 	public static double getMedian(Collection<? extends Number> samples) {

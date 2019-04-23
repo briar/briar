@@ -75,10 +75,8 @@ class RevealContactsControllerImpl extends DbControllerImpl
 	@DatabaseExecutor
 	private Collection<RevealableContactItem> getItems(GroupId g,
 			Collection<ContactId> selection) throws DbException {
-		Collection<GroupMember> members =
-				groupManager.getMembers(g);
-		Collection<Contact> contacts =
-				contactManager.getActiveContacts();
+		Collection<GroupMember> members = groupManager.getMembers(g);
+		Collection<Contact> contacts = contactManager.getContacts();
 		Collection<RevealableContactItem> items =
 				new ArrayList<>(members.size());
 		for (GroupMember m : members) {

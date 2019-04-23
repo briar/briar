@@ -44,7 +44,7 @@ public abstract class ContactSelectorControllerImpl
 		runOnDbThread(() -> {
 			try {
 				Collection<SelectableContactItem> contacts = new ArrayList<>();
-				for (Contact c : contactManager.getActiveContacts()) {
+				for (Contact c : contactManager.getContacts()) {
 					// was this contact already selected?
 					boolean selected = selection.contains(c.getId());
 					// can this contact be selected?

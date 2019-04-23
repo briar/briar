@@ -119,7 +119,7 @@ public class ContactChooserFragment extends BaseFragment {
 		listener.runOnDbThread(() -> {
 			try {
 				List<ContactListItem> contacts = new ArrayList<>();
-				for (Contact c : contactManager.getActiveContacts()) {
+				for (Contact c : contactManager.getContacts()) {
 					if (c.getId().equals(contactId)) {
 						c1 = c;
 					} else {

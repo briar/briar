@@ -17,8 +17,8 @@ import android.view.ViewGroup;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
-import org.briarproject.bramble.api.contact.event.ContactStatusChangedEvent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.event.Event;
@@ -194,7 +194,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			try {
 				long start = now();
 				List<ContactListItem> contacts = new ArrayList<>();
-				for (Contact c : contactManager.getActiveContacts()) {
+				for (Contact c : contactManager.getContacts()) {
 					try {
 						ContactId id = c.getId();
 						GroupCount count =
@@ -229,15 +229,9 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof ContactStatusChangedEvent) {
-			ContactStatusChangedEvent c = (ContactStatusChangedEvent) e;
-			if (c.isActive()) {
-				LOG.info("Contact activated, reloading");
-				loadContacts();
-			} else {
-				LOG.info("Contact deactivated, removing item");
-				removeItem(c.getContactId());
-			}
+		if (e instanceof ContactAddedEvent) {
+			LOG.info("Contact added, reloading");
+			loadContacts();
 		} else if (e instanceof ContactConnectedEvent) {
 			setConnected(((ContactConnectedEvent) e).getContactId(), true);
 		} else if (e instanceof ContactDisconnectedEvent) {

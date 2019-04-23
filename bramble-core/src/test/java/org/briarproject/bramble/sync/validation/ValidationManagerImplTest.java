@@ -37,6 +37,7 @@ import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
+import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -64,7 +65,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 
 	private final Metadata metadata = new Metadata();
 	private final MessageContext validResult = new MessageContext(metadata);
-	private final ContactId contactId = new ContactId(234);
+	private final ContactId contactId = getContactId();
 	private final MessageContext validResultWithDependencies =
 			new MessageContext(metadata, singletonList(messageId1));
 
