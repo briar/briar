@@ -86,8 +86,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		signatureKeyPairGenerator = new KeyPairGenerator();
 		signatureKeyPairGenerator.initialize(SIGNATURE_KEY_PAIR_BITS,
 				secureRandom);
-		agreementKeyParser = new Curve25519KeyParser();
-		signatureKeyParser = new EdKeyParser();
+		agreementKeyParser = new AgreementKeyParser();
+		signatureKeyParser = new SignatureKeyParser();
 		messageEncrypter = new MessageEncrypter(secureRandom);
 	}
 
