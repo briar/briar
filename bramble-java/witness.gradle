@@ -10,7 +10,7 @@ dependencyVerification {
         'com.google.errorprone:javac-shaded:9-dev-r4023-3:javac-shaded-9-dev-r4023-3.jar:65bfccf60986c47fbc17c9ebab0be626afc41741e0a6ec7109e0768817a36f30',
         'com.google.googlejavaformat:google-java-format:1.5:google-java-format-1.5.jar:aa19ad7850fb85178aa22f2fddb163b84d6ce4d0035872f30d4408195ca1144e',
         'com.google.guava:guava:25.0-jre:guava-25.0-jre.jar:3fd4341776428c7e0e5c18a7c10de129475b69ab9d30aeafbb5c277bb6074fa9',
-        'com.google.j2objc:j2objc-annotations:1.1:j2objc-annotations-1.1.jar:40ceb7157feb263949e0f503fe5f71689333a621021aa20ce0d0acee3badaa0f',
+        'com.google.j2objc:j2objc-annotations:1.1:j2objc-annotations-1.1.jar:2994a7eb78f2710bd3d3bfb639b2c94e219cedac0d4d084d516e78c16dddecf6',
         'com.squareup:javapoet:1.11.1:javapoet-1.11.1.jar:9cbf2107be499ec6e95afd36b58e3ca122a24166cdd375732e51267d64058e90',
         'javax.annotation:jsr250-api:1.0:jsr250-api-1.0.jar:a1a922d0d9b6d183ed3800dfac01d1e1eb159f0e8c6f94736931c1def54a941f',
         'javax.inject:javax.inject:1:javax.inject-1.jar:91c77044a50c481636c32d916fd89c9118a72195390452c81065080f957de7ff',

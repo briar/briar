@@ -10,7 +10,7 @@ dependencyVerification {
         'com.google.errorprone:javac-shaded:9-dev-r4023-3:javac-shaded-9-dev-r4023-3.jar:65bfccf60986c47fbc17c9ebab0be626afc41741e0a6ec7109e0768817a36f30',
         'com.google.googlejavaformat:google-java-format:1.5:google-java-format-1.5.jar:aa19ad7850fb85178aa22f2fddb163b84d6ce4d0035872f30d4408195ca1144e',
         'com.google.guava:guava:25.0-jre:guava-25.0-jre.jar:3fd4341776428c7e0e5c18a7c10de129475b69ab9d30aeafbb5c277bb6074fa9',
-        'com.google.j2objc:j2objc-annotations:1.1:j2objc-annotations-1.1.jar:40ceb7157feb263949e0f503fe5f71689333a621021aa20ce0d0acee3badaa0f',
+        'com.google.j2objc:j2objc-annotations:1.1:j2objc-annotations-1.1.jar:2994a7eb78f2710bd3d3bfb639b2c94e219cedac0d4d084d516e78c16dddecf6',
         'com.rometools:rome-utils:1.10.0:rome-utils-1.10.0.jar:5bcfe917fe90e89ae8e02fed543c3657a882565a6bc98197fc11905d88a2a501',
         'com.rometools:rome:1.10.0:rome-1.10.0.jar:9ff5156d800f6c9ecbe7fca54daf756ac2720c41eb9240d2d66379700f1ecb8a',
         'com.squareup.okhttp3:okhttp:3.10.0:okhttp-3.10.0.jar:4aca3e552afb1ceb47f8956685f6295a276e49fa03f9066f8b6be83bec56fb66',
