@@ -4,7 +4,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -198,7 +197,7 @@ public class GroupActivity extends
 
 	private void setGroupEnabled(boolean enabled) {
 		isDissolved = !enabled;
-		textInput.setEnabled(enabled);
+		sendController.setReady(enabled);
 		list.getRecyclerView().setAlpha(enabled ? 1f : 0.5f);
 
 		if (!enabled) {
