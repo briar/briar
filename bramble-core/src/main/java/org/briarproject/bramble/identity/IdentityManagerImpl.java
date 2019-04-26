@@ -103,7 +103,6 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 			db.addAccount(txn, cached);
 			LOG.info("Account stored");
 		} else if (shouldStoreKeys) {
-			requireNonNull(cached);
 			byte[] publicKey = requireNonNull(cached.getHandshakePublicKey());
 			byte[] privateKey = requireNonNull(cached.getHandshakePrivateKey());
 			db.setHandshakeKeyPair(txn, cached.getId(), publicKey, privateKey);
