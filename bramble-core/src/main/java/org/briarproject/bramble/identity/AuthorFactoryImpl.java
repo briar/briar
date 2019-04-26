@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.ByteUtils;
 import org.briarproject.bramble.util.StringUtils;
 
@@ -23,12 +22,10 @@ import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 class AuthorFactoryImpl implements AuthorFactory {
 
 	private final CryptoComponent crypto;
-	private final Clock clock;
 
 	@Inject
-	AuthorFactoryImpl(CryptoComponent crypto, Clock clock) {
+	AuthorFactoryImpl(CryptoComponent crypto) {
 		this.crypto = crypto;
-		this.clock = clock;
 	}
 
 	@Override
@@ -44,21 +41,12 @@ class AuthorFactoryImpl implements AuthorFactory {
 	}
 
 	@Override
-	public LocalAuthor createLocalAuthor(String name, boolean handshakeKeys) {
+	public LocalAuthor createLocalAuthor(String name) {
 		KeyPair signatureKeyPair = crypto.generateSignatureKeyPair();
-		byte[] sigPub = signatureKeyPair.getPublic().getEncoded();
-		byte[] sigPriv = signatureKeyPair.getPrivate().getEncoded();
-		AuthorId id = getId(FORMAT_VERSION, name, sigPub);
-		if (handshakeKeys) {
-			KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
-			byte[] handPub = handshakeKeyPair.getPublic().getEncoded();
-			byte[] handPriv = handshakeKeyPair.getPrivate().getEncoded();
-			return new LocalAuthor(id, FORMAT_VERSION, name, sigPub, sigPriv,
-					handPub, handPriv, clock.currentTimeMillis());
-		} else {
-			return new LocalAuthor(id, FORMAT_VERSION, name, sigPub, sigPriv,
-					clock.currentTimeMillis());
-		}
+		byte[] publicKey = signatureKeyPair.getPublic().getEncoded();
+		byte[] privateKey = signatureKeyPair.getPrivate().getEncoded();
+		AuthorId id = getId(FORMAT_VERSION, name, publicKey);
+		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey);
 	}
 
 	private AuthorId getId(int formatVersion, String name, byte[] publicKey) {

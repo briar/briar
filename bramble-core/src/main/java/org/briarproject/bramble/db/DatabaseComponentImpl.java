@@ -30,9 +30,9 @@ import org.briarproject.bramble.api.db.TaskAction;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
+import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.identity.event.LocalAuthorAddedEvent;
 import org.briarproject.bramble.api.identity.event.LocalAuthorRemovedEvent;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
@@ -232,14 +232,25 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void addAccount(Transaction transaction, Account a)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsAccount(txn, a.getId())) {
+			db.addAccount(txn, a);
+			transaction.attach(new LocalAuthorAddedEvent(a.getId()));
+		}
+	}
+
+	@Override
 	public ContactId addContact(Transaction transaction, Author remote,
 			AuthorId local, boolean verified)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
+		if (!db.containsAccount(txn, local))
 			throw new NoSuchLocalAuthorException();
-		if (db.containsLocalAuthor(txn, remote.getId()))
+		if (db.containsAccount(txn, remote.getId()))
 			throw new ContactExistsException();
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException();
@@ -280,17 +291,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, k.getTransportId()))
 			throw new NoSuchTransportException();
 		return db.addHandshakeKeys(txn, p, k);
-	}
-
-	@Override
-	public void addLocalAuthor(Transaction transaction, LocalAuthor a)
-			throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a.getId())) {
-			db.addLocalAuthor(txn, a);
-			transaction.attach(new LocalAuthorAddedEvent(a.getId()));
-		}
 	}
 
 	@Override
@@ -342,10 +342,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public boolean containsAccount(Transaction transaction, AuthorId local)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.containsAccount(txn, local);
+	}
+
+	@Override
 	public boolean containsContact(Transaction transaction, AuthorId remote,
 			AuthorId local) throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
+		if (!db.containsAccount(txn, local))
 			throw new NoSuchLocalAuthorException();
 		return db.containsContact(txn, remote, local);
 	}
@@ -355,13 +362,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		T txn = unbox(transaction);
 		return db.containsGroup(txn, g);
-	}
-
-	@Override
-	public boolean containsLocalAuthor(Transaction transaction, AuthorId local)
-			throws DbException {
-		T txn = unbox(transaction);
-		return db.containsLocalAuthor(txn, local);
 	}
 
 	@Override
@@ -479,6 +479,22 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public Account getAccount(Transaction transaction, AuthorId a)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsAccount(txn, a))
+			throw new NoSuchLocalAuthorException();
+		return db.getAccount(txn, a);
+	}
+
+	@Override
+	public Collection<Account> getAccounts(Transaction transaction)
+			throws DbException {
+		T txn = unbox(transaction);
+		return db.getAccounts(txn);
+	}
+
+	@Override
 	public Contact getContact(Transaction transaction, ContactId c)
 			throws DbException {
 		T txn = unbox(transaction);
@@ -505,7 +521,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public Collection<ContactId> getContacts(Transaction transaction,
 			AuthorId a) throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
+		if (!db.containsAccount(txn, a))
 			throw new NoSuchLocalAuthorException();
 		return db.getContacts(txn, a);
 	}
@@ -551,22 +567,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		return db.getHandshakeKeys(txn, t);
-	}
-
-	@Override
-	public LocalAuthor getLocalAuthor(Transaction transaction, AuthorId a)
-			throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
-			throw new NoSuchLocalAuthorException();
-		return db.getLocalAuthor(txn, a);
-	}
-
-	@Override
-	public Collection<LocalAuthor> getLocalAuthors(Transaction transaction)
-			throws DbException {
-		T txn = unbox(transaction);
-		return db.getLocalAuthors(txn);
 	}
 
 	@Override
@@ -869,6 +869,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void removeAccount(Transaction transaction, AuthorId a)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsAccount(txn, a))
+			throw new NoSuchLocalAuthorException();
+		db.removeAccount(txn, a);
+		transaction.attach(new LocalAuthorRemovedEvent(a));
+	}
+
+	@Override
 	public void removeContact(Transaction transaction, ContactId c)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -902,17 +913,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.removeHandshakeKeys(txn, t, k);
-	}
-
-	@Override
-	public void removeLocalAuthor(Transaction transaction, AuthorId a)
-			throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
-			throw new NoSuchLocalAuthorException();
-		db.removeLocalAuthor(txn, a);
-		transaction.attach(new LocalAuthorRemovedEvent(a));
 	}
 
 	@Override
@@ -1040,7 +1040,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			byte[] publicKey, byte[] privateKey) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
+		if (!db.containsAccount(txn, local))
 			throw new NoSuchLocalAuthorException();
 		db.setHandshakeKeyPair(txn, local, publicKey, privateKey);
 	}

@@ -192,7 +192,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	@Override
 	public Contact addContact(String name) throws DbException {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
-		LocalAuthor remote = authorFactory.createLocalAuthor(name, false);
+		LocalAuthor remote = authorFactory.createLocalAuthor(name);
 		return addContact(localAuthor.getId(), remote);
 	}
 
@@ -202,7 +202,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	private LocalAuthor getRandomAuthor() {
-		return authorFactory.createLocalAuthor(getRandomAuthorName(), false);
+		return authorFactory.createLocalAuthor(getRandomAuthorName());
 	}
 
 	private SecretKey getSecretKey() {

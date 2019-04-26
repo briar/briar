@@ -5,11 +5,13 @@ import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.Clock;
 
 import java.util.Collection;
 import java.util.logging.Logger;
@@ -32,87 +34,94 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	private final DatabaseComponent db;
 	private final CryptoComponent crypto;
 	private final AuthorFactory authorFactory;
+	private final Clock clock;
 
-	// The local author is immutable so we can cache it
 	@Nullable
-	private volatile LocalAuthor cachedAuthor;
+	private volatile Account cachedAccount;
 
 	@Inject
 	IdentityManagerImpl(DatabaseComponent db, CryptoComponent crypto,
-			AuthorFactory authorFactory) {
+			AuthorFactory authorFactory, Clock clock) {
 		this.db = db;
 		this.crypto = crypto;
 		this.authorFactory = authorFactory;
+		this.clock = clock;
 	}
 
 	@Override
 	public LocalAuthor createLocalAuthor(String name) {
 		long start = now();
-		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name, true);
+		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name);
 		logDuration(LOG, "Creating local author", start);
 		return localAuthor;
 	}
 
 	@Override
-	public void registerLocalAuthor(LocalAuthor a) {
-		cachedAuthor = a;
-		LOG.info("Local author registered");
+	public Account createAccount(String name) {
+		long start = now();
+		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name);
+		KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
+		byte[] handshakePub = handshakeKeyPair.getPublic().getEncoded();
+		byte[] handshakePriv = handshakeKeyPair.getPrivate().getEncoded();
+		logDuration(LOG, "Creating account", start);
+		return new Account(localAuthor, handshakePub, handshakePriv,
+				clock.currentTimeMillis());
+	}
+
+	@Override
+	public void registerAccount(Account a) {
+		if (!a.hasHandshakeKeyPair()) throw new IllegalArgumentException();
+		cachedAccount = a;
+		LOG.info("Account registered");
 	}
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		LocalAuthor cached = cachedAuthor;
+		Account cached = cachedAccount;
 		if (cached == null) {
-			LocalAuthor loaded = loadLocalAuthor(txn);
-			if (loaded.getHandshakePublicKey() == null) {
-				KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
-				byte[] handshakePublicKey =
-						handshakeKeyPair.getPublic().getEncoded();
-				byte[] handshakePrivateKey =
-						handshakeKeyPair.getPrivate().getEncoded();
-				db.setHandshakeKeyPair(txn, loaded.getId(),
-						handshakePublicKey, handshakePrivateKey);
-				cachedAuthor = new LocalAuthor(loaded.getId(),
-						loaded.getFormatVersion(), loaded.getName(),
-						loaded.getPublicKey(), loaded.getPrivateKey(),
-						handshakePublicKey, handshakePrivateKey,
-						loaded.getTimeCreated());
-				LOG.info("Handshake key pair added");
+			cached = loadAccount(txn);
+			if (cached.hasHandshakeKeyPair()) {
+				cachedAccount = cached;
+				LOG.info("Account loaded");
 			} else {
-				cachedAuthor = loaded;
-				LOG.info("Local author loaded");
+				KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
+				byte[] handshakePub = handshakeKeyPair.getPublic().getEncoded();
+				byte[] handshakePriv =
+						handshakeKeyPair.getPrivate().getEncoded();
+				db.setHandshakeKeyPair(txn, cached.getId(), handshakePub,
+						handshakePriv);
+				LOG.info("Handshake key pair stored");
 			}
 		} else {
-			db.addLocalAuthor(txn, cached);
-			LOG.info("Local author stored");
+			db.addAccount(txn, cached);
+			LOG.info("Account stored");
 		}
 	}
 
 	@Override
 	public LocalAuthor getLocalAuthor() throws DbException {
-		LocalAuthor cached = cachedAuthor;
+		Account cached = cachedAccount;
 		if (cached == null) {
-			cachedAuthor = cached =
-					db.transactionWithResult(true, this::loadLocalAuthor);
-			LOG.info("Local author loaded");
+			cachedAccount = cached =
+					db.transactionWithResult(true, this::loadAccount);
+			LOG.info("Account loaded");
 		}
-		return cached;
+		return cached.getLocalAuthor();
 	}
-
 
 	@Override
 	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
-		LocalAuthor cached = cachedAuthor;
+		Account cached = cachedAccount;
 		if (cached == null) {
-			cachedAuthor = cached = loadLocalAuthor(txn);
-			LOG.info("Local author loaded");
+			cachedAccount = cached = loadAccount(txn);
+			LOG.info("Account loaded");
 		}
-		return cached;
+		return cached.getLocalAuthor();
 	}
 
-	private LocalAuthor loadLocalAuthor(Transaction txn) throws DbException {
-		Collection<LocalAuthor> authors = db.getLocalAuthors(txn);
-		if (authors.size() != 1) throw new IllegalStateException();
-		return authors.iterator().next();
+	private Account loadAccount(Transaction txn) throws DbException {
+		Collection<Account> accounts = db.getAccounts(txn);
+		if (accounts.size() != 1) throw new DbException();
+		return accounts.iterator().next();
 	}
 }

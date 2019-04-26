@@ -17,12 +17,19 @@ public interface IdentityManager {
 	LocalAuthor createLocalAuthor(String name);
 
 	/**
-	 * Registers the given local identity with the manager. This method should
-	 * be called before {@link LifecycleManager#startServices(SecretKey)}. The
-	 * identity is stored when {@link LifecycleManager#startServices(SecretKey)}
-	 * is called.
+	 * Creates an account with the given name. The account includes a handshake
+	 * key pair.
 	 */
-	void registerLocalAuthor(LocalAuthor a);
+	@CryptoExecutor
+	Account createAccount(String name);
+
+	/**
+	 * Registers the given account with the manager. This method should be
+	 * called before {@link LifecycleManager#startServices(SecretKey)}. The
+	 * account is stored when {@link LifecycleManager#startServices(SecretKey)}
+	 * is called. The account must include a handshake key pair.
+	 */
+	void registerAccount(Account a);
 
 	/**
 	 * Returns the cached local identity or loads it from the database.

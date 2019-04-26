@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -100,28 +101,20 @@ public class TestUtils {
 		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}
 
-	public static LocalAuthor getLocalAuthor() {
-		return getLocalAuthor(false);
+	public static Account getAccount() {
+		LocalAuthor localAuthor = getLocalAuthor();
+		byte[] handshakePub = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		byte[] handshakePriv = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		return new Account(localAuthor, handshakePub, handshakePriv, timestamp);
 	}
 
-	public static LocalAuthor getLocalAuthor(boolean withHandshakeKeys) {
+	public static LocalAuthor getLocalAuthor() {
 		AuthorId id = new AuthorId(getRandomId());
 		int nameLength = 1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH);
 		String name = getRandomString(nameLength);
 		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		if (withHandshakeKeys) {
-			byte[] handshakePublicKey =
-					getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
-			byte[] handshakePrivateKey =
-					getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
-			return new LocalAuthor(id, FORMAT_VERSION, name, publicKey,
-					privateKey, handshakePublicKey, handshakePrivateKey,
-					timestamp);
-		} else {
-			return new LocalAuthor(id, FORMAT_VERSION, name, publicKey,
-					privateKey, timestamp);
-		}
+		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey);
 	}
 
 	public static Author getAuthor() {

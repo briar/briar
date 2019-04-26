@@ -9,8 +9,6 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 
@@ -34,13 +32,12 @@ public class BriarTestUtils {
 
 	public static Author getRealAuthor(AuthorFactory authorFactory) {
 		String name = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		return authorFactory.createAuthor(name, publicKey);
+		return authorFactory.createLocalAuthor(name);
 	}
 
 	public static LocalAuthor getRealLocalAuthor(AuthorFactory authorFactory) {
 		String name = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		return authorFactory.createLocalAuthor(name, false);
+		return authorFactory.createLocalAuthor(name);
 	}
 
 }

@@ -50,7 +50,7 @@ class FeedFactoryImpl implements FeedFactory {
 		if (title == null) title = "RSS";
 		else title = StringUtils.truncateUtf8(title, MAX_AUTHOR_NAME_LENGTH);
 
-		LocalAuthor localAuthor = authorFactory.createLocalAuthor(title, false);
+		LocalAuthor localAuthor = authorFactory.createLocalAuthor(title);
 		Blog blog = blogFactory.createFeedBlog(localAuthor);
 		long added = clock.currentTimeMillis();
 
@@ -74,7 +74,7 @@ class FeedFactoryImpl implements FeedFactory {
 		Author author = clientHelper.parseAndValidateAuthor(authorList);
 		LocalAuthor localAuthor = new LocalAuthor(author.getId(),
 				author.getFormatVersion(), author.getName(),
-				author.getPublicKey(), privateKey, 0);
+				author.getPublicKey(), privateKey);
 		Blog blog = blogFactory.createFeedBlog(localAuthor);
 
 		String desc = d.getOptionalString(KEY_FEED_DESC);

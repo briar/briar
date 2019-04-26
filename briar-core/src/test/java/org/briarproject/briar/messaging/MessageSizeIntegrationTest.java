@@ -70,7 +70,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	public void testForumPostFitsIntoRecord() throws Exception {
 		// Create a maximum-length author
 		String authorName = getRandomString(MAX_AUTHOR_NAME_LENGTH);
-		LocalAuthor author = authorFactory.createLocalAuthor(authorName, false);
+		LocalAuthor author = authorFactory.createLocalAuthor(authorName);
 		// Create a maximum-length forum post
 		GroupId groupId = new GroupId(getRandomId());
 		long timestamp = Long.MAX_VALUE;

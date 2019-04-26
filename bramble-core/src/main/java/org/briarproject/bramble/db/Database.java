@@ -13,9 +13,9 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
+import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
@@ -87,6 +87,11 @@ interface Database<T> {
 	void commitTransaction(T txn) throws DbException;
 
 	/**
+	 * Stores an account.
+	 */
+	void addAccount(T txn, Account a) throws DbException;
+
+	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
@@ -118,11 +123,6 @@ interface Database<T> {
 	 */
 	HandshakeKeySetId addHandshakeKeys(T txn, PendingContactId p,
 			HandshakeKeys k) throws DbException;
-
-	/**
-	 * Stores a local pseudonym.
-	 */
-	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
 
 	/**
 	 * Stores a message.
@@ -164,6 +164,13 @@ interface Database<T> {
 			throws DbException;
 
 	/**
+	 * Returns true if the database contains an account for the given pseudonym.
+	 * <p/>
+	 * Read-only.
+	 */
+	boolean containsAccount(T txn, AuthorId a) throws DbException;
+
+	/**
 	 * Returns true if the database contains the given contact for the given
 	 * local pseudonym.
 	 * <p/>
@@ -185,13 +192,6 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	boolean containsGroup(T txn, GroupId g) throws DbException;
-
-	/**
-	 * Returns true if the database contains the given local pseudonym.
-	 * <p/>
-	 * Read-only.
-	 */
-	boolean containsLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given message.
@@ -244,6 +244,20 @@ interface Database<T> {
 	 * Deletes any metadata associated with the given message.
 	 */
 	void deleteMessageMetadata(T txn, MessageId m) throws DbException;
+
+	/**
+	 * Returns the account for local pseudonym with the given ID.
+	 * <p/>
+	 * Read-only.
+	 */
+	Account getAccount(T txn, AuthorId a) throws DbException;
+
+	/**
+	 * Returns the accounts for all local pseudonyms.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<Account> getAccounts(T txn) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.
@@ -321,20 +335,6 @@ interface Database<T> {
 	 */
 	Collection<HandshakeKeySet> getHandshakeKeys(T txn, TransportId t)
 			throws DbException;
-
-	/**
-	 * Returns the local pseudonym with the given ID.
-	 * <p/>
-	 * Read-only.
-	 */
-	LocalAuthor getLocalAuthor(T txn, AuthorId a) throws DbException;
-
-	/**
-	 * Returns all local pseudonyms.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
 
 	/**
 	 * Returns the message with the given ID.
@@ -606,6 +606,11 @@ interface Database<T> {
 	void raiseSeenFlag(T txn, ContactId c, MessageId m) throws DbException;
 
 	/**
+	 * Removes an account (and all associated state) from the database.
+	 */
+	void removeAccount(T txn, AuthorId a) throws DbException;
+
+	/**
 	 * Removes a contact from the database.
 	 */
 	void removeContact(T txn, ContactId c) throws DbException;
@@ -627,11 +632,6 @@ interface Database<T> {
 	 */
 	void removeHandshakeKeys(T txn, TransportId t, HandshakeKeySetId k)
 			throws DbException;
-
-	/**
-	 * Removes a local pseudonym (and all associated state) from the database.
-	 */
-	void removeLocalAuthor(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.
@@ -686,7 +686,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Sets the handshake key pair for the local pseudonym with the given ID.
+	 * Sets the handshake key pair for the account with the given ID.
 	 */
 	void setHandshakeKeyPair(T txn, AuthorId local, byte[] publicKey,
 			byte[] privateKey) throws DbException;

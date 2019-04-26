@@ -48,8 +48,8 @@ public class BlogManagerIntegrationTest
 
 		author0 = identityManager0.getLocalAuthor();
 		author1 = identityManager1.getLocalAuthor();
-		rssAuthor = c0.getAuthorFactory().createLocalAuthor(
-				getRandomString(MAX_AUTHOR_NAME_LENGTH), false);
+		String rssTitle = getRandomString(MAX_AUTHOR_NAME_LENGTH);
+		rssAuthor = c0.getAuthorFactory().createLocalAuthor(rssTitle);
 
 		blogManager0 = c0.getBlogManager();
 		blogManager1 = c1.getBlogManager();

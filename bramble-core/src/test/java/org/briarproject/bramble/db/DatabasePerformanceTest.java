@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.ClientId;
@@ -35,9 +36,9 @@ import static java.util.logging.Level.OFF;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getAccount;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
-import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -161,11 +162,11 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testContainsLocalAuthor() throws Exception {
-		String name = "containsLocalAuthor(T, AuthorId)";
+	public void testContainsAccount() throws Exception {
+		String name = "containsAccount(T, AuthorId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.containsLocalAuthor(txn, localAuthor.getId());
+			db.containsAccount(txn, localAuthor.getId());
 			db.commitTransaction(txn);
 		});
 	}
@@ -295,21 +296,21 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetLocalAuthor() throws Exception {
-		String name = "getLocalAuthor(T, AuthorId)";
+	public void testGetAccount() throws Exception {
+		String name = "getAccount(T, AuthorId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getLocalAuthor(txn, localAuthor.getId());
+			db.getAccount(txn, localAuthor.getId());
 			db.commitTransaction(txn);
 		});
 	}
 
 	@Test
-	public void testGetLocalAuthors() throws Exception {
-		String name = "getLocalAuthors(T)";
+	public void testGetAccounts() throws Exception {
+		String name = "getAccounts(T)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getLocalAuthors(txn);
+			db.getAccounts(txn);
 			db.commitTransaction(txn);
 		});
 	}
@@ -531,7 +532,8 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	void populateDatabase(Database<Connection> db) throws DbException {
-		localAuthor = getLocalAuthor();
+		Account account = getAccount();
+		localAuthor = account.getLocalAuthor();
 		clientIds = new ArrayList<>();
 		contacts = new ArrayList<>();
 		groups = new ArrayList<>();
@@ -543,7 +545,7 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 		for (int i = 0; i < CLIENTS; i++) clientIds.add(getClientId());
 
 		Connection txn = db.startTransaction();
-		db.addLocalAuthor(txn, localAuthor);
+		db.addAccount(txn, account);
 		for (int i = 0; i < CONTACTS; i++) {
 			ContactId c = db.addContact(txn, getAuthor(), localAuthor.getId(),
 					random.nextBoolean());
