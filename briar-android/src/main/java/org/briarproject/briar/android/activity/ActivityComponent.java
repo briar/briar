@@ -20,7 +20,7 @@ import org.briarproject.briar.android.contact.add.remote.LinkExchangeFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
 import org.briarproject.briar.android.contact.ContactModule;
 import org.briarproject.briar.android.contact.add.remote.NicknameFragment;
-import org.briarproject.briar.android.contact.add.remote.PendingRequestsActivity;
+import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.conversation.ImageActivity;
@@ -174,7 +174,7 @@ public interface ActivityComponent {
 
 	void inject(AddContactActivity activity);
 
-	void inject(PendingRequestsActivity activity);
+	void inject(PendingContactListActivity activity);
 
 	// Fragments
 	void inject(AuthorNameFragment fragment);

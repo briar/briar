@@ -177,7 +177,7 @@
   <string name="introduction_response_accepted_received">%1$s pranoi prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received">%1$s hodhi poshtë prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s thotë se %2$s hodhi poshtë prezantimin.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">U shtua kontakt i ri.</item>
     <item quantity="other">U shtuan %d kontakte të rinj.</item>
   </plurals>

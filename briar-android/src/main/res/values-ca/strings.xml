@@ -178,7 +178,7 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="introduction_response_accepted_received">%1$s ha acceptat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha refusat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s diu que %2$s ha refusat conèixer-lo.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">S\'ha afegit un nou contacte.</item>
     <item quantity="other">S\'han afegit %d nous contactes.</item>
   </plurals>

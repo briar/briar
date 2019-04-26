@@ -172,7 +172,7 @@
   <string name="introduction_response_accepted_received">%1$s zaakceptował udostępnienie kontaktu %2$s</string>
   <string name="introduction_response_declined_received">%1$s odrzucił udostępnienie kontaktu %2$s</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s mówi, że %2$s odrzucił udostępnienie kontaktu.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Nowy kontakt został dodany.</item>
     <item quantity="few">%d nowych kontaktów zostało dodanych.</item>
     <item quantity="many">%d nowych kontaktów zostało dodanych.</item>

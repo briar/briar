@@ -572,11 +572,11 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private void updateContactAddedNotification() {
 		BriarNotificationBuilder b =
 				new BriarNotificationBuilder(appContext, CONTACT_CHANNEL_ID);
-		b.setSmallIcon(R.drawable.notification_introduction);
+		b.setSmallIcon(R.drawable.notification_contact_added);
 		b.setColorRes(R.color.briar_primary);
 		b.setContentTitle(appContext.getText(R.string.app_name));
 		b.setContentText(appContext.getResources().getQuantityString(
-				R.plurals.introduction_notification_text, contactAddedTotal,
+				R.plurals.contact_added_notification_text, contactAddedTotal,
 				contactAddedTotal));
 		b.setNotificationCategory(CATEGORY_MESSAGE);
 		setAlertProperties(b);

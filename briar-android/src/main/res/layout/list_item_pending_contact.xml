@@ -68,7 +68,7 @@
 		tools:text="Dec 24"/>
 
 	<Button
-		android:id="@+id/button"
+		android:id="@+id/removeButton"
 		style="@style/BriarButtonFlat.Negative"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -88,7 +88,7 @@
 		android:layout_marginStart="8dp"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/avatar"
-		app:layout_constraintTop_toBottomOf="@+id/button"
+		app:layout_constraintTop_toBottomOf="@+id/removeButton"
 		app:layout_goneMarginTop="@dimen/margin_large"/>
 
 </android.support.constraint.ConstraintLayout>

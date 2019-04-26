@@ -177,7 +177,7 @@
   <string name="introduction_response_accepted_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena onartu du.</string>
   <string name="introduction_response_declined_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena errefusatu du.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s erabiltzaileak dio %2$s erabiltzaileak aurkezpena errefusatu duela.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Kontaktu berria gehitu da.</item>
     <item quantity="other">%d kontaktu berri gehitu dira.</item>
   </plurals>

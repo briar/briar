@@ -177,7 +177,7 @@
   <string name="introduction_response_accepted_received">%1$s heeft de introductie aan %2$sgeaccepteerd.</string>
   <string name="introduction_response_declined_received">%1$s heeft de introductie aan %2$s afgewezen.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s zegt dat %2$s je introductie heeft afgewezen.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Nieuw contact is toegevoegd.</item>
     <item quantity="other">%d nieuwe contacten zijn toegevoegd.</item>
   </plurals>

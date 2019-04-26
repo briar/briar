@@ -27,11 +27,11 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-public class PendingRequestsViewModel extends AndroidViewModel
+public class PendingContactListViewModel extends AndroidViewModel
 		implements EventListener {
 
 	private final Logger LOG =
-			getLogger(PendingRequestsViewModel.class.getName());
+			getLogger(PendingContactListViewModel.class.getName());
 
 	@DatabaseExecutor
 	private final Executor dbExecutor;
@@ -42,7 +42,7 @@ public class PendingRequestsViewModel extends AndroidViewModel
 			new MutableLiveData<>();
 
 	@Inject
-	public PendingRequestsViewModel(Application application,
+	public PendingContactListViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			ContactManager contactManager, EventBus eventBus) {
 		super(application);

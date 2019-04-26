@@ -4,10 +4,9 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.MainThread;
-import android.support.annotation.UiThread;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,8 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.util.Objects.requireNonNull;
+import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -70,27 +70,31 @@ public class NicknameFragment extends BaseFragment {
 		return v;
 	}
 
-	@MainThread
-	@UiThread
-	private boolean isInputError() {
-		boolean validContactName = contactNameInput.getText() != null &&
-				contactNameInput.getText().toString().trim().length() > 0;
-		if (!validContactName) {
+	@Nullable
+	private String getNicknameOrNull() {
+		Editable name = contactNameInput.getText();
+		if (name == null || name.toString().trim().length() == 0) {
 			contactNameLayout.setError(getString(R.string.nickname_missing));
 			contactNameInput.requestFocus();
-			return true;
-		} else contactNameLayout.setError(null);
-		return false;
+			return null;
+		}
+		if (utf8IsTooLong(name.toString(), MAX_AUTHOR_NAME_LENGTH)) {
+			contactNameLayout.setError(getString(R.string.name_too_long));
+			contactNameInput.requestFocus();
+			return null;
+		}
+		contactNameLayout.setError(null);
+		return name.toString().trim();
 	}
 
 	private void onAddButtonClicked() {
-		if (isInputError()) return;
+		String name = getNicknameOrNull();
+		if (name == null) return;  // invalid nickname
 
-		String name = requireNonNull(contactNameInput.getText()).toString();
 		viewModel.addContact(name);
 
 		Intent intent =
-				new Intent(getActivity(), PendingRequestsActivity.class);
+				new Intent(getActivity(), PendingContactListActivity.class);
 		startActivity(intent);
 		finish();
 	}

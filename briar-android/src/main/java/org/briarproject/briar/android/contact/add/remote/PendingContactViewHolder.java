@@ -16,22 +16,22 @@ import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
 @NotNullByDefault
-public class PendingRequestsViewHolder extends ViewHolder {
+class PendingContactViewHolder extends ViewHolder {
 
 	private final PendingContactListener listener;
 	private final TextAvatarView avatar;
 	private final TextView name;
 	private final TextView time;
 	private final TextView status;
-	private final Button button;
+	private final Button removeButton;
 
-	public PendingRequestsViewHolder(View v, PendingContactListener listener) {
+	PendingContactViewHolder(View v, PendingContactListener listener) {
 		super(v);
 		avatar = v.findViewById(R.id.avatar);
 		name = v.findViewById(R.id.name);
 		time = v.findViewById(R.id.time);
 		status = v.findViewById(R.id.status);
-		button = v.findViewById(R.id.button);
+		removeButton = v.findViewById(R.id.removeButton);
 		this.listener = listener;
 	}
 
@@ -40,7 +40,7 @@ public class PendingRequestsViewHolder extends ViewHolder {
 		avatar.setBackgroundBytes(item.getId().getBytes());
 		name.setText(item.getAlias());
 		time.setText(formatDate(time.getContext(), item.getTimestamp()));
-		button.setOnClickListener(
+		removeButton.setOnClickListener(
 				v -> listener.onFailedPendingContactRemoved(item));
 
 		int color = ContextCompat
@@ -68,7 +68,7 @@ public class PendingRequestsViewHolder extends ViewHolder {
 				throw new IllegalStateException();
 		}
 		status.setTextColor(color);
-		button.setVisibility(buttonVisibility);
+		removeButton.setVisibility(buttonVisibility);
 	}
 
 }

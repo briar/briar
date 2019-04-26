@@ -444,7 +444,7 @@
 		</activity>
 
 		<activity
-			android:name=".android.contact.add.remote.PendingRequestsActivity"
+			android:name=".android.contact.add.remote.PendingContactListActivity"
 			android:label="@string/pending_contact_requests"
 			android:theme="@style/BriarTheme"/>
 

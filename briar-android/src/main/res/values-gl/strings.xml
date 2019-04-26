@@ -177,7 +177,7 @@
   <string name="introduction_response_accepted_received">%1$s aceptou a presentación a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s rexeitou a presentación a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s di que %2$srexeitou a presentación.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Novo contacto engadido.</item>
     <item quantity="other">%d novos contactos engadidos.</item>
   </plurals>

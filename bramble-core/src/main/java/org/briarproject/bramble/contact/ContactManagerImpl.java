@@ -139,11 +139,6 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public boolean isValidRemoteContactLink(String link) {
-		return LINK_REGEX.matcher(link).matches();
-	}
-
-	@Override
 	public void addRemoteContactRequest(String link, String alias) {
 		// TODO replace with real implementation
 		PendingContactId id = new PendingContactId(
@@ -199,7 +194,7 @@ class ContactManagerImpl implements ContactManager {
 			pendingContacts.remove(pendingContact);
 			Event e;
 			try {
-				if (true || new Random().nextBoolean()) {
+				if (new Random().nextBoolean()) {
 					getLogger("TMP").warning("FAILED");
 					e = new PendingContactStateChangedEvent(id, FAILED);
 					PendingContact updated = new PendingContact(id,

@@ -135,7 +135,7 @@
   <string name="introduction_response_accepted_received">%1$s er nå bekjent %2$s.</string>
   <string name="introduction_response_declined_received">%1$s avslo introduksjonen med %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s sier at %2$s avslo introduksjonen.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Ny kontakt lagt til.</item>
     <item quantity="other">%d nye kontakter lagt til.</item>
   </plurals>

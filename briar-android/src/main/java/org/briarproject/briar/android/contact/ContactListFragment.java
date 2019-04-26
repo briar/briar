@@ -35,7 +35,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
-import org.briarproject.briar.android.contact.add.remote.PendingRequestsActivity;
+import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
@@ -179,7 +179,7 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		snackbar = new BriarSnackbarBuilder()
 				.setAction(R.string.show, v ->
 						startActivity(new Intent(getContext(),
-								PendingRequestsActivity.class)))
+								PendingContactListActivity.class)))
 				.make(contentView, R.string.pending_contact_requests_snackbar,
 						LENGTH_INDEFINITE);
 

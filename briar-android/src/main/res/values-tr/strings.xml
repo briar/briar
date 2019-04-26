@@ -112,7 +112,7 @@
   <string name="introduction_response_accepted_received">%1$s, %2$s ile tanışmayı kabul etti.</string>
   <string name="introduction_response_declined_received">%1$s, %2$s ile tanışmayı reddetti.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s, %2$s kişisinin tanışmayı reddettiğini söyledi.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Yeni kişi eklendi.</item>
     <item quantity="other">%d yeni kişi eklendi.</item>
   </plurals>

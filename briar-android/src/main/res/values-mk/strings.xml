@@ -177,7 +177,7 @@
   <string name="introduction_response_accepted_received">%1$s го прифативте запознавањето со %2$s.</string>
   <string name="introduction_response_declined_received">%1$s го одбивте запознавањето со %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s вели дека %2$s го одбил запознавањето.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Нов контакт е додаден. </item>
     <item quantity="other">%d нови контакти се додадени.</item>
   </plurals>

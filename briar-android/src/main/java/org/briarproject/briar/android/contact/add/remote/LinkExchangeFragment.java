@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v4.app.ShareCompat.IntentBuilder;
-import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,9 +72,6 @@ public class LinkExchangeFragment extends BaseFragment {
 
 		linkInputLayout = v.findViewById(R.id.linkInputLayout);
 		linkInput = v.findViewById(R.id.linkInput);
-		if (viewModel.getRemoteContactLink() != null) {
-			linkInput.setText(viewModel.getRemoteContactLink());
-		}
 
 		clipboard = (ClipboardManager) requireNonNull(
 				getContext().getSystemService(CLIPBOARD_SERVICE));
@@ -83,7 +79,7 @@ public class LinkExchangeFragment extends BaseFragment {
 		Button pasteButton = v.findViewById(R.id.pasteButton);
 		pasteButton.setOnClickListener(view -> {
 			ClipData clipData = clipboard.getPrimaryClip();
-			if (clipData != null)
+			if (clipData != null && clipData.getItemCount() > 0)
 				linkInput.setText(clipData.getItemAt(0).getText());
 		});
 
@@ -95,7 +91,7 @@ public class LinkExchangeFragment extends BaseFragment {
 	private void onOwnLinkLoaded(String link) {
 		View v = requireNonNull(getView());
 
-		TextView linkView =	v.findViewById(R.id.linkView);
+		TextView linkView = v.findViewById(R.id.linkView);
 		linkView.setText(link);
 
 		Button copyButton = v.findViewById(R.id.copyButton);
@@ -110,10 +106,10 @@ public class LinkExchangeFragment extends BaseFragment {
 
 		Button shareButton = v.findViewById(R.id.shareButton);
 		shareButton.setOnClickListener(view ->
-				IntentBuilder.from(requireNonNull(getActivity()))
-				.setText(link)
-				.setType("text/plain")
-				.startChooser());
+				IntentBuilder.from(requireActivity())
+						.setText(link)
+						.setType("text/plain")
+						.startChooser());
 		shareButton.setEnabled(true);
 
 		Button continueButton = v.findViewById(R.id.addButton);
@@ -121,47 +117,42 @@ public class LinkExchangeFragment extends BaseFragment {
 		continueButton.setEnabled(true);
 	}
 
-	private boolean isInputError() {
-		Editable linkText = linkInput.getText();
-		boolean briarLink = viewModel.isValidRemoteContactLink(linkText);
-		if (!briarLink) {
-			if (linkText == null || linkText.length() == 0) {
-				linkInputLayout.setError(getString(R.string.missing_link));
-			} else {
-				linkInputLayout.setError(getString(R.string.invalid_link));
-			}
-			linkInput.requestFocus();
-			return true;
-		} else linkInputLayout.setError(null);
-		String link = getLink();
-		boolean isOurLink = link != null &&
-				("briar://" + link).equals(viewModel.getOurLink().getValue());
-		if (isOurLink) {
-			linkInputLayout.setError(getString(R.string.own_link_error));
-			linkInput.requestFocus();
-			return true;
-		} else linkInputLayout.setError(null);
-		return false;
-	}
-
+	/**
+	 * Requires {@link AddContactViewModel#getOurLink()} to be loaded.
+	 */
 	@Nullable
-	private String getLink() {
+	private String getEnteredLinkOrNull() {
 		CharSequence link = linkInput.getText();
-		if (link == null) return null;
-		Matcher matcher = LINK_REGEX.matcher(link);
-		if (matcher.matches()) // needs to be called before groups become available
-			return matcher.group(2);
-		else
+		if (link == null || link.length() == 0) {
+			linkInputLayout.setError(getString(R.string.missing_link));
+			linkInput.requestFocus();
 			return null;
+		}
+
+		Matcher matcher = LINK_REGEX.matcher(link);
+		if (matcher.find()) {
+			String linkWithoutSchema = matcher.group(2);
+			// Check also if this is our own link. This was loaded already,
+			// because it enables the Continue button which is the only caller.
+			if (("briar://" + linkWithoutSchema)
+					.equals(viewModel.getOurLink().getValue())) {
+				linkInputLayout.setError(getString(R.string.own_link_error));
+				linkInput.requestFocus();
+				return null;
+			}
+			linkInputLayout.setError(null);
+			return linkWithoutSchema;
+		}
+		linkInputLayout.setError(getString(R.string.invalid_link));
+		linkInput.requestFocus();
+		return null;
 	}
 
 	private void onContinueButtonClicked() {
-		if (isInputError()) return;
+		String link = getEnteredLinkOrNull();
+		if (link == null) return;  // invalid link
 
-		String linkText = getLink();
-		if (linkText == null) throw new AssertionError();
-		viewModel.setRemoteContactLink(linkText);
-
+		viewModel.setRemoteContactLink(link);
 		viewModel.onRemoteLinkEntered();
 	}
 

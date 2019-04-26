@@ -22,14 +22,14 @@ import javax.inject.Inject;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class PendingRequestsActivity extends BriarActivity
+public class PendingContactListActivity extends BriarActivity
 		implements PendingContactListener {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 
-	private PendingRequestsViewModel viewModel;
-	private PendingRequestsAdapter adapter;
+	private PendingContactListViewModel viewModel;
+	private PendingContactListAdapter adapter;
 	private BriarRecyclerView list;
 
 	@Override
@@ -49,11 +49,11 @@ public class PendingRequestsActivity extends BriarActivity
 		}
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(PendingRequestsViewModel.class);
+				.get(PendingContactListViewModel.class);
 		viewModel.getPendingContacts()
 				.observe(this, this::onPendingContactsChanged);
 
-		adapter = new PendingRequestsAdapter(this, this, PendingContact.class);
+		adapter = new PendingContactListAdapter(this, this, PendingContact.class);
 		list = findViewById(R.id.list);
 		list.setEmptyText(R.string.no_pending_contacts);
 		list.setLayoutManager(new LinearLayoutManager(this));
@@ -92,12 +92,11 @@ public class PendingRequestsActivity extends BriarActivity
 
 	private void onPendingContactsChanged(Collection<PendingContact> contacts) {
 		if (contacts.isEmpty()) {
-			if (!adapter.isEmpty()) {
+			if (adapter.isEmpty()) {
+				list.showData();  // hides progress bar, shows empty text
+			} else {
 				// all previous contacts have been removed, so we can finish
 				supportFinishAfterTransition();
-			} else {
-				adapter.clear();
-				list.showData();
 			}
 		} else {
 			adapter.setItems(contacts);

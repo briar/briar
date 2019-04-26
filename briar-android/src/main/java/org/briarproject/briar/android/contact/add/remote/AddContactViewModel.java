@@ -13,11 +13,20 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.contact.ContactManager.LINK_REGEX;
+import static org.briarproject.bramble.util.LogUtils.logException;
+
 @NotNullByDefault
 public class AddContactViewModel extends AndroidViewModel {
+
+	private final static Logger LOG =
+			getLogger(AddContactViewModel.class.getName());
 
 	private final ContactManager contactManager;
 	@DatabaseExecutor
@@ -44,7 +53,9 @@ public class AddContactViewModel extends AndroidViewModel {
 			try {
 				ourLink.postValue(contactManager.getRemoteContactLink());
 			} catch (DbException e) {
-				throw new AssertionError(e);
+				logException(LOG, WARNING, e);
+				// the UI should stay disable in this case,
+				// leaving the user unable to proceed
 			}
 		});
 	}
@@ -57,14 +68,8 @@ public class AddContactViewModel extends AndroidViewModel {
 		remoteContactLink = link;
 	}
 
-	@Nullable
-	String getRemoteContactLink() {
-		return remoteContactLink;
-	}
-
 	boolean isValidRemoteContactLink(@Nullable CharSequence link) {
-		return link != null &&
-				contactManager.isValidRemoteContactLink(link.toString());
+		return link != null && LINK_REGEX.matcher(link).find();
 	}
 
 	LiveData<Boolean> getRemoteLinkEntered() {
@@ -74,6 +79,7 @@ public class AddContactViewModel extends AndroidViewModel {
 	void onRemoteLinkEntered() {
 		if (remoteContactLink == null) throw new IllegalStateException();
 		remoteLinkEntered.setValue(true);
+		remoteLinkEntered.postValue(false);  // reset, so we can navigate back
 	}
 
 	void addContact(String nickname) {

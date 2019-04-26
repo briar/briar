@@ -114,7 +114,7 @@
   <string name="introduction_response_accepted_received">%1$s прие представянето на %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказа представянето на %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s казва, че %2$s отказва представянето.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Добавен нов контакт.</item>
     <item quantity="other">%d добавени нови контакти.</item>
   </plurals>

@@ -177,7 +177,7 @@
   <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
   <string name="introduction_response_declined_received">%1$s hat die Kontaktempfehlung von %2$s abgelehnt.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s meldet, dass %2$s die Kontaktempfehlung abgelehnt hat.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">neuer Kontakt hinzugefügt.</item>
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>

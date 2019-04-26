@@ -63,11 +63,6 @@ public interface ContactManager {
 	String getRemoteContactLink() throws DbException;
 
 	/**
-	 * Returns true if the given link is syntactically valid.
-	 */
-	boolean isValidRemoteContactLink(String link);
-
-	/**
 	 * Requests a new contact to be added via the given {@code link}.
 	 *
 	 * @param link The link received from the contact we want to add.

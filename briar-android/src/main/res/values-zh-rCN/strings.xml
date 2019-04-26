@@ -170,7 +170,7 @@
   <string name="introduction_response_accepted_received">%1$s 已接受与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received">%1$s 已谢绝与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s 表示 %2$s 谢绝了介绍。</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="other">已添加 %d 位新联系人。</item>
   </plurals>
   <!--Private Groups-->
