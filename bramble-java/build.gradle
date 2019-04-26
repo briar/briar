@@ -19,7 +19,7 @@ dependencies {
 	tor 'org.briarproject:tor:0.3.5.8@zip'
 	tor 'org.briarproject:obfs4proxy:0.0.7@zip'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.19'
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
@@ -28,7 +28,7 @@ dependencies {
 	testImplementation "org.jmock:jmock-junit4:2.8.2"
 	testImplementation "org.jmock:jmock-legacy:2.8.2"
 
-	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.19'
+	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
 }
 
 def torBinariesDir = 'src/main/resources'
