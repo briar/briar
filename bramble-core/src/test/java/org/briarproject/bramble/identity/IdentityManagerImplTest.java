@@ -53,7 +53,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testOpenDatabaseHookAccountRegistered() throws Exception {
+	public void testOpenDatabaseAccountRegistered() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).addAccount(txn, accountWithKeys);
 		}});
@@ -63,19 +63,7 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testOpenDatabaseHookNoAccountRegisteredHandshakeKeys()
-			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(db).getAccounts(txn);
-			will(returnValue(singletonList(accountWithKeys)));
-		}});
-
-		identityManager.onDatabaseOpened(txn);
-	}
-
-	@Test
-	public void testOpenDatabaseHookNoAccountRegisteredNoHandshakeKeys()
-			throws Exception {
+	public void testOpenDatabaseHandshakeKeysGenerated() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(db).getAccounts(txn);
 			will(returnValue(singletonList(accountWithoutKeys)));
@@ -93,18 +81,46 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testGetLocalAuthor() throws Exception {
+	public void testOpenDatabaseNoHandshakeKeysGenerated() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(db).getAccounts(txn);
+			will(returnValue(singletonList(accountWithKeys)));
+		}});
+
+		identityManager.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testGetLocalAuthorAccountRegistered() throws DbException {
+		identityManager.registerAccount(accountWithKeys);
+		assertEquals(localAuthor, identityManager.getLocalAuthor());
+	}
+
+	@Test
+	public void testGetLocalAuthorHandshakeKeysGenerated() throws Exception {
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(db).getAccounts(txn);
+			will(returnValue(singletonList(accountWithoutKeys)));
+			oneOf(crypto).generateAgreementKeyPair();
+			will(returnValue(handshakeKeyPair));
+			oneOf(handshakePublicKey).getEncoded();
+			will(returnValue(handshakePublicKeyBytes));
+			oneOf(handshakePrivateKey).getEncoded();
+			will(returnValue(handshakePrivateKeyBytes));
+		}});
+
+		assertEquals(localAuthor, identityManager.getLocalAuthor());
+	}
+
+	@Test
+	public void testGetLocalAuthorNoHandshakeKeysGenerated() throws Exception {
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(db).getAccounts(txn);
 			will(returnValue(singletonList(accountWithKeys)));
 		}});
-		assertEquals(localAuthor, identityManager.getLocalAuthor());
-	}
 
-	@Test
-	public void testGetCachedLocalAuthor() throws DbException {
-		identityManager.registerAccount(accountWithKeys);
 		assertEquals(localAuthor, identityManager.getLocalAuthor());
 	}
 
