@@ -140,9 +140,22 @@ public interface PrivateGroupManager {
 	@NotNullByDefault
 	interface PrivateGroupHook {
 
+		/**
+		 * Called when a member is being added to a private group.
+		 *
+		 * @param txn A read-write transaction
+		 * @param g The ID of the private group
+		 * @param a The member that is being added
+		 */
 		void addingMember(Transaction txn, GroupId g, Author a)
 				throws DbException;
 
+		/**
+		 * Called when a private group is being removed.
+		 *
+		 * @param txn A read-write transaction
+		 * @param g The ID of the private group that is being removed
+		 */
 		void removingGroup(Transaction txn, GroupId g) throws DbException;
 
 	}

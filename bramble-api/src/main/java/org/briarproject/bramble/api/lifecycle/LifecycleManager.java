@@ -102,6 +102,9 @@ public interface LifecycleManager {
 
 		enum Priority {EARLY, NORMAL, LATE}
 
+		/**
+		 * @param txn A read-write transaction
+		 */
 		void onDatabaseOpened(Transaction txn) throws DbException;
 	}
 }

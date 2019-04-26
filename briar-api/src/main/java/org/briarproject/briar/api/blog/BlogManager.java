@@ -124,6 +124,12 @@ public interface BlogManager {
 	void registerRemoveBlogHook(RemoveBlogHook hook);
 
 	interface RemoveBlogHook {
+		/**
+		 * Called when a blog is being removed.
+		 *
+		 * @param txn A read-write transaction
+		 * @param b The blog that is being removed
+		 */
 		void removingBlog(Transaction txn, Blog b) throws DbException;
 	}
 

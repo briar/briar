@@ -164,8 +164,20 @@ public interface ContactManager {
 
 	interface ContactHook {
 
+		/**
+		 * Called when a contact is being added.
+		 *
+		 * @param txn A read-write transaction
+		 * @param c The contact that is being added
+		 */
 		void addingContact(Transaction txn, Contact c) throws DbException;
 
+		/**
+		 * Called when a contact is being removed
+		 *
+		 * @param txn A read-write transaction
+		 * @param c The contact that is being removed
+		 */
 		void removingContact(Transaction txn, Contact c) throws DbException;
 	}
 }
