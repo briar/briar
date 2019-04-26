@@ -1,6 +1,7 @@
 package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyParser;
@@ -25,6 +26,8 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.fail;
 
 public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 
@@ -45,10 +48,15 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 		pendingContactFactory.createPendingContact("briar://potato", alias);
 	}
 
-	@Test(expected = FormatException.class)
+	@Test
 	public void testRejectsLinkWithUnknownFormatVersion() throws Exception {
 		String link = encodeLink(FORMAT_VERSION + 1);
-		pendingContactFactory.createPendingContact(link, alias);
+		try {
+			pendingContactFactory.createPendingContact(link, alias);
+			fail();
+		} catch (UnsupportedVersionException e) {
+			assertFalse(e.isTooOld());
+		}
 	}
 
 	@Test(expected = FormatException.class)
