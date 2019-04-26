@@ -1,8 +1,10 @@
 package org.briarproject.bramble.api.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -65,10 +67,15 @@ public interface ContactManager {
 	String getHandshakeLink() throws DbException;
 
 	/**
-	 * Adds a new pending contact identified by the given handshake link.
+	 * Creates a {@link PendingContact} from the given handshake link and
+	 * alias, adds it to the database and returns it.
 	 *
-	 * @param link The handshake link received from the contact we want to add.
-	 * @param alias The alias the user has given this contact.
+	 * @param link The handshake link received from the contact we want to add
+	 * @param alias The alias the user has given this contact
+	 * @return A PendingContact representing the contact to be added
+	 * @throws UnsupportedVersionException If the link uses a format version
+	 * that is not supported
+	 * @throws FormatException If the link is invalid
 	 */
 	PendingContact addPendingContact(String link, String alias)
 			throws DbException, FormatException;
@@ -92,7 +99,7 @@ public interface ContactManager {
 	 * Returns the contact with the given remoteAuthorId
 	 * that was added by the LocalAuthor with the given localAuthorId
 	 *
-	 * @throws org.briarproject.bramble.api.db.NoSuchContactException
+	 * @throws NoSuchContactException If the contact is not in the database
 	 */
 	Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException;
@@ -101,7 +108,7 @@ public interface ContactManager {
 	 * Returns the contact with the given remoteAuthorId
 	 * that was added by the LocalAuthor with the given localAuthorId
 	 *
-	 * @throws org.briarproject.bramble.api.db.NoSuchContactException
+	 * @throws NoSuchContactException If the contact is not in the database
 	 */
 	Contact getContact(Transaction txn, AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException;

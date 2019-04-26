@@ -1,6 +1,7 @@
 package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
@@ -49,7 +50,9 @@ class PendingContactFactoryImpl implements PendingContactFactory {
 		if (link.startsWith("briar://")) link = link.substring(8);
 		byte[] base32 = Base32.decode(link, false);
 		if (base32.length != RAW_LINK_BYTES) throw new AssertionError();
-		if (base32[0] != FORMAT_VERSION) throw new FormatException();
+		byte version = base32[0];
+		if (version != FORMAT_VERSION)
+			throw new UnsupportedVersionException(version < FORMAT_VERSION);
 		byte[] publicKeyBytes = new byte[base32.length - 1];
 		arraycopy(base32, 1, publicKeyBytes, 0, publicKeyBytes.length);
 		try {
