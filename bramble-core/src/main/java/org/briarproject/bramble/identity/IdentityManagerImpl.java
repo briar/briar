@@ -98,9 +98,7 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		Account cached = cachedAccount;
-		if (cached == null)
-			cachedAccount = cached = loadAccountWithKeyPair(txn);
+		Account cached = getCachedAccount(txn);
 		if (shouldStoreAccount) {
 			db.addAccount(txn, cached);
 			LOG.info("Account stored");
@@ -116,30 +114,30 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	@Override
 	public LocalAuthor getLocalAuthor() throws DbException {
 		Account cached = cachedAccount;
-		if (cached == null) {
-			cachedAccount = cached = db.transactionWithResult(true,
-					this::loadAccountWithKeyPair);
-		}
+		if (cached == null)
+			cached = db.transactionWithResult(true, this::getCachedAccount);
 		return cached.getLocalAuthor();
 	}
 
 	@Override
 	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
-		Account cached = cachedAccount;
-		if (cached == null)
-			cachedAccount = cached = loadAccountWithKeyPair(txn);
-		return cached.getLocalAuthor();
+		return getCachedAccount(txn).getLocalAuthor();
 	}
 
 	@Override
 	public byte[][] getHandshakeKeys(Transaction txn) throws DbException {
-		Account cached = cachedAccount;
-		if (cached == null)
-			cachedAccount = cached = loadAccountWithKeyPair(txn);
+		Account cached = getCachedAccount(txn);
 		return new byte[][] {
 				cached.getHandshakePublicKey(),
 				cached.getHandshakePrivateKey()
 		};
+	}
+
+	private Account getCachedAccount(Transaction txn) throws DbException {
+		Account cached = cachedAccount;
+		if (cached == null)
+			cachedAccount = cached = loadAccountWithKeyPair(txn);
+		return cached;
 	}
 
 	private Account loadAccountWithKeyPair(Transaction txn) throws DbException {
