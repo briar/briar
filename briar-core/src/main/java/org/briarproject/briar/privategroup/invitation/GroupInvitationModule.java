@@ -19,7 +19,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MINOR_VERSION;
@@ -43,8 +42,7 @@ public class GroupInvitationModule {
 			PrivateGroupManager privateGroupManager,
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager) {
-		lifecycleManager.registerOpenDatabaseHook(groupInvitationManager,
-				NORMAL);
+		lifecycleManager.registerOpenDatabaseHook(groupInvitationManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				groupInvitationManager);
 		contactManager.registerContactHook(groupInvitationManager);

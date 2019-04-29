@@ -14,7 +14,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.CLIENT_ID;
 import static org.briarproject.bramble.api.versioning.ClientVersioningManager.MAJOR_VERSION;
 
@@ -35,8 +34,7 @@ public class VersioningModule {
 			ClientVersioningManagerImpl clientVersioningManager,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager) {
-		lifecycleManager.registerOpenDatabaseHook(clientVersioningManager,
-				NORMAL);
+		lifecycleManager.registerOpenDatabaseHook(clientVersioningManager);
 		lifecycleManager.registerService(clientVersioningManager);
 		contactManager.registerContactHook(clientVersioningManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,

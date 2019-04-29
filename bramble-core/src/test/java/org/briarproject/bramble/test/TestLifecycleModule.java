@@ -3,7 +3,6 @@ package org.briarproject.bramble.test;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -32,8 +31,7 @@ public class TestLifecycleModule {
 			}
 
 			@Override
-			public void registerOpenDatabaseHook(OpenDatabaseHook hook,
-					Priority p) {
+			public void registerOpenDatabaseHook(OpenDatabaseHook hook) {
 			}
 
 			@Override

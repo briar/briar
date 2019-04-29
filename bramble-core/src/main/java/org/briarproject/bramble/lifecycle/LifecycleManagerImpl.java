@@ -1,6 +1,5 @@
 package org.briarproject.bramble.lifecycle;
 
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
@@ -9,13 +8,11 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -26,7 +23,6 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static java.util.Collections.sort;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -57,7 +53,7 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
 	private final List<Service> services;
-	private final List<Pair<OpenDatabaseHook, Priority>> openDatabaseHooks;
+	private final List<OpenDatabaseHook> openDatabaseHooks;
 	private final List<ExecutorService> executors;
 	private final Semaphore startStopSemaphore = new Semaphore(1);
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
@@ -83,12 +79,12 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	}
 
 	@Override
-	public void registerOpenDatabaseHook(OpenDatabaseHook hook, Priority p) {
+	public void registerOpenDatabaseHook(OpenDatabaseHook hook) {
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Registering open database hook "
 					+ hook.getClass().getSimpleName());
 		}
-		openDatabaseHooks.add(new Pair<>(hook, p));
+		openDatabaseHooks.add(hook);
 	}
 
 	@Override
@@ -109,13 +105,10 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			boolean reopened = db.open(dbKey, this);
 			if (reopened) logDuration(LOG, "Reopening database", start);
 			else logDuration(LOG, "Creating database", start);
-			List<Pair<OpenDatabaseHook, Priority>> hooks =
-					new ArrayList<>(openDatabaseHooks);
-			sort(hooks, (a, b) -> a.getSecond().compareTo(b.getSecond()));
+
 			db.transaction(false, txn -> {
-				for (Pair<OpenDatabaseHook, Priority> pair : hooks) {
+				for (OpenDatabaseHook hook : openDatabaseHooks) {
 					long start1 = now();
-					OpenDatabaseHook hook = pair.getFirst();
 					hook.onDatabaseOpened(txn);
 					if (LOG.isLoggable(FINE)) {
 						logDuration(LOG, "Calling open database hook "

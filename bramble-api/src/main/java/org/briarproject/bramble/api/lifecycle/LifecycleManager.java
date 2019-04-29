@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.ExecutorService;
@@ -48,7 +47,7 @@ public interface LifecycleManager {
 	 * {@link Service services} are started. This method should be called
 	 * before {@link #startServices(SecretKey)}.
 	 */
-	void registerOpenDatabaseHook(OpenDatabaseHook hook, Priority p);
+	void registerOpenDatabaseHook(OpenDatabaseHook hook);
 
 	/**
 	 * Registers a {@link Service} to be started and stopped. This method
@@ -99,10 +98,10 @@ public interface LifecycleManager {
 	LifecycleState getLifecycleState();
 
 	interface OpenDatabaseHook {
-
-		enum Priority {EARLY, NORMAL, LATE}
-
 		/**
+		 * Called when the database is being opened, before
+		 * {@link #waitForDatabase()} returns.
+		 *
 		 * @param txn A read-write transaction
 		 */
 		void onDatabaseOpened(Transaction txn) throws DbException;

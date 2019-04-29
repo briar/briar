@@ -56,7 +56,6 @@ import dagger.Provides;
 import static android.content.Context.MODE_PRIVATE;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
@@ -227,7 +226,7 @@ public class AppModule {
 	@Singleton
 	RecentEmoji provideRecentEmoji(LifecycleManager lifecycleManager,
 			RecentEmojiImpl recentEmoji) {
-		lifecycleManager.registerOpenDatabaseHook(recentEmoji, NORMAL);
+		lifecycleManager.registerOpenDatabaseHook(recentEmoji);
 		return recentEmoji;
 	}
 }

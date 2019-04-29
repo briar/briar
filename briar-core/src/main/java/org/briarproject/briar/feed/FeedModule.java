@@ -11,8 +11,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
-
 @Module
 public class FeedModule {
 
@@ -26,7 +24,7 @@ public class FeedModule {
 	FeedManager provideFeedManager(FeedManagerImpl feedManager,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			BlogManager blogManager) {
-		lifecycleManager.registerOpenDatabaseHook(feedManager, NORMAL);
+		lifecycleManager.registerOpenDatabaseHook(feedManager);
 		eventBus.addListener(feedManager);
 		blogManager.registerRemoveBlogHook(feedManager);
 		return feedManager;

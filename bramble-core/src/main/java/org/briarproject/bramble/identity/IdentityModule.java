@@ -10,8 +10,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.EARLY;
-
 @Module
 public class IdentityModule {
 
@@ -29,7 +27,7 @@ public class IdentityModule {
 	@Singleton
 	IdentityManager provideIdentityManager(LifecycleManager lifecycleManager,
 			IdentityManagerImpl identityManager) {
-		lifecycleManager.registerOpenDatabaseHook(identityManager, EARLY);
+		lifecycleManager.registerOpenDatabaseHook(identityManager);
 		return identityManager;
 	}
 }

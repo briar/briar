@@ -15,7 +15,6 @@ import javax.inject.Singleton;
 import dagger.Module;
 import dagger.Provides;
 
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.MINOR_VERSION;
@@ -49,8 +48,7 @@ public class PropertiesModule {
 			ValidationManager validationManager, ContactManager contactManager,
 			ClientVersioningManager clientVersioningManager,
 			TransportPropertyManagerImpl transportPropertyManager) {
-		lifecycleManager.registerOpenDatabaseHook(transportPropertyManager,
-				NORMAL);
+		lifecycleManager.registerOpenDatabaseHook(transportPropertyManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				transportPropertyManager);
 		contactManager.registerContactHook(transportPropertyManager);

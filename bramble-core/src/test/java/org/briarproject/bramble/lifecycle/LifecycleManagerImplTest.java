@@ -11,13 +11,9 @@ import org.briarproject.bramble.test.DbExpectations;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import static java.util.Arrays.asList;
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.EARLY;
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.LATE;
-import static org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook.Priority.NORMAL;
+import static junit.framework.TestCase.assertTrue;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.junit.Assert.assertEquals;
@@ -37,12 +33,10 @@ public class LifecycleManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testOpenDatabaseHooksRunInOrderOfPriority() throws Exception {
+	public void testOpenDatabaseHooksAreCalledAtStartup() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		List<Integer> results = new ArrayList<>();
-		OpenDatabaseHook hook1 = transaction -> results.add(1);
-		OpenDatabaseHook hook2 = transaction -> results.add(2);
-		OpenDatabaseHook hook3 = transaction -> results.add(3);
+		AtomicBoolean called = new AtomicBoolean(false);
+		OpenDatabaseHook hook = transaction -> called.set(true);
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).open(dbKey, lifecycleManager);
@@ -51,11 +45,9 @@ public class LifecycleManagerImplTest extends BrambleMockTestCase {
 			allowing(eventBus).broadcast(with(any(LifecycleEvent.class)));
 		}});
 
-		lifecycleManager.registerOpenDatabaseHook(hook1, LATE);
-		lifecycleManager.registerOpenDatabaseHook(hook2, NORMAL);
-		lifecycleManager.registerOpenDatabaseHook(hook3, EARLY);
+		lifecycleManager.registerOpenDatabaseHook(hook);
 
 		assertEquals(SUCCESS, lifecycleManager.startServices(dbKey));
-		assertEquals(asList(3, 2, 1), results);
+		assertTrue(called.get());
 	}
 }
