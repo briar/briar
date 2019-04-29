@@ -73,13 +73,13 @@
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.login.PasswordActivity"
+			android:name="org.briarproject.briar.android.login.StartupActivity"
 			android:label="@string/app_name"
-			android:windowSoftInputMode="stateVisible">
+			android:windowSoftInputMode="stateUnchanged">
 		</activity>
 
 		<activity
-			android:name="org.briarproject.briar.android.login.SetupActivity"
+			android:name="org.briarproject.briar.android.account.SetupActivity"
 			android:label="@string/setup_title"
 			android:windowSoftInputMode="adjustResize">
 		</activity>
@@ -93,11 +93,6 @@
 				<category android:name="android.intent.category.LAUNCHER"/>
 			</intent-filter>
 		</activity>
-
-		<activity
-			android:name=".android.login.OpenDatabaseActivity"
-			android:label="@string/app_name"
-			android:launchMode="singleTop"/>
 
 		<activity
 			android:name="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
@@ -420,7 +415,7 @@
 		</activity>
 
 		<activity
-			android:name=".android.login.UnlockActivity"
+			android:name=".android.account.UnlockActivity"
 			android:label="@string/lock_unlock"
 			android:launchMode="singleTask"
 			android:theme="@style/BriarTheme.NoActionBar"/>

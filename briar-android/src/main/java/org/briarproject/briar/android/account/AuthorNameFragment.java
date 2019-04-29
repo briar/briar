@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;

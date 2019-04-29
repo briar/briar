@@ -11,14 +11,14 @@ import java.util.concurrent.Executor;
 import javax.inject.Inject;
 
 @NotNullByDefault
-public class PasswordControllerImpl implements PasswordController {
+public class ChangePasswordControllerImpl implements ChangePasswordController {
 
 	protected final AccountManager accountManager;
 	protected final Executor ioExecutor;
 	private final PasswordStrengthEstimator strengthEstimator;
 
 	@Inject
-	PasswordControllerImpl(AccountManager accountManager,
+	ChangePasswordControllerImpl(AccountManager accountManager,
 			@IoExecutor Executor ioExecutor,
 			PasswordStrengthEstimator strengthEstimator) {
 		this.accountManager = accountManager;
@@ -29,13 +29,6 @@ public class PasswordControllerImpl implements PasswordController {
 	@Override
 	public float estimatePasswordStrength(String password) {
 		return strengthEstimator.estimateStrength(password);
-	}
-
-	@Override
-	public void validatePassword(String password,
-			ResultHandler<Boolean> resultHandler) {
-		ioExecutor.execute(() ->
-				resultHandler.onResult(accountManager.signIn(password)));
 	}
 
 	@Override

@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.content.Context;
 import android.os.Parcel;

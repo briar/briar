@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;

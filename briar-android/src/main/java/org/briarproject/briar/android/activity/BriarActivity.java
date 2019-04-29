@@ -15,8 +15,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
-import org.briarproject.briar.android.login.PasswordActivity;
-import org.briarproject.briar.android.login.UnlockActivity;
+import org.briarproject.briar.android.login.StartupActivity;
+import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.logout.ExitActivity;
 import org.briarproject.briar.api.android.LockManager;
 
@@ -86,8 +86,8 @@ public abstract class BriarActivity extends BaseActivity {
 		if (!briarController.accountSignedIn() && !isFinishing()) {
 			// Also check that the activity isn't finishing already.
 			// This is possible if we finished in onActivityResult().
-			// Launching another PasswordActivity would cause a loop.
-			Intent i = new Intent(this, PasswordActivity.class);
+			// Launching another StartupActivity would cause a loop.
+			Intent i = new Intent(this, StartupActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		} else if (lockManager.isLocked() && !isFinishing()) {
 			// Also check that the activity isn't finishing already.

@@ -40,7 +40,6 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.ArrayList;
@@ -80,6 +79,7 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
+import static org.briarproject.briar.android.activity.ActivityComponent.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
@@ -192,7 +192,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				// bring up parent activity, so it can change its theme as well
 				// upstream bug: https://issuetracker.google.com/issues/38352704
 				Intent intent =
-						new Intent(getActivity(), NavDrawerActivity.class);
+						new Intent(getActivity(), ENTRY_ACTIVITY);
 				intent.setFlags(
 						FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_NEW_TASK);
 				startActivity(intent);
@@ -575,8 +575,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		builder.setPositiveButton(R.string.sign_out_button,
 				(dialogInterface, i) -> {
 					language.setValue(newValue);
-					Intent intent = new Intent(getContext(),
-							NavDrawerActivity.class);
+					Intent intent = new Intent(getContext(), ENTRY_ACTIVITY);
 					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 					intent.putExtra(INTENT_SIGN_OUT, true);
 					requireActivity().startActivity(intent);

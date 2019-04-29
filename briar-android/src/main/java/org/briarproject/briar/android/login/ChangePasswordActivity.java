@@ -31,7 +31,7 @@ public class ChangePasswordActivity extends BriarActivity
 		implements OnClickListener, OnEditorActionListener {
 
 	@Inject
-	protected PasswordController passwordController;
+	protected ChangePasswordController passwordController;
 
 	private TextInputLayout currentPasswordEntryWrapper;
 	private TextInputLayout newPasswordEntryWrapper;

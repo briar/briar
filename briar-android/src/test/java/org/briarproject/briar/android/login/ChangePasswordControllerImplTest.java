@@ -14,7 +14,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 
-public class PasswordControllerImplTest extends BrambleMockTestCase {
+public class ChangePasswordControllerImplTest extends BrambleMockTestCase {
 
 	private final AccountManager accountManager =
 			context.mock(AccountManager.class);
@@ -33,7 +33,7 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 		}});
 
-		PasswordControllerImpl p = new PasswordControllerImpl(accountManager,
+		ChangePasswordControllerImpl p = new ChangePasswordControllerImpl(accountManager,
 				ioExecutor, estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(false);
@@ -48,7 +48,7 @@ public class PasswordControllerImplTest extends BrambleMockTestCase {
 			will(returnValue(false));
 		}});
 
-		PasswordControllerImpl p = new PasswordControllerImpl(accountManager,
+		ChangePasswordControllerImpl p = new ChangePasswordControllerImpl(accountManager,
 				ioExecutor, estimator);
 
 		AtomicBoolean capturedResult = new AtomicBoolean(true);

@@ -6,7 +6,8 @@ package org.briarproject.briar.android.login;
  */
 public class TestChangePasswordActivity extends ChangePasswordActivity {
 
-	public void setPasswordController(PasswordController passwordController) {
+	public void setPasswordController(
+			ChangePasswordController passwordController) {
 		this.passwordController = passwordController;
 	}
 

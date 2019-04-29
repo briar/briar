@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.support.annotation.Nullable;
 
@@ -15,12 +15,15 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 @NotNullByDefault
-public class SetupControllerImpl extends PasswordControllerImpl
-		implements SetupController {
+public class SetupControllerImpl implements SetupController {
 
 	private static final Logger LOG =
 			Logger.getLogger(SetupControllerImpl.class.getName());
 
+	private final AccountManager accountManager;
+	private final PasswordStrengthEstimator strengthEstimator;
+	@IoExecutor
+	private final Executor ioExecutor;
 	@Nullable
 	private volatile SetupActivity setupActivity;
 
@@ -28,7 +31,9 @@ public class SetupControllerImpl extends PasswordControllerImpl
 	SetupControllerImpl(AccountManager accountManager,
 			@IoExecutor Executor ioExecutor,
 			PasswordStrengthEstimator strengthEstimator) {
-		super(accountManager, ioExecutor, strengthEstimator);
+		this.accountManager = accountManager;
+		this.strengthEstimator = strengthEstimator;
+		this.ioExecutor = ioExecutor;
 	}
 
 	@Override
@@ -49,6 +54,11 @@ public class SetupControllerImpl extends PasswordControllerImpl
 		SetupActivity setupActivity = this.setupActivity;
 		if (setupActivity == null) throw new IllegalStateException();
 		setupActivity.setAuthorName(authorName);
+	}
+
+	@Override
+	public float estimatePasswordStrength(String password) {
+		return strengthEstimator.estimateStrength(password);
 	}
 
 	@Override

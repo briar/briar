@@ -36,6 +36,7 @@ import android.transition.Transition;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import org.acra.ACRA;
@@ -56,6 +57,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
+import static android.support.v4.content.ContextCompat.getSystemService;
 import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_AUTO;
 import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
@@ -76,6 +78,8 @@ import static android.text.format.DateUtils.YEAR_IN_MILLIS;
 import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
+import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
@@ -86,6 +90,18 @@ public class UiUtils {
 	public static final long MIN_DATE_RESOLUTION = MINUTE_IN_MILLIS;
 	public static final int TEASER_LENGTH = 320;
 	public static final float GREY_OUT = 0.5f;
+
+	public static void showSoftKeyboard(View view) {
+		InputMethodManager imm = requireNonNull(
+				getSystemService(view.getContext(), InputMethodManager.class));
+		imm.showSoftInput(view, SHOW_IMPLICIT);
+	}
+
+	public static void hideSoftKeyboard(View view) {
+		InputMethodManager imm = requireNonNull(
+				getSystemService(view.getContext(), InputMethodManager.class));
+		imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+	}
 
 	public static String getContactDisplayName(Author author,
 			@Nullable String alias) {
