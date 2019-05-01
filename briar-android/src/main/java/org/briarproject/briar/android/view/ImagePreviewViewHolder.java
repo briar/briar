@@ -18,6 +18,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 
 import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.bitmap.DownsampleStrategy.FIT_CENTER;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
@@ -38,31 +39,37 @@ class ImagePreviewViewHolder extends ViewHolder {
 	}
 
 	void bind(ImagePreviewItem item) {
-		if (item.getItem() == null) return;  // shows progress bar
-		GlideApp.with(imageView)
-				.load(item.getItem())
-				.diskCacheStrategy(NONE)
-				.error(ERROR_RES)
-				.downsample(FIT_CENTER)
-				.transition(withCrossFade())
-				.addListener(new RequestListener<Drawable>() {
-					@Override
-					public boolean onLoadFailed(@Nullable GlideException e,
-							Object model, Target<Drawable> target,
-							boolean isFirstResource) {
-						progressBar.setVisibility(INVISIBLE);
-						return false;
-					}
+		if (item.getItem() == null) {
+			progressBar.setVisibility(VISIBLE);
+			GlideApp.with(imageView)
+					.clear(imageView);
+		} else {
+			GlideApp.with(imageView)
+					.load(item.getItem())
+					.diskCacheStrategy(NONE)
+					.error(ERROR_RES)
+					.downsample(FIT_CENTER)
+					.transition(withCrossFade())
+					.addListener(new RequestListener<Drawable>() {
+						@Override
+						public boolean onLoadFailed(@Nullable GlideException e,
+								Object model, Target<Drawable> target,
+								boolean isFirstResource) {
+							progressBar.setVisibility(INVISIBLE);
+							return false;
+						}
 
-					@Override
-					public boolean onResourceReady(Drawable resource,
-							Object model, Target<Drawable> target,
-							DataSource dataSource, boolean isFirstResource) {
-						progressBar.setVisibility(INVISIBLE);
-						return false;
-					}
-				})
-				.into(imageView);
+						@Override
+						public boolean onResourceReady(Drawable resource,
+								Object model, Target<Drawable> target,
+								DataSource dataSource,
+								boolean isFirstResource) {
+							progressBar.setVisibility(INVISIBLE);
+							return false;
+						}
+					})
+					.into(imageView);
+		}
 	}
 
 }
