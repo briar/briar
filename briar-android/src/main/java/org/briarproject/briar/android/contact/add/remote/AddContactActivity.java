@@ -63,7 +63,7 @@ public class AddContactActivity extends BriarActivity implements
 				String text = i.getStringExtra(EXTRA_TEXT);
 				if (text != null) {
 					if (viewModel.isValidRemoteContactLink(text)) {
-						viewModel.setRemoteContactLink(text);
+						viewModel.setRemoteHandshakeLink(text);
 					} else {
 						Toast.makeText(this, R.string.invalid_link, LENGTH_LONG)
 								.show();
@@ -72,7 +72,7 @@ public class AddContactActivity extends BriarActivity implements
 				String uri = i.getDataString();
 				if (uri != null) {
 					if (viewModel.isValidRemoteContactLink(uri)) {
-						viewModel.setRemoteContactLink(uri);
+						viewModel.setRemoteHandshakeLink(uri);
 					} else {
 						Toast.makeText(this, R.string.invalid_link, LENGTH_LONG)
 								.show();

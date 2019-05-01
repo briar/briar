@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.contact;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -60,16 +61,16 @@ public interface ContactManager {
 	/**
 	 * Returns the static link that needs to be sent to the contact to be added.
 	 */
-	String getRemoteContactLink() throws DbException;
+	String getHandshakeLink() throws DbException;
 
 	/**
 	 * Requests a new contact to be added via the given {@code link}.
 	 *
 	 * @param link The link received from the contact we want to add.
 	 * @param alias The alias the user has given this contact.
-	 * @return A PendingContact representing the contact to be added.
 	 */
-	void addRemoteContactRequest(String link, String alias);
+	void addPendingContact(String link, String alias)
+			throws DbException, FormatException;
 
 	/**
 	 * Returns a list of {@link PendingContact}s.
@@ -81,7 +82,7 @@ public interface ContactManager {
 	 * {@link PendingContactState FAILED}.
 	 * @param commitAction an action to run on the main thread after removing.
 	 */
-	void removePendingContact(PendingContact pendingContact,
+	void removePendingContact(PendingContactId pendingContact,
 			Runnable commitAction) throws DbException;
 
 	/**

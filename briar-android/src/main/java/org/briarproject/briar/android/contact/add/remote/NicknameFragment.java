@@ -11,6 +11,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -21,6 +23,9 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 
@@ -37,6 +42,8 @@ public class NicknameFragment extends BaseFragment {
 
 	private TextInputLayout contactNameLayout;
 	private TextInputEditText contactNameInput;
+	private Button addButton;
+	private ProgressBar progressBar;
 
 	@Override
 	public String getUniqueTag() {
@@ -61,11 +68,13 @@ public class NicknameFragment extends BaseFragment {
 		viewModel = ViewModelProviders.of(getActivity(), viewModelFactory)
 				.get(AddContactViewModel.class);
 
-		Button addButton = v.findViewById(R.id.addButton);
-		addButton.setOnClickListener(view -> onAddButtonClicked());
-
 		contactNameLayout = v.findViewById(R.id.contactNameLayout);
 		contactNameInput = v.findViewById(R.id.contactNameInput);
+
+		addButton = v.findViewById(R.id.addButton);
+		addButton.setOnClickListener(view -> onAddButtonClicked());
+
+		progressBar = v.findViewById(R.id.progressBar);
 
 		return v;
 	}
@@ -91,12 +100,22 @@ public class NicknameFragment extends BaseFragment {
 		String name = getNicknameOrNull();
 		if (name == null) return;  // invalid nickname
 
-		viewModel.addContact(name);
+		addButton.setVisibility(INVISIBLE);
+		progressBar.setVisibility(VISIBLE);
 
-		Intent intent =
-				new Intent(getActivity(), PendingContactListActivity.class);
-		startActivity(intent);
-		finish();
+		viewModel.getAddContactResult().observe(this, success -> {
+			if (success == null) return;
+			if (success) {
+				Intent intent = new Intent(getActivity(),
+						PendingContactListActivity.class);
+				startActivity(intent);
+			} else {
+				Toast.makeText(getContext(), R.string.adding_contact_error,
+						LENGTH_LONG).show();
+			}
+			finish();
+		});
+		viewModel.addContact(name);
 	}
 
 }

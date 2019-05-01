@@ -7,6 +7,7 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -32,11 +33,14 @@ public class AddContactViewModel extends AndroidViewModel {
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 
-	private final MutableLiveData<String> ourLink = new MutableLiveData<>();
+	private final MutableLiveData<String> handshakeLink =
+			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> remoteLinkEntered =
 			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> addContactResult =
+			new MutableLiveData<>();
 	@Nullable
-	private String remoteContactLink;
+	private String remoteHandshakeLink;
 
 	@Inject
 	public AddContactViewModel(@NonNull Application application,
@@ -45,13 +49,13 @@ public class AddContactViewModel extends AndroidViewModel {
 		super(application);
 		this.contactManager = contactManager;
 		this.dbExecutor = dbExecutor;
-		loadOurLink();
+		loadHandshakeLink();
 	}
 
-	private void loadOurLink() {
+	private void loadHandshakeLink() {
 		dbExecutor.execute(() -> {
 			try {
-				ourLink.postValue(contactManager.getRemoteContactLink());
+				handshakeLink.postValue(contactManager.getHandshakeLink());
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				// the UI should stay disable in this case,
@@ -60,12 +64,12 @@ public class AddContactViewModel extends AndroidViewModel {
 		});
 	}
 
-	LiveData<String> getOurLink() {
-		return ourLink;
+	LiveData<String> getHandshakeLink() {
+		return handshakeLink;
 	}
 
-	void setRemoteContactLink(String link) {
-		remoteContactLink = link;
+	void setRemoteHandshakeLink(String link) {
+		remoteHandshakeLink = link;
 	}
 
 	boolean isValidRemoteContactLink(@Nullable CharSequence link) {
@@ -77,14 +81,26 @@ public class AddContactViewModel extends AndroidViewModel {
 	}
 
 	void onRemoteLinkEntered() {
-		if (remoteContactLink == null) throw new IllegalStateException();
+		if (remoteHandshakeLink == null) throw new IllegalStateException();
 		remoteLinkEntered.setValue(true);
 		remoteLinkEntered.postValue(false);  // reset, so we can navigate back
 	}
 
 	void addContact(String nickname) {
-		if (remoteContactLink == null) throw new IllegalStateException();
-		contactManager.addRemoteContactRequest(remoteContactLink, nickname);
+		if (remoteHandshakeLink == null) throw new IllegalStateException();
+		dbExecutor.execute(() -> {
+			try {
+				contactManager.addPendingContact(remoteHandshakeLink, nickname);
+				addContactResult.postValue(true);
+			} catch (DbException | FormatException e) {
+				logException(LOG, WARNING, e);
+				addContactResult.postValue(false);
+			}
+		});
+	}
+
+	public LiveData<Boolean> getAddContactResult() {
+		return addContactResult;
 	}
 
 }

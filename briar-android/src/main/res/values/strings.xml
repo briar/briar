@@ -188,6 +188,7 @@
 	<string name="your_link">Give this link to the contact you want to add</string>
 	<string name="link_clip_label">Briar link</string>
 	<string name="link_copied_toast">Link copied</string>
+	<string name="adding_contact_error">There was an error adding the contact.</string>
 	<string name="pending_contact_requests_snackbar">There are pending contact requests</string>
 	<string name="pending_contact_requests">Pending Contact Requests</string>
 	<string name="no_pending_contacts">No pending contacts</string>

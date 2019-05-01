@@ -116,7 +116,7 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public String getRemoteContactLink() {
+	public String getHandshakeLink() {
 		// TODO replace with real implementation
 		try {
 			Thread.sleep(1500);
@@ -139,27 +139,23 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void addRemoteContactRequest(String link, String alias) {
+	public void addPendingContact(String link, String alias)
+			throws DbException {
 		// TODO replace with real implementation
+		try {
+			Thread.sleep(1500);
+		} catch (InterruptedException ignored) {
+		}
 		PendingContactId id = new PendingContactId(
 				link.substring(0, PendingContactId.LENGTH).getBytes());
 		PendingContact pendingContact =
 				new PendingContact(id, new byte[MAX_PUBLIC_KEY_LENGTH],
 						alias, WAITING_FOR_CONNECTION, currentTimeMillis());
-		dbExecutor.execute(() -> {
-			try {
-				Thread.sleep(1500);
-			} catch (InterruptedException ignored) {
-			}
-			try {
-				getLogger("TMP").warning("WAITING_FOR_CONNECTION");
-				pendingContacts.add(pendingContact);
-				Event e = new PendingContactStateChangedEvent(id,
-						WAITING_FOR_CONNECTION);
-				db.transaction(true, txn -> txn.attach(e));
-			} catch (DbException ignored) {
-			}
-		});
+		getLogger("TMP").warning("WAITING_FOR_CONNECTION");
+		pendingContacts.add(pendingContact);
+		Event event = new PendingContactStateChangedEvent(id,
+				WAITING_FOR_CONNECTION);
+		db.transaction(true, txn -> txn.attach(event));
 
 		scheduler.schedule(() -> dbExecutor.execute(() -> {
 			getLogger("TMP").warning("CONNECTED");
@@ -222,10 +218,15 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void removePendingContact(PendingContact pendingContact,
+	public void removePendingContact(PendingContactId id,
 			Runnable commitAction) throws DbException {
 		// TODO replace with real implementation
-		pendingContacts.remove(pendingContact);
+		for (PendingContact pc : pendingContacts) {
+			if (pc.getId().equals(id)) {
+				pendingContacts.remove(pc);
+				break;
+			}
+		}
 		try {
 			Thread.sleep(250);
 		} catch (InterruptedException ignored) {

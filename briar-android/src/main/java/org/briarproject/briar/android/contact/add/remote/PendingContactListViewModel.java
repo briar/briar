@@ -7,6 +7,7 @@ import android.arch.lifecycle.MutableLiveData;
 
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -81,12 +82,11 @@ public class PendingContactListViewModel extends AndroidViewModel
 		return pendingContacts;
 	}
 
-	void removePendingContact(PendingContact pendingContact,
-			Runnable commitAction) {
+	void removePendingContact(PendingContactId id, Runnable commitAction) {
 		dbExecutor.execute(() -> {
 			try {
 				contactManager
-						.removePendingContact(pendingContact, commitAction);
+						.removePendingContact(id, commitAction);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}

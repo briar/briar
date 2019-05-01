@@ -83,12 +83,13 @@ public class LinkExchangeFragment extends BaseFragment {
 				linkInput.setText(clipData.getItemAt(0).getText());
 		});
 
-		observeOnce(viewModel.getOurLink(), this, this::onOwnLinkLoaded);
+		observeOnce(viewModel.getHandshakeLink(), this,
+				this::onHandshakeLinkLoaded);
 
 		return v;
 	}
 
-	private void onOwnLinkLoaded(String link) {
+	private void onHandshakeLinkLoaded(String link) {
 		View v = requireNonNull(getView());
 
 		TextView linkView = v.findViewById(R.id.linkView);
@@ -118,10 +119,10 @@ public class LinkExchangeFragment extends BaseFragment {
 	}
 
 	/**
-	 * Requires {@link AddContactViewModel#getOurLink()} to be loaded.
+	 * Requires {@link AddContactViewModel#getHandshakeLink()} to be loaded.
 	 */
 	@Nullable
-	private String getEnteredLinkOrNull() {
+	private String getRemoteHandshakeLinkOrNull() {
 		CharSequence link = linkInput.getText();
 		if (link == null || link.length() == 0) {
 			linkInputLayout.setError(getString(R.string.missing_link));
@@ -135,7 +136,7 @@ public class LinkExchangeFragment extends BaseFragment {
 			// Check also if this is our own link. This was loaded already,
 			// because it enables the Continue button which is the only caller.
 			if (("briar://" + linkWithoutSchema)
-					.equals(viewModel.getOurLink().getValue())) {
+					.equals(viewModel.getHandshakeLink().getValue())) {
 				linkInputLayout.setError(getString(R.string.own_link_error));
 				linkInput.requestFocus();
 				return null;
@@ -149,10 +150,10 @@ public class LinkExchangeFragment extends BaseFragment {
 	}
 
 	private void onContinueButtonClicked() {
-		String link = getEnteredLinkOrNull();
+		String link = getRemoteHandshakeLinkOrNull();
 		if (link == null) return;  // invalid link
 
-		viewModel.setRemoteContactLink(link);
+		viewModel.setRemoteHandshakeLink(link);
 		viewModel.onRemoteLinkEntered();
 	}
 
