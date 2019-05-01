@@ -27,14 +27,14 @@ public interface KeyManager {
 	 * @param alice true if the local party is Alice
 	 * @param active whether the derived keys can be used for outgoing streams
 	 */
-	Map<TransportId, TransportKeySetId> addContact(Transaction txn, ContactId c,
+	Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
 			SecretKey rootKey, long timestamp, boolean alice, boolean active)
 			throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
-	void activateKeys(Transaction txn, Map<TransportId, TransportKeySetId> keys)
+	void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
 			throws DbException;
 
 	/**

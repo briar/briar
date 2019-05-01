@@ -23,7 +23,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.KeyManager;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
@@ -430,7 +430,7 @@ class IntroduceeProtocolEngine
 				s.getRemote().acceptTimestamp);
 		if (timestamp == -1) throw new AssertionError();
 
-		Map<TransportId, TransportKeySetId> keys = null;
+		Map<TransportId, KeySetId> keys = null;
 		try {
 			contactManager.addContact(txn, s.getRemote().author,
 					localAuthor.getId(), false);

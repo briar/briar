@@ -1,22 +1,22 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
+import org.briarproject.bramble.api.transport.KeySetId;
 
 class MutableKeySet {
 
-	private final TransportKeySetId keySetId;
+	private final KeySetId keySetId;
 	private final ContactId contactId;
 	private final MutableTransportKeys transportKeys;
 
-	MutableKeySet(TransportKeySetId keySetId, ContactId contactId,
+	MutableKeySet(KeySetId keySetId, ContactId contactId,
 			MutableTransportKeys transportKeys) {
 		this.keySetId = keySetId;
 		this.contactId = contactId;
 		this.transportKeys = transportKeys;
 	}
 
-	TransportKeySetId getKeySetId() {
+	KeySetId getKeySetId() {
 		return keySetId;
 	}
 

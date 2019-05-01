@@ -46,11 +46,10 @@ import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
-import org.briarproject.bramble.api.transport.HandshakeKeys;
 import org.briarproject.bramble.api.transport.IncomingKeys;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeySet;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
@@ -117,7 +116,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final int maxLatency;
 	private final ContactId contactId;
 	private final Contact contact;
-	private final TransportKeySetId keySetId;
+	private final KeySetId keySetId;
 	private final PendingContactId pendingContactId;
 
 	public DatabaseComponentImplTest() {
@@ -139,7 +138,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		contact = getContact(author, localAuthor.getId(), true);
 		contactId = contact.getId();
 		alias = contact.getAlias();
-		keySetId = new TransportKeySetId(345);
+		keySetId = new KeySetId(345);
 		pendingContactId = new PendingContactId(getRandomId());
 	}
 
@@ -284,23 +283,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(17).of(database).startTransaction();
+			exactly(16).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(17).of(database).containsContact(txn, contactId);
+			exactly(16).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(17).of(database).abortTransaction(txn);
+			exactly(16).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
-
-		try {
-			db.transaction(false, transaction ->
-					db.addHandshakeKeys(transaction, contactId,
-							createHandshakeKeys()));
-			fail();
-		} catch (NoSuchContactException expected) {
-			// Expected
-		}
 
 		try {
 			db.transaction(false, transaction ->
@@ -497,8 +487,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			exactly(8).of(database).containsGroup(txn, groupId);
 			will(returnValue(false));
 			exactly(8).of(database).abortTransaction(txn);
-			// This is needed for getMessageStatus() and setGroupVisibility()
-			exactly(2).of(database).containsContact(txn, contactId);
+			// Allow other checks to pass
+			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
@@ -581,8 +571,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			exactly(11).of(database).containsMessage(txn, messageId);
 			will(returnValue(false));
 			exactly(11).of(database).abortTransaction(txn);
-			// This is needed for getMessageStatus() to proceed
-			exactly(1).of(database).containsContact(txn, contactId);
+			// Allow other checks to pass
+			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
@@ -682,14 +672,37 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the transport is in the DB (which it's not)
-			exactly(5).of(database).startTransaction();
+			exactly(8).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(5).of(database).containsTransport(txn, transportId);
+			exactly(8).of(database).containsTransport(txn, transportId);
 			will(returnValue(false));
-			exactly(5).of(database).abortTransaction(txn);
+			exactly(8).of(database).abortTransaction(txn);
+			// Allow other checks to pass
+			allowing(database).containsContact(txn, contactId);
+			will(returnValue(true));
+			allowing(database).containsPendingContact(txn, pendingContactId);
+			will(returnValue(true));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addTransportKeys(transaction, contactId,
+							createHandshakeKeys()));
+			fail();
+		} catch (NoSuchTransportException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.addTransportKeys(transaction, pendingContactId,
+							createHandshakeKeys()));
+			fail();
+		} catch (NoSuchTransportException expected) {
+			// Expected
+		}
 
 		try {
 			db.transaction(false, transaction ->
@@ -710,7 +723,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.removeTransport(transaction, transportId));
+					db.removeTransportKeys(transaction, transportId, keySetId));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
@@ -718,7 +731,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.removeTransportKeys(transaction, transportId, keySetId));
+					db.removeTransport(transaction, transportId));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
@@ -728,6 +741,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.setReorderingWindow(transaction, keySetId, transportId,
 							0, 0, new byte[REORDERING_WINDOW_SIZE / 8]));
+			fail();
+		} catch (NoSuchTransportException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.setTransportKeysActive(transaction, transportId,
+							keySetId));
 			fail();
 		} catch (NoSuchTransportException expected) {
 			// Expected
@@ -751,7 +773,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.addHandshakeKeys(transaction, pendingContactId,
+					db.addTransportKeys(transaction, pendingContactId,
 							createHandshakeKeys()));
 			fail();
 		} catch (NoSuchPendingContactException expected) {
@@ -1167,7 +1189,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	public void testTransportKeys() throws Exception {
 		TransportKeys transportKeys = createTransportKeys();
 		TransportKeySet ks =
-				new TransportKeySet(keySetId, contactId, transportKeys);
+				new TransportKeySet(keySetId, contactId, null, transportKeys);
 		Collection<TransportKeySet> keys = singletonList(ks);
 
 		context.checking(new Expectations() {{
@@ -1295,7 +1317,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		});
 	}
 
-	private HandshakeKeys createHandshakeKeys() {
+	private TransportKeys createHandshakeKeys() {
 		SecretKey inPrevTagKey = getSecretKey();
 		SecretKey inPrevHeaderKey = getSecretKey();
 		IncomingKeys inPrev = new IncomingKeys(inPrevTagKey, inPrevHeaderKey,
@@ -1312,7 +1334,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		SecretKey outCurrHeaderKey = getSecretKey();
 		OutgoingKeys outCurr = new OutgoingKeys(outCurrTagKey, outCurrHeaderKey,
 				2, 456, true);
-		return new HandshakeKeys(transportId, inPrev, inCurr, inNext, outCurr,
+		return new TransportKeys(transportId, inPrev, inCurr, inNext, outCurr,
 				getSecretKey(), true);
 	}
 

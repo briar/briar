@@ -5,19 +5,16 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Type-safe wrapper for an integer that uniquely identifies a
- * {@link TransportKeySet set of transport keys} within the scope of the local
- * device.
- * <p/>
- * Key sets created on a given device must have increasing identifiers.
+ * Type-safe wrapper for an integer that uniquely identifies a set of
+ * {@link TransportKeySet transport keys} within the scope of the local device.
  */
 @Immutable
 @NotNullByDefault
-public class TransportKeySetId {
+public class KeySetId {
 
 	private final int id;
 
-	public TransportKeySetId(int id) {
+	public KeySetId(int id) {
 		this.id = id;
 	}
 
@@ -32,7 +29,6 @@ public class TransportKeySetId {
 
 	@Override
 	public boolean equals(Object o) {
-		return o instanceof TransportKeySetId &&
-				id == ((TransportKeySetId) o).id;
+		return o instanceof KeySetId && id == ((KeySetId) o).id;
 	}
 }
