@@ -69,14 +69,6 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	}
 
 	@Override
-	public LocalAuthor createLocalAuthor(String name) {
-		long start = now();
-		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name);
-		logDuration(LOG, "Creating local author", start);
-		return localAuthor;
-	}
-
-	@Override
 	public Account createAccount(String name) {
 		long start = now();
 		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name);

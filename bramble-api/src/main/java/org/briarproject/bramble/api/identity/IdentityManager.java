@@ -11,12 +11,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 public interface IdentityManager {
 
 	/**
-	 * Creates a local identity with the given name.
-	 */
-	@CryptoExecutor
-	LocalAuthor createLocalAuthor(String name);
-
-	/**
 	 * Creates an account with the given name. The account includes a handshake
 	 * key pair.
 	 */
