@@ -222,9 +222,15 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void removePendingContact(PendingContact pendingContact) {
+	public void removePendingContact(PendingContact pendingContact,
+			Runnable commitAction) throws DbException {
 		// TODO replace with real implementation
 		pendingContacts.remove(pendingContact);
+		try {
+			Thread.sleep(250);
+		} catch (InterruptedException ignored) {
+		}
+		db.transaction(true, txn -> txn.attach(commitAction));
 	}
 
 	@Override

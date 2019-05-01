@@ -86,8 +86,8 @@ public class PendingContactListActivity extends BriarActivity
 
 	@Override
 	public void onFailedPendingContactRemoved(PendingContact pendingContact) {
-		adapter.remove(pendingContact);
-		viewModel.removePendingContact(pendingContact);
+		viewModel.removePendingContact(pendingContact,
+				() -> adapter.remove(pendingContact));
 	}
 
 	private void onPendingContactsChanged(Collection<PendingContact> contacts) {

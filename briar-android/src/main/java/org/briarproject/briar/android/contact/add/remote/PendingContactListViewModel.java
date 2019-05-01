@@ -81,10 +81,12 @@ public class PendingContactListViewModel extends AndroidViewModel
 		return pendingContacts;
 	}
 
-	void removePendingContact(PendingContact pendingContact) {
+	void removePendingContact(PendingContact pendingContact,
+			Runnable commitAction) {
 		dbExecutor.execute(() -> {
 			try {
-				contactManager.removePendingContact(pendingContact);
+				contactManager
+						.removePendingContact(pendingContact, commitAction);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
