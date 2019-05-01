@@ -11,26 +11,24 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class AttachmentItemResult {
 
-	@Nullable
 	private final Uri uri;
 	@Nullable
 	private final AttachmentItem item;
 	@Nullable
 	private final String errorMsg;
 
-	public AttachmentItemResult(Uri uri, AttachmentItem item) {
+	AttachmentItemResult(Uri uri, AttachmentItem item) {
 		this.uri = uri;
 		this.item = item;
 		this.errorMsg = null;
 	}
 
-	public AttachmentItemResult(@Nullable String errorMsg) {
-		this.uri = null;
+	AttachmentItemResult(Uri uri, @Nullable String errorMsg) {
+		this.uri = uri;
 		this.item = null;
 		this.errorMsg = errorMsg;
 	}
 
-	@Nullable
 	public Uri getUri() {
 		return uri;
 	}
@@ -40,8 +38,8 @@ public class AttachmentItemResult {
 		return item;
 	}
 
-	public boolean isError() {
-		return errorMsg != null;
+	public boolean hasError() {
+		return item == null;
 	}
 
 	@Nullable

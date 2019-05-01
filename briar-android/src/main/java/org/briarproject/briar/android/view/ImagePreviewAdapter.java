@@ -50,14 +50,17 @@ class ImagePreviewAdapter extends Adapter<ImagePreviewViewHolder> {
 		return items.size();
 	}
 
-	void loadItemPreview(AttachmentItemResult result) {
-		ImagePreviewItem newItem =
-				new ImagePreviewItem(requireNonNull(result.getUri()));
+	int loadItemPreview(AttachmentItemResult result) {
+		ImagePreviewItem newItem = new ImagePreviewItem(result.getUri());
 		int pos = items.indexOf(newItem);
 		if (pos == NO_POSITION) throw new AssertionError();
 		ImagePreviewItem item = items.get(pos);
-		item.setItem(requireNonNull(result.getItem()));
-		notifyItemChanged(pos, item);
+		if (item.getItem() == null) {
+			item.setItem(requireNonNull(result.getItem()));
+			notifyItemChanged(pos, item);
+			return pos;
+		}
+		return NO_POSITION;
 	}
 
 }

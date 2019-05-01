@@ -24,6 +24,7 @@ import org.briarproject.briar.android.attachment.AttachmentResult;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
@@ -172,40 +173,39 @@ public class TextAttachmentController extends TextSendController
 		List<ImagePreviewItem> items = ImagePreviewItem.fromUris(imageUris);
 		imagePreview.showPreview(items);
 		// store attachments and show preview when successful
-		AttachmentResult result =
+		LiveData<AttachmentResult> result =
 				attachmentManager.storeAttachments(imageUris, restart);
-		for (LiveData<AttachmentItemResult> liveData : result
-				.getItemResults()) {
-			onLiveDataReturned(liveData);
-		}
-		result.getFinished().observe(imageListener, new Observer<Boolean>() {
+		result.observe(imageListener, new Observer<AttachmentResult>() {
 			@Override
-			public void onChanged(@Nullable Boolean finished) {
-				if (finished != null && finished) onAllAttachmentsCreated();
-				result.getFinished().removeObserver(this);
-			}
-		});
-	}
-
-	private void onLiveDataReturned(LiveData<AttachmentItemResult> liveData) {
-		liveData.observe(imageListener, new Observer<AttachmentItemResult>() {
-			@Override
-			public void onChanged(@Nullable AttachmentItemResult result) {
-				if (result != null) {
-					onAttachmentResultReceived(result);
+			public void onChanged(@Nullable AttachmentResult attachmentResult) {
+				if (attachmentResult == null) {
+					// The fresh LiveData was deliberately set to null.
+					// This means that we can stop observing it.
+					result.removeObserver(this);
+				} else {
+					boolean noError = onNewAttachmentItemResults(
+							attachmentResult.getItemResults());
+					if (noError && attachmentResult.isFinished()) {
+						onAllAttachmentsCreated();
+						result.removeObserver(this);
+					}
 				}
-				liveData.removeObserver(this);
 			}
 		});
 	}
 
-	private void onAttachmentResultReceived(AttachmentItemResult result) {
+	private boolean onNewAttachmentItemResults(
+			Collection<AttachmentItemResult> itemResults) {
 		if (!loadingUris) throw new AssertionError();
-		if (result.isError() || result.getUri() == null) {
-			onError(result.getErrorMsg());
-		} else {
-			imagePreview.loadPreviewImage(result);
+		for (AttachmentItemResult result : itemResults) {
+			if (result.hasError()) {
+				onError(result.getErrorMsg());
+				return false;
+			} else {
+				imagePreview.loadPreviewImage(result);
+			}
 		}
+		return true;
 	}
 
 	private void onAllAttachmentsCreated() {

@@ -54,6 +54,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.attachment.AttachmentDimensions.getAttachmentDimensions;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
 @NotNullByDefault
 public class ConversationViewModel extends AndroidViewModel
@@ -80,13 +81,12 @@ public class ConversationViewModel extends AndroidViewModel
 
 	@Nullable
 	private ContactId contactId = null;
-	@Nullable
-	private volatile GroupId messagingGroupId = null;
 	private final MutableLiveData<Contact> contact = new MutableLiveData<>();
 	private final LiveData<AuthorId> contactAuthorId =
 			Transformations.map(contact, c -> c.getAuthor().getId());
 	private final LiveData<String> contactName =
 			Transformations.map(contact, UiUtils::getContactDisplayName);
+	private final LiveData<GroupId> messagingGroupId;
 	private final MutableLiveData<Boolean> imageSupport =
 			new MutableLiveData<>();
 	private final MutableLiveEvent<Boolean> showImageOnboarding =
@@ -120,6 +120,8 @@ public class ConversationViewModel extends AndroidViewModel
 				getAttachmentDimensions(application.getResources()));
 		this.attachmentCreator = new AttachmentCreator(getApplication(),
 				ioExecutor, messagingManager, attachmentRetriever);
+		messagingGroupId = Transformations
+				.map(contact, c -> messagingManager.getContactGroup(c).getId());
 		contactDeleted.setValue(false);
 	}
 
@@ -149,9 +151,6 @@ public class ConversationViewModel extends AndroidViewModel
 				Contact c = contactManager.getContact(contactId);
 				contact.postValue(c);
 				logDuration(LOG, "Loading contact", start);
-				start = now();
-				messagingGroupId = messagingManager.getContactGroup(c).getId();
-				logDuration(LOG, "Load conversation GroupId", start);
 				start = now();
 				checkFeaturesAndOnboarding(contactId);
 				logDuration(LOG, "Checking for image support", start);
@@ -189,18 +188,20 @@ public class ConversationViewModel extends AndroidViewModel
 
 	void sendMessage(@Nullable String text,
 			List<AttachmentHeader> attachmentHeaders, long timestamp) {
-		GroupId groupId = messagingGroupId;
-		if (groupId == null) throw new IllegalStateException();
-		createMessage(groupId, text, attachmentHeaders, timestamp);
+		// messagingGroupId is loaded with the contact
+		observeForeverOnce(messagingGroupId, groupId -> {
+			if (groupId == null) throw new IllegalStateException();
+			createMessage(groupId, text, attachmentHeaders, timestamp);
+		});
 	}
 
 	@Override
 	@UiThread
-	public AttachmentResult storeAttachments(Collection<Uri> uris,
+	public LiveData<AttachmentResult> storeAttachments(Collection<Uri> uris,
 			boolean restart) {
-		GroupId groupId = messagingGroupId;
-		if (groupId == null) throw new IllegalStateException();
-		return attachmentCreator.storeAttachments(groupId, uris, restart);
+		// messagingGroupId is loaded with the contact
+		return attachmentCreator
+				.storeAttachments(messagingGroupId, uris, restart);
 	}
 
 	@Override

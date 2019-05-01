@@ -15,6 +15,7 @@ import java.util.Collection;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.support.v4.content.ContextCompat.getColor;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static java.util.Objects.requireNonNull;
 
@@ -75,7 +76,10 @@ public class ImagePreview extends ConstraintLayout {
 	void loadPreviewImage(AttachmentItemResult result) {
 		ImagePreviewAdapter adapter =
 				((ImagePreviewAdapter) imageList.getAdapter());
-		requireNonNull(adapter).loadItemPreview(result);
+		int pos = requireNonNull(adapter).loadItemPreview(result);
+		if (pos != NO_POSITION) {
+			imageList.smoothScrollToPosition(pos);
+		}
 	}
 
 	interface ImagePreviewListener {

@@ -14,7 +14,7 @@ import org.jsoup.UnsupportedMimeTypeException;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.List;
+import java.util.Collection;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
@@ -34,7 +34,7 @@ class AttachmentCreationTask {
 	private final MessagingManager messagingManager;
 	private final ContentResolver contentResolver;
 	private final GroupId groupId;
-	private final List<Uri> uris;
+	private final Collection<Uri> uris;
 	private final boolean needsSize;
 	@Nullable
 	private volatile AttachmentCreator attachmentCreator;
@@ -44,7 +44,7 @@ class AttachmentCreationTask {
 	AttachmentCreationTask(MessagingManager messagingManager,
 			ContentResolver contentResolver,
 			AttachmentCreator attachmentCreator, GroupId groupId,
-			List<Uri> uris, boolean needsSize) {
+			Collection<Uri> uris, boolean needsSize) {
 		this.messagingManager = messagingManager;
 		this.contentResolver = contentResolver;
 		this.groupId = groupId;

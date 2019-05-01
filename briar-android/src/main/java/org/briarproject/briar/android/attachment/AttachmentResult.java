@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.attachment;
 
-import android.arch.lifecycle.LiveData;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
@@ -12,21 +10,20 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class AttachmentResult {
 
-	private final Collection<LiveData<AttachmentItemResult>> itemResults;
-	private final LiveData<Boolean> finished;
+	private final Collection<AttachmentItemResult> itemResults;
+	private final boolean finished;
 
-	public AttachmentResult(
-			Collection<LiveData<AttachmentItemResult>> itemResults,
-			LiveData<Boolean> finished) {
+	public AttachmentResult(Collection<AttachmentItemResult> itemResults,
+			boolean finished) {
 		this.itemResults = itemResults;
 		this.finished = finished;
 	}
 
-	public Collection<LiveData<AttachmentItemResult>> getItemResults() {
+	public Collection<AttachmentItemResult> getItemResults() {
 		return itemResults;
 	}
 
-	public LiveData<Boolean> getFinished() {
+	public boolean isFinished() {
 		return finished;
 	}
 

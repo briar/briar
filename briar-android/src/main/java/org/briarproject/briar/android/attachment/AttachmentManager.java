@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.attachment;
 
+import android.arch.lifecycle.LiveData;
 import android.net.Uri;
 import android.support.annotation.UiThread;
 
@@ -11,7 +12,8 @@ import java.util.List;
 @UiThread
 public interface AttachmentManager {
 
-	AttachmentResult storeAttachments(Collection<Uri> uri, boolean restart);
+	LiveData<AttachmentResult> storeAttachments(Collection<Uri> uri,
+			boolean restart);
 
 	List<AttachmentHeader> getAttachmentHeadersForSending();
 
