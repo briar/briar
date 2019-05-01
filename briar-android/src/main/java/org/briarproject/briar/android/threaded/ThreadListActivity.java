@@ -62,6 +62,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	protected BriarRecyclerView list;
 	private LinearLayoutManager layoutManager;
 	protected TextInputView textInput;
+	protected TextSendController sendController;
 	protected GroupId groupId;
 	@Nullable
 	private Parcelable layoutManagerState;
@@ -87,8 +88,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		getController().setGroupId(groupId);
 
 		textInput = findViewById(R.id.text_input_container);
-		TextSendController sendController =
-				new TextSendController(textInput, this, false);
+		sendController = new TextSendController(textInput, this, false);
 		textInput.setSendController(sendController);
 		textInput.setMaxTextLength(getMaxTextLength());
 		textInput.setReady(true);

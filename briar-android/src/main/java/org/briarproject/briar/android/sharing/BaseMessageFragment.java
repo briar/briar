@@ -28,6 +28,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 		implements SendListener {
 
 	protected LargeTextInputView message;
+	private TextSendController sendController;
 	private MessageFragmentListener listener;
 
 	@Override
@@ -45,8 +46,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 		View v = inflater.inflate(R.layout.fragment_message, container,
 				false);
 		message = v.findViewById(R.id.messageView);
-		TextSendController sendController =
-				new TextSendController(message, this, true);
+		sendController = new TextSendController(message, this, true);
 		message.setSendController(sendController);
 		message.setMaxTextLength(listener.getMaximumTextLength());
 		message.setButtonText(getString(getButtonText()));
@@ -85,7 +85,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 	@Override
 	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
 		// disable button to prevent accidental double actions
-		message.setEnabled(false);
+		sendController.setReady(false);
 		message.hideSoftKeyboard();
 
 		listener.onButtonClick(text);
