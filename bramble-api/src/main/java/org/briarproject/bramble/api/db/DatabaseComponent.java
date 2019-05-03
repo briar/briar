@@ -5,9 +5,9 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
@@ -102,11 +102,6 @@ public interface DatabaseComponent {
 			NullableDbCallable<R, E> task) throws DbException, E;
 
 	/**
-	 * Stores an account.
-	 */
-	void addAccount(Transaction txn, Account a) throws DbException;
-
-	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
 	 * and returns an ID for the contact.
 	 */
@@ -131,6 +126,11 @@ public interface DatabaseComponent {
 	 */
 	HandshakeKeySetId addHandshakeKeys(Transaction txn, PendingContactId p,
 			HandshakeKeys k) throws DbException;
+
+	/**
+	 * Stores an identity.
+	 */
+	void addIdentity(Transaction txn, Identity i) throws DbException;
 
 	/**
 	 * Stores a local message.
@@ -158,13 +158,6 @@ public interface DatabaseComponent {
 			TransportKeys k) throws DbException;
 
 	/**
-	 * Returns true if the database contains an account for the given pseudonym.
-	 * <p/>
-	 * Read-only.
-	 */
-	boolean containsAccount(Transaction txn, AuthorId local) throws DbException;
-
-	/**
 	 * Returns true if the database contains the given contact for the given
 	 * local pseudonym.
 	 * <p/>
@@ -179,6 +172,14 @@ public interface DatabaseComponent {
 	 * Read-only.
 	 */
 	boolean containsGroup(Transaction txn, GroupId g) throws DbException;
+
+	/**
+	 * Returns true if the database contains an identity for the given
+	 * pseudonym.
+	 * <p/>
+	 * Read-only.
+	 */
+	boolean containsIdentity(Transaction txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given pending contact.
@@ -245,20 +246,6 @@ public interface DatabaseComponent {
 	@Nullable
 	Collection<Message> generateRequestedBatch(Transaction txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException;
-
-	/**
-	 * Returns the account for the local pseudonym with the given ID.
-	 * <p/>
-	 * Read-only.
-	 */
-	Account getAccount(Transaction txn, AuthorId a) throws DbException;
-
-	/**
-	 * Returns the accounts for all local pseudonyms.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<Account> getAccounts(Transaction txn) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.
@@ -328,6 +315,20 @@ public interface DatabaseComponent {
 	 */
 	Collection<HandshakeKeySet> getHandshakeKeys(Transaction txn, TransportId t)
 			throws DbException;
+
+	/**
+	 * Returns the identity for the local pseudonym with the given ID.
+	 * <p/>
+	 * Read-only.
+	 */
+	Identity getIdentity(Transaction txn, AuthorId a) throws DbException;
+
+	/**
+	 * Returns the identities for all local pseudonyms.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<Identity> getIdentities(Transaction txn) throws DbException;
 
 	/**
 	 * Returns the message with the given ID.
@@ -542,11 +543,6 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Removes an account (and all associated state) from the database.
-	 */
-	void removeAccount(Transaction txn, AuthorId a) throws DbException;
-
-	/**
 	 * Removes a contact (and all associated state) from the database.
 	 */
 	void removeContact(Transaction txn, ContactId c) throws DbException;
@@ -561,6 +557,11 @@ public interface DatabaseComponent {
 	 */
 	void removeHandshakeKeys(Transaction txn, TransportId t,
 			HandshakeKeySetId k) throws DbException;
+
+	/**
+	 * Removes an identity (and all associated state) from the database.
+	 */
+	void removeIdentity(Transaction txn, AuthorId a) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.
@@ -619,7 +620,7 @@ public interface DatabaseComponent {
 			Collection<MessageId> dependencies) throws DbException;
 
 	/**
-	 * Sets the handshake key pair for the account with the given ID.
+	 * Sets the handshake key pair for the identity with the given ID.
 	 */
 	void setHandshakeKeyPair(Transaction txn, AuthorId local, byte[] publicKey,
 			byte[] privateKey) throws DbException;

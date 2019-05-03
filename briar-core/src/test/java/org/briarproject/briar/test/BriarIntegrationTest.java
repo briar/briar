@@ -15,7 +15,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.Account;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -275,15 +275,15 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	private void createAndRegisterIdentities() {
-		Account account0 = identityManager0.createAccount(AUTHOR0);
-		identityManager0.registerAccount(account0);
-		author0 = account0.getLocalAuthor();
-		Account account1 = identityManager0.createAccount(AUTHOR1);
-		identityManager1.registerAccount(account1);
-		author1 = account1.getLocalAuthor();
-		Account account2 = identityManager0.createAccount(AUTHOR2);
-		identityManager2.registerAccount(account2);
-		author2 = account2.getLocalAuthor();
+		Identity identity0 = identityManager0.createIdentity(AUTHOR0);
+		identityManager0.registerIdentity(identity0);
+		author0 = identity0.getLocalAuthor();
+		Identity identity1 = identityManager0.createIdentity(AUTHOR1);
+		identityManager1.registerIdentity(identity1);
+		author1 = identity1.getLocalAuthor();
+		Identity identity2 = identityManager0.createIdentity(AUTHOR2);
+		identityManager2.registerIdentity(identity2);
+		author2 = identity2.getLocalAuthor();
 	}
 
 	protected void addDefaultContacts() throws Exception {

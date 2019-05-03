@@ -4,7 +4,7 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
-import org.briarproject.bramble.api.identity.Account;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -161,8 +161,8 @@ class AccountManagerImpl implements AccountManager {
 		synchronized (stateChangeLock) {
 			if (hasDatabaseKey())
 				throw new AssertionError("Already have a database key");
-			Account account = identityManager.createAccount(name);
-			identityManager.registerAccount(account);
+			Identity identity = identityManager.createIdentity(name);
+			identityManager.registerIdentity(identity);
 			SecretKey key = crypto.generateSecretKey();
 			if (!encryptAndStoreDatabaseKey(key, password)) return false;
 			databaseKey = key;

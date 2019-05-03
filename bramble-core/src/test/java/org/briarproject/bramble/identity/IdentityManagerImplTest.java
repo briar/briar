@@ -7,8 +7,8 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -18,7 +18,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.test.TestUtils.getAccount;
+import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.junit.Assert.assertEquals;
 
 public class IdentityManagerImplTest extends BrambleMockTestCase {
@@ -33,16 +33,16 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 			context.mock(PrivateKey.class);
 
 	private final Transaction txn = new Transaction(null, false);
-	private final Account accountWithKeys = getAccount();
-	private final LocalAuthor localAuthor = accountWithKeys.getLocalAuthor();
-	private final Account accountWithoutKeys = new Account(localAuthor,
-			null, null, accountWithKeys.getTimeCreated());
+	private final Identity identityWithKeys = getIdentity();
+	private final LocalAuthor localAuthor = identityWithKeys.getLocalAuthor();
+	private final Identity identityWithoutKeys = new Identity(localAuthor,
+			null, null, identityWithKeys.getTimeCreated());
 	private final KeyPair handshakeKeyPair =
 			new KeyPair(handshakePublicKey, handshakePrivateKey);
 	private final byte[] handshakePublicKeyBytes =
-			accountWithKeys.getHandshakePublicKey();
+			identityWithKeys.getHandshakePublicKey();
 	private final byte[] handshakePrivateKeyBytes =
-			accountWithKeys.getHandshakePrivateKey();
+			identityWithKeys.getHandshakePrivateKey();
 
 	private IdentityManagerImpl identityManager;
 
@@ -53,20 +53,20 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testOpenDatabaseAccountRegistered() throws Exception {
+	public void testOpenDatabaseIdentityRegistered() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(db).addAccount(txn, accountWithKeys);
+			oneOf(db).addIdentity(txn, identityWithKeys);
 		}});
 
-		identityManager.registerAccount(accountWithKeys);
+		identityManager.registerIdentity(identityWithKeys);
 		identityManager.onDatabaseOpened(txn);
 	}
 
 	@Test
 	public void testOpenDatabaseHandshakeKeysGenerated() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(db).getAccounts(txn);
-			will(returnValue(singletonList(accountWithoutKeys)));
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithoutKeys)));
 			oneOf(crypto).generateAgreementKeyPair();
 			will(returnValue(handshakeKeyPair));
 			oneOf(handshakePublicKey).getEncoded();
@@ -83,16 +83,16 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testOpenDatabaseNoHandshakeKeysGenerated() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(db).getAccounts(txn);
-			will(returnValue(singletonList(accountWithKeys)));
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithKeys)));
 		}});
 
 		identityManager.onDatabaseOpened(txn);
 	}
 
 	@Test
-	public void testGetLocalAuthorAccountRegistered() throws DbException {
-		identityManager.registerAccount(accountWithKeys);
+	public void testGetLocalAuthorIdentityRegistered() throws DbException {
+		identityManager.registerIdentity(identityWithKeys);
 		assertEquals(localAuthor, identityManager.getLocalAuthor());
 	}
 
@@ -100,8 +100,8 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	public void testGetLocalAuthorHandshakeKeysGenerated() throws Exception {
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			oneOf(db).getAccounts(txn);
-			will(returnValue(singletonList(accountWithoutKeys)));
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithoutKeys)));
 			oneOf(crypto).generateAgreementKeyPair();
 			will(returnValue(handshakeKeyPair));
 			oneOf(handshakePublicKey).getEncoded();
@@ -117,8 +117,8 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	public void testGetLocalAuthorNoHandshakeKeysGenerated() throws Exception {
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			oneOf(db).getAccounts(txn);
-			will(returnValue(singletonList(accountWithKeys)));
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithKeys)));
 		}});
 
 		assertEquals(localAuthor, identityManager.getLocalAuthor());

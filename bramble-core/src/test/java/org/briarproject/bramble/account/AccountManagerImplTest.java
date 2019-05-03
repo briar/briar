@@ -3,7 +3,7 @@ package org.briarproject.bramble.account;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
-import org.briarproject.bramble.api.identity.Account;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.test.BrambleMockTestCase;
@@ -25,7 +25,7 @@ import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
-import static org.briarproject.bramble.test.TestUtils.getAccount;
+import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -48,8 +48,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	private final String encryptedKeyHex = toHexString(encryptedKey);
 	private final byte[] newEncryptedKey = getRandomBytes(123);
 	private final String newEncryptedKeyHex = toHexString(newEncryptedKey);
-	private final Account account = getAccount();
-	private final LocalAuthor localAuthor = account.getLocalAuthor();
+	private final Identity identity = getIdentity();
+	private final LocalAuthor localAuthor = identity.getLocalAuthor();
 	private final String authorName = localAuthor.getName();
 	private final String password = getRandomString(10);
 	private final String newPassword = getRandomString(10);
@@ -253,9 +253,9 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreateAccountStoresDbKey() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(identityManager).createAccount(authorName);
-			will(returnValue(account));
-			oneOf(identityManager).registerAccount(account);
+			oneOf(identityManager).createIdentity(authorName);
+			will(returnValue(identity));
+			oneOf(identityManager).registerIdentity(identity);
 			oneOf(crypto).generateSecretKey();
 			will(returnValue(key));
 			oneOf(crypto).encryptWithPassword(key.getBytes(), password);

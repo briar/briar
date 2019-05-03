@@ -1,6 +1,6 @@
 package org.briarproject.briar.feed;
 
-import org.briarproject.bramble.api.identity.Account;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.contact.ContactModule;
@@ -51,8 +51,8 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		injectEagerSingletons(component);
 
 		IdentityManager identityManager = component.getIdentityManager();
-		Account account = identityManager.createAccount("feedTest");
-		identityManager.registerAccount(account);
+		Identity identity = identityManager.createIdentity("feedTest");
+		identityManager.registerIdentity(identity);
 
 		lifecycleManager = component.getLifecycleManager();
 		lifecycleManager.startServices(getSecretKey());

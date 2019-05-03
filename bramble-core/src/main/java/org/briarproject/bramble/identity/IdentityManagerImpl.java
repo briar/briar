@@ -5,8 +5,8 @@ import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.AuthorFactory;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
@@ -38,23 +38,23 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	private final Clock clock;
 
 	/**
-	 * The user's account, or null if no account has been registered or loaded.
-	 * If non-null, this account always has handshake keys.
+	 * The user's identity, or null if no identity has been registered or
+	 * loaded. If non-null, this identity always has handshake keys.
 	 */
 	@Nullable
-	private volatile Account cachedAccount = null;
+	private volatile Identity cachedIdentity = null;
 
 	/**
-	 * True if {@code cachedAccount} was registered via
-	 * {@link #registerAccount(Account)} and should be stored when
+	 * True if {@code cachedIdentity} was registered via
+	 * {@link #registerIdentity(Identity)} and should be stored when
 	 * {@link #onDatabaseOpened(Transaction)} is called.
 	 */
 
-	private volatile boolean shouldStoreAccount = false;
+	private volatile boolean shouldStoreIdentity = false;
 
 	/**
-	 * True if the handshake keys in {@code cachedAccount} were generated when
-	 * the account was loaded and should be stored when
+	 * True if the handshake keys in {@code cachedIdentity} were generated
+	 * when the identity was loaded and should be stored when
 	 * {@link #onDatabaseOpened(Transaction)} is called.
 	 */
 	private volatile boolean shouldStoreKeys = false;
@@ -69,31 +69,31 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	}
 
 	@Override
-	public Account createAccount(String name) {
+	public Identity createIdentity(String name) {
 		long start = now();
 		LocalAuthor localAuthor = authorFactory.createLocalAuthor(name);
 		KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
 		byte[] handshakePub = handshakeKeyPair.getPublic().getEncoded();
 		byte[] handshakePriv = handshakeKeyPair.getPrivate().getEncoded();
-		logDuration(LOG, "Creating account", start);
-		return new Account(localAuthor, handshakePub, handshakePriv,
+		logDuration(LOG, "Creating identity", start);
+		return new Identity(localAuthor, handshakePub, handshakePriv,
 				clock.currentTimeMillis());
 	}
 
 	@Override
-	public void registerAccount(Account a) {
-		if (!a.hasHandshakeKeyPair()) throw new IllegalArgumentException();
-		cachedAccount = a;
-		shouldStoreAccount = true;
-		LOG.info("Account registered");
+	public void registerIdentity(Identity i) {
+		if (!i.hasHandshakeKeyPair()) throw new IllegalArgumentException();
+		cachedIdentity = i;
+		shouldStoreIdentity = true;
+		LOG.info("Identity registered");
 	}
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		Account cached = getCachedAccount(txn);
-		if (shouldStoreAccount) {
-			db.addAccount(txn, cached);
-			LOG.info("Account stored");
+		Identity cached = getCachedIdentity(txn);
+		if (shouldStoreIdentity) {
+			db.addIdentity(txn, cached);
+			LOG.info("Identity stored");
 		} else if (shouldStoreKeys) {
 			byte[] publicKey = requireNonNull(cached.getHandshakePublicKey());
 			byte[] privateKey = requireNonNull(cached.getHandshakePrivateKey());
@@ -104,49 +104,50 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 
 	@Override
 	public LocalAuthor getLocalAuthor() throws DbException {
-		Account cached = cachedAccount;
+		Identity cached = cachedIdentity;
 		if (cached == null)
-			cached = db.transactionWithResult(true, this::getCachedAccount);
+			cached = db.transactionWithResult(true, this::getCachedIdentity);
 		return cached.getLocalAuthor();
 	}
 
 	@Override
 	public LocalAuthor getLocalAuthor(Transaction txn) throws DbException {
-		return getCachedAccount(txn).getLocalAuthor();
+		return getCachedIdentity(txn).getLocalAuthor();
 	}
 
 	@Override
 	public byte[][] getHandshakeKeys(Transaction txn) throws DbException {
-		Account cached = getCachedAccount(txn);
+		Identity cached = getCachedIdentity(txn);
 		return new byte[][] {
 				cached.getHandshakePublicKey(),
 				cached.getHandshakePrivateKey()
 		};
 	}
 
-	private Account getCachedAccount(Transaction txn) throws DbException {
-		Account cached = cachedAccount;
+	private Identity getCachedIdentity(Transaction txn) throws DbException {
+		Identity cached = cachedIdentity;
 		if (cached == null)
-			cachedAccount = cached = loadAccountWithKeyPair(txn);
+			cachedIdentity = cached = loadIdentityWithKeyPair(txn);
 		return cached;
 	}
 
-	private Account loadAccountWithKeyPair(Transaction txn) throws DbException {
-		Account a = loadAccount(txn);
-		LOG.info("Account loaded");
-		if (a.hasHandshakeKeyPair()) return a;
+	private Identity loadIdentityWithKeyPair(Transaction txn)
+			throws DbException {
+		Identity i = loadIdentity(txn);
+		LOG.info("Identity loaded");
+		if (i.hasHandshakeKeyPair()) return i;
 		KeyPair keyPair = crypto.generateAgreementKeyPair();
 		byte[] publicKey = keyPair.getPublic().getEncoded();
 		byte[] privateKey = keyPair.getPrivate().getEncoded();
 		LOG.info("Handshake key pair generated");
 		shouldStoreKeys = true;
-		return new Account(a.getLocalAuthor(), publicKey, privateKey,
-				a.getTimeCreated());
+		return new Identity(i.getLocalAuthor(), publicKey, privateKey,
+				i.getTimeCreated());
 	}
 
-	private Account loadAccount(Transaction txn) throws DbException {
-		Collection<Account> accounts = db.getAccounts(txn);
-		if (accounts.size() != 1) throw new DbException();
-		return accounts.iterator().next();
+	private Identity loadIdentity(Transaction txn) throws DbException {
+		Collection<Identity> identities = db.getIdentities(txn);
+		if (identities.size() != 1) throw new DbException();
+		return identities.iterator().next();
 	}
 }

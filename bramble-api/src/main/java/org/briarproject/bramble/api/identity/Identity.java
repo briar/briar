@@ -11,14 +11,14 @@ import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_
 
 @Immutable
 @NotNullByDefault
-public class Account {
+public class Identity {
 
 	private final LocalAuthor localAuthor;
 	@Nullable
 	private final byte[] handshakePublicKey, handshakePrivateKey;
 	private final long created;
 
-	public Account(LocalAuthor localAuthor,
+	public Identity(LocalAuthor localAuthor,
 			@Nullable byte[] handshakePublicKey,
 			@Nullable byte[] handshakePrivateKey, long created) {
 		if (handshakePublicKey != null) {
@@ -47,7 +47,7 @@ public class Account {
 	}
 
 	/**
-	 * Returns true if the account has a handshake key pair.
+	 * Returns true if the identity has a handshake key pair.
 	 */
 	public boolean hasHandshakeKeyPair() {
 		return handshakePublicKey != null && handshakePrivateKey != null;
@@ -70,7 +70,7 @@ public class Account {
 	}
 
 	/**
-	 * Returns the time the account was created, in milliseconds since the
+	 * Returns the time the identity was created, in milliseconds since the
 	 * Unix epoch.
 	 */
 	public long getTimeCreated() {
@@ -84,12 +84,12 @@ public class Account {
 
 	@Override
 	public boolean equals(Object o) {
-		if (o instanceof Account) {
-			Account a = (Account) o;
-			return created == a.created &&
-					localAuthor.equals(a.localAuthor) &&
-					Arrays.equals(handshakePublicKey, a.handshakePublicKey) &&
-					Arrays.equals(handshakePrivateKey, a.handshakePrivateKey);
+		if (o instanceof Identity) {
+			Identity i = (Identity) o;
+			return created == i.created &&
+					localAuthor.equals(i.localAuthor) &&
+					Arrays.equals(handshakePublicKey, i.handshakePublicKey) &&
+					Arrays.equals(handshakePrivateKey, i.handshakePrivateKey);
 		}
 		return false;
 	}

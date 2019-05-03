@@ -6,9 +6,9 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.identity.Account;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -101,11 +101,12 @@ public class TestUtils {
 		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}
 
-	public static Account getAccount() {
+	public static Identity getIdentity() {
 		LocalAuthor localAuthor = getLocalAuthor();
 		byte[] handshakePub = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
 		byte[] handshakePriv = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
-		return new Account(localAuthor, handshakePub, handshakePriv, timestamp);
+		return new Identity(localAuthor, handshakePub, handshakePriv,
+				timestamp);
 	}
 
 	public static LocalAuthor getLocalAuthor() {

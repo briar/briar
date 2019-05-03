@@ -11,19 +11,19 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 public interface IdentityManager {
 
 	/**
-	 * Creates an account with the given name. The account includes a handshake
-	 * key pair.
+	 * Creates an identity with the given name. The identity includes a
+	 * handshake key pair.
 	 */
 	@CryptoExecutor
-	Account createAccount(String name);
+	Identity createIdentity(String name);
 
 	/**
-	 * Registers the given account with the manager. This method should be
+	 * Registers the given identity with the manager. This method should be
 	 * called before {@link LifecycleManager#startServices(SecretKey)}. The
-	 * account is stored when {@link LifecycleManager#startServices(SecretKey)}
-	 * is called. The account must include a handshake key pair.
+	 * identity is stored when {@link LifecycleManager#startServices(SecretKey)}
+	 * is called. The identity must include a handshake key pair.
 	 */
-	void registerAccount(Account a);
+	void registerIdentity(Identity i);
 
 	/**
 	 * Returns the cached local identity or loads it from the database.
