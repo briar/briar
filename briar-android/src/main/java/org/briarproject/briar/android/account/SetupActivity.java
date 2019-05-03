@@ -19,7 +19,7 @@ import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
-import static org.briarproject.briar.android.activity.ActivityComponent.ENTRY_ACTIVITY;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

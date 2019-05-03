@@ -47,7 +47,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
-import static org.briarproject.briar.android.activity.ActivityComponent.ENTRY_ACTIVITY;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;

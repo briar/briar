@@ -26,7 +26,7 @@ import static android.support.v7.preference.PreferenceManager.setDefaultValues;
 import static java.lang.System.currentTimeMillis;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
-import static org.briarproject.briar.android.activity.ActivityComponent.ENTRY_ACTIVITY;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

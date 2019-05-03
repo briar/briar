@@ -91,8 +91,6 @@ import dagger.Component;
 		dependencies = AndroidComponent.class)
 public interface ActivityComponent {
 
-	Class<? extends Activity> ENTRY_ACTIVITY = NavDrawerActivity.class;
-
 	Activity activity();
 
 	void inject(SplashScreenActivity activity);

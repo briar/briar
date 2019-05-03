@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_IN;
 import static org.briarproject.briar.android.login.StartupViewModel.State.SIGNED_OUT;
 import static org.briarproject.briar.android.login.StartupViewModel.State.STARTED;
@@ -59,10 +60,12 @@ public class StartupActivity extends BaseActivity implements
 			// because if it exists, we assume the database also exists
 			// and when clearing app data, the folder does not get deleted.
 			viewModel.deleteAccount();
-			onAccountDeleted(true);
+			onAccountDeleted();
 			return;
 		}
-		viewModel.getAccountDeleted().observe(this, this::onAccountDeleted);
+		viewModel.getAccountDeleted().observe(this, deleted -> {
+			if (deleted != null && deleted) onAccountDeleted();
+		});
 		viewModel.getState().observe(this, this::onStateChanged);
 	}
 
@@ -86,7 +89,10 @@ public class StartupActivity extends BaseActivity implements
 		} else if (state == SIGNED_IN) {
 			startService(new Intent(this, BriarService.class));
 		} else if (state == STARTING) {
-			// only show OpenDatabaseFragment if not already visible
+			// Only show OpenDatabaseFragment if not already visible.
+			// This can happen because several LifecycleManager states are
+			// mapped to STARTING, so this can get called several times
+			// as the app's lifecycle advances.
 			FragmentManager fm = getSupportFragmentManager();
 			Fragment f = fm.findFragmentByTag(OpenDatabaseFragment.TAG);
 			if (f == null || !f.isVisible()) {
@@ -100,21 +106,19 @@ public class StartupActivity extends BaseActivity implements
 		}
 	}
 
-	private void onAccountDeleted(boolean accountDeleted) {
-		if (accountDeleted) {
-			setResult(RESULT_CANCELED);
-			finish();
-			Intent i = new Intent(this, SetupActivity.class);
-			i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
-					FLAG_ACTIVITY_CLEAR_TASK);
-			startActivity(i);
-		}
+	private void onAccountDeleted() {
+		setResult(RESULT_CANCELED);
+		finish();
+		Intent i = new Intent(this, SetupActivity.class);
+		i.addFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP |
+				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
+		startActivity(i);
 	}
 
 	@Override
 	public void runOnDbThread(Runnable runnable) {
 		// we don't need this and shouldn't be forced to implement it
-		throw new AssertionError();
+		throw new UnsupportedOperationException();
 	}
 
 }

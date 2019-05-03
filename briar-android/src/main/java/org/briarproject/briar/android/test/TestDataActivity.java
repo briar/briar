@@ -16,7 +16,7 @@ import org.briarproject.briar.api.test.TestDataCreator;
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static org.briarproject.briar.android.activity.ActivityComponent.ENTRY_ACTIVITY;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 
 public class TestDataActivity extends BriarActivity {
 

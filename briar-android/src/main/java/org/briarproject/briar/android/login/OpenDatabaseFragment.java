@@ -26,7 +26,7 @@ import static org.briarproject.briar.android.login.StartupViewModel.State.MIGRAT
 @ParametersNotNullByDefault
 public class OpenDatabaseFragment extends BaseFragment {
 
-	final static String TAG = PasswordFragment.class.getName();
+	final static String TAG = OpenDatabaseFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;

@@ -52,6 +52,7 @@ import javax.inject.Inject;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.media.RingtoneManager.ACTION_RINGTONE_PICKER;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI;
@@ -79,7 +80,7 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
-import static org.briarproject.briar.android.activity.ActivityComponent.ENTRY_ACTIVITY;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
@@ -576,7 +577,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				(dialogInterface, i) -> {
 					language.setValue(newValue);
 					Intent intent = new Intent(getContext(), ENTRY_ACTIVITY);
-					intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+					intent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
 					intent.putExtra(INTENT_SIGN_OUT, true);
 					requireActivity().startActivity(intent);
 					requireActivity().finish();
