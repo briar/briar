@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
-import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
+import org.briarproject.bramble.api.db.NoSuchIdentityException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
@@ -20,8 +20,8 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.identity.event.LocalAuthorAddedEvent;
-import org.briarproject.bramble.api.identity.event.LocalAuthorRemovedEvent;
+import org.briarproject.bramble.api.identity.event.IdentityAddedEvent;
+import org.briarproject.bramble.api.identity.event.IdentityRemovedEvent;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
@@ -166,7 +166,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsIdentity(txn, localAuthor.getId());
 			will(returnValue(false));
 			oneOf(database).addIdentity(txn, identity);
-			oneOf(eventBus).broadcast(with(any(LocalAuthorAddedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(IdentityAddedEvent.class)));
 			// addContact()
 			oneOf(database).containsIdentity(txn, localAuthor.getId());
 			will(returnValue(true));
@@ -210,7 +210,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsIdentity(txn, localAuthor.getId());
 			will(returnValue(true));
 			oneOf(database).removeIdentity(txn, localAuthor.getId());
-			oneOf(eventBus).broadcast(with(any(LocalAuthorRemovedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(IdentityRemovedEvent.class)));
 			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 			// close()
@@ -455,7 +455,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 					db.addContact(transaction, author, localAuthor.getId(),
 							true));
 			fail();
-		} catch (NoSuchLocalAuthorException expected) {
+		} catch (NoSuchIdentityException expected) {
 			// Expected
 		}
 
@@ -463,7 +463,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.getIdentity(transaction, localAuthor.getId()));
 			fail();
-		} catch (NoSuchLocalAuthorException expected) {
+		} catch (NoSuchIdentityException expected) {
 			// Expected
 		}
 
@@ -471,7 +471,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.removeIdentity(transaction, localAuthor.getId()));
 			fail();
-		} catch (NoSuchLocalAuthorException expected) {
+		} catch (NoSuchIdentityException expected) {
 			// Expected
 		}
 
@@ -482,7 +482,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 					db.setHandshakeKeyPair(transaction, localAuthor.getId(),
 							publicKey, privateKey));
 			fail();
-		} catch (NoSuchLocalAuthorException expected) {
+		} catch (NoSuchIdentityException expected) {
 			// Expected
 		}
 	}

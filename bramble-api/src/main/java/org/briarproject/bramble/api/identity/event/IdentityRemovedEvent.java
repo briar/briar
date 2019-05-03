@@ -7,15 +7,15 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * An event that is broadcast when a local pseudonym is removed.
+ * An event that is broadcast when an identity is removed.
  */
 @Immutable
 @NotNullByDefault
-public class LocalAuthorRemovedEvent extends Event {
+public class IdentityRemovedEvent extends Event {
 
 	private final AuthorId authorId;
 
-	public LocalAuthorRemovedEvent(AuthorId authorId) {
+	public IdentityRemovedEvent(AuthorId authorId) {
 		this.authorId = authorId;
 	}
 

@@ -20,7 +20,7 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
-import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
+import org.briarproject.bramble.api.db.NoSuchIdentityException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
@@ -33,8 +33,8 @@ import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
-import org.briarproject.bramble.api.identity.event.LocalAuthorAddedEvent;
-import org.briarproject.bramble.api.identity.event.LocalAuthorRemovedEvent;
+import org.briarproject.bramble.api.identity.event.IdentityAddedEvent;
+import org.briarproject.bramble.api.identity.event.IdentityRemovedEvent;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -238,7 +238,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, local))
-			throw new NoSuchLocalAuthorException();
+			throw new NoSuchIdentityException();
 		if (db.containsIdentity(txn, remote.getId()))
 			throw new ContactExistsException();
 		if (db.containsContact(txn, remote.getId(), local))
@@ -289,7 +289,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, i.getId())) {
 			db.addIdentity(txn, i);
-			transaction.attach(new LocalAuthorAddedEvent(i.getId()));
+			transaction.attach(new IdentityAddedEvent(i.getId()));
 		}
 	}
 
@@ -346,7 +346,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			AuthorId local) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, local))
-			throw new NoSuchLocalAuthorException();
+			throw new NoSuchIdentityException();
 		return db.containsContact(txn, remote, local);
 	}
 
@@ -506,7 +506,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			AuthorId a) throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, a))
-			throw new NoSuchLocalAuthorException();
+			throw new NoSuchIdentityException();
 		return db.getContacts(txn, a);
 	}
 
@@ -558,7 +558,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, a))
-			throw new NoSuchLocalAuthorException();
+			throw new NoSuchIdentityException();
 		return db.getIdentity(txn, a);
 	}
 
@@ -910,9 +910,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, a))
-			throw new NoSuchLocalAuthorException();
+			throw new NoSuchIdentityException();
 		db.removeIdentity(txn, a);
-		transaction.attach(new LocalAuthorRemovedEvent(a));
+		transaction.attach(new IdentityRemovedEvent(a));
 	}
 
 	@Override
@@ -1041,7 +1041,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, local))
-			throw new NoSuchLocalAuthorException();
+			throw new NoSuchIdentityException();
 		db.setHandshakeKeyPair(txn, local, publicKey, privateKey);
 	}
 
