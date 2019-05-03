@@ -427,13 +427,16 @@
 
 		<activity
 			android:name=".android.contact.add.remote.AddContactActivity"
-			android:theme="@style/BriarTheme"
 			android:label="@string/add_contact_remotely_title_case"
+			android:launchMode="singleTask"
+			android:theme="@style/BriarTheme"
 			android:windowSoftInputMode="stateHidden|adjustResize">
 			<intent-filter>
-				<action android:name="android.intent.action.VIEW" />
-				<category android:name="android.intent.category.DEFAULT" />
-				<category android:name="android.intent.category.BROWSABLE" />
+				<action android:name="android.intent.action.VIEW"/>
+
+				<category android:name="android.intent.category.DEFAULT"/>
+				<category android:name="android.intent.category.BROWSABLE"/>
+
 				<data android:scheme="briar"/>
 			</intent-filter>
 			<intent-filter>

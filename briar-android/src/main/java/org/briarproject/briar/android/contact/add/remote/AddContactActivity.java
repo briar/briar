@@ -30,6 +30,7 @@ public class AddContactActivity extends BriarActivity implements
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
+	private AddContactViewModel viewModel;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -46,9 +47,8 @@ public class AddContactActivity extends BriarActivity implements
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
 
-		AddContactViewModel viewModel =
-				ViewModelProviders.of(this, viewModelFactory)
-						.get(AddContactViewModel.class);
+		viewModel = ViewModelProviders.of(this, viewModelFactory)
+				.get(AddContactViewModel.class);
 		viewModel.getRemoteLinkEntered().observe(this, entered -> {
 			if (entered != null && entered) {
 				NicknameFragment f = new NicknameFragment();
@@ -58,30 +58,36 @@ public class AddContactActivity extends BriarActivity implements
 
 		Intent i = getIntent();
 		if (i != null) {
-			String action = i.getAction();
-			if (ACTION_SEND.equals(action) || ACTION_VIEW.equals(action)) {
-				String text = i.getStringExtra(EXTRA_TEXT);
-				if (text != null) {
-					if (viewModel.isValidRemoteContactLink(text)) {
-						viewModel.setRemoteHandshakeLink(text);
-					} else {
-						Toast.makeText(this, R.string.invalid_link, LENGTH_LONG)
-								.show();
-					}
-				}
-				String uri = i.getDataString();
-				if (uri != null) {
-					if (viewModel.isValidRemoteContactLink(uri)) {
-						viewModel.setRemoteHandshakeLink(uri);
-					} else {
-						Toast.makeText(this, R.string.invalid_link, LENGTH_LONG)
-								.show();
-					}
-				}
-			}
+			onNewIntent(i);
+			setIntent(null);  // don't keep the intent for configuration changes
 		}
+
 		if (state == null) {
 			showInitialFragment(new LinkExchangeFragment());
+		}
+	}
+
+	@Override
+	protected void onNewIntent(Intent i) {
+		super.onNewIntent(i);
+		String action = i.getAction();
+		if (ACTION_SEND.equals(action) || ACTION_VIEW.equals(action)) {
+			String text = i.getStringExtra(EXTRA_TEXT);
+			String uri = i.getDataString();
+			if (text != null) handleIncomingLink(text);
+			else if (uri != null) handleIncomingLink(uri);
+		}
+	}
+
+	private void handleIncomingLink(String link) {
+		if (link.equals(viewModel.getHandshakeLink().getValue())) {
+			Toast.makeText(this, R.string.intent_own_link, LENGTH_LONG)
+					.show();
+		} else if (viewModel.isValidRemoteContactLink(link)) {
+			viewModel.setRemoteHandshakeLink(link);
+		} else {
+			Toast.makeText(this, R.string.invalid_link, LENGTH_LONG)
+					.show();
 		}
 	}
 
