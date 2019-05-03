@@ -68,6 +68,11 @@ public class AddContactViewModel extends AndroidViewModel {
 		return handshakeLink;
 	}
 
+	@Nullable
+	String getRemoteHandshakeLink() {
+		return remoteHandshakeLink;
+	}
+
 	void setRemoteHandshakeLink(String link) {
 		remoteHandshakeLink = link;
 	}

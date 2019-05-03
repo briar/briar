@@ -72,6 +72,10 @@ public class LinkExchangeFragment extends BaseFragment {
 
 		linkInputLayout = v.findViewById(R.id.linkInputLayout);
 		linkInput = v.findViewById(R.id.linkInput);
+		if (viewModel.getRemoteHandshakeLink() != null) {
+			// This can happen if the link was set via an incoming Intent
+			linkInput.setText(viewModel.getRemoteHandshakeLink());
+		}
 
 		clipboard = (ClipboardManager) requireNonNull(
 				getContext().getSystemService(CLIPBOARD_SERVICE));
