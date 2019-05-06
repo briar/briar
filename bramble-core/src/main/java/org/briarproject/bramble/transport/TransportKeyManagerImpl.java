@@ -28,10 +28,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
@@ -43,7 +45,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(TransportKeyManagerImpl.class.getName());
+			getLogger(TransportKeyManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final TransportCrypto transportCrypto;
@@ -55,9 +57,11 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 	private final ReentrantLock lock = new ReentrantLock();
 
-	// The following are locking: lock
+	@GuardedBy("lock")
 	private final Map<KeySetId, MutableKeySet> keys = new HashMap<>();
+	@GuardedBy("lock")
 	private final Map<Bytes, TagContext> inContexts = new HashMap<>();
+	@GuardedBy("lock")
 	private final Map<ContactId, MutableKeySet> outContexts = new HashMap<>();
 
 	TransportKeyManagerImpl(DatabaseComponent db,
@@ -113,7 +117,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		return rotationResult;
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void addKeys(Collection<TransportKeySet> keys) {
 		for (TransportKeySet ks : keys) {
 			// TODO: Keys may be for a pending contact
@@ -122,7 +126,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void addKeys(KeySetId keySetId, ContactId contactId,
 			MutableTransportKeys m) {
 		MutableKeySet ks = new MutableKeySet(keySetId, contactId, m);
@@ -133,7 +137,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		considerReplacingOutgoingKeys(ks);
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void encodeTags(KeySetId keySetId, ContactId contactId,
 			MutableIncomingKeys inKeys) {
 		for (long streamNumber : inKeys.getWindow().getUnseen()) {
@@ -146,7 +150,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
-	// Locking: lock
+	@GuardedBy("lock")
 	private void considerReplacingOutgoingKeys(MutableKeySet ks) {
 		// Use the active outgoing keys with the highest key set ID
 		if (ks.getTransportKeys().getCurrentOutgoingKeys().isActive()) {
