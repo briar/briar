@@ -24,6 +24,8 @@ public class TransportKeySet {
 
 	public TransportKeySet(KeySetId keySetId, @Nullable ContactId contactId,
 			@Nullable PendingContactId pendingContactId, TransportKeys keys) {
+		if ((contactId == null) == (pendingContactId == null))
+			throw new IllegalArgumentException();
 		this.keySetId = keySetId;
 		this.contactId = contactId;
 		this.pendingContactId = pendingContactId;

@@ -47,7 +47,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	private final TransportId transportId = getTransportId();
 	private final TransportId unknownTransportId = getTransportId();
 	private final StreamContext streamContext = new StreamContext(contactId,
-			transportId, getSecretKey(), getSecretKey(), 1);
+			null, transportId, getSecretKey(), getSecretKey(), 1, false);
 	private final byte[] tag = getRandomBytes(TAG_LENGTH);
 	private final Random random = new Random();
 
