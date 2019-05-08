@@ -274,7 +274,7 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<ContactId> getContacts(Transaction txn, AuthorId a)
+	Collection<ContactId> getContacts(Transaction txn, AuthorId local)
 			throws DbException;
 
 	/**

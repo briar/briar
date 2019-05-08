@@ -503,11 +503,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public Collection<ContactId> getContacts(Transaction transaction,
-			AuthorId a) throws DbException {
+			AuthorId local) throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsIdentity(txn, a))
+		if (!db.containsIdentity(txn, local))
 			throw new NoSuchIdentityException();
-		return db.getContacts(txn, a);
+		return db.getContacts(txn, local);
 	}
 
 	@Override

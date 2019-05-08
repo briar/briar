@@ -273,7 +273,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
+	Collection<ContactId> getContacts(T txn, AuthorId local) throws DbException;
 
 	/**
 	 * Returns the group with the given ID.
