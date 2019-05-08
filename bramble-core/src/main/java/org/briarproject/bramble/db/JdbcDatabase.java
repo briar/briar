@@ -3291,7 +3291,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(1, state.getValue());
 			ps.setBytes(2, p.getBytes());
 			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
+			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
