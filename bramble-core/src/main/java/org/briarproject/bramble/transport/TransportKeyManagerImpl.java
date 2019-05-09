@@ -214,6 +214,26 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
+	public KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
+			boolean alice) throws DbException {
+		lock.lock();
+		try {
+			// Work out what time period we're in
+			long timePeriod = clock.currentTimeMillis() / timePeriodLength;
+			// Derive the transport keys
+			TransportKeys k = transportCrypto.deriveHandshakeKeys(transportId,
+					rootKey, timePeriod, alice);
+			// Write the keys back to the DB
+			KeySetId keySetId = db.addTransportKeys(txn, c, k);
+			// Initialise mutable state for the contact
+			addKeys(keySetId, c, null, new MutableTransportKeys(k));
+			return keySetId;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
 	public void activateKeys(Transaction txn, KeySetId k) throws DbException {
 		lock.lock();
 		try {

@@ -101,6 +101,18 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public Map<TransportId, KeySetId> addContact(Transaction txn,
+			ContactId c, SecretKey rootKey, boolean alice) throws DbException {
+		Map<TransportId, KeySetId> ids = new HashMap<>();
+		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = e.getValue();
+			ids.put(t, m.addContact(txn, c, rootKey, alice));
+		}
+		return ids;
+	}
+
+	@Override
 	public void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
 			throws DbException {
 		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {

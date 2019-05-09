@@ -83,7 +83,7 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testAddContact() throws Exception {
+	public void testAddContactWithRotationModeKeys() throws Exception {
 		SecretKey secretKey = getSecretKey();
 		long timestamp = System.currentTimeMillis();
 		boolean alice = random.nextBoolean();
@@ -97,6 +97,22 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 
 		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
 				secretKey, timestamp, alice, active);
+		assertEquals(singletonMap(transportId, keySetId), ids);
+	}
+
+	@Test
+	public void testAddContactWithHandshakeModeKeys() throws Exception {
+		SecretKey secretKey = getSecretKey();
+		boolean alice = random.nextBoolean();
+
+		context.checking(new Expectations() {{
+			oneOf(transportKeyManager).addContact(txn, contactId, secretKey,
+					alice);
+			will(returnValue(keySetId));
+		}});
+
+		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
+				secretKey, alice);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 

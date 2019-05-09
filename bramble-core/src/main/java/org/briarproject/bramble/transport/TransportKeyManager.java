@@ -18,6 +18,9 @@ interface TransportKeyManager {
 	KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
 			long timestamp, boolean alice, boolean active) throws DbException;
 
+	KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
+			boolean alice) throws DbException;
+
 	void activateKeys(Transaction txn, KeySetId k) throws DbException;
 
 	void removeContact(ContactId c);

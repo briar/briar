@@ -70,14 +70,15 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testKeysAreUpdatedAtStartup() throws Exception {
-		TransportKeys shouldUpdate = createTransportKeys(900, 0, true);
-		TransportKeys shouldNotUpdate = createTransportKeys(1000, 0, true);
+		boolean active = random.nextBoolean();
+		TransportKeys shouldUpdate = createTransportKeys(900, 0, active);
+		TransportKeys shouldNotUpdate = createTransportKeys(1000, 0, active);
 		Collection<TransportKeySet> loaded = asList(
 				new TransportKeySet(keySetId, contactId, null, shouldUpdate),
 				new TransportKeySet(keySetId1, contactId1, null,
 						shouldNotUpdate)
 		);
-		TransportKeys updated = createTransportKeys(1000, 0, true);
+		TransportKeys updated = createTransportKeys(1000, 0, active);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -111,19 +112,22 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
 		transportKeyManager.start(txn);
-		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
+		assertEquals(active,
+				transportKeyManager.canSendOutgoingStreams(contactId));
 	}
 
 	@Test
-	public void testKeysAreUpdatedWhenAddingContact() throws Exception {
+	public void testRotationKeysAreDerivedAndUpdatedWhenAddingContact()
+			throws Exception {
 		boolean alice = random.nextBoolean();
-		TransportKeys transportKeys = createTransportKeys(999, 0, true);
-		TransportKeys updated = createTransportKeys(1000, 0, true);
+		boolean active = random.nextBoolean();
+		TransportKeys transportKeys = createTransportKeys(999, 0, active);
+		TransportKeys updated = createTransportKeys(1000, 0, active);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveRotationKeys(transportId, rootKey,
-					999, alice, true);
+					999, alice, active);
 			will(returnValue(transportKeys));
 			// Get the current time (1 ms after start of time period 1000)
 			oneOf(clock).currentTimeMillis();
@@ -149,7 +153,43 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		// The timestamp is 1 ms before the start of time period 1000
 		long timestamp = timePeriodLength * 1000 - 1;
 		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, true));
+				rootKey, timestamp, alice, active));
+		assertEquals(active,
+				transportKeyManager.canSendOutgoingStreams(contactId));
+	}
+
+	@Test
+	public void testHandshakeKeysAreDerivedWhenAddingContact()
+			throws Exception {
+		boolean alice = random.nextBoolean();
+		TransportKeys transportKeys = createTransportKeys(1000, 0, true);
+		Transaction txn = new Transaction(null, false);
+
+		context.checking(new Expectations() {{
+			// Get the current time (1 ms after start of time period 1000)
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(timePeriodLength * 1000 + 1));
+			// Derive the transport keys
+			oneOf(transportCrypto).deriveHandshakeKeys(transportId, rootKey,
+					1000, alice);
+			will(returnValue(transportKeys));
+			// Encode the tags (3 sets)
+			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
+				exactly(3).of(transportCrypto).encodeTag(
+						with(any(byte[].class)), with(tagKey),
+						with(PROTOCOL_VERSION), with(i));
+				will(new EncodeTagAction());
+			}
+			// Save the keys
+			oneOf(db).addTransportKeys(txn, contactId, transportKeys);
+			will(returnValue(keySetId));
+		}});
+
+		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
+				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
+				maxLatency);
+		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
+				rootKey, alice));
 		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
 	}
 
