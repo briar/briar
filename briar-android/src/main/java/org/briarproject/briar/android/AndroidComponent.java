@@ -8,7 +8,7 @@ import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.account.BriarAccountModule;
 import org.briarproject.bramble.api.account.AccountManager;
-import org.briarproject.bramble.api.contact.ContactExchangeTask;
+import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
@@ -128,7 +128,7 @@ public interface AndroidComponent
 
 	SettingsManager settingsManager();
 
-	ContactExchangeTask contactExchangeTask();
+	ContactExchangeManager contactExchangeManager();
 
 	KeyAgreementTask keyAgreementTask();
 

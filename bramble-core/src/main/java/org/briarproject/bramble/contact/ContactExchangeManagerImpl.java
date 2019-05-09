@@ -3,7 +3,7 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.contact.ContactExchangeTask;
+import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactExchangeFailedEvent;
@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -49,16 +50,22 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
+import static org.briarproject.bramble.contact.ContactExchangeConstants.ALICE_KEY_LABEL;
+import static org.briarproject.bramble.contact.ContactExchangeConstants.ALICE_NONCE_LABEL;
+import static org.briarproject.bramble.contact.ContactExchangeConstants.BOB_KEY_LABEL;
+import static org.briarproject.bramble.contact.ContactExchangeConstants.BOB_NONCE_LABEL;
+import static org.briarproject.bramble.contact.ContactExchangeConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.contact.ContactExchangeConstants.SIGNING_LABEL;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class ContactExchangeTaskImpl implements ContactExchangeTask {
+class ContactExchangeManagerImpl implements ContactExchangeManager {
 
 	private static final Logger LOG =
-			getLogger(ContactExchangeTaskImpl.class.getName());
+			getLogger(ContactExchangeManagerImpl.class.getName());
 
 	// Accept records with current protocol version, known record type
 	private static final Predicate<Record> ACCEPT = r ->
@@ -82,17 +89,18 @@ class ContactExchangeTaskImpl implements ContactExchangeTask {
 	private final Clock clock;
 	private final ConnectionManager connectionManager;
 	private final ContactManager contactManager;
+	private final IdentityManager identityManager;
 	private final TransportPropertyManager transportPropertyManager;
 	private final CryptoComponent crypto;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 
 	@Inject
-	ContactExchangeTaskImpl(DatabaseComponent db, ClientHelper clientHelper,
+	ContactExchangeManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			RecordReaderFactory recordReaderFactory,
 			RecordWriterFactory recordWriterFactory, EventBus eventBus,
 			Clock clock, ConnectionManager connectionManager,
-			ContactManager contactManager,
+			ContactManager contactManager, IdentityManager identityManager,
 			TransportPropertyManager transportPropertyManager,
 			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory) {
@@ -104,6 +112,7 @@ class ContactExchangeTaskImpl implements ContactExchangeTask {
 		this.clock = clock;
 		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
+		this.identityManager = identityManager;
 		this.transportPropertyManager = transportPropertyManager;
 		this.crypto = crypto;
 		this.streamReaderFactory = streamReaderFactory;
@@ -111,9 +120,8 @@ class ContactExchangeTaskImpl implements ContactExchangeTask {
 	}
 
 	@Override
-	public void exchangeContacts(LocalAuthor localAuthor,
-			SecretKey masterKey, DuplexTransportConnection conn,
-			TransportId transportId, boolean alice) {
+	public void exchangeContacts(TransportId t, DuplexTransportConnection conn,
+			SecretKey masterKey, boolean alice) {
 		// Get the transport connection's input and output streams
 		InputStream in;
 		OutputStream out;
@@ -127,9 +135,11 @@ class ContactExchangeTaskImpl implements ContactExchangeTask {
 			return;
 		}
 
-		// Get the local transport properties
+		// Get the local author and transport properties
+		LocalAuthor localAuthor;
 		Map<TransportId, TransportProperties> localProperties;
 		try {
+			localAuthor = identityManager.getLocalAuthor();
 			localProperties = transportPropertyManager.getLocalProperties();
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
@@ -210,8 +220,7 @@ class ContactExchangeTaskImpl implements ContactExchangeTask {
 			ContactId contactId = addContact(remoteInfo.author, localAuthor,
 					masterKey, timestamp, alice, remoteInfo.properties);
 			// Reuse the connection as a transport connection
-			connectionManager.manageOutgoingConnection(contactId, transportId,
-					conn);
+			connectionManager.manageOutgoingConnection(contactId, t, conn);
 			// Pseudonym exchange succeeded
 			LOG.info("Pseudonym exchange succeeded");
 			eventBus.broadcast(
