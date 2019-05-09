@@ -69,15 +69,15 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	private final Random random = new Random();
 
 	@Test
-	public void testKeysAreRotatedAtStartup() throws Exception {
-		TransportKeys shouldRotate = createTransportKeys(900, 0, true);
-		TransportKeys shouldNotRotate = createTransportKeys(1000, 0, true);
+	public void testKeysAreUpdatedAtStartup() throws Exception {
+		TransportKeys shouldUpdate = createTransportKeys(900, 0, true);
+		TransportKeys shouldNotUpdate = createTransportKeys(1000, 0, true);
 		Collection<TransportKeySet> loaded = asList(
-				new TransportKeySet(keySetId, contactId, null, shouldRotate),
+				new TransportKeySet(keySetId, contactId, null, shouldUpdate),
 				new TransportKeySet(keySetId1, contactId1, null,
-						shouldNotRotate)
+						shouldNotUpdate)
 		);
-		TransportKeys rotated = createTransportKeys(1000, 0, true);
+		TransportKeys updated = createTransportKeys(1000, 0, true);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -87,11 +87,11 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			// Load the transport keys
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
-			// Rotate the transport keys
-			oneOf(transportCrypto).updateTransportKeys(shouldRotate, 1000);
-			will(returnValue(rotated));
-			oneOf(transportCrypto).updateTransportKeys(shouldNotRotate, 1000);
-			will(returnValue(shouldNotRotate));
+			// Update the transport keys
+			oneOf(transportCrypto).updateTransportKeys(shouldUpdate, 1000);
+			will(returnValue(updated));
+			oneOf(transportCrypto).updateTransportKeys(shouldNotUpdate, 1000);
+			will(returnValue(shouldNotUpdate));
 			// Encode the tags (3 sets per contact)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(6).of(transportCrypto).encodeTag(
@@ -99,10 +99,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
-			// Save the keys that were rotated
+			// Save the keys that were updated
 			oneOf(db).updateTransportKeys(txn, singletonList(
-					new TransportKeySet(keySetId, contactId, null, rotated)));
-			// Schedule key rotation at the start of the next time period
+					new TransportKeySet(keySetId, contactId, null, updated)));
+			// Schedule a key update at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(timePeriodLength - 1), with(MILLISECONDS));
 		}});
@@ -115,10 +115,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testKeysAreRotatedWhenAddingContact() throws Exception {
+	public void testKeysAreUpdatedWhenAddingContact() throws Exception {
 		boolean alice = random.nextBoolean();
 		TransportKeys transportKeys = createTransportKeys(999, 0, true);
-		TransportKeys rotated = createTransportKeys(1000, 0, true);
+		TransportKeys updated = createTransportKeys(1000, 0, true);
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -128,9 +128,9 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			// Get the current time (1 ms after start of time period 1000)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timePeriodLength * 1000 + 1));
-			// Rotate the transport keys
+			// Update the transport keys
 			oneOf(transportCrypto).updateTransportKeys(transportKeys, 1000);
-			will(returnValue(rotated));
+			will(returnValue(updated));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(transportCrypto).encodeTag(
@@ -139,7 +139,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				will(new EncodeTagAction());
 			}
 			// Save the keys
-			oneOf(db).addTransportKeys(txn, contactId, rotated);
+			oneOf(db).addTransportKeys(txn, contactId, updated);
 			will(returnValue(keySetId));
 		}});
 
@@ -174,7 +174,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				MAX_32_BIT_UNSIGNED + 1, true);
 		Transaction txn = new Transaction(null, false);
 
-		expectAddContactNoRotation(alice, true, transportKeys, txn);
+		expectAddContactKeysNotUpdated(alice, true, transportKeys, txn);
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
@@ -195,7 +195,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				MAX_32_BIT_UNSIGNED, true);
 		Transaction txn = new Transaction(null, false);
 
-		expectAddContactNoRotation(alice, true, transportKeys, txn);
+		expectAddContactKeysNotUpdated(alice, true, transportKeys, txn);
 
 		context.checking(new Expectations() {{
 			// Increment the stream counter
@@ -232,7 +232,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeys transportKeys = createTransportKeys(1000, 0, active);
 		Transaction txn = new Transaction(null, false);
 
-		expectAddContactNoRotation(alice, active, transportKeys, txn);
+		expectAddContactKeysNotUpdated(alice, active, transportKeys, txn);
 
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
@@ -271,7 +271,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction(tags));
 			}
-			// Rotate the transport keys (the keys are unaffected)
+			// Updated the transport keys (the keys are unaffected)
 			oneOf(transportCrypto).updateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
@@ -313,11 +313,11 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testKeysAreRotatedToCurrentPeriod() throws Exception {
+	public void testKeysAreUpdatedToCurrentPeriod() throws Exception {
 		TransportKeys transportKeys = createTransportKeys(1000, 0, true);
 		Collection<TransportKeySet> loaded = singletonList(
 				new TransportKeySet(keySetId, contactId, null, transportKeys));
-		TransportKeys rotated = createTransportKeys(1001, 0, true);
+		TransportKeys updated = createTransportKeys(1001, 0, true);
 		Transaction txn = new Transaction(null, false);
 		Transaction txn1 = new Transaction(null, false);
 
@@ -328,7 +328,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			// Load the transport keys
 			oneOf(db).getTransportKeys(txn, transportId);
 			will(returnValue(loaded));
-			// Rotate the transport keys (the keys are unaffected)
+			// Update the transport keys (the keys are unaffected)
 			oneOf(transportCrypto).updateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Encode the tags (3 sets)
@@ -338,21 +338,21 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
-			// Schedule key rotation at the start of the next time period
+			// Schedule a key update at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(timePeriodLength), with(MILLISECONDS));
 			will(new RunAction());
 			oneOf(dbExecutor).execute(with(any(Runnable.class)));
 			will(new RunAction());
-			// Start a transaction for key rotation
+			// Start a transaction for updating keys
 			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			// Get the current time (the start of time period 1001)
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(timePeriodLength * 1001));
-			// Rotate the transport keys
+			// Update the transport keys
 			oneOf(transportCrypto).updateTransportKeys(
 					with(any(TransportKeys.class)), with(1001L));
-			will(returnValue(rotated));
+			will(returnValue(updated));
 			// Encode the tags (3 sets)
 			for (long i = 0; i < REORDERING_WINDOW_SIZE; i++) {
 				exactly(3).of(transportCrypto).encodeTag(
@@ -360,10 +360,10 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
-			// Save the keys that were rotated
+			// Save the keys that were updated
 			oneOf(db).updateTransportKeys(txn1, singletonList(
-					new TransportKeySet(keySetId, contactId, null, rotated)));
-			// Schedule key rotation at the start of the next time period
+					new TransportKeySet(keySetId, contactId, null, updated)));
+			// Schedule a key update at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(timePeriodLength), with(MILLISECONDS));
 		}});
@@ -381,7 +381,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeys transportKeys = createTransportKeys(1000, 0, false);
 		Transaction txn = new Transaction(null, false);
 
-		expectAddContactNoRotation(alice, false, transportKeys, txn);
+		expectAddContactKeysNotUpdated(alice, false, transportKeys, txn);
 
 		context.checking(new Expectations() {{
 			// Activate the keys
@@ -436,7 +436,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction(tags));
 			}
-			// Rotate the transport keys (the keys are unaffected)
+			// Update the transport keys (the keys are unaffected)
 			oneOf(transportCrypto).updateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys
@@ -487,7 +487,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		assertEquals(0L, ctx.getStreamNumber());
 	}
 
-	private void expectAddContactNoRotation(boolean alice, boolean active,
+	private void expectAddContactKeysNotUpdated(boolean alice, boolean active,
 			TransportKeys transportKeys, Transaction txn) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(transportCrypto).deriveRotationKeys(transportId, rootKey,
@@ -503,7 +503,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 						with(PROTOCOL_VERSION), with(i));
 				will(new EncodeTagAction());
 			}
-			// Rotate the transport keys (the keys are unaffected)
+			// Upate the transport keys (the keys are unaffected)
 			oneOf(transportCrypto).updateTransportKeys(transportKeys, 1000);
 			will(returnValue(transportKeys));
 			// Save the keys

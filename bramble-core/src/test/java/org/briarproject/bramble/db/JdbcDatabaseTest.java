@@ -695,14 +695,14 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 			}
 		}
 
-		// Rotate the transport keys
-		TransportKeys rotated = createTransportKeys(timePeriod + 1, active);
-		TransportKeys rotated1 =
+		// Update the transport keys
+		TransportKeys updated = createTransportKeys(timePeriod + 1, active);
+		TransportKeys updated1 =
 				createTransportKeys(timePeriod1 + 1, active);
 		db.updateTransportKeys(txn, new TransportKeySet(keySetId, contactId,
-				null, rotated));
+				null, updated));
 		db.updateTransportKeys(txn, new TransportKeySet(keySetId1, contactId,
-				null, rotated1));
+				null, updated1));
 
 		// Retrieve the transport keys again
 		allKeys = db.getTransportKeys(txn, transportId);
@@ -710,10 +710,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		for (TransportKeySet ks : allKeys) {
 			assertEquals(contactId, ks.getContactId());
 			if (ks.getKeySetId().equals(keySetId)) {
-				assertKeysEquals(rotated, ks.getKeys());
+				assertKeysEquals(updated, ks.getKeys());
 			} else {
 				assertEquals(keySetId1, ks.getKeySetId());
-				assertKeysEquals(rotated1, ks.getKeys());
+				assertKeysEquals(updated1, ks.getKeys());
 			}
 		}
 
