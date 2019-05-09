@@ -80,10 +80,8 @@ public interface ContactManager {
 	/**
 	 * Removes a {@link PendingContact} that is in state
 	 * {@link PendingContactState FAILED}.
-	 * @param commitAction an action to run on the main thread after removing.
 	 */
-	void removePendingContact(PendingContactId pendingContact,
-			Runnable commitAction) throws DbException;
+	void removePendingContact(PendingContactId pendingContact) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.

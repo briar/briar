@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -299,7 +300,8 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 			if (pe.getPendingContactState() == WAITING_FOR_CONNECTION) {
 				checkForPendingContacts();
 			}
-		} else if (e instanceof ContactAddedRemotelyEvent) {
+		} else if (e instanceof PendingContactRemovedEvent ||
+				e instanceof ContactAddedRemotelyEvent) {
 			checkForPendingContacts();
 		}
 	}

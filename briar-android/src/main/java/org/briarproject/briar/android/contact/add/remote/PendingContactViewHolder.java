@@ -40,8 +40,10 @@ class PendingContactViewHolder extends ViewHolder {
 		avatar.setBackgroundBytes(item.getId().getBytes());
 		name.setText(item.getAlias());
 		time.setText(formatDate(time.getContext(), item.getTimestamp()));
-		removeButton.setOnClickListener(
-				v -> listener.onFailedPendingContactRemoved(item));
+		removeButton.setOnClickListener(v -> {
+			listener.onFailedPendingContactRemoved(item);
+			removeButton.setEnabled(false);
+		});
 
 		int color = ContextCompat
 				.getColor(status.getContext(), R.color.briar_green);
@@ -69,6 +71,7 @@ class PendingContactViewHolder extends ViewHolder {
 		}
 		status.setTextColor(color);
 		removeButton.setVisibility(buttonVisibility);
+		removeButton.setEnabled(true);
 	}
 
 }

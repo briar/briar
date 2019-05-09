@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -218,8 +219,7 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void removePendingContact(PendingContactId id,
-			Runnable commitAction) throws DbException {
+	public void removePendingContact(PendingContactId id) throws DbException {
 		// TODO replace with real implementation
 		for (PendingContact pc : pendingContacts) {
 			if (pc.getId().equals(id)) {
@@ -231,7 +231,8 @@ class ContactManagerImpl implements ContactManager {
 			Thread.sleep(250);
 		} catch (InterruptedException ignored) {
 		}
-		db.transaction(true, txn -> txn.attach(commitAction));
+		db.transaction(true,
+				txn -> txn.attach(new PendingContactRemovedEvent(id)));
 	}
 
 	@Override

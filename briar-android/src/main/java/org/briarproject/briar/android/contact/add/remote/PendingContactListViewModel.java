@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -63,7 +64,8 @@ public class PendingContactListViewModel extends AndroidViewModel
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactAddedRemotelyEvent ||
-				e instanceof PendingContactStateChangedEvent) {
+				e instanceof PendingContactStateChangedEvent ||
+				e instanceof PendingContactRemovedEvent) {
 			loadPendingContacts();
 		}
 	}
@@ -82,16 +84,14 @@ public class PendingContactListViewModel extends AndroidViewModel
 		return pendingContacts;
 	}
 
-	void removePendingContact(PendingContactId id, Runnable commitAction) {
+	void removePendingContact(PendingContactId id) {
 		dbExecutor.execute(() -> {
 			try {
-				contactManager
-						.removePendingContact(id, commitAction);
+				contactManager.removePendingContact(id);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
-		loadPendingContacts();
 	}
 
 }
