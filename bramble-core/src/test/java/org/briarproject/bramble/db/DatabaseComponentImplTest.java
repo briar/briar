@@ -1459,7 +1459,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 							true));
 			fail();
 		} catch (ContactExistsException expected) {
-			// Expected
+			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());
+			assertEquals(author, expected.getRemoteAuthor());
 		}
 	}
 
@@ -1488,7 +1489,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 							true));
 			fail();
 		} catch (ContactExistsException expected) {
-			// Expected
+			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());
+			assertEquals(author, expected.getRemoteAuthor());
 		}
 	}
 

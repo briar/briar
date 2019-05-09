@@ -229,7 +229,7 @@ class ContactExchangeManagerImpl implements ContactExchangeManager {
 			logException(LOG, WARNING, e);
 			tryToClose(conn);
 			eventBus.broadcast(
-					new ContactExchangeFailedEvent(remoteInfo.author));
+					new ContactExchangeFailedEvent(e.getRemoteAuthor()));
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 			tryToClose(conn);

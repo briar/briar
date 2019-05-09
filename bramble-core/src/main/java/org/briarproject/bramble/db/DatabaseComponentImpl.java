@@ -234,16 +234,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public ContactId addContact(Transaction transaction, Author remote,
-			AuthorId local, boolean verified)
-			throws DbException {
+			AuthorId local, boolean verified) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsIdentity(txn, local))
 			throw new NoSuchIdentityException();
 		if (db.containsIdentity(txn, remote.getId()))
-			throw new ContactExistsException();
+			throw new ContactExistsException(local, remote);
 		if (db.containsContact(txn, remote.getId(), local))
-			throw new ContactExistsException();
+			throw new ContactExistsException(local, remote);
 		ContactId c = db.addContact(txn, remote, local, verified);
 		transaction.attach(new ContactAddedEvent(c));
 		return c;
