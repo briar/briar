@@ -1,23 +1,17 @@
 package org.briarproject.briar.android.keyagreement;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.widget.Toast;
 
-import org.briarproject.bramble.api.contact.ContactExchangeManager;
-import org.briarproject.bramble.api.contact.event.ContactExchangeFailedEvent;
-import org.briarproject.bramble.api.contact.event.ContactExchangeSucceededEvent;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementResult;
-import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-
-import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -27,16 +21,12 @@ import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ContactExchangeActivity extends KeyAgreementActivity implements
-		EventListener {
+public class ContactExchangeActivity extends KeyAgreementActivity {
 
 	@Inject
-	@IoExecutor
-	Executor ioExecutor;
+	ViewModelProvider.Factory viewModelFactory;
 
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	volatile ContactExchangeManager contactExchangeManager;
+	private ContactExchangeViewModel viewModel;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -46,45 +36,27 @@ public class ContactExchangeActivity extends KeyAgreementActivity implements
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
-		getSupportActionBar().setTitle(R.string.add_contact_title);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		// Listen to updates from ContactExchangeManager
-		eventBus.addListener(this);
-	}
-
-	@Override
-	protected void onStop() {
-		super.onStop();
-		// Stop listening to updates from ContactExchangeManager
-		eventBus.addListener(this);
+		requireNonNull(getSupportActionBar())
+				.setTitle(R.string.add_contact_title);
+		viewModel = ViewModelProviders.of(this, viewModelFactory)
+				.get(ContactExchangeViewModel.class);
 	}
 
 	private void startContactExchange(KeyAgreementResult result) {
-		ioExecutor.execute(() -> {
-			// Exchange contact details
-			contactExchangeManager.exchangeContacts(result.getTransportId(),
-					result.getConnection(), result.getMasterKey(),
-					result.wasAlice());
-		});
-	}
-
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof ContactExchangeSucceededEvent) {
-			ContactExchangeSucceededEvent c = (ContactExchangeSucceededEvent) e;
-			contactExchangeSucceeded(c.getRemoteAuthor());
-		} else if (e instanceof ContactExchangeFailedEvent) {
-			ContactExchangeFailedEvent c = (ContactExchangeFailedEvent) e;
-			if (c.wasDuplicateContact()) {
-				duplicateContact(requireNonNull(c.getDuplicateRemoteAuthor()));
+		viewModel.getSucceeded().observe(this, succeeded -> {
+			if (succeeded == null) return;
+			if (succeeded) {
+				Author remote = requireNonNull(viewModel.getRemoteAuthor());
+				contactExchangeSucceeded(remote);
 			} else {
-				contactExchangeFailed();
+				Author duplicate = viewModel.getDuplicateAuthor();
+				if (duplicate == null) contactExchangeFailed();
+				else duplicateContact(duplicate);
 			}
-		}
+		});
+		viewModel.startContactExchange(result.getTransportId(),
+				result.getConnection(), result.getMasterKey(),
+				result.wasAlice());
 	}
 
 	@UiThread
