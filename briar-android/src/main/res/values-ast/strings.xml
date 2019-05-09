@@ -99,7 +99,7 @@
   <string name="try_again_button">Tentar nuevamente</string>
   <string name="camera_error">Error de cámara</string>
   <!--Introductions-->
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Añadióse un contactu nuevu.</item>
     <item quantity="other">Añadiéronse %d contactos nuevos.</item>
   </plurals>

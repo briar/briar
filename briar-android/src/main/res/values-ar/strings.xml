@@ -188,7 +188,7 @@
   <string name="introduction_response_accepted_received">لقد وافق/ت %1$s على تقديمه/ها إلى %2$s.</string>
   <string name="introduction_response_declined_received">لقد رفض/ت %1$sتقديمه/ا إلى %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">ي/تقول %1$sأن %2$s قد رفض/ت التقدمة.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="zero">لا جهة اتصال تم إضافتها.</item>
     <item quantity="one">جهة اتصال تم إضافتها.</item>
     <item quantity="two">جهتيْ اتصال تم إضافتها.</item>

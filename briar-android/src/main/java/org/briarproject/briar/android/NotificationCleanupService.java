@@ -12,7 +12,7 @@ import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_URI;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_URI;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.GROUP_URI;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.INTRODUCTION_URI;
+import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_ADDED_URI;
 
 public class NotificationCleanupService extends IntentService {
 
@@ -46,8 +46,8 @@ public class NotificationCleanupService extends IntentService {
 			notificationManager.clearAllForumPostNotifications();
 		} else if (uri.equals(BLOG_URI)) {
 			notificationManager.clearAllBlogPostNotifications();
-		} else if (uri.equals(INTRODUCTION_URI)) {
-			notificationManager.clearAllIntroductionNotifications();
+		} else if (uri.equals(CONTACT_ADDED_URI)) {
+			notificationManager.clearAllContactAddedNotifications();
 		}
 	}
 }

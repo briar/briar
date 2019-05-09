@@ -157,7 +157,7 @@
   <string name="introduction_response_accepted_received">%1$s přijal pozvání do %2$s.</string>
   <string name="introduction_response_declined_received">%1$s odmítl pozvání do %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s řekl, že %2$s odmítl pozvání.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Nový kontakt byl přidán.</item>
     <item quantity="few">Bylo přidáno %d nových kontaktů.</item>
     <item quantity="many">%d nových kontaktů bylo přidáno.</item>

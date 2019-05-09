@@ -111,7 +111,7 @@
   <string name="introduction_sent">Kaset eo bet ho tigoradur.</string>
   <string name="introduction_error">Ur fazi a zo c\'hoarvezet en ur ober an digoradur.</string>
   <string name="introduction_response_error">Fazi en ur respont d\'an digoradur</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Darempred nevez ouzhpennet.</item>
     <item quantity="two">%d a zarempredoù nevez ouzhpennet.</item>
     <item quantity="few">%d a zarempredoù nevez ouzhpennet.</item>

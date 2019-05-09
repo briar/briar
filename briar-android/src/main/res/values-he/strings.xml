@@ -192,7 +192,7 @@
   <string name="introduction_response_accepted_received">%1$s הסכימו להיות מוצגים בפני %2$s.</string>
   <string name="introduction_response_declined_received">%1$s סירבו להיות מוצגים בפני %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s אומרים ש- %2$s סירבו להיות מוצגים בפניהם.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">נוסף איש קשר חדש.</item>
     <item quantity="two">נוספו %d אנשי קשר חדשים.</item>
     <item quantity="many">נוספו %d אנשי קשר חדשים.</item>

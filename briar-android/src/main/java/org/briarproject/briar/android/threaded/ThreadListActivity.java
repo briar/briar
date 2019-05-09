@@ -26,6 +26,7 @@ import org.briarproject.briar.android.controller.handler.UiResultExceptionHandle
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListDataSource;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.KeyboardAwareLinearLayout;
 import org.briarproject.briar.android.view.TextInputView;
@@ -41,7 +42,6 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.support.design.widget.Snackbar.make;
 import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
@@ -324,9 +324,9 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	}
 
 	protected void displaySnackbar(@StringRes int stringId) {
-		Snackbar snackbar = make(list, stringId, Snackbar.LENGTH_SHORT);
-		snackbar.getView().setBackgroundResource(R.color.briar_primary);
-		snackbar.show();
+		new BriarSnackbarBuilder()
+				.make(list, stringId, Snackbar.LENGTH_SHORT)
+				.show();
 	}
 
 	private void updateTextInput() {

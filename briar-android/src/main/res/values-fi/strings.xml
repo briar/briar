@@ -161,7 +161,7 @@
   <string name="introduction_response_accepted_received">%1$s hyväksyi esittelyn käyttäjälle %2$s.</string>
   <string name="introduction_response_declined_received">%1$s kieltäytyi esittelystä käyttäjälle %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s sanoo, että %2$s on kieltäytynyt esittelystä.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Uusi yhteystieto lisätty.</item>
     <item quantity="other">%d uutta yhteystietoa lisätty.</item>
   </plurals>

@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +26,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseEventFragment;
 import org.briarproject.briar.android.sharing.ForumInvitationActivity;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
@@ -105,11 +105,9 @@ public class ForumListFragment extends BaseEventFragment implements
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
 
-		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
-		snackbar.getView().setBackgroundResource(R.color.briar_primary);
-		snackbar.setAction(R.string.show, this);
-		snackbar.setActionTextColor(ContextCompat
-				.getColor(getActivity(), R.color.briar_button_text_positive));
+		snackbar = new BriarSnackbarBuilder()
+				.setAction(R.string.show, this)
+				.make(list, "", LENGTH_INDEFINITE);
 
 		return contentView;
 	}

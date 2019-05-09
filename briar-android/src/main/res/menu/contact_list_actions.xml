@@ -4,9 +4,17 @@
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
 	<item
-		android:id="@+id/action_add_contact"
-		android:icon="@drawable/ic_add_white"
-		android:title="@string/add_contact_title"
-		app:showAsAction="ifRoom"/>
+		android:id="@+id/action_add_contact_nearby"
+		android:icon="@drawable/ic_nearby"
+		android:orderInCategory="3"
+		android:title="@string/add_contact_nearby_title"
+		app:showAsAction="never"/>
+
+	<item
+		android:id="@+id/action_add_contact_remotely"
+		android:icon="@drawable/ic_link_menu"
+		android:orderInCategory="2"
+		android:title="@string/add_contact_remotely_title"
+		app:showAsAction="never"/>
 
 </menu>

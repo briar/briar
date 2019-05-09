@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
 import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -27,6 +26,7 @@ import org.briarproject.briar.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.briar.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.briar.android.privategroup.list.GroupListController.GroupListListener;
 import org.briarproject.briar.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 
@@ -82,11 +82,9 @@ public class GroupListFragment extends BaseFragment implements
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
 
-		snackbar = Snackbar.make(list, "", LENGTH_INDEFINITE);
-		snackbar.getView().setBackgroundResource(R.color.briar_primary);
-		snackbar.setAction(R.string.show, this);
-		snackbar.setActionTextColor(ContextCompat
-				.getColor(getActivity(), R.color.briar_button_text_positive));
+		snackbar = new BriarSnackbarBuilder()
+				.setAction(R.string.show, this)
+				.make(list, "", LENGTH_INDEFINITE);
 
 		return v;
 	}

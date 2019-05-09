@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.contact;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
@@ -10,11 +11,16 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
+import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
 @NotNullByDefault
 public interface ContactManager {
+
+	int LINK_LENGTH = 64;
+	Pattern LINK_REGEX =
+			Pattern.compile("(briar://)?([a-z2-7]{" + LINK_LENGTH + "})");
 
 	/**
 	 * Registers a hook to be called whenever a contact is added or removed.
@@ -55,32 +61,27 @@ public interface ContactManager {
 	/**
 	 * Returns the static link that needs to be sent to the contact to be added.
 	 */
-	String getRemoteContactLink();
-
-	/**
-	 * Returns true if the given link is syntactically valid.
-	 */
-	boolean isValidRemoteContactLink(String link);
+	String getHandshakeLink() throws DbException;
 
 	/**
 	 * Requests a new contact to be added via the given {@code link}.
 	 *
 	 * @param link The link received from the contact we want to add.
 	 * @param alias The alias the user has given this contact.
-	 * @return A PendingContact representing the contact to be added.
 	 */
-	PendingContact addRemoteContactRequest(String link, String alias);
+	void addPendingContact(String link, String alias)
+			throws DbException, FormatException;
 
 	/**
 	 * Returns a list of {@link PendingContact}s.
 	 */
-	Collection<PendingContact> getPendingContacts();
+	Collection<PendingContact> getPendingContacts() throws DbException;
 
 	/**
 	 * Removes a {@link PendingContact} that is in state
 	 * {@link PendingContactState FAILED}.
 	 */
-	void removePendingContact(PendingContact pendingContact);
+	void removePendingContact(PendingContactId pendingContact) throws DbException;
 
 	/**
 	 * Returns the contact with the given ID.

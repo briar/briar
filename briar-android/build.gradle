@@ -118,6 +118,7 @@ dependencies {
 	implementation 'com.google.zxing:core:3.3.3'
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.14.0'
 	implementation 'com.vanniktech:emoji-google:0.5.1'
+	implementation 'com.github.kobakei:MaterialFabSpeedDial:1.2.1' // later versions already use androidx
 	def glideVersion = '4.9.0'
 	implementation("com.github.bumptech.glide:glide:$glideVersion") {
 		exclude group: 'com.android.support'

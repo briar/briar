@@ -22,16 +22,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
@@ -42,11 +39,8 @@ import static org.briarproject.bramble.util.StringUtils.toUtf8;
 @NotNullByDefault
 class ContactManagerImpl implements ContactManager {
 
-	private static final int LINK_LENGTH = 64;
 	private static final String REMOTE_CONTACT_LINK =
 			"briar://" + getRandomBase32String(LINK_LENGTH);
-	private static final Pattern LINK_REGEX =
-			Pattern.compile("(briar://)?([a-z2-7]{" + LINK_LENGTH + "})");
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
@@ -97,11 +91,12 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public String getRemoteContactLink() {
+	public String getHandshakeLink() {
 		// TODO replace with real implementation
 		return REMOTE_CONTACT_LINK;
 	}
 
+	// TODO replace with real implementation
 	@SuppressWarnings("SameParameterValue")
 	private static String getRandomBase32String(int length) {
 		Random random = new Random();
@@ -115,16 +110,9 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public boolean isValidRemoteContactLink(String link) {
-		return LINK_REGEX.matcher(link).matches();
-	}
-
-	@Override
-	public PendingContact addRemoteContactRequest(String link, String alias) {
+	public void addPendingContact(String link, String alias)
+			throws DbException {
 		// TODO replace with real implementation
-		PendingContactId id = new PendingContactId(link.getBytes());
-		return new PendingContact(id, new byte[MAX_PUBLIC_KEY_LENGTH], alias,
-				WAITING_FOR_CONNECTION, System.currentTimeMillis());
 	}
 
 	@Override
@@ -134,7 +122,7 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public void removePendingContact(PendingContact pendingContact) {
+	public void removePendingContact(PendingContactId id) throws DbException {
 		// TODO replace with real implementation
 	}
 

@@ -173,7 +173,7 @@
   <string name="introduction_request_answered_received">%1$ssizi %2$s-ə təqdim etmək istədi.</string>
   <string name="introduction_response_accepted_sent">%1$s-ə qəbul olundunuz</string>
   <string name="introduction_response_declined_sent">%1$s-ə girişdən imtina etdiniz</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">yeni kontaktlar əlavə edildi.</item>
     <item quantity="other">%dyeni kontaktlar əlavə edildi.</item>
   </plurals>

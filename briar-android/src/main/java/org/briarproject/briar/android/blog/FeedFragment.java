@@ -4,15 +4,12 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.db.DbException;
@@ -23,6 +20,7 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.blog.FeedController.FeedListener;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogPostHeader;
@@ -270,16 +268,12 @@ public class FeedFragment extends BaseFragment implements
 		int count = adapter.getItemCount();
 		boolean scroll = count > (lastVisible - firstVisible + 1);
 
-		Snackbar s = Snackbar.make(list, stringRes, LENGTH_LONG);
-		s.getView().setBackgroundResource(R.color.briar_primary);
+		BriarSnackbarBuilder sb = new BriarSnackbarBuilder();
 		if (scroll) {
-			OnClickListener onClick = v -> list.smoothScrollToPosition(0);
-			s.setActionTextColor(ContextCompat
-					.getColor(getContext(),
-							R.color.briar_button_text_positive));
-			s.setAction(R.string.blogs_blog_post_scroll_to, onClick);
+			sb.setAction(R.string.blogs_blog_post_scroll_to,
+					v -> list.smoothScrollToPosition(0));
 		}
-		s.show();
+		sb.make(list, stringRes, LENGTH_LONG).show();
 	}
 
 	@Override

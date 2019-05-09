@@ -59,6 +59,7 @@ import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache
 import org.briarproject.briar.android.forum.ForumActivity;
 import org.briarproject.briar.android.introduction.IntroductionActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.ImagePreview;
 import org.briarproject.briar.android.view.TextAttachmentController;
@@ -296,10 +297,10 @@ public class ConversationActivity extends BriarActivity
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_INTRODUCTION && result == RESULT_OK) {
-			Snackbar snackbar = Snackbar.make(list, R.string.introduction_sent,
-					Snackbar.LENGTH_SHORT);
-			snackbar.getView().setBackgroundResource(R.color.briar_primary);
-			snackbar.show();
+			new BriarSnackbarBuilder()
+					.make(list, R.string.introduction_sent,
+							Snackbar.LENGTH_SHORT)
+					.show();
 		} else if (request == REQUEST_ATTACH_IMAGE && result == RESULT_OK) {
 			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
 			((TextAttachmentController) sendController).onImageReceived(data);

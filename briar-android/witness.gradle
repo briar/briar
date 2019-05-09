@@ -88,6 +88,7 @@ dependencyVerification {
         'com.github.bumptech.glide:gifdecoder:4.9.0:gifdecoder-4.9.0.aar:7ee9402ae1c48fac9232b67e81f881c217b907b3252e49ce57bdb97937ebb270',
         'com.github.bumptech.glide:glide:4.9.0:glide-4.9.0.aar:1bf482442fce81aa9065a5e97e721039d921cc45f727a987be5f1a69f844d955',
         'com.github.chrisbanes:PhotoView:2.1.4:PhotoView-2.1.4.aar:04cb397fcb3df0757c8aed6927ebdd247930b5c78ee9acc59cd07dccdaaf3460',
+        'com.github.kobakei:MaterialFabSpeedDial:1.2.1:MaterialFabSpeedDial-1.2.1.aar:e86198c3c48cd832fb209a769a9f222c2a3cc045743b110ac2391d9737e3ea02',
         'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.0:accessibility-test-framework-2.0.jar:cdf16ef8f5b8023d003ce3cc1b0d51bda737762e2dab2fedf43d1c4292353f7f',
         'com.google.android.apps.common.testing.accessibility.framework:accessibility-test-framework:2.1:accessibility-test-framework-2.1.jar:7b0aa6ed7553597ce0610684a9f7eca8021eee218f2e2f427c04a7fbf5f920bd',
         'com.google.code.findbugs:jsr305:1.3.9:jsr305-1.3.9.jar:905721a0eea90a81534abb7ee6ef4ea2e5e645fa1def0a5cd88402df1b46c9ed',

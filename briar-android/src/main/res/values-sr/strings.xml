@@ -165,7 +165,7 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="introduction_response_accepted_received">%1$s prihvata upoznavanje sa %2$s.</string>
   <string name="introduction_response_declined_received">%1$s je prihvatio-la upoznavanje sa kontaktom %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s kaže da je %2$s odbio-la upoznavanje.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Novi kontakt je dodat.</item>
     <item quantity="few">%d nova kontakta dodata.</item>
     <item quantity="other">%d novih kontakata dodato.</item>

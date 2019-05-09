@@ -187,7 +187,7 @@
   <string name="introduction_response_accepted_received">%1$sприйняв(-ла) запит на знайомство із %2$s.</string>
   <string name="introduction_response_declined_received">%1$sвідхилив(-ла) запит на знайомство з %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s повідомляє, що %2$s відхилив(-ла) запит на знайомство.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Новий контакт додано.</item>
     <item quantity="few">%d нові контакти додано.</item>
     <item quantity="many">%d нових контактів додано.</item>

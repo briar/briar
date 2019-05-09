@@ -3,22 +3,25 @@ package org.briarproject.briar.android.contact;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.UiThread;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.util.Pair;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.event.Event;
@@ -32,9 +35,12 @@ import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
+import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
+import org.briarproject.briar.android.contact.add.remote.PendingContactListActivity;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
@@ -49,20 +55,28 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
+import io.github.kobakei.materialfabspeeddial.FabSpeedDial.OnMenuItemClickListener;
+import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu;
+
 import static android.os.Build.VERSION.SDK_INT;
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_REMOTE_CONTACTS;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ContactListFragment extends BaseFragment implements EventListener {
+public class ContactListFragment extends BaseFragment implements EventListener,
+		OnMenuItemClickListener {
 
 	public static final String TAG = ContactListFragment.class.getName();
 	private static final Logger LOG = Logger.getLogger(TAG);
@@ -76,6 +90,7 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 
 	private ContactListAdapter adapter;
 	private BriarRecyclerView list;
+	private Snackbar snackbar;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -107,7 +122,23 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 			@Nullable Bundle savedInstanceState) {
 		requireNonNull(getActivity()).setTitle(R.string.contact_list_button);
 
-		View contentView = inflater.inflate(R.layout.list, container, false);
+		View contentView = inflater.inflate(R.layout.fragment_contact_list,
+				container, false);
+
+		FabSpeedDial speedDial = contentView.findViewById(R.id.speedDial);
+		if (FEATURE_FLAG_REMOTE_CONTACTS) {
+			speedDial.addOnMenuItemClickListener(this);
+		} else {
+			speedDial.setMenu(new FabSpeedDialMenu(contentView.getContext()));
+			speedDial.addOnStateChangeListener(open -> {
+				if (open) {
+					Intent intent = new Intent(getContext(),
+							ContactExchangeActivity.class);
+					startActivity(intent);
+					speedDial.closeMenu();
+				}
+			});
+		}
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
@@ -146,26 +177,28 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		list.setEmptyText(getString(R.string.no_contacts));
 		list.setEmptyAction(getString(R.string.no_contacts_action));
 
+		snackbar = new BriarSnackbarBuilder()
+				.setAction(R.string.show, v ->
+						startActivity(new Intent(getContext(),
+								PendingContactListActivity.class)))
+				.make(contentView, R.string.pending_contact_requests_snackbar,
+						LENGTH_INDEFINITE);
+
 		return contentView;
 	}
 
 	@Override
-	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		inflater.inflate(R.menu.contact_list_actions, menu);
-		super.onCreateOptionsMenu(menu, inflater);
-	}
-
-	@Override
-	public boolean onOptionsItemSelected(MenuItem item) {
-		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case R.id.action_add_contact:
+	public void onMenuItemClick(FloatingActionButton fab, @Nullable TextView v,
+			int itemId) {
+		switch (itemId) {
+			case R.id.action_add_contact_nearby:
 				Intent intent =
 						new Intent(getContext(), ContactExchangeActivity.class);
 				startActivity(intent);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+				return;
+			case R.id.action_add_contact_remotely:
+				startActivity(
+						new Intent(getContext(), AddContactActivity.class));
 		}
 	}
 
@@ -174,9 +207,24 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 		super.onStart();
 		eventBus.addListener(this);
 		notificationManager.clearAllContactNotifications();
-		notificationManager.clearAllIntroductionNotifications();
+		notificationManager.clearAllContactAddedNotifications();
 		loadContacts();
+		checkForPendingContacts();
 		list.startPeriodicUpdate();
+	}
+
+	private void checkForPendingContacts() {
+		listener.runOnDbThread(() -> {
+			try {
+				if (contactManager.getPendingContacts().isEmpty()) {
+					runOnUiThreadUnlessDestroyed(() -> snackbar.dismiss());
+				} else {
+					runOnUiThreadUnlessDestroyed(() -> snackbar.show());
+				}
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
 	}
 
 	@Override
@@ -245,6 +293,16 @@ public class ContactListFragment extends BaseFragment implements EventListener {
 					(ConversationMessageReceivedEvent) e;
 			ConversationMessageHeader h = p.getMessageHeader();
 			updateItem(p.getContactId(), h);
+		} else if (e instanceof PendingContactStateChangedEvent) {
+			PendingContactStateChangedEvent pe =
+					(PendingContactStateChangedEvent) e;
+			// only re-check pending contacts for initial state
+			if (pe.getPendingContactState() == WAITING_FOR_CONNECTION) {
+				checkForPendingContacts();
+			}
+		} else if (e instanceof PendingContactRemovedEvent ||
+				e instanceof ContactAddedRemotelyEvent) {
+			checkForPendingContacts();
 		}
 	}
 

@@ -30,7 +30,7 @@ public interface AndroidNotificationManager {
 	int GROUP_MESSAGE_NOTIFICATION_ID = 5;
 	int FORUM_POST_NOTIFICATION_ID = 6;
 	int BLOG_POST_NOTIFICATION_ID = 7;
-	int INTRODUCTION_SUCCESS_NOTIFICATION_ID = 8;
+	int CONTACT_ADDED_NOTIFICATION_ID = 8;
 
 	// Channel IDs
 	String CONTACT_CHANNEL_ID = "contacts";
@@ -48,7 +48,7 @@ public interface AndroidNotificationManager {
 	String GROUP_URI = "content://org.briarproject.briar/group";
 	String FORUM_URI = "content://org.briarproject.briar/forum";
 	String BLOG_URI = "content://org.briarproject.briar/blog";
-	String INTRODUCTION_URI = "content://org.briarproject.briar/introduction";
+	String CONTACT_ADDED_URI = "content://org.briarproject.briar/contact/added";
 
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
@@ -73,7 +73,7 @@ public interface AndroidNotificationManager {
 
 	void clearAllBlogPostNotifications();
 
-	void clearAllIntroductionNotifications();
+	void clearAllContactAddedNotifications();
 
 	void showSignInNotification();
 

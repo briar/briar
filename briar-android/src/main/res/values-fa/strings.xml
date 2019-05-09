@@ -176,7 +176,7 @@
   <string name="introduction_response_accepted_received">%1$s معرفی به %2$s را پذیرفت.</string>
   <string name="introduction_response_declined_received">%1$s معرفی به %2$s را رد کرد.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s می گوید که %2$s دعوت نامه  را رد کرد.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">مخاطب جدید افزوده شد.</item>
     <item quantity="other">%d مخاطب جدید افزوده شد.</item>
   </plurals>

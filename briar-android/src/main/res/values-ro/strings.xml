@@ -182,7 +182,7 @@
   <string name="introduction_response_accepted_received">%1$s a acceptat recomandarea pentru %2$s.</string>
   <string name="introduction_response_declined_received">%1$s a refuzat recomandarea pentru %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s spune că %2$s a refuzat recomandarea.</string>
-  <plurals name="introduction_notification_text">
+  <plurals name="contact_added_notification_text">
     <item quantity="one">Un nou contact adăugat.</item>
     <item quantity="few">%d contacte noi adăugate.</item>
     <item quantity="other">%d de contacte noi adăugate.</item>
