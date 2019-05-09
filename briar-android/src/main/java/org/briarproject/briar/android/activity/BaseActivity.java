@@ -172,6 +172,12 @@ public abstract class BaseActivity extends AppCompatActivity
 				.commit();
 	}
 
+	protected boolean isFragmentAdded(String fragmentTag) {
+		FragmentManager fm = getSupportFragmentManager();
+		Fragment f = fm.findFragmentByTag(fragmentTag);
+		return f != null && f.isAdded();
+	}
+
 	private boolean showScreenFilterWarning() {
 		// If the dialog is already visible, filter the tap
 		ScreenFilterDialogFragment f = findDialogFragment();

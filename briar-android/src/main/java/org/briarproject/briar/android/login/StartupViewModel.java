@@ -15,6 +15,8 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import java.util.concurrent.Executor;
@@ -43,10 +45,10 @@ public class StartupViewModel extends AndroidViewModel
 	@IoExecutor
 	private final Executor ioExecutor;
 
-	private final MutableLiveData<Boolean> passwordValidated =
-			new MutableLiveData<>();
-	private final MutableLiveData<Boolean> accountDeleted =
-			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> passwordValidated =
+			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> accountDeleted =
+			new MutableLiveEvent<>();
 	private final MutableLiveData<State> state = new MutableLiveData<>();
 
 	@Inject
@@ -103,16 +105,16 @@ public class StartupViewModel extends AndroidViewModel
 	void validatePassword(String password) {
 		ioExecutor.execute(() -> {
 			boolean signedIn = accountManager.signIn(password);
-			passwordValidated.postValue(signedIn);
+			passwordValidated.postEvent(signedIn);
 			if (signedIn) state.postValue(SIGNED_IN);
 		});
 	}
 
-	MutableLiveData<Boolean> getPasswordValidated() {
+	LiveEvent<Boolean> getPasswordValidated() {
 		return passwordValidated;
 	}
 
-	LiveData<Boolean> getAccountDeleted() {
+	LiveEvent<Boolean> getAccountDeleted() {
 		return accountDeleted;
 	}
 
@@ -123,7 +125,7 @@ public class StartupViewModel extends AndroidViewModel
 	@UiThread
 	void deleteAccount() {
 		accountManager.deleteAccount();
-		accountDeleted.setValue(true);
+		accountDeleted.setEvent(true);
 	}
 
 }

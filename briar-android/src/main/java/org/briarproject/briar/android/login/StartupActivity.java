@@ -5,8 +5,6 @@ import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -63,8 +61,8 @@ public class StartupActivity extends BaseActivity implements
 			onAccountDeleted();
 			return;
 		}
-		viewModel.getAccountDeleted().observe(this, deleted -> {
-			if (deleted != null && deleted) onAccountDeleted();
+		viewModel.getAccountDeleted().observeEvent(this, deleted -> {
+			if (deleted) onAccountDeleted();
 		});
 		viewModel.getState().observe(this, this::onStateChanged);
 	}
@@ -85,7 +83,12 @@ public class StartupActivity extends BaseActivity implements
 
 	private void onStateChanged(State state) {
 		if (state == SIGNED_OUT) {
-			showInitialFragment(new PasswordFragment());
+			// Configuration changes such as screen rotation
+			// can cause this to get called again.
+			// Don't replace the fragment in that case to not lose view state.
+			if (!isFragmentAdded(PasswordFragment.TAG)) {
+				showInitialFragment(new PasswordFragment());
+			}
 		} else if (state == SIGNED_IN) {
 			startService(new Intent(this, BriarService.class));
 		} else if (state == STARTING) {
@@ -93,9 +96,7 @@ public class StartupActivity extends BaseActivity implements
 			// This can happen because several LifecycleManager states are
 			// mapped to STARTING, so this can get called several times
 			// as the app's lifecycle advances.
-			FragmentManager fm = getSupportFragmentManager();
-			Fragment f = fm.findFragmentByTag(OpenDatabaseFragment.TAG);
-			if (f == null || !f.isVisible()) {
+			if (!isFragmentAdded(OpenDatabaseFragment.TAG)) {
 				showNextFragment(new OpenDatabaseFragment());
 			}
 		} else if (state == STARTED) {

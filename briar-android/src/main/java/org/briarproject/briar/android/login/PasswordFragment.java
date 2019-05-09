@@ -35,7 +35,7 @@ import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 @ParametersNotNullByDefault
 public class PasswordFragment extends BaseFragment implements TextWatcher {
 
-	private final static String TAG = PasswordFragment.class.getName();
+	final static String TAG = PasswordFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -60,7 +60,9 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 
 		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
 				.get(StartupViewModel.class);
-		viewModel.getPasswordValidated().observe(this, this::onPasswordValidated);
+		viewModel.getPasswordValidated().observeEvent(this, valid -> {
+			if (!valid) onPasswordInvalid();
+		});
 
 		signInButton = v.findViewById(R.id.btn_sign_in);
 		signInButton.setOnClickListener(view -> onSignInButtonClicked());
@@ -103,19 +105,14 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 		viewModel.validatePassword(password.getText().toString());
 	}
 
-	private void onPasswordValidated(@Nullable Boolean valid) {
-		if (valid != null && !valid) {
-			setError(input, getString(R.string.try_again), true);
-			signInButton.setVisibility(VISIBLE);
-			progress.setVisibility(INVISIBLE);
-			password.setText(null);
+	private void onPasswordInvalid() {
+		setError(input, getString(R.string.try_again), true);
+		signInButton.setVisibility(VISIBLE);
+		progress.setVisibility(INVISIBLE);
+		password.setText(null);
 
-			// show the keyboard again
-			showSoftKeyboard(password);
-
-			// reset validation state for configuration changes
-			viewModel.getPasswordValidated().setValue(null);
-		}
+		// show the keyboard again
+		showSoftKeyboard(password);
 	}
 
 	public void onForgottenPasswordClick() {
