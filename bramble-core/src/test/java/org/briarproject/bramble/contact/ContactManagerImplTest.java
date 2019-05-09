@@ -16,15 +16,12 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
-import org.briarproject.bramble.test.ImmediateExecutor;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Random;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -59,11 +56,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final ContactId contactId = contact.getId();
 
 	public ContactManagerImplTest() {
-		Executor dbExecutor = new ImmediateExecutor();
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		contactManager = new ContactManagerImpl(db, dbExecutor, keyManager,
-				identityManager, scheduler);
+		contactManager =
+				new ContactManagerImpl(db, keyManager, identityManager);
 	}
 
 	@Test

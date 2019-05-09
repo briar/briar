@@ -5,46 +5,30 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
-import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
-import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
-import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
-import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.api.transport.KeyManager;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static java.lang.System.currentTimeMillis;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CONTACT;
-import static org.briarproject.bramble.api.contact.PendingContactState.CONNECTED;
-import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
-import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
+import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
@@ -57,12 +41,6 @@ class ContactManagerImpl implements ContactManager {
 
 	private static final String REMOTE_CONTACT_LINK =
 			"briar://" + getRandomBase32String(LINK_LENGTH);
-	// TODO replace with real implementation
-	private final List<PendingContact> pendingContacts = new ArrayList<>();
-	@DatabaseExecutor
-	private final Executor dbExecutor;
-	@Scheduler
-	private final ScheduledExecutorService scheduler;
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
@@ -70,15 +48,11 @@ class ContactManagerImpl implements ContactManager {
 	private final List<ContactHook> hooks;
 
 	@Inject
-	ContactManagerImpl(DatabaseComponent db,
-			@DatabaseExecutor Executor dbExecutor, KeyManager keyManager,
-			IdentityManager identityManager, @Scheduler
-			ScheduledExecutorService scheduler) {
+	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager,
+			IdentityManager identityManager) {
 		this.db = db;
-		this.dbExecutor = dbExecutor;
 		this.keyManager = keyManager;
 		this.identityManager = identityManager;
-		this.scheduler = scheduler;
 		hooks = new CopyOnWriteArrayList<>();
 	}
 
@@ -119,10 +93,6 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public String getHandshakeLink() {
 		// TODO replace with real implementation
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException ignored) {
-		}
 		return REMOTE_CONTACT_LINK;
 	}
 
@@ -143,96 +113,17 @@ class ContactManagerImpl implements ContactManager {
 	public void addPendingContact(String link, String alias)
 			throws DbException {
 		// TODO replace with real implementation
-		try {
-			Thread.sleep(1500);
-		} catch (InterruptedException ignored) {
-		}
-		PendingContactId id = new PendingContactId(
-				link.substring(0, PendingContactId.LENGTH).getBytes());
-		PendingContact pendingContact =
-				new PendingContact(id, new byte[MAX_PUBLIC_KEY_LENGTH],
-						alias, WAITING_FOR_CONNECTION, currentTimeMillis());
-		getLogger("TMP").warning("WAITING_FOR_CONNECTION");
-		pendingContacts.add(pendingContact);
-		Event event = new PendingContactStateChangedEvent(id,
-				WAITING_FOR_CONNECTION);
-		db.transaction(true, txn -> txn.attach(event));
-
-		scheduler.schedule(() -> dbExecutor.execute(() -> {
-			getLogger("TMP").warning("CONNECTED");
-			pendingContacts.remove(pendingContact);
-			PendingContact updated = new PendingContact(id,
-					pendingContact.getPublicKey(), alias, CONNECTED,
-					pendingContact.getTimestamp());
-			pendingContacts.add(updated);
-			Event e = new PendingContactStateChangedEvent(id, CONNECTED);
-			try {
-				db.transaction(true, txn -> txn.attach(e));
-			} catch (DbException ignored) {
-			}
-		}), 20, SECONDS);
-
-		scheduler.schedule(() -> dbExecutor.execute(() -> {
-			getLogger("TMP").warning("ADDING_CONTACT");
-			pendingContacts.remove(pendingContact);
-			PendingContact updated = new PendingContact(id,
-					pendingContact.getPublicKey(), alias, ADDING_CONTACT,
-					pendingContact.getTimestamp());
-			pendingContacts.add(updated);
-			Event e =
-					new PendingContactStateChangedEvent(id, ADDING_CONTACT);
-			try {
-				db.transaction(true, txn -> txn.attach(e));
-			} catch (DbException ignored) {
-			}
-		}), 40, SECONDS);
-
-		scheduler.schedule(() -> dbExecutor.execute(() -> {
-			pendingContacts.remove(pendingContact);
-			Event e;
-			try {
-				if (new Random().nextBoolean()) {
-					getLogger("TMP").warning("FAILED");
-					e = new PendingContactStateChangedEvent(id, FAILED);
-					PendingContact updated = new PendingContact(id,
-							pendingContact.getPublicKey(), alias, FAILED,
-							pendingContact.getTimestamp());
-					pendingContacts.add(updated);
-				} else {
-					getLogger("TMP").warning("ADDED");
-					ContactId cid = new ContactId(Integer.MAX_VALUE);
-					AuthorId aid = identityManager.getLocalAuthor().getId();
-					Contact c = new Contact(cid, null, aid, alias,
-							new byte[MAX_PUBLIC_KEY_LENGTH], true);
-					e = new ContactAddedRemotelyEvent(c);
-				}
-				db.transaction(true, txn -> txn.attach(e));
-			} catch (DbException ignored) {
-			}
-		}), 60, SECONDS);
 	}
 
 	@Override
 	public Collection<PendingContact> getPendingContacts() {
 		// TODO replace with real implementation
-		return pendingContacts;
+		return emptyList();
 	}
 
 	@Override
 	public void removePendingContact(PendingContactId id) throws DbException {
 		// TODO replace with real implementation
-		for (PendingContact pc : pendingContacts) {
-			if (pc.getId().equals(id)) {
-				pendingContacts.remove(pc);
-				break;
-			}
-		}
-		try {
-			Thread.sleep(250);
-		} catch (InterruptedException ignored) {
-		}
-		db.transaction(true,
-				txn -> txn.attach(new PendingContactRemovedEvent(id)));
 	}
 
 	@Override
