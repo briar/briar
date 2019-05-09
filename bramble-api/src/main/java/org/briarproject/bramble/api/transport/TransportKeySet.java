@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireExactlyOneNull;
+
 /**
  * A set of keys for communicating with a given contact or pending contact
  * over a given transport.
@@ -24,8 +26,7 @@ public class TransportKeySet {
 
 	public TransportKeySet(KeySetId keySetId, @Nullable ContactId contactId,
 			@Nullable PendingContactId pendingContactId, TransportKeys keys) {
-		if ((contactId == null) == (pendingContactId == null))
-			throw new IllegalArgumentException();
+		requireExactlyOneNull(contactId, pendingContactId);
 		this.keySetId = keySetId;
 		this.contactId = contactId;
 		this.pendingContactId = pendingContactId;

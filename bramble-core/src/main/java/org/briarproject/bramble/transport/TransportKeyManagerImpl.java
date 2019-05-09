@@ -36,6 +36,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireExactlyOneNull;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.api.transport.TransportConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
@@ -136,6 +137,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private void addKeys(KeySetId keySetId, @Nullable ContactId contactId,
 			@Nullable PendingContactId pendingContactId,
 			MutableTransportKeys keys) {
+		requireExactlyOneNull(contactId, pendingContactId);
 		MutableTransportKeySet ks = new MutableTransportKeySet(keySetId,
 				contactId, pendingContactId, keys);
 		this.keys.put(keySetId, ks);
@@ -184,6 +186,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	@Nullable
 	private MutableTransportKeySet getOutgoingKeySet(@Nullable ContactId c,
 			@Nullable PendingContactId p) {
+		requireExactlyOneNull(c, p);
 		if (c == null) return pendingContactOutContexts.get(p);
 		else return contactOutContexts.get(c);
 	}
@@ -475,6 +478,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 				@Nullable PendingContactId pendingContactId,
 				MutableIncomingKeys inKeys, long streamNumber,
 				boolean handshakeMode) {
+			requireExactlyOneNull(contactId, pendingContactId);
 			this.keySetId = keySetId;
 			this.contactId = contactId;
 			this.pendingContactId = pendingContactId;
