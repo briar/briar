@@ -12,6 +12,8 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -35,8 +37,8 @@ public class AddContactViewModel extends AndroidViewModel {
 
 	private final MutableLiveData<String> handshakeLink =
 			new MutableLiveData<>();
-	private final MutableLiveData<Boolean> remoteLinkEntered =
-			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> remoteLinkEntered =
+			new MutableLiveEvent<>();
 	private final MutableLiveData<Boolean> addContactResult =
 			new MutableLiveData<>();
 	@Nullable
@@ -81,14 +83,13 @@ public class AddContactViewModel extends AndroidViewModel {
 		return link != null && LINK_REGEX.matcher(link).find();
 	}
 
-	LiveData<Boolean> getRemoteLinkEntered() {
+	LiveEvent<Boolean> getRemoteLinkEntered() {
 		return remoteLinkEntered;
 	}
 
 	void onRemoteLinkEntered() {
 		if (remoteHandshakeLink == null) throw new IllegalStateException();
-		remoteLinkEntered.setValue(true);
-		remoteLinkEntered.postValue(false);  // reset, so we can navigate back
+		remoteLinkEntered.setEvent(true);
 	}
 
 	void addContact(String nickname) {

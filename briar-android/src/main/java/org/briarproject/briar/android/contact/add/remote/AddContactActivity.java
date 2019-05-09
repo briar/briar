@@ -49,8 +49,8 @@ public class AddContactActivity extends BriarActivity implements
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(AddContactViewModel.class);
-		viewModel.getRemoteLinkEntered().observe(this, entered -> {
-			if (entered != null && entered) {
+		viewModel.getRemoteLinkEntered().observeEvent(this, entered -> {
+			if (entered) {
 				NicknameFragment f = new NicknameFragment();
 				showNextFragment(f);
 			}
