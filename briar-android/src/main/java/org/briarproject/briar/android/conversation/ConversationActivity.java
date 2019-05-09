@@ -363,7 +363,7 @@ public class ConversationActivity extends BriarActivity
 			if (enable != null && enable) {
 				menu.findItem(R.id.action_introduction).setEnabled(true);
 				// show introduction onboarding, if needed
-				observeOnce(viewModel.showIntroductionOnboarding(), this,
+				viewModel.showIntroductionOnboarding().observeEvent(this,
 						this::showIntroductionOnboarding);
 			}
 		});
@@ -474,9 +474,8 @@ public class ConversationActivity extends BriarActivity
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
 				textInputView.setReady(true);
-				// start observing onboarding after enabling (only once, because
-				// we only update this when an onboarding should be shown)
-				observeOnce(viewModel.showImageOnboarding(), this,
+				// start observing onboarding after enabling
+				viewModel.showImageOnboarding().observeEvent(this,
 						this::showImageOnboarding);
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
@@ -499,7 +498,6 @@ public class ConversationActivity extends BriarActivity
 	 * <p>
 	 * Attention: Call this only after contactName has been initialized.
 	 */
-	@SuppressWarnings("ConstantConditions")
 	private List<ConversationItem> createItems(
 			Collection<ConversationMessageHeader> headers) {
 		List<ConversationItem> items = new ArrayList<>(headers.size());
@@ -715,8 +713,8 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void showImageOnboarding(@Nullable Boolean show) {
-		if (show == null || !show) return;
+	private void showImageOnboarding(Boolean show) {
+		if (!show) return;
 		if (SDK_INT >= 21) {
 			// show onboarding only after the enter transition has ended
 			// otherwise the tap target animation won't play

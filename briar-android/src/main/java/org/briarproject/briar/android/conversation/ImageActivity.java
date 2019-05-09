@@ -100,7 +100,8 @@ public class ImageActivity extends BriarActivity
 		// get View Model
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(ImageViewModel.class);
-		viewModel.getSaveState().observe(this, this::onImageSaveStateChanged);
+		viewModel.getSaveState().observeEvent(this,
+				this::onImageSaveStateChanged);
 
 		// inflate layout
 		setContentView(R.layout.activity_image);
@@ -141,7 +142,8 @@ public class ImageActivity extends BriarActivity
 		viewPager.setCurrentItem(position);
 
 		if (SDK_INT >= 16) {
-			viewModel.getOnImageClicked().observe(this, this::onImageClicked);
+			viewModel.getOnImageClicked()
+					.observeEvent(this, this::onImageClicked);
 			window.getDecorView().setSystemUiVisibility(UI_FLAGS_DEFAULT);
 		}
 	}
@@ -222,7 +224,6 @@ public class ImageActivity extends BriarActivity
 	private void onImageClicked(@Nullable Boolean clicked) {
 		if (clicked != null && clicked) {
 			toggleSystemUi();
-			viewModel.onOnImageClickSeen();
 		}
 	}
 
@@ -312,7 +313,6 @@ public class ImageActivity extends BriarActivity
 				.setBackgroundColor(colorRes)
 				.make(layout, stringRes, LENGTH_LONG)
 				.show();
-		viewModel.onSaveStateSeen();
 	}
 
 	AttachmentItem getVisibleAttachment() {

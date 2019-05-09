@@ -2,8 +2,6 @@ package org.briarproject.briar.android.conversation;
 
 import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.support.annotation.Nullable;
@@ -15,6 +13,8 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
@@ -53,9 +53,10 @@ public class ImageViewModel extends AndroidViewModel {
 	/**
 	 * true means there was an error saving the image, false if image was saved.
 	 */
-	private final MutableLiveData<Boolean> saveState = new MutableLiveData<>();
-	private final MutableLiveData<Boolean> imageClicked =
-			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> saveState =
+			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> imageClicked =
+			new MutableLiveEvent<>();
 	private int toolbarTop, toolbarBottom;
 
 	@Inject
@@ -70,22 +71,15 @@ public class ImageViewModel extends AndroidViewModel {
 	}
 
 	void clickImage() {
-		imageClicked.setValue(true);
+		imageClicked.setEvent(true);
 	}
 
 	/**
-	 * A LiveData that is true if the image was clicked,
+	 * A LiveEvent that is true if the image was clicked,
 	 * false if it wasn't.
-	 *
-	 * Call {@link #onOnImageClickSeen()} after consuming an update.
 	 */
-	LiveData<Boolean> getOnImageClicked() {
+	LiveEvent<Boolean> getOnImageClicked() {
 		return imageClicked;
-	}
-
-	@UiThread
-	void onOnImageClickSeen() {
-		imageClicked.setValue(false);
 	}
 
 	void setToolbarPosition(int top, int bottom) {
@@ -111,17 +105,9 @@ public class ImageViewModel extends AndroidViewModel {
 	/**
 	 * A LiveData that is true if there was an error
 	 * and false if the image was saved.
-	 * It can be null otherwise, if no image was saved recently.
-	 *
-	 * Call {@link #onSaveStateSeen()} after consuming an update.
 	 */
-	LiveData<Boolean> getSaveState() {
+	LiveEvent<Boolean> getSaveState() {
 		return saveState;
-	}
-
-	@UiThread
-	void onSaveStateSeen() {
-		saveState.setValue(null);
 	}
 
 	/**
@@ -130,7 +116,7 @@ public class ImageViewModel extends AndroidViewModel {
 	@UiThread
 	void saveImage(AttachmentItem attachment, @Nullable Uri uri) {
 		if (uri == null) {
-			saveState.setValue(true);
+			saveState.setEvent(true);
 		} else {
 			saveImage(attachment, () -> getOutputStream(uri), null);
 		}
@@ -155,7 +141,7 @@ public class ImageViewModel extends AndroidViewModel {
 				copyImageFromDb(a, osp, afterCopy);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
-				saveState.postValue(true);
+				saveState.postEvent(true);
 			}
 		});
 	}
@@ -168,10 +154,10 @@ public class ImageViewModel extends AndroidViewModel {
 				OutputStream os = osp.getOutputStream();
 				copyAndClose(is, os);
 				if (afterCopy != null) afterCopy.run();
-				saveState.postValue(false);
+				saveState.postEvent(false);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
-				saveState.postValue(true);
+				saveState.postEvent(true);
 			}
 		});
 	}

@@ -28,6 +28,8 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -87,10 +89,10 @@ public class ConversationViewModel extends AndroidViewModel {
 			Transformations.map(contact, UiUtils::getContactDisplayName);
 	private final MutableLiveData<Boolean> imageSupport =
 			new MutableLiveData<>();
-	private final MutableLiveData<Boolean> showImageOnboarding =
-			new MutableLiveData<>();
-	private final MutableLiveData<Boolean> showIntroductionOnboarding =
-			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> showImageOnboarding =
+			new MutableLiveEvent<>();
+	private final MutableLiveEvent<Boolean> showIntroductionOnboarding =
+			new MutableLiveEvent<>();
 	private final MutableLiveData<Boolean> showIntroductionAction =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> contactDeleted =
@@ -212,32 +214,30 @@ public class ConversationViewModel extends AndroidViewModel {
 		if (imagesSupported &&
 				settings.getBoolean(SHOW_ONBOARDING_IMAGE, true)) {
 			// check if we should show onboarding, only if images are supported
-			showImageOnboarding.postValue(true);
+			showImageOnboarding.postEvent(true);
 			// allow observer to stop listening for changes
-			showIntroductionOnboarding.postValue(false);
+			showIntroductionOnboarding.postEvent(false);
 		} else {
 			// allow observer to stop listening for changes
-			showImageOnboarding.postValue(false);
+			showImageOnboarding.postEvent(false);
 			// we only show one onboarding dialog at a time
 			if (introductionSupported &&
 					settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION, true)) {
-				showIntroductionOnboarding.postValue(true);
+				showIntroductionOnboarding.postEvent(true);
 			} else {
 				// allow observer to stop listening for changes
-				showIntroductionOnboarding.postValue(false);
+				showIntroductionOnboarding.postEvent(false);
 			}
 		}
 	}
 
 	@UiThread
 	void onImageOnboardingSeen() {
-		showImageOnboarding.setValue(false);
 		onOnboardingSeen(SHOW_ONBOARDING_IMAGE);
 	}
 
 	@UiThread
 	void onIntroductionOnboardingSeen() {
-		showIntroductionOnboarding.setValue(false);
 		onOnboardingSeen(SHOW_ONBOARDING_INTRODUCTION);
 	}
 
@@ -365,11 +365,11 @@ public class ConversationViewModel extends AndroidViewModel {
 		return imageSupport;
 	}
 
-	LiveData<Boolean> showImageOnboarding() {
+	LiveEvent<Boolean> showImageOnboarding() {
 		return showImageOnboarding;
 	}
 
-	LiveData<Boolean> showIntroductionOnboarding() {
+	LiveEvent<Boolean> showIntroductionOnboarding() {
 		return showIntroductionOnboarding;
 	}
 
