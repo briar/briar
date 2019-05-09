@@ -64,8 +64,11 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	@GuardedBy("lock")
 	private final Map<Bytes, TagContext> inContexts = new HashMap<>();
 	@GuardedBy("lock")
-	private final Map<ContactId, MutableTransportKeySet> outContexts =
-			new HashMap<>();
+	private final Map<ContactId, MutableTransportKeySet>
+			contactOutContexts = new HashMap<>();
+	@GuardedBy("lock")
+	private final Map<PendingContactId, MutableTransportKeySet>
+			pendingContactOutContexts = new HashMap<>();
 
 	TransportKeyManagerImpl(DatabaseComponent db,
 			TransportCrypto transportCrypto, Executor dbExecutor,
@@ -162,17 +165,27 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	@GuardedBy("lock")
 	private void considerReplacingOutgoingKeys(MutableTransportKeySet ks) {
-		// Use the active outgoing keys with the highest key set ID
-		ContactId c = ks.getContactId();
-		if (c != null && ks.getKeys().getCurrentOutgoingKeys().isActive()) {
-			MutableTransportKeySet old = outContexts.get(c);
-			if (old == null ||
-					(old.getKeys().isHandshakeMode() &&
-							!ks.getKeys().isHandshakeMode()) ||
+		// Use the active outgoing keys with the highest key set ID, preferring
+		// rotation keys to handshake keys
+		if (ks.getKeys().getCurrentOutgoingKeys().isActive()) {
+			MutableTransportKeySet old = getOutgoingKeySet(ks.getContactId(),
+					ks.getPendingContactId());
+			if (old == null || (old.getKeys().isHandshakeMode() &&
+					!ks.getKeys().isHandshakeMode()) ||
 					old.getKeySetId().getInt() < ks.getKeySetId().getInt()) {
-				outContexts.put(c, ks);
+				if (ks.getContactId() == null)
+					pendingContactOutContexts.put(ks.getPendingContactId(), ks);
+				else contactOutContexts.put(ks.getContactId(), ks);
 			}
 		}
+	}
+
+	@GuardedBy("lock")
+	@Nullable
+	private MutableTransportKeySet getOutgoingKeySet(@Nullable ContactId c,
+			@Nullable PendingContactId p) {
+		if (c == null) return pendingContactOutContexts.get(p);
+		else return contactOutContexts.get(c);
 	}
 
 	private void scheduleKeyUpdate(long now) {
@@ -234,6 +247,26 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
+	public KeySetId addPendingContact(Transaction txn, PendingContactId p,
+			SecretKey rootKey, boolean alice) throws DbException {
+		lock.lock();
+		try {
+			// Work out what time period we're in
+			long timePeriod = clock.currentTimeMillis() / timePeriodLength;
+			// Derive the transport keys
+			TransportKeys k = transportCrypto.deriveHandshakeKeys(transportId,
+					rootKey, timePeriod, alice);
+			// Write the keys back to the DB
+			KeySetId keySetId = db.addTransportKeys(txn, p, k);
+			// Initialise mutable state for the pending contact
+			addKeys(keySetId, null, p, new MutableTransportKeys(k));
+			return keySetId;
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
 	public void activateKeys(Transaction txn, KeySetId k) throws DbException {
 		lock.lock();
 		try {
@@ -254,8 +287,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		try {
 			// Remove mutable state for the contact
 			Iterator<TagContext> it = inContexts.values().iterator();
-			while (it.hasNext()) if (c.equals(it.next().contactId)) it.remove();
-			outContexts.remove(c);
+			while (it.hasNext())
+				if (c.equals(it.next().contactId)) it.remove();
+			contactOutContexts.remove(c);
 			Iterator<MutableTransportKeySet> it1 = keys.values().iterator();
 			while (it1.hasNext())
 				if (c.equals(it1.next().getContactId())) it1.remove();
@@ -265,13 +299,39 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public boolean canSendOutgoingStreams(ContactId c) {
+	public void removePendingContact(PendingContactId p) {
 		lock.lock();
 		try {
-			MutableTransportKeySet ks = outContexts.get(c);
+			// Remove mutable state for the pending contact
+			Iterator<TagContext> it = inContexts.values().iterator();
+			while (it.hasNext())
+				if (p.equals(it.next().pendingContactId)) it.remove();
+			pendingContactOutContexts.remove(p);
+			Iterator<MutableTransportKeySet> it1 = keys.values().iterator();
+			while (it1.hasNext())
+				if (p.equals(it1.next().getPendingContactId())) it1.remove();
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	@Override
+	public boolean canSendOutgoingStreams(ContactId c) {
+		return canSendOutgoingStreams(c, null);
+	}
+
+	@Override
+	public boolean canSendOutgoingStreams(PendingContactId p) {
+		return canSendOutgoingStreams(null, p);
+	}
+
+	private boolean canSendOutgoingStreams(@Nullable ContactId c,
+			@Nullable PendingContactId p) {
+		lock.lock();
+		try {
+			MutableTransportKeySet ks = getOutgoingKeySet(c, p);
 			if (ks == null) return false;
-			MutableOutgoingKeys outKeys =
-					ks.getKeys().getCurrentOutgoingKeys();
+			MutableOutgoingKeys outKeys = ks.getKeys().getCurrentOutgoingKeys();
 			if (!outKeys.isActive()) throw new AssertionError();
 			return outKeys.getStreamCounter() <= MAX_32_BIT_UNSIGNED;
 		} finally {
@@ -282,17 +342,30 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	@Override
 	public StreamContext getStreamContext(Transaction txn, ContactId c)
 			throws DbException {
+		return getStreamContext(txn, c, null);
+	}
+
+	@Override
+	public StreamContext getStreamContext(Transaction txn, PendingContactId p)
+			throws DbException {
+		return getStreamContext(txn, null, p);
+	}
+
+	@Nullable
+	private StreamContext getStreamContext(Transaction txn,
+			@Nullable ContactId c, @Nullable PendingContactId p)
+			throws DbException {
 		lock.lock();
 		try {
 			// Look up the outgoing keys for the contact
-			MutableTransportKeySet ks = outContexts.get(c);
+			MutableTransportKeySet ks = getOutgoingKeySet(c, p);
 			if (ks == null) return null;
 			MutableTransportKeys keys = ks.getKeys();
 			MutableOutgoingKeys outKeys = keys.getCurrentOutgoingKeys();
 			if (!outKeys.isActive()) throw new AssertionError();
 			if (outKeys.getStreamCounter() > MAX_32_BIT_UNSIGNED) return null;
 			// Create a stream context
-			StreamContext ctx = new StreamContext(c, null, transportId,
+			StreamContext ctx = new StreamContext(c, p, transportId,
 					outKeys.getTagKey(), outKeys.getHeaderKey(),
 					outKeys.getStreamCounter(), keys.isHandshakeMode());
 			// Increment the stream counter and write it back to the DB
@@ -373,7 +446,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			UpdateResult updateResult = updateKeys(snapshot, now);
 			// Rebuild the mutable state for all contacts
 			inContexts.clear();
-			outContexts.clear();
+			contactOutContexts.clear();
+			pendingContactOutContexts.clear();
 			keys.clear();
 			addKeys(updateResult.current);
 			// Write any updated keys back to the DB

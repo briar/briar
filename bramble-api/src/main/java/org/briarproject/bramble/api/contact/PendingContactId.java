@@ -17,7 +17,6 @@ public class PendingContactId extends UniqueId {
 		super(id);
 	}
 
-
 	@Override
 	public boolean equals(Object o) {
 		return o instanceof PendingContactId && super.equals(o);

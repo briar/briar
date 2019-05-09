@@ -2,6 +2,7 @@ package org.briarproject.bramble.api.contact;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
@@ -28,7 +29,7 @@ public class ContactId {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return o instanceof ContactId && id == ((ContactId) o).id;
 	}
 }

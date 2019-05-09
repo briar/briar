@@ -1,6 +1,7 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -113,6 +114,19 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public Map<TransportId, KeySetId> addPendingContact(Transaction txn,
+			PendingContactId p, SecretKey rootKey, boolean alice)
+			throws DbException {
+		Map<TransportId, KeySetId> ids = new HashMap<>();
+		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
+			TransportId t = e.getKey();
+			TransportKeyManager m = e.getValue();
+			ids.put(t, m.addPendingContact(txn, p, rootKey, alice));
+		}
+		return ids;
+	}
+
+	@Override
 	public void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
 			throws DbException {
 		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
@@ -133,6 +147,12 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
+	public boolean canSendOutgoingStreams(PendingContactId p, TransportId t) {
+		TransportKeyManager m = managers.get(t);
+		return m != null && m.canSendOutgoingStreams(p);
+	}
+
+	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
 		TransportKeyManager m = managers.get(t);
@@ -142,6 +162,18 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		}
 		return db.transactionWithNullableResult(false, txn ->
 				m.getStreamContext(txn, c));
+	}
+
+	@Override
+	public StreamContext getStreamContext(PendingContactId p, TransportId t)
+			throws DbException {
+		TransportKeyManager m = managers.get(t);
+		if (m == null) {
+			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			return null;
+		}
+		return db.transactionWithNullableResult(false, txn ->
+				m.getStreamContext(txn, p));
 	}
 
 	@Override
