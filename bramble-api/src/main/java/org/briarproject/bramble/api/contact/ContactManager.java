@@ -13,16 +13,11 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Collection;
-import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
 @NotNullByDefault
 public interface ContactManager {
-
-	int LINK_LENGTH = 64;
-	Pattern LINK_REGEX =
-			Pattern.compile("(briar://)?([a-z2-7]{" + LINK_LENGTH + "})");
 
 	/**
 	 * Registers a hook to be called whenever a contact is added or removed.
