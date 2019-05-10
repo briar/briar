@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
-import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -21,6 +20,7 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.FORMAT
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.ID_LABEL;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.RAW_LINK_BYTES;
+import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 
 class PendingContactFactoryImpl implements PendingContactFactory {
 
@@ -40,7 +40,7 @@ class PendingContactFactoryImpl implements PendingContactFactory {
 		PendingContactId id = getPendingContactId(publicKey);
 		long timestamp = clock.currentTimeMillis();
 		return new PendingContact(id, publicKey.getEncoded(), alias,
-				PendingContactState.WAITING_FOR_CONNECTION, timestamp);
+				WAITING_FOR_CONNECTION, timestamp);
 	}
 
 	private PublicKey parseHandshakeLink(String link) throws FormatException {
