@@ -103,15 +103,15 @@ public class NicknameFragment extends BaseFragment {
 		addButton.setVisibility(INVISIBLE);
 		progressBar.setVisibility(VISIBLE);
 
-		viewModel.getAddContactResult().observe(this, success -> {
-			if (success == null) return;
-			if (success) {
+		viewModel.getAddContactResult().observe(this, result -> {
+			if (result == null) return;
+			if (result.hasError()) {
+				Toast.makeText(getContext(), result.getErrorRes(), LENGTH_LONG)
+						.show();
+			} else {
 				Intent intent = new Intent(getActivity(),
 						PendingContactListActivity.class);
 				startActivity(intent);
-			} else {
-				Toast.makeText(getContext(), R.string.adding_contact_error,
-						LENGTH_LONG).show();
 			}
 			finish();
 		});
