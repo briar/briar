@@ -146,7 +146,7 @@ public class LinkExchangeFragment extends BaseFragment {
 				return null;
 			}
 			linkInputLayout.setError(null);
-			return linkWithoutSchema;
+			return link.toString();
 		}
 		linkInputLayout.setError(getString(R.string.invalid_link));
 		linkInput.requestFocus();
