@@ -18,30 +18,30 @@ public class LiveEvent<T> extends LiveData<LiveEvent.ConsumableEvent<T>> {
 		super.observe(owner, observer);
 	}
 
-	public static class ConsumableEvent<T> {
+	static class ConsumableEvent<T> {
+
 		private final T content;
 		private boolean consumed = false;
 
-		public ConsumableEvent(T content) {
+		ConsumableEvent(T content) {
 			this.content = content;
 		}
 
 		@Nullable
-		public T getContentIfNotConsumed() {
+		T getContentIfNotConsumed() {
 			if (consumed) return null;
-			else {
-				consumed = true;
-				return content;
-			}
+			consumed = true;
+			return content;
 		}
 	}
 
 	@Immutable
-	public static class LiveEventObserver<T>
+	static class LiveEventObserver<T>
 			implements Observer<ConsumableEvent<T>> {
+
 		private final LiveEventHandler<T> handler;
 
-		public LiveEventObserver(LiveEventHandler<T> handler) {
+		LiveEventObserver(LiveEventHandler<T> handler) {
 			this.handler = handler;
 		}
 
@@ -49,13 +49,13 @@ public class LiveEvent<T> extends LiveData<LiveEvent.ConsumableEvent<T>> {
 		public void onChanged(@Nullable ConsumableEvent<T> consumableEvent) {
 			if (consumableEvent != null) {
 				T content = consumableEvent.getContentIfNotConsumed();
-				if (content != null) handler.onEventUnconsumedContent(content);
+				if (content != null) handler.onEvent(content);
 			}
 		}
 
 	}
 
 	public interface LiveEventHandler<T> {
-		void onEventUnconsumedContent(T t);
+		void onEvent(T t);
 	}
 }
