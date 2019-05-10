@@ -1,5 +1,6 @@
 package org.briarproject.bramble.contact;
 
+import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -20,19 +21,19 @@ import org.briarproject.bramble.api.transport.KeyManager;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32_LINK_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
+import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @ThreadSafe
@@ -40,19 +41,22 @@ import static org.briarproject.bramble.util.StringUtils.toUtf8;
 class ContactManagerImpl implements ContactManager {
 
 	private static final String REMOTE_CONTACT_LINK =
-			"briar://" + getRandomBase32String(LINK_LENGTH);
+			"briar://" + getRandomBase32String(BASE32_LINK_BYTES);
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
 	private final IdentityManager identityManager;
+	private final PendingContactFactory pendingContactFactory;
 	private final List<ContactHook> hooks;
 
 	@Inject
 	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager,
-			IdentityManager identityManager) {
+			IdentityManager identityManager,
+			PendingContactFactory pendingContactFactory) {
 		this.db = db;
 		this.keyManager = keyManager;
 		this.identityManager = identityManager;
+		this.pendingContactFactory = pendingContactFactory;
 		hooks = new CopyOnWriteArrayList<>();
 	}
 
@@ -96,34 +100,23 @@ class ContactManagerImpl implements ContactManager {
 		return REMOTE_CONTACT_LINK;
 	}
 
-	// TODO replace with real implementation
-	@SuppressWarnings("SameParameterValue")
-	private static String getRandomBase32String(int length) {
-		Random random = new Random();
-		char[] c = new char[length];
-		for (int i = 0; i < length; i++) {
-			int character = random.nextInt(32);
-			if (character < 26) c[i] = (char) ('a' + character);
-			else c[i] = (char) ('2' + (character - 26));
-		}
-		return new String(c);
+	@Override
+	public PendingContact addPendingContact(String link, String alias)
+			throws DbException, FormatException {
+		PendingContact p =
+				pendingContactFactory.createPendingContact(link, alias);
+		db.transaction(false, txn -> db.addPendingContact(txn, p));
+		return p;
 	}
 
 	@Override
-	public void addPendingContact(String link, String alias)
-			throws DbException {
-		// TODO replace with real implementation
+	public Collection<PendingContact> getPendingContacts() throws DbException {
+		return db.transactionWithResult(true, db::getPendingContacts);
 	}
 
 	@Override
-	public Collection<PendingContact> getPendingContacts() {
-		// TODO replace with real implementation
-		return emptyList();
-	}
-
-	@Override
-	public void removePendingContact(PendingContactId id) throws DbException {
-		// TODO replace with real implementation
+	public void removePendingContact(PendingContactId p) throws DbException {
+		db.transaction(false, txn -> db.removePendingContact(txn, p));
 	}
 
 	@Override

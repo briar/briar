@@ -22,7 +22,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.contact.ContactManager.LINK_REGEX;
+import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -105,7 +105,7 @@ public class AddContactViewModel extends AndroidViewModel {
 		});
 	}
 
-	public LiveData<Boolean> getAddContactResult() {
+	LiveData<Boolean> getAddContactResult() {
 		return addContactResult;
 	}
 

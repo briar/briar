@@ -29,7 +29,7 @@ import javax.inject.Inject;
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
-import static org.briarproject.bramble.api.contact.ContactManager.LINK_REGEX;
+import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 
 @MethodsNotNullByDefault

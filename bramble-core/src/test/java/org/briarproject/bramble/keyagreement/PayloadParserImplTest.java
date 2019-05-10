@@ -2,11 +2,11 @@ package org.briarproject.bramble.keyagreement;
 
 import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.BdfReader;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
 import org.briarproject.bramble.api.keyagreement.Payload;
-import org.briarproject.bramble.api.keyagreement.UnsupportedVersionException;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
