@@ -13,9 +13,8 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.R;
-import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.util.concurrent.Executor;
@@ -103,12 +102,10 @@ public class AddContactViewModel extends AndroidViewModel {
 				addContactResult.postValue(new LiveResult<>(true));
 			} catch (UnsupportedVersionException e) {
 				logException(LOG, WARNING, e);
-				addContactResult
-						.postValue(new LiveResult<>(R.string.unsupported_link));
+				addContactResult.postValue(new LiveResult<>(e));
 			} catch (DbException | FormatException e) {
 				logException(LOG, WARNING, e);
-				addContactResult.postValue(
-						new LiveResult<>(R.string.adding_contact_error));
+				addContactResult.postValue(new LiveResult<>(e));
 			}
 		});
 	}

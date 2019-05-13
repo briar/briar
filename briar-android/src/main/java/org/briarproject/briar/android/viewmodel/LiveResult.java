@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.viewmodel;
 
 import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -10,17 +9,17 @@ public class LiveResult<T> {
 
 	@Nullable
 	private T result;
-	@StringRes
-	private int errorRes;
+	@Nullable
+	private Exception exception;
 
 	public LiveResult(T result) {
 		this.result = result;
-		this.errorRes = 0;
+		this.exception = null;
 	}
 
-	public LiveResult(@StringRes int errorRes) {
+	public LiveResult(Exception exception) {
 		this.result = null;
-		this.errorRes = errorRes;
+		this.exception = exception;
 	}
 
 	@Nullable
@@ -28,13 +27,13 @@ public class LiveResult<T> {
 		return result;
 	}
 
-	@StringRes
-	public int getErrorRes() {
-		return errorRes;
+	@Nullable
+	public Exception getException() {
+		return exception;
 	}
 
 	public boolean hasError() {
-		return errorRes != 0;
+		return exception != null;
 	}
 
 }

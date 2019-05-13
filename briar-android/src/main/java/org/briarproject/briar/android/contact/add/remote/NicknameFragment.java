@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -106,8 +107,14 @@ public class NicknameFragment extends BaseFragment {
 		viewModel.getAddContactResult().observe(this, result -> {
 			if (result == null) return;
 			if (result.hasError()) {
-				Toast.makeText(getContext(), result.getErrorRes(), LENGTH_LONG)
-						.show();
+				int stringRes;
+				if (result
+						.getException() instanceof UnsupportedVersionException) {
+					stringRes = R.string.unsupported_link;
+				} else {
+					stringRes = R.string.adding_contact_error;
+				}
+				Toast.makeText(getContext(), stringRes, LENGTH_LONG).show();
 			} else {
 				Intent intent = new Intent(getActivity(),
 						PendingContactListActivity.class);
