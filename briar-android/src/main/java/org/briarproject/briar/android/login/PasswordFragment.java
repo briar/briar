@@ -3,6 +3,7 @@ package org.briarproject.briar.android.login;
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
+import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
@@ -11,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -44,7 +44,7 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 	private Button signInButton;
 	private ProgressBar progress;
 	private TextInputLayout input;
-	private EditText password;
+	private TextInputEditText password;
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
@@ -81,6 +81,12 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 				.setOnClickListener(view -> onForgottenPasswordClick());
 
 		return v;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		showSoftKeyboard(password);
 	}
 
 	@Override

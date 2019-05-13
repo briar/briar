@@ -61,6 +61,7 @@ public class SetPasswordFragment extends SetupFragment {
 		strengthMeter = v.findViewById(R.id.strength_meter);
 		passwordEntryWrapper = v.findViewById(R.id.password_entry_wrapper);
 		passwordEntry = v.findViewById(R.id.password_entry);
+		passwordEntry.requestFocus();
 		passwordConfirmationWrapper =
 				v.findViewById(R.id.password_confirm_wrapper);
 		passwordConfirmation = v.findViewById(R.id.password_confirm);

@@ -13,8 +13,8 @@ import android.widget.ProgressBar;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.account.PowerView.OnCheckedChangedListener;
+import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.util.UiUtils;
 
 import static android.view.View.INVISIBLE;
