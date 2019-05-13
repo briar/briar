@@ -7,6 +7,8 @@ import java.io.InputStream;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+
 @NotNullByDefault
 class JavaResourceProvider implements ResourceProvider {
 
@@ -16,7 +18,7 @@ class JavaResourceProvider implements ResourceProvider {
 
 	@Override
 	public InputStream getResourceInputStream(String name, String extension) {
-		return getClass().getClassLoader()
-				.getResourceAsStream(name + extension);
+		ClassLoader cl = getClass().getClassLoader();
+		return requireNonNull(cl.getResourceAsStream(name + extension));
 	}
 }
