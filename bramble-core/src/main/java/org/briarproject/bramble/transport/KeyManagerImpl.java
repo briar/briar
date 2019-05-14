@@ -29,6 +29,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
@@ -132,13 +133,10 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	public void activateKeys(Transaction txn, Map<TransportId, KeySetId> keys)
 			throws DbException {
 		for (Entry<TransportId, KeySetId> e : keys.entrySet()) {
-			TransportId t = e.getKey();
-			TransportKeyManager m = managers.get(t);
-			if (m == null) {
-				if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
-			} else {
+			withManager(e.getKey(), m -> {
 				m.activateKeys(txn, e.getValue());
-			}
+				return null;
+			});
 		}
 	}
 
@@ -157,37 +155,25 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	@Override
 	public StreamContext getStreamContext(ContactId c, TransportId t)
 			throws DbException {
-		TransportKeyManager m = managers.get(t);
-		if (m == null) {
-			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
-			return null;
-		}
-		return db.transactionWithNullableResult(false, txn ->
-				m.getStreamContext(txn, c));
+		return withManager(t, m ->
+				db.transactionWithNullableResult(false, txn ->
+						m.getStreamContext(txn, c)));
 	}
 
 	@Override
 	public StreamContext getStreamContext(PendingContactId p, TransportId t)
 			throws DbException {
-		TransportKeyManager m = managers.get(t);
-		if (m == null) {
-			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
-			return null;
-		}
-		return db.transactionWithNullableResult(false, txn ->
-				m.getStreamContext(txn, p));
+		return withManager(t, m ->
+				db.transactionWithNullableResult(false, txn ->
+						m.getStreamContext(txn, p)));
 	}
 
 	@Override
 	public StreamContext getStreamContext(TransportId t, byte[] tag)
 			throws DbException {
-		TransportKeyManager m = managers.get(t);
-		if (m == null) {
-			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
-			return null;
-		}
-		return db.transactionWithNullableResult(false, txn ->
-				m.getStreamContext(txn, tag));
+		return withManager(t, m ->
+				db.transactionWithNullableResult(false, txn ->
+						m.getStreamContext(txn, tag)));
 	}
 
 	@Override
@@ -201,5 +187,21 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		dbExecutor.execute(() -> {
 			for (TransportKeyManager m : managers.values()) m.removeContact(c);
 		});
+	}
+
+	@Nullable
+	private <T> T withManager(TransportId t, ManagerTask<T> task)
+			throws DbException {
+		TransportKeyManager m = managers.get(t);
+		if (m == null) {
+			if (LOG.isLoggable(INFO)) LOG.info("No key manager for " + t);
+			return null;
+		}
+		return task.run(m);
+	}
+
+	private interface ManagerTask<T> {
+		@Nullable
+		T run(TransportKeyManager m) throws DbException;
 	}
 }
