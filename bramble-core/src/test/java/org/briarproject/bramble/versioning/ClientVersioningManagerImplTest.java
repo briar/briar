@@ -83,7 +83,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		expectAddingContact();
 
 		ClientVersioningManagerImpl c = createInstance();
-		c.createLocalState(txn);
+		c.onDatabaseOpened(txn);
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		ClientVersioningManagerImpl c = createInstance();
-		c.createLocalState(txn);
+		c.onDatabaseOpened(txn);
 	}
 
 	@Test

@@ -76,7 +76,7 @@ public class SharingModule {
 			ConversationManager conversationManager, BlogManager blogManager,
 			ClientVersioningManager clientVersioningManager,
 			BlogSharingManagerImpl blogSharingManager) {
-		lifecycleManager.registerClient(blogSharingManager);
+		lifecycleManager.registerOpenDatabaseHook(blogSharingManager);
 		contactManager.registerContactHook(blogSharingManager);
 		validationManager.registerIncomingMessageHook(
 				BlogSharingManager.CLIENT_ID, BlogSharingManager.MAJOR_VERSION,
@@ -135,7 +135,7 @@ public class SharingModule {
 			ConversationManager conversationManager, ForumManager forumManager,
 			ClientVersioningManager clientVersioningManager,
 			ForumSharingManagerImpl forumSharingManager) {
-		lifecycleManager.registerClient(forumSharingManager);
+		lifecycleManager.registerOpenDatabaseHook(forumSharingManager);
 		contactManager.registerContactHook(forumSharingManager);
 		validationManager.registerIncomingMessageHook(
 				ForumSharingManager.CLIENT_ID,

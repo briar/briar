@@ -20,7 +20,7 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
-import org.briarproject.bramble.api.db.NoSuchLocalAuthorException;
+import org.briarproject.bramble.api.db.NoSuchIdentityException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.db.NoSuchTransportException;
@@ -32,9 +32,9 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.identity.event.LocalAuthorAddedEvent;
-import org.briarproject.bramble.api.identity.event.LocalAuthorRemovedEvent;
+import org.briarproject.bramble.api.identity.Identity;
+import org.briarproject.bramble.api.identity.event.IdentityAddedEvent;
+import org.briarproject.bramble.api.identity.event.IdentityRemovedEvent;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -237,9 +237,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
-			throw new NoSuchLocalAuthorException();
-		if (db.containsLocalAuthor(txn, remote.getId()))
+		if (!db.containsIdentity(txn, local))
+			throw new NoSuchIdentityException();
+		if (db.containsIdentity(txn, remote.getId()))
 			throw new ContactExistsException();
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException();
@@ -283,13 +283,13 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void addLocalAuthor(Transaction transaction, LocalAuthor a)
+	public void addIdentity(Transaction transaction, Identity i)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a.getId())) {
-			db.addLocalAuthor(txn, a);
-			transaction.attach(new LocalAuthorAddedEvent(a.getId()));
+		if (!db.containsIdentity(txn, i.getId())) {
+			db.addIdentity(txn, i);
+			transaction.attach(new IdentityAddedEvent(i.getId()));
 		}
 	}
 
@@ -345,8 +345,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public boolean containsContact(Transaction transaction, AuthorId remote,
 			AuthorId local) throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, local))
-			throw new NoSuchLocalAuthorException();
+		if (!db.containsIdentity(txn, local))
+			throw new NoSuchIdentityException();
 		return db.containsContact(txn, remote, local);
 	}
 
@@ -358,10 +358,10 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public boolean containsLocalAuthor(Transaction transaction, AuthorId local)
+	public boolean containsIdentity(Transaction transaction, AuthorId a)
 			throws DbException {
 		T txn = unbox(transaction);
-		return db.containsLocalAuthor(txn, local);
+		return db.containsIdentity(txn, a);
 	}
 
 	@Override
@@ -505,8 +505,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	public Collection<ContactId> getContacts(Transaction transaction,
 			AuthorId a) throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
-			throw new NoSuchLocalAuthorException();
+		if (!db.containsIdentity(txn, a))
+			throw new NoSuchIdentityException();
 		return db.getContacts(txn, a);
 	}
 
@@ -554,19 +554,19 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public LocalAuthor getLocalAuthor(Transaction transaction, AuthorId a)
+	public Identity getIdentity(Transaction transaction, AuthorId a)
 			throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
-			throw new NoSuchLocalAuthorException();
-		return db.getLocalAuthor(txn, a);
+		if (!db.containsIdentity(txn, a))
+			throw new NoSuchIdentityException();
+		return db.getIdentity(txn, a);
 	}
 
 	@Override
-	public Collection<LocalAuthor> getLocalAuthors(Transaction transaction)
+	public Collection<Identity> getIdentities(Transaction transaction)
 			throws DbException {
 		T txn = unbox(transaction);
-		return db.getLocalAuthors(txn);
+		return db.getIdentities(txn);
 	}
 
 	@Override
@@ -905,14 +905,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void removeLocalAuthor(Transaction transaction, AuthorId a)
+	public void removeIdentity(Transaction transaction, AuthorId a)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsLocalAuthor(txn, a))
-			throw new NoSuchLocalAuthorException();
-		db.removeLocalAuthor(txn, a);
-		transaction.attach(new LocalAuthorRemovedEvent(a));
+		if (!db.containsIdentity(txn, a))
+			throw new NoSuchIdentityException();
+		db.removeIdentity(txn, a);
+		transaction.attach(new IdentityRemovedEvent(a));
 	}
 
 	@Override
@@ -1033,6 +1033,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		for (MessageId dependency : dependencies) {
 			db.addMessageDependency(txn, dependent, dependency, dependentState);
 		}
+	}
+
+	@Override
+	public void setHandshakeKeyPair(Transaction transaction, AuthorId local,
+			byte[] publicKey, byte[] privateKey) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsIdentity(txn, local))
+			throw new NoSuchIdentityException();
+		db.setHandshakeKeyPair(txn, local, publicKey, privateKey);
 	}
 
 	@Override

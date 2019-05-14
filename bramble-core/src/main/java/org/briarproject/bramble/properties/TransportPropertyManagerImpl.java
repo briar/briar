@@ -13,11 +13,11 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
-import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -40,7 +40,8 @@ import javax.inject.Inject;
 @Immutable
 @NotNullByDefault
 class TransportPropertyManagerImpl implements TransportPropertyManager,
-		Client, ContactHook, ClientVersioningHook, IncomingMessageHook {
+		OpenDatabaseHook, ContactHook, ClientVersioningHook,
+		IncomingMessageHook {
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
@@ -67,7 +68,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
-	public void createLocalState(Transaction txn) throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts

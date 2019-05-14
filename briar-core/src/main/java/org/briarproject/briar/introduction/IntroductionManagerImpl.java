@@ -19,8 +19,8 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -67,7 +67,7 @@ import static org.briarproject.briar.introduction.MessageType.REQUEST;
 @Immutable
 @NotNullByDefault
 class IntroductionManagerImpl extends ConversationClientImpl
-		implements IntroductionManager, Client, ContactHook,
+		implements IntroductionManager, OpenDatabaseHook, ContactHook,
 		ClientVersioningHook {
 
 	private final ClientVersioningManager clientVersioningManager;
@@ -115,7 +115,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void createLocalState(Transaction txn) throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		// Create a local group to store protocol sessions
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);

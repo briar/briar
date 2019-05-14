@@ -226,7 +226,7 @@ public class AppModule {
 	@Singleton
 	RecentEmoji provideRecentEmoji(LifecycleManager lifecycleManager,
 			RecentEmojiImpl recentEmoji) {
-		lifecycleManager.registerClient(recentEmoji);
+		lifecycleManager.registerOpenDatabaseHook(recentEmoji);
 		return recentEmoji;
 	}
 }

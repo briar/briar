@@ -48,7 +48,7 @@ public class PropertiesModule {
 			ValidationManager validationManager, ContactManager contactManager,
 			ClientVersioningManager clientVersioningManager,
 			TransportPropertyManagerImpl transportPropertyManager) {
-		lifecycleManager.registerClient(transportPropertyManager);
+		lifecycleManager.registerOpenDatabaseHook(transportPropertyManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				transportPropertyManager);
 		contactManager.registerContactHook(transportPropertyManager);

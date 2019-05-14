@@ -6,8 +6,8 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -75,13 +75,14 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	@Test
 	public void testWriteAndRead() throws Exception {
 		// Create the identities
-		LocalAuthor aliceAuthor =
-				alice.getIdentityManager().createLocalAuthor("Alice");
-		LocalAuthor bobAuthor =
-				bob.getIdentityManager().createLocalAuthor("Bob");
+		Identity aliceIdentity =
+				alice.getIdentityManager().createIdentity("Alice");
+		Identity bobIdentity = bob.getIdentityManager().createIdentity("Bob");
 		// Set up the devices and get the contact IDs
-		ContactId bobId = setUp(alice, aliceAuthor, bobAuthor, true);
-		ContactId aliceId = setUp(bob, bobAuthor, aliceAuthor, false);
+		ContactId bobId = setUp(alice, aliceIdentity,
+				bobIdentity.getLocalAuthor(), true);
+		ContactId aliceId = setUp(bob, bobIdentity,
+				aliceIdentity.getLocalAuthor(), false);
 		// Add a private message listener
 		PrivateMessageListener listener = new PrivateMessageListener();
 		bob.getEventBus().addListener(listener);
@@ -100,10 +101,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	private ContactId setUp(SimplexMessagingIntegrationTestComponent device,
-			LocalAuthor local, Author remote, boolean alice) throws Exception {
+			Identity local, Author remote, boolean alice) throws Exception {
 		// Add an identity for the user
 		IdentityManager identityManager = device.getIdentityManager();
-		identityManager.registerLocalAuthor(local);
+		identityManager.registerIdentity(local);
 		// Start the lifecycle manager
 		LifecycleManager lifecycleManager = device.getLifecycleManager();
 		lifecycleManager.startServices(getSecretKey());

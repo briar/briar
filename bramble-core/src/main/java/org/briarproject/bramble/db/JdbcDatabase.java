@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -874,8 +875,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void addLocalAuthor(Connection txn, LocalAuthor a)
-			throws DbException {
+	public void addIdentity(Connection txn, Identity i) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO localAuthors"
@@ -883,16 +883,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " handshakePublicKey, handshakePrivateKey, created)"
 					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, a.getId().getBytes());
-			ps.setInt(2, a.getFormatVersion());
-			ps.setString(3, a.getName());
-			ps.setBytes(4, a.getPublicKey());
-			ps.setBytes(5, a.getPrivateKey());
-			if (a.getHandshakePublicKey() == null) ps.setNull(6, BINARY);
-			else ps.setBytes(6, a.getHandshakePublicKey());
-			if (a.getHandshakePrivateKey() == null) ps.setNull(7, BINARY);
-			else ps.setBytes(7, a.getHandshakePrivateKey());
-			ps.setLong(8, a.getTimeCreated());
+			LocalAuthor local = i.getLocalAuthor();
+			ps.setBytes(1, local.getId().getBytes());
+			ps.setInt(2, local.getFormatVersion());
+			ps.setString(3, local.getName());
+			ps.setBytes(4, local.getPublicKey());
+			ps.setBytes(5, local.getPrivateKey());
+			if (i.getHandshakePublicKey() == null) ps.setNull(6, BINARY);
+			else ps.setBytes(6, i.getHandshakePublicKey());
+			if (i.getHandshakePrivateKey() == null) ps.setNull(7, BINARY);
+			else ps.setBytes(7, i.getHandshakePrivateKey());
+			ps.setLong(8, i.getTimeCreated());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -1248,7 +1249,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public boolean containsLocalAuthor(Connection txn, AuthorId a)
+	public boolean containsIdentity(Connection txn, AuthorId a)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
@@ -1661,41 +1662,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public LocalAuthor getLocalAuthor(Connection txn, AuthorId a)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT formatVersion, name, publicKey, privateKey,"
-					+ " handshakePublicKey, handshakePrivateKey, created"
-					+ " FROM localAuthors"
-					+ " WHERE authorId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, a.getBytes());
-			rs = ps.executeQuery();
-			if (!rs.next()) throw new DbStateException();
-			int formatVersion = rs.getInt(1);
-			String name = rs.getString(2);
-			byte[] publicKey = rs.getBytes(3);
-			byte[] privateKey = rs.getBytes(4);
-			byte[] handshakePublicKey = rs.getBytes(5);
-			byte[] handshakePrivateKey = rs.getBytes(6);
-			long created = rs.getLong(7);
-			LocalAuthor localAuthor = new LocalAuthor(a, formatVersion, name,
-					publicKey, privateKey, handshakePublicKey,
-					handshakePrivateKey, created);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			return localAuthor;
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
 	public Collection<HandshakeKeySet> getHandshakeKeys(Connection txn,
 			TransportId t) throws DbException {
 		PreparedStatement ps = null;
@@ -1776,30 +1742,69 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<LocalAuthor> getLocalAuthors(Connection txn)
+	public Identity getIdentity(Connection txn, AuthorId a) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT formatVersion, name, publicKey, privateKey,"
+					+ " handshakePublicKey, handshakePrivateKey, created"
+					+ " FROM localAuthors"
+					+ " WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, a.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			int formatVersion = rs.getInt(1);
+			String name = rs.getString(2);
+			byte[] publicKey = rs.getBytes(3);
+			byte[] privateKey = rs.getBytes(4);
+			byte[] handshakePublicKey = rs.getBytes(5);
+			byte[] handshakePrivateKey = rs.getBytes(6);
+			long created = rs.getLong(7);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			LocalAuthor local = new LocalAuthor(a, formatVersion, name,
+					publicKey, privateKey);
+			return new Identity(local, handshakePublicKey, handshakePrivateKey,
+					created);
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Collection<Identity> getIdentities(Connection txn)
 			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			String sql = "SELECT authorId, formatVersion, name, publicKey,"
-					+ " privateKey, created"
+					+ " privateKey, handshakePublicKey, handshakePrivateKey,"
+					+ " created"
 					+ " FROM localAuthors";
 			ps = txn.prepareStatement(sql);
 			rs = ps.executeQuery();
-			List<LocalAuthor> authors = new ArrayList<>();
+			List<Identity> identities = new ArrayList<>();
 			while (rs.next()) {
 				AuthorId authorId = new AuthorId(rs.getBytes(1));
 				int formatVersion = rs.getInt(2);
 				String name = rs.getString(3);
 				byte[] publicKey = rs.getBytes(4);
 				byte[] privateKey = rs.getBytes(5);
-				long created = rs.getLong(6);
-				authors.add(new LocalAuthor(authorId, formatVersion, name,
-						publicKey, privateKey, created));
+				byte[] handshakePublicKey = rs.getBytes(6);
+				byte[] handshakePrivateKey = rs.getBytes(7);
+				long created = rs.getLong(8);
+				LocalAuthor local = new LocalAuthor(authorId, formatVersion,
+						name, publicKey, privateKey);
+				identities.add(new Identity(local, handshakePublicKey,
+						handshakePrivateKey, created));
 			}
 			rs.close();
 			ps.close();
-			return authors;
+			return identities;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
@@ -2958,8 +2963,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public void removeLocalAuthor(Connection txn, AuthorId a)
-			throws DbException {
+	public void removeIdentity(Connection txn, AuthorId a) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "DELETE FROM localAuthors WHERE authorId = ?";
@@ -3169,6 +3173,27 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(3, g.getBytes());
 			affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setHandshakeKeyPair(Connection txn, AuthorId local,
+			byte[] publicKey, byte[] privateKey) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE localAuthors"
+					+ " SET handshakePublicKey = ?, handshakePrivateKey = ?"
+					+ " WHERE authorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, publicKey);
+			ps.setBytes(2, privateKey);
+			ps.setBytes(3, local.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);

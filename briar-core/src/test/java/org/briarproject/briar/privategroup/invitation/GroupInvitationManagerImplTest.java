@@ -149,7 +149,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCreateLocalStateFirstTime() throws Exception {
+	public void testDatabaseOpenHookFirstTime() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
 					MAJOR_VERSION);
@@ -161,11 +161,11 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(Collections.singletonList(contact)));
 		}});
 		expectAddingContact(contact);
-		groupInvitationManager.createLocalState(txn);
+		groupInvitationManager.onDatabaseOpened(txn);
 	}
 
 	@Test
-	public void testCreateLocalStateSubsequentTime() throws Exception {
+	public void testOpenDatabaseHookSubsequentTime() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createLocalGroup(CLIENT_ID,
 					MAJOR_VERSION);
@@ -173,7 +173,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(true));
 		}});
-		groupInvitationManager.createLocalState(txn);
+		groupInvitationManager.onDatabaseOpened(txn);
 	}
 
 	private void expectAddingContact(Contact c) throws Exception {

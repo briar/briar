@@ -8,18 +8,17 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.AuthorFactory;
-import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Collection;
-import java.util.Collections;
-
-import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.junit.Assert.assertEquals;
 
 public class IdentityManagerImplTest extends BrambleMockTestCase {
@@ -28,67 +27,100 @@ public class IdentityManagerImplTest extends BrambleMockTestCase {
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final AuthorFactory authorFactory =
 			context.mock(AuthorFactory.class);
-	private final PublicKey publicKey = context.mock(PublicKey.class);
-	private final PrivateKey privateKey = context.mock(PrivateKey.class);
+	private final Clock clock = context.mock(Clock.class);
+	private final PublicKey handshakePublicKey = context.mock(PublicKey.class);
+	private final PrivateKey handshakePrivateKey =
+			context.mock(PrivateKey.class);
 
 	private final Transaction txn = new Transaction(null, false);
-	private final LocalAuthor localAuthor = getLocalAuthor();
-	private final Collection<LocalAuthor> localAuthors =
-			Collections.singletonList(localAuthor);
-	private final String authorName = localAuthor.getName();
-	private final KeyPair keyPair = new KeyPair(publicKey, privateKey);
-	private final byte[] publicKeyBytes = localAuthor.getPublicKey();
-	private final byte[] privateKeyBytes = localAuthor.getPrivateKey();
-	private IdentityManager identityManager;
+	private final Identity identityWithKeys = getIdentity();
+	private final LocalAuthor localAuthor = identityWithKeys.getLocalAuthor();
+	private final Identity identityWithoutKeys = new Identity(localAuthor,
+			null, null, identityWithKeys.getTimeCreated());
+	private final KeyPair handshakeKeyPair =
+			new KeyPair(handshakePublicKey, handshakePrivateKey);
+	private final byte[] handshakePublicKeyBytes =
+			identityWithKeys.getHandshakePublicKey();
+	private final byte[] handshakePrivateKeyBytes =
+			identityWithKeys.getHandshakePrivateKey();
+
+	private IdentityManagerImpl identityManager;
 
 	@Before
 	public void setUp() {
-		identityManager = new IdentityManagerImpl(db, crypto, authorFactory);
+		identityManager =
+				new IdentityManagerImpl(db, crypto, authorFactory, clock);
 	}
 
 	@Test
-	public void testCreateLocalAuthor() {
+	public void testOpenDatabaseIdentityRegistered() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).generateSignatureKeyPair();
-			will(returnValue(keyPair));
-			oneOf(publicKey).getEncoded();
-			will(returnValue(publicKeyBytes));
-			oneOf(privateKey).getEncoded();
-			will(returnValue(privateKeyBytes));
-			oneOf(authorFactory).createLocalAuthor(authorName,
-					publicKeyBytes, privateKeyBytes);
-			will(returnValue(localAuthor));
+			oneOf(db).addIdentity(txn, identityWithKeys);
 		}});
 
-		assertEquals(localAuthor,
-				identityManager.createLocalAuthor(authorName));
+		identityManager.registerIdentity(identityWithKeys);
+		identityManager.onDatabaseOpened(txn);
 	}
 
 	@Test
-	public void testRegisterAndStoreLocalAuthor() throws Exception {
-		context.checking(new DbExpectations() {{
-			oneOf(db).transaction(with(false), withDbRunnable(txn));
-			oneOf(db).addLocalAuthor(txn, localAuthor);
+	public void testOpenDatabaseHandshakeKeysGenerated() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithoutKeys)));
+			oneOf(crypto).generateAgreementKeyPair();
+			will(returnValue(handshakeKeyPair));
+			oneOf(handshakePublicKey).getEncoded();
+			will(returnValue(handshakePublicKeyBytes));
+			oneOf(handshakePrivateKey).getEncoded();
+			will(returnValue(handshakePrivateKeyBytes));
+			oneOf(db).setHandshakeKeyPair(txn, localAuthor.getId(),
+					handshakePublicKeyBytes, handshakePrivateKeyBytes);
 		}});
 
-		identityManager.registerLocalAuthor(localAuthor);
+		identityManager.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testOpenDatabaseNoHandshakeKeysGenerated() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithKeys)));
+		}});
+
+		identityManager.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testGetLocalAuthorIdentityRegistered() throws DbException {
+		identityManager.registerIdentity(identityWithKeys);
 		assertEquals(localAuthor, identityManager.getLocalAuthor());
-		identityManager.storeLocalAuthor();
 	}
 
 	@Test
-	public void testGetLocalAuthor() throws Exception {
+	public void testGetLocalAuthorHandshakeKeysGenerated() throws Exception {
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			oneOf(db).getLocalAuthors(txn);
-			will(returnValue(localAuthors));
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithoutKeys)));
+			oneOf(crypto).generateAgreementKeyPair();
+			will(returnValue(handshakeKeyPair));
+			oneOf(handshakePublicKey).getEncoded();
+			will(returnValue(handshakePublicKeyBytes));
+			oneOf(handshakePrivateKey).getEncoded();
+			will(returnValue(handshakePrivateKeyBytes));
 		}});
+
 		assertEquals(localAuthor, identityManager.getLocalAuthor());
 	}
 
 	@Test
-	public void testGetCachedLocalAuthor() throws DbException {
-		identityManager.registerLocalAuthor(localAuthor);
+	public void testGetLocalAuthorNoHandshakeKeysGenerated() throws Exception {
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(db).getIdentities(txn);
+			will(returnValue(singletonList(identityWithKeys)));
+		}});
+
 		assertEquals(localAuthor, identityManager.getLocalAuthor());
 	}
 

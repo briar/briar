@@ -7,13 +7,11 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Client;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,6 +26,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
@@ -49,14 +48,13 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(LifecycleManagerImpl.class.getName());
+			getLogger(LifecycleManagerImpl.class.getName());
 
 	private final DatabaseComponent db;
 	private final EventBus eventBus;
 	private final List<Service> services;
-	private final List<Client> clients;
+	private final List<OpenDatabaseHook> openDatabaseHooks;
 	private final List<ExecutorService> executors;
-	private final IdentityManager identityManager;
 	private final Semaphore startStopSemaphore = new Semaphore(1);
 	private final CountDownLatch dbLatch = new CountDownLatch(1);
 	private final CountDownLatch startupLatch = new CountDownLatch(1);
@@ -65,13 +63,11 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	private volatile LifecycleState state = STARTING;
 
 	@Inject
-	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus,
-			IdentityManager identityManager) {
+	LifecycleManagerImpl(DatabaseComponent db, EventBus eventBus) {
 		this.db = db;
 		this.eventBus = eventBus;
-		this.identityManager = identityManager;
 		services = new CopyOnWriteArrayList<>();
-		clients = new CopyOnWriteArrayList<>();
+		openDatabaseHooks = new CopyOnWriteArrayList<>();
 		executors = new CopyOnWriteArrayList<>();
 	}
 
@@ -83,10 +79,12 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 	}
 
 	@Override
-	public void registerClient(Client c) {
-		if (LOG.isLoggable(INFO))
-			LOG.info("Registering client " + c.getClass().getSimpleName());
-		clients.add(c);
+	public void registerOpenDatabaseHook(OpenDatabaseHook hook) {
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Registering open database hook "
+					+ hook.getClass().getSimpleName());
+		}
+		openDatabaseHooks.add(hook);
 	}
 
 	@Override
@@ -102,28 +100,28 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			return ALREADY_RUNNING;
 		}
 		try {
-			LOG.info("Starting services");
+			LOG.info("Opening database");
 			long start = now();
-
 			boolean reopened = db.open(dbKey, this);
 			if (reopened) logDuration(LOG, "Reopening database", start);
 			else logDuration(LOG, "Creating database", start);
-			identityManager.storeLocalAuthor();
 
+			db.transaction(false, txn -> {
+				for (OpenDatabaseHook hook : openDatabaseHooks) {
+					long start1 = now();
+					hook.onDatabaseOpened(txn);
+					if (LOG.isLoggable(FINE)) {
+						logDuration(LOG, "Calling open database hook "
+								+ hook.getClass().getSimpleName(), start1);
+					}
+				}
+			});
+
+			LOG.info("Starting services");
 			state = STARTING_SERVICES;
 			dbLatch.countDown();
 			eventBus.broadcast(new LifecycleEvent(STARTING_SERVICES));
 
-			db.transaction(false, txn -> {
-				for (Client c : clients) {
-					long start1 = now();
-					c.createLocalState(txn);
-					if (LOG.isLoggable(FINE)) {
-						logDuration(LOG, "Starting client "
-								+ c.getClass().getSimpleName(), start1);
-					}
-				}
-			});
 			for (Service s : services) {
 				start = now();
 				s.startService();

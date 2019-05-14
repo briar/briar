@@ -100,6 +100,12 @@ public interface ForumManager {
 	void setReadFlag(GroupId g, MessageId m, boolean read) throws DbException;
 
 	interface RemoveForumHook {
+		/**
+		 * Called when a forum is being removed.
+		 *
+		 * @param txn A read-write transaction
+		 * @param f The forum that is being removed
+		 */
 		void removingForum(Transaction txn, Forum f) throws DbException;
 	}
 }

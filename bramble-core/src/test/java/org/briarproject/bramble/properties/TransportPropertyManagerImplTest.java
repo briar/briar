@@ -115,7 +115,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 				1, true, true);
 
 		TransportPropertyManagerImpl t = createInstance();
-		t.createLocalState(txn);
+		t.onDatabaseOpened(txn);
 	}
 
 	@Test
@@ -129,7 +129,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
-		t.createLocalState(txn);
+		t.onDatabaseOpened(txn);
 	}
 
 	@Test

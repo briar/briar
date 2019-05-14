@@ -1,30 +1,29 @@
 package org.briarproject.bramble.api.identity;
 
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
 public interface IdentityManager {
 
 	/**
-	 * Creates a local identity with the given name.
+	 * Creates an identity with the given name. The identity includes a
+	 * handshake key pair.
 	 */
 	@CryptoExecutor
-	LocalAuthor createLocalAuthor(String name);
+	Identity createIdentity(String name);
 
 	/**
-	 * Registers the given local identity with the manager. The identity is
-	 * not stored until {@link #storeLocalAuthor()} is called.
+	 * Registers the given identity with the manager. This method should be
+	 * called before {@link LifecycleManager#startServices(SecretKey)}. The
+	 * identity is stored when {@link LifecycleManager#startServices(SecretKey)}
+	 * is called. The identity must include a handshake key pair.
 	 */
-	void registerLocalAuthor(LocalAuthor a);
-
-	/**
-	 * Stores the local identity registered with
-	 * {@link #registerLocalAuthor(LocalAuthor)}, if any.
-	 */
-	void storeLocalAuthor() throws DbException;
+	void registerIdentity(Identity i);
 
 	/**
 	 * Returns the cached local identity or loads it from the database.
@@ -33,7 +32,18 @@ public interface IdentityManager {
 
 	/**
 	 * Returns the cached local identity or loads it from the database.
+	 * <p/>
+	 * Read-only.
 	 */
 	LocalAuthor getLocalAuthor(Transaction txn) throws DbException;
 
+	/**
+	 * Returns the cached handshake keys or loads them from the database.
+	 * <p/>
+	 * Read-only.
+	 *
+	 * @return A two-element array containing the public key in the first
+	 * element and the private key in the second
+	 */
+	byte[][] getHandshakeKeys(Transaction txn) throws DbException;
 }

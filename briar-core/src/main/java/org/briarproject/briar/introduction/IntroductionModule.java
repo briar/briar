@@ -51,7 +51,7 @@ public class IntroductionModule {
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
 			IntroductionManagerImpl introductionManager) {
-		lifecycleManager.registerClient(introductionManager);
+		lifecycleManager.registerOpenDatabaseHook(introductionManager);
 		contactManager.registerContactHook(introductionManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID,
 				MAJOR_VERSION, introductionManager);

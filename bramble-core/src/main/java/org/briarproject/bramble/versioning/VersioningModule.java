@@ -34,7 +34,7 @@ public class VersioningModule {
 			ClientVersioningManagerImpl clientVersioningManager,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager) {
-		lifecycleManager.registerClient(clientVersioningManager);
+		lifecycleManager.registerOpenDatabaseHook(clientVersioningManager);
 		lifecycleManager.registerService(clientVersioningManager);
 		contactManager.registerContactHook(clientVersioningManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,

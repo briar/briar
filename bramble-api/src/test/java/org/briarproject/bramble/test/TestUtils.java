@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -30,6 +31,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -99,25 +101,26 @@ public class TestUtils {
 		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}
 
-	public static LocalAuthor getLocalAuthor() {
-		return getLocalAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
-	}
-
-	public static LocalAuthor getLocalAuthor(int nameLength) {
-		AuthorId id = new AuthorId(getRandomId());
-		String name = getRandomString(nameLength);
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey,
+	public static Identity getIdentity() {
+		LocalAuthor localAuthor = getLocalAuthor();
+		byte[] handshakePub = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		byte[] handshakePriv = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		return new Identity(localAuthor, handshakePub, handshakePriv,
 				timestamp);
 	}
 
-	public static Author getAuthor() {
-		return getAuthor(1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH));
+	public static LocalAuthor getLocalAuthor() {
+		AuthorId id = new AuthorId(getRandomId());
+		int nameLength = 1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH);
+		String name = getRandomString(nameLength);
+		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey);
 	}
 
-	public static Author getAuthor(int nameLength) {
+	public static Author getAuthor() {
 		AuthorId id = new AuthorId(getRandomId());
+		int nameLength = 1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH);
 		String name = getRandomString(nameLength);
 		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
 		return new Author(id, FORMAT_VERSION, name, publicKey);

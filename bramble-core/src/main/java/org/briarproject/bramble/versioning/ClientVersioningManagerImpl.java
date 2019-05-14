@@ -12,10 +12,10 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
@@ -53,8 +53,8 @@ import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 
 @NotNullByDefault
-class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
-		Service, ContactHook, IncomingMessageHook {
+class ClientVersioningManagerImpl implements ClientVersioningManager,
+		Service, OpenDatabaseHook, ContactHook, IncomingMessageHook {
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
@@ -124,7 +124,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager, Client,
 	}
 
 	@Override
-	public void createLocalState(Transaction txn) throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		if (db.containsGroup(txn, localGroup.getId())) return;
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts

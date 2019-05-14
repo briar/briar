@@ -58,7 +58,7 @@ public class MessagingModule {
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager,
 			MessagingManagerImpl messagingManager) {
-		lifecycleManager.registerClient(messagingManager);
+		lifecycleManager.registerOpenDatabaseHook(messagingManager);
 		contactManager.registerContactHook(messagingManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				messagingManager);

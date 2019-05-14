@@ -94,7 +94,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCreateLocalStateFirstTimeWithExistingContact()
+	public void testOpenDatabaseHookFirstTimeWithExistingContact()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 
@@ -113,7 +113,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 		// Set things up for the contact
 		expectAddingContact(txn);
 
-		blogSharingManager.createLocalState(txn);
+		blogSharingManager.onDatabaseOpened(txn);
 	}
 
 	private void expectAddingContact(Transaction txn) throws Exception {
@@ -149,7 +149,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testCreateLocalStateSubsequentTime() throws Exception {
+	public void testOpenDatabaseHookSubsequentTime() throws Exception {
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new Expectations() {{
@@ -161,7 +161,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 		}});
 
-		blogSharingManager.createLocalState(txn);
+		blogSharingManager.onDatabaseOpened(txn);
 	}
 
 	@Test

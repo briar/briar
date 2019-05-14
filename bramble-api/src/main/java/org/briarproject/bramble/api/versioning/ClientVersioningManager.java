@@ -46,7 +46,14 @@ public interface ClientVersioningManager {
 			ClientId clientId, int majorVersion) throws DbException;
 
 	interface ClientVersioningHook {
-
+		/**
+		 * Called when the visibility of a client with respect to a contact is
+		 * changing.
+		 *
+		 * @param txn A read-write transaction
+		 * @param c The contact affected by the visibility change
+		 * @param v The new visibility of the client
+		 */
 		void onClientVisibilityChanging(Transaction txn, Contact c,
 				Visibility v) throws DbException;
 	}

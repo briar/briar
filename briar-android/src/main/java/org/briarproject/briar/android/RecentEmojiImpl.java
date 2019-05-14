@@ -8,11 +8,11 @@ import com.vanniktech.emoji.emoji.Emoji;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.api.sync.Client;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.util.StringUtils;
 
@@ -30,7 +30,7 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class RecentEmojiImpl implements RecentEmoji, Client {
+class RecentEmojiImpl implements RecentEmoji, OpenDatabaseHook {
 
 	private static final Logger LOG =
 			Logger.getLogger(RecentEmojiImpl.class.getName());
@@ -72,7 +72,7 @@ class RecentEmojiImpl implements RecentEmoji, Client {
 	}
 
 	@Override
-	public void createLocalState(Transaction txn) throws DbException {
+	public void onDatabaseOpened(Transaction txn) throws DbException {
 		Settings settings =
 				settingsManager.getSettings(txn, SETTINGS_NAMESPACE);
 		String serialized = settings.get(EMOJI_LRU_PREFERENCE);

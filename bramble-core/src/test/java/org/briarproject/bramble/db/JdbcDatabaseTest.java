@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MessageDeletedException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
@@ -57,6 +58,7 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -73,9 +75,10 @@ import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
-import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
+import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getPendingContact;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -103,6 +106,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	private final int majorVersion;
 	private final Group group;
 	private final Author author;
+	private final Identity identity;
 	private final LocalAuthor localAuthor;
 	private final Message message;
 	private final MessageId messageId;
@@ -119,7 +123,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		group = getGroup(clientId, majorVersion);
 		groupId = group.getId();
 		author = getAuthor();
-		localAuthor = getLocalAuthor();
+		identity = getIdentity();
+		localAuthor = identity.getLocalAuthor();
 		message = getMessage(groupId);
 		messageId = message.getId();
 		transportId = getTransportId();
@@ -145,7 +150,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 		assertFalse(db.containsContact(txn, contactId));
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		assertTrue(db.containsContact(txn, contactId));
@@ -208,7 +213,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -239,7 +244,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared but unvalidated message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -284,7 +289,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, an invisible group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -335,7 +340,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and an unshared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -366,7 +371,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -393,7 +398,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and a visible group
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -434,7 +439,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -566,7 +571,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and a shared group
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -586,7 +591,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 
@@ -604,7 +609,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, an invisible group and a message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -623,7 +628,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact and a group
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -675,7 +680,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(emptyList(), db.getTransportKeys(txn, transportId));
 
 		// Add the contact, the transport and the transport keys
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addTransport(txn, transportId, 123);
@@ -776,7 +781,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(emptyList(), db.getHandshakeKeys(txn, transportId));
 
 		// Add the contact, the transport and the handshake keys
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addTransport(txn, transportId, 123);
@@ -929,7 +934,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add the contact, transport and transport keys
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addTransport(txn, transportId, 123);
@@ -973,7 +978,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add the contact, transport and handshake keys
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addTransport(txn, transportId, 123);
@@ -1020,7 +1025,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add the contact, transport and transport keys
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addTransport(txn, transportId, 123);
@@ -1067,7 +1072,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add the contact, transport and handshake keys
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addTransport(txn, transportId, 123);
@@ -1109,14 +1114,15 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a local author - no contacts should be associated
-		db.addLocalAuthor(txn, localAuthor);
+		// Add an identity for a local author - no contacts should be
+		// associated
+		db.addIdentity(txn, identity);
 
 		// Add a contact associated with the local author
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 
-		// Ensure contact is returned from database by Author ID
+		// Ensure contact is returned from database by author ID
 		Collection<Contact> contacts =
 				db.getContactsByAuthorId(txn, author.getId());
 		assertEquals(1, contacts.size());
@@ -1136,8 +1142,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add a local author - no contacts should be associated
-		db.addLocalAuthor(txn, localAuthor);
+		// Add an identity for a local author - no contacts should be
+		// associated
+		db.addIdentity(txn, identity);
 		Collection<ContactId> contacts =
 				db.getContacts(txn, localAuthor.getId());
 		assertEquals(emptyList(), contacts);
@@ -1148,8 +1155,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		contacts = db.getContacts(txn, localAuthor.getId());
 		assertEquals(singletonList(contactId), contacts);
 
-		// Remove the local author - the contact should be removed
-		db.removeLocalAuthor(txn, localAuthor.getId());
+		// Remove the identity - the contact should be removed
+		db.removeIdentity(txn, localAuthor.getId());
 		contacts = db.getContacts(txn, localAuthor.getId());
 		assertEquals(emptyList(), contacts);
 		assertFalse(db.containsContact(txn, contactId));
@@ -1164,7 +1171,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact - initially there should be no offered messages
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		assertEquals(0, db.countOfferedMessages(txn, contactId));
@@ -1748,7 +1755,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -1850,14 +1857,15 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 	@Test
 	public void testDifferentLocalAuthorsCanHaveTheSameContact()
 			throws Exception {
-		LocalAuthor localAuthor1 = getLocalAuthor();
+		Identity identity1 = getIdentity();
+		LocalAuthor localAuthor1 = identity1.getLocalAuthor();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
 
-		// Add two local authors
-		db.addLocalAuthor(txn, localAuthor);
-		db.addLocalAuthor(txn, localAuthor1);
+		// Add identities for two local authors
+		db.addIdentity(txn, identity);
+		db.addIdentity(txn, identity1);
 
 		// Add the same contact for each local author
 		ContactId contactId =
@@ -1881,7 +1889,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -1935,7 +1943,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 
@@ -1992,7 +2000,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a group and a message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -2076,7 +2084,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -2121,7 +2129,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Connection txn = db.startTransaction();
 
 		// Add a contact, a shared group and a shared message
-		db.addLocalAuthor(txn, localAuthor);
+		db.addIdentity(txn, identity);
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), true));
 		db.addGroup(txn, group);
@@ -2232,6 +2240,30 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		db.removePendingContact(txn, pendingContact.getId());
 		assertEquals(emptyList(), db.getPendingContacts(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSetHandshakeKeyPair() throws Exception {
+		Identity withoutKeys =
+				new Identity(localAuthor, null, null, identity.getTimeCreated());
+		assertFalse(withoutKeys.hasHandshakeKeyPair());
+		byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		byte[] privateKey = getRandomBytes(123);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		db.addIdentity(txn, withoutKeys);
+		Identity retrieved = db.getIdentity(txn, localAuthor.getId());
+		assertFalse(retrieved.hasHandshakeKeyPair());
+		db.setHandshakeKeyPair(txn, localAuthor.getId(), publicKey, privateKey);
+		retrieved = db.getIdentity(txn, localAuthor.getId());
+		assertTrue(retrieved.hasHandshakeKeyPair());
+		assertArrayEquals(publicKey, retrieved.getHandshakePublicKey());
+		assertArrayEquals(privateKey, retrieved.getHandshakePrivateKey());
 
 		db.commitTransaction(txn);
 		db.close();

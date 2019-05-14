@@ -24,8 +24,7 @@ public class FeedModule {
 	FeedManager provideFeedManager(FeedManagerImpl feedManager,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			BlogManager blogManager) {
-
-		lifecycleManager.registerClient(feedManager);
+		lifecycleManager.registerOpenDatabaseHook(feedManager);
 		eventBus.addListener(feedManager);
 		blogManager.registerRemoveBlogHook(feedManager);
 		return feedManager;

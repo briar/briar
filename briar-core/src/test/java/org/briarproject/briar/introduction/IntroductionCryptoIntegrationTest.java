@@ -58,10 +58,8 @@ public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 		crypto = new IntroductionCryptoImpl(cryptoComponent, clientHelper);
 
 		introducer = getRealAuthor(authorFactory);
-		LocalAuthor introducee1 =
-				getRealLocalAuthor(cryptoComponent, authorFactory);
-		LocalAuthor introducee2 =
-				getRealLocalAuthor(cryptoComponent, authorFactory);
+		LocalAuthor introducee1 = getRealLocalAuthor(authorFactory);
+		LocalAuthor introducee2 = getRealLocalAuthor(authorFactory);
 		boolean isAlice =
 				crypto.isAlice(introducee1.getId(), introducee2.getId());
 		alice = isAlice ? introducee1 : introducee2;

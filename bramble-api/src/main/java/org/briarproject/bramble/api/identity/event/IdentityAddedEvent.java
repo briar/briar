@@ -7,15 +7,15 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * An event that is broadcast when a local pseudonym is added.
+ * An event that is broadcast when an identity is added.
  */
 @Immutable
 @NotNullByDefault
-public class LocalAuthorAddedEvent extends Event {
+public class IdentityAddedEvent extends Event {
 
 	private final AuthorId authorId;
 
-	public LocalAuthorAddedEvent(AuthorId authorId) {
+	public IdentityAddedEvent(AuthorId authorId) {
 		this.authorId = authorId;
 	}
 

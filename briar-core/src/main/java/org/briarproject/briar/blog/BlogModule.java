@@ -36,7 +36,7 @@ public class BlogModule {
 	BlogManager provideBlogManager(BlogManagerImpl blogManager,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			ValidationManager validationManager) {
-		lifecycleManager.registerClient(blogManager);
+		lifecycleManager.registerOpenDatabaseHook(blogManager);
 		contactManager.registerContactHook(blogManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				blogManager);

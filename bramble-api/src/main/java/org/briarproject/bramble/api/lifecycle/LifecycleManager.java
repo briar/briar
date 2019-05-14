@@ -2,16 +2,16 @@ package org.briarproject.bramble.api.lifecycle;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.Client;
 
 import java.util.concurrent.ExecutorService;
 
 /**
- * Manages the lifecycle of the app, starting {@link Client Clients}, starting
- * and stopping {@link Service Services}, shutting down
- * {@link ExecutorService ExecutorServices}, and opening and closing the
- * {@link DatabaseComponent}.
+ * Manages the lifecycle of the app: opening and closing the
+ * {@link DatabaseComponent} starting and stopping {@link Service Services},
+ * and shutting down {@link ExecutorService ExecutorServices}.
  */
 @NotNullByDefault
 public interface LifecycleManager {
@@ -43,16 +43,17 @@ public interface LifecycleManager {
 	}
 
 	/**
+	 * Registers a hook to be called after the database is opened and before
+	 * {@link Service services} are started. This method should be called
+	 * before {@link #startServices(SecretKey)}.
+	 */
+	void registerOpenDatabaseHook(OpenDatabaseHook hook);
+
+	/**
 	 * Registers a {@link Service} to be started and stopped. This method
 	 * should be called before {@link #startServices(SecretKey)}.
 	 */
 	void registerService(Service s);
-
-	/**
-	 * Registers a {@link Client} to be started. This method should be called
-	 * before {@link #startServices(SecretKey)}.
-	 */
-	void registerClient(Client c);
 
 	/**
 	 * Registers an {@link ExecutorService} to be shut down. This method
@@ -62,7 +63,7 @@ public interface LifecycleManager {
 
 	/**
 	 * Opens the {@link DatabaseComponent} using the given key and starts any
-	 * registered {@link Client Clients} and {@link Service Services}.
+	 * registered {@link Service Services}.
 	 */
 	StartResult startServices(SecretKey dbKey);
 
@@ -80,8 +81,7 @@ public interface LifecycleManager {
 
 	/**
 	 * Waits for the {@link DatabaseComponent} to be opened and all registered
-	 * {@link Client Clients} and {@link Service Services} to start before
-	 * returning.
+	 * {@link Service Services} to start before returning.
 	 */
 	void waitForStartup() throws InterruptedException;
 
@@ -97,4 +97,13 @@ public interface LifecycleManager {
 	 */
 	LifecycleState getLifecycleState();
 
+	interface OpenDatabaseHook {
+		/**
+		 * Called when the database is being opened, before
+		 * {@link #waitForDatabase()} returns.
+		 *
+		 * @param txn A read-write transaction
+		 */
+		void onDatabaseOpened(Transaction txn) throws DbException;
+	}
 }

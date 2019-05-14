@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
@@ -128,9 +128,9 @@ public interface DatabaseComponent {
 			HandshakeKeys k) throws DbException;
 
 	/**
-	 * Stores a local pseudonym.
+	 * Stores an identity.
 	 */
-	void addLocalAuthor(Transaction txn, LocalAuthor a) throws DbException;
+	void addIdentity(Transaction txn, Identity i) throws DbException;
 
 	/**
 	 * Stores a local message.
@@ -174,12 +174,12 @@ public interface DatabaseComponent {
 	boolean containsGroup(Transaction txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns true if the database contains the given local author.
+	 * Returns true if the database contains an identity for the given
+	 * pseudonym.
 	 * <p/>
 	 * Read-only.
 	 */
-	boolean containsLocalAuthor(Transaction txn, AuthorId local)
-			throws DbException;
+	boolean containsIdentity(Transaction txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given pending contact.
@@ -317,18 +317,18 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Returns the local pseudonym with the given ID.
+	 * Returns the identity for the local pseudonym with the given ID.
 	 * <p/>
 	 * Read-only.
 	 */
-	LocalAuthor getLocalAuthor(Transaction txn, AuthorId a) throws DbException;
+	Identity getIdentity(Transaction txn, AuthorId a) throws DbException;
 
 	/**
-	 * Returns all local pseudonyms.
+	 * Returns the identities for all local pseudonyms.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<LocalAuthor> getLocalAuthors(Transaction txn) throws DbException;
+	Collection<Identity> getIdentities(Transaction txn) throws DbException;
 
 	/**
 	 * Returns the message with the given ID.
@@ -559,9 +559,9 @@ public interface DatabaseComponent {
 			HandshakeKeySetId k) throws DbException;
 
 	/**
-	 * Removes a local pseudonym (and all associated state) from the database.
+	 * Removes an identity (and all associated state) from the database.
 	 */
-	void removeLocalAuthor(Transaction txn, AuthorId a) throws DbException;
+	void removeIdentity(Transaction txn, AuthorId a) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.
@@ -618,6 +618,12 @@ public interface DatabaseComponent {
 	 */
 	void addMessageDependencies(Transaction txn, Message dependent,
 			Collection<MessageId> dependencies) throws DbException;
+
+	/**
+	 * Sets the handshake key pair for the identity with the given ID.
+	 */
+	void setHandshakeKeyPair(Transaction txn, AuthorId local, byte[] publicKey,
+			byte[] privateKey) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given transport key set in the given

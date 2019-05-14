@@ -15,7 +15,7 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
@@ -120,9 +120,9 @@ interface Database<T> {
 			HandshakeKeys k) throws DbException;
 
 	/**
-	 * Stores a local pseudonym.
+	 * Stores an identity.
 	 */
-	void addLocalAuthor(T txn, LocalAuthor a) throws DbException;
+	void addIdentity(T txn, Identity i) throws DbException;
 
 	/**
 	 * Stores a message.
@@ -187,11 +187,12 @@ interface Database<T> {
 	boolean containsGroup(T txn, GroupId g) throws DbException;
 
 	/**
-	 * Returns true if the database contains the given local pseudonym.
+	 * Returns true if the database contains an identity for the given
+	 * pseudonym.
 	 * <p/>
 	 * Read-only.
 	 */
-	boolean containsLocalAuthor(T txn, AuthorId a) throws DbException;
+	boolean containsIdentity(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Returns true if the database contains the given message.
@@ -323,18 +324,18 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Returns the local pseudonym with the given ID.
+	 * Returns the identity for local pseudonym with the given ID.
 	 * <p/>
 	 * Read-only.
 	 */
-	LocalAuthor getLocalAuthor(T txn, AuthorId a) throws DbException;
+	Identity getIdentity(T txn, AuthorId a) throws DbException;
 
 	/**
-	 * Returns all local pseudonyms.
+	 * Returns the identities for all local pseudonyms.
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<LocalAuthor> getLocalAuthors(T txn) throws DbException;
+	Collection<Identity> getIdentities(T txn) throws DbException;
 
 	/**
 	 * Returns the message with the given ID.
@@ -629,9 +630,9 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Removes a local pseudonym (and all associated state) from the database.
+	 * Removes an identity (and all associated state) from the database.
 	 */
-	void removeLocalAuthor(T txn, AuthorId a) throws DbException;
+	void removeIdentity(T txn, AuthorId a) throws DbException;
 
 	/**
 	 * Removes a message (and all associated state) from the database.
@@ -684,6 +685,12 @@ interface Database<T> {
 	 */
 	void setGroupVisibility(T txn, ContactId c, GroupId g, boolean shared)
 			throws DbException;
+
+	/**
+	 * Sets the handshake key pair for the identity with the given ID.
+	 */
+	void setHandshakeKeyPair(T txn, AuthorId local, byte[] publicKey,
+			byte[] privateKey) throws DbException;
 
 	/**
 	 * Marks the given message as shared.

@@ -42,7 +42,7 @@ public class GroupInvitationModule {
 			PrivateGroupManager privateGroupManager,
 			ConversationManager conversationManager,
 			ClientVersioningManager clientVersioningManager) {
-		lifecycleManager.registerClient(groupInvitationManager);
+		lifecycleManager.registerOpenDatabaseHook(groupInvitationManager);
 		validationManager.registerIncomingMessageHook(CLIENT_ID, MAJOR_VERSION,
 				groupInvitationManager);
 		contactManager.registerContactHook(groupInvitationManager);

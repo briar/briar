@@ -4,8 +4,6 @@ import com.rometools.rome.feed.synd.SyndFeed;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -32,17 +30,14 @@ import static org.briarproject.briar.api.feed.FeedConstants.KEY_FEED_URL;
 
 class FeedFactoryImpl implements FeedFactory {
 
-	private final CryptoComponent cryptoComponent;
 	private final AuthorFactory authorFactory;
 	private final BlogFactory blogFactory;
 	private final ClientHelper clientHelper;
 	private final Clock clock;
 
 	@Inject
-	FeedFactoryImpl(CryptoComponent cryptoComponent,
-			AuthorFactory authorFactory, BlogFactory blogFactory,
+	FeedFactoryImpl(AuthorFactory authorFactory, BlogFactory blogFactory,
 			ClientHelper clientHelper, Clock clock) {
-		this.cryptoComponent = cryptoComponent;
 		this.authorFactory = authorFactory;
 		this.blogFactory = blogFactory;
 		this.clientHelper = clientHelper;
@@ -55,10 +50,7 @@ class FeedFactoryImpl implements FeedFactory {
 		if (title == null) title = "RSS";
 		else title = StringUtils.truncateUtf8(title, MAX_AUTHOR_NAME_LENGTH);
 
-		KeyPair keyPair = cryptoComponent.generateSignatureKeyPair();
-		LocalAuthor localAuthor = authorFactory.createLocalAuthor(title,
-				keyPair.getPublic().getEncoded(),
-				keyPair.getPrivate().getEncoded());
+		LocalAuthor localAuthor = authorFactory.createLocalAuthor(title);
 		Blog blog = blogFactory.createFeedBlog(localAuthor);
 		long added = clock.currentTimeMillis();
 
@@ -80,7 +72,7 @@ class FeedFactoryImpl implements FeedFactory {
 		BdfList authorList = d.getList(KEY_FEED_AUTHOR);
 		byte[] privateKey = d.getRaw(KEY_FEED_PRIVATE_KEY);
 		Author author = clientHelper.parseAndValidateAuthor(authorList);
-		LocalAuthor localAuthor = authorFactory.createLocalAuthor(
+		LocalAuthor localAuthor = new LocalAuthor(author.getId(),
 				author.getFormatVersion(), author.getName(),
 				author.getPublicKey(), privateKey);
 		Blog blog = blogFactory.createFeedBlog(localAuthor);
