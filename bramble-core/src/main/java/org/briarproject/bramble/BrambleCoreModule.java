@@ -15,6 +15,7 @@ import org.briarproject.bramble.plugin.PluginModule;
 import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.record.RecordModule;
 import org.briarproject.bramble.reliability.ReliabilityModule;
+import org.briarproject.bramble.rendezvous.RendezvousModule;
 import org.briarproject.bramble.reporting.ReportingModule;
 import org.briarproject.bramble.settings.SettingsModule;
 import org.briarproject.bramble.socks.SocksModule;
@@ -42,6 +43,7 @@ import dagger.Module;
 		PropertiesModule.class,
 		RecordModule.class,
 		ReliabilityModule.class,
+		RendezvousModule.class,
 		ReportingModule.class,
 		SettingsModule.class,
 		SocksModule.class,

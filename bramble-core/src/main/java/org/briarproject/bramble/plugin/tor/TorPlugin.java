@@ -25,6 +25,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
+import org.briarproject.bramble.api.rendezvous.RendezvousHandler;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
@@ -602,6 +604,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean supportsRendezvous() {
+		return false;
+	}
+
+	@Override
+	public RendezvousHandler createRendezvousHandler(KeyMaterialSource k) {
 		throw new UnsupportedOperationException();
 	}
 

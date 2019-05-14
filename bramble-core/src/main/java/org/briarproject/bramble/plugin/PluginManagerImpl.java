@@ -169,6 +169,14 @@ class PluginManagerImpl implements PluginManager, Service {
 		return supported;
 	}
 
+	@Override
+	public Collection<DuplexPlugin> getRendezvousPlugins() {
+		List<DuplexPlugin> supported = new ArrayList<>();
+		for (DuplexPlugin d : duplexPlugins)
+			if (d.supportsRendezvous()) supported.add(d);
+		return supported;
+	}
+
 	private class PluginStarter implements Runnable {
 
 		private final Plugin plugin;

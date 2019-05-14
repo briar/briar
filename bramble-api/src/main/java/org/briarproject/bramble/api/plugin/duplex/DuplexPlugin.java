@@ -5,6 +5,8 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
+import org.briarproject.bramble.api.rendezvous.RendezvousHandler;
 
 import javax.annotation.Nullable;
 
@@ -40,4 +42,15 @@ public interface DuplexPlugin extends Plugin {
 	@Nullable
 	DuplexTransportConnection createKeyAgreementConnection(
 			byte[] remoteCommitment, BdfList descriptor);
+
+	/**
+	 * Returns true if the plugin supports rendezvous connections.
+	 */
+	boolean supportsRendezvous();
+
+	/**
+	 * Creates and returns a handler that uses the given key material to
+	 * rendezvous with a pending contact.
+	 */
+	RendezvousHandler createRendezvousHandler(KeyMaterialSource k);
 }

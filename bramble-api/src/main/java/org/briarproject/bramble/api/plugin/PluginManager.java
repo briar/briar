@@ -36,4 +36,9 @@ public interface PluginManager {
 	 * Returns any duplex plugins that support key agreement.
 	 */
 	Collection<DuplexPlugin> getKeyAgreementPlugins();
+
+	/**
+	 * Returns any duplex plugins that support rendezvous.
+	 */
+	Collection<DuplexPlugin> getRendezvousPlugins();
 }

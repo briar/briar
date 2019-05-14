@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import java.io.IOException;
 
 /**
- * An class for managing a particular key agreement listener.
+ * Accepts key agreement connections over a given transport.
  */
 public abstract class KeyAgreementListener {
 
