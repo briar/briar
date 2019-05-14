@@ -7,6 +7,8 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.ContactVerifiedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -320,6 +322,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (db.containsPendingContact(txn, p.getId()))
 			throw new PendingContactExistsException();
 		db.addPendingContact(txn, p);
+		transaction.attach(new PendingContactStateChangedEvent(p.getId(),
+				p.getState()));
 	}
 
 	@Override
@@ -936,6 +940,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsPendingContact(txn, p))
 			throw new NoSuchPendingContactException();
 		db.removePendingContact(txn, p);
+		transaction.attach(new PendingContactRemovedEvent(p));
 	}
 
 	@Override
