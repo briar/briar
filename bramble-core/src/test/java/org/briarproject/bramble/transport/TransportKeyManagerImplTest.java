@@ -156,8 +156,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is 1 ms before the start of time period 1000
 		long timestamp = timePeriodLength * 1000 - 1;
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, active));
+		assertEquals(keySetId, transportKeyManager.addContactWithRotationKeys(
+				txn, contactId, rootKey, timestamp, alice, active));
 		assertEquals(active,
 				transportKeyManager.canSendOutgoingStreams(contactId));
 	}
@@ -192,8 +192,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 		TransportKeyManager transportKeyManager = new TransportKeyManagerImpl(
 				db, transportCrypto, dbExecutor, scheduler, clock, transportId,
 				maxLatency);
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, alice));
+		assertEquals(keySetId, transportKeyManager.addContactWithHandshakeKeys(
+				txn, contactId, rootKey, alice));
 		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
 	}
 
@@ -274,8 +274,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is at the start of time period 1000
 		long timestamp = timePeriodLength * 1000;
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, true));
+		assertEquals(keySetId, transportKeyManager.addContactWithRotationKeys(
+				txn, contactId, rootKey, timestamp, alice, true));
 		assertFalse(transportKeyManager.canSendOutgoingStreams(contactId));
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
 	}
@@ -300,8 +300,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is at the start of time period 1000
 		long timestamp = timePeriodLength * 1000;
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, true));
+		assertEquals(keySetId, transportKeyManager.addContactWithRotationKeys(
+				txn, contactId, rootKey, timestamp, alice, true));
 		// The first request should return a stream context
 		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
 		StreamContext ctx = transportKeyManager.getStreamContext(txn,
@@ -332,8 +332,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is at the start of time period 1000
 		long timestamp = timePeriodLength * 1000;
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, active));
+		assertEquals(keySetId, transportKeyManager.addContactWithRotationKeys(
+				txn, contactId, rootKey, timestamp, alice, active));
 		assertEquals(active,
 				transportKeyManager.canSendOutgoingStreams(contactId));
 		// The tag should not be recognised
@@ -385,8 +385,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is at the start of time period 1000
 		long timestamp = timePeriodLength * 1000;
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, true));
+		assertEquals(keySetId, transportKeyManager.addContactWithRotationKeys(
+				txn, contactId, rootKey, timestamp, alice, true));
 		assertTrue(transportKeyManager.canSendOutgoingStreams(contactId));
 		// Use the first tag (previous time period, stream number 0)
 		assertEquals(REORDERING_WINDOW_SIZE * 3, tags.size());
@@ -488,8 +488,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is at the start of time period 1000
 		long timestamp = timePeriodLength * 1000;
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, false));
+		assertEquals(keySetId, transportKeyManager.addContactWithRotationKeys(
+				txn, contactId, rootKey, timestamp, alice, false));
 		// The keys are inactive so no stream context should be returned
 		assertFalse(transportKeyManager.canSendOutgoingStreams(contactId));
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));
@@ -554,8 +554,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 				maxLatency);
 		// The timestamp is at the start of time period 1000
 		long timestamp = timePeriodLength * 1000;
-		assertEquals(keySetId, transportKeyManager.addContact(txn, contactId,
-				rootKey, timestamp, alice, false));
+		assertEquals(keySetId, transportKeyManager.addContactWithRotationKeys(
+				txn, contactId, rootKey, timestamp, alice, false));
 		// The keys are inactive so no stream context should be returned
 		assertFalse(transportKeyManager.canSendOutgoingStreams(contactId));
 		assertNull(transportKeyManager.getStreamContext(txn, contactId));

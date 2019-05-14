@@ -28,9 +28,9 @@ public interface KeyManager {
 	 * @param alice True if the local party is Alice
 	 * @param active Whether the derived keys can be used for outgoing streams
 	 */
-	Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
-			SecretKey rootKey, long timestamp, boolean alice, boolean active)
-			throws DbException;
+	Map<TransportId, KeySetId> addContactWithRotationKeys(Transaction txn,
+			ContactId c, SecretKey rootKey, long timestamp, boolean alice,
+			boolean active) throws DbException;
 
 	/**
 	 * Informs the key manager that a new contact has been added. Derives and
@@ -42,8 +42,8 @@ public interface KeyManager {
 	 *
 	 * @param alice True if the local party is Alice
 	 */
-	Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
-			SecretKey rootKey, boolean alice) throws DbException;
+	Map<TransportId, KeySetId> addContactWithHandshakeKeys(Transaction txn,
+			ContactId c, SecretKey rootKey, boolean alice) throws DbException;
 
 	/**
 	 * Informs the key manager that a new pending contact has been added.

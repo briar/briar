@@ -89,26 +89,28 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addContact(Transaction txn,
-			ContactId c, SecretKey rootKey, long timestamp, boolean alice,
-			boolean active) throws DbException {
+	public Map<TransportId, KeySetId> addContactWithRotationKeys(
+			Transaction txn, ContactId c, SecretKey rootKey, long timestamp,
+			boolean alice, boolean active) throws DbException {
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addContact(txn, c, rootKey, timestamp, alice, active));
+			ids.put(t, m.addContactWithRotationKeys(txn, c, rootKey, timestamp,
+					alice, active));
 		}
 		return ids;
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addContact(Transaction txn,
-			ContactId c, SecretKey rootKey, boolean alice) throws DbException {
+	public Map<TransportId, KeySetId> addContactWithHandshakeKeys(
+			Transaction txn, ContactId c, SecretKey rootKey, boolean alice)
+			throws DbException {
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addContact(txn, c, rootKey, alice));
+			ids.put(t, m.addContactWithHandshakeKeys(txn, c, rootKey, alice));
 		}
 		return ids;
 	}

@@ -70,7 +70,8 @@ class ContactManagerImpl implements ContactManager {
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
 		ContactId c = db.addContact(txn, remote, local, verified);
-		keyManager.addContact(txn, c, rootKey, timestamp, alice, active);
+		keyManager.addContactWithRotationKeys(txn, c, rootKey, timestamp,
+				alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;

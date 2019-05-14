@@ -16,11 +16,12 @@ interface TransportKeyManager {
 
 	void start(Transaction txn) throws DbException;
 
-	KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
-			long timestamp, boolean alice, boolean active) throws DbException;
+	KeySetId addContactWithRotationKeys(Transaction txn, ContactId c,
+			SecretKey rootKey, long timestamp, boolean alice, boolean active)
+			throws DbException;
 
-	KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
-			boolean alice) throws DbException;
+	KeySetId addContactWithHandshakeKeys(Transaction txn, ContactId c,
+			SecretKey rootKey, boolean alice) throws DbException;
 
 	KeySetId addPendingContact(Transaction txn, PendingContactId p,
 			SecretKey rootKey, boolean alice) throws DbException;

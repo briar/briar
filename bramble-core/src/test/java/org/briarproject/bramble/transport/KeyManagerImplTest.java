@@ -98,13 +98,13 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 		boolean active = random.nextBoolean();
 
 		context.checking(new Expectations() {{
-			oneOf(transportKeyManager).addContact(txn, contactId, secretKey,
-					timestamp, alice, active);
+			oneOf(transportKeyManager).addContactWithRotationKeys(txn,
+					contactId, secretKey, timestamp, alice, active);
 			will(returnValue(keySetId));
 		}});
 
-		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
-				secretKey, timestamp, alice, active);
+		Map<TransportId, KeySetId> ids = keyManager.addContactWithRotationKeys(
+				txn, contactId, secretKey, timestamp, alice, active);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 
@@ -114,13 +114,13 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 		boolean alice = random.nextBoolean();
 
 		context.checking(new Expectations() {{
-			oneOf(transportKeyManager).addContact(txn, contactId, secretKey,
-					alice);
+			oneOf(transportKeyManager).addContactWithHandshakeKeys(
+					txn, contactId, secretKey, alice);
 			will(returnValue(keySetId));
 		}});
 
-		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
-				secretKey, alice);
+		Map<TransportId, KeySetId> ids = keyManager.addContactWithHandshakeKeys(
+				txn, contactId, secretKey, alice);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 

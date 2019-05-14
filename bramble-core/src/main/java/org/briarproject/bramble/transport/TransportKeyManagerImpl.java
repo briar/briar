@@ -207,8 +207,9 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
-			long timestamp, boolean alice, boolean active) throws DbException {
+	public KeySetId addContactWithRotationKeys(Transaction txn, ContactId c,
+			SecretKey rootKey, long timestamp, boolean alice, boolean active)
+			throws DbException {
 		lock.lock();
 		try {
 			// Work out what time period the timestamp belongs to
@@ -230,8 +231,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public KeySetId addContact(Transaction txn, ContactId c, SecretKey rootKey,
-			boolean alice) throws DbException {
+	public KeySetId addContactWithHandshakeKeys(Transaction txn, ContactId c,
+			SecretKey rootKey, boolean alice) throws DbException {
 		lock.lock();
 		try {
 			// Work out what time period we're in
