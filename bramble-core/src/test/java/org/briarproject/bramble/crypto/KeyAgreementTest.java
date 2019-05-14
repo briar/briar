@@ -14,9 +14,9 @@ import java.security.GeneralSecurityException;
 import java.util.Arrays;
 import java.util.Random;
 
-import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.SHARED_SECRET_LABEL;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -38,6 +38,7 @@ public class KeyAgreementTest extends BrambleTestCase {
 
 	private final CryptoComponent crypto =
 			new CryptoComponentImpl(new TestSecureRandomProvider(), null);
+	private final String label = getRandomString(123);
 	private final byte[][] inputs;
 
 	public KeyAgreementTest() {
@@ -51,9 +52,9 @@ public class KeyAgreementTest extends BrambleTestCase {
 	public void testDerivesSharedSecret() throws Exception {
 		KeyPair aPair = crypto.generateAgreementKeyPair();
 		KeyPair bPair = crypto.generateAgreementKeyPair();
-		SecretKey aShared = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
+		SecretKey aShared = crypto.deriveSharedSecret(label,
 				bPair.getPublic(), aPair, inputs);
-		SecretKey bShared = crypto.deriveSharedSecret(SHARED_SECRET_LABEL,
+		SecretKey bShared = crypto.deriveSharedSecret(label,
 				aPair.getPublic(), bPair, inputs);
 		assertArrayEquals(aShared.getBytes(), bShared.getBytes());
 	}
@@ -62,8 +63,7 @@ public class KeyAgreementTest extends BrambleTestCase {
 	public void testRejectsInvalidPublicKey() throws Exception {
 		KeyPair keyPair = crypto.generateAgreementKeyPair();
 		PublicKey invalid = new AgreementPublicKey(new byte[32]);
-		crypto.deriveSharedSecret(SHARED_SECRET_LABEL, invalid, keyPair,
-				inputs);
+		crypto.deriveSharedSecret(label, invalid, keyPair, inputs);
 	}
 
 	@Test
@@ -88,15 +88,68 @@ public class KeyAgreementTest extends BrambleTestCase {
 		Curve25519 curve25519 = Curve25519.getInstance("java");
 
 		// Flip the unused most significant bit of the little-endian public key
-		byte[] aPubEquivalent = aPub.clone();
-		aPubEquivalent[31] ^= (byte) 128;
+		byte[] aPubEquiv = aPub.clone();
+		aPubEquiv[31] ^= (byte) 128;
 
 		// The public keys should be different but give the same shared secret
-		assertFalse(Arrays.equals(aPub, aPubEquivalent));
+		assertFalse(Arrays.equals(aPub, aPubEquiv));
 		assertArrayEquals(sharedSecret,
 				curve25519.calculateAgreement(aPub, bPriv));
 		assertArrayEquals(sharedSecret,
-				curve25519.calculateAgreement(aPubEquivalent, bPriv));
+				curve25519.calculateAgreement(aPubEquiv, bPriv));
+	}
+
+	@Test
+	public void testDerivesSameSharedSecretFromEquivalentPublicKeyWithoutPublicKeysHashedIn()
+			throws Exception {
+		KeyPair aPair = crypto.generateAgreementKeyPair();
+		KeyPair bPair = crypto.generateAgreementKeyPair();
+
+		// Flip the unused most significant bit of the little-endian public key
+		byte[] aPub = aPair.getPublic().getEncoded();
+		byte[] aPubEquiv = aPub.clone();
+		aPubEquiv[31] ^= (byte) 128;
+		KeyPair aPairEquiv = new KeyPair(new AgreementPublicKey(aPubEquiv),
+				aPair.getPrivate());
+
+		// The public keys should be different but give the same shared secret
+		assertFalse(Arrays.equals(aPub, aPubEquiv));
+		SecretKey shared = crypto.deriveSharedSecret(label,
+				aPair.getPublic(), bPair);
+		SecretKey sharedEquiv = crypto.deriveSharedSecret(label,
+				aPairEquiv.getPublic(), bPair);
+		assertArrayEquals(shared.getBytes(), sharedEquiv.getBytes());
+	}
+
+	@Test
+	public void testDerivesDifferentSharedSecretFromEquivalentPublicKeyWithPublicKeysHashedIn()
+			throws Exception {
+		KeyPair aPair = crypto.generateAgreementKeyPair();
+		KeyPair bPair = crypto.generateAgreementKeyPair();
+
+		// Flip the unused most significant bit of the little-endian public key
+		byte[] aPub = aPair.getPublic().getEncoded();
+		byte[] aPubEquiv = aPub.clone();
+		aPubEquiv[31] ^= (byte) 128;
+		KeyPair aPairEquiv = new KeyPair(new AgreementPublicKey(aPubEquiv),
+				aPair.getPrivate());
+
+		// The public keys should be different and give different shared secrets
+		assertFalse(Arrays.equals(aPub, aPubEquiv));
+		SecretKey shared = deriveSharedSecretWithPublicKeysHashedIn(label,
+				aPair.getPublic(), bPair);
+		SecretKey sharedEquiv = deriveSharedSecretWithPublicKeysHashedIn(label,
+				aPairEquiv.getPublic(), bPair);
+		assertFalse(Arrays.equals(shared.getBytes(), sharedEquiv.getBytes()));
+	}
+
+	private SecretKey deriveSharedSecretWithPublicKeysHashedIn(String label,
+			PublicKey publicKey, KeyPair keyPair) throws Exception {
+		byte[][] inputs = new byte[][] {
+				publicKey.getEncoded(),
+				keyPair.getPublic().getEncoded()
+		};
+		return crypto.deriveSharedSecret(label, publicKey, keyPair, inputs);
 	}
 
 	private byte[] parsePrivateKey(String hex) {
