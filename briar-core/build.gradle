@@ -30,3 +30,15 @@ dependencies {
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }
+
+// needed to make test output available to briar-headless
+configurations {
+	testOutput.extendsFrom(testCompile)
+}
+task jarTest(type: Jar, dependsOn: testClasses) {
+	from sourceSets.test.output
+	classifier = 'test'
+}
+artifacts {
+	testOutput jarTest
+}
