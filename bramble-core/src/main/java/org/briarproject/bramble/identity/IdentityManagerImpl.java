@@ -92,12 +92,18 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 	public void onDatabaseOpened(Transaction txn) throws DbException {
 		Identity cached = getCachedIdentity(txn);
 		if (shouldStoreIdentity) {
+			// The identity was registered at startup - store it
 			db.addIdentity(txn, cached);
 			LOG.info("Identity stored");
 		} else if (shouldStoreKeys) {
-			byte[] publicKey = requireNonNull(cached.getHandshakePublicKey());
-			byte[] privateKey = requireNonNull(cached.getHandshakePrivateKey());
-			db.setHandshakeKeyPair(txn, cached.getId(), publicKey, privateKey);
+			// Handshake keys were generated when loading the identity -
+			// store them
+			byte[] handshakePub =
+					requireNonNull(cached.getHandshakePublicKey());
+			byte[] handshakePriv =
+					requireNonNull(cached.getHandshakePrivateKey());
+			db.setHandshakeKeyPair(txn, cached.getId(), handshakePub,
+					handshakePriv);
 			LOG.info("Handshake key pair stored");
 		}
 	}
@@ -124,6 +130,15 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 		};
 	}
 
+	/**
+	 * Loads the identity if necessary and returns it. If
+	 * {@code cachedIdentity} was not already set by calling
+	 * {@link #registerIdentity(Identity)}, this method sets it. If
+	 * {@code cachedIdentity} was already set, either by calling
+	 * {@link #registerIdentity(Identity)} or by a previous call to this
+	 * method, then this method returns the cached identity without hitting
+	 * the database.
+	 */
 	private Identity getCachedIdentity(Transaction txn) throws DbException {
 		Identity cached = cachedIdentity;
 		if (cached == null)
@@ -131,23 +146,24 @@ class IdentityManagerImpl implements IdentityManager, OpenDatabaseHook {
 		return cached;
 	}
 
+	/**
+	 * Loads and returns the identity, generating a handshake key pair if
+	 * necessary and setting {@code shouldStoreKeys} if a handshake key pair
+	 * was generated.
+	 */
 	private Identity loadIdentityWithKeyPair(Transaction txn)
 			throws DbException {
-		Identity i = loadIdentity(txn);
-		LOG.info("Identity loaded");
-		if (i.hasHandshakeKeyPair()) return i;
-		KeyPair keyPair = crypto.generateAgreementKeyPair();
-		byte[] publicKey = keyPair.getPublic().getEncoded();
-		byte[] privateKey = keyPair.getPrivate().getEncoded();
-		LOG.info("Handshake key pair generated");
-		shouldStoreKeys = true;
-		return new Identity(i.getLocalAuthor(), publicKey, privateKey,
-				i.getTimeCreated());
-	}
-
-	private Identity loadIdentity(Transaction txn) throws DbException {
 		Collection<Identity> identities = db.getIdentities(txn);
 		if (identities.size() != 1) throw new DbException();
-		return identities.iterator().next();
+		Identity i = identities.iterator().next();
+		LOG.info("Identity loaded");
+		if (i.hasHandshakeKeyPair()) return i;
+		KeyPair handshakeKeyPair = crypto.generateAgreementKeyPair();
+		byte[] handshakePub = handshakeKeyPair.getPublic().getEncoded();
+		byte[] handshakePriv = handshakeKeyPair.getPrivate().getEncoded();
+		LOG.info("Handshake key pair generated");
+		shouldStoreKeys = true;
+		return new Identity(i.getLocalAuthor(), handshakePub, handshakePriv,
+				i.getTimeCreated());
 	}
 }
