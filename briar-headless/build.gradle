@@ -25,6 +25,7 @@ dependencies {
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
+	testImplementation project(path: ':briar-core', configuration: 'testOutput')
 
 	def junitVersion = '5.4.2'
 	testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
