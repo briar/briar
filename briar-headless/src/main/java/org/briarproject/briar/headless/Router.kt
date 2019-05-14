@@ -65,12 +65,12 @@ constructor(
                 path("/contacts") {
                     get { ctx -> contactController.list(ctx) }
                     path("add") {
-                        post { ctx -> contactController.addPendingContact(ctx) }
                         path("link") {
                             get { ctx -> contactController.link(ctx) }
                         }
                         path("pending") {
                             get { ctx -> contactController.listPendingContacts(ctx) }
+                            post { ctx -> contactController.addPendingContact(ctx) }
                             delete { ctx -> contactController.removePendingContact(ctx) }
                         }
                     }

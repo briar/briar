@@ -46,6 +46,12 @@ class ContactControllerIntegrationTest: IntegrationTest() {
     }
 
     @Test
+    fun `returning own handshake link needs authentication token`() {
+        val response = getWithWrongToken("$url/contacts/add/link")
+        assertEquals(401, response.statusCode)
+    }
+
+    @Test
     fun `returns list of pending contacts`() {
         // retrieve empty list of pending contacts
         var response = get("$url/contacts/add/pending")
@@ -58,7 +64,7 @@ class ContactControllerIntegrationTest: IntegrationTest() {
             "link": "${getRealHandshakeLink(crypto)}",
             "alias": "$alias"
         }"""
-        response = post("$url/contacts/add", json)
+        response = post("$url/contacts/add/pending", json)
         assertEquals(200, response.statusCode)
 
         // get added contact as only list item
@@ -79,6 +85,24 @@ class ContactControllerIntegrationTest: IntegrationTest() {
         response = get("$url/contacts/add/pending")
         assertEquals(200, response.statusCode)
         assertEquals(0, response.jsonArray.length())
+    }
+
+    @Test
+    fun `returning list of pending contacts needs authentication token`() {
+        val response = getWithWrongToken("$url/contacts/add/pending")
+        assertEquals(401, response.statusCode)
+    }
+
+    @Test
+    fun `adding pending contacts needs authentication token`() {
+        val response = postWithWrongToken("$url/contacts/add/pending")
+        assertEquals(401, response.statusCode)
+    }
+
+    @Test
+    fun `removing a pending contact needs authentication token`() {
+        val response = deleteWithWrongToken("$url/contacts/add/pending")
+        assertEquals(401, response.statusCode)
     }
 
     @Test

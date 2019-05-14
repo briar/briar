@@ -87,7 +87,7 @@ outside of Briar via an external channel.
 Once you have received the link of your future contact, you can add them
 by posting the link together with an arbitrary nickname (or alias):
 
-`POST /v1/contacts/add`
+`POST /v1/contacts/add/pending`
 
 The link and the alias should be posted as a JSON object:
 

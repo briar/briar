@@ -59,6 +59,10 @@ abstract class IntegrationTest {
         return khttp.post(url, getAuthTokenHeader(token), data = data)
     }
 
+    protected fun postWithWrongToken(url: String) : Response {
+        return khttp.post(url, getAuthTokenHeader("wrongToken"), data = "")
+    }
+
     protected fun delete(url: String) : Response {
         return khttp.delete(url, getAuthTokenHeader(token))
     }
