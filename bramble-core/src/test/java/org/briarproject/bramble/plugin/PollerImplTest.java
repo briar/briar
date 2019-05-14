@@ -23,6 +23,7 @@ import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.RunAction;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.security.SecureRandom;
@@ -39,7 +40,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
-public class PollerTest extends BrambleMockTestCase {
+public class PollerImplTest extends BrambleMockTestCase {
 
 	private final ScheduledExecutorService scheduler =
 			context.mock(ScheduledExecutorService.class);
@@ -62,9 +63,18 @@ public class PollerTest extends BrambleMockTestCase {
 	private final int pollingInterval = 60 * 1000;
 	private final long now = System.currentTimeMillis();
 
-	public PollerTest() {
+	private PollerImpl poller;
+
+	public PollerImplTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
 		random = context.mock(SecureRandom.class);
+	}
+
+	@Before
+	public void setUp() {
+		poller = new PollerImpl(ioExecutor, scheduler, connectionManager,
+				connectionRegistry, pluginManager, transportPropertyManager,
+				random, clock);
 	}
 
 	@Test
@@ -140,11 +150,7 @@ public class PollerTest extends BrambleMockTestCase {
 			will(returnValue(false));
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new ContactAddedEvent(contactId));
+		poller.eventOccurred(new ContactAddedEvent(contactId));
 	}
 
 	@Test
@@ -194,11 +200,7 @@ public class PollerTest extends BrambleMockTestCase {
 					transportId, duplexConnection);
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
+		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
 				false));
 	}
 
@@ -225,11 +227,7 @@ public class PollerTest extends BrambleMockTestCase {
 			will(returnValue(future));
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
 				false));
 	}
 
@@ -269,13 +267,9 @@ public class PollerTest extends BrambleMockTestCase {
 			will(returnValue(now + 1));
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
 				false));
-		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
 				false));
 	}
 
@@ -318,13 +312,9 @@ public class PollerTest extends BrambleMockTestCase {
 					with((long) pollingInterval - 2), with(MILLISECONDS));
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
 				false));
-		p.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
+		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
 				false));
 	}
 
@@ -367,11 +357,7 @@ public class PollerTest extends BrambleMockTestCase {
 			oneOf(plugin).poll(singletonMap(contactId, properties));
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new TransportEnabledEvent(transportId));
+		poller.eventOccurred(new TransportEnabledEvent(transportId));
 	}
 
 	@Test
@@ -412,11 +398,7 @@ public class PollerTest extends BrambleMockTestCase {
 			// All contacts are connected, so don't poll the plugin
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new TransportEnabledEvent(transportId));
+		poller.eventOccurred(new TransportEnabledEvent(transportId));
 	}
 
 	@Test
@@ -442,11 +424,7 @@ public class PollerTest extends BrambleMockTestCase {
 			oneOf(future).cancel(false);
 		}});
 
-		Poller p = new Poller(ioExecutor, scheduler, connectionManager,
-				connectionRegistry, pluginManager, transportPropertyManager,
-				random, clock);
-
-		p.eventOccurred(new TransportEnabledEvent(transportId));
-		p.eventOccurred(new TransportDisabledEvent(transportId));
+		poller.eventOccurred(new TransportEnabledEvent(transportId));
+		poller.eventOccurred(new TransportDisabledEvent(transportId));
 	}
 }
