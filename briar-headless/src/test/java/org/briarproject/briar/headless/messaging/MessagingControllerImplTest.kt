@@ -23,7 +23,6 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory
 import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.headless.ControllerTest
-import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.event.output
 import org.briarproject.briar.headless.json.JsonDict
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -35,7 +34,6 @@ internal class MessagingControllerImplTest : ControllerTest() {
     private val messagingManager = mockk<MessagingManager>()
     private val conversationManager = mockk<ConversationManager>()
     private val privateMessageFactory = mockk<PrivateMessageFactory>()
-    private val webSocketController = mockk<WebSocketController>()
     private val dbExecutor = ImmediateExecutor()
 
     private val controller = MessagingControllerImpl(

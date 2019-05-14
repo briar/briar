@@ -274,8 +274,51 @@ it will send a JSON object to connected websocket clients:
 Note that the JSON object in `data` is exactly what the REST API returns
 when listing private messages.
 
-# TODO
+### A new contact was added remotely
 
-  * PendingContactStateChangedEvent
-  * PendingContactRemovedEvent
-  * ContactAddedRemotelyEvent
+When the Briar peer adds a new contact remotely,
+it will send a JSON object representing the new contact to connected websocket clients:
+
+```json
+{
+    "data": {
+        "author": {
+            "formatVersion": 1,
+            "id": "y1wkIzAimAbYoCGgWxkWlr6vnq1F8t1QRA/UMPgI0E0=",
+            "name": "Test",
+            "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
+        },
+        "contactId": 1,
+        "verified": true
+    },
+    "name": "ContactAddedRemotelyEvent",
+    "type": "event"
+}
+```
+
+### A pending contact changed its state
+
+```json
+{
+    "data": {
+        "pendingContactId":"YqKjsczCuxScXohb5+RAYtFEwK71icoB4ldztV2gh7M=",
+        "state":"waiting_for_connection"
+    },
+    "name": "PendingContactStateChangedEvent",
+    "type": "event"
+}
+```
+
+For a list of valid states, please see the section on adding contacts above.
+
+### A pending contact was removed
+
+```json
+{
+    "data": {
+        "pendingContactId": "YqKjsczCuxScXohb5+RAYtFEwK71icoB4ldztV2gh7M="
+    },
+    "name": "PendingContactRemovedEvent",
+    "type": "event"
+}
+```

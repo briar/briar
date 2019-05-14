@@ -1,6 +1,7 @@
 package org.briarproject.briar.headless.contact
 
 import org.briarproject.bramble.api.contact.Contact
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent
 import org.briarproject.bramble.identity.output
 import org.briarproject.briar.headless.json.JsonDict
 
@@ -9,3 +10,5 @@ internal fun Contact.output() = JsonDict(
     "author" to author.output(),
     "verified" to isVerified
 )
+
+internal fun ContactAddedRemotelyEvent.output() = contact.output()

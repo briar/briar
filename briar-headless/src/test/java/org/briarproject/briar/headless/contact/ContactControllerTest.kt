@@ -5,9 +5,14 @@ import io.javalin.json.JavalinJson.toJson
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
+import io.mockk.runs
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.contact.PendingContactId
+import org.briarproject.bramble.api.contact.PendingContactState.FAILED
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
+import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.db.NoSuchPendingContactException
 import org.briarproject.bramble.identity.output
@@ -20,8 +25,10 @@ import org.junit.jupiter.api.Test
 
 internal class ContactControllerTest : ControllerTest() {
 
-    private val controller = ContactControllerImpl(contactManager, objectMapper)
     private val pendingContact = getPendingContact()
+
+    private val controller =
+        ContactControllerImpl(contactManager, objectMapper, webSocketController)
 
     @Test
     fun testEmptyContactList() {
@@ -135,6 +142,48 @@ internal class ContactControllerTest : ControllerTest() {
     }
 
     @Test
+    fun testContactAddedRemotelyEvent() {
+        val event = ContactAddedRemotelyEvent(contact)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_CONTACT_ADDED_REMOTELY,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
+    fun testPendingContactStateChangedEvent() {
+        val event = PendingContactStateChangedEvent(pendingContact.id, FAILED)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_PENDING_CONTACT_STATE_CHANGED,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
+    fun testPendingContactRemovedEvent() {
+        val event = PendingContactRemovedEvent(pendingContact.id)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_PENDING_CONTACT_REMOVED,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
     fun testOutputContact() {
         val json = """
             {
@@ -160,6 +209,12 @@ internal class ContactControllerTest : ControllerTest() {
     }
 
     @Test
+    fun testOutputContactAddedRemotelyEvent() {
+        val event = ContactAddedRemotelyEvent(contact)
+        assertJsonEquals(toJson(contact.output()), event.output())
+    }
+
+    @Test
     fun testOutputPendingContact() {
         val json = """
             {
@@ -170,6 +225,29 @@ internal class ContactControllerTest : ControllerTest() {
             }
         """
         assertJsonEquals(json, pendingContact.output())
+    }
+
+    @Test
+    fun testOutputPendingContactStateChangedEvent() {
+        val event = PendingContactStateChangedEvent(pendingContact.id, FAILED)
+        val json = """
+            {
+                "pendingContactId": ${toJson(pendingContact.id.bytes)},
+                "state": "failed"
+            }
+        """
+        assertJsonEquals(json, event.output())
+    }
+
+    @Test
+    fun testOutputPendingContactRemovedEvent() {
+        val event = PendingContactRemovedEvent(pendingContact.id)
+        val json = """
+            {
+                "pendingContactId": ${toJson(pendingContact.id.bytes)}
+            }
+        """
+        assertJsonEquals(json, event.output())
     }
 
 }
