@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
@@ -30,10 +29,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +38,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -52,6 +47,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -61,18 +57,14 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class PluginManagerImpl implements PluginManager, Service {
 
 	private static final Logger LOG =
-			Logger.getLogger(PluginManagerImpl.class.getName());
+			getLogger(PluginManagerImpl.class.getName());
 
 	private final Executor ioExecutor;
-	private final ScheduledExecutorService scheduler;
 	private final EventBus eventBus;
 	private final PluginConfig pluginConfig;
 	private final ConnectionManager connectionManager;
-	private final ConnectionRegistry connectionRegistry;
 	private final SettingsManager settingsManager;
 	private final TransportPropertyManager transportPropertyManager;
-	private final SecureRandom random;
-	private final Clock clock;
 	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
 	private final List<DuplexPlugin> duplexPlugins;
@@ -80,41 +72,25 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
-	PluginManagerImpl(@IoExecutor Executor ioExecutor,
-			@Scheduler ScheduledExecutorService scheduler, EventBus eventBus,
+	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
 			PluginConfig pluginConfig, ConnectionManager connectionManager,
-			ConnectionRegistry connectionRegistry,
 			SettingsManager settingsManager,
-			TransportPropertyManager transportPropertyManager,
-			SecureRandom random, Clock clock) {
+			TransportPropertyManager transportPropertyManager) {
 		this.ioExecutor = ioExecutor;
-		this.scheduler = scheduler;
 		this.eventBus = eventBus;
 		this.pluginConfig = pluginConfig;
 		this.connectionManager = connectionManager;
-		this.connectionRegistry = connectionRegistry;
 		this.settingsManager = settingsManager;
 		this.transportPropertyManager = transportPropertyManager;
-		this.random = random;
-		this.clock = clock;
 		plugins = new ConcurrentHashMap<>();
 		simplexPlugins = new CopyOnWriteArrayList<>();
 		duplexPlugins = new CopyOnWriteArrayList<>();
 		startLatches = new ConcurrentHashMap<>();
-
 	}
 
 	@Override
 	public void startService() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		// Instantiate the poller
-		if (pluginConfig.shouldPoll()) {
-			LOG.info("Starting poller");
-			Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
-					connectionRegistry, this, transportPropertyManager, random,
-					clock);
-			eventBus.addListener(poller);
-		}
 		// Instantiate the simplex plugins and start them asynchronously
 		LOG.info("Starting simplex plugins");
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories()) {
