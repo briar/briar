@@ -77,6 +77,36 @@
 			app:layout_constraintLeft_toLeftOf="parent"
 			app:layout_constraintTop_toTopOf="parent"/>
 
+		<org.briarproject.briar.android.view.AuthorView
+			android:id="@+id/author"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:paddingEnd="@dimen/margin_medium"
+			android:paddingLeft="@dimen/margin_medium"
+			android:paddingRight="@dimen/margin_medium"
+			android:paddingStart="@dimen/margin_medium"
+			android:paddingTop="@dimen/margin_medium"
+			app:layout_constraintBottom_toBottomOf="@+id/text"
+			app:layout_constraintEnd_toStartOf="@+id/btn_reply"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toTopOf="parent"
+			app:layout_constraintVertical_bias="0.0"
+			app:persona="commenter"/>
+
+		<TextView
+			android:id="@+id/btn_reply"
+			style="@style/BriarButtonFlat.Positive.Tiny"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:paddingEnd="@dimen/margin_medium"
+			android:paddingLeft="@dimen/margin_medium"
+			android:paddingRight="@dimen/margin_medium"
+			android:paddingStart="@dimen/margin_medium"
+			android:text="@string/btn_reply"
+			android:textSize="@dimen/text_size_tiny"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toTopOf="@+id/divider"/>
+
 		<com.vanniktech.emoji.EmojiTextView
 			android:id="@+id/text"
 			android:layout_width="0dp"
@@ -85,40 +115,11 @@
 			android:textColor="?android:attr/textColorPrimary"
 			android:textIsSelectable="true"
 			android:textSize="@dimen/text_size_medium"
+			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/divider"
+			app:layout_constraintTop_toBottomOf="@id/author"
 			tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
-
-		<org.briarproject.briar.android.view.AuthorView
-			android:id="@+id/author"
-			android:layout_width="0dp"
-			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/margin_medium"
-			android:layout_marginEnd="@dimen/margin_medium"
-			android:layout_marginLeft="@dimen/margin_medium"
-			android:layout_marginRight="@dimen/margin_medium"
-			android:layout_marginStart="@dimen/margin_medium"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toStartOf="@+id/btn_reply"
-			app:layout_constraintStart_toStartOf="@id/text"
-			app:layout_constraintTop_toBottomOf="@id/text"
-			app:persona="commenter"/>
-
-		<TextView
-			android:id="@+id/btn_reply"
-			style="@style/BriarButtonFlat.Positive.Tiny"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_marginEnd="@dimen/margin_medium"
-			android:layout_marginLeft="@dimen/margin_medium"
-			android:layout_marginRight="@dimen/margin_medium"
-			android:layout_marginStart="@dimen/margin_medium"
-			android:text="@string/btn_reply"
-			android:textSize="@dimen/text_size_tiny"
-			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintEnd_toEndOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/text"/>
 
 	</android.support.constraint.ConstraintLayout>
 
