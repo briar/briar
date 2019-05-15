@@ -20,9 +20,11 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
+import static org.briarproject.bramble.util.LogUtils.logFileOrDir;
 
 /**
  * Contains all the H2-specific code for the database.
@@ -61,8 +63,18 @@ class H2Database extends JdbcDatabase {
 	public boolean open(SecretKey key, @Nullable MigrationListener listener)
 			throws DbException {
 		this.key = key;
-		boolean reopen = !config.getDatabaseDirectory().mkdirs();
+		File dir = config.getDatabaseDirectory();
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Contents of account directory before opening DB:");
+			logFileOrDir(LOG, INFO, dir.getParentFile());
+		}
+		boolean reopen = !dir.mkdirs();
+		if (LOG.isLoggable(INFO)) LOG.info("Reopening DB: " + reopen);
 		super.open("org.h2.Driver", reopen, key, listener);
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Contents of account directory after opening DB:");
+			logFileOrDir(LOG, INFO, dir.getParentFile());
+		}
 		return reopen;
 	}
 

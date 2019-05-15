@@ -128,7 +128,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 			will(returnValue(editor));
 			oneOf(editor).commit();
 			will(returnValue(true));
-			oneOf(app).getApplicationInfo();
+			allowing(app).getApplicationInfo();
 			will(returnValue(applicationInfo));
 			oneOf(app).getFilesDir();
 			will(returnValue(filesDir));
