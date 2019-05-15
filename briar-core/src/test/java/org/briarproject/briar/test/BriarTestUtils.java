@@ -49,9 +49,8 @@ public class BriarTestUtils {
 	public static String getRealHandshakeLink(CryptoComponent cryptoComponent) {
 		KeyPair keyPair = cryptoComponent.generateAgreementKeyPair();
 		byte[] linkBytes = new byte[RAW_LINK_BYTES];
-		byte[] version = new byte[] {FORMAT_VERSION};
 		byte[] publicKey = keyPair.getPublic().getEncoded();
-		arraycopy(version,0, linkBytes, 0, 1);
+		linkBytes[0] = FORMAT_VERSION;
 		arraycopy(publicKey,0, linkBytes, 1, RAW_LINK_BYTES - 1);
 		return ("briar://" + Base32.encode(linkBytes)).toLowerCase();
 	}

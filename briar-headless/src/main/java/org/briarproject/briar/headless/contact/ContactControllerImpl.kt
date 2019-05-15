@@ -1,9 +1,11 @@
 package org.briarproject.briar.headless.contact
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import io.javalin.BadRequestResponse
 import io.javalin.Context
 import io.javalin.NotFoundResponse
 import org.briarproject.bramble.api.contact.ContactManager
+import org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX
 import org.briarproject.bramble.api.contact.PendingContactId
 import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
@@ -12,6 +14,8 @@ import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.db.NoSuchPendingContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
+import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
+import org.briarproject.bramble.util.StringUtils.toUtf8
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.getContactIdFromPathParam
 import org.briarproject.briar.headless.getFromJson
@@ -57,7 +61,7 @@ constructor(
         return ctx.json(contacts)
     }
 
-    override fun link(ctx: Context): Context {
+    override fun getLink(ctx: Context): Context {
         val linkDict = JsonDict("link" to contactManager.handshakeLink)
         return ctx.json(linkDict)
     }
@@ -65,6 +69,10 @@ constructor(
     override fun addPendingContact(ctx: Context): Context {
         val link = ctx.getFromJson(objectMapper, "link")
         val alias = ctx.getFromJson(objectMapper, "alias")
+        if (!LINK_REGEX.matcher(link).find()) throw BadRequestResponse("Invalid Link")
+        val aliasUtf8 = toUtf8(alias)
+        if (aliasUtf8.isEmpty() || aliasUtf8.size > MAX_AUTHOR_NAME_LENGTH)
+            throw BadRequestResponse("Invalid Alias")
         val pendingContact = contactManager.addPendingContact(link, alias)
         return ctx.json(pendingContact.output())
     }

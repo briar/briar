@@ -65,6 +65,8 @@ Returns a JSON array of contacts:
         "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
     },
     "contactId": 1,
+    "alias" : "A local nickname",
+    "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
     "verified": true
 }
 ```
@@ -282,14 +284,18 @@ it will send a JSON object representing the new contact to connected websocket c
 ```json
 {
     "data": {
-        "author": {
-            "formatVersion": 1,
-            "id": "y1wkIzAimAbYoCGgWxkWlr6vnq1F8t1QRA/UMPgI0E0=",
-            "name": "Test",
-            "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
-        },
-        "contactId": 1,
-        "verified": true
+        "contact": {
+            "author": {
+                "formatVersion": 1,
+                "id": "y1wkIzAimAbYoCGgWxkWlr6vnq1F8t1QRA/UMPgI0E0=",
+                "name": "Test",
+                "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
+            },
+            "contactId": 1,
+            "alias" : "A local nickname",
+            "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
+            "verified": true
+        }
     },
     "name": "ContactAddedRemotelyEvent",
     "type": "event"

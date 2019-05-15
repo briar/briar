@@ -1,5 +1,6 @@
 package org.briarproject.briar.headless.contact
 
+import io.javalin.BadRequestResponse
 import io.javalin.NotFoundResponse
 import io.javalin.json.JavalinJson.toJson
 import io.mockk.Runs
@@ -15,11 +16,14 @@ import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.db.NoSuchPendingContactException
+import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
 import org.briarproject.bramble.identity.output
 import org.briarproject.bramble.test.TestUtils.getPendingContact
 import org.briarproject.bramble.test.TestUtils.getRandomBytes
+import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.json.JsonDict
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 
@@ -49,12 +53,12 @@ internal class ContactControllerTest : ControllerTest() {
         val link = "briar://link"
         every { contactManager.handshakeLink } returns link
         every { ctx.json(JsonDict("link" to link)) } returns ctx
-        controller.link(ctx)
+        controller.getLink(ctx)
     }
 
     @Test
     fun testAddPendingContact() {
-        val link = "briar://link123"
+        val link = "briar://briar://adnsyffpsenoc3yzlhr24aegfq2pwan7kkselocill2choov6sbhs"
         val alias = "Alias123"
         val body = """{
             "link": "$link",
@@ -64,6 +68,58 @@ internal class ContactControllerTest : ControllerTest() {
         every { contactManager.addPendingContact(link, alias) } returns pendingContact
         every { ctx.json(pendingContact.output()) } returns ctx
         controller.addPendingContact(ctx)
+    }
+
+    @Test
+    fun testAddPendingContactInvalidLink() {
+        val link = "briar://link123"
+        val alias = "Alias123"
+        val body = """{
+            "link": "$link",
+            "alias": "$alias"
+        }"""
+        every { ctx.body() } returns body
+        assertThrows(BadRequestResponse::class.java) {
+            controller.addPendingContact(ctx)
+        }
+    }
+
+    @Test
+    fun testAddPendingContactMissingLink() {
+        val alias = "Alias123"
+        val body = """{
+            "alias": "$alias"
+        }"""
+        every { ctx.body() } returns body
+        assertThrows(BadRequestResponse::class.java) {
+            controller.addPendingContact(ctx)
+        }
+    }
+
+    @Test
+    fun testAddPendingContactInvalidAlias() {
+        val link = "briar://briar://adnsyffpsenoc3yzlhr24aegfq2pwan7kkselocill2choov6sbhs"
+        val alias = getRandomString(MAX_AUTHOR_NAME_LENGTH + 1)
+        val body = """{
+            "link": "$link",
+            "alias": "$alias"
+        }"""
+        every { ctx.body() } returns body
+        assertThrows(BadRequestResponse::class.java) {
+            controller.addPendingContact(ctx)
+        }
+    }
+
+    @Test
+    fun testAddPendingContactMissingAlias() {
+        val link = "briar://adnsyffpsenoc3yzlhr24aegfq2pwan7kkselocill2choov6sbhs"
+        val body = """{
+            "link": "$link"
+        }"""
+        every { ctx.body() } returns body
+        assertThrows(BadRequestResponse::class.java) {
+            controller.addPendingContact(ctx)
+        }
     }
 
     @Test
@@ -185,10 +241,13 @@ internal class ContactControllerTest : ControllerTest() {
 
     @Test
     fun testOutputContact() {
+        assertNotNull(contact.handshakePublicKey)
         val json = """
             {
                 "contactId": ${contact.id.int},
                 "author": ${toJson(author.output())},
+                "alias" : "${contact.alias}",
+                "handshakePublicKey": ${toJson(contact.handshakePublicKey!!.encoded)},
                 "verified": ${contact.isVerified}
             }
         """
@@ -202,7 +261,7 @@ internal class ContactControllerTest : ControllerTest() {
                 "formatVersion": 1,
                 "id": ${toJson(author.id.bytes)},
                 "name": "${author.name}",
-                "publicKey": ${toJson(author.publicKey)}
+                "publicKey": ${toJson(author.publicKey.encoded)}
             }
         """
         assertJsonEquals(json, author.output())
@@ -211,7 +270,12 @@ internal class ContactControllerTest : ControllerTest() {
     @Test
     fun testOutputContactAddedRemotelyEvent() {
         val event = ContactAddedRemotelyEvent(contact)
-        assertJsonEquals(toJson(contact.output()), event.output())
+        val json = """
+            {
+                "contact": ${toJson(contact.output())}
+            }
+        """
+        assertJsonEquals(json, event.output())
     }
 
     @Test
