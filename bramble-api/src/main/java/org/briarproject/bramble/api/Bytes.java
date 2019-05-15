@@ -6,6 +6,7 @@ import org.briarproject.bramble.util.StringUtils;
 import java.util.Arrays;
 import java.util.Comparator;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 /**
@@ -38,7 +39,7 @@ public class Bytes implements Comparable<Bytes> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
+	public boolean equals(@Nullable Object o) {
 		return o instanceof Bytes && Arrays.equals(bytes, ((Bytes) o).bytes);
 	}
 

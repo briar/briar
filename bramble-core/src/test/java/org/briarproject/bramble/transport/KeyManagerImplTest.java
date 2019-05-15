@@ -1,6 +1,7 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -26,6 +27,7 @@ import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
@@ -43,11 +45,17 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	private final DeterministicExecutor executor = new DeterministicExecutor();
 	private final Transaction txn = new Transaction(null, false);
 	private final ContactId contactId = getContactId();
+	private final PendingContactId pendingContactId =
+			new PendingContactId(getRandomId());
 	private final KeySetId keySetId = new KeySetId(345);
 	private final TransportId transportId = getTransportId();
 	private final TransportId unknownTransportId = getTransportId();
-	private final StreamContext streamContext = new StreamContext(contactId,
-			null, transportId, getSecretKey(), getSecretKey(), 1, false);
+	private final StreamContext contactStreamContext =
+			new StreamContext(contactId, null, transportId, getSecretKey(),
+					getSecretKey(), 1, false);
+	private final StreamContext pendingContactStreamContext =
+			new StreamContext(null, pendingContactId, transportId,
+					getSecretKey(), getSecretKey(), 1, true);
 	private final byte[] tag = getRandomBytes(TAG_LENGTH);
 	private final Random random = new Random();
 
@@ -83,26 +91,66 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testAddContact() throws Exception {
+	public void testAddContactWithRotationModeKeys() throws Exception {
 		SecretKey secretKey = getSecretKey();
 		long timestamp = System.currentTimeMillis();
 		boolean alice = random.nextBoolean();
 		boolean active = random.nextBoolean();
 
 		context.checking(new Expectations() {{
-			oneOf(transportKeyManager).addContact(txn, contactId, secretKey,
-					timestamp, alice, active);
+			oneOf(transportKeyManager).addContactWithRotationKeys(txn,
+					contactId, secretKey, timestamp, alice, active);
 			will(returnValue(keySetId));
 		}});
 
-		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
-				secretKey, timestamp, alice, active);
+		Map<TransportId, KeySetId> ids = keyManager.addContactWithRotationKeys(
+				txn, contactId, secretKey, timestamp, alice, active);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 
 	@Test
-	public void testGetStreamContextForUnknownTransport() throws Exception {
+	public void testAddContactWithHandshakeModeKeys() throws Exception {
+		SecretKey secretKey = getSecretKey();
+		boolean alice = random.nextBoolean();
+
+		context.checking(new Expectations() {{
+			oneOf(transportKeyManager).addContactWithHandshakeKeys(
+					txn, contactId, secretKey, alice);
+			will(returnValue(keySetId));
+		}});
+
+		Map<TransportId, KeySetId> ids = keyManager.addContactWithHandshakeKeys(
+				txn, contactId, secretKey, alice);
+		assertEquals(singletonMap(transportId, keySetId), ids);
+	}
+
+	@Test
+	public void testAddPendingContact() throws Exception {
+		SecretKey secretKey = getSecretKey();
+		boolean alice = random.nextBoolean();
+
+		context.checking(new Expectations() {{
+			oneOf(transportKeyManager).addPendingContact(txn, pendingContactId,
+					secretKey, alice);
+			will(returnValue(keySetId));
+		}});
+
+		Map<TransportId, KeySetId> ids = keyManager.addPendingContact(txn,
+				pendingContactId, secretKey, alice);
+		assertEquals(singletonMap(transportId, keySetId), ids);
+	}
+
+	@Test
+	public void testGetStreamContextForContactWithUnknownTransport()
+			throws Exception {
 		assertNull(keyManager.getStreamContext(contactId, unknownTransportId));
+	}
+
+	@Test
+	public void testGetStreamContextForPendingContactWithUnknownTransport()
+			throws Exception {
+		assertNull(keyManager.getStreamContext(pendingContactId,
+				unknownTransportId));
 	}
 
 	@Test
@@ -111,11 +159,24 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).transactionWithNullableResult(with(false),
 					withNullableDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, contactId);
-			will(returnValue(streamContext));
+			will(returnValue(contactStreamContext));
 		}});
 
-		assertEquals(streamContext,
+		assertEquals(contactStreamContext,
 				keyManager.getStreamContext(contactId, transportId));
+	}
+
+	@Test
+	public void testGetStreamContextForPendingContact() throws Exception {
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithNullableResult(with(false),
+					withNullableDbCallable(txn));
+			oneOf(transportKeyManager).getStreamContext(txn, pendingContactId);
+			will(returnValue(pendingContactStreamContext));
+		}});
+
+		assertEquals(pendingContactStreamContext,
+				keyManager.getStreamContext(pendingContactId, transportId));
 	}
 
 	@Test
@@ -130,10 +191,10 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).transactionWithNullableResult(with(false),
 					withNullableDbCallable(txn));
 			oneOf(transportKeyManager).getStreamContext(txn, tag);
-			will(returnValue(streamContext));
+			will(returnValue(contactStreamContext));
 		}});
 
-		assertEquals(streamContext,
+		assertEquals(contactStreamContext,
 				keyManager.getStreamContext(transportId, tag));
 	}
 

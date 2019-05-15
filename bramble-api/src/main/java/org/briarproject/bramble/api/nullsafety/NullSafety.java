@@ -6,10 +6,20 @@ import javax.annotation.Nullable;
 public class NullSafety {
 
 	/**
-	 * Stand-in for `Objects.requireNonNull()`.
+	 * Stand-in for {@code Objects.requireNonNull()}.
 	 */
 	public static <T> T requireNonNull(@Nullable T t) {
 		if (t == null) throw new NullPointerException();
 		return t;
+	}
+
+	/**
+	 * Checks that exactly one of the arguments is null.
+	 *
+	 * @throws AssertionError If both or neither of the arguments are null
+	 */
+	public static void requireExactlyOneNull(@Nullable Object a,
+			@Nullable Object b) {
+		if ((a == null) == (b == null)) throw new AssertionError();
 	}
 }

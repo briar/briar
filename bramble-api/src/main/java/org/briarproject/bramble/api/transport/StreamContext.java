@@ -9,6 +9,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireExactlyOneNull;
+
 @Immutable
 @NotNullByDefault
 public class StreamContext {
@@ -26,8 +28,7 @@ public class StreamContext {
 			@Nullable PendingContactId pendingContactId,
 			TransportId transportId, SecretKey tagKey, SecretKey headerKey,
 			long streamNumber, boolean handshakeMode) {
-		if ((contactId == null) == (pendingContactId == null))
-			throw new IllegalArgumentException();
+		requireExactlyOneNull(contactId, pendingContactId);
 		this.contactId = contactId;
 		this.pendingContactId = pendingContactId;
 		this.transportId = transportId;

@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.transport.KeySetId;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireExactlyOneNull;
+
 @NotThreadSafe
 @NotNullByDefault
 class MutableTransportKeySet {
@@ -22,8 +24,7 @@ class MutableTransportKeySet {
 	MutableTransportKeySet(KeySetId keySetId, @Nullable ContactId contactId,
 			@Nullable PendingContactId pendingContactId,
 			MutableTransportKeys keys) {
-		if ((contactId == null) == (pendingContactId == null))
-			throw new IllegalArgumentException();
+		requireExactlyOneNull(contactId, pendingContactId);
 		this.keySetId = keySetId;
 		this.contactId = contactId;
 		this.pendingContactId = pendingContactId;

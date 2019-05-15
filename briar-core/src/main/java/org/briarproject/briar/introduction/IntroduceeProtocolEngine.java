@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -32,7 +33,6 @@ import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 
 import java.security.GeneralSecurityException;
 import java.util.Map;
@@ -445,7 +445,7 @@ class IntroduceeProtocolEngine
 
 			// add the keys to the new contact
 			//noinspection ConstantConditions
-			keys = keyManager.addContact(txn, c.getId(),
+			keys = keyManager.addContactWithRotationKeys(txn, c.getId(),
 					new SecretKey(s.getMasterKey()), timestamp,
 					s.getLocal().alice, false);
 
