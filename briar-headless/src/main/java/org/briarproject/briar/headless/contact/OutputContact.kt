@@ -8,9 +8,9 @@ import org.briarproject.briar.headless.json.JsonDict
 internal fun Contact.output() = JsonDict(
     "contactId" to id.int,
     "author" to author.output(),
-    "alias" to alias,
     "verified" to isVerified
 ).apply {
+    alias?.let { put("alias", it) }
     handshakePublicKey?.let { put("handshakePublicKey", it.encoded) }
 }
 
