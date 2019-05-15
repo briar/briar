@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -13,8 +13,8 @@ import android.widget.ProgressBar;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.account.PowerView.OnCheckedChangedListener;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.login.PowerView.OnCheckedChangedListener;
 import org.briarproject.briar.android.util.UiUtils;
 
 import static android.view.View.INVISIBLE;

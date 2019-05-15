@@ -74,7 +74,7 @@ public class StartupFailureActivity extends BaseActivity implements
 
 	@Override
 	public void runOnDbThread(@NonNull Runnable runnable) {
-		throw new AssertionError("Deprecated and should not be used");
+		throw new UnsupportedOperationException();
 	}
 
 }

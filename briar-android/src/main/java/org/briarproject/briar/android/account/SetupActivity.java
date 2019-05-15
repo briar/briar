@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.annotation.TargetApi;
 import android.content.Intent;
@@ -15,8 +15,11 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_TASK_ON_HOME;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -86,7 +89,7 @@ public class SetupActivity extends BaseActivity
 
 	void showPasswordFragment() {
 		if (authorName == null) throw new IllegalStateException();
-		showNextFragment(PasswordFragment.newInstance());
+		showNextFragment(SetPasswordFragment.newInstance());
 	}
 
 	@TargetApi(23)
@@ -97,8 +100,9 @@ public class SetupActivity extends BaseActivity
 	}
 
 	void showApp() {
-		Intent i = new Intent(this, OpenDatabaseActivity.class);
-		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_TASK_ON_HOME);
+		Intent i = new Intent(this, ENTRY_ACTIVITY);
+		i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_TASK_ON_HOME |
+				FLAG_ACTIVITY_CLEAR_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(i);
 		supportFinishAfterTransition();
 		overridePendingTransition(R.anim.screen_new_in, R.anim.screen_old_out);

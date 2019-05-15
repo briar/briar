@@ -11,12 +11,12 @@ import android.widget.TextView;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.api.test.TestDataCreator;
 
 import javax.inject.Inject;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 
 public class TestDataActivity extends BriarActivity {
 
@@ -154,7 +154,7 @@ public class TestDataActivity extends BriarActivity {
 		testDataCreator.createTestData(contactsSeekBar.getProgress() + 1,
 				messagesSeekBar.getProgress(), blogPostsSeekBar.getProgress(),
 				forumsSeekBar.getProgress(), forumPostsSeekBar.getProgress());
-		Intent intent = new Intent(this, NavDrawerActivity.class);
+		Intent intent = new Intent(this, ENTRY_ACTIVITY);
 		intent.addFlags(FLAG_ACTIVITY_CLEAR_TOP);
 		startActivity(intent);
 		finish();

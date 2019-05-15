@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.support.design.widget.TextInputLayout;
 import android.view.View;
@@ -7,6 +7,10 @@ import android.widget.EditText;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;
+import org.briarproject.briar.android.account.SetPasswordFragment;
+import org.briarproject.briar.android.account.SetupActivity;
+import org.briarproject.briar.android.account.SetupController;
+import org.briarproject.briar.android.login.StrengthMeter;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,9 +33,9 @@ import static org.robolectric.shadows.support.v4.SupportFragmentTestUtil.startFr
 
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 21, application = TestBriarApplication.class)
-public class PasswordFragmentTest {
+public class SetPasswordFragmentTest {
 
-	private PasswordFragment passwordFragment = new PasswordFragment();
+	private SetPasswordFragment passwordFragment = new SetPasswordFragment();
 	private EditText passwordEntry;
 	private EditText passwordConfirmation;
 	private TextInputLayout passwordConfirmationWrapper;

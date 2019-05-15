@@ -12,7 +12,7 @@
 		android:layout_height="wrap_content"
 		android:padding="@dimen/margin_activity_vertical">
 
-		<org.briarproject.briar.android.login.DozeView
+		<org.briarproject.briar.android.account.DozeView
 			android:id="@+id/dozeView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -20,7 +20,7 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"/>
 
-		<org.briarproject.briar.android.login.HuaweiView
+		<org.briarproject.briar.android.account.HuaweiView
 			android:id="@+id/huaweiView"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"

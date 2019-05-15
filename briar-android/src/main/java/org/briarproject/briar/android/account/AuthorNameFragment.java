@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
@@ -21,6 +21,7 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_NONE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.briar.android.util.UiUtils.setError;
+import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -61,6 +62,12 @@ public class AuthorNameFragment extends SetupFragment {
 	@Override
 	public String getUniqueTag() {
 		return TAG;
+	}
+
+	@Override
+	public void onResume() {
+		super.onResume();
+		showSoftKeyboard(authorNameInput);
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
-import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.LockManager;
 
@@ -48,6 +47,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.ONGOING_CHANNEL_ID;
@@ -182,7 +182,7 @@ public class BriarService extends Service {
 			NotificationManager nm = (NotificationManager) o;
 			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
 			// Bring the dashboard to the front to clear the back stack
-			i = new Intent(BriarService.this, NavDrawerActivity.class);
+			i = new Intent(BriarService.this, ENTRY_ACTIVITY);
 			i.setFlags(FLAG_ACTIVITY_NEW_TASK | FLAG_ACTIVITY_CLEAR_TOP);
 			i.putExtra(EXTRA_STARTUP_FAILED, true);
 			startActivity(i);

@@ -4,6 +4,11 @@ import android.app.Activity;
 
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.StartupFailureActivity;
+import org.briarproject.briar.android.account.AuthorNameFragment;
+import org.briarproject.briar.android.account.DozeFragment;
+import org.briarproject.briar.android.account.SetPasswordFragment;
+import org.briarproject.briar.android.account.SetupActivity;
+import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.blog.BlogFragment;
 import org.briarproject.briar.android.blog.BlogModule;
@@ -37,14 +42,10 @@ import org.briarproject.briar.android.keyagreement.ContactExchangeActivity;
 import org.briarproject.briar.android.keyagreement.ContactExchangeErrorFragment;
 import org.briarproject.briar.android.keyagreement.KeyAgreementActivity;
 import org.briarproject.briar.android.keyagreement.KeyAgreementFragment;
-import org.briarproject.briar.android.login.AuthorNameFragment;
 import org.briarproject.briar.android.login.ChangePasswordActivity;
-import org.briarproject.briar.android.login.DozeFragment;
-import org.briarproject.briar.android.login.OpenDatabaseActivity;
-import org.briarproject.briar.android.login.PasswordActivity;
+import org.briarproject.briar.android.login.OpenDatabaseFragment;
 import org.briarproject.briar.android.login.PasswordFragment;
-import org.briarproject.briar.android.login.SetupActivity;
-import org.briarproject.briar.android.login.UnlockActivity;
+import org.briarproject.briar.android.login.StartupActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.briarproject.briar.android.panic.PanicPreferencesActivity;
 import org.briarproject.briar.android.panic.PanicResponderActivity;
@@ -94,13 +95,11 @@ public interface ActivityComponent {
 
 	void inject(SplashScreenActivity activity);
 
+	void inject(StartupActivity activity);
+
 	void inject(SetupActivity activity);
 
-	void inject(OpenDatabaseActivity activity);
-
 	void inject(NavDrawerActivity activity);
-
-	void inject(PasswordActivity activity);
 
 	void inject(PanicResponderActivity activity);
 
@@ -177,11 +176,16 @@ public interface ActivityComponent {
 	void inject(PendingContactListActivity activity);
 
 	// Fragments
+
 	void inject(AuthorNameFragment fragment);
 
-	void inject(PasswordFragment fragment);
+	void inject(SetPasswordFragment fragment);
 
 	void inject(DozeFragment fragment);
+
+	void inject(PasswordFragment imageFragment);
+
+	void inject(OpenDatabaseFragment activity);
 
 	void inject(ContactListFragment fragment);
 

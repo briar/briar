@@ -1,15 +1,17 @@
-package org.briarproject.briar.android.login;
+package org.briarproject.briar.android.account;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
-public interface SetupController extends PasswordController {
+public interface SetupController {
 
 	void setSetupActivity(SetupActivity setupActivity);
 
 	boolean needToShowDozeFragment();
 
 	void setAuthorName(String authorName);
+
+	float estimatePasswordStrength(String password);
 
 	void setPassword(String password);
 

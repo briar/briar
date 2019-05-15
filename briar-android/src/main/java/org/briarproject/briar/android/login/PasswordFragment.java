@@ -1,13 +1,16 @@
 package org.briarproject.briar.android.login;
 
+import android.arch.lifecycle.ViewModelProvider;
+import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ProgressBar;
 
@@ -15,34 +18,33 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.annotation.Nullable;
+import javax.inject.Inject;
 
-import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
-import static java.util.Objects.requireNonNull;
-import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.briar.android.util.UiUtils.enterPressed;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.util.UiUtils.setError;
+import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class PasswordFragment extends SetupFragment {
+public class PasswordFragment extends BaseFragment implements TextWatcher {
 
-	private final static String TAG = PasswordFragment.class.getName();
+	final static String TAG = PasswordFragment.class.getName();
 
-	private TextInputLayout passwordEntryWrapper;
-	private TextInputLayout passwordConfirmationWrapper;
-	private TextInputEditText passwordEntry;
-	private TextInputEditText passwordConfirmation;
-	private StrengthMeter strengthMeter;
-	private Button nextButton;
-	private ProgressBar progressBar;
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
 
-	public static PasswordFragment newInstance() {
-		return new PasswordFragment();
-	}
+	private StartupViewModel viewModel;
+	private Button signInButton;
+	private ProgressBar progress;
+	private TextInputLayout input;
+	private TextInputEditText password;
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
@@ -53,78 +55,88 @@ public class PasswordFragment extends SetupFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(getString(R.string.setup_password_intro));
-		View v = inflater.inflate(R.layout.fragment_setup_password, container,
+		View v = inflater.inflate(R.layout.fragment_password, container,
 						false);
 
-		strengthMeter = v.findViewById(R.id.strength_meter);
-		passwordEntryWrapper = v.findViewById(R.id.password_entry_wrapper);
-		passwordEntry = v.findViewById(R.id.password_entry);
-		passwordConfirmationWrapper =
-				v.findViewById(R.id.password_confirm_wrapper);
-		passwordConfirmation = v.findViewById(R.id.password_confirm);
-		nextButton = v.findViewById(R.id.next);
-		progressBar = v.findViewById(R.id.progress);
+		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
+				.get(StartupViewModel.class);
+		viewModel.getPasswordValidated().observeEvent(this, valid -> {
+			if (!valid) onPasswordInvalid();
+		});
 
-		passwordEntry.addTextChangedListener(this);
-		passwordConfirmation.addTextChangedListener(this);
-		nextButton.setOnClickListener(this);
-
-		if (!setupController.needToShowDozeFragment()) {
-			nextButton.setText(R.string.create_account_button);
-			passwordConfirmation.setImeOptions(IME_ACTION_DONE);
-		}
+		signInButton = v.findViewById(R.id.btn_sign_in);
+		signInButton.setOnClickListener(view -> onSignInButtonClicked());
+		progress = v.findViewById(R.id.progress_wheel);
+		input = v.findViewById(R.id.password_layout);
+		password = v.findViewById(R.id.edit_password);
+		password.setOnEditorActionListener((view, actionId, event) -> {
+			if (actionId == IME_ACTION_DONE || enterPressed(actionId, event)) {
+				onSignInButtonClicked();
+				return true;
+			}
+			return false;
+		});
+		password.addTextChangedListener(this);
+		v.findViewById(R.id.btn_forgotten)
+				.setOnClickListener(view -> onForgottenPasswordClick());
 
 		return v;
 	}
 
 	@Override
+	public void onResume() {
+		super.onResume();
+		showSoftKeyboard(password);
+	}
+
+	@Override
+	public void beforeTextChanged(CharSequence s, int start, int count,
+			int after) {
+	}
+
+	@Override
+	public void onTextChanged(CharSequence s, int start, int before,
+			int count) {
+		if (count > 0) setError(input, null, false);
+	}
+
+	@Override
+	public void afterTextChanged(Editable s) {
+	}
+
+	private void onSignInButtonClicked() {
+		hideSoftKeyboard(password);
+		signInButton.setVisibility(INVISIBLE);
+		progress.setVisibility(VISIBLE);
+		viewModel.validatePassword(password.getText().toString());
+	}
+
+	private void onPasswordInvalid() {
+		setError(input, getString(R.string.try_again), true);
+		signInButton.setVisibility(VISIBLE);
+		progress.setVisibility(INVISIBLE);
+		password.setText(null);
+
+		// show the keyboard again
+		showSoftKeyboard(password);
+	}
+
+	public void onForgottenPasswordClick() {
+		// TODO Encapsulate the dialog in a re-usable fragment
+		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
+				R.style.BriarDialogTheme);
+		builder.setTitle(R.string.dialog_title_lost_password);
+		builder.setMessage(R.string.dialog_message_lost_password);
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.setNegativeButton(R.string.delete,
+				(dialog, which) -> viewModel.deleteAccount());
+		AlertDialog dialog = builder.create();
+		dialog.show();
+	}
+
+	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	@Override
-	protected String getHelpText() {
-		return getString(R.string.setup_password_explanation);
-	}
-
-	@Override
-	public void onTextChanged(CharSequence authorName, int i, int i1, int i2) {
-		String password1 = passwordEntry.getText().toString();
-		String password2 = passwordConfirmation.getText().toString();
-		boolean passwordsMatch = password1.equals(password2);
-
-		strengthMeter
-				.setVisibility(password1.length() > 0 ? VISIBLE : INVISIBLE);
-		float strength = setupController.estimatePasswordStrength(password1);
-		strengthMeter.setStrength(strength);
-		boolean strongEnough = strength >= QUITE_WEAK;
-
-		UiUtils.setError(passwordEntryWrapper,
-				getString(R.string.password_too_weak),
-				password1.length() > 0 && !strongEnough);
-		UiUtils.setError(passwordConfirmationWrapper,
-				getString(R.string.passwords_do_not_match),
-				password2.length() > 0 && !passwordsMatch);
-
-		boolean enabled = passwordsMatch && strongEnough;
-		nextButton.setEnabled(enabled);
-		passwordConfirmation.setOnEditorActionListener(enabled ? this : null);
-	}
-
-	@Override
-	public void onClick(View view) {
-		IBinder token = passwordEntry.getWindowToken();
-		Object o = getContext().getSystemService(INPUT_METHOD_SERVICE);
-		((InputMethodManager) o).hideSoftInputFromWindow(token, 0);
-		setupController.setPassword(passwordEntry.getText().toString());
-		if (setupController.needToShowDozeFragment()) {
-			setupController.showDozeFragment();
-		} else {
-			nextButton.setVisibility(INVISIBLE);
-			progressBar.setVisibility(VISIBLE);
-			setupController.createAccount();
-		}
 	}
 
 }

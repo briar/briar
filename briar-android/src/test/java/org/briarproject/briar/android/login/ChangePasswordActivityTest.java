@@ -45,7 +45,7 @@ public class ChangePasswordActivityTest {
 	private Button changePasswordButton;
 
 	@Mock
-	private PasswordController passwordController;
+	private ChangePasswordController passwordController;
 	@Captor
 	private ArgumentCaptor<ResultHandler<Boolean>> resultCaptor;
 

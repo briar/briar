@@ -8,6 +8,7 @@ import android.support.annotation.CallSuper;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.android.BriarService;
@@ -21,6 +22,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
@@ -34,6 +36,7 @@ public class BriarControllerImpl implements BriarController {
 
 	private final BriarServiceConnection serviceConnection;
 	private final AccountManager accountManager;
+	private final LifecycleManager lifecycleManager;
 	private final Executor databaseExecutor;
 	private final SettingsManager settingsManager;
 	private final DozeWatchdog dozeWatchdog;
@@ -44,11 +47,13 @@ public class BriarControllerImpl implements BriarController {
 	@Inject
 	BriarControllerImpl(BriarServiceConnection serviceConnection,
 			AccountManager accountManager,
+			LifecycleManager lifecycleManager,
 			@DatabaseExecutor Executor databaseExecutor,
 			SettingsManager settingsManager, DozeWatchdog dozeWatchdog,
 			Activity activity) {
 		this.serviceConnection = serviceConnection;
 		this.accountManager = accountManager;
+		this.lifecycleManager = lifecycleManager;
 		this.databaseExecutor = databaseExecutor;
 		this.settingsManager = settingsManager;
 		this.dozeWatchdog = dozeWatchdog;
@@ -84,7 +89,8 @@ public class BriarControllerImpl implements BriarController {
 
 	@Override
 	public boolean accountSignedIn() {
-		return accountManager.hasDatabaseKey();
+		return accountManager.hasDatabaseKey() &&
+				lifecycleManager.getLifecycleState().isAfter(STARTING_SERVICES);
 	}
 
 	@Override
