@@ -97,8 +97,8 @@ public class ConversationViewModel extends AndroidViewModel
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> contactDeleted =
 			new MutableLiveData<>();
-	private final MutableLiveData<PrivateMessageHeader> addedHeader =
-			new MutableLiveData<>();
+	private final MutableLiveEvent<PrivateMessageHeader> addedHeader =
+			new MutableLiveEvent<>();
 
 	@Inject
 	ConversationViewModel(Application application,
@@ -301,16 +301,11 @@ public class ConversationViewModel extends AndroidViewModel
 						text != null, attachments);
 				attachmentCreator.onAttachmentsSent(m.getMessage().getId());
 				// TODO add text to cache when available here
-				addedHeader.postValue(h);
+				addedHeader.postEvent(h);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
-	}
-
-	@UiThread
-	void onAddedPrivateMessageSeen() {
-		addedHeader.setValue(null);
 	}
 
 	AttachmentRetriever getAttachmentRetriever() {
@@ -349,7 +344,7 @@ public class ConversationViewModel extends AndroidViewModel
 		return contactDeleted;
 	}
 
-	LiveData<PrivateMessageHeader> getAddedPrivateMessage() {
+	LiveEvent<PrivateMessageHeader> getAddedPrivateMessage() {
 		return addedHeader;
 	}
 

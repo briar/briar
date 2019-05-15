@@ -243,7 +243,7 @@ public class ConversationActivity extends BriarActivity
 			requireNonNull(deleted);
 			if (deleted) finish();
 		});
-		viewModel.getAddedPrivateMessage().observe(this,
+		viewModel.getAddedPrivateMessage().observeEvent(this,
 				this::onAddedPrivateMessage);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
@@ -678,7 +678,6 @@ public class ConversationActivity extends BriarActivity
 	private void onAddedPrivateMessage(@Nullable PrivateMessageHeader h) {
 		if (h == null) return;
 		addConversationItem(h.accept(visitor));
-		viewModel.onAddedPrivateMessageSeen();
 	}
 
 	private void askToRemoveContact() {
