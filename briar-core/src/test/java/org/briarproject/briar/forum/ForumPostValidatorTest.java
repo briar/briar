@@ -3,6 +3,7 @@ package org.briarproject.briar.forum;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.client.BdfMessageContext;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.Author;
@@ -37,9 +38,9 @@ public class ForumPostValidatorTest extends ValidatorTestCase {
 	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
 	private final Author author = getAuthor();
 	private final String authorName = author.getName();
-	private final byte[] authorPublicKey = author.getPublicKey();
+	private final PublicKey authorPublicKey = author.getPublicKey();
 	private final BdfList authorList = BdfList.of(author.getFormatVersion(),
-			authorName, authorPublicKey);
+			authorName, authorPublicKey.getEncoded());
 	private final BdfList signedWithParent = BdfList.of(groupId, timestamp,
 			parentId.getBytes(), authorList, text);
 	private final BdfList signedWithoutParent = BdfList.of(groupId, timestamp,

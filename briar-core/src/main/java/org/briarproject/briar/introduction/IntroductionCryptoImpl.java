@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
-import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -61,7 +60,7 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	public KeyPair generateKeyPair() {
+	public KeyPair generateAgreementKeyPair() {
 		return crypto.generateAgreementKeyPair();
 	}
 
@@ -82,21 +81,17 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 		);
 	}
 
-	SecretKey deriveMasterKey(byte[] publicKey, byte[] privateKey,
-			byte[] remotePublicKey, boolean alice)
+	SecretKey deriveMasterKey(PublicKey publicKey, PrivateKey privateKey,
+			PublicKey remotePublicKey, boolean alice)
 			throws GeneralSecurityException {
-		KeyParser kp = crypto.getAgreementKeyParser();
-		PublicKey remoteEphemeralPublicKey = kp.parsePublicKey(remotePublicKey);
-		PublicKey ephemeralPublicKey = kp.parsePublicKey(publicKey);
-		PrivateKey ephemeralPrivateKey = kp.parsePrivateKey(privateKey);
-		KeyPair keyPair = new KeyPair(ephemeralPublicKey, ephemeralPrivateKey);
+		KeyPair keyPair = new KeyPair(publicKey, privateKey);
 		return crypto.deriveSharedSecret(
 				LABEL_MASTER_KEY,
-				remoteEphemeralPublicKey,
+				remotePublicKey,
 				keyPair,
 				new byte[] {MAJOR_VERSION},
-				alice ? publicKey : remotePublicKey,
-				alice ? remotePublicKey : publicKey
+				alice ? publicKey.getEncoded() : remotePublicKey.getEncoded(),
+				alice ? remotePublicKey.getEncoded() : publicKey.getEncoded()
 		);
 	}
 
@@ -177,13 +172,9 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 	}
 
 	@Override
-	public byte[] sign(SecretKey macKey, byte[] privateKey)
+	public byte[] sign(SecretKey macKey, PrivateKey privateKey)
 			throws GeneralSecurityException {
-		return crypto.sign(
-				LABEL_AUTH_SIGN,
-				getNonce(macKey),
-				privateKey
-		);
+		return crypto.sign(LABEL_AUTH_SIGN, getNonce(macKey), privateKey);
 	}
 
 	@Override
@@ -194,7 +185,7 @@ class IntroductionCryptoImpl implements IntroductionCrypto {
 		verifySignature(macKey, s.getRemote().author.getPublicKey(), signature);
 	}
 
-	void verifySignature(SecretKey macKey, byte[] publicKey,
+	void verifySignature(SecretKey macKey, PublicKey publicKey,
 			byte[] signature) throws GeneralSecurityException {
 		byte[] nonce = getNonce(macKey);
 		if (!crypto.verifySignature(signature, LABEL_AUTH_SIGN, nonce,

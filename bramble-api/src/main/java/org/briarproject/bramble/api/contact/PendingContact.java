@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.contact;
 
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
@@ -9,12 +10,12 @@ import javax.annotation.concurrent.Immutable;
 public class PendingContact {
 
 	private final PendingContactId id;
-	private final byte[] publicKey;
+	private final PublicKey publicKey;
 	private final String alias;
 	private final PendingContactState state;
 	private final long timestamp;
 
-	public PendingContact(PendingContactId id, byte[] publicKey,
+	public PendingContact(PendingContactId id, PublicKey publicKey,
 			String alias, PendingContactState state, long timestamp) {
 		this.id = id;
 		this.publicKey = publicKey;
@@ -27,7 +28,7 @@ public class PendingContact {
 		return id;
 	}
 
-	public byte[] getPublicKey() {
+	public PublicKey getPublicKey() {
 		return publicKey;
 	}
 

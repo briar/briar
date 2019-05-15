@@ -19,7 +19,6 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_INVITATION_ACCEPTED;
@@ -105,14 +104,7 @@ class MessageParserImpl implements MessageParser {
 		String text = body.getOptionalString(4);
 		byte[] signature = body.getRaw(5);
 
-		// Format version, name, public key
-		int formatVersion = creatorList.getLong(0).intValue();
-		if (formatVersion != FORMAT_VERSION) throw new FormatException();
-		String creatorName = creatorList.getString(1);
-		byte[] creatorPublicKey = creatorList.getRaw(2);
-
-		Author creator = authorFactory.createAuthor(formatVersion, creatorName,
-				creatorPublicKey);
+		Author creator = clientHelper.parseAndValidateAuthor(creatorList);
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				groupName, creator, salt);
 		return new InviteMessage(m.getId(), m.getGroupId(),

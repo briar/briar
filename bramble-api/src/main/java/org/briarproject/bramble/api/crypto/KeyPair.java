@@ -15,6 +15,8 @@ public class KeyPair {
 	private final PrivateKey privateKey;
 
 	public KeyPair(PublicKey publicKey, PrivateKey privateKey) {
+		if (!publicKey.getKeyType().equals(privateKey.getKeyType()))
+			throw new IllegalArgumentException();
 		this.publicKey = publicKey;
 		this.privateKey = privateKey;
 	}

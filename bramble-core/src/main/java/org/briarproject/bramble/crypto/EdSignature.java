@@ -17,6 +17,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 
 import static net.i2p.crypto.eddsa.EdDSAEngine.SIGNATURE_ALGORITHM;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
 
 @NotNullByDefault
 class EdSignature implements Signature {
@@ -39,7 +40,7 @@ class EdSignature implements Signature {
 
 	@Override
 	public void initSign(PrivateKey k) throws GeneralSecurityException {
-		if (!(k instanceof EdPrivateKey))
+		if (!k.getKeyType().equals(KEY_TYPE_SIGNATURE))
 			throw new IllegalArgumentException();
 		EdDSAPrivateKey privateKey = new EdDSAPrivateKey(
 				new EdDSAPrivateKeySpec(k.getEncoded(), CURVE_SPEC));
@@ -48,7 +49,7 @@ class EdSignature implements Signature {
 
 	@Override
 	public void initVerify(PublicKey k) throws GeneralSecurityException {
-		if (!(k instanceof EdPublicKey))
+		if (!k.getKeyType().equals(KEY_TYPE_SIGNATURE))
 			throw new IllegalArgumentException();
 		EdDSAPublicKey publicKey = new EdDSAPublicKey(
 				new EdDSAPublicKeySpec(k.getEncoded(), CURVE_SPEC));

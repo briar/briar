@@ -3,6 +3,9 @@ package org.briarproject.bramble.client;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyParser;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -43,6 +46,8 @@ import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getSignaturePrivateKey;
+import static org.briarproject.bramble.test.TestUtils.getSignaturePublicKey;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
@@ -66,6 +71,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			context.mock(CryptoComponent.class);
 	private final AuthorFactory authorFactory =
 			context.mock(AuthorFactory.class);
+	private final KeyParser keyParser = context.mock(KeyParser.class);
 
 	private final GroupId groupId = new GroupId(getRandomId());
 	private final BdfDictionary dictionary = new BdfDictionary();
@@ -262,24 +268,25 @@ public class ClientHelperImplTest extends BrambleTestCase {
 
 	@Test
 	public void testSign() throws Exception {
-		byte[] privateKey = getRandomBytes(42);
-		byte[] signed = getRandomBytes(42);
+		PrivateKey privateKey = getSignaturePrivateKey();
+		byte[] signature = getRandomBytes(42);
 
 		byte[] bytes = expectToByteArray(list);
 		context.checking(new Expectations() {{
 			oneOf(cryptoComponent).sign(label, bytes, privateKey);
-			will(returnValue(signed));
+			will(returnValue(signature));
 		}});
 
-		assertArrayEquals(signed, clientHelper.sign(label, list, privateKey));
+		assertArrayEquals(signature,
+				clientHelper.sign(label, list, privateKey));
 		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testVerifySignature() throws Exception {
 		byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
-		byte[] publicKey = getRandomBytes(42);
 		byte[] signed = expectToByteArray(list);
+		PublicKey publicKey = getSignaturePublicKey();
 
 		context.checking(new Expectations() {{
 			oneOf(cryptoComponent).verifySignature(signature, label, signed,
@@ -294,8 +301,8 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	@Test
 	public void testVerifyWrongSignature() throws Exception {
 		byte[] signature = getRandomBytes(MAX_SIGNATURE_LENGTH);
-		byte[] publicKey = getRandomBytes(42);
 		byte[] signed = expectToByteArray(list);
+		PublicKey publicKey = getSignaturePublicKey();
 
 		context.checking(new Expectations() {{
 			oneOf(cryptoComponent).verifySignature(signature, label, signed,
@@ -315,6 +322,10 @@ public class ClientHelperImplTest extends BrambleTestCase {
 	@Test
 	public void testParsesAndEncodesAuthor() throws Exception {
 		context.checking(new Expectations() {{
+			oneOf(cryptoComponent).getSignatureKeyParser();
+			will(returnValue(keyParser));
+			oneOf(keyParser).parsePublicKey(author.getPublicKey().getEncoded());
+			will(returnValue(author.getPublicKey()));
 			oneOf(authorFactory).createAuthor(author.getFormatVersion(),
 					author.getName(), author.getPublicKey());
 			will(returnValue(author));
@@ -329,10 +340,14 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList authorList = BdfList.of(
 				author.getFormatVersion(),
 				author.getName(),
-				author.getPublicKey()
+				author.getPublicKey().getEncoded()
 		);
 
 		context.checking(new Expectations() {{
+			oneOf(cryptoComponent).getSignatureKeyParser();
+			will(returnValue(keyParser));
+			oneOf(keyParser).parsePublicKey(author.getPublicKey().getEncoded());
+			will(returnValue(author.getPublicKey()));
 			oneOf(authorFactory).createAuthor(author.getFormatVersion(),
 					author.getName(), author.getPublicKey());
 			will(returnValue(author));
@@ -355,7 +370,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList invalidAuthor = BdfList.of(
 				author.getFormatVersion(),
 				author.getName(),
-				author.getPublicKey(),
+				author.getPublicKey().getEncoded(),
 				"foo"
 		);
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
@@ -366,7 +381,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList invalidAuthor = BdfList.of(
 				null,
 				author.getName(),
-				author.getPublicKey()
+				author.getPublicKey().getEncoded()
 		);
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
@@ -377,7 +392,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList invalidAuthor = BdfList.of(
 				"foo",
 				author.getName(),
-				author.getPublicKey()
+				author.getPublicKey().getEncoded()
 		);
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
@@ -387,7 +402,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList invalidAuthor = BdfList.of(
 				author.getFormatVersion() + 1,
 				author.getName(),
-				author.getPublicKey()
+				author.getPublicKey().getEncoded()
 		);
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
@@ -397,7 +412,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList invalidAuthor = BdfList.of(
 				author.getFormatVersion(),
 				"",
-				author.getPublicKey()
+				author.getPublicKey().getEncoded()
 		);
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
@@ -407,7 +422,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList invalidAuthor = BdfList.of(
 				author.getFormatVersion(),
 				getRandomString(MAX_AUTHOR_NAME_LENGTH + 1),
-				author.getPublicKey()
+				author.getPublicKey().getEncoded()
 		);
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
@@ -417,7 +432,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 		BdfList invalidAuthor = BdfList.of(
 				author.getFormatVersion(),
 				null,
-				author.getPublicKey()
+				author.getPublicKey().getEncoded()
 		);
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
@@ -469,6 +484,24 @@ public class ClientHelperImplTest extends BrambleTestCase {
 				author.getName(),
 				"foo"
 		);
+		clientHelper.parseAndValidateAuthor(invalidAuthor);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAuthorWithInvalidPublicKey() throws Exception {
+		BdfList invalidAuthor = BdfList.of(
+				author.getFormatVersion(),
+				author.getName(),
+				author.getPublicKey().getEncoded()
+		);
+
+		context.checking(new Expectations() {{
+			oneOf(cryptoComponent).getSignatureKeyParser();
+			will(returnValue(keyParser));
+			oneOf(keyParser).parsePublicKey(author.getPublicKey().getEncoded());
+			will(throwException(new GeneralSecurityException()));
+		}});
+
 		clientHelper.parseAndValidateAuthor(invalidAuthor);
 	}
 

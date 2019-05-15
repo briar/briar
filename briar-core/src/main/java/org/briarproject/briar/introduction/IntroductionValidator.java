@@ -15,10 +15,9 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.SessionId;
 
-import java.util.Collections;
-
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -84,8 +83,7 @@ class IntroductionValidator extends BdfMessageValidator {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -101,6 +99,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		byte[] ephemeralPublicKey = body.getRaw(3);
 		checkLength(ephemeralPublicKey, 0, MAX_PUBLIC_KEY_LENGTH);
+		clientHelper.parseAndValidateAgreementPublicKey(ephemeralPublicKey);
 
 		long timestamp = body.getLong(4);
 		if (timestamp < 0) throw new FormatException();
@@ -111,15 +110,13 @@ class IntroductionValidator extends BdfMessageValidator {
 				.parseAndValidateTransportPropertiesMap(transportProperties);
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(ACCEPT, sessionId, m.getTimestamp(), false,
-						false, false);
+		BdfDictionary meta = messageEncoder.encodeMetadata(ACCEPT, sessionId,
+				m.getTimestamp(), false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -140,12 +137,10 @@ class IntroductionValidator extends BdfMessageValidator {
 		checkLength(signature, 1, MAX_SIGNATURE_BYTES);
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(AUTH, sessionId, m.getTimestamp(), false, false,
-						false);
+		BdfDictionary meta = messageEncoder.encodeMetadata(AUTH, sessionId,
+				m.getTimestamp(), false, false, false);
 		MessageId dependency = new MessageId(previousMessageId);
-		return new BdfMessageContext(meta,
-				Collections.singletonList(dependency));
+		return new BdfMessageContext(meta, singletonList(dependency));
 	}
 
 	private BdfMessageContext validateActivateMessage(Message m, BdfList body)
@@ -162,15 +157,13 @@ class IntroductionValidator extends BdfMessageValidator {
 		checkLength(mac, MAC_BYTES);
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(ACTIVATE, sessionId, m.getTimestamp(), false,
-						false, false);
+		BdfDictionary meta = messageEncoder.encodeMetadata(ACTIVATE, sessionId,
+				m.getTimestamp(), false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 
@@ -185,15 +178,13 @@ class IntroductionValidator extends BdfMessageValidator {
 		checkLength(previousMessageId, UniqueId.LENGTH);
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(type, sessionId, m.getTimestamp(), false, false,
-						false);
+		BdfDictionary meta = messageEncoder.encodeMetadata(type, sessionId,
+				m.getTimestamp(), false, false, false);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
 			MessageId dependency = new MessageId(previousMessageId);
-			return new BdfMessageContext(meta,
-					Collections.singletonList(dependency));
+			return new BdfMessageContext(meta, singletonList(dependency));
 		}
 	}
 

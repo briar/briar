@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -83,7 +84,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	}
 
 	Message sendAcceptMessage(Transaction txn, PeerSession s, long timestamp,
-			byte[] ephemeralPublicKey, long acceptTimestamp,
+			PublicKey ephemeralPublicKey, long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties,
 			boolean visible) throws DbException {
 		Message m = messageEncoder

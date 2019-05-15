@@ -42,9 +42,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
@@ -1149,8 +1148,7 @@ public class IntroductionIntegrationTest
 		testModifiedResponse(
 				m -> new AcceptMessage(m.getMessageId(), m.getGroupId(),
 						m.getTimestamp(), m.getPreviousMessageId(),
-						m.getSessionId(),
-						getRandomBytes(MAX_PUBLIC_KEY_LENGTH),
+						m.getSessionId(), getAgreementPublicKey(),
 						m.getAcceptTimestamp(), m.getTransportProperties())
 		);
 	}
@@ -1216,8 +1214,8 @@ public class IntroductionIntegrationTest
 	@ParametersNotNullByDefault
 	private abstract class IntroductionListener implements EventListener {
 
-		protected volatile boolean aborted = false;
-		protected volatile Event latestEvent;
+		volatile boolean aborted = false;
+		volatile Event latestEvent;
 
 		@SuppressWarnings("WeakerAccess")
 		IntroductionResponse getResponse() {

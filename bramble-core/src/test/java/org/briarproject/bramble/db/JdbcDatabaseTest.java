@@ -3,6 +3,8 @@ package org.briarproject.bramble.db;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.db.DbException;
@@ -58,7 +60,6 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
-import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -72,13 +73,14 @@ import static org.briarproject.bramble.db.DatabaseConstants.DB_SETTINGS_NAMESPAC
 import static org.briarproject.bramble.db.DatabaseConstants.LAST_COMPACTED_KEY;
 import static org.briarproject.bramble.db.DatabaseConstants.MAX_COMPACTION_INTERVAL_MS;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getPendingContact;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
@@ -2250,8 +2252,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		Identity withoutKeys =
 				new Identity(localAuthor, null, null, identity.getTimeCreated());
 		assertFalse(withoutKeys.hasHandshakeKeyPair());
-		byte[] publicKey = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
-		byte[] privateKey = getRandomBytes(123);
+		PublicKey publicKey = getAgreementPublicKey();
+		PrivateKey privateKey = getAgreementPrivateKey();
 
 		Database<Connection> db = open(false);
 		Connection txn = db.startTransaction();
@@ -2262,8 +2264,12 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.setHandshakeKeyPair(txn, localAuthor.getId(), publicKey, privateKey);
 		retrieved = db.getIdentity(txn, localAuthor.getId());
 		assertTrue(retrieved.hasHandshakeKeyPair());
-		assertArrayEquals(publicKey, retrieved.getHandshakePublicKey());
-		assertArrayEquals(privateKey, retrieved.getHandshakePrivateKey());
+		PublicKey handshakePub = retrieved.getHandshakePublicKey();
+		assertNotNull(handshakePub);
+		assertArrayEquals(publicKey.getEncoded(), handshakePub.getEncoded());
+		PrivateKey handshakePriv = retrieved.getHandshakePrivateKey();
+		assertNotNull(handshakePriv);
+		assertArrayEquals(privateKey.getEncoded(), handshakePriv.getEncoded());
 
 		db.commitTransaction(txn);
 		db.close();

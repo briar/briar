@@ -31,11 +31,13 @@ class Sec1KeyParser implements KeyParser {
 	private static final Logger LOG =
 			Logger.getLogger(Sec1KeyParser.class.getName());
 
+	private final String keyType;
 	private final ECDomainParameters params;
 	private final BigInteger modulus;
 	private final int keyBits, bytesPerInt, publicKeyBytes, privateKeyBytes;
 
-	Sec1KeyParser(ECDomainParameters params, int keyBits) {
+	Sec1KeyParser(String keyType, ECDomainParameters params, int keyBits) {
+		this.keyType = keyType;
 		this.params = params;
 		this.keyBits = keyBits;
 		modulus = ((ECCurve.Fp) params.getCurve()).getQ();
@@ -80,7 +82,7 @@ class Sec1KeyParser implements KeyParser {
 			throw new GeneralSecurityException();
 		// Construct a public key from the point (x, y) and the params
 		ECPublicKeyParameters k = new ECPublicKeyParameters(pub, params);
-		PublicKey p = new Sec1PublicKey(k);
+		PublicKey p = new Sec1PublicKey(keyType, k);
 		logDuration(LOG, "Parsing public key", start);
 		return p;
 	}
@@ -97,7 +99,7 @@ class Sec1KeyParser implements KeyParser {
 			throw new GeneralSecurityException();
 		// Construct a private key from the private value and the params
 		ECPrivateKeyParameters k = new ECPrivateKeyParameters(d, params);
-		PrivateKey p = new Sec1PrivateKey(k, keyBits);
+		PrivateKey p = new Sec1PrivateKey(keyType, k, keyBits);
 		logDuration(LOG, "Parsing private key", start);
 		return p;
 	}

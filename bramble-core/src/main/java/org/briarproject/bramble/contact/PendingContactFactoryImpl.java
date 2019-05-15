@@ -39,8 +39,8 @@ class PendingContactFactoryImpl implements PendingContactFactory {
 		PublicKey publicKey = parseHandshakeLink(link);
 		PendingContactId id = getPendingContactId(publicKey);
 		long timestamp = clock.currentTimeMillis();
-		return new PendingContact(id, publicKey.getEncoded(), alias,
-				WAITING_FOR_CONNECTION, timestamp);
+		return new PendingContact(id, publicKey, alias, WAITING_FOR_CONNECTION,
+				timestamp);
 	}
 
 	private PublicKey parseHandshakeLink(String link) throws FormatException {

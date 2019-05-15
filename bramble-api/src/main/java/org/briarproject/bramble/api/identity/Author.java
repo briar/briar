@@ -1,13 +1,14 @@
 package org.briarproject.bramble.api.identity;
 
 import org.briarproject.bramble.api.Nameable;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 /**
  * A pseudonym for a user.
@@ -24,14 +25,14 @@ public class Author implements Nameable {
 	private final AuthorId id;
 	private final int formatVersion;
 	private final String name;
-	private final byte[] publicKey;
+	private final PublicKey publicKey;
 
 	public Author(AuthorId id, int formatVersion, String name,
-			byte[] publicKey) {
-		int nameLength = StringUtils.toUtf8(name).length;
+			PublicKey publicKey) {
+		int nameLength = toUtf8(name).length;
 		if (nameLength == 0 || nameLength > MAX_AUTHOR_NAME_LENGTH)
 			throw new IllegalArgumentException();
-		if (publicKey.length == 0 || publicKey.length > MAX_PUBLIC_KEY_LENGTH)
+		if (!publicKey.getKeyType().equals(KEY_TYPE_SIGNATURE))
 			throw new IllegalArgumentException();
 		this.id = id;
 		this.formatVersion = formatVersion;
@@ -63,7 +64,7 @@ public class Author implements Nameable {
 	/**
 	 * Returns the public key used to verify the pseudonym's signatures.
 	 */
-	public byte[] getPublicKey() {
+	public PublicKey getPublicKey() {
 		return publicKey;
 	}
 

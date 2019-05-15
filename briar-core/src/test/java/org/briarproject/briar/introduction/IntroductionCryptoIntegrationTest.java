@@ -64,8 +64,8 @@ public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 				crypto.isAlice(introducee1.getId(), introducee2.getId());
 		alice = isAlice ? introducee1 : introducee2;
 		bob = isAlice ? introducee2 : introducee1;
-		aliceEphemeral = crypto.generateKeyPair();
-		bobEphemeral = crypto.generateKeyPair();
+		aliceEphemeral = crypto.generateAgreementKeyPair();
+		bobEphemeral = crypto.generateAgreementKeyPair();
 	}
 
 	@Test
@@ -86,30 +86,25 @@ public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testDeriveMasterKey() throws Exception {
-		SecretKey aliceMasterKey =
-				crypto.deriveMasterKey(aliceEphemeral.getPublic().getEncoded(),
-						aliceEphemeral.getPrivate().getEncoded(),
-						bobEphemeral.getPublic().getEncoded(), true);
-		SecretKey bobMasterKey =
-				crypto.deriveMasterKey(bobEphemeral.getPublic().getEncoded(),
-						bobEphemeral.getPrivate().getEncoded(),
-						aliceEphemeral.getPublic().getEncoded(), false);
+		SecretKey aliceMasterKey = crypto.deriveMasterKey(
+				aliceEphemeral.getPublic(), aliceEphemeral.getPrivate(),
+				bobEphemeral.getPublic(), true);
+		SecretKey bobMasterKey = crypto.deriveMasterKey(
+				bobEphemeral.getPublic(), bobEphemeral.getPrivate(),
+				aliceEphemeral.getPublic(), false);
 		assertArrayEquals(aliceMasterKey.getBytes(), bobMasterKey.getBytes());
 	}
 
 	@Test
 	public void testAliceAuthMac() throws Exception {
 		SecretKey aliceMacKey = crypto.deriveMacKey(masterKey, true);
-		Local local = new Local(true, null, -1,
-				aliceEphemeral.getPublic().getEncoded(),
-				aliceEphemeral.getPrivate().getEncoded(), aliceTransport,
+		Local local = new Local(true, null, -1, aliceEphemeral.getPublic(),
+				aliceEphemeral.getPrivate(), aliceTransport,
 				aliceAcceptTimestamp, aliceMacKey.getBytes());
-		Remote remote = new Remote(false, bob, null,
-				bobEphemeral.getPublic().getEncoded(), bobTransport,
-				bobAcceptTimestamp, null);
-		byte[] aliceMac =
-				crypto.authMac(aliceMacKey, introducer.getId(), alice.getId(),
-						local, remote);
+		Remote remote = new Remote(false, bob, null, bobEphemeral.getPublic(),
+				bobTransport, bobAcceptTimestamp, null);
+		byte[] aliceMac = crypto.authMac(aliceMacKey, introducer.getId(),
+				alice.getId(), local, remote);
 
 		// verify from Bob's perspective
 		crypto.verifyAuthMac(aliceMac, aliceMacKey, introducer.getId(),
@@ -119,16 +114,14 @@ public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 	@Test
 	public void testBobAuthMac() throws Exception {
 		SecretKey bobMacKey = crypto.deriveMacKey(masterKey, false);
-		Local local = new Local(false, null, -1,
-				bobEphemeral.getPublic().getEncoded(),
-				bobEphemeral.getPrivate().getEncoded(), bobTransport,
+		Local local = new Local(false, null, -1, bobEphemeral.getPublic(),
+				bobEphemeral.getPrivate(), bobTransport,
 				bobAcceptTimestamp, bobMacKey.getBytes());
 		Remote remote = new Remote(true, alice, null,
-				aliceEphemeral.getPublic().getEncoded(), aliceTransport,
+				aliceEphemeral.getPublic(), aliceTransport,
 				aliceAcceptTimestamp, null);
-		byte[] bobMac =
-				crypto.authMac(bobMacKey, introducer.getId(), bob.getId(),
-						local, remote);
+		byte[] bobMac = crypto.authMac(bobMacKey, introducer.getId(),
+				bob.getId(), local, remote);
 
 		// verify from Alice's perspective
 		crypto.verifyAuthMac(bobMac, bobMacKey, introducer.getId(),

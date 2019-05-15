@@ -1,5 +1,6 @@
 package org.briarproject.bramble.crypto;
 
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -58,18 +59,18 @@ public class KeyAgreementTest extends BrambleTestCase {
 	@Test(expected = GeneralSecurityException.class)
 	public void testRejectsInvalidPublicKey() throws Exception {
 		KeyPair keyPair = crypto.generateAgreementKeyPair();
-		PublicKey invalid = new Curve25519PublicKey(new byte[32]);
+		PublicKey invalid = new AgreementPublicKey(new byte[32]);
 		crypto.deriveSharedSecret(SHARED_SECRET_LABEL, invalid, keyPair,
 				inputs);
 	}
 
 	@Test
-	public void testRfc7748TestVector() throws Exception {
+	public void testRfc7748TestVector() {
 		// Private keys need to be clamped because curve25519-java does the
 		// clamping at key generation time, not multiplication time
-		byte[] aPriv = Curve25519KeyParser.clamp(fromHexString(ALICE_PRIVATE));
+		byte[] aPriv = AgreementKeyParser.clamp(fromHexString(ALICE_PRIVATE));
 		byte[] aPub = fromHexString(ALICE_PUBLIC);
-		byte[] bPriv = Curve25519KeyParser.clamp(fromHexString(BOB_PRIVATE));
+		byte[] bPriv = AgreementKeyParser.clamp(fromHexString(BOB_PRIVATE));
 		byte[] bPub = fromHexString(BOB_PUBLIC);
 		byte[] sharedSecret = fromHexString(SHARED_SECRET);
 		Curve25519 curve25519 = Curve25519.getInstance("java");

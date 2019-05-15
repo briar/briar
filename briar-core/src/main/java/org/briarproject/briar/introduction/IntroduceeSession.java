@@ -1,5 +1,7 @@
 package org.briarproject.briar.introduction;
 
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -70,7 +72,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 
 	static IntroduceeSession addLocalAccept(IntroduceeSession s,
 			IntroduceeState state, Message acceptMessage,
-			byte[] ephemeralPublicKey, byte[] ephemeralPrivateKey,
+			PublicKey ephemeralPublicKey, PrivateKey ephemeralPrivateKey,
 			long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties) {
 		Local local = new Local(s.local.alice, acceptMessage.getId(),
@@ -190,7 +192,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 		@Nullable
 		final MessageId lastMessageId;
 		@Nullable
-		final byte[] ephemeralPublicKey;
+		final PublicKey ephemeralPublicKey;
 		@Nullable
 		final Map<TransportId, TransportProperties> transportProperties;
 		final long acceptTimestamp;
@@ -198,7 +200,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 		final byte[] macKey;
 
 		private Common(boolean alice, @Nullable MessageId lastMessageId,
-				@Nullable byte[] ephemeralPublicKey, @Nullable
+				@Nullable PublicKey ephemeralPublicKey, @Nullable
 				Map<TransportId, TransportProperties> transportProperties,
 				long acceptTimestamp, @Nullable byte[] macKey) {
 			this.alice = alice;
@@ -213,11 +215,12 @@ class IntroduceeSession extends Session<IntroduceeState>
 	static class Local extends Common {
 		final long lastMessageTimestamp;
 		@Nullable
-		final byte[] ephemeralPrivateKey;
+		final PrivateKey ephemeralPrivateKey;
 
 		Local(boolean alice, @Nullable MessageId lastMessageId,
-				long lastMessageTimestamp, @Nullable byte[] ephemeralPublicKey,
-				@Nullable byte[] ephemeralPrivateKey, @Nullable
+				long lastMessageTimestamp,
+				@Nullable PublicKey ephemeralPublicKey,
+				@Nullable PrivateKey ephemeralPrivateKey, @Nullable
 				Map<TransportId, TransportProperties> transportProperties,
 				long acceptTimestamp, @Nullable byte[] macKey) {
 			super(alice, lastMessageId, ephemeralPublicKey, transportProperties,
@@ -239,7 +242,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 
 		Remote(boolean alice, Author author,
 				@Nullable MessageId lastMessageId,
-				@Nullable byte[] ephemeralPublicKey, @Nullable
+				@Nullable PublicKey ephemeralPublicKey, @Nullable
 				Map<TransportId, TransportProperties> transportProperties,
 				long acceptTimestamp, @Nullable byte[] macKey) {
 			super(alice, lastMessageId, ephemeralPublicKey, transportProperties,

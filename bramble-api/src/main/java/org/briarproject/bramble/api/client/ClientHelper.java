@@ -1,6 +1,8 @@
 package org.briarproject.bramble.api.client;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DbException;
@@ -96,13 +98,17 @@ public interface ClientHelper {
 
 	BdfList toList(Author a);
 
-	byte[] sign(String label, BdfList toSign, byte[] privateKey)
+	byte[] sign(String label, BdfList toSign, PrivateKey privateKey)
 			throws FormatException, GeneralSecurityException;
 
 	void verifySignature(byte[] signature, String label, BdfList signed,
-			byte[] publicKey) throws FormatException, GeneralSecurityException;
+			PublicKey publicKey)
+			throws FormatException, GeneralSecurityException;
 
 	Author parseAndValidateAuthor(BdfList author) throws FormatException;
+
+	PublicKey parseAndValidateAgreementPublicKey(byte[] publicKeyBytes)
+		throws FormatException;
 
 	TransportProperties parseAndValidateTransportProperties(
 			BdfDictionary properties) throws FormatException;

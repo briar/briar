@@ -5,6 +5,8 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
@@ -689,8 +691,8 @@ interface Database<T> {
 	/**
 	 * Sets the handshake key pair for the identity with the given ID.
 	 */
-	void setHandshakeKeyPair(T txn, AuthorId local, byte[] publicKey,
-			byte[] privateKey) throws DbException;
+	void setHandshakeKeyPair(T txn, AuthorId local, PublicKey publicKey,
+			PrivateKey privateKey) throws DbException;
 
 	/**
 	 * Marks the given message as shared.

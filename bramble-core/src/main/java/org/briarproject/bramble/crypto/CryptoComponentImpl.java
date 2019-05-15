@@ -4,12 +4,16 @@ import net.i2p.crypto.eddsa.EdDSAPrivateKey;
 import net.i2p.crypto.eddsa.EdDSAPublicKey;
 import net.i2p.crypto.eddsa.KeyPairGenerator;
 
+import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
+import org.briarproject.bramble.api.crypto.SignaturePublicKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 import org.briarproject.bramble.util.ByteUtils;
@@ -31,6 +35,8 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -80,8 +86,8 @@ class CryptoComponentImpl implements CryptoComponent {
 		signatureKeyPairGenerator = new KeyPairGenerator();
 		signatureKeyPairGenerator.initialize(SIGNATURE_KEY_PAIR_BITS,
 				secureRandom);
-		agreementKeyParser = new Curve25519KeyParser();
-		signatureKeyParser = new EdKeyParser();
+		agreementKeyParser = new AgreementKeyParser();
+		signatureKeyParser = new SignatureKeyParser();
 		messageEncrypter = new MessageEncrypter(secureRandom);
 	}
 
@@ -125,9 +131,9 @@ class CryptoComponentImpl implements CryptoComponent {
 	// Package access for testing
 	byte[] performRawKeyAgreement(PrivateKey priv, PublicKey pub)
 			throws GeneralSecurityException {
-		if (!(priv instanceof Curve25519PrivateKey))
+		if (!priv.getKeyType().equals(KEY_TYPE_AGREEMENT))
 			throw new IllegalArgumentException();
-		if (!(pub instanceof Curve25519PublicKey))
+		if (!pub.getKeyType().equals(KEY_TYPE_AGREEMENT))
 			throw new IllegalArgumentException();
 		long start = now();
 		byte[] secret = curve25519.calculateAgreement(pub.getEncoded(),
@@ -143,8 +149,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	@Override
 	public KeyPair generateAgreementKeyPair() {
 		Curve25519KeyPair keyPair = curve25519.generateKeyPair();
-		PublicKey pub = new Curve25519PublicKey(keyPair.getPublicKey());
-		PrivateKey priv = new Curve25519PrivateKey(keyPair.getPrivateKey());
+		PublicKey pub = new AgreementPublicKey(keyPair.getPublicKey());
+		PrivateKey priv = new AgreementPrivateKey(keyPair.getPrivateKey());
 		return new KeyPair(pub, priv);
 	}
 
@@ -158,9 +164,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		java.security.KeyPair keyPair =
 				signatureKeyPairGenerator.generateKeyPair();
 		EdDSAPublicKey edPublicKey = (EdDSAPublicKey) keyPair.getPublic();
-		PublicKey publicKey = new EdPublicKey(edPublicKey.getAbyte());
+		PublicKey publicKey = new SignaturePublicKey(edPublicKey.getAbyte());
 		EdDSAPrivateKey edPrivateKey = (EdDSAPrivateKey) keyPair.getPrivate();
-		PrivateKey privateKey = new EdPrivateKey(edPrivateKey.getSeed());
+		PrivateKey privateKey = new SignaturePrivateKey(edPrivateKey.getSeed());
 		return new KeyPair(publicKey, privateKey);
 	}
 
@@ -195,21 +201,22 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public byte[] sign(String label, byte[] toSign, byte[] privateKey)
+	public byte[] sign(String label, byte[] toSign, PrivateKey privateKey)
 			throws GeneralSecurityException {
-		PrivateKey key = signatureKeyParser.parsePrivateKey(privateKey);
 		Signature sig = new EdSignature();
-		sig.initSign(key);
+		sig.initSign(privateKey);
 		updateSignature(sig, label, toSign);
 		return sig.sign();
 	}
 
 	@Override
 	public boolean verifySignature(byte[] signature, String label,
-			byte[] signed, byte[] publicKey) throws GeneralSecurityException {
-		PublicKey key = signatureKeyParser.parsePublicKey(publicKey);
+			byte[] signed, PublicKey publicKey)
+			throws GeneralSecurityException {
+		if (!publicKey.getKeyType().equals(KEY_TYPE_SIGNATURE))
+			throw new IllegalArgumentException();
 		Signature sig = new EdSignature();
-		sig.initVerify(key);
+		sig.initVerify(publicKey);
 		updateSignature(sig, label, signed);
 		return sig.verify(signature);
 	}

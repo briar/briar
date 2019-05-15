@@ -2,6 +2,10 @@ package org.briarproject.briar.introduction;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.identity.Author;
@@ -122,12 +126,12 @@ class SessionParserImpl implements SessionParser {
 		MessageId lastLocalMessageId =
 				getMessageId(d, SESSION_KEY_LAST_LOCAL_MESSAGE_ID);
 		long localTimestamp = d.getLong(SESSION_KEY_LOCAL_TIMESTAMP);
-		byte[] ephemeralPublicKey =
-				d.getOptionalRaw(SESSION_KEY_EPHEMERAL_PUBLIC_KEY);
+		PublicKey ephemeralPublicKey =
+				getEphemeralPublicKey(d, SESSION_KEY_EPHEMERAL_PUBLIC_KEY);
 		BdfDictionary tpDict =
 				d.getOptionalDictionary(SESSION_KEY_TRANSPORT_PROPERTIES);
-		byte[] ephemeralPrivateKey =
-				d.getOptionalRaw(SESSION_KEY_EPHEMERAL_PRIVATE_KEY);
+		PrivateKey ephemeralPrivateKey =
+				getEphemeralPrivateKey(d, SESSION_KEY_EPHEMERAL_PRIVATE_KEY);
 		Map<TransportId, TransportProperties> transportProperties =
 				tpDict == null ? null : clientHelper
 						.parseAndValidateTransportPropertiesMap(tpDict);
@@ -143,8 +147,8 @@ class SessionParserImpl implements SessionParser {
 		Author remoteAuthor = getAuthor(d, SESSION_KEY_REMOTE_AUTHOR);
 		MessageId lastRemoteMessageId =
 				getMessageId(d, SESSION_KEY_LAST_REMOTE_MESSAGE_ID);
-		byte[] ephemeralPublicKey =
-				d.getOptionalRaw(SESSION_KEY_EPHEMERAL_PUBLIC_KEY);
+		PublicKey ephemeralPublicKey =
+				getEphemeralPublicKey(d, SESSION_KEY_EPHEMERAL_PUBLIC_KEY);
 		BdfDictionary tpDict =
 				d.getOptionalDictionary(SESSION_KEY_TRANSPORT_PROPERTIES);
 		Map<TransportId, TransportProperties> transportProperties =
@@ -195,4 +199,17 @@ class SessionParserImpl implements SessionParser {
 		return map;
 	}
 
+	@Nullable
+	private PublicKey getEphemeralPublicKey(BdfDictionary d, String key)
+		throws FormatException {
+		byte[] keyBytes = d.getOptionalRaw(key);
+		return keyBytes == null ? null : new AgreementPublicKey(keyBytes);
+	}
+
+	@Nullable
+	private PrivateKey getEphemeralPrivateKey(BdfDictionary d, String key)
+		throws FormatException {
+		byte[] keyBytes = d.getOptionalRaw(key);
+		return keyBytes == null ? null : new AgreementPrivateKey(keyBytes);
+	}
 }

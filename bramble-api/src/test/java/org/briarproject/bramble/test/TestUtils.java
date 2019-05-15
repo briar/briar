@@ -5,7 +5,13 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
+import org.briarproject.bramble.api.crypto.SignaturePublicKey;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.Identity;
@@ -32,9 +38,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import static java.util.Arrays.asList;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.api.sync.ClientId.MAX_CLIENT_ID_LENGTH;
@@ -101,10 +107,28 @@ public class TestUtils {
 		return new SecretKey(getRandomBytes(SecretKey.LENGTH));
 	}
 
+	public static PublicKey getSignaturePublicKey() {
+		byte[] key = getRandomBytes(MAX_SIGNATURE_PUBLIC_KEY_BYTES);
+		return new SignaturePublicKey(key);
+	}
+
+	public static PrivateKey getSignaturePrivateKey() {
+		return new SignaturePrivateKey(getRandomBytes(123));
+	}
+
+	public static PublicKey getAgreementPublicKey() {
+		byte[] key = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		return new AgreementPublicKey(key);
+	}
+
+	public static PrivateKey getAgreementPrivateKey() {
+		return new AgreementPrivateKey(getRandomBytes(123));
+	}
+
 	public static Identity getIdentity() {
 		LocalAuthor localAuthor = getLocalAuthor();
-		byte[] handshakePub = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
-		byte[] handshakePriv = getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		PublicKey handshakePub = getAgreementPublicKey();
+		PrivateKey handshakePriv = getAgreementPrivateKey();
 		return new Identity(localAuthor, handshakePub, handshakePriv,
 				timestamp);
 	}
@@ -113,8 +137,8 @@ public class TestUtils {
 		AuthorId id = new AuthorId(getRandomId());
 		int nameLength = 1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH);
 		String name = getRandomString(nameLength);
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
-		byte[] privateKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		PublicKey publicKey = getSignaturePublicKey();
+		PrivateKey privateKey = getSignaturePrivateKey();
 		return new LocalAuthor(id, FORMAT_VERSION, name, publicKey, privateKey);
 	}
 
@@ -122,7 +146,7 @@ public class TestUtils {
 		AuthorId id = new AuthorId(getRandomId());
 		int nameLength = 1 + random.nextInt(MAX_AUTHOR_NAME_LENGTH);
 		String name = getRandomString(nameLength);
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		PublicKey publicKey = getSignaturePublicKey();
 		return new Author(id, FORMAT_VERSION, name, publicKey);
 	}
 
@@ -155,7 +179,7 @@ public class TestUtils {
 
 	public static PendingContact getPendingContact(int nameLength) {
 		PendingContactId id = new PendingContactId(getRandomId());
-		byte[] publicKey = getRandomBytes(MAX_PUBLIC_KEY_LENGTH);
+		PublicKey publicKey = getAgreementPublicKey();
 		String alias = getRandomString(nameLength);
 		return new PendingContact(id, publicKey, alias, WAITING_FOR_CONNECTION,
 				timestamp);
@@ -179,7 +203,7 @@ public class TestUtils {
 			boolean verified) {
 		return new Contact(c, remote, local,
 				getRandomString(MAX_AUTHOR_NAME_LENGTH),
-				getRandomBytes(MAX_PUBLIC_KEY_LENGTH), verified);
+				getAgreementPublicKey(), verified);
 	}
 
 	public static double getMedian(Collection<? extends Number> samples) {

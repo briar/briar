@@ -55,7 +55,7 @@ public interface CryptoComponent {
 	 * signature, to prevent it from being repurposed or colliding with a
 	 * signature created for another purpose
 	 */
-	byte[] sign(String label, byte[] toSign, byte[] privateKey)
+	byte[] sign(String label, byte[] toSign, PrivateKey privateKey)
 			throws GeneralSecurityException;
 
 	/**
@@ -68,7 +68,7 @@ public interface CryptoComponent {
 	 * @return true if the signature was valid, false otherwise.
 	 */
 	boolean verifySignature(byte[] signature, String label, byte[] signed,
-			byte[] publicKey) throws GeneralSecurityException;
+			PublicKey publicKey) throws GeneralSecurityException;
 
 	/**
 	 * Returns the hash of the given inputs. The inputs are unambiguously

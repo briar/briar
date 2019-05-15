@@ -5,7 +5,13 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
+import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
+import org.briarproject.bramble.api.crypto.AgreementPublicKey;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.SignaturePrivateKey;
+import org.briarproject.bramble.api.crypto.SignaturePublicKey;
 import org.briarproject.bramble.api.db.DataTooNewException;
 import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DbClosedException;
@@ -677,7 +683,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setInt(2, remote.getFormatVersion());
 			ps.setString(3, remote.getName());
-			ps.setBytes(4, remote.getPublicKey());
+			ps.setBytes(4, remote.getPublicKey().getEncoded());
 			ps.setBytes(5, local.getBytes());
 			ps.setBoolean(6, verified);
 			int affected = ps.executeUpdate();
@@ -887,12 +893,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, local.getId().getBytes());
 			ps.setInt(2, local.getFormatVersion());
 			ps.setString(3, local.getName());
-			ps.setBytes(4, local.getPublicKey());
-			ps.setBytes(5, local.getPrivateKey());
+			ps.setBytes(4, local.getPublicKey().getEncoded());
+			ps.setBytes(5, local.getPrivateKey().getEncoded());
 			if (i.getHandshakePublicKey() == null) ps.setNull(6, BINARY);
-			else ps.setBytes(6, i.getHandshakePublicKey());
+			else ps.setBytes(6, i.getHandshakePublicKey().getEncoded());
 			if (i.getHandshakePrivateKey() == null) ps.setNull(7, BINARY);
-			else ps.setBytes(7, i.getHandshakePrivateKey());
+			else ps.setBytes(7, i.getHandshakePrivateKey().getEncoded());
 			ps.setLong(8, i.getTimeCreated());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
@@ -1068,7 +1074,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " VALUES (?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, p.getId().getBytes());
-			ps.setBytes(2, p.getPublicKey());
+			ps.setBytes(2, p.getPublicKey().getEncoded());
 			ps.setString(3, p.getAlias());
 			ps.setInt(4, p.getState().getValue());
 			ps.setLong(5, p.getTimestamp());
@@ -1444,14 +1450,16 @@ abstract class JdbcDatabase implements Database<Connection> {
 			int formatVersion = rs.getInt(2);
 			String name = rs.getString(3);
 			String alias = rs.getString(4);
-			byte[] publicKey = rs.getBytes(5);
-			byte[] handshakePublicKey = rs.getBytes(6);
+			PublicKey publicKey = new SignaturePublicKey(rs.getBytes(5));
+			byte[] handshakePub = rs.getBytes(6);
 			AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
 			boolean verified = rs.getBoolean(8);
 			rs.close();
 			ps.close();
 			Author author =
 					new Author(authorId, formatVersion, name, publicKey);
+			PublicKey handshakePublicKey = handshakePub == null ?
+					null : new AgreementPublicKey(handshakePub);
 			return new Contact(c, author, localAuthorId, alias,
 					handshakePublicKey, verified);
 		} catch (SQLException e) {
@@ -1479,12 +1487,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int formatVersion = rs.getInt(3);
 				String name = rs.getString(4);
 				String alias = rs.getString(5);
-				byte[] publicKey = rs.getBytes(6);
-				byte[] handshakePublicKey = rs.getBytes(7);
+				PublicKey publicKey = new SignaturePublicKey(rs.getBytes(6));
+				byte[] handshakePub = rs.getBytes(7);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(8));
 				boolean verified = rs.getBoolean(9);
 				Author author =
 						new Author(authorId, formatVersion, name, publicKey);
+				PublicKey handshakePublicKey = handshakePub == null ?
+						null : new AgreementPublicKey(handshakePub);
 				contacts.add(new Contact(contactId, author, localAuthorId,
 						alias, handshakePublicKey, verified));
 			}
@@ -1540,12 +1550,14 @@ abstract class JdbcDatabase implements Database<Connection> {
 				int formatVersion = rs.getInt(2);
 				String name = rs.getString(3);
 				String alias = rs.getString(4);
-				byte[] publicKey = rs.getBytes(5);
-				byte[] handshakePublicKey = rs.getBytes(6);
+				PublicKey publicKey = new SignaturePublicKey(rs.getBytes(5));
+				byte[] handshakePub = rs.getBytes(6);
 				AuthorId localAuthorId = new AuthorId(rs.getBytes(7));
 				boolean verified = rs.getBoolean(8);
 				Author author =
 						new Author(remote, formatVersion, name, publicKey);
+				PublicKey handshakePublicKey = handshakePub == null ?
+						null : new AgreementPublicKey(handshakePub);
 				contacts.add(new Contact(contactId, author, localAuthorId,
 						alias, handshakePublicKey, verified));
 			}
@@ -1756,16 +1768,20 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (!rs.next()) throw new DbStateException();
 			int formatVersion = rs.getInt(1);
 			String name = rs.getString(2);
-			byte[] publicKey = rs.getBytes(3);
-			byte[] privateKey = rs.getBytes(4);
-			byte[] handshakePublicKey = rs.getBytes(5);
-			byte[] handshakePrivateKey = rs.getBytes(6);
+			PublicKey publicKey = new SignaturePublicKey(rs.getBytes(3));
+			PrivateKey privateKey = new SignaturePrivateKey(rs.getBytes(4));
+			byte[] handshakePub = rs.getBytes(5);
+			byte[] handshakePriv = rs.getBytes(6);
 			long created = rs.getLong(7);
 			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			LocalAuthor local = new LocalAuthor(a, formatVersion, name,
 					publicKey, privateKey);
+			PublicKey handshakePublicKey = handshakePub == null ?
+					null : new AgreementPublicKey(handshakePub);
+			PrivateKey handshakePrivateKey = handshakePriv == null ?
+					null : new AgreementPrivateKey(handshakePriv);
 			return new Identity(local, handshakePublicKey, handshakePrivateKey,
 					created);
 		} catch (SQLException e) {
@@ -1792,13 +1808,17 @@ abstract class JdbcDatabase implements Database<Connection> {
 				AuthorId authorId = new AuthorId(rs.getBytes(1));
 				int formatVersion = rs.getInt(2);
 				String name = rs.getString(3);
-				byte[] publicKey = rs.getBytes(4);
-				byte[] privateKey = rs.getBytes(5);
-				byte[] handshakePublicKey = rs.getBytes(6);
-				byte[] handshakePrivateKey = rs.getBytes(7);
+				PublicKey publicKey = new SignaturePublicKey(rs.getBytes(4));
+				PrivateKey privateKey = new SignaturePrivateKey(rs.getBytes(5));
+				byte[] handshakePub = rs.getBytes(6);
+				byte[] handshakePriv = rs.getBytes(7);
 				long created = rs.getLong(8);
 				LocalAuthor local = new LocalAuthor(authorId, formatVersion,
 						name, publicKey, privateKey);
+				PublicKey handshakePublicKey = handshakePub == null ?
+						null : new AgreementPublicKey(handshakePub);
+				PrivateKey handshakePrivateKey = handshakePriv == null ?
+						null : new AgreementPrivateKey(handshakePriv);
 				identities.add(new Identity(local, handshakePublicKey,
 						handshakePrivateKey, created));
 			}
@@ -2395,7 +2415,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			List<PendingContact> pendingContacts = new ArrayList<>();
 			while (rs.next()) {
 				PendingContactId id = new PendingContactId(rs.getBytes(1));
-				byte[] publicKey = rs.getBytes(2);
+				PublicKey publicKey = new AgreementPublicKey(rs.getBytes(2));
 				String alias = rs.getString(3);
 				PendingContactState state =
 						PendingContactState.fromValue(rs.getInt(4));
@@ -3182,15 +3202,15 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void setHandshakeKeyPair(Connection txn, AuthorId local,
-			byte[] publicKey, byte[] privateKey) throws DbException {
+			PublicKey publicKey, PrivateKey privateKey) throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "UPDATE localAuthors"
 					+ " SET handshakePublicKey = ?, handshakePrivateKey = ?"
 					+ " WHERE authorId = ?";
 			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, publicKey);
-			ps.setBytes(2, privateKey);
+			ps.setBytes(1, publicKey.getEncoded());
+			ps.setBytes(2, privateKey.getEncoded());
 			ps.setBytes(3, local.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();

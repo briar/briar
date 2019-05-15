@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -35,7 +36,7 @@ class GroupInvitationFactoryImpl implements GroupInvitationFactory {
 
 	@Override
 	public byte[] signInvitation(Contact c, GroupId privateGroupId,
-			long timestamp, byte[] privateKey) {
+			long timestamp, PrivateKey privateKey) {
 		AuthorId creatorId = c.getLocalAuthorId();
 		AuthorId memberId = c.getAuthor().getId();
 		BdfList token = createInviteToken(creatorId, memberId, privateGroupId,
