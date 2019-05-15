@@ -101,8 +101,8 @@ public class SyncIntegrationTest extends BrambleTestCase {
 
 	private byte[] write() throws Exception {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamContext ctx = new StreamContext(contactId, transportId, tagKey,
-				headerKey, streamNumber);
+		StreamContext ctx = new StreamContext(contactId, null, transportId,
+				tagKey, headerKey, streamNumber, false);
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(out,
 				ctx);
 		SyncRecordWriter recordWriter = recordWriterFactory.createRecordWriter(
@@ -131,8 +131,8 @@ public class SyncIntegrationTest extends BrambleTestCase {
 		assertArrayEquals(expectedTag, tag);
 
 		// Create the readers
-		StreamContext ctx = new StreamContext(contactId, transportId, tagKey,
-				headerKey, streamNumber);
+		StreamContext ctx = new StreamContext(contactId, null, transportId,
+				tagKey, headerKey, streamNumber, false);
 		InputStream streamReader = streamReaderFactory.createStreamReader(in,
 				ctx);
 		SyncRecordReader recordReader = recordReaderFactory.createRecordReader(

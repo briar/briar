@@ -12,7 +12,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
@@ -76,8 +76,7 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 			getTransportPropertiesMap(3);
 	private final Map<TransportId, TransportProperties>
 			remoteTransportProperties = getTransportPropertiesMap(3);
-	private final Map<TransportId, TransportKeySetId> transportKeys =
-			new HashMap<>();
+	private final Map<TransportId, KeySetId> transportKeys = new HashMap<>();
 	private final byte[] localMacKey = getRandomBytes(SecretKey.LENGTH);
 	private final byte[] remoteMacKey = getRandomBytes(SecretKey.LENGTH);
 
@@ -90,9 +89,9 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		sessionParser = new SessionParserImpl(clientHelper);
 		author1 = getRealAuthor(authorFactory);
 		author2 = getRealAuthor(authorFactory);
-		transportKeys.put(getTransportId(), new TransportKeySetId(1));
-		transportKeys.put(getTransportId(), new TransportKeySetId(2));
-		transportKeys.put(getTransportId(), new TransportKeySetId(3));
+		transportKeys.put(getTransportId(), new KeySetId(1));
+		transportKeys.put(getTransportId(), new KeySetId(2));
+		transportKeys.put(getTransportId(), new KeySetId(3));
 	}
 
 	@Test

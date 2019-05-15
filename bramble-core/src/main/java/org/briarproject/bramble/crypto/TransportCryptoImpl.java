@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.transport.HandshakeKeys;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
 import org.briarproject.bramble.api.transport.TransportKeys;
@@ -42,7 +41,7 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	@Override
-	public TransportKeys deriveTransportKeys(TransportId t,
+	public TransportKeys deriveRotationKeys(TransportId t,
 			SecretKey rootKey, long timePeriod, boolean weAreAlice,
 			boolean active) {
 		// Keys for the previous period are derived from the root key
@@ -70,31 +69,6 @@ class TransportCryptoImpl implements TransportCrypto {
 		return new TransportKeys(t, inPrev, inCurr, inNext, outCurr);
 	}
 
-	@Override
-	public TransportKeys rotateTransportKeys(TransportKeys k, long timePeriod) {
-		if (k.getTimePeriod() >= timePeriod) return k;
-		IncomingKeys inPrev = k.getPreviousIncomingKeys();
-		IncomingKeys inCurr = k.getCurrentIncomingKeys();
-		IncomingKeys inNext = k.getNextIncomingKeys();
-		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
-		long startPeriod = outCurr.getTimePeriod();
-		boolean active = outCurr.isActive();
-		// Rotate the keys
-		for (long p = startPeriod + 1; p <= timePeriod; p++) {
-			inPrev = inCurr;
-			inCurr = inNext;
-			SecretKey inNextTag = rotateKey(inNext.getTagKey(), p + 1);
-			SecretKey inNextHeader = rotateKey(inNext.getHeaderKey(), p + 1);
-			inNext = new IncomingKeys(inNextTag, inNextHeader, p + 1);
-			SecretKey outCurrTag = rotateKey(outCurr.getTagKey(), p);
-			SecretKey outCurrHeader = rotateKey(outCurr.getHeaderKey(), p);
-			outCurr = new OutgoingKeys(outCurrTag, outCurrHeader, p, active);
-		}
-		// Collect and return the keys
-		return new TransportKeys(k.getTransportId(), inPrev, inCurr, inNext,
-				outCurr);
-	}
-
 	private SecretKey rotateKey(SecretKey k, long timePeriod) {
 		byte[] period = new byte[INT_64_BYTES];
 		writeUint64(timePeriod, period, 0);
@@ -117,7 +91,7 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	@Override
-	public HandshakeKeys deriveHandshakeKeys(TransportId t, SecretKey rootKey,
+	public TransportKeys deriveHandshakeKeys(TransportId t, SecretKey rootKey,
 			long timePeriod, boolean weAreAlice) {
 		if (timePeriod < 1) throw new IllegalArgumentException();
 		IncomingKeys inPrev = deriveIncomingHandshakeKeys(t, rootKey,
@@ -128,7 +102,7 @@ class TransportCryptoImpl implements TransportCrypto {
 				weAreAlice, timePeriod + 1);
 		OutgoingKeys outCurr = deriveOutgoingHandshakeKeys(t, rootKey,
 				weAreAlice, timePeriod);
-		return new HandshakeKeys(t, inPrev, inCurr, inNext, outCurr, rootKey,
+		return new TransportKeys(t, inPrev, inCurr, inNext, outCurr, rootKey,
 				weAreAlice);
 	}
 
@@ -171,7 +145,13 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	@Override
-	public HandshakeKeys updateHandshakeKeys(HandshakeKeys k, long timePeriod) {
+	public TransportKeys updateTransportKeys(TransportKeys k, long timePeriod) {
+		if (k.isHandshakeMode()) return updateHandshakeKeys(k, timePeriod);
+		else return updateRotationKeys(k, timePeriod);
+	}
+
+	private TransportKeys updateHandshakeKeys(TransportKeys k,
+			long timePeriod) {
 		long elapsed = timePeriod - k.getTimePeriod();
 		TransportId t = k.getTransportId();
 		SecretKey rootKey = k.getRootKey();
@@ -188,7 +168,7 @@ class TransportCryptoImpl implements TransportCrypto {
 					weAreAlice, timePeriod + 1);
 			OutgoingKeys outCurr = deriveOutgoingHandshakeKeys(t, rootKey,
 					weAreAlice, timePeriod);
-			return new HandshakeKeys(t, inPrev, inCurr, inNext, outCurr,
+			return new TransportKeys(t, inPrev, inCurr, inNext, outCurr,
 					rootKey, weAreAlice);
 		} else if (elapsed == 2) {
 			// The keys are two periods old - shift by two periods, keeping
@@ -200,12 +180,36 @@ class TransportCryptoImpl implements TransportCrypto {
 					weAreAlice, timePeriod + 1);
 			OutgoingKeys outCurr = deriveOutgoingHandshakeKeys(t, rootKey,
 					weAreAlice, timePeriod);
-			return new HandshakeKeys(t, inPrev, inCurr, inNext, outCurr,
+			return new TransportKeys(t, inPrev, inCurr, inNext, outCurr,
 					rootKey, weAreAlice);
 		} else {
 			// The keys are more than two periods old - derive fresh keys
 			return deriveHandshakeKeys(t, rootKey, timePeriod, weAreAlice);
 		}
+	}
+
+	private TransportKeys updateRotationKeys(TransportKeys k, long timePeriod) {
+		if (k.getTimePeriod() >= timePeriod) return k;
+		IncomingKeys inPrev = k.getPreviousIncomingKeys();
+		IncomingKeys inCurr = k.getCurrentIncomingKeys();
+		IncomingKeys inNext = k.getNextIncomingKeys();
+		OutgoingKeys outCurr = k.getCurrentOutgoingKeys();
+		long startPeriod = outCurr.getTimePeriod();
+		boolean active = outCurr.isActive();
+		// Rotate the keys
+		for (long p = startPeriod + 1; p <= timePeriod; p++) {
+			inPrev = inCurr;
+			inCurr = inNext;
+			SecretKey inNextTag = rotateKey(inNext.getTagKey(), p + 1);
+			SecretKey inNextHeader = rotateKey(inNext.getHeaderKey(), p + 1);
+			inNext = new IncomingKeys(inNextTag, inNextHeader, p + 1);
+			SecretKey outCurrTag = rotateKey(outCurr.getTagKey(), p);
+			SecretKey outCurrHeader = rotateKey(outCurr.getHeaderKey(), p);
+			outCurr = new OutgoingKeys(outCurrTag, outCurrHeader, p, active);
+		}
+		// Collect and return the keys
+		return new TransportKeys(k.getTransportId(), inPrev, inCurr, inNext,
+				outCurr);
 	}
 
 	@Override

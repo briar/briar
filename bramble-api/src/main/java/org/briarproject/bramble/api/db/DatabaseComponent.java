@@ -24,11 +24,8 @@ import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.HandshakeKeySet;
-import org.briarproject.bramble.api.transport.HandshakeKeySetId;
-import org.briarproject.bramble.api.transport.HandshakeKeys;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -116,20 +113,6 @@ public interface DatabaseComponent {
 	void addGroup(Transaction txn, Group g) throws DbException;
 
 	/**
-	 * Stores the given handshake keys for the given contact and returns a
-	 * key set ID.
-	 */
-	HandshakeKeySetId addHandshakeKeys(Transaction txn, ContactId c,
-			HandshakeKeys k) throws DbException;
-
-	/**
-	 * Stores the given handshake keys for the given pending contact and
-	 * returns a key set ID.
-	 */
-	HandshakeKeySetId addHandshakeKeys(Transaction txn, PendingContactId p,
-			HandshakeKeys k) throws DbException;
-
-	/**
 	 * Stores an identity.
 	 */
 	void addIdentity(Transaction txn, Identity i) throws DbException;
@@ -156,7 +139,14 @@ public interface DatabaseComponent {
 	 * Stores the given transport keys for the given contact and returns a
 	 * key set ID.
 	 */
-	TransportKeySetId addTransportKeys(Transaction txn, ContactId c,
+	KeySetId addTransportKeys(Transaction txn, ContactId c, TransportKeys k)
+			throws DbException;
+
+	/**
+	 * Stores the given transport keys for the given pending contact and
+	 * returns a key set ID.
+	 */
+	KeySetId addTransportKeys(Transaction txn, PendingContactId p,
 			TransportKeys k) throws DbException;
 
 	/**
@@ -276,7 +266,7 @@ public interface DatabaseComponent {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<ContactId> getContacts(Transaction txn, AuthorId a)
+	Collection<ContactId> getContacts(Transaction txn, AuthorId local)
 			throws DbException;
 
 	/**
@@ -308,14 +298,6 @@ public interface DatabaseComponent {
 	 * Read-only.
 	 */
 	Visibility getGroupVisibility(Transaction txn, ContactId c, GroupId g)
-			throws DbException;
-
-	/**
-	 * Returns all handshake keys for the given transport.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<HandshakeKeySet> getHandshakeKeys(Transaction txn, TransportId t)
 			throws DbException;
 
 	/**
@@ -490,16 +472,10 @@ public interface DatabaseComponent {
 			throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given handshake keys.
-	 */
-	void incrementStreamCounter(Transaction txn, TransportId t,
-			HandshakeKeySetId k) throws DbException;
-
-	/**
 	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(Transaction txn, TransportId t,
-			TransportKeySetId k) throws DbException;
+	void incrementStreamCounter(Transaction txn, TransportId t, KeySetId k)
+			throws DbException;
 
 	/**
 	 * Merges the given metadata with the existing metadata for the given
@@ -555,12 +531,6 @@ public interface DatabaseComponent {
 	void removeGroup(Transaction txn, Group g) throws DbException;
 
 	/**
-	 * Removes the given handshake keys from the database.
-	 */
-	void removeHandshakeKeys(Transaction txn, TransportId t,
-			HandshakeKeySetId k) throws DbException;
-
-	/**
 	 * Removes an identity (and all associated state) from the database.
 	 */
 	void removeIdentity(Transaction txn, AuthorId a) throws DbException;
@@ -584,8 +554,8 @@ public interface DatabaseComponent {
 	/**
 	 * Removes the given transport keys from the database.
 	 */
-	void removeTransportKeys(Transaction txn, TransportId t,
-			TransportKeySetId k) throws DbException;
+	void removeTransportKeys(Transaction txn, TransportId t, KeySetId k)
+			throws DbException;
 
 	/**
 	 * Marks the given contact as verified.
@@ -628,31 +598,16 @@ public interface DatabaseComponent {
 			PublicKey publicKey, PrivateKey privateKey) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given transport key set in the given
+	 * Sets the reordering window for the given transport keys in the given
 	 * time period.
 	 */
-	void setReorderingWindow(Transaction txn, TransportKeySetId k,
-			TransportId t, long timePeriod, long base, byte[] bitmap)
-			throws DbException;
-
-	/**
-	 * Sets the reordering window for the given handshake key set in the given
-	 * time period.
-	 */
-	void setReorderingWindow(Transaction txn, HandshakeKeySetId k,
-			TransportId t, long timePeriod, long base, byte[] bitmap)
-			throws DbException;
+	void setReorderingWindow(Transaction txn, KeySetId k, TransportId t,
+			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
-	void setTransportKeysActive(Transaction txn, TransportId t,
-			TransportKeySetId k) throws DbException;
-
-	/**
-	 * Stores the given handshake keys, deleting any keys they have replaced.
-	 */
-	void updateHandshakeKeys(Transaction txn, Collection<HandshakeKeySet> keys)
+	void setTransportKeysActive(Transaction txn, TransportId t, KeySetId k)
 			throws DbException;
 
 	/**

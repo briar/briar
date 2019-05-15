@@ -10,7 +10,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.Role;
 
@@ -35,12 +35,12 @@ class IntroduceeSession extends Session<IntroduceeState>
 	@Nullable
 	private final byte[] masterKey;
 	@Nullable
-	private final Map<TransportId, TransportKeySetId> transportKeys;
+	private final Map<TransportId, KeySetId> transportKeys;
 
 	IntroduceeSession(SessionId sessionId, IntroduceeState state,
 			long requestTimestamp, GroupId contactGroupId, Author introducer,
 			Local local, Remote remote, @Nullable byte[] masterKey,
-			@Nullable Map<TransportId, TransportKeySetId> transportKeys) {
+			@Nullable Map<TransportId, KeySetId> transportKeys) {
 		super(sessionId, state, requestTimestamp);
 		this.contactGroupId = contactGroupId;
 		this.introducer = introducer;
@@ -115,8 +115,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 	}
 
 	static IntroduceeSession awaitActivate(IntroduceeSession s, AuthMessage m,
-			Message sent,
-			@Nullable Map<TransportId, TransportKeySetId> transportKeys) {
+			Message sent, @Nullable Map<TransportId, KeySetId> transportKeys) {
 		Local local = new Local(s.local, sent.getId(), sent.getTimestamp());
 		Remote remote = new Remote(s.remote, m.getMessageId());
 		return new IntroduceeSession(s.getSessionId(), AWAIT_ACTIVATE,
@@ -183,7 +182,7 @@ class IntroduceeSession extends Session<IntroduceeState>
 	}
 
 	@Nullable
-	Map<TransportId, TransportKeySetId> getTransportKeys() {
+	Map<TransportId, KeySetId> getTransportKeys() {
 		return transportKeys;
 	}
 

@@ -96,6 +96,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionReader r) throws IOException {
 		InputStream streamReader = streamReaderFactory.createStreamReader(
 				r.getInputStream(), ctx);
+		// TODO: Pending contacts, handshake mode
 		return syncSessionFactory.createIncomingSession(ctx.getContactId(),
 				streamReader);
 	}
@@ -104,6 +105,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionWriter w) throws IOException {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
+		// TODO: Pending contacts, handshake mode
 		return syncSessionFactory.createSimplexOutgoingSession(
 				ctx.getContactId(), w.getMaxLatency(), streamWriter);
 	}
@@ -112,6 +114,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionWriter w) throws IOException {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
+		// TODO: Pending contacts, handshake mode
 		return syncSessionFactory.createDuplexOutgoingSession(
 				ctx.getContactId(), w.getMaxLatency(), w.getMaxIdleTime(),
 				streamWriter);
@@ -145,6 +148,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				disposeReader(false, false);
 				return;
 			}
+			// TODO: Pending contacts
 			ContactId contactId = ctx.getContactId();
 			connectionRegistry.registerConnection(contactId, transportId, true);
 			try {
@@ -388,7 +392,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				return;
 			}
 			// Check that the stream comes from the expected contact
-			if (!ctx.getContactId().equals(contactId)) {
+			if (!contactId.equals(ctx.getContactId())) {
 				LOG.warning("Wrong contact ID for returning stream");
 				disposeReader(true, true);
 				return;

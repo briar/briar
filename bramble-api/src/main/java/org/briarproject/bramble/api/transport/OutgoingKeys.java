@@ -6,8 +6,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Contains transport keys for sending streams to a given contact over a given
- * transport in a given time period.
+ * Contains transport keys for sending streams to a given contact or pending
+ * contact over a given transport in a given time period.
  */
 @Immutable
 @NotNullByDefault

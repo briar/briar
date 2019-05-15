@@ -64,11 +64,8 @@ import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.HandshakeKeySet;
-import org.briarproject.bramble.api.transport.HandshakeKeySetId;
-import org.briarproject.bramble.api.transport.HandshakeKeys;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.ArrayList;
@@ -261,30 +258,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public HandshakeKeySetId addHandshakeKeys(Transaction transaction,
-			ContactId c, HandshakeKeys k) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
-		if (!db.containsTransport(txn, k.getTransportId()))
-			throw new NoSuchTransportException();
-		return db.addHandshakeKeys(txn, c, k);
-	}
-
-	@Override
-	public HandshakeKeySetId addHandshakeKeys(Transaction transaction,
-			PendingContactId p, HandshakeKeys k) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsPendingContact(txn, p))
-			throw new NoSuchPendingContactException();
-		if (!db.containsTransport(txn, k.getTransportId()))
-			throw new NoSuchTransportException();
-		return db.addHandshakeKeys(txn, p, k);
-	}
-
-	@Override
 	public void addIdentity(Transaction transaction, Identity i)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -332,8 +305,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public TransportKeySetId addTransportKeys(Transaction transaction,
-			ContactId c, TransportKeys k) throws DbException {
+	public KeySetId addTransportKeys(Transaction transaction, ContactId c,
+			TransportKeys k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
@@ -341,6 +314,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, k.getTransportId()))
 			throw new NoSuchTransportException();
 		return db.addTransportKeys(txn, c, k);
+	}
+
+	@Override
+	public KeySetId addTransportKeys(Transaction transaction,
+			PendingContactId p, TransportKeys k) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsPendingContact(txn, p))
+			throw new NoSuchPendingContactException();
+		if (!db.containsTransport(txn, k.getTransportId()))
+			throw new NoSuchTransportException();
+		return db.addTransportKeys(txn, p, k);
 	}
 
 	@Override
@@ -505,11 +490,11 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public Collection<ContactId> getContacts(Transaction transaction,
-			AuthorId a) throws DbException {
+			AuthorId local) throws DbException {
 		T txn = unbox(transaction);
-		if (!db.containsIdentity(txn, a))
+		if (!db.containsIdentity(txn, local))
 			throw new NoSuchIdentityException();
-		return db.getContacts(txn, a);
+		return db.getContacts(txn, local);
 	}
 
 	@Override
@@ -544,15 +529,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
 		return db.getGroupVisibility(txn, c, g);
-	}
-
-	@Override
-	public Collection<HandshakeKeySet> getHandshakeKeys(Transaction transaction,
-			TransportId t) throws DbException {
-		T txn = unbox(transaction);
-		if (!db.containsTransport(txn, t))
-			throw new NoSuchTransportException();
-		return db.getHandshakeKeys(txn, t);
 	}
 
 	@Override
@@ -737,17 +713,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void incrementStreamCounter(Transaction transaction, TransportId t,
-			HandshakeKeySetId k) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsTransport(txn, t))
-			throw new NoSuchTransportException();
-		db.incrementStreamCounter(txn, t, k);
-	}
-
-	@Override
-	public void incrementStreamCounter(Transaction transaction, TransportId t,
-			TransportKeySetId k) throws DbException {
+			KeySetId k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
@@ -897,16 +863,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void removeHandshakeKeys(Transaction transaction,
-			TransportId t, HandshakeKeySetId k) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsTransport(txn, t))
-			throw new NoSuchTransportException();
-		db.removeHandshakeKeys(txn, t, k);
-	}
-
-	@Override
 	public void removeIdentity(Transaction transaction, AuthorId a)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -949,8 +905,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void removeTransportKeys(Transaction transaction,
-			TransportId t, TransportKeySetId k) throws DbException {
+	public void removeTransportKeys(Transaction transaction, TransportId t,
+			KeySetId k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
@@ -1048,20 +1004,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void setReorderingWindow(Transaction transaction,
-			TransportKeySetId k, TransportId t, long timePeriod, long base,
-			byte[] bitmap) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsTransport(txn, t))
-			throw new NoSuchTransportException();
-		db.setReorderingWindow(txn, k, t, timePeriod, base, bitmap);
-	}
-
-	@Override
-	public void setReorderingWindow(Transaction transaction,
-			HandshakeKeySetId k, TransportId t, long timePeriod, long base,
-			byte[] bitmap) throws DbException {
+	public void setReorderingWindow(Transaction transaction, KeySetId k,
+			TransportId t, long timePeriod, long base, byte[] bitmap)
+			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
@@ -1071,24 +1016,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void setTransportKeysActive(Transaction transaction, TransportId t,
-			TransportKeySetId k) throws DbException {
+			KeySetId k) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.setTransportKeysActive(txn, t, k);
-	}
-
-	@Override
-	public void updateHandshakeKeys(Transaction transaction,
-			Collection<HandshakeKeySet> keys) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		for (HandshakeKeySet ks : keys) {
-			TransportId t = ks.getKeys().getTransportId();
-			if (db.containsTransport(txn, t))
-				db.updateHandshakeKeys(txn, ks);
-		}
 	}
 
 	@Override

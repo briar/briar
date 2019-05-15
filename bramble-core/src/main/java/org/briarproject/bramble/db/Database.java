@@ -29,11 +29,8 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.MessageState;
-import org.briarproject.bramble.api.transport.HandshakeKeySet;
-import org.briarproject.bramble.api.transport.HandshakeKeySetId;
-import org.briarproject.bramble.api.transport.HandshakeKeys;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
@@ -108,20 +105,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Stores the given handshake keys for the given contact and returns a
-	 * key set ID.
-	 */
-	HandshakeKeySetId addHandshakeKeys(T txn, ContactId c, HandshakeKeys k)
-			throws DbException;
-
-	/**
-	 * Stores the given handshake keys for the given pending contact and
-	 * returns a key set ID.
-	 */
-	HandshakeKeySetId addHandshakeKeys(T txn, PendingContactId p,
-			HandshakeKeys k) throws DbException;
-
-	/**
 	 * Stores an identity.
 	 */
 	void addIdentity(T txn, Identity i) throws DbException;
@@ -162,7 +145,14 @@ interface Database<T> {
 	 * Stores the given transport keys for the given contact and returns a
 	 * key set ID.
 	 */
-	TransportKeySetId addTransportKeys(T txn, ContactId c, TransportKeys k)
+	KeySetId addTransportKeys(T txn, ContactId c, TransportKeys k)
+			throws DbException;
+
+	/**
+	 * Stores the given transport keys for the given pending contact and
+	 * returns a key set ID.
+	 */
+	KeySetId addTransportKeys(T txn, PendingContactId p, TransportKeys k)
 			throws DbException;
 
 	/**
@@ -275,7 +265,7 @@ interface Database<T> {
 	 * <p/>
 	 * Read-only.
 	 */
-	Collection<ContactId> getContacts(T txn, AuthorId a) throws DbException;
+	Collection<ContactId> getContacts(T txn, AuthorId local) throws DbException;
 
 	/**
 	 * Returns the group with the given ID.
@@ -315,14 +305,6 @@ interface Database<T> {
 	 * Read-only.
 	 */
 	Map<ContactId, Boolean> getGroupVisibility(T txn, GroupId g)
-			throws DbException;
-
-	/**
-	 * Returns all handshake keys for the given transport.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<HandshakeKeySet> getHandshakeKeys(T txn, TransportId t)
 			throws DbException;
 
 	/**
@@ -548,15 +530,9 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Increments the outgoing stream counter for the given handshake keys.
-	 */
-	void incrementStreamCounter(T txn, TransportId t, HandshakeKeySetId k)
-			throws DbException;
-
-	/**
 	 * Increments the outgoing stream counter for the given transport keys.
 	 */
-	void incrementStreamCounter(T txn, TransportId t, TransportKeySetId k)
+	void incrementStreamCounter(T txn, TransportId t, KeySetId k)
 			throws DbException;
 
 	/**
@@ -626,12 +602,6 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Removes the given handshake keys from the database.
-	 */
-	void removeHandshakeKeys(T txn, TransportId t, HandshakeKeySetId k)
-			throws DbException;
-
-	/**
 	 * Removes an identity (and all associated state) from the database.
 	 */
 	void removeIdentity(T txn, AuthorId a) throws DbException;
@@ -661,8 +631,7 @@ interface Database<T> {
 	/**
 	 * Removes the given transport keys from the database.
 	 */
-	void removeTransportKeys(T txn, TransportId t, TransportKeySetId k)
-			throws DbException;
+	void removeTransportKeys(T txn, TransportId t, KeySetId k) throws DbException;
 
 	/**
 	 * Resets the transmission count and expiry time of the given message with
@@ -712,23 +681,16 @@ interface Database<T> {
 			PendingContactState state) throws DbException;
 
 	/**
-	 * Sets the reordering window for the given transport key set in the given
+	 * Sets the reordering window for the given transport keys in the given
 	 * time period.
 	 */
-	void setReorderingWindow(T txn, TransportKeySetId k, TransportId t,
-			long timePeriod, long base, byte[] bitmap) throws DbException;
-
-	/**
-	 * Sets the reordering window for the given handshake key set in the given
-	 * time period.
-	 */
-	void setReorderingWindow(T txn, HandshakeKeySetId k, TransportId t,
+	void setReorderingWindow(T txn, KeySetId k, TransportId t,
 			long timePeriod, long base, byte[] bitmap) throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
-	void setTransportKeysActive(T txn, TransportId t, TransportKeySetId k)
+	void setTransportKeysActive(T txn, TransportId t, KeySetId k)
 			throws DbException;
 
 	/**
@@ -740,12 +702,7 @@ interface Database<T> {
 			throws DbException;
 
 	/**
-	 * Updates the given handshake keys.
-	 */
-	void updateHandshakeKeys(T txn, HandshakeKeySet ks) throws DbException;
-
-	/**
-	 * Updates the given transport keys following key rotation.
+	 * Stores the given transport keys, deleting any keys they have replaced.
 	 */
 	void updateTransportKeys(T txn, TransportKeySet ks) throws DbException;
 }

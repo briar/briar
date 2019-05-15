@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.transport.TransportKeySetId;
+import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.introduction.Role;
 import org.briarproject.briar.introduction.IntroduceeSession.Local;
@@ -114,7 +114,7 @@ class SessionParserImpl implements SessionParser {
 		Local local = parseLocal(d.getDictionary(SESSION_KEY_LOCAL));
 		Remote remote = parseRemote(d.getDictionary(SESSION_KEY_REMOTE));
 		byte[] masterKey = d.getOptionalRaw(SESSION_KEY_MASTER_KEY);
-		Map<TransportId, TransportKeySetId> transportKeys = parseTransportKeys(
+		Map<TransportId, KeySetId> transportKeys = parseTransportKeys(
 				d.getOptionalDictionary(SESSION_KEY_TRANSPORT_KEYS));
 		return new IntroduceeSession(sessionId, state, requestTimestamp,
 				introducerGroupId, introducer, local, remote,
@@ -188,13 +188,13 @@ class SessionParserImpl implements SessionParser {
 	}
 
 	@Nullable
-	private Map<TransportId, TransportKeySetId> parseTransportKeys(
+	private Map<TransportId, KeySetId> parseTransportKeys(
 			@Nullable BdfDictionary d) throws FormatException {
 		if (d == null) return null;
-		Map<TransportId, TransportKeySetId> map = new HashMap<>(d.size());
+		Map<TransportId, KeySetId> map = new HashMap<>(d.size());
 		for (String key : d.keySet()) {
 			map.put(new TransportId(key),
-					new TransportKeySetId(d.getLong(key).intValue()));
+					new KeySetId(d.getLong(key).intValue()));
 		}
 		return map;
 	}
