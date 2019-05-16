@@ -1,8 +1,11 @@
 package org.briarproject.briar.headless.contact
 
+import org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32_LINK_BYTES
 import org.briarproject.briar.headless.IntegrationTest
 import org.briarproject.briar.headless.url
+import org.briarproject.briar.test.BriarTestUtils.getRealHandshakeLink
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 
 class ContactControllerIntegrationTest: IntegrationTest() {
@@ -31,6 +34,75 @@ class ContactControllerIntegrationTest: IntegrationTest() {
         val contact = response.jsonArray.getJSONObject(0)
         val author = contact.getJSONObject("author")
         assertEquals(testContactName, author.getString("name"))
+    }
+
+    @Test
+    fun `returns own handshake link`() {
+        val response = get("$url/contacts/add/link")
+        assertEquals(200, response.statusCode)
+        val link = response.jsonObject.getString("link")
+        assertTrue(link.startsWith("briar://"))
+        assertEquals(BASE32_LINK_BYTES + 8, link.length)
+    }
+
+    @Test
+    fun `returning own handshake link needs authentication token`() {
+        val response = getWithWrongToken("$url/contacts/add/link")
+        assertEquals(401, response.statusCode)
+    }
+
+    @Test
+    fun `returns list of pending contacts`() {
+        // retrieve empty list of pending contacts
+        var response = get("$url/contacts/add/pending")
+        assertEquals(200, response.statusCode)
+        assertEquals(0, response.jsonArray.length())
+
+        // add one pending contact
+        val alias = "AliasFoo"
+        val json = """{
+            "link": "${getRealHandshakeLink(crypto)}",
+            "alias": "$alias"
+        }"""
+        response = post("$url/contacts/add/pending", json)
+        assertEquals(200, response.statusCode)
+
+        // get added contact as only list item
+        response = get("$url/contacts/add/pending")
+        assertEquals(200, response.statusCode)
+        assertEquals(1, response.jsonArray.length())
+        val jsonObject = response.jsonArray.getJSONObject(0)
+        assertEquals(alias, jsonObject.getString("alias"))
+        assertEquals("waiting_for_connection", jsonObject.getString("state"))
+
+        // remove pending contact again
+        val idString = jsonObject.getString("pendingContactId")
+        val deleteJson = """{"pendingContactId": "$idString"}"""
+        response = delete("$url/contacts/add/pending", deleteJson)
+        assertEquals(200, response.statusCode)
+
+        // list of pending contacts should be empty now
+        response = get("$url/contacts/add/pending")
+        assertEquals(200, response.statusCode)
+        assertEquals(0, response.jsonArray.length())
+    }
+
+    @Test
+    fun `returning list of pending contacts needs authentication token`() {
+        val response = getWithWrongToken("$url/contacts/add/pending")
+        assertEquals(401, response.statusCode)
+    }
+
+    @Test
+    fun `adding pending contacts needs authentication token`() {
+        val response = postWithWrongToken("$url/contacts/add/pending")
+        assertEquals(401, response.statusCode)
+    }
+
+    @Test
+    fun `removing a pending contact needs authentication token`() {
+        val response = deleteWithWrongToken("$url/contacts/add/pending")
+        assertEquals(401, response.statusCode)
     }
 
     @Test

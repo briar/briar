@@ -4,6 +4,7 @@ import dagger.Component
 import org.briarproject.bramble.BrambleCoreEagerSingletons
 import org.briarproject.bramble.BrambleCoreModule
 import org.briarproject.bramble.account.AccountModule
+import org.briarproject.bramble.api.crypto.CryptoComponent
 import org.briarproject.bramble.event.DefaultEventExecutorModule
 import org.briarproject.bramble.test.TestSecureRandomModule
 import org.briarproject.briar.BriarCoreEagerSingletons
@@ -24,6 +25,8 @@ import javax.inject.Singleton
 @Singleton
 internal interface BriarHeadlessTestApp : BrambleCoreEagerSingletons, BriarCoreEagerSingletons {
     fun getRouter(): Router
+
+    fun getCryptoComponent(): CryptoComponent
 
     fun getTestDataCreator(): TestDataCreator
 }

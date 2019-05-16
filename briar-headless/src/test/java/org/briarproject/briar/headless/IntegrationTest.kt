@@ -4,6 +4,7 @@ import io.javalin.Javalin
 import io.javalin.core.util.Header.AUTHORIZATION
 import khttp.responses.Response
 import org.briarproject.bramble.BrambleCoreModule
+import org.briarproject.bramble.api.crypto.CryptoComponent
 import org.briarproject.briar.BriarCoreModule
 import org.briarproject.briar.api.test.TestDataCreator
 import org.junit.jupiter.api.AfterAll
@@ -22,6 +23,7 @@ abstract class IntegrationTest {
     private val dataDir = File("tmp")
 
     protected lateinit var api: Javalin
+    protected lateinit var crypto: CryptoComponent
     protected lateinit var testDataCreator: TestDataCreator
     private lateinit var router: Router
 
@@ -33,6 +35,7 @@ abstract class IntegrationTest {
         BrambleCoreModule.initEagerSingletons(app)
         BriarCoreModule.initEagerSingletons(app)
         router = app.getRouter()
+        crypto = app.getCryptoComponent()
         testDataCreator = app.getTestDataCreator()
 
         api = router.start(token, port, false)
@@ -52,8 +55,20 @@ abstract class IntegrationTest {
         return khttp.get(url, getAuthTokenHeader("wrongToken"))
     }
 
+    protected fun post(url: String, data: String) : Response {
+        return khttp.post(url, getAuthTokenHeader(token), data = data)
+    }
+
+    protected fun postWithWrongToken(url: String) : Response {
+        return khttp.post(url, getAuthTokenHeader("wrongToken"), data = "")
+    }
+
     protected fun delete(url: String) : Response {
         return khttp.delete(url, getAuthTokenHeader(token))
+    }
+
+    protected fun delete(url: String, data: String) : Response {
+        return khttp.delete(url, getAuthTokenHeader(token), data = data)
     }
 
     protected fun deleteWithWrongToken(url: String) : Response {

@@ -8,7 +8,7 @@ fun Author.output() = JsonDict(
     "formatVersion" to formatVersion,
     "id" to id.bytes,
     "name" to name,
-    "publicKey" to publicKey
+    "publicKey" to publicKey.encoded
 )
 
 fun AuthorInfo.Status.output() = name.toLowerCase()

@@ -65,16 +65,87 @@ Returns a JSON array of contacts:
         "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
     },
     "contactId": 1,
+    "alias" : "A local nickname",
+    "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
     "verified": true
 }
 ```
 
 ### Adding a contact
 
-*Not yet implemented*
+The first step is to get your own link:
 
-The only workaround is to add a contact to the Briar app running on a rooted Android phone
-and then move its database (and key files) to the headless peer.
+`GET /v1/contacts/add/link`
+
+Returns a JSON object with a `briar://` link that needs to be sent to the contact you want to add
+outside of Briar via an external channel.
+
+```json
+{
+    "link": "briar://wvui4uvhbfv4tzo6xwngknebsxrafainnhldyfj63x6ipp4q2vigy"
+}
+```
+
+Once you have received the link of your future contact, you can add them
+by posting the link together with an arbitrary nickname (or alias):
+
+`POST /v1/contacts/add/pending`
+
+The link and the alias should be posted as a JSON object:
+
+```json
+{
+    "link": "briar://ddnsyffpsenoc3yzlhr24aegfq2pwan7kkselocill2choov6sbhs",
+    "alias": "A nickname for the new contact"
+}
+```
+
+This starts the process of adding the contact.
+Until it is completed, a pending contact is returned as JSON:
+
+```json
+{
+    "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U=",
+    "alias": "ztatsaajzeegraqcizbbfftofdekclatyht",
+    "state": "adding_contact",
+    "timestamp": 1557838312175
+}
+```
+
+The state can be one of these values:
+
+  * `waiting_for_connection`
+  * `connected`
+  * `adding_contact`
+  * `failed`
+
+If you want to get informed about state changes,
+you can use the Websocket API (below) to listen for events.
+
+The following events are relevant here:
+
+  * `PendingContactStateChangedEvent`
+  * `PendingContactRemovedEvent`
+  * `ContactAddedRemotelyEvent` (when the pending contact becomes an actual contact)
+
+It is possible to get a list of all pending contacts:
+
+`GET /v1/contacts/add/pending`
+
+This will return a JSON array of pending contacts formatted as shown above.
+
+To remove a pending contact and abort the process of adding it:
+
+`DELETE /v1/contacts/add/pending`
+
+The `pendingContactId` of the pending contact to delete
+needs to be provided in the request body as follows:
+
+```json
+{
+    "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U="
+}
+```
 
 ### Removing a contact
 
@@ -204,3 +275,56 @@ it will send a JSON object to connected websocket clients:
 
 Note that the JSON object in `data` is exactly what the REST API returns
 when listing private messages.
+
+### A new contact was added remotely
+
+When the Briar peer adds a new contact remotely,
+it will send a JSON object representing the new contact to connected websocket clients:
+
+```json
+{
+    "data": {
+        "contact": {
+            "author": {
+                "formatVersion": 1,
+                "id": "y1wkIzAimAbYoCGgWxkWlr6vnq1F8t1QRA/UMPgI0E0=",
+                "name": "Test",
+                "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
+            },
+            "contactId": 1,
+            "alias" : "A local nickname",
+            "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
+            "verified": true
+        }
+    },
+    "name": "ContactAddedRemotelyEvent",
+    "type": "event"
+}
+```
+
+### A pending contact changed its state
+
+```json
+{
+    "data": {
+        "pendingContactId":"YqKjsczCuxScXohb5+RAYtFEwK71icoB4ldztV2gh7M=",
+        "state":"waiting_for_connection"
+    },
+    "name": "PendingContactStateChangedEvent",
+    "type": "event"
+}
+```
+
+For a list of valid states, please see the section on adding contacts above.
+
+### A pending contact was removed
+
+```json
+{
+    "data": {
+        "pendingContactId": "YqKjsczCuxScXohb5+RAYtFEwK71icoB4ldztV2gh7M="
+    },
+    "name": "PendingContactRemovedEvent",
+    "type": "event"
+}
+```

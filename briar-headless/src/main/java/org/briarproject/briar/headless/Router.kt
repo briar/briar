@@ -64,6 +64,16 @@ constructor(
             path("/v1") {
                 path("/contacts") {
                     get { ctx -> contactController.list(ctx) }
+                    path("add") {
+                        path("link") {
+                            get { ctx -> contactController.getLink(ctx) }
+                        }
+                        path("pending") {
+                            get { ctx -> contactController.listPendingContacts(ctx) }
+                            post { ctx -> contactController.addPendingContact(ctx) }
+                            delete { ctx -> contactController.removePendingContact(ctx) }
+                        }
+                    }
                     path("/:contactId") {
                         delete { ctx -> contactController.delete(ctx) }
                     }
