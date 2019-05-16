@@ -2,12 +2,15 @@ package org.briarproject.briar.android.contact.add.remote;
 
 import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
+import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -19,6 +22,8 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -86,7 +91,29 @@ public class PendingContactListActivity extends BriarActivity
 
 	@Override
 	public void onFailedPendingContactRemoved(PendingContact pendingContact) {
-		viewModel.removePendingContact(pendingContact.getId());
+		// no need to show warning dialog for failed pending contacts
+		if (pendingContact.getState() == FAILED) {
+			removePendingContact(pendingContact.getId());
+			return;
+		}
+		// show warning dialog
+		OnClickListener removeListener = (dialog, which) ->
+				removePendingContact(pendingContact.getId());
+		AlertDialog.Builder builder = new AlertDialog.Builder(
+				PendingContactListActivity.this, R.style.BriarDialogTheme);
+		builder.setTitle(
+				getString(R.string.dialog_title_remove_pending_contact));
+		builder.setMessage(
+				getString(R.string.dialog_message_remove_pending_contact));
+		builder.setNegativeButton(R.string.groups_remove, removeListener);
+		builder.setPositiveButton(R.string.cancel, null);
+		// re-enable remove button when dialog is dismissed/canceled
+		builder.setOnDismissListener(dialog -> adapter.notifyDataSetChanged());
+		builder.show();
+	}
+
+	private void removePendingContact(PendingContactId id) {
+		viewModel.removePendingContact(id);
 	}
 
 	private void onPendingContactsChanged(Collection<PendingContact> contacts) {

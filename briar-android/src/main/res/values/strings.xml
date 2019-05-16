@@ -197,6 +197,8 @@
 	<string name="connecting">Connecting…</string>
 	<string name="adding_contact">Adding contact…</string>
 	<string name="adding_contact_failed">Adding contact has failed</string>
+	<string name="dialog_title_remove_pending_contact">Confirm Removal</string>
+	<string name="dialog_message_remove_pending_contact">This contact is still being added. If you remove it now, it will not be added.</string>
 	<string name="own_link_error">Enter your contact\'s link, not your own</string>
 	<string name="nickname_missing">Please enter a nickname</string>
 	<string name="invalid_link">Invalid link</string>
