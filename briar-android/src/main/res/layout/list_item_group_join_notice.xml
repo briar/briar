@@ -8,17 +8,11 @@
 	android:layout_height="wrap_content"
 	android:background="@drawable/list_item_thread_background">
 
-	<com.vanniktech.emoji.EmojiTextView
-		android:id="@+id/text"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"
-		android:layout_margin="@dimen/margin_medium"
-		android:textColor="?android:attr/textColorSecondary"
-		android:textSize="@dimen/text_size_medium"
-		android:textStyle="italic"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"
-		tools:text="@string/groups_member_joined"/>
+	<View
+		android:id="@+id/divider"
+		style="@style/Divider.ThreadItem"
+		app:layout_constraintLeft_toLeftOf="parent"
+		app:layout_constraintTop_toTopOf="parent"/>
 
 	<org.briarproject.briar.android.view.AuthorView
 		android:id="@+id/author"
@@ -27,14 +21,19 @@
 		android:layout_margin="@dimen/margin_medium"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/text"
+		app:layout_constraintTop_toBottomOf="@+id/divider"
 		app:persona="commenter"/>
 
-	<View
-		android:id="@+id/divider"
-		style="@style/Divider.ThreadItem"
-		android:layout_marginTop="@dimen/margin_medium"
+	<com.vanniktech.emoji.EmojiTextView
+		android:id="@+id/text"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:padding="@dimen/margin_medium"
+		android:textColor="?android:attr/textColorSecondary"
+		android:textSize="@dimen/text_size_medium"
+		android:textStyle="italic"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toBottomOf="@+id/author"/>
+		app:layout_constraintTop_toBottomOf="@id/author"
+		tools:text="@string/groups_member_joined"/>
 
 </android.support.constraint.ConstraintLayout>
