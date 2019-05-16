@@ -82,6 +82,7 @@
 	<style name="Divider.ThreadItem" parent="Divider">
 		<item name="android:layout_width">match_parent</item>
 		<item name="android:layout_height">@dimen/forum_nested_line_width</item>
+		<item name="android:background">@color/thread_indicator</item>
 	</style>
 
 	<style name="BriarAvatar">
