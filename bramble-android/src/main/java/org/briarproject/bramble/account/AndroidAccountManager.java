@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.File;
 import java.util.HashSet;
@@ -20,6 +19,9 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.util.IoUtils.deleteFileOrDir;
+import static org.briarproject.bramble.util.LogUtils.logFileOrDir;
 
 class AndroidAccountManager extends AccountManagerImpl
 		implements AccountManager {
@@ -39,6 +41,16 @@ class AndroidAccountManager extends AccountManagerImpl
 		super(databaseConfig, crypto, identityManager);
 		this.prefs = prefs;
 		appContext = app.getApplicationContext();
+	}
+
+	@Override
+	public boolean accountExists() {
+		boolean exists = super.accountExists();
+		if (!exists && LOG.isLoggable(INFO)) {
+			LOG.info("Account does not exist. Contents of account directory:");
+			logFileOrDir(LOG, INFO, getDataDir());
+		}
+		return exists;
 	}
 
 	// Locking: stateChangeLock
@@ -74,9 +86,17 @@ class AndroidAccountManager extends AccountManagerImpl
 	@Override
 	public void deleteAccount() {
 		synchronized (stateChangeLock) {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Contents of account directory before deleting:");
+				logFileOrDir(LOG, INFO, getDataDir());
+			}
 			super.deleteAccount();
 			SharedPreferences defaultPrefs = getDefaultSharedPreferences();
 			deleteAppData(prefs, defaultPrefs);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Contents of account directory after deleting:");
+				logFileOrDir(LOG, INFO, getDataDir());
+			}
 		}
 	}
 
@@ -94,7 +114,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		}
 		// Delete files, except lib and shared_prefs directories
 		Set<File> files = new HashSet<>();
-		File dataDir = new File(appContext.getApplicationInfo().dataDir);
+		File dataDir = getDataDir();
 		@Nullable
 		File[] fileArray = dataDir.listFiles();
 		if (fileArray == null) {
@@ -121,11 +141,15 @@ class AndroidAccountManager extends AccountManagerImpl
 			}
 		}
 		for (File file : files) {
-			IoUtils.deleteFileOrDir(file);
+			deleteFileOrDir(file);
 		}
 		// Recreate the cache dir as some OpenGL drivers expect it to exist
 		if (!new File(dataDir, "cache").mkdirs())
 			LOG.warning("Could not recreate cache dir");
+	}
+
+	private File getDataDir() {
+		return new File(appContext.getApplicationInfo().dataDir);
 	}
 
 	private void addIfNotNull(Set<File> files, @Nullable File file) {
