@@ -133,8 +133,11 @@
   <string name="dialog_message_save_image">इस छवि को सहेजने से अन्य ऐप्स इसे एक्सेस कर सकेंगे। \ n\ nक्या आप सुनिश्चित हैं कि आप सहेजना चाहते हैं?</string>
   <string name="save_image_success">छवि सहेज ली गई थी</string>
   <string name="save_image_error">छवि नहीं बचा सका</string>
+  <string name="dialog_title_no_image_support">चित्र अनुपलब्ध</string>
+  <string name="dialog_message_no_image_support">आपके संपर्क का Briar अभी तक छवि अनुलग्नकों का समर्थन नहीं करता है। एक बार जब वे अद्यतन करेंगे तो आपको एक अलग छवि दिखाई देगा।</string>
+  <string name="dialog_title_image_support">अब आप इस संपर्क को चित्र भेज सकते हैं</string>
+  <string name="dialog_message_image_support">छवियों को संलग्न करने के लिए इस प्रतिकृति को दबायें।</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">संपर्क जोड़ना</string>
   <string name="face_to_face">आपको उस व्यक्ति के साथ मिलना चाहिए जिसे आप संपर्क के रूप में जोड़ना चाहते हैं। \ N \ n यह किसी को भविष्य में आपके प्रतिरूपण या पढ़ने के बाद से किसी को भी रोकेगा।</string>
   <string name="continue_button">जारी रहना</string>
   <string name="try_again_button">पुनः प्रयास करें</string>
@@ -151,6 +154,12 @@
   <string name="connection_error_title">आपके संपर्क से कनेक्ट नहीं हो सका</string>
   <string name="connection_error_explanation">कृपया जांचें कि आप दोनों एक ही वाई-फाई नेटवर्क से जुड़े हुए हैं।</string>
   <string name="connection_error_feedback">यदि यह समस्या बनी रहती है, तो कृपया ऐप को बेहतर बनाने में हमारी सहायता के लिए <a href="feedback">फ़ीडबैक भेजें</a>।</string>
+  <!--Adding Contacts Remotely-->
+  <string name="share_button">शेयर</string>
+  <string name="add_contact_remote_connecting">कनेक्ट हो रहा है ...</string>
+  <string name="connecting">कनेक्ट हो रहा है ...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <!--This is a numeral indicating the second step in a series of screens-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">अपने संपर्कों का परिचय दें</string>
   <string name="introduction_onboarding_text">आप अपने संपर्कों को एक दूसरे से जोड़ सकते हैं, इसलिए उन्हें Briar  से जुड़ने के लिए व्यक्तिगत रूप से मिलने की जरूरत नहीं है।</string>
@@ -173,10 +182,6 @@
   <string name="introduction_response_accepted_received">%1$s%2$s की शुरूआत स्वीकार कर ली</string>
   <string name="introduction_response_declined_received">%1$s%2$sकी शुरूआत में गिरावट आई</string>
   <string name="introduction_response_declined_received_by_introducee">%1$sकहते हैं कि%2$sने परिचय को अस्वीकार कर दिया</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">नया संपर्क जोड़ा।</item>
-    <item quantity="other">%dनया संपर्क जोड़ा।</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">दिखाने के लिए कोई समूह नहीं है</string>
   <string name="groups_list_empty_action">समूह बनाने के लिए + आइकन टैप करें, या अपने संपर्कों को अपने साथ समूह साझा करने के लिए कहें</string>
@@ -350,6 +355,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">स्वचालित:%1$s (में %2$s)</string>
   <string name="tor_mobile_data_title">मोबाइल डेटा का प्रयोग करें</string>
+  <string name="tor_only_when_charging_title">चार्ज होने पर ही इंटरनेट (टोर) से कनेक्ट करें</string>
+  <string name="tor_only_when_charging_summary">जब यंत्र बैटरी पर चल रहा हो तो इंटरनेट संबंध को निष्क्रिय कर देता है</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">सुरक्षा</string>
   <string name="pref_lock_title">एप्लिकेशन का लॉक</string>
@@ -419,6 +426,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">लिंक चेतावनी</string>
   <string name="link_warning_intro">आप बाहरी एप्लिकेशन के साथ निम्न लिंक खोलने वाले हैं</string>
+  <string name="link_warning_text">इसका उपयोग आपकी पहचान करने के लिए किया जा सकता है। इस बारे में सोचें कि क्या आप उस व्यक्ति पर भरोसा करते हैं जिसने आपको यह लिंक भेजा है और इसे टोर ब्राउज़र से खोलने पर विचार करें।</string>
   <string name="link_warning_open_link">खुली लिंक</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar  क्रैश रिपोर्ट</string>

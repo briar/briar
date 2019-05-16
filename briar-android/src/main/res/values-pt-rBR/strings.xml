@@ -125,7 +125,6 @@
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Você</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Adicionar um contato</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoa que deseja adicionar como contato.\n\nIsso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Tente novamente</string>
@@ -142,6 +141,16 @@
   <string name="connection_error_title">Não foi possível conectar-se ao seu contato</string>
   <string name="connection_error_explanation">Por favor. certifique se ambos estão conectados na mesma rede Wi-Fi.</string>
   <string name="connection_error_feedback">Se o problema persistir, for favor <a href="feedback">enviar feedback</a> para nós ajudar a melhor o app.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Colar</string>
+  <string name="copy_button">Copiar</string>
+  <string name="share_button">Compartilhar</string>
+  <string name="add_contact_remote_connecting">Conectando...</string>
+  <string name="connecting">Conectando...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Apresente seus contatos</string>
   <string name="introduction_onboarding_text">Você pode apresentar seus contatos entre si, assim eles não precisam se encontrar pessoalmente para se comunicar no Briar.</string>
@@ -164,10 +173,6 @@
   <string name="introduction_response_accepted_received">%1$s aceitou ser apresentado a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s recusou ser apresentado a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s disse que %2$s recusou a apresentação.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Novo contato adicionado.</item>
-    <item quantity="other">%d novos contatos adicionados.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Sem grupos para exibir</string>
   <string name="groups_list_empty_action">Toque no ícone + para criar um grupo, ou peça seus contatos compartilhar os grupos com você</string>

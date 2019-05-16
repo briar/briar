@@ -150,7 +150,6 @@
   <string name="dialog_title_image_support">Теперь вы можете отправлять изображения этому контакту</string>
   <string name="dialog_message_image_support">Нажмите на этот значок, чтобы прикрепить изображения.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Добавить контакт</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
   <string name="continue_button">Продолжить</string>
   <string name="try_again_button">Попробовать снова</string>
@@ -167,6 +166,16 @@
   <string name="connection_error_title">Не удалось подключиться к контакту</string>
   <string name="connection_error_explanation">Убедитесь, что вы оба подключены к той же сети Wi-Fi.</string>
   <string name="connection_error_feedback">Если эта проблема сохраняется, пожалуйста <a href="feedback">отправьте отзыв</a>,  чтобы помочь нам улучшить приложение.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Вставка</string>
+  <string name="copy_button">Копировать</string>
+  <string name="share_button">Поделиться</string>
+  <string name="add_contact_remote_connecting">Идёт подключение...</string>
+  <string name="connecting">Идёт подключение...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Представление ваших контактов</string>
   <string name="introduction_onboarding_text">Вы можете представить ваши контакты друг другу. Это позволит исключить личную встречу, чтобы связаться через Briar. </string>
@@ -189,12 +198,6 @@
   <string name="introduction_response_accepted_received">%1$s принял представление %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказался от представления %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s сообщает, что %2$s отказался от представления.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Новый контакт добавлен.</item>
-    <item quantity="few">%d новых контакта добавлено.</item>
-    <item quantity="many">%d новых контактов добавлено.</item>
-    <item quantity="other">%d новых контактов добавлено.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Нет групп для отображения</string>
   <string name="groups_list_empty_action">Для создания группы нажмите значок + или попросите ваши контакты поделиться с вами группами</string>

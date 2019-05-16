@@ -139,7 +139,6 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="dialog_title_image_support">Ara podeu enviar imatges a aquest contacte</string>
   <string name="dialog_message_image_support">Premeu aquesta icona per afegir imatges.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Afegiu un contacte</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
   <string name="continue_button">Continua</string>
   <string name="try_again_button">Torna-ho a provar</string>
@@ -156,6 +155,15 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="connection_error_title">No ha pogut connectar-se al vostre contacte</string>
   <string name="connection_error_explanation">Comproveu que esteu connectats a la mateixa xarxa Wi-Fi.</string>
   <string name="connection_error_feedback">Si aquest problema persisteix, <a href="feedback">envieu-nos un comentari</a> per ajudar-nos a millorar l\'aplicació.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Pegar</string>
+  <string name="copy_button">Copia</string>
+  <string name="share_button">Compartir</string>
+  <string name="add_contact_remote_connecting">S\'està connectant...</string>
+  <string name="connecting">S\'està connectant...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenteu als vostres contactes</string>
   <string name="introduction_onboarding_text">Podeu presentar als vostres contactes entre si, de manera que no necessitin trobar-se en persona per a relacionar-se a través de Briar.</string>
@@ -178,10 +186,6 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="introduction_response_accepted_received">%1$s ha acceptat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha refusat conèixer a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s diu que %2$s ha refusat conèixer-lo.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">S\'ha afegit un nou contacte.</item>
-    <item quantity="other">S\'han afegit %d nous contactes.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">No hi ha cap grup per mostrar</string>
   <string name="groups_list_empty_action">Toqueu la icona + per crear un grup o demaneu als vostres contactes que us afegeixin als seus grups</string>

@@ -124,7 +124,6 @@
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Te</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Kapcsolat hozzáadása</string>
   <string name="face_to_face">Találkoznia kell a személlyel akit, hozzá szeretne adni a kapcsolatokhoz.\n\nEz megelőzi azt, hogy valaki megszemélyesítse Önt, vagy elolvassa későbbi üzeneteit.</string>
   <string name="continue_button">Folytatás</string>
   <string name="try_again_button">Újrapróbálkozás</string>
@@ -141,6 +140,16 @@
   <string name="connection_error_title">Nem sikerült csatlakozni a kapcsolatához</string>
   <string name="connection_error_explanation">Ellenőrizzék, hogy mindketten ugyanahhoz a Wi-Fi hálózathoz vannak-e csatlakozva.</string>
   <string name="connection_error_feedback">Ha ez a probléma tartósan fennáll, kérjük <a href="feedback"> küldjön visszajelzést </a> nekünk, hogy segítsen fejleszteni az appot.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Beilleszt</string>
+  <string name="copy_button">Másol</string>
+  <string name="share_button">Megoszt</string>
+  <string name="add_contact_remote_connecting">Csatlakozás...</string>
+  <string name="connecting">Csatlakozás...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kapcsolatai bemutatása</string>
   <string name="introduction_onboarding_text">Bemutathatja kapcsolatait egymásnak, így nem szükséges, hogy találkozzanak személyesen, hogy kapcsolódhassanak a Briar-on.</string>
@@ -163,10 +172,6 @@
   <string name="introduction_response_accepted_received">%1$s elfogadta a bemutatkozást %2$s számára.</string>
   <string name="introduction_response_declined_received">%1$s elutasította a bemutatkozást %2$s számára.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s alapján %2$s elutasította a bemutatkozást.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Új kapcsolat hozzáadva.</item>
-    <item quantity="other">%d új kapcsolat hozzáadva.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Nincs megjeleníthető csoport</string>
   <string name="groups_list_empty_action">Érintse meg a + ikont csoport létrehozásához, vagy kérje meg kapcsolatait, hogy osszanak meg csoportokat Önnel</string>

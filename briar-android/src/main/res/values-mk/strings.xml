@@ -138,7 +138,7 @@
   <string name="dialog_title_image_support">Сега можете да му испраќате слики на овој контакт</string>
   <string name="dialog_message_image_support">Допрете ја оваа икона за да прикачите слики.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Додади контакт</string>
+  <string name="add_contact_title">Додај контакт ВО БЛИЗИНА</string>
   <string name="face_to_face">Морате да се сретнете со лицето кое сакате да го додадете за контакт.\n\nОва спречува во иднина било кој да се преставува како вас или да ги чита вашите пораки во иднина.</string>
   <string name="continue_button">Продолжи</string>
   <string name="try_again_button">Обиди се повторно</string>
@@ -155,6 +155,46 @@
   <string name="connection_error_title">Не може да се поврзе со твојот контакт</string>
   <string name="connection_error_explanation">Ве молиме проверете дека и двајцата сте поврзани на истата Wi-Fi мрежа.</string>
   <string name="connection_error_feedback">Ако овој проблем останува, ве молиме <a href="feedback">испратете повратна информација</a> за да ни помогнете да ја подобриме апликацијата.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Додај контакт НА РАСТОЈАНИЕ</string>
+  <string name="add_contact_nearby_title">Додај контакт во близина</string>
+  <string name="add_contact_remotely_title">Додај контакт на растојание</string>
+  <string name="contact_name_hint">Додели му прекар на контактот</string>
+  <string name="contact_link_intro">Внеси го линкот од твојот контакт овде</string>
+  <string name="contact_link_hint">Линк на контактот</string>
+  <string name="paste_button">Залепи</string>
+  <string name="add_contact_button">Додај контакт</string>
+  <string name="copy_button">Копирај</string>
+  <string name="share_button">Сподели</string>
+  <string name="send_link_title">Размени линкови</string>
+  <string name="add_contact_choose_nickname">Избери прекар</string>
+  <string name="add_contact_choose_a_nickname">Внеси прекар</string>
+  <string name="nickname_intro">Дај му на твојот контакт прекар. Само ти ќе можеш да го видиш.</string>
+  <string name="your_link">Испрати го овој линк до контактот што сакаш да го додадеш</string>
+  <string name="link_clip_label">Briar линк</string>
+  <string name="link_copied_toast">Линкот е копиран</string>
+  <string name="adding_contact_error">Се случи грешка при додавање на контактот.</string>
+  <string name="pending_contact_requests_snackbar">Има барања за контакт на чекање</string>
+  <string name="pending_contact_requests">Барања за контакт на чекање</string>
+  <string name="no_pending_contacts">Нема контакти на чекање</string>
+  <string name="add_contact_remote_connecting">Се поврзува...</string>
+  <string name="waiting_for_contact_to_come_online">Чекање контактот да се вклучи...\n\nДали веќе го внел твојот линк?</string>
+  <string name="connecting">Се поврзува...</string>
+  <string name="adding_contact">Додавање контакт...</string>
+  <string name="adding_contact_failed">Додавањето на контакт беше неуспешно</string>
+  <string name="own_link_error">Внеси го линкот на твојот контакт, а не својот линк</string>
+  <string name="nickname_missing">Ве молиме внесете прекар</string>
+  <string name="invalid_link">Неважечки линк</string>
+  <string name="intent_own_link">Го отвори твојот линк. Користи го линкот на контактот што сакаш да го додадеш!</string>
+  <string name="missing_link">Ве молиме внесете линк</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Нов контакт е додаден.</item>
+    <item quantity="other">%dнови контакти се додадени.</item>
+  </plurals>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Запознај ги твоите контакти</string>
   <string name="introduction_onboarding_text">Можете да ги запознаете вашите контакти меѓусебно, па тие нема да имаат потреба да се запознаваат лично за да се поврзат на Briar.</string>
@@ -177,10 +217,6 @@
   <string name="introduction_response_accepted_received">%1$s го прифативте запознавањето со %2$s.</string>
   <string name="introduction_response_declined_received">%1$s го одбивте запознавањето со %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s вели дека %2$s го одбил запознавањето.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Нов контакт е додаден. </item>
-    <item quantity="other">%d нови контакти се додадени.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Нема групи за прикажување</string>
   <string name="groups_list_empty_action">Допрете ја + иконата за да создадете група, или прашајте ги вашите контакти да споделат групи со вас</string>

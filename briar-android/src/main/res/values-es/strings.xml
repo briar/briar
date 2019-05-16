@@ -138,7 +138,6 @@
   <string name="dialog_title_image_support">Ahora puedes enviar imágenes a este contacto.</string>
   <string name="dialog_message_image_support">Pulsa este ícono para adjuntar imágenes.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Añadir un contacto</string>
   <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Prueba de nuevo</string>
@@ -155,6 +154,16 @@
   <string name="connection_error_title">No se pudo conectar a tu contacto</string>
   <string name="connection_error_explanation">Por favor comprobar que ambos estén conectados a la misma red Wi-Fi.</string>
   <string name="connection_error_feedback">Si este problema persiste, por favor <a href="feedback">envía tus comentarios</a> para ayudarnos a mejorar la aplicación.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Pegar</string>
+  <string name="copy_button">Copiar</string>
+  <string name="share_button">Compartir</string>
+  <string name="add_contact_remote_connecting">Conectando...</string>
+  <string name="connecting">Conectando...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta a tus contactos</string>
   <string name="introduction_onboarding_text">Presenta a tus contactos entre sí para ahorrarles encontrarse en persona para poder conectar mediante Briar.</string>
@@ -177,10 +186,6 @@
   <string name="introduction_response_accepted_received">%1$s aceptó la presentación a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s rechazó la presentación a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s dice que %2$s rechazó la presentación.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">nuevo contacto añadido.</item>
-    <item quantity="other">%d nuevos contactos añadidos.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">No hay grupos para mostrar</string>
   <string name="groups_list_empty_action">Golpea el icono + para crear un grupo, o pregunta a tus contactos si quieren compartir grupos contigo</string>
@@ -425,6 +430,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Advertencia sobre el enlace</string>
   <string name="link_warning_intro">Estás a punto de abrir el siguiente enlace con otra aplicación</string>
+  <string name="link_warning_text">Eso puede usarse para identificarte. Piensa en si confías en la persona que te envió el enlace y considera la opción de abrirlo con el Navegador Tor.</string>
   <string name="link_warning_open_link">Abrir enlace</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de falla de Briar</string>

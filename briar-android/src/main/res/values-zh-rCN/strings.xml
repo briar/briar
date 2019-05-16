@@ -111,6 +111,7 @@
   <string name="date_no_private_messages">没有消息。</string>
   <string name="no_private_messages">尚无消息可供显示</string>
   <string name="message_hint">输入信息</string>
+  <string name="image_caption_hint">添加一段描述（可选）</string>
   <string name="image_attach">附加图片</string>
   <string name="image_attach_error">无法附加图片</string>
   <string name="set_contact_alias">更改联系人姓名</string>
@@ -121,17 +122,17 @@
   <string name="dialog_message_delete_contact">确认要删除该联系人和与之交流的所有消息吗？</string>
   <string name="contact_deleted_toast">联系人已删除</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">您</string>
   <string name="save_image">保存图片</string>
   <string name="dialog_title_save_image">确定保存图片吗？</string>
   <string name="dialog_message_save_image">保存这张图片将会使其他应用可以访问到它。\n\n你确定要保存吗？</string>
   <string name="save_image_success">图片已保存</string>
   <string name="save_image_error">无法保存图片</string>
   <string name="dialog_title_no_image_support">图片无法访问</string>
-  <string name="dialog_message_no_image_support">你的联系人的 Briar 尚未支持图片附件。一旦他们升级你就会看到不同图标。</string>
-  <string name="dialog_title_image_support">你现在可以向此联系人发送图片。</string>
+  <string name="dialog_message_no_image_support">你的联系人的 Briar 尚未支持图片附件。一旦他们升级你就会看到一个不同的图标。</string>
+  <string name="dialog_title_image_support">你现在可以向此联系人发送图片</string>
   <string name="dialog_message_image_support">轻按此图标即可附加图片。</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">添加联系人</string>
   <string name="face_to_face">您必须面对面添加联系人。\n\n这样将防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="continue_button">继续</string>
   <string name="try_again_button">重试</string>
@@ -148,6 +149,9 @@
   <string name="connection_error_title">无法连接到您的联系人</string>
   <string name="connection_error_explanation">请确保你们连接到了同一个无线局域网中。</string>
   <string name="connection_error_feedback">如果该问题仍存在，请 <a href="feedback">发送反馈</a> 帮助我们改善应用。</string>
+  <!--Adding Contacts Remotely-->
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <!--This is a numeral indicating the second step in a series of screens-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">介绍您的联系人</string>
   <string name="introduction_onboarding_text">您可以互相介绍您的联系人，这样他们可以直接在 Briar 上建立联系而不必亲自见面。</string>
@@ -170,9 +174,6 @@
   <string name="introduction_response_accepted_received">%1$s 已接受与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received">%1$s 已谢绝与 %2$s 建立联系。</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s 表示 %2$s 谢绝了介绍。</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="other">已添加 %d 位新联系人。</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">尚无群聊可供展示</string>
   <string name="groups_list_empty_action">轻按 + 号创建群聊，或让您的联系人分享群聊给您</string>
@@ -342,6 +343,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">自动选择：%1$s（在 %2$s）</string>
   <string name="tor_mobile_data_title">使用移动数据</string>
+  <string name="tor_only_when_charging_title">只有在充电时通过网络（Tor）连接</string>
+  <string name="tor_only_when_charging_summary">当设备使用电池电量时关闭网络连接</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
   <string name="pref_lock_title">应用锁</string>
@@ -376,6 +379,7 @@
   <string name="panic_app_setting_none">无</string>
   <string name="dialog_title_connect_panic_app">确认应急应用</string>
   <string name="dialog_message_connect_panic_app">确认要允许 %1$s 触发破坏性应急开关反应吗？</string>
+  <string name="panic_setting_destructive_action">破坏性操作</string>
   <string name="panic_setting_signout_title">登出</string>
   <string name="panic_setting_signout_summary">触发应急开关时登出 Briar</string>
   <string name="purge_setting_title">删除帐户</string>
@@ -410,6 +414,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">链接警告</string>
   <string name="link_warning_intro">您将要在另一个应用中打开以下链接</string>
+  <string name="link_warning_text">这可能用来标识您的身份。请考虑一下您是否信任这个给您发送链接的人，并考虑用 Tor 浏览器打开它。</string>
   <string name="link_warning_open_link">打开链接</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar 崩溃报告</string>

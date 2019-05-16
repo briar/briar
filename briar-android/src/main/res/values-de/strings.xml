@@ -138,7 +138,6 @@
   <string name="dialog_title_image_support">Du kannst nun Bilder an diesen Kontakt senden</string>
   <string name="dialog_message_image_support">Tippe auf das Symbol, um Bilder anzuhängen.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Kontakt hinzufügen</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
   <string name="continue_button">Weiter</string>
   <string name="try_again_button">Noch einmal versuchen</string>
@@ -155,6 +154,35 @@
   <string name="connection_error_title">Keine Verbindung zum Kontakt</string>
   <string name="connection_error_explanation">Überprüfe ob ihr beide mit dem selben Wi-Fi Netzwerk verbunden seit.</string>
   <string name="connection_error_feedback">Wenn das Problem weiterbesteht, hilf uns die App zu verbessern und <a href="feedback">schicke Feedback</a>.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_nearby_title">Kontakt in der Nähe hinzufügen</string>
+  <string name="contact_name_hint">Gib dem Kontakt einen Spitznamen</string>
+  <string name="paste_button">Einfügen</string>
+  <string name="add_contact_button">Kontakt hinzufügen</string>
+  <string name="copy_button">Kopieren</string>
+  <string name="share_button">Teilen</string>
+  <string name="add_contact_choose_nickname">Wähle einen Spitznamen</string>
+  <string name="add_contact_choose_a_nickname">Gib einen Spitznamen ein</string>
+  <string name="nickname_intro">Gib deinem Kontakt einen Spitznamen. Nur du kannst es sehen.</string>
+  <string name="link_clip_label">Briar Link</string>
+  <string name="link_copied_toast">Link kopiert</string>
+  <string name="adding_contact_error">Es gab einen Fehler beim Hinzufügen des Kontaktes.</string>
+  <string name="pending_contact_requests_snackbar">Es gibt ausstehende Kontaktanfragen</string>
+  <string name="pending_contact_requests">Ausstehende Kontaktanfragen</string>
+  <string name="no_pending_contacts">Keine ausstehenden Kontakte</string>
+  <string name="add_contact_remote_connecting">Verbindung wird aufgebaut …</string>
+  <string name="connecting">Verbindung wird aufgebaut …</string>
+  <string name="adding_contact">Kontakt hinzufügen...</string>
+  <string name="adding_contact_failed">Hinzufügen von Kontakt ist fehlgeschlagen</string>
+  <string name="nickname_missing">Bitte gib einen Spitznamen an</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Neuer Kontakt hinzugefügt.</item>
+    <item quantity="other">%d neue Kontakte hinzugefügt.</item>
+  </plurals>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
   <string name="introduction_onboarding_text">Du kannst deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
@@ -177,10 +205,6 @@
   <string name="introduction_response_accepted_received">%1$s hat die Kontaktempfehlung für %2$s angenommen.</string>
   <string name="introduction_response_declined_received">%1$s hat die Kontaktempfehlung von %2$s abgelehnt.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s meldet, dass %2$s die Kontaktempfehlung abgelehnt hat.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">neuer Kontakt hinzugefügt.</item>
-    <item quantity="other">%d neue Kontakte hinzugefügt.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Keine Gruppen vorhanden</string>
   <string name="groups_list_empty_action">Tippe auf das + Symbol, um eine Gruppe anzulegen oder frage deine Kontakte, Gruppen mit dir zu teilen</string>

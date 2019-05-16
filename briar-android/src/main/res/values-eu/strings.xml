@@ -138,7 +138,6 @@
   <string name="dialog_title_image_support">Orain irudiak bidali ahal dizkiozu eranskin gisa kontaktu honei</string>
   <string name="dialog_message_image_support">Sakatu ikono hau irudiak eransteko.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Gehitu kontaktu bat</string>
   <string name="face_to_face">Kontaktu gisa gehitu nahi duzun pertsonarekin aurrez aurre egon behar duzu.\n\nHonek etorkizunean inork zure itxurak egitea edo zure mezuak irakurtzea eragotziko du.</string>
   <string name="continue_button">Jarraitu</string>
   <string name="try_again_button">Saiatu berriro</string>
@@ -155,6 +154,15 @@
   <string name="connection_error_title">Ezin izan da zure kontaktuarekin konektatu</string>
   <string name="connection_error_explanation">Egiaztatu biak Wi-Fi sare berera konektatuta zaudetela.</string>
   <string name="connection_error_feedback">Arazoa  mantentzen bada, mesedez <a href="feedback">bidali iruzkin bat</a> aplikazioa hobetzen laguntzeko.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Itsatsi</string>
+  <string name="copy_button">Kopiatu</string>
+  <string name="share_button">Elkarbanatu</string>
+  <string name="add_contact_remote_connecting">Elkartzen</string>
+  <string name="connecting">Elkartzen</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Aurkeztu zure kontaktuak</string>
   <string name="introduction_onboarding_text">Zure kontaktuak elkarren artean aurkez ditzakezu, Briar bidez konektatzeko aurrez aurre egon behar izan ez dezaten.</string>
@@ -177,10 +185,6 @@
   <string name="introduction_response_accepted_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena onartu du.</string>
   <string name="introduction_response_declined_received">%1$s erabiltzaileak %2$s erabiltzailearen aurkezpena errefusatu du.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s erabiltzaileak dio %2$s erabiltzaileak aurkezpena errefusatu duela.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Kontaktu berria gehitu da.</item>
-    <item quantity="other">%d kontaktu berri gehitu dira.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Ez dago erakusteko talderik</string>
   <string name="groups_list_empty_action">Sakatu + ikonoa talde bat sortzeko, edo eskatu zure kontaktuei taldeak zurekin parteka ditzatela</string>

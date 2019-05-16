@@ -51,6 +51,7 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="download_briar_button">Preuzmite Briar 1.0</string>
   <string name="startup_open_database">Dekriptujem bazu...</string>
   <string name="startup_migrate_database">Ažuriram bazu...</string>
+  <string name="startup_compact_database">Sabijanje baze</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Otvorite navigacionu fioku</string>
   <string name="nav_drawer_close_description">Zatvorite navigacionu fioku</string>
@@ -122,13 +123,24 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="date_no_private_messages">Nema poruka.</string>
   <string name="no_private_messages">Nema poruka za prikazivanje</string>
   <string name="message_hint">Ukucajte poruku</string>
+  <string name="image_caption_hint">Dodaj naslov (opciono)</string>
+  <string name="image_attach">Zakaci sliku</string>
+  <string name="image_attach_error">Nisam mogao da zakacim sliku</string>
+  <string name="set_contact_alias">Promijeni ime kontakta</string>
+  <string name="set_contact_alias_hint">Ime kontakta</string>
+  <string name="set_alias_button">Promijeni</string>
   <string name="delete_contact">Izbrišite kontakt</string>
   <string name="dialog_title_delete_contact">Potvrdite brisanje kontakta</string>
   <string name="dialog_message_delete_contact">Jeste li sigurni da želite da uklonite ovaj kontakt i sve poruke koje ste razmijenili?</string>
   <string name="contact_deleted_toast">Kontakt izbrisan</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">Vi</string>
+  <string name="save_image">Sacuvaj sliku</string>
+  <string name="dialog_title_save_image">Da sacuvam sliku?</string>
+  <string name="dialog_message_save_image">Cuvanje ove slike ce omoguciti drugim aplikacijama da joj pristupe.
+
+Jeste li sigurno da zelite da je sacuvate?</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Dodaj kontakt</string>
   <string name="face_to_face">Morate se sresti sa osobom koju želite da dodate kao kontakt.\n\nOvo će spriječiti bilo koga da se predstavi kao vi ili da ubuduće čita poruke.</string>
   <string name="continue_button">Dalje</string>
   <string name="try_again_button">Probajte opet</string>
@@ -143,6 +155,14 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="connection_error_title">Nijesmo se mogli povezati sa vašim kontaktom</string>
   <string name="connection_error_explanation">Provjerite jeste li oboje povezani na ist Wi-Fi mrežu.</string>
   <string name="connection_error_feedback">Ako se problem ponavlja, Molim vas <a href="feedback">pošaljite povratne informacije</a> kako bi pomogli poboljšanju aplikacije.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Zalepi</string>
+  <string name="copy_button">Копирај</string>
+  <string name="share_button">Дељење</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1 </string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Upoznajte vaše kontakte</string>
   <string name="introduction_onboarding_text">Vi možete da upoznate vaše kontakte međusobno, da nebi morali da srijeću lice u liceda bi se povezali na Briar.</string>
@@ -165,11 +185,6 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="introduction_response_accepted_received">%1$s prihvata upoznavanje sa %2$s.</string>
   <string name="introduction_response_declined_received">%1$s je prihvatio-la upoznavanje sa kontaktom %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s kaže da je %2$s odbio-la upoznavanje.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Novi kontakt je dodat.</item>
-    <item quantity="few">%d nova kontakta dodata.</item>
-    <item quantity="other">%d novih kontakata dodato.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Nema grupa za prikazivanje</string>
   <string name="groups_list_empty_action">Dotaknite + ikonu da kreirate grupu, ili pitajte vaše kontakte da podijele grupe sa vama</string>

@@ -122,6 +122,9 @@
   <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
   <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
   <string name="message_hint">نوشتن پیام</string>
+  <string name="image_caption_hint">یک عنوان اضافه کنید (اختیاری)</string>
+  <string name="image_attach">تصویر پیوست</string>
+  <string name="image_attach_error">تصویر پیوست نشد</string>
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
   <string name="set_alias_button">تغییر</string>
@@ -131,8 +134,16 @@
   <string name="contact_deleted_toast">مخاطب حذف شد</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">شما</string>
+  <string name="save_image">ذخیره تصویر</string>
+  <string name="dialog_title_save_image">ذخیره تصویر؟</string>
+  <string name="dialog_message_save_image">ذخیره این تصویر به دیگر برنامه‌ها اجازه می‌دهد تا به آن دسترسی داشته باشند.\n\n آیا مطمئن هستید که می‌خواهید ذخیره کنید؟</string>
+  <string name="save_image_success">تصویر ذخیره شد</string>
+  <string name="save_image_error">تصویر ذخیره نشد</string>
+  <string name="dialog_title_no_image_support">تصاویر در دسترس نیست</string>
+  <string name="dialog_message_no_image_support">مخاطب برایر شما هنوز از پیوست‌های تصویر پشتیبانی نمی‌کند. هنگامی که آن‌ها را ارتقا دهید یک آیکون دیگر خواهید دید.</string>
+  <string name="dialog_title_image_support">شما هم اکنون می‌توانید تصاویر را به این مخاطب ارسال کنید</string>
+  <string name="dialog_message_image_support">برای پیوست تصاویر به روی آیکون ضربه بزنید</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">افزودن مخاطب</string>
   <string name="face_to_face">برای اضافه کردن فرد به عنوان مخاطب باید با او به صورت حضوری ملاقات کنید.
 این از جعل هویت شما و یا از خوانده شدن پیام هایتان در آینده جلوگیری خواهد کرد.</string>
   <string name="continue_button">ادامه</string>
@@ -154,6 +165,16 @@
   <string name="connection_error_title">اتصال به مخاطب شما برقرار نشد</string>
   <string name="connection_error_explanation">لطفا مطمئن شوید که هردو شما به شبکه وای فای یکسان متصل هستید.</string>
   <string name="connection_error_feedback">اگر این مشکل ادامه پیدا کرد، لطفا <a href="feedback">بازخورد ارسال کنید</a> تا به ما در ارتقاء برنامه کمک کنید.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">چسباندن</string>
+  <string name="copy_button">تکثیر</string>
+  <string name="share_button">هم‌رسانی</string>
+  <string name="add_contact_remote_connecting">در حال اتصال…</string>
+  <string name="connecting">در حال اتصال…</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">۱</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">۲</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">معرفی مخاطبان</string>
   <string name="introduction_onboarding_text">شما می توانید مخاطبان خود را به یکدیگر معرفی کنید، در این صورت دیگر نیازی به دیدار حضوری برای اتصال روی Briar (برایر) نمی باشد.</string>
@@ -176,10 +197,6 @@
   <string name="introduction_response_accepted_received">%1$s معرفی به %2$s را پذیرفت.</string>
   <string name="introduction_response_declined_received">%1$s معرفی به %2$s را رد کرد.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s می گوید که %2$s دعوت نامه  را رد کرد.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">مخاطب جدید افزوده شد.</item>
-    <item quantity="other">%d مخاطب جدید افزوده شد.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">هیچ گروهی برای نمایش وجود ندارد</string>
   <string name="groups_list_empty_action">برای ایجاد یک گروه روی آیکون + کلیک کنید، یا از مخاطبان خود بخواهید تا گروه های خود را با شما به اشتراک بگذارند</string>
@@ -375,6 +392,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">خودکار: %1$s(در %2$s)</string>
   <string name="tor_mobile_data_title">استفاده از داده موبایل</string>
+  <string name="tor_only_when_charging_title">اتصال از طریق اینترنت (تور) فقط در هنگام شارژ</string>
+  <string name="tor_only_when_charging_summary">وقتی دستگاه با باتری در حال اجرا است، ارتباط به اینترنت را غیرفعال می‌کند</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
   <string name="pref_lock_title">قفل برنامه</string>
@@ -444,6 +463,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">هشدار لینک</string>
   <string name="link_warning_intro">با باز کردن لینک زیر شما یک برنامه بیرونی را باز خواهید کرد.</string>
+  <string name="link_warning_text">این می‌تواند برای شناسایی شما مورد استفاده قرار بگیرد. قبل از باز کردن آن به قابل اطمینان بودن شخصی که آن را برای شما ارسال کرده فکر کنید و بعد برای احتیاط آن را با مرورگر تور باز کنید.</string>
   <string name="link_warning_open_link">باز کردن لینک</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">گزارش خطای Briar (برایر)</string>
@@ -475,7 +495,9 @@
   <string name="permission_camera_title">دسترسی به دوربین</string>
   <string name="permission_camera_request_body">برای اسکن کردن کد QR دسترسی به دوربین لازم است.</string>
   <string name="permission_location_title">مجوز موقعیت محل</string>
+  <string name="permission_location_request_body">برای پیدا کردن دستگاه‌های بلوتوث، برایر نیاز به اجازه دسترسی به موقعیت مکانی شما دارد.\n\n برایر موقعیت مکان شما را ذخیره نمی‌کند و آن را با کسی به اشتراک نمی‌گذارد.</string>
   <string name="permission_camera_location_title">دوربین و موقعیت</string>
+  <string name="permission_camera_location_request_body">برای اسکن کد کیو‌آر، برایر نیاز به دسترسی به دوربین دارد.\n\n برای پیدا کردن دستگاه‌های بلوتوث، برایر نیاز به اجازه دسترسی به موقعیت مکانی شما دارد.\n\n برایر موقعیت مکان شما را ذخیره نمی‌کند و آن را با کسی به اشتراک نمی‌گذارد.</string>
   <string name="permission_camera_denied_body">شما دسترسی به دوربین را رد کرده اید، اما افزودن مخاطب نیاز به دوربین دارد.
 
 لطفا اجازه دسترسی را بدهید.</string>

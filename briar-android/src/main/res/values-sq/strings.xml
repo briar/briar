@@ -138,7 +138,7 @@
   <string name="dialog_title_image_support">Tani mund t’i dërgoni figura këtij kontakti</string>
   <string name="dialog_message_image_support">Prekeni këtë ikonë që të bashkëngjitni figura.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Shtoni një Kontakt</string>
+  <string name="add_contact_title">Shtoni Kontakt Atypari  </string>
   <string name="face_to_face">Duhet të takoheni me personin që doni ta shtoni si kontakt.\n\nKjo do të pengojë cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
   <string name="continue_button">Vazhdo</string>
   <string name="try_again_button">Riprovoni</string>
@@ -155,6 +155,46 @@
   <string name="connection_error_title">S’u lidh dot te kontakti juaj</string>
   <string name="connection_error_explanation">Ju lutemi, kontrolloni se jeni të dy të lidhur në të njëjtin rrjet Wi-Fi.</string>
   <string name="connection_error_feedback">Nëse problemi vazhdon, ju lutemi, <a href="feedback">na njoftoni</a>, që të mund të përmirësojmë aplikacionin.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Shtoni Kontakt në Largësi</string>
+  <string name="add_contact_nearby_title">Shtoni kontakt atypari  </string>
+  <string name="add_contact_remotely_title">Shtoni kontakt në largësi</string>
+  <string name="contact_name_hint">Jepini një nofkë kontaktit</string>
+  <string name="contact_link_intro">Jepni këtu lidhjen prej kontaktit tuaj</string>
+  <string name="contact_link_hint">Lidhje e kontaktit</string>
+  <string name="paste_button">Ngjiteni</string>
+  <string name="add_contact_button">Shtoni kontakt</string>
+  <string name="copy_button">Kopjojeni</string>
+  <string name="share_button">Ndajeni me të tjerë</string>
+  <string name="send_link_title">Shkëmbeni lidhje</string>
+  <string name="add_contact_choose_nickname">Zgjidhni Nofkë</string>
+  <string name="add_contact_choose_a_nickname">Jepni një nofkë</string>
+  <string name="nickname_intro">Jepini kontaktit tuaj një nofkë. Vetëm ju mund ta shihni.</string>
+  <string name="your_link">Jepjani këtë lidhje kontaktit që doni të shtoni</string>
+  <string name="link_clip_label">Lidhje Briar</string>
+  <string name="link_copied_toast">Lidhja i kopjua</string>
+  <string name="adding_contact_error">Pati një gabim në shtimin e kontaktit.</string>
+  <string name="pending_contact_requests_snackbar">Ka kërkesa kontakti pezull</string>
+  <string name="pending_contact_requests">Kërkesa Kontakti Pezull</string>
+  <string name="no_pending_contacts">S’ka kontakte pezull</string>
+  <string name="add_contact_remote_connecting">Duke u kyqur...</string>
+  <string name="waiting_for_contact_to_come_online">Po pritet që kontakti të jetë në linjë…\n\nE kanë përdorur tashmë lidhjen tuaj?</string>
+  <string name="connecting">Duke u kyqur...</string>
+  <string name="adding_contact">Po shtohet kontakti…</string>
+  <string name="adding_contact_failed">Shtimi i kontaktit dështoi</string>
+  <string name="own_link_error">Jepni lidhjen e kontaktit tuaj, jo tuajën</string>
+  <string name="nickname_missing">Ju lutemi, jepni një nofkë</string>
+  <string name="invalid_link">Lidhje e pavlefshme</string>
+  <string name="intent_own_link">Hapët lidhjen tuaj. Përdorni atë të kontaktit që doni të shtoni!</string>
+  <string name="missing_link">Ju lutemi, jepni një lidhje</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">U shtua kontakt i ri.</item>
+    <item quantity="other">U shtuan %d kontakte të reja.</item>
+  </plurals>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>
   <string name="introduction_onboarding_text">Kontaktet tuaja mund t\’ia prezantoni njëri-tjetrit, që kështu të mos u duhet të takohen realisht për të mundur të lidhen në Briar.</string>
@@ -177,10 +217,6 @@
   <string name="introduction_response_accepted_received">%1$s pranoi prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received">%1$s hodhi poshtë prezantimin te %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s thotë se %2$s hodhi poshtë prezantimin.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">U shtua kontakt i ri.</item>
-    <item quantity="other">U shtuan %d kontakte të rinj.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">S’ka grupe për shfaqje</string>
   <string name="groups_list_empty_action">Prekni ikonën + që të krijoni një grup, ose kërkojuni kontakteve tuaj të ndajnë grupe me ju</string>

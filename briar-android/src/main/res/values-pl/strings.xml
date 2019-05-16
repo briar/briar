@@ -135,7 +135,6 @@
   <string name="you">You</string>
   <string name="save_image">Zapisz obrazek</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Dodaj kontakt</string>
   <string name="face_to_face">Musisz spotkać się z osobą którą chcesz dodać jako kontakt.\n\nTo uniemożliwi komukolwiek podszyć się pod Ciebie lub czytać wysyłane wiadomości.</string>
   <string name="continue_button">Kontynuuj</string>
   <string name="try_again_button">Spróbuj ponownie</string>
@@ -150,6 +149,15 @@
   <string name="connection_error_title">Nie udało się połączyć z kontaktem</string>
   <string name="connection_error_explanation">Sprawdź czy oboje jesteście połączeni z tą samą siecią Wi-Fi.</string>
   <string name="connection_error_feedback">Jeśli problem będzie występować, proszę <a href="feedback">wysłać zgłoszenie</a> aby pomóc nam ulepszyć aplikację.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Wklej</string>
+  <string name="copy_button">Kopiuj</string>
+  <string name="share_button">Udostępnij</string>
+  <string name="add_contact_remote_connecting">Trwa łączenie...</string>
+  <string name="connecting">Trwa łączenie...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Udostępnij swoje kontakty.</string>
   <string name="introduction_onboarding_text">Możesz udostępniać kontakty, tak aby osoby nie musiały spotykać się osobiście.</string>
@@ -172,12 +180,6 @@
   <string name="introduction_response_accepted_received">%1$s zaakceptował udostępnienie kontaktu %2$s</string>
   <string name="introduction_response_declined_received">%1$s odrzucił udostępnienie kontaktu %2$s</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s mówi, że %2$s odrzucił udostępnienie kontaktu.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Nowy kontakt został dodany.</item>
-    <item quantity="few">%d nowych kontaktów zostało dodanych.</item>
-    <item quantity="many">%d nowych kontaktów zostało dodanych.</item>
-    <item quantity="other">%d nowych kontaktów zostało dodanych.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Brak grup do pokazania</string>
   <string name="groups_list_empty_action">Dotknij ikonkę + aby stworzyć grupę, lub poprosić kontakty o ich udostępnienie</string>

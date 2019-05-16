@@ -151,7 +151,7 @@
   <string name="dialog_title_image_support">אתה יכול כעת לשלוח תמונות אל איש קשר זה</string>
   <string name="dialog_message_image_support">הקש על צלמית זו כדי לצרף תמונות.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">הוסף איש קשר</string>
+  <string name="add_contact_title">הוסף איש קשר בקרבה</string>
   <string name="face_to_face">אתם חייבים להפגש עם האדם שאותו תרצו להוסיף כאיש קשר.
 
 זאת על מנת למנוע מצב שבו מתחזים אליכם או קוראים הודעות שלכם בעתיד.</string>
@@ -170,6 +170,48 @@
   <string name="connection_error_title">לא היה ניתן להתחבר אל איש הקשר שלך</string>
   <string name="connection_error_explanation">אנא בדוק ששניכם מחוברים אל אותה רשת Wi-Fi.</string>
   <string name="connection_error_feedback">אם בעיה נמשכת, אנא <a href="feedback">שלח משוב</a> כדי לעזור לנו לשפר את היישום.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">הוסף איש קשר בקרבה</string>
+  <string name="add_contact_nearby_title">הוסף איש קשר בקרבה</string>
+  <string name="add_contact_remotely_title">הוסף איש קשר במרחק</string>
+  <string name="contact_name_hint">תן כינוי אל איש קשר</string>
+  <string name="contact_link_intro">הכנס את הקישור מאיש הקשר שלך כאן</string>
+  <string name="contact_link_hint">קישור של איש קשר</string>
+  <string name="paste_button">הדבק</string>
+  <string name="add_contact_button">הוסף איש קשר</string>
+  <string name="copy_button">העתק</string>
+  <string name="share_button">שתף</string>
+  <string name="send_link_title">החלף קישורים</string>
+  <string name="add_contact_choose_nickname">בחר כינוי</string>
+  <string name="add_contact_choose_a_nickname">הכנס כינוי</string>
+  <string name="nickname_intro">תן כינוי אל איש הקשר שלך. רק אתה יכול לראות אותו.</string>
+  <string name="your_link">תן את הקישור הזה לאיש הקשר שאתה רוצה להוסיף</string>
+  <string name="link_clip_label">קישור Briar</string>
+  <string name="link_copied_toast">קישור הועתק</string>
+  <string name="adding_contact_error">הייתה שגיאה בהוספת איש הקשר.</string>
+  <string name="pending_contact_requests_snackbar">יש בקשות ממתינות של אנשי קשר</string>
+  <string name="pending_contact_requests">בקשות ממתינות של אנשי קשר</string>
+  <string name="no_pending_contacts">אין בקשות ממתינות של אנשי קשר</string>
+  <string name="add_contact_remote_connecting">מתחבר...</string>
+  <string name="waiting_for_contact_to_come_online">ממתין אל איש הקשר שיהיה מקוון...\n\nהאם הוא הכניס כבר את הקישור?</string>
+  <string name="connecting">מתחבר...</string>
+  <string name="adding_contact">מוסיף איש קשר...</string>
+  <string name="adding_contact_failed">הוספת איש קשר נכשלה</string>
+  <string name="own_link_error">הכנס את הקישור של איש הקשר שלך, לא את שלך</string>
+  <string name="nickname_missing">אנא הכנס כינוי</string>
+  <string name="invalid_link">קישור בלתי תקף</string>
+  <string name="intent_own_link">פתחת את הקישור של עצמך. השתמש באחד של איש הקשר שאתה רוצה להוסיף!</string>
+  <string name="missing_link">אנא הכנס קישור</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">איש קשר התווסף.</item>
+    <item quantity="two">%dאנשי קשר חדשים התווספו. </item>
+    <item quantity="many">%dאנשי קשר חדשים התווספו. </item>
+    <item quantity="other">%d אנשי קשר חדשים התווספו.</item>
+  </plurals>
   <!--Introductions-->
   <string name="introduction_onboarding_title">הציגו את אנשי קשר שלכם</string>
   <string name="introduction_onboarding_text">אתם יכולים להציג את אנשי הקשר שלכם אחד לשני, כך שהם לא צריכים להפגש פנים-מול-פנים על מנת להתחבר בבריאר.</string>
@@ -192,12 +234,6 @@
   <string name="introduction_response_accepted_received">%1$s הסכימו להיות מוצגים בפני %2$s.</string>
   <string name="introduction_response_declined_received">%1$s סירבו להיות מוצגים בפני %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s אומרים ש- %2$s סירבו להיות מוצגים בפניהם.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">נוסף איש קשר חדש.</item>
-    <item quantity="two">נוספו %d אנשי קשר חדשים.</item>
-    <item quantity="many">נוספו %d אנשי קשר חדשים.</item>
-    <item quantity="other">נוספו %d אנשי קשר חדשים.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">אין קבוצות להראות</string>
   <string name="groups_list_empty_action">הקש על הצלמית + כדי ליצור קבוצה, או בקש מאנשי הקשר שלך לשתף איתך קבוצות</string>

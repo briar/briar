@@ -138,7 +138,6 @@
   <string name="dialog_title_image_support">Je kan nu afbeeldingen naar dit contact sturen</string>
   <string name="dialog_message_image_support">Tik op dit icoon om afbeelding bij te sluiten.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Voeg contact toe</string>
   <string name="face_to_face">Je moet een persoon in levenden lijve ontmoeten om die als contact toe te voegen.\n\nDit voortkomt dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
   <string name="continue_button">Ga verder</string>
   <string name="try_again_button">Probeer nog een keer</string>
@@ -155,6 +154,16 @@
   <string name="connection_error_title">Kon geen verbinding maken met je contact</string>
   <string name="connection_error_explanation">Controleer alsjeblieft dat jullie beiden met hetzelfde wifinetwerk zijn verbonden.</string>
   <string name="connection_error_feedback">Als dit probleem aanhoudt, <a href="feedback">stuur feedback</a> alsjeblieft om ons te helpen de app te verbeteren.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Plakken</string>
+  <string name="copy_button">Kopiëren</string>
+  <string name="share_button">Delen</string>
+  <string name="add_contact_remote_connecting">Bezig met verbinden...</string>
+  <string name="connecting">Bezig met verbinden...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduceer je contacten</string>
   <string name="introduction_onboarding_text">Je kan je contacten aan elkaar introduceren zodat ze niet in levenden lijve elkaar te hoeven ontmoeten om op Briar in contact te komen.</string>
@@ -177,10 +186,6 @@
   <string name="introduction_response_accepted_received">%1$s heeft de introductie aan %2$sgeaccepteerd.</string>
   <string name="introduction_response_declined_received">%1$s heeft de introductie aan %2$s afgewezen.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s zegt dat %2$s je introductie heeft afgewezen.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Nieuw contact is toegevoegd.</item>
-    <item quantity="other">%d nieuwe contacten zijn toegevoegd.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Er zijn geen groepen om te tonen</string>
   <string name="groups_list_empty_action">Tik op het +-icoon om een groep aan te maken of vraag een van je contacten om een groep met je te delen</string>
@@ -425,6 +430,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Linkwaarschuwing</string>
   <string name="link_warning_intro">Je staat op het punt om de volgende link te open met een externe app.</string>
+  <string name="link_warning_text">Dit kan worden gebruikt om je te identificeren. Denk goed na of je de persoon die je deze link heeft gestuurd wil vertrouwen en overweeg om deze te openen met een Tor-browser.</string>
   <string name="link_warning_open_link">Open link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar Crashrapport</string>

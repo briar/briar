@@ -148,7 +148,6 @@
   <string name="dialog_title_image_support">Тепер ви можете надсилати зображення цьому контакту</string>
   <string name="dialog_message_image_support">Натисніть на цю піктограму, щоб прикріпити зображення.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Додати контакт</string>
   <string name="face_to_face">Ви маєте зустрітися з особою, яку ви бажаєте додати до списку контактів.\n\nЦе виключить можливість у майбутньому будь-кому видавати себе за вас або читати ваші повідомлення.</string>
   <string name="continue_button">Продовжити</string>
   <string name="try_again_button">Спробувати ще раз</string>
@@ -165,6 +164,16 @@
   <string name="connection_error_title">Неможливо з\'єднатися з вашим контактом</string>
   <string name="connection_error_explanation">Будь ласка, впевніться, що ви обоє під\'єднані до однієї Wi-Fi-мережі.</string>
   <string name="connection_error_feedback">Якщо ця проблема збережеться, будь ласка, <a href="feedback">надішліть відгук</a>, щоб допомогти нам вдосконалити цей додаток.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Вставити</string>
+  <string name="copy_button">Копіювати</string>
+  <string name="share_button">Поділитися</string>
+  <string name="add_contact_remote_connecting">Під\'єднання...</string>
+  <string name="connecting">Під\'єднання...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Поділитися своїми контактами</string>
   <string name="introduction_onboarding_text">Ви можете познайомити свої контакти один з одним, таким чином їм не доведеться зустрічатися особисто, щоб під\'єднатися до Briar.</string>
@@ -187,12 +196,6 @@
   <string name="introduction_response_accepted_received">%1$sприйняв(-ла) запит на знайомство із %2$s.</string>
   <string name="introduction_response_declined_received">%1$sвідхилив(-ла) запит на знайомство з %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s повідомляє, що %2$s відхилив(-ла) запит на знайомство.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Новий контакт додано.</item>
-    <item quantity="few">%d нові контакти додано.</item>
-    <item quantity="many">%d нових контактів додано.</item>
-    <item quantity="other">%d нового контакту додано.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Немає груп для відображення</string>
   <string name="groups_list_empty_action">Натисніть на символ \"+\", щоб створити групу або попросіть у своїх контактів поділитися з вами групами</string>

@@ -138,7 +138,7 @@
   <string name="dialog_title_image_support">Ora puoi inviare immagini a questo contatto</string>
   <string name="dialog_message_image_support">Tocca questa icona per allegare immagini.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Aggiungi un Contatto</string>
+  <string name="add_contact_title">Aggiungi contatto vicino</string>
   <string name="face_to_face">Devi incontrarti con la persona che vuoi aggiungere come contatto.\n\nQuesto evita che qualcuno ti impersoni o legga i tuoi messaggi in futuro.</string>
   <string name="continue_button">Continua</string>
   <string name="try_again_button">Riprova</string>
@@ -155,6 +155,46 @@
   <string name="connection_error_title">Impossibile connettersi al tuo contatto</string>
   <string name="connection_error_explanation">Verifica di essere entrambi connessi alla stessa rete Wi-Fi.</string>
   <string name="connection_error_feedback">Se il problema persiste, <a href="feedback">invia un feedback</a> per aiutarci a migliorare l\'app.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Aggiungi contatto distante</string>
+  <string name="add_contact_nearby_title">Aggiungi contatto vicino</string>
+  <string name="add_contact_remotely_title">Aggiungi contatto distante</string>
+  <string name="contact_name_hint">Dai un nickname al contatto</string>
+  <string name="contact_link_intro">Inserisci il link dal tuo contatto qui</string>
+  <string name="contact_link_hint">Link del contatto</string>
+  <string name="paste_button">Incolla</string>
+  <string name="add_contact_button">Aggiungi contatto</string>
+  <string name="copy_button">Copia</string>
+  <string name="share_button">Condividi</string>
+  <string name="send_link_title">Scambia i link</string>
+  <string name="add_contact_choose_nickname">Scegli il nickname</string>
+  <string name="add_contact_choose_a_nickname">Inserisci un nickname</string>
+  <string name="nickname_intro">Dai un nickname al tuo contatto. Solo tu puoi vederlo.</string>
+  <string name="your_link">Dai questo link al contatto che vuoi aggiungere</string>
+  <string name="link_clip_label">Link di Briar</string>
+  <string name="link_copied_toast">Link copiato</string>
+  <string name="adding_contact_error">Si è verificato un errore nell\'aggiunta del contatto.</string>
+  <string name="pending_contact_requests_snackbar">Ci sono richieste di contatto in attesa</string>
+  <string name="pending_contact_requests">Richieste di contatto in attesa</string>
+  <string name="no_pending_contacts">Nessun contatto in attesa</string>
+  <string name="add_contact_remote_connecting">Connessione in corso...</string>
+  <string name="waiting_for_contact_to_come_online">In attesa che il contatto sia in linea…\n\nHa già inserito il tuo link?</string>
+  <string name="connecting">Connessione in corso...</string>
+  <string name="adding_contact">Aggiunta contatto…</string>
+  <string name="adding_contact_failed">Aggiunta del contatto fallita</string>
+  <string name="own_link_error">Inserisci il link del contatto, non il tuo</string>
+  <string name="nickname_missing">Inserisci un nickname</string>
+  <string name="invalid_link">Link non valido</string>
+  <string name="intent_own_link">Hai aperto il tuo stesso link. Usa quello del contatto che vuoi aggiungere!</string>
+  <string name="missing_link">Inserisci un link</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Nuovo contatto aggiunto.</item>
+    <item quantity="other">%d nuovi contatti aggiunti.</item>
+  </plurals>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduzione tuoi contatti</string>
   <string name="introduction_onboarding_text">Puoi presentare i tuoi contatti fra di loro, così non hanno bisogno di incontrarsi di persona per connettersi a Briar.</string>
@@ -177,10 +217,6 @@
   <string name="introduction_response_accepted_received">%1$s ha accettato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received">%1$s ha declinato l\'introduzione a %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s dice che %2$s ha declinato l\'introduzione.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Aggiunto nuovo contatto</item>
-    <item quantity="other">Aggiunti %d nuovi contatti.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Nessun gruppo da mostrare</string>
   <string name="groups_list_empty_action">Tocca l\'icona + per creare un gruppo, o chiedi ai tuoi contatti di condividerne con te</string>

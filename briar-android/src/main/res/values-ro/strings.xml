@@ -143,7 +143,7 @@
   <string name="dialog_title_image_support">Acum puteți trimite imagini către acest contact</string>
   <string name="dialog_message_image_support">Atingeți această iconiță pentru a atașa imagini</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Adaugă un contact</string>
+  <string name="add_contact_title">Adaugă un contact din apropiere</string>
   <string name="face_to_face">Trebuie să vă întâlniți cu persoana pe care doriți să o adăugați la contacte.\n\nAcest pas împiedică alte persoane să vă fure identitatea sau să vă citească mesajele în viitor.</string>
   <string name="continue_button">Continuă</string>
   <string name="try_again_button">Încearcă din nou</string>
@@ -160,6 +160,47 @@
   <string name="connection_error_title">Nu s-a putut face conexiunea la contactul dumneavoastră</string>
   <string name="connection_error_explanation">Verificați să fiți conectați la aceeași rețea Wi-Fi.</string>
   <string name="connection_error_feedback">Dacă problema persistă, vă rugăm să <a href="feedback">trimiteți feedback</a> pentru a ne ajuta să îmbunătățim aplicația.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Adaugă un contact la distanță</string>
+  <string name="add_contact_nearby_title">Adaugă un contact din apropiere</string>
+  <string name="add_contact_remotely_title">Adaugă un contact la distanță</string>
+  <string name="contact_name_hint">Introduceți un nume pentru contact</string>
+  <string name="contact_link_intro">Introduceți adresa contactului dumneavoastră aici</string>
+  <string name="contact_link_hint">Adresa contactului</string>
+  <string name="paste_button">Lipește</string>
+  <string name="add_contact_button">Adaugă contact</string>
+  <string name="copy_button">Copiază</string>
+  <string name="share_button">Partajează</string>
+  <string name="send_link_title">Schimb de adrese</string>
+  <string name="add_contact_choose_nickname">Alegeți un nume</string>
+  <string name="add_contact_choose_a_nickname">Introduceți un nume</string>
+  <string name="nickname_intro">Introduceți un nume pentru contact. Vizibil doar pentru dumneavoastră.</string>
+  <string name="your_link">Dați această adresă contactului pe care doriți să-l adăugați</string>
+  <string name="link_clip_label">Adresă Briar</string>
+  <string name="link_copied_toast">Adresă copiată</string>
+  <string name="adding_contact_error">A apărut o eroare la adăugarea acestui contact.</string>
+  <string name="pending_contact_requests_snackbar">Există solicitări de contact în așteptare</string>
+  <string name="pending_contact_requests">Solicitări de contact în așteptare</string>
+  <string name="no_pending_contacts">Nici un contact în așteptare</string>
+  <string name="add_contact_remote_connecting">Se conectează...</string>
+  <string name="waiting_for_contact_to_come_online">Așteptăm contactul să se conectexe…\n\nA introdus deja adresa dumneavoastră?</string>
+  <string name="connecting">Se conectează...</string>
+  <string name="adding_contact">Se adaugă contactul…</string>
+  <string name="adding_contact_failed">Adăugarea contactului a eșuat</string>
+  <string name="own_link_error">Introduceți adresa contactului, nu cea personală</string>
+  <string name="nickname_missing">Vă rugăm să introduceți un nume</string>
+  <string name="invalid_link">Adresă invalidă</string>
+  <string name="intent_own_link">Ați deschis adresa dumneavoastră. Folosiți-o pe cea a contactului pe care doriți să-l adăugați!</string>
+  <string name="missing_link">Vă rugăm să introduceți o adresă</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">%d contact nou adăugat.</item>
+    <item quantity="few">%d contacte noi adăugate.</item>
+    <item quantity="other">%d de contacte noi adăugate.</item>
+  </plurals>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Recomandați-vă contactele</string>
   <string name="introduction_onboarding_text">Puteți să vă recomandați contactele unele altora, încât sa nu fie nevoie ca să se vadă față în față pentru a se putea conecta la Briar.</string>
@@ -182,11 +223,6 @@
   <string name="introduction_response_accepted_received">%1$s a acceptat recomandarea pentru %2$s.</string>
   <string name="introduction_response_declined_received">%1$s a refuzat recomandarea pentru %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s spune că %2$s a refuzat recomandarea.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Un nou contact adăugat.</item>
-    <item quantity="few">%d contacte noi adăugate.</item>
-    <item quantity="other">%d de contacte noi adăugate.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Nici un grup de arătat</string>
   <string name="groups_list_empty_action">Atingeți iconița + pentru a crea un grup sau rugați-vă contactele să partajele grupuri cu dumneavoastră</string>
@@ -282,7 +318,7 @@
   <string name="shared_by_format">Partajat de %s</string>
   <string name="forum_invitation_already_sharing">Deja partajat</string>
   <string name="forum_invitation_response_accepted_sent">Ați acceptat invitația la forum de la %s.</string>
-  <string name="forum_invitation_response_declined_sent">Ați refuzat invitația la forum pentru %s.</string>
+  <string name="forum_invitation_response_declined_sent">Ați refuzat invitația la forum de la %s.</string>
   <string name="forum_invitation_response_accepted_received">%s a acceptat invitația la forum.</string>
   <string name="forum_invitation_response_declined_received">%s a refuzat invitația la forum.</string>
   <string name="sharing_status">Partajare stare</string>

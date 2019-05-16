@@ -124,7 +124,6 @@
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="save_image">Tallenna kuva</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Lisää yhteystieto</string>
   <string name="face_to_face">Sinun täytyy tavata käyttäjä, jonka haluat lisätä yhteystietoihisi.\n\nTämä estää sen, että joku voisi esittää olevansa sinä tai lukea viestejäsi tulevaisuudessa</string>
   <string name="continue_button">Jatka</string>
   <string name="try_again_button">Yritä uudelleen</string>
@@ -139,6 +138,16 @@
   <string name="connection_error_title">Yhteydenotto yhteystietoon epäonnistui</string>
   <string name="connection_error_explanation">Tarkista että olette kumpikin käyttämässä samaa Wi-Fi verkkoa.</string>
   <string name="connection_error_feedback">Jos tämä ongelma jatkuu, <a href="feedback">lähetä palautetta</a> jotta voimme parantaa sovellusta.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">Liitä</string>
+  <string name="copy_button">Kopio</string>
+  <string name="share_button">Jaa</string>
+  <string name="add_contact_remote_connecting">Yhdistetään...</string>
+  <string name="connecting">Yhdistetään...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Esittele yhteyshenkilösi</string>
   <string name="introduction_onboarding_text">Voit esitellä muita käyttäjiä toisilleen, niin että heidän ei tarvitse tavata kasvokkain ollakseen yhteydessä Briarin kautta.</string>
@@ -161,10 +170,6 @@
   <string name="introduction_response_accepted_received">%1$s hyväksyi esittelyn käyttäjälle %2$s.</string>
   <string name="introduction_response_declined_received">%1$s kieltäytyi esittelystä käyttäjälle %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s sanoo, että %2$s on kieltäytynyt esittelystä.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="one">Uusi yhteystieto lisätty.</item>
-    <item quantity="other">%d uutta yhteystietoa lisätty.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">Ei ryhmiä</string>
   <string name="groups_list_empty_action">Napauta + nappia luodaksesi ryhmän tai pyydä yhteyshenkilöltä kutsua ryhmään</string>

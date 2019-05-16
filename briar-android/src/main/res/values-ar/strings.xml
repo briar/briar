@@ -151,7 +151,6 @@
   <string name="dialog_title_no_image_support">الصور غير متوفرة</string>
   <string name="dialog_message_image_support">اضغط على هذه الأيقونة لإرفاق صور.</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">إضافة جهة اتصال</string>
   <string name="face_to_face">لا بد من مقابلة الشخص الذي تريد/ين إضافته كجهة اتصال.\n\nهذا سيمنع أي شخص من انتحال شخصيتك أو قراءة رسائلك في المستقبل.</string>
   <string name="continue_button">إستمرار</string>
   <string name="try_again_button">الرجاء المحاولة مجددًا</string>
@@ -166,6 +165,16 @@
   <string name="connection_error_title">لم يمكن الإتصال بجهة إتصالك</string>
   <string name="connection_error_explanation">رجاءًا التأكد أن كليكما متصل بنفس شبكة الواي فاي.</string>
   <string name="connection_error_feedback">إذا إستمرت المشكلة، رجاءًا <a href="feedback">أرسل تقرير </a> لمساعدتنا على تحسين التطبيق.</string>
+  <!--Adding Contacts Remotely-->
+  <string name="paste_button">لصق</string>
+  <string name="copy_button">نسخ</string>
+  <string name="share_button">شارك</string>
+  <string name="add_contact_remote_connecting">اتصال...</string>
+  <string name="connecting">اتصال...</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">‮واحدة</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">قم بتقديم جهات إتصالك</string>
   <string name="introduction_onboarding_text">يمكنك أن تقدم جهات إتصالك لبعضها البعض، فلا يحتاجون للمقابلة الشخصية ليتواصلوا عبر Briar (براير).</string>
@@ -188,14 +197,6 @@
   <string name="introduction_response_accepted_received">لقد وافق/ت %1$s على تقديمه/ها إلى %2$s.</string>
   <string name="introduction_response_declined_received">لقد رفض/ت %1$sتقديمه/ا إلى %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">ي/تقول %1$sأن %2$s قد رفض/ت التقدمة.</string>
-  <plurals name="contact_added_notification_text">
-    <item quantity="zero">لا جهة اتصال تم إضافتها.</item>
-    <item quantity="one">جهة اتصال تم إضافتها.</item>
-    <item quantity="two">جهتيْ اتصال تم إضافتها.</item>
-    <item quantity="few">%d جهات اتصال تم إضافتها.</item>
-    <item quantity="many">%d جهة اتصال تم إضافتها.</item>
-    <item quantity="other">%d جهة اتصال تم إضافتها.</item>
-  </plurals>
   <!--Private Groups-->
   <string name="groups_list_empty">لا مجموعات للعرض</string>
   <string name="groups_list_empty_action">الرجاء لمس علامة + لإنشاء مجموعة، أو اطلب من جهات إتصالك مشاركتك في مجموعاتهم</string>
