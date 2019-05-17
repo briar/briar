@@ -22,13 +22,13 @@ import java.net.Socket;
 import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import static java.util.Collections.addAll;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -85,7 +85,7 @@ class LanTcpPlugin extends TcpPlugin {
 	}
 
 	private List<InetSocketAddress> parseSocketAddresses(String ipPorts) {
-		if (isNullOrEmpty(ipPorts)) return Collections.emptyList();
+		if (isNullOrEmpty(ipPorts)) return emptyList();
 		String[] split = ipPorts.split(SEPARATOR);
 		List<InetSocketAddress> addresses = new ArrayList<>();
 		for (String ipPort : split) {
