@@ -1,10 +1,10 @@
 package org.briarproject.bramble.plugin.modem;
 
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -12,23 +12,29 @@ import java.io.IOException;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
-public class ModemPluginTest extends BrambleTestCase {
+public class ModemPluginTest extends BrambleMockTestCase {
 
 	private static final String ISO_1336 = "GB";
 	private static final String NUMBER = "0123456789";
 
+	private final ModemFactory modemFactory = context.mock(ModemFactory.class);
+	private final SerialPortList serialPortList =
+			context.mock(SerialPortList.class);
+	private final PluginCallback callback = context.mock(PluginCallback.class);
+	private final Modem modem = context.mock(Modem.class);
+
+	private ModemPlugin plugin;
+
+	@Before
+	public void setUp() {
+		plugin = new ModemPlugin(modemFactory, serialPortList, callback, 0);
+	}
+
 	@Test
 	public void testModemCreation() throws Exception {
-		Mockery context = new Mockery();
-		ModemFactory modemFactory = context.mock(ModemFactory.class);
-		SerialPortList serialPortList =
-				context.mock(SerialPortList.class);
-		ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, null, 0);
-		Modem modem = context.mock(Modem.class);
 		context.checking(new Expectations() {{
 			oneOf(serialPortList).getPortNames();
-			will(returnValue(new String[] { "foo", "bar", "baz" }));
+			will(returnValue(new String[] {"foo", "bar", "baz"}));
 			// First call to createModem() returns false
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
@@ -45,30 +51,22 @@ public class ModemPluginTest extends BrambleTestCase {
 			oneOf(modem).start();
 			will(returnValue(true));
 		}});
+
 		plugin.start();
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testCreateConnection() throws Exception {
-		Mockery context = new Mockery();
-		ModemFactory modemFactory = context.mock(ModemFactory.class);
-		SerialPortList serialPortList =
-				context.mock(SerialPortList.class);
-		DuplexPluginCallback callback =
-				context.mock(DuplexPluginCallback.class);
-		ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, callback, 0);
-		Modem modem = context.mock(Modem.class);
 		TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
 		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
+
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
-			will(returnValue(new String[] { "foo" }));
+			will(returnValue(new String[] {"foo"}));
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
 			oneOf(modem).start();
@@ -79,32 +77,24 @@ public class ModemPluginTest extends BrambleTestCase {
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(true));
 		}});
+
 		plugin.start();
 		// A connection should be returned
 		assertNotNull(plugin.createConnection(remote));
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testCreateConnectionWhenDialReturnsFalse() throws Exception {
-		Mockery context = new Mockery();
-		ModemFactory modemFactory = context.mock(ModemFactory.class);
-		SerialPortList serialPortList =
-				context.mock(SerialPortList.class);
-		DuplexPluginCallback callback =
-				context.mock(DuplexPluginCallback.class);
-		ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, callback, 0);
-		Modem modem = context.mock(Modem.class);
 		TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
 		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
+
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
-			will(returnValue(new String[] { "foo" }));
+			will(returnValue(new String[] {"foo"}));
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
 			oneOf(modem).start();
@@ -115,32 +105,24 @@ public class ModemPluginTest extends BrambleTestCase {
 			oneOf(modem).dial(NUMBER);
 			will(returnValue(false));
 		}});
+
 		plugin.start();
 		// No connection should be returned
 		assertNull(plugin.createConnection(remote));
-		context.assertIsSatisfied();
 	}
 
 	@Test
 	public void testCreateConnectionWhenDialThrowsException() throws Exception {
-		Mockery context = new Mockery();
-		ModemFactory modemFactory = context.mock(ModemFactory.class);
-		SerialPortList serialPortList =
-				context.mock(SerialPortList.class);
-		DuplexPluginCallback callback =
-				context.mock(DuplexPluginCallback.class);
-		ModemPlugin plugin = new ModemPlugin(modemFactory,
-				serialPortList, callback, 0);
-		Modem modem = context.mock(Modem.class);
 		TransportProperties local = new TransportProperties();
 		local.put("iso3166", ISO_1336);
 		TransportProperties remote = new TransportProperties();
 		remote.put("iso3166", ISO_1336);
 		remote.put("number", NUMBER);
+
 		context.checking(new Expectations() {{
 			// start()
 			oneOf(serialPortList).getPortNames();
-			will(returnValue(new String[] { "foo" }));
+			will(returnValue(new String[] {"foo"}));
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
 			oneOf(modem).start();
@@ -152,15 +134,15 @@ public class ModemPluginTest extends BrambleTestCase {
 			will(throwException(new IOException()));
 			// resetModem()
 			oneOf(serialPortList).getPortNames();
-			will(returnValue(new String[] { "foo" }));
+			will(returnValue(new String[] {"foo"}));
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
 			oneOf(modem).start();
 			will(returnValue(true));
 		}});
+
 		plugin.start();
 		// No connection should be returned
 		assertNull(plugin.createConnection(remote));
-		context.assertIsSatisfied();
 	}
 }

@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -17,13 +16,11 @@ import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
@@ -95,7 +92,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		LOG.info("Starting simplex plugins");
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories()) {
 			TransportId t = f.getId();
-			SimplexPlugin s = f.createPlugin(new SimplexCallback(t));
+			SimplexPlugin s = f.createPlugin(new Callback(t));
 			if (s == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
@@ -111,7 +108,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		LOG.info("Starting duplex plugins");
 		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories()) {
 			TransportId t = f.getId();
-			DuplexPlugin d = f.createPlugin(new DuplexCallback(t));
+			DuplexPlugin d = f.createPlugin(new Callback(t));
 			if (d == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
@@ -242,12 +239,11 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 	}
 
-	@NotNullByDefault
-	private abstract class PluginCallbackImpl implements PluginCallback {
+	private class Callback implements PluginCallback {
 
-		protected final TransportId id;
+		private final TransportId id;
 
-		PluginCallbackImpl(TransportId id) {
+		private Callback(TransportId id) {
 			this.id = id;
 		}
 
@@ -298,44 +294,21 @@ class PluginManagerImpl implements PluginManager, Service {
 		public void transportDisabled() {
 			eventBus.broadcast(new TransportDisabledEvent(id));
 		}
-	}
-
-	@NotNullByDefault
-	private class SimplexCallback extends PluginCallbackImpl
-			implements SimplexPluginCallback {
-
-		private SimplexCallback(TransportId id) {
-			super(id);
-		}
 
 		@Override
-		public void readerCreated(TransportConnectionReader r) {
-			connectionManager.manageIncomingConnection(id, r);
-		}
-
-		@Override
-		public void writerCreated(ContactId c, TransportConnectionWriter w) {
-			connectionManager.manageOutgoingConnection(c, id, w);
-		}
-	}
-
-	@NotNullByDefault
-	private class DuplexCallback extends PluginCallbackImpl
-			implements DuplexPluginCallback {
-
-		private DuplexCallback(TransportId id) {
-			super(id);
-		}
-
-		@Override
-		public void incomingConnectionCreated(DuplexTransportConnection d) {
+		public void handleConnection(DuplexTransportConnection d) {
 			connectionManager.manageIncomingConnection(id, d);
 		}
 
 		@Override
-		public void outgoingConnectionCreated(ContactId c,
-				DuplexTransportConnection d) {
-			connectionManager.manageOutgoingConnection(c, id, d);
+		public void handleReader(TransportConnectionReader r) {
+			connectionManager.manageIncomingConnection(id, r);
+		}
+
+		@Override
+		public void handleWriter(TransportConnectionWriter w) {
+			// TODO: Support simplex plugins that write to incoming connections
+			throw new UnsupportedOperationException();
 		}
 	}
 }

@@ -9,10 +9,10 @@ import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
@@ -84,7 +84,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	}
 
 	@Override
-	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
+	public DuplexPlugin createPlugin(PluginCallback callback) {
 
 		// Check that we have a Tor binary for this architecture
 		String architecture = null;

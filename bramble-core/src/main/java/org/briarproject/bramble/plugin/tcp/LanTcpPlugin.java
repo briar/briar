@@ -6,13 +6,12 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.util.IoUtils;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -29,20 +28,24 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import static java.util.Collections.addAll;
+import static java.util.Collections.sort;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.join;
 
 @NotNullByDefault
 class LanTcpPlugin extends TcpPlugin {
 
-	private static final Logger LOG =
-			Logger.getLogger(LanTcpPlugin.class.getName());
+	private static final Logger LOG = getLogger(LanTcpPlugin.class.getName());
 
 	private static final LanAddressComparator ADDRESS_COMPARATOR =
 			new LanAddressComparator();
@@ -50,8 +53,8 @@ class LanTcpPlugin extends TcpPlugin {
 	private static final int MAX_ADDRESSES = 4;
 	private static final String SEPARATOR = ",";
 
-	LanTcpPlugin(Executor ioExecutor, Backoff backoff,
-			DuplexPluginCallback callback, int maxLatency, int maxIdleTime) {
+	LanTcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
+			int maxLatency, int maxIdleTime) {
 		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
 	}
 
@@ -77,12 +80,12 @@ class LanTcpPlugin extends TcpPlugin {
 				locals.add(new InetSocketAddress(local, 0));
 			}
 		}
-		Collections.sort(locals, ADDRESS_COMPARATOR);
+		sort(locals, ADDRESS_COMPARATOR);
 		return locals;
 	}
 
 	private List<InetSocketAddress> parseSocketAddresses(String ipPorts) {
-		if (StringUtils.isNullOrEmpty(ipPorts)) return Collections.emptyList();
+		if (isNullOrEmpty(ipPorts)) return Collections.emptyList();
 		String[] split = ipPorts.split(SEPARATOR);
 		List<InetSocketAddress> addresses = new ArrayList<>();
 		for (String ipPort : split) {
@@ -98,24 +101,24 @@ class LanTcpPlugin extends TcpPlugin {
 		// Get the list of recently used addresses
 		String setting = callback.getSettings().get(PREF_LAN_IP_PORTS);
 		List<String> recent = new ArrayList<>();
-		if (!StringUtils.isNullOrEmpty(setting))
-			Collections.addAll(recent, setting.split(SEPARATOR));
+		if (!isNullOrEmpty(setting))
+			addAll(recent, setting.split(SEPARATOR));
 		// Is the address already in the list?
 		if (recent.remove(ipPort)) {
 			// Move the address to the start of the list
 			recent.add(0, ipPort);
-			setting = StringUtils.join(recent, SEPARATOR);
+			setting = join(recent, SEPARATOR);
 		} else {
 			// Add the address to the start of the list
 			recent.add(0, ipPort);
 			// Drop the least recently used address if the list is full
 			if (recent.size() > MAX_ADDRESSES)
 				recent = recent.subList(0, MAX_ADDRESSES);
-			setting = StringUtils.join(recent, SEPARATOR);
+			setting = join(recent, SEPARATOR);
 			// Update the list of addresses shared with contacts
 			List<String> shared = new ArrayList<>(recent);
-			Collections.sort(shared);
-			String property = StringUtils.join(shared, SEPARATOR);
+			sort(shared);
+			String property = join(shared, SEPARATOR);
 			TransportProperties properties = new TransportProperties();
 			properties.put(PROP_IP_PORTS, property);
 			callback.mergeLocalProperties(properties);

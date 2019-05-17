@@ -2,14 +2,13 @@ package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
@@ -78,15 +77,14 @@ public class PluginManagerImplTest extends BrambleTestCase {
 					simplexFailFactory)));
 			oneOf(simplexFactory).getId();
 			will(returnValue(simplexId));
-			oneOf(simplexFactory).createPlugin(with(any(
-					SimplexPluginCallback.class)));
+			oneOf(simplexFactory).createPlugin(with(any(PluginCallback.class)));
 			will(returnValue(simplexPlugin)); // Created
 			oneOf(simplexPlugin).start();
 			// Second simplex plugin
 			oneOf(simplexFailFactory).getId();
 			will(returnValue(simplexFailId));
 			oneOf(simplexFailFactory).createPlugin(with(any(
-					SimplexPluginCallback.class)));
+					PluginCallback.class)));
 			will(returnValue(simplexFailPlugin)); // Created
 			oneOf(simplexFailPlugin).start();
 			will(throwException(new PluginException()));
@@ -95,15 +93,14 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			will(returnValue(Arrays.asList(duplexFactory, duplexFailFactory)));
 			oneOf(duplexFactory).getId();
 			will(returnValue(duplexId));
-			oneOf(duplexFactory).createPlugin(with(any(
-					DuplexPluginCallback.class)));
+			oneOf(duplexFactory).createPlugin(with(any(PluginCallback.class)));
 			will(returnValue(duplexPlugin)); // Created
 			oneOf(duplexPlugin).start();
 			// Second duplex plugin
 			oneOf(duplexFailFactory).getId();
 			will(returnValue(duplexFailId));
 			oneOf(duplexFailFactory).createPlugin(with(any(
-					DuplexPluginCallback.class)));
+					PluginCallback.class)));
 			will(returnValue(null)); // Failed to create a plugin
 			// stop()
 			// Stop the plugins

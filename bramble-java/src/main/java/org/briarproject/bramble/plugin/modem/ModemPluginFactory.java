@@ -1,9 +1,9 @@
 package org.briarproject.bramble.plugin.modem;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.reliability.ReliabilityLayerFactory;
 import org.briarproject.bramble.util.StringUtils;
@@ -38,7 +38,7 @@ public class ModemPluginFactory implements DuplexPluginFactory {
 	}
 
 	@Override
-	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
+	public DuplexPlugin createPlugin(PluginCallback callback) {
 		// This plugin is not enabled by default
 		String enabled = callback.getSettings().get("enabled");
 		if (StringUtils.isNullOrEmpty(enabled)) return null;

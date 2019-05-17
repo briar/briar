@@ -3,18 +3,19 @@ package org.briarproject.bramble.plugin.tcp;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.plugin.WanTcpConstants.ID;
 
 @MethodsNotNullByDefault
@@ -28,7 +29,7 @@ class WanTcpPlugin extends TcpPlugin {
 	private volatile MappingResult mappingResult;
 
 	WanTcpPlugin(Executor ioExecutor, Backoff backoff, PortMapper portMapper,
-			DuplexPluginCallback callback, int maxLatency, int maxIdleTime) {
+			PluginCallback callback, int maxLatency, int maxIdleTime) {
 		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
 		this.portMapper = portMapper;
 	}
@@ -80,8 +81,8 @@ class WanTcpPlugin extends TcpPlugin {
 	protected List<InetSocketAddress> getRemoteSocketAddresses(
 			TransportProperties p) {
 		InetSocketAddress parsed = parseSocketAddress(p.get(PROP_IP_PORT));
-		if (parsed == null) return Collections.emptyList();
-		return Collections.singletonList(parsed);
+		if (parsed == null) return emptyList();
+		return singletonList(parsed);
 	}
 
 	@Override

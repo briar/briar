@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.db.DbException;
@@ -7,10 +8,12 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
+import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -26,9 +29,11 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
 
 import java.security.SecureRandom;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
@@ -211,9 +216,14 @@ class PollerImpl implements Poller, EventListener {
 					transportPropertyManager.getRemoteProperties(t);
 			Collection<ContactId> connected =
 					connectionRegistry.getConnectedContacts(t);
-			remote = new HashMap<>(remote);
-			remote.keySet().removeAll(connected);
-			if (!remote.isEmpty()) p.poll(remote);
+			Collection<Pair<TransportProperties, ConnectionHandler>>
+					properties = new ArrayList<>();
+			for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
+				ContactId c = e.getKey();
+				if (!connected.contains(c))
+					properties.add(new Pair<>(e.getValue(), new Handler(c, t)));
+			}
+			if (!properties.isEmpty()) p.poll(properties);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 		}
@@ -259,6 +269,35 @@ class PollerImpl implements Poller, EventListener {
 			if (randomiseNext) delay = (int) (delay * random.nextDouble());
 			schedule(plugin, delay, false);
 			poll(plugin);
+		}
+	}
+
+	private class Handler implements ConnectionHandler {
+
+		private final ContactId contactId;
+		private final TransportId transportId;
+
+		private Handler(ContactId contactId, TransportId transportId) {
+			this.contactId = contactId;
+			this.transportId = transportId;
+		}
+
+		@Override
+		public void handleConnection(DuplexTransportConnection c) {
+			connectionManager.manageOutgoingConnection(contactId,
+					transportId, c);
+		}
+
+		@Override
+		public void handleReader(TransportConnectionReader r) {
+			// TODO: Support simplex plugins that read from outgoing connections
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public void handleWriter(TransportConnectionWriter w) {
+			connectionManager.manageOutgoingConnection(contactId,
+					transportId, w);
 		}
 	}
 }

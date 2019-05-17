@@ -127,7 +127,7 @@ public class BridgeTest extends BrambleTestCase {
 	@Test
 	public void testBridges() throws Exception {
 		DuplexPlugin duplexPlugin =
-				factory.createPlugin(new TorPluginCallBack());
+				factory.createPlugin(new TestPluginCallback());
 		assertNotNull(duplexPlugin);
 		UnixTorPlugin plugin = (UnixTorPlugin) duplexPlugin;
 

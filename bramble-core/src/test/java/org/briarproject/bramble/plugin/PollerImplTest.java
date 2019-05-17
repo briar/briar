@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.Plugin;
@@ -37,6 +38,8 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.test.CollectionMatcher.collectionOf;
+import static org.briarproject.bramble.test.PairMatcher.pairOf;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
@@ -354,7 +357,8 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(connectionRegistry).getConnectedContacts(transportId);
 			will(returnValue(emptyList()));
 			// Poll the plugin
-			oneOf(plugin).poll(singletonMap(contactId, properties));
+			oneOf(plugin).poll(with(collectionOf(
+					pairOf(equal(properties), any(ConnectionHandler.class)))));
 		}});
 
 		poller.eventOccurred(new TransportEnabledEvent(transportId));

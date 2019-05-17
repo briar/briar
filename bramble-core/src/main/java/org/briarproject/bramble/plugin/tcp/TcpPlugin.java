@@ -1,18 +1,18 @@
 package org.briarproject.bramble.plugin.tcp;
 
 import org.briarproject.bramble.PoliteExecutor;
-import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.util.IoUtils;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -27,8 +27,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
@@ -41,21 +39,23 @@ import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 abstract class TcpPlugin implements DuplexPlugin {
 
+	private static final Logger LOG = getLogger(TcpPlugin.class.getName());
+
 	private static final Pattern DOTTED_QUAD =
 			Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
-	private static final Logger LOG =
-			Logger.getLogger(TcpPlugin.class.getName());
 
 	protected final Executor ioExecutor, bindExecutor;
 	protected final Backoff backoff;
-	protected final DuplexPluginCallback callback;
+	protected final PluginCallback callback;
 	protected final int maxLatency, maxIdleTime, socketTimeout;
 	protected final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -86,8 +86,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	 */
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
-	TcpPlugin(Executor ioExecutor, Backoff backoff,
-			DuplexPluginCallback callback, int maxLatency, int maxIdleTime) {
+	TcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
+			int maxLatency, int maxIdleTime) {
 		this.ioExecutor = ioExecutor;
 		this.backoff = backoff;
 		this.callback = callback;
@@ -180,8 +180,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 				LOG.info("Connection from " +
 						scrubSocketAddress(s.getRemoteSocketAddress()));
 			backoff.reset();
-			TcpTransportConnection conn = new TcpTransportConnection(this, s);
-			callback.incomingConnectionCreated(conn);
+			callback.handleConnection(new TcpTransportConnection(this, s));
 		}
 	}
 
@@ -207,20 +206,21 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public void poll(Map<ContactId, TransportProperties> contacts) {
+	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
+			properties) {
 		if (!isRunning()) return;
 		backoff.increment();
-		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
-			connectAndCallBack(e.getKey(), e.getValue());
+		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
+			connect(p.getFirst(), p.getSecond());
 		}
 	}
 
-	private void connectAndCallBack(ContactId c, TransportProperties p) {
+	private void connect(TransportProperties p, ConnectionHandler h) {
 		ioExecutor.execute(() -> {
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();
-				callback.outgoingConnectionCreated(c, d);
+				h.handleConnection(d);
 			}
 		});
 	}
@@ -263,7 +263,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Nullable
 	InetSocketAddress parseSocketAddress(String ipPort) {
-		if (StringUtils.isNullOrEmpty(ipPort)) return null;
+		if (isNullOrEmpty(ipPort)) return null;
 		String[] split = ipPort.split(":");
 		if (split.length != 2) return null;
 		String addr = split[0], port = split[1];

@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.settings.Settings;
  * the application.
  */
 @NotNullByDefault
-public interface PluginCallback {
+public interface PluginCallback extends ConnectionHandler {
 
 	/**
 	 * Returns the plugin's settings

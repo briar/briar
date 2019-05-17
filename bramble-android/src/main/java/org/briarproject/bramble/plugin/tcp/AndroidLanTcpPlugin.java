@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -32,16 +32,17 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.logging.Logger.getLogger;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 
+	private static final Logger LOG =
+			getLogger(AndroidLanTcpPlugin.class.getName());
+
 	private static final byte[] WIFI_AP_ADDRESS_BYTES =
 			{(byte) 192, (byte) 168, 43, 1};
 	private static final InetAddress WIFI_AP_ADDRESS;
-
-	private static final Logger LOG =
-			Logger.getLogger(AndroidLanTcpPlugin.class.getName());
 
 	static {
 		try {
@@ -60,7 +61,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	private volatile SocketFactory socketFactory;
 
 	AndroidLanTcpPlugin(Executor ioExecutor, Context appContext,
-			Backoff backoff, DuplexPluginCallback callback, int maxLatency,
+			Backoff backoff, PluginCallback callback, int maxLatency,
 			int maxIdleTime) {
 		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
 		// Don't execute more than one connection status check at a time

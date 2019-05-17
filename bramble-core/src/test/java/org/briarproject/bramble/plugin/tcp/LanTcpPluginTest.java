@@ -1,12 +1,13 @@
 package org.briarproject.bramble.plugin.tcp;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginCallback;
+import org.briarproject.bramble.api.plugin.TransportConnectionReader;
+import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
@@ -21,13 +22,14 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static java.net.NetworkInterface.getNetworkInterfaces;
+import static java.util.Collections.list;
+import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
@@ -39,10 +41,13 @@ import static org.junit.Assert.assertTrue;
 public class LanTcpPluginTest extends BrambleTestCase {
 
 	private final Backoff backoff = new TestBackoff();
+	private final ExecutorService ioExecutor = newCachedThreadPool();
 
 	@Test
 	public void testAddressesAreOnSameLan() {
-		LanTcpPlugin plugin = new LanTcpPlugin(null, null, null, 0, 0);
+		Callback callback = new Callback();
+		LanTcpPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
+				0, 0);
 		// Local and remote in 10.0.0.0/8 should return true
 		assertTrue(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
 				makeAddress(10, 255, 255, 255)));
@@ -93,8 +98,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 			return;
 		}
 		Callback callback = new Callback();
-		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
 				0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
@@ -129,8 +133,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 			return;
 		}
 		Callback callback = new Callback();
-		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
 				0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
@@ -179,8 +182,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 			return;
 		}
 		Callback callback = new Callback();
-		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
 				0, 0);
 		plugin.start();
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -228,8 +230,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 			return;
 		}
 		Callback callback = new Callback();
-		Executor executor = Executors.newCachedThreadPool();
-		DuplexPlugin plugin = new LanTcpPlugin(executor, backoff, callback,
+		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
 				0, 0);
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
@@ -327,9 +328,8 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	}
 
 	private boolean systemHasLocalIpv4Address() throws Exception {
-		for (NetworkInterface i : Collections.list(
-				NetworkInterface.getNetworkInterfaces())) {
-			for (InetAddress a : Collections.list(i.getInetAddresses())) {
+		for (NetworkInterface i : list(getNetworkInterfaces())) {
+			for (InetAddress a : list(i.getInetAddresses())) {
 				if (a instanceof Inet4Address)
 					return a.isLinkLocalAddress() || a.isSiteLocalAddress();
 			}
@@ -338,7 +338,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	}
 
 	@NotNullByDefault
-	private static class Callback implements DuplexPluginCallback {
+	private static class Callback implements PluginCallback {
 
 		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
@@ -365,21 +365,24 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		}
 
 		@Override
-		public void incomingConnectionCreated(DuplexTransportConnection d) {
-			connectionsLatch.countDown();
-		}
-
-		@Override
-		public void outgoingConnectionCreated(ContactId c,
-				DuplexTransportConnection d) {
-		}
-
-		@Override
 		public void transportEnabled() {
 		}
 
 		@Override
 		public void transportDisabled() {
+		}
+
+		@Override
+		public void handleConnection(DuplexTransportConnection d) {
+			connectionsLatch.countDown();
+		}
+
+		@Override
+		public void handleReader(TransportConnectionReader r) {
+		}
+
+		@Override
+		public void handleWriter(TransportConnectionWriter w) {
 		}
 	}
 

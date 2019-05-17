@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.FormatException;
-import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
@@ -12,10 +12,11 @@ import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStoppedListen
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
@@ -26,8 +27,7 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Map;
-import java.util.Map.Entry;
+import java.util.Collection;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -37,6 +37,7 @@ import javax.annotation.Nullable;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
@@ -54,14 +55,14 @@ import static org.briarproject.bramble.util.StringUtils.macToString;
 abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(BluetoothPlugin.class.getName());
+			getLogger(BluetoothPlugin.class.getName());
 
 	final BluetoothConnectionLimiter connectionLimiter;
 
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
-	private final DuplexPluginCallback callback;
+	private final PluginCallback callback;
 	private final int maxLatency;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -103,7 +104,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, SecureRandom secureRandom,
-			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
+			Backoff backoff, PluginCallback callback, int maxLatency) {
 		this.connectionLimiter = connectionLimiter;
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
@@ -226,7 +227,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			}
 			backoff.reset();
 			if (connectionLimiter.contactConnectionOpened(conn))
-				callback.incomingConnectionCreated(conn);
+				callback.handleConnection(conn);
 			if (!running) return;
 		}
 	}
@@ -255,27 +256,30 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public void poll(Map<ContactId, TransportProperties> contacts) {
+	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
+			properties) {
 		if (!isRunning() || !shouldAllowContactConnections()) return;
 		backoff.increment();
-		// Try to connect to known devices in parallel
-		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
-			String address = e.getValue().get(PROP_ADDRESS);
-			if (isNullOrEmpty(address)) continue;
-			String uuid = e.getValue().get(PROP_UUID);
-			if (isNullOrEmpty(uuid)) continue;
-			ContactId c = e.getKey();
-			ioExecutor.execute(() -> {
-				if (!isRunning() || !shouldAllowContactConnections()) return;
-				if (!connectionLimiter.canOpenContactConnection()) return;
-				DuplexTransportConnection conn = connect(address, uuid);
-				if (conn != null) {
-					backoff.reset();
-					if (connectionLimiter.contactConnectionOpened(conn))
-						callback.outgoingConnectionCreated(c, conn);
-				}
-			});
+		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
+			connect(p.getFirst(), p.getSecond());
 		}
+	}
+
+	private void connect(TransportProperties p, ConnectionHandler h) {
+		String address = p.get(PROP_ADDRESS);
+		if (isNullOrEmpty(address)) return;
+		String uuid = p.get(PROP_UUID);
+		if (isNullOrEmpty(uuid)) return;
+		ioExecutor.execute(() -> {
+			if (!isRunning() || !shouldAllowContactConnections()) return;
+			if (!connectionLimiter.canOpenContactConnection()) return;
+			DuplexTransportConnection d = createConnection(p);
+			if (d != null) {
+				backoff.reset();
+				if (connectionLimiter.contactConnectionOpened(d))
+					h.handleConnection(d);
+			}
+		});
 	}
 
 	@Nullable

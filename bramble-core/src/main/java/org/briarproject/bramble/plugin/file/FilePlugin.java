@@ -1,10 +1,10 @@
 package org.briarproject.bramble.plugin.file;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.io.File;
@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.FileConstants.PROP_PATH;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -22,9 +23,9 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 abstract class FilePlugin implements SimplexPlugin {
 
 	private static final Logger LOG =
-			Logger.getLogger(FilePlugin.class.getName());
+			getLogger(FilePlugin.class.getName());
 
-	protected final SimplexPluginCallback callback;
+	protected final PluginCallback callback;
 	protected final int maxLatency;
 
 	protected abstract void writerFinished(File f, boolean exception);
@@ -32,7 +33,7 @@ abstract class FilePlugin implements SimplexPlugin {
 	protected abstract void readerFinished(File f, boolean exception,
 			boolean recognised);
 
-	FilePlugin(SimplexPluginCallback callback, int maxLatency) {
+	FilePlugin(PluginCallback callback, int maxLatency) {
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 	}
