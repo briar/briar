@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -8,7 +7,6 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
@@ -18,22 +16,17 @@ import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
 
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -42,7 +35,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -52,6 +44,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -61,18 +54,14 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class PluginManagerImpl implements PluginManager, Service {
 
 	private static final Logger LOG =
-			Logger.getLogger(PluginManagerImpl.class.getName());
+			getLogger(PluginManagerImpl.class.getName());
 
 	private final Executor ioExecutor;
-	private final ScheduledExecutorService scheduler;
 	private final EventBus eventBus;
 	private final PluginConfig pluginConfig;
 	private final ConnectionManager connectionManager;
-	private final ConnectionRegistry connectionRegistry;
 	private final SettingsManager settingsManager;
 	private final TransportPropertyManager transportPropertyManager;
-	private final SecureRandom random;
-	private final Clock clock;
 	private final Map<TransportId, Plugin> plugins;
 	private final List<SimplexPlugin> simplexPlugins;
 	private final List<DuplexPlugin> duplexPlugins;
@@ -80,46 +69,30 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
-	PluginManagerImpl(@IoExecutor Executor ioExecutor,
-			@Scheduler ScheduledExecutorService scheduler, EventBus eventBus,
+	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
 			PluginConfig pluginConfig, ConnectionManager connectionManager,
-			ConnectionRegistry connectionRegistry,
 			SettingsManager settingsManager,
-			TransportPropertyManager transportPropertyManager,
-			SecureRandom random, Clock clock) {
+			TransportPropertyManager transportPropertyManager) {
 		this.ioExecutor = ioExecutor;
-		this.scheduler = scheduler;
 		this.eventBus = eventBus;
 		this.pluginConfig = pluginConfig;
 		this.connectionManager = connectionManager;
-		this.connectionRegistry = connectionRegistry;
 		this.settingsManager = settingsManager;
 		this.transportPropertyManager = transportPropertyManager;
-		this.random = random;
-		this.clock = clock;
 		plugins = new ConcurrentHashMap<>();
 		simplexPlugins = new CopyOnWriteArrayList<>();
 		duplexPlugins = new CopyOnWriteArrayList<>();
 		startLatches = new ConcurrentHashMap<>();
-
 	}
 
 	@Override
 	public void startService() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		// Instantiate the poller
-		if (pluginConfig.shouldPoll()) {
-			LOG.info("Starting poller");
-			Poller poller = new Poller(ioExecutor, scheduler, connectionManager,
-					connectionRegistry, this, transportPropertyManager, random,
-					clock);
-			eventBus.addListener(poller);
-		}
 		// Instantiate the simplex plugins and start them asynchronously
 		LOG.info("Starting simplex plugins");
 		for (SimplexPluginFactory f : pluginConfig.getSimplexFactories()) {
 			TransportId t = f.getId();
-			SimplexPlugin s = f.createPlugin(new SimplexCallback(t));
+			SimplexPlugin s = f.createPlugin(new Callback(t));
 			if (s == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
@@ -135,7 +108,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		LOG.info("Starting duplex plugins");
 		for (DuplexPluginFactory f : pluginConfig.getDuplexFactories()) {
 			TransportId t = f.getId();
-			DuplexPlugin d = f.createPlugin(new DuplexCallback(t));
+			DuplexPlugin d = f.createPlugin(new Callback(t));
 			if (d == null) {
 				if (LOG.isLoggable(WARNING))
 					LOG.warning("Could not create plugin for " + t);
@@ -266,12 +239,11 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 	}
 
-	@NotNullByDefault
-	private abstract class PluginCallbackImpl implements PluginCallback {
+	private class Callback implements PluginCallback {
 
-		protected final TransportId id;
+		private final TransportId id;
 
-		PluginCallbackImpl(TransportId id) {
+		private Callback(TransportId id) {
 			this.id = id;
 		}
 
@@ -322,44 +294,21 @@ class PluginManagerImpl implements PluginManager, Service {
 		public void transportDisabled() {
 			eventBus.broadcast(new TransportDisabledEvent(id));
 		}
-	}
-
-	@NotNullByDefault
-	private class SimplexCallback extends PluginCallbackImpl
-			implements SimplexPluginCallback {
-
-		private SimplexCallback(TransportId id) {
-			super(id);
-		}
 
 		@Override
-		public void readerCreated(TransportConnectionReader r) {
-			connectionManager.manageIncomingConnection(id, r);
-		}
-
-		@Override
-		public void writerCreated(ContactId c, TransportConnectionWriter w) {
-			connectionManager.manageOutgoingConnection(c, id, w);
-		}
-	}
-
-	@NotNullByDefault
-	private class DuplexCallback extends PluginCallbackImpl
-			implements DuplexPluginCallback {
-
-		private DuplexCallback(TransportId id) {
-			super(id);
-		}
-
-		@Override
-		public void incomingConnectionCreated(DuplexTransportConnection d) {
+		public void handleConnection(DuplexTransportConnection d) {
 			connectionManager.manageIncomingConnection(id, d);
 		}
 
 		@Override
-		public void outgoingConnectionCreated(ContactId c,
-				DuplexTransportConnection d) {
-			connectionManager.manageOutgoingConnection(c, id, d);
+		public void handleReader(TransportConnectionReader r) {
+			connectionManager.manageIncomingConnection(id, r);
+		}
+
+		@Override
+		public void handleWriter(TransportConnectionWriter w) {
+			// TODO: Support simplex plugins that write to incoming connections
+			throw new UnsupportedOperationException();
 		}
 	}
 }

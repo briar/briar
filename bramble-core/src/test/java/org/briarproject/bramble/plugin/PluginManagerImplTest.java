@@ -2,30 +2,25 @@ package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.jmock.Expectations;
 import org.jmock.Mockery;
 import org.jmock.lib.concurrent.Synchroniser;
 import org.junit.Test;
 
-import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
@@ -37,16 +32,10 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			setThreadingPolicy(new Synchroniser());
 		}};
 		Executor ioExecutor = Executors.newSingleThreadExecutor();
-		ScheduledExecutorService scheduler =
-				context.mock(ScheduledExecutorService.class);
-		SecureRandom random = new SecureRandom();
-		Clock clock = context.mock(Clock.class);
 		EventBus eventBus = context.mock(EventBus.class);
 		PluginConfig pluginConfig = context.mock(PluginConfig.class);
 		ConnectionManager connectionManager =
 				context.mock(ConnectionManager.class);
-		ConnectionRegistry connectionRegistry =
-				context.mock(ConnectionRegistry.class);
 		SettingsManager settingsManager =
 				context.mock(SettingsManager.class);
 		TransportPropertyManager transportPropertyManager =
@@ -88,15 +77,14 @@ public class PluginManagerImplTest extends BrambleTestCase {
 					simplexFailFactory)));
 			oneOf(simplexFactory).getId();
 			will(returnValue(simplexId));
-			oneOf(simplexFactory).createPlugin(with(any(
-					SimplexPluginCallback.class)));
+			oneOf(simplexFactory).createPlugin(with(any(PluginCallback.class)));
 			will(returnValue(simplexPlugin)); // Created
 			oneOf(simplexPlugin).start();
 			// Second simplex plugin
 			oneOf(simplexFailFactory).getId();
 			will(returnValue(simplexFailId));
 			oneOf(simplexFailFactory).createPlugin(with(any(
-					SimplexPluginCallback.class)));
+					PluginCallback.class)));
 			will(returnValue(simplexFailPlugin)); // Created
 			oneOf(simplexFailPlugin).start();
 			will(throwException(new PluginException()));
@@ -105,15 +93,14 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			will(returnValue(Arrays.asList(duplexFactory, duplexFailFactory)));
 			oneOf(duplexFactory).getId();
 			will(returnValue(duplexId));
-			oneOf(duplexFactory).createPlugin(with(any(
-					DuplexPluginCallback.class)));
+			oneOf(duplexFactory).createPlugin(with(any(PluginCallback.class)));
 			will(returnValue(duplexPlugin)); // Created
 			oneOf(duplexPlugin).start();
 			// Second duplex plugin
 			oneOf(duplexFailFactory).getId();
 			will(returnValue(duplexFailId));
 			oneOf(duplexFailFactory).createPlugin(with(any(
-					DuplexPluginCallback.class)));
+					PluginCallback.class)));
 			will(returnValue(null)); // Failed to create a plugin
 			// stop()
 			// Stop the plugins
@@ -122,9 +109,9 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			oneOf(duplexPlugin).stop();
 		}});
 
-		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, scheduler,
-				eventBus, pluginConfig, connectionManager, connectionRegistry,
-				settingsManager, transportPropertyManager, random, clock);
+		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, eventBus,
+				pluginConfig, connectionManager, settingsManager,
+				transportPropertyManager);
 
 		// Two plugins should be started and stopped
 		p.startService();

@@ -1,11 +1,11 @@
 package org.briarproject.bramble.test;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
-import org.briarproject.bramble.api.plugin.simplex.SimplexPluginCallback;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class TestPluginConfigModule {
 
 		@Override
 		@Nullable
-		public SimplexPlugin createPlugin(SimplexPluginCallback callback) {
+		public SimplexPlugin createPlugin(PluginCallback callback) {
 			return null;
 		}
 	};

@@ -1,29 +1,31 @@
 package org.briarproject.bramble.plugin.modem;
 
-import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.AbstractDuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
-import org.briarproject.bramble.util.StringUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Map;
+import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -33,11 +35,11 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 			new TransportId("org.briarproject.bramble.modem");
 
 	private static final Logger LOG =
-			Logger.getLogger(ModemPlugin.class.getName());
+			getLogger(ModemPlugin.class.getName());
 
 	private final ModemFactory modemFactory;
 	private final SerialPortList serialPortList;
-	private final DuplexPluginCallback callback;
+	private final PluginCallback callback;
 	private final int maxLatency;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -45,7 +47,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private volatile Modem modem = null;
 
 	ModemPlugin(ModemFactory modemFactory, SerialPortList serialPortList,
-			DuplexPluginCallback callback, int maxLatency) {
+			PluginCallback callback, int maxLatency) {
 		this.modemFactory = modemFactory;
 		this.serialPortList = serialPortList;
 		this.callback = callback;
@@ -116,7 +118,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public void poll(Map<ContactId, TransportProperties> contacts) {
+	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
+			properties) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -144,13 +147,13 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		if (!running) return null;
 		// Get the ISO 3166 code for the caller's country
 		String fromIso = callback.getLocalProperties().get("iso3166");
-		if (StringUtils.isNullOrEmpty(fromIso)) return null;
+		if (isNullOrEmpty(fromIso)) return null;
 		// Get the ISO 3166 code for the callee's country
 		String toIso = p.get("iso3166");
-		if (StringUtils.isNullOrEmpty(toIso)) return null;
+		if (isNullOrEmpty(toIso)) return null;
 		// Get the callee's phone number
 		String number = p.get("number");
-		if (StringUtils.isNullOrEmpty(number)) return null;
+		if (isNullOrEmpty(number)) return null;
 		// Convert the number into direct dialling form
 		number = CountryCodes.translate(number, fromIso, toIso);
 		if (number == null) return null;
@@ -184,7 +187,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	@Override
 	public void incomingCallConnected() {
 		LOG.info("Incoming call connected");
-		callback.incomingConnectionCreated(new ModemTransportConnection());
+		callback.handleConnection(new ModemTransportConnection());
 	}
 
 	private class ModemTransportConnection

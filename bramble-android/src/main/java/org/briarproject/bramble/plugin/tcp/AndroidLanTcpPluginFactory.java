@@ -6,9 +6,9 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 
 import java.util.concurrent.Executor;
@@ -51,7 +51,7 @@ public class AndroidLanTcpPluginFactory implements DuplexPluginFactory {
 	}
 
 	@Override
-	public DuplexPlugin createPlugin(DuplexPluginCallback callback) {
+	public DuplexPlugin createPlugin(PluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidLanTcpPlugin plugin = new AndroidLanTcpPlugin(ioExecutor,

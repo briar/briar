@@ -1,10 +1,10 @@
 package org.briarproject.bramble.api.plugin;
 
-import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
-import java.util.Map;
+import java.util.Collection;
 
 @NotNullByDefault
 public interface Plugin {
@@ -51,8 +51,9 @@ public interface Plugin {
 	int getPollingInterval();
 
 	/**
-	 * Attempts to establish connections to the given contacts, passing any
-	 * created connections to the callback.
+	 * Attempts to create connections using the given transport properties,
+	 * passing any created connections to the corresponding handlers.
 	 */
-	void poll(Map<ContactId, TransportProperties> contacts);
+	void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
+			properties);
 }

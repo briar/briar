@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
@@ -25,7 +25,7 @@ class UnixTorPlugin extends JavaTorPlugin {
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Backoff backoff,
-			DuplexPluginCallback callback, String architecture, int maxLatency,
+			PluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, File torDirectory) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
@@ -40,7 +40,7 @@ class UnixTorPlugin extends JavaTorPlugin {
 
 	private interface CLibrary extends Library {
 
-		CLibrary INSTANCE = (CLibrary) Native.loadLibrary("c", CLibrary.class);
+		CLibrary INSTANCE = Native.loadLibrary("c", CLibrary.class);
 
 		int getpid();
 	}

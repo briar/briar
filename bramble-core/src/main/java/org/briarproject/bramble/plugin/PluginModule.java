@@ -1,9 +1,11 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.PluginManager;
 
 import javax.inject.Inject;
@@ -18,6 +20,8 @@ public class PluginModule {
 	public static class EagerSingletons {
 		@Inject
 		PluginManager pluginManager;
+		@Inject
+		Poller poller;
 	}
 
 	@Provides
@@ -45,5 +49,13 @@ public class PluginModule {
 			PluginManagerImpl pluginManager) {
 		lifecycleManager.registerService(pluginManager);
 		return pluginManager;
+	}
+
+	@Provides
+	@Singleton
+	Poller providePoller(PluginConfig config, EventBus eventBus,
+			PollerImpl poller) {
+		if (config.shouldPoll()) eventBus.addListener(poller);
+		return poller;
 	}
 }

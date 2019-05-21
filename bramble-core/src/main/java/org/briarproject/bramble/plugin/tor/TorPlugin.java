@@ -4,9 +4,9 @@ import net.freehaven.tor.control.EventHandler;
 import net.freehaven.tor.control.TorControlConnection;
 
 import org.briarproject.bramble.PoliteExecutor;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.battery.event.BatteryEvent;
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
@@ -17,11 +17,12 @@ import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
@@ -47,7 +48,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -60,6 +60,7 @@ import javax.net.SocketFactory;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
@@ -81,8 +82,7 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @ParametersNotNullByDefault
 abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
-	private static final Logger LOG =
-			Logger.getLogger(TorPlugin.class.getName());
+	private static final Logger LOG = getLogger(TorPlugin.class.getName());
 
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
@@ -100,7 +100,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Clock clock;
 	private final BatteryManager batteryManager;
 	private final Backoff backoff;
-	private final DuplexPluginCallback callback;
+	private final PluginCallback callback;
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
@@ -126,7 +126,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Backoff backoff,
-			DuplexPluginCallback callback, String architecture, int maxLatency,
+			PluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, File torDirectory) {
 		this.ioExecutor = ioExecutor;
 		this.networkManager = networkManager;
@@ -458,8 +458,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 			LOG.info("Connection received");
 			backoff.reset();
-			TorTransportConnection conn = new TorTransportConnection(this, s);
-			callback.incomingConnectionCreated(conn);
+			callback.handleConnection(new TorTransportConnection(this, s));
 		}
 	}
 
@@ -521,20 +520,21 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public void poll(Map<ContactId, TransportProperties> contacts) {
+	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
+			properties) {
 		if (!isRunning()) return;
 		backoff.increment();
-		for (Entry<ContactId, TransportProperties> e : contacts.entrySet()) {
-			connectAndCallBack(e.getKey(), e.getValue());
+		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
+			connect(p.getFirst(), p.getSecond());
 		}
 	}
 
-	private void connectAndCallBack(ContactId c, TransportProperties p) {
+	private void connect(TransportProperties p, ConnectionHandler h) {
 		ioExecutor.execute(() -> {
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();
-				callback.outgoingConnectionCreated(c, d);
+				h.handleConnection(d);
 			}
 		});
 	}

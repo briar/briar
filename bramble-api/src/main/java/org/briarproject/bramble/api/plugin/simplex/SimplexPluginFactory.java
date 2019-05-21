@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.plugin.simplex;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 
 import javax.annotation.Nullable;
@@ -25,5 +26,5 @@ public interface SimplexPluginFactory {
 	 * Creates and returns a plugin, or null if no plugin can be created.
 	 */
 	@Nullable
-	SimplexPlugin createPlugin(SimplexPluginCallback callback);
+	SimplexPlugin createPlugin(PluginCallback callback);
 }

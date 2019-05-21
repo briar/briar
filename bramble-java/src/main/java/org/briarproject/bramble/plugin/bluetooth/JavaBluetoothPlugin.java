@@ -3,7 +3,7 @@ package org.briarproject.bramble.plugin.bluetooth;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 
 import java.io.IOException;
@@ -19,6 +19,7 @@ import javax.microedition.io.StreamConnection;
 import javax.microedition.io.StreamConnectionNotifier;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isValidMac;
 
@@ -27,14 +28,14 @@ import static org.briarproject.bramble.util.StringUtils.isValidMac;
 class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 
 	private static final Logger LOG =
-			Logger.getLogger(JavaBluetoothPlugin.class.getName());
+			getLogger(JavaBluetoothPlugin.class.getName());
 
 	// Non-null if the plugin started successfully
 	private volatile LocalDevice localDevice = null;
 
 	JavaBluetoothPlugin(BluetoothConnectionLimiter connectionManager,
 			Executor ioExecutor, SecureRandom secureRandom,
-			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
+			Backoff backoff, PluginCallback callback, int maxLatency) {
 		super(connectionManager, ioExecutor, secureRandom, backoff, callback,
 				maxLatency);
 	}

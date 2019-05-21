@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.plugin.duplex;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 
 import javax.annotation.Nullable;
@@ -25,5 +26,5 @@ public interface DuplexPluginFactory {
 	 * Creates and returns a plugin, or null if no plugin can be created.
 	 */
 	@Nullable
-	DuplexPlugin createPlugin(DuplexPluginCallback callback);
+	DuplexPlugin createPlugin(PluginCallback callback);
 }

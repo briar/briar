@@ -12,8 +12,8 @@ import android.content.IntentFilter;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
@@ -51,6 +51,7 @@ import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
@@ -58,7 +59,7 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidBluetoothPlugin.class.getName());
+			getLogger(AndroidBluetoothPlugin.class.getName());
 
 	private static final int MAX_DISCOVERY_MS = 10_000;
 
@@ -75,7 +76,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Clock clock,
-			Backoff backoff, DuplexPluginCallback callback, int maxLatency) {
+			Backoff backoff, PluginCallback callback, int maxLatency) {
 		super(connectionLimiter, ioExecutor, secureRandom, backoff, callback,
 				maxLatency);
 		this.androidExecutor = androidExecutor;
