@@ -53,7 +53,8 @@ public class PendingContactListActivity extends BriarActivity
 		viewModel.getPendingContacts()
 				.observe(this, this::onPendingContactsChanged);
 
-		adapter = new PendingContactListAdapter(this, this, PendingContact.class);
+		adapter = new PendingContactListAdapter(this, this,
+				PendingContactItem.class);
 		list = findViewById(R.id.list);
 		list.setEmptyText(R.string.no_pending_contacts);
 		list.setLayoutManager(new LinearLayoutManager(this));
@@ -75,13 +76,11 @@ public class PendingContactListActivity extends BriarActivity
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -89,8 +88,9 @@ public class PendingContactListActivity extends BriarActivity
 		viewModel.removePendingContact(pendingContact.getId());
 	}
 
-	private void onPendingContactsChanged(Collection<PendingContact> contacts) {
-		if (contacts.isEmpty()) {
+	private void onPendingContactsChanged(
+			Collection<PendingContactItem> items) {
+		if (items.isEmpty()) {
 			if (adapter.isEmpty()) {
 				list.showData();  // hides progress bar, shows empty text
 			} else {
@@ -98,7 +98,7 @@ public class PendingContactListActivity extends BriarActivity
 				supportFinishAfterTransition();
 			}
 		} else {
-			adapter.setItems(contacts);
+			adapter.setItems(items);
 		}
 	}
 

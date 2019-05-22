@@ -19,7 +19,6 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.FORMAT_VERSION;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.ID_LABEL;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.RAW_LINK_BYTES;
-import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -108,7 +107,6 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 		assertArrayEquals(publicKey.getEncoded(),
 				p.getPublicKey().getEncoded());
 		assertEquals(alias, p.getAlias());
-		assertEquals(WAITING_FOR_CONNECTION, p.getState());
 		assertEquals(timestamp, p.getTimestamp());
 	}
 

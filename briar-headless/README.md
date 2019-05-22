@@ -107,8 +107,24 @@ Until it is completed, a pending contact is returned as JSON:
 {
     "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U=",
     "alias": "ztatsaajzeegraqcizbbfftofdekclatyht",
-    "state": "adding_contact",
     "timestamp": 1557838312175
+}
+```
+
+It is possible to get a list of all pending contacts:
+
+`GET /v1/contacts/add/pending`
+
+This will return a JSON array of pending contacts and their states:
+
+```json
+{
+    "pendingContact": {
+        "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U=",
+        "alias": "ztatsaajzeegraqcizbbfftofdekclatyht",
+        "timestamp": 1557838312175
+    },
+    "state": "adding_contact"
 }
 ```
 
@@ -119,20 +135,15 @@ The state can be one of these values:
   * `adding_contact`
   * `failed`
 
-If you want to get informed about state changes,
+If you want to be informed about state changes,
 you can use the Websocket API (below) to listen for events.
 
 The following events are relevant here:
 
+  * `PendingContactAddedEvent`
   * `PendingContactStateChangedEvent`
   * `PendingContactRemovedEvent`
   * `ContactAddedRemotelyEvent` (when the pending contact becomes an actual contact)
-
-It is possible to get a list of all pending contacts:
-
-`GET /v1/contacts/add/pending`
-
-This will return a JSON array of pending contacts formatted as shown above.
 
 To remove a pending contact and abort the process of adding it:
 
@@ -302,6 +313,22 @@ it will send a JSON object representing the new contact to connected websocket c
 }
 ```
 
+### A pending contact was added
+
+```json
+{
+    "data": {
+        "pendingContact": {
+            "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U=",
+            "alias": "ztatsaajzeegraqcizbbfftofdekclatyht",
+            "timestamp": 1557838312175
+        }
+    },
+    "name": "PendingContactAddedEvent",
+    "type": "event"
+}
+
+```
 ### A pending contact changed its state
 
 ```json

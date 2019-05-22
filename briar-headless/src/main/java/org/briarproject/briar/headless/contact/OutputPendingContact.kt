@@ -3,6 +3,7 @@ package org.briarproject.briar.headless.contact
 import org.briarproject.bramble.api.contact.PendingContact
 import org.briarproject.bramble.api.contact.PendingContactState
 import org.briarproject.bramble.api.contact.PendingContactState.*
+import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
 import org.briarproject.briar.headless.json.JsonDict
@@ -10,7 +11,6 @@ import org.briarproject.briar.headless.json.JsonDict
 internal fun PendingContact.output() = JsonDict(
     "pendingContactId" to id.bytes,
     "alias" to alias,
-    "state" to state.output(),
     "timestamp" to timestamp
 )
 
@@ -21,6 +21,10 @@ internal fun PendingContactState.output() = when(this) {
     FAILED -> "failed"
     else -> throw AssertionError()
 }
+
+internal fun PendingContactAddedEvent.output() = JsonDict(
+    "pendingContact" to pendingContact.output()
+)
 
 internal fun PendingContactStateChangedEvent.output() = JsonDict(
     "pendingContactId" to id.bytes,

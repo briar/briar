@@ -4,7 +4,6 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.FormatException;
@@ -45,7 +44,7 @@ public class AddContactViewModel extends AndroidViewModel {
 	private String remoteHandshakeLink;
 
 	@Inject
-	public AddContactViewModel(@NonNull Application application,
+	AddContactViewModel(Application application,
 			ContactManager contactManager,
 			@DatabaseExecutor Executor dbExecutor) {
 		super(application);

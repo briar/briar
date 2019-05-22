@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
-import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -673,12 +672,6 @@ interface Database<T> {
 	 */
 	void setMessageState(T txn, MessageId m, MessageState state)
 			throws DbException;
-
-	/**
-	 * Sets the state of the given pending contact.
-	 */
-	void setPendingContactState(T txn, PendingContactId p,
-			PendingContactState state) throws DbException;
 
 	/**
 	 * Sets the reordering window for the given transport keys in the given

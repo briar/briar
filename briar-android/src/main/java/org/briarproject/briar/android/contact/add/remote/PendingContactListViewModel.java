@@ -5,10 +5,11 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
+import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -18,7 +19,9 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -40,11 +43,11 @@ public class PendingContactListViewModel extends AndroidViewModel
 	private final ContactManager contactManager;
 	private final EventBus eventBus;
 
-	private final MutableLiveData<Collection<PendingContact>> pendingContacts =
-			new MutableLiveData<>();
+	private final MutableLiveData<Collection<PendingContactItem>>
+			pendingContacts = new MutableLiveData<>();
 
 	@Inject
-	public PendingContactListViewModel(Application application,
+	PendingContactListViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			ContactManager contactManager, EventBus eventBus) {
 		super(application);
@@ -63,8 +66,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof ContactAddedRemotelyEvent ||
-				e instanceof PendingContactStateChangedEvent ||
+		if (e instanceof PendingContactStateChangedEvent ||
 				e instanceof PendingContactRemovedEvent) {
 			loadPendingContacts();
 		}
@@ -73,14 +75,21 @@ public class PendingContactListViewModel extends AndroidViewModel
 	private void loadPendingContacts() {
 		dbExecutor.execute(() -> {
 			try {
-				pendingContacts.postValue(contactManager.getPendingContacts());
+				Collection<Pair<PendingContact, PendingContactState>> pairs =
+						contactManager.getPendingContacts();
+				List<PendingContactItem> items = new ArrayList<>(pairs.size());
+				for (Pair<PendingContact, PendingContactState> p : pairs) {
+					items.add(new PendingContactItem(p.getFirst(),
+							p.getSecond()));
+				}
+				pendingContacts.setValue(items);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
 	}
 
-	LiveData<Collection<PendingContact>> getPendingContacts() {
+	LiveData<Collection<PendingContactItem>> getPendingContacts() {
 		return pendingContacts;
 	}
 

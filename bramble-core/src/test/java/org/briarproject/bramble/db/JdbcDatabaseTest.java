@@ -56,7 +56,6 @@ import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static java.util.concurrent.TimeUnit.SECONDS;
-import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -2211,16 +2210,6 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		PendingContact retrieved = pendingContacts.iterator().next();
 		assertEquals(pendingContact.getId(), retrieved.getId());
 		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
-		assertEquals(pendingContact.getState(), retrieved.getState());
-		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
-
-		db.setPendingContactState(txn, pendingContact.getId(), FAILED);
-		pendingContacts = db.getPendingContacts(txn);
-		assertEquals(1, pendingContacts.size());
-		retrieved = pendingContacts.iterator().next();
-		assertEquals(pendingContact.getId(), retrieved.getId());
-		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
-		assertEquals(FAILED, retrieved.getState());
 		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
 
 		db.removePendingContact(txn, pendingContact.getId());
@@ -2232,8 +2221,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 	@Test
 	public void testSetHandshakeKeyPair() throws Exception {
-		Identity withoutKeys =
-				new Identity(localAuthor, null, null, identity.getTimeCreated());
+		Identity withoutKeys = new Identity(localAuthor, null, null,
+				identity.getTimeCreated());
 		assertFalse(withoutKeys.hasHandshakeKeyPair());
 		PublicKey publicKey = getAgreementPublicKey();
 		PrivateKey privateKey = getAgreementPrivateKey();

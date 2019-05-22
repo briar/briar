@@ -7,11 +7,14 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.runs
+import org.briarproject.bramble.api.Pair
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.contact.PendingContactId
 import org.briarproject.bramble.api.contact.PendingContactState.FAILED
+import org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION
 import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent
+import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
 import org.briarproject.bramble.api.db.NoSuchContactException
@@ -124,8 +127,14 @@ internal class ContactControllerTest : ControllerTest() {
 
     @Test
     fun testListPendingContacts() {
-        every { contactManager.pendingContacts } returns listOf(pendingContact)
-        every { ctx.json(listOf(pendingContact.output())) } returns ctx
+        every { contactManager.pendingContacts } returns listOf(
+            Pair(pendingContact, WAITING_FOR_CONNECTION)
+        )
+        val dict = JsonDict(
+            "pendingContact" to pendingContact.output(),
+            "state" to WAITING_FOR_CONNECTION.output()
+        )
+        every { ctx.json(listOf(dict)) } returns ctx
         controller.listPendingContacts(ctx)
     }
 
@@ -226,6 +235,20 @@ internal class ContactControllerTest : ControllerTest() {
     }
 
     @Test
+    fun testPendingContactAddedEvent() {
+        val event = PendingContactAddedEvent(pendingContact)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_PENDING_CONTACT_ADDED,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
     fun testPendingContactRemovedEvent() {
         val event = PendingContactRemovedEvent(pendingContact.id)
 
@@ -284,11 +307,25 @@ internal class ContactControllerTest : ControllerTest() {
             {
                 "pendingContactId": ${toJson(pendingContact.id.bytes)},
                 "alias": "${pendingContact.alias}",
-                "state": "${pendingContact.state.name.toLowerCase()}",
                 "timestamp": ${pendingContact.timestamp}
             }
         """
         assertJsonEquals(json, pendingContact.output())
+    }
+
+    @Test
+    fun testOutputPendingContactAddedEvent() {
+        val event = PendingContactAddedEvent(pendingContact)
+        val json = """
+            {
+                "pendingContact": {
+                    "pendingContactId": ${toJson(pendingContact.id.bytes)},
+                    "alias": "${pendingContact.alias}",
+                    "timestamp": ${pendingContact.timestamp}
+                }
+            }
+        """
+        assertJsonEquals(json, event.output())
     }
 
     @Test

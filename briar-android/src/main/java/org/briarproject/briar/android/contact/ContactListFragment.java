@@ -18,10 +18,9 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
-import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.event.Event;
@@ -65,7 +64,6 @@ import static android.support.v4.app.ActivityOptionsCompat.makeSceneTransitionAn
 import static android.support.v4.view.ViewCompat.getTransitionName;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -293,15 +291,8 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 					(ConversationMessageReceivedEvent) e;
 			ConversationMessageHeader h = p.getMessageHeader();
 			updateItem(p.getContactId(), h);
-		} else if (e instanceof PendingContactStateChangedEvent) {
-			PendingContactStateChangedEvent pe =
-					(PendingContactStateChangedEvent) e;
-			// only re-check pending contacts for initial state
-			if (pe.getPendingContactState() == WAITING_FOR_CONNECTION) {
-				checkForPendingContacts();
-			}
-		} else if (e instanceof PendingContactRemovedEvent ||
-				e instanceof ContactAddedRemotelyEvent) {
+		} else if (e instanceof PendingContactAddedEvent ||
+				e instanceof PendingContactRemovedEvent) {
 			checkForPendingContacts();
 		}
 	}

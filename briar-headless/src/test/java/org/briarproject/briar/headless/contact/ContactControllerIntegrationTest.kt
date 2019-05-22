@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 class ContactControllerIntegrationTest: IntegrationTest() {
 
     @Test
-    fun `list of contacts need authentication token`() {
+    fun `returning list of contacts needs authentication token`() {
         val response = getWithWrongToken("$url/contacts")
         assertEquals(401, response.statusCode)
     }
@@ -72,11 +72,10 @@ class ContactControllerIntegrationTest: IntegrationTest() {
         assertEquals(200, response.statusCode)
         assertEquals(1, response.jsonArray.length())
         val jsonObject = response.jsonArray.getJSONObject(0)
-        assertEquals(alias, jsonObject.getString("alias"))
-        assertEquals("waiting_for_connection", jsonObject.getString("state"))
+        assertEquals(alias, jsonObject.getJSONObject("pendingContact").getString("alias"))
 
         // remove pending contact again
-        val idString = jsonObject.getString("pendingContactId")
+        val idString = jsonObject.getJSONObject("pendingContact").getString("pendingContactId")
         val deleteJson = """{"pendingContactId": "$idString"}"""
         response = delete("$url/contacts/add/pending", deleteJson)
         assertEquals(200, response.statusCode)
@@ -94,7 +93,7 @@ class ContactControllerIntegrationTest: IntegrationTest() {
     }
 
     @Test
-    fun `adding pending contacts needs authentication token`() {
+    fun `adding a pending contact needs authentication token`() {
         val response = postWithWrongToken("$url/contacts/add/pending")
         assertEquals(401, response.statusCode)
     }
@@ -106,7 +105,7 @@ class ContactControllerIntegrationTest: IntegrationTest() {
     }
 
     @Test
-    fun `deleting contact need authentication token`() {
+    fun `deleting a contact needs authentication token`() {
         val response = deleteWithWrongToken("$url/contacts/1")
         assertEquals(401, response.statusCode)
     }

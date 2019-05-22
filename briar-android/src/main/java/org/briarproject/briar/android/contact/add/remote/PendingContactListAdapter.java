@@ -12,12 +12,12 @@ import org.briarproject.briar.android.util.BriarAdapter;
 
 @NotNullByDefault
 class PendingContactListAdapter extends
-		BriarAdapter<PendingContact, PendingContactViewHolder> {
+		BriarAdapter<PendingContactItem, PendingContactViewHolder> {
 
 	private final PendingContactListener listener;
 
 	PendingContactListAdapter(Context ctx, PendingContactListener listener,
-			Class<PendingContact> c) {
+			Class<PendingContactItem> c) {
 		super(ctx, c);
 		this.listener = listener;
 	}
@@ -37,23 +37,29 @@ class PendingContactListAdapter extends
 	}
 
 	@Override
-	public int compare(PendingContact item1, PendingContact item2) {
-		return (int) (item1.getTimestamp() - item2.getTimestamp());
+	public int compare(PendingContactItem item1, PendingContactItem item2) {
+		long timestamp1 = item1.getPendingContact().getTimestamp();
+		long timestamp2 = item2.getPendingContact().getTimestamp();
+		return Long.compare(timestamp1, timestamp2);
 	}
 
 	@Override
-	public boolean areContentsTheSame(PendingContact item1,
-			PendingContact item2) {
-		return item1.getId().equals(item2.getId()) &&
-				item1.getAlias().equals(item2.getAlias()) &&
-				item1.getTimestamp() == item2.getTimestamp() &&
+	public boolean areContentsTheSame(PendingContactItem item1,
+			PendingContactItem item2) {
+		PendingContact p1 = item1.getPendingContact();
+		PendingContact p2 = item2.getPendingContact();
+		return p1.getId().equals(p2.getId()) &&
+				p1.getAlias().equals(p2.getAlias()) &&
+				p1.getTimestamp() == p2.getTimestamp() &&
 				item1.getState() == item2.getState();
 	}
 
 	@Override
-	public boolean areItemsTheSame(PendingContact item1,
-			PendingContact item2) {
-		return item1.getId().equals(item2.getId());
+	public boolean areItemsTheSame(PendingContactItem item1,
+			PendingContactItem item2) {
+		PendingContact p1 = item1.getPendingContact();
+		PendingContact p2 = item2.getPendingContact();
+		return p1.getId().equals(p2.getId());
 	}
 
 }
