@@ -62,7 +62,7 @@ public class AddContactViewModel extends AndroidViewModel {
 				handshakeLink.postValue(contactManager.getHandshakeLink());
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
-				// the UI should stay disable in this case,
+				// the UI should stay disabled in this case,
 				// leaving the user unable to proceed
 			}
 		});

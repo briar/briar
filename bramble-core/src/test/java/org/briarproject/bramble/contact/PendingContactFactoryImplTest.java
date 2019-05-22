@@ -19,8 +19,12 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.FORMAT_VERSION;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.ID_LABEL;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.RAW_LINK_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertArrayEquals;
@@ -101,6 +105,57 @@ public class PendingContactFactoryImplTest extends BrambleMockTestCase {
 			will(returnValue(timestamp));
 		}});
 
+		PendingContact p =
+				pendingContactFactory.createPendingContact(link, alias);
+		assertArrayEquals(idBytes, p.getId().getBytes());
+		assertArrayEquals(publicKey.getEncoded(),
+				p.getPublicKey().getEncoded());
+		assertEquals(alias, p.getAlias());
+		assertEquals(timestamp, p.getTimestamp());
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateHandshakeLinkRejectsInvalidKeyType() {
+		PublicKey invalidPublicKey = context.mock(PublicKey.class);
+
+		context.checking(new Expectations() {{
+			oneOf(invalidPublicKey).getKeyType();
+			will(returnValue(KEY_TYPE_SIGNATURE));
+		}});
+
+		pendingContactFactory.createHandshakeLink(invalidPublicKey);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void testCreateHandshakeLinkRejectsInvalidKeyLength() {
+		PublicKey invalidPublicKey = context.mock(PublicKey.class);
+		byte[] invalidPublicKeyBytes =
+				getRandomBytes(MAX_AGREEMENT_PUBLIC_KEY_BYTES + 1);
+
+		context.checking(new Expectations() {{
+			oneOf(invalidPublicKey).getKeyType();
+			will(returnValue(KEY_TYPE_AGREEMENT));
+			oneOf(invalidPublicKey).getEncoded();
+			will(returnValue(invalidPublicKeyBytes));
+		}});
+
+		pendingContactFactory.createHandshakeLink(invalidPublicKey);
+	}
+
+	@Test
+	public void testCreateAndParseLink() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(crypto).getAgreementKeyParser();
+			will(returnValue(keyParser));
+			oneOf(keyParser).parsePublicKey(publicKey.getEncoded());
+			will(returnValue(publicKey));
+			oneOf(crypto).hash(ID_LABEL, publicKey.getEncoded());
+			will(returnValue(idBytes));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(timestamp));
+		}});
+
+		String link = pendingContactFactory.createHandshakeLink(publicKey);
 		PendingContact p =
 				pendingContactFactory.createPendingContact(link, alias);
 		assertArrayEquals(idBytes, p.getId().getBytes());

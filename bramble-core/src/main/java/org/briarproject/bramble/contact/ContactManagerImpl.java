@@ -33,22 +33,17 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32_LINK_BYTES;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
-import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @ThreadSafe
 @NotNullByDefault
 class ContactManagerImpl implements ContactManager {
-
-	private static final String REMOTE_CONTACT_LINK =
-			"briar://" + getRandomBase32String(BASE32_LINK_BYTES);
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
@@ -120,9 +115,10 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public String getHandshakeLink() {
-		// TODO replace with real implementation
-		return REMOTE_CONTACT_LINK;
+	public String getHandshakeLink() throws DbException {
+		KeyPair keyPair = db.transactionWithResult(true,
+				identityManager::getHandshakeKeys);
+		return pendingContactFactory.createHandshakeLink(keyPair.getPublic());
 	}
 
 	@Override
