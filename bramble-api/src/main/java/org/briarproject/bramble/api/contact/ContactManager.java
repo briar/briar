@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
@@ -76,9 +77,11 @@ public interface ContactManager {
 			throws DbException, FormatException;
 
 	/**
-	 * Returns a list of {@link PendingContact}s.
+	 * Returns a list of {@link PendingContact PendingContacts} and their
+	 * {@link PendingContactState states}.
 	 */
-	Collection<PendingContact> getPendingContacts() throws DbException;
+	Collection<Pair<PendingContact, PendingContactState>> getPendingContacts()
+			throws DbException;
 
 	/**
 	 * Removes a {@link PendingContact}.

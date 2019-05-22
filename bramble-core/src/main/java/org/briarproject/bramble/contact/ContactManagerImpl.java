@@ -1,11 +1,13 @@
 package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -19,6 +21,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.KeyManager;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -28,6 +31,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32_LINK_BYTES;
+import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
@@ -111,8 +115,16 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
-	public Collection<PendingContact> getPendingContacts() throws DbException {
-		return db.transactionWithResult(true, db::getPendingContacts);
+	public Collection<Pair<PendingContact, PendingContactState>> getPendingContacts()
+			throws DbException {
+		Collection<PendingContact> pendingContacts =
+				db.transactionWithResult(true, db::getPendingContacts);
+		List<Pair<PendingContact, PendingContactState>> pairs =
+				new ArrayList<>(pendingContacts.size());
+		for (PendingContact p : pendingContacts) {
+			pairs.add(new Pair<>(p, WAITING_FOR_CONNECTION)); // TODO
+		}
+		return pairs;
 	}
 
 	@Override

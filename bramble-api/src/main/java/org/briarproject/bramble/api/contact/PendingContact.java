@@ -12,15 +12,13 @@ public class PendingContact {
 	private final PendingContactId id;
 	private final PublicKey publicKey;
 	private final String alias;
-	private final PendingContactState state;
 	private final long timestamp;
 
 	public PendingContact(PendingContactId id, PublicKey publicKey,
-			String alias, PendingContactState state, long timestamp) {
+			String alias, long timestamp) {
 		this.id = id;
 		this.publicKey = publicKey;
 		this.alias = alias;
-		this.state = state;
 		this.timestamp = timestamp;
 	}
 
@@ -34,10 +32,6 @@ public class PendingContact {
 
 	public String getAlias() {
 		return alias;
-	}
-
-	public PendingContactState getState() {
-		return state;
 	}
 
 	public long getTimestamp() {

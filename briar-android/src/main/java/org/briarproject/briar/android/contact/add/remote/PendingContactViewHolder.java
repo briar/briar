@@ -35,13 +35,14 @@ class PendingContactViewHolder extends ViewHolder {
 		this.listener = listener;
 	}
 
-	public void bind(PendingContact item) {
-		avatar.setText(item.getAlias());
-		avatar.setBackgroundBytes(item.getId().getBytes());
-		name.setText(item.getAlias());
-		time.setText(formatDate(time.getContext(), item.getTimestamp()));
+	public void bind(PendingContactItem item) {
+		PendingContact p = item.getPendingContact();
+		avatar.setText(p.getAlias());
+		avatar.setBackgroundBytes(p.getId().getBytes());
+		name.setText(p.getAlias());
+		time.setText(formatDate(time.getContext(), p.getTimestamp()));
 		removeButton.setOnClickListener(v -> {
-			listener.onFailedPendingContactRemoved(item);
+			listener.onFailedPendingContactRemoved(p);
 			removeButton.setEnabled(false);
 		});
 

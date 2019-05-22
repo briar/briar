@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
-import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.PrivateKey;
@@ -98,7 +97,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 44;
+	static final int CODE_SCHEMA_VERSION = 45;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -264,7 +263,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " (pendingContactId _HASH NOT NULL,"
 					+ " publicKey _BINARY NOT NULL,"
 					+ " alias _STRING NOT NULL,"
-					+ " state INT NOT NULL,"
 					+ " timestamp BIGINT NOT NULL,"
 					+ " PRIMARY KEY (pendingContactId))";
 
@@ -457,7 +455,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration40_41(dbTypes),
 				new Migration41_42(dbTypes),
 				new Migration42_43(dbTypes),
-				new Migration43_44(dbTypes)
+				new Migration43_44(dbTypes),
+				new Migration44_45()
 		);
 	}
 
@@ -933,14 +932,13 @@ abstract class JdbcDatabase implements Database<Connection> {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO pendingContacts (pendingContactId,"
-					+ " publicKey, alias, state, timestamp)"
-					+ " VALUES (?, ?, ?, ?, ?)";
+					+ " publicKey, alias, timestamp)"
+					+ " VALUES (?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, p.getId().getBytes());
 			ps.setBytes(2, p.getPublicKey().getEncoded());
 			ps.setString(3, p.getAlias());
-			ps.setInt(4, p.getState().getValue());
-			ps.setLong(5, p.getTimestamp());
+			ps.setLong(4, p.getTimestamp());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -2213,8 +2211,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 		Statement s = null;
 		ResultSet rs = null;
 		try {
-			String sql = "SELECT pendingContactId, publicKey, alias, state,"
-					+ " timestamp"
+			String sql = "SELECT pendingContactId, publicKey, alias, timestamp"
 					+ " FROM pendingContacts";
 			s = txn.createStatement();
 			rs = s.executeQuery(sql);
@@ -2223,11 +2220,9 @@ abstract class JdbcDatabase implements Database<Connection> {
 				PendingContactId id = new PendingContactId(rs.getBytes(1));
 				PublicKey publicKey = new AgreementPublicKey(rs.getBytes(2));
 				String alias = rs.getString(3);
-				PendingContactState state =
-						PendingContactState.fromValue(rs.getInt(4));
-				long timestamp = rs.getLong(5);
+				long timestamp = rs.getLong(4);
 				pendingContacts.add(new PendingContact(id, publicKey, alias,
-						state, timestamp));
+						timestamp));
 			}
 			rs.close();
 			s.close();
@@ -3070,25 +3065,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(2, m.getBytes());
 			affected = ps.executeUpdate();
 			if (affected < 0) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void setPendingContactState(Connection txn, PendingContactId p,
-			PendingContactState state) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "UPDATE pendingContacts SET state = ?"
-					+ " WHERE pendingContactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, state.getValue());
-			ps.setBytes(2, p.getBytes());
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);

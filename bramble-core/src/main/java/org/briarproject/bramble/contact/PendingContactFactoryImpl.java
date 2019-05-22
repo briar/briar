@@ -20,7 +20,6 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.FORMAT
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.ID_LABEL;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.RAW_LINK_BYTES;
-import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 
 class PendingContactFactoryImpl implements PendingContactFactory {
 
@@ -39,8 +38,7 @@ class PendingContactFactoryImpl implements PendingContactFactory {
 		PublicKey publicKey = parseHandshakeLink(link);
 		PendingContactId id = getPendingContactId(publicKey);
 		long timestamp = clock.currentTimeMillis();
-		return new PendingContact(id, publicKey, alias, WAITING_FOR_CONNECTION,
-				timestamp);
+		return new PendingContact(id, publicKey, alias, timestamp);
 	}
 
 	private PublicKey parseHandshakeLink(String link) throws FormatException {

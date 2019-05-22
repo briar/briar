@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.ContactManager
 import org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX
 import org.briarproject.bramble.api.contact.PendingContactId
 import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent
+import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
 import org.briarproject.bramble.api.db.NoSuchContactException
@@ -28,6 +29,7 @@ import javax.inject.Singleton
 
 internal const val EVENT_CONTACT_ADDED_REMOTELY = "ContactAddedRemotelyEvent"
 internal const val EVENT_PENDING_CONTACT_STATE_CHANGED = "PendingContactStateChangedEvent"
+internal const val EVENT_PENDING_CONTACT_ADDED = "PendingContactAddedEvent"
 internal const val EVENT_PENDING_CONTACT_REMOVED = "PendingContactRemovedEvent"
 
 @Immutable
@@ -46,6 +48,9 @@ constructor(
         }
         is PendingContactStateChangedEvent -> {
             webSocket.sendEvent(EVENT_PENDING_CONTACT_STATE_CHANGED, e.output())
+        }
+        is PendingContactAddedEvent -> {
+            webSocket.sendEvent(EVENT_PENDING_CONTACT_ADDED, e.output())
         }
         is PendingContactRemovedEvent -> {
             webSocket.sendEvent(EVENT_PENDING_CONTACT_REMOVED, e.output())
@@ -78,8 +83,8 @@ constructor(
     }
 
     override fun listPendingContacts(ctx: Context): Context {
-        val pendingContacts = contactManager.pendingContacts.map { pendingContact ->
-            pendingContact.output()
+        val pendingContacts = contactManager.pendingContacts.map { pair ->
+            JsonDict("pendingContact" to pair.first.output(), "state" to pair.second.output())
         }
         return ctx.json(pendingContacts)
     }

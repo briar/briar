@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
-import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.PrivateKey;
@@ -181,10 +180,7 @@ public class TestUtils {
 		PendingContactId id = new PendingContactId(getRandomId());
 		PublicKey publicKey = getAgreementPublicKey();
 		String alias = getRandomString(nameLength);
-		int stateIndex =
-				random.nextInt(PendingContactState.values().length - 1);
-		PendingContactState state = PendingContactState.values()[stateIndex];
-		return new PendingContact(id, publicKey, alias, state, timestamp);
+		return new PendingContact(id, publicKey, alias, timestamp);
 	}
 
 	public static ContactId getContactId() {
