@@ -9,8 +9,8 @@ import dagger.Provides;
 public class RendezvousModule {
 
 	@Provides
-	RendezvousCrypto provideKeyMaterialSourceFactory(
-			RendezvousCryptoImpl keyMaterialSourceFactory) {
-		return keyMaterialSourceFactory;
+	RendezvousCrypto provideRendezvousCrypto(
+			RendezvousCryptoImpl rendezvousCrypto) {
+		return rendezvousCrypto;
 	}
 }
