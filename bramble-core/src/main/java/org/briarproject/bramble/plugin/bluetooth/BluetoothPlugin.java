@@ -22,6 +22,8 @@ import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
 import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
+import org.briarproject.bramble.api.rendezvous.RendezvousHandler;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 
@@ -388,6 +390,16 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		byte[] mac = descriptor.getRaw(1);
 		if (mac.length != 6) throw new FormatException();
 		return macToString(mac);
+	}
+
+	@Override
+	public boolean supportsRendezvous() {
+		return false;
+	}
+
+	@Override
+	public RendezvousHandler createRendezvousHandler(KeyMaterialSource k) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

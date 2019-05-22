@@ -25,6 +25,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
+import org.briarproject.bramble.api.rendezvous.RendezvousHandler;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
@@ -43,9 +45,7 @@ import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -58,11 +58,15 @@ import java.util.zip.ZipInputStream;
 import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
@@ -74,6 +78,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -251,11 +256,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			controlConnection.authenticate(read(cookieFile));
 			// Tell Tor to exit when the control connection is closed
 			controlConnection.takeOwnership();
-			controlConnection.resetConf(Collections.singletonList(OWNER));
+			controlConnection.resetConf(singletonList(OWNER));
 			running = true;
 			// Register to receive events from the Tor process
 			controlConnection.setEventHandler(this);
-			controlConnection.setEvents(Arrays.asList(EVENTS));
+			controlConnection.setEvents(asList(EVENTS));
 			// Check whether Tor has already bootstrapped
 			String phase = controlConnection.getInfo("status/bootstrap-phase");
 			if (phase != null && phase.contains("PROGRESS=100")) {
@@ -280,28 +285,31 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		InputStream in = null;
 		OutputStream out = null;
 		try {
+			// The done file may already exist from a previous installation
+			//noinspection ResultOfMethodCallIgnored
 			doneFile.delete();
 			// Unzip the Tor binary to the filesystem
 			in = getTorInputStream();
 			out = new FileOutputStream(torFile);
-			IoUtils.copyAndClose(in, out);
+			copyAndClose(in, out);
 			// Make the Tor binary executable
 			if (!torFile.setExecutable(true, true)) throw new IOException();
 			// Unzip the GeoIP database to the filesystem
 			in = getGeoIpInputStream();
 			out = new FileOutputStream(geoIpFile);
-			IoUtils.copyAndClose(in, out);
+			copyAndClose(in, out);
 			// Unzip the Obfs4 proxy to the filesystem
 			in = getObfs4InputStream();
 			out = new FileOutputStream(obfs4File);
-			IoUtils.copyAndClose(in, out);
+			copyAndClose(in, out);
 			// Make the Obfs4 proxy executable
 			if (!obfs4File.setExecutable(true, true)) throw new IOException();
 			// Copy the config file to the filesystem
 			in = getConfigInputStream();
 			out = new FileOutputStream(configFile);
-			IoUtils.copyAndClose(in, out);
-			doneFile.createNewFile();
+			copyAndClose(in, out);
+			if (!doneFile.createNewFile())
+				LOG.warning("Failed to create done file");
 		} catch (IOException e) {
 			IoUtils.tryToClose(in, LOG, WARNING);
 			IoUtils.tryToClose(out, LOG, WARNING);
@@ -338,7 +346,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private InputStream getConfigInputStream() {
-		return getClass().getClassLoader().getResourceAsStream("torrc");
+		ClassLoader cl = getClass().getClassLoader();
+		return requireNonNull(cl.getResourceAsStream("torrc"));
 	}
 
 	private void listFiles(File f) {
@@ -410,8 +419,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!running) return;
 		LOG.info("Creating hidden service");
 		String privKey = settings.get(HS_PRIVKEY);
-		Map<Integer, String> portLines =
-				Collections.singletonMap(80, "127.0.0.1:" + port);
+		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
 		Map<String, String> response;
 		try {
 			// Use the control connection to set up the hidden service
@@ -596,6 +604,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean supportsRendezvous() {
+		return false;
+	}
+
+	@Override
+	public RendezvousHandler createRendezvousHandler(KeyMaterialSource k) {
 		throw new UnsupportedOperationException();
 	}
 
