@@ -130,16 +130,11 @@ internal class ContactControllerTest : ControllerTest() {
         every { contactManager.pendingContacts } returns listOf(
             Pair(pendingContact, WAITING_FOR_CONNECTION)
         )
-        every {
-            ctx.json(
-                listOf(
-                    JsonDict(
-                        "pendingContact" to pendingContact.output(),
-                        "state" to WAITING_FOR_CONNECTION.output()
-                    )
-                )
-            )
-        } returns ctx
+        val dict = JsonDict(
+            "pendingContact" to pendingContact.output(),
+            "state" to WAITING_FOR_CONNECTION.output()
+        )
+        every { ctx.json(listOf(dict)) } returns ctx
         controller.listPendingContacts(ctx)
     }
 

@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
-import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -67,8 +66,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof PendingContactAddedEvent ||
-				e instanceof PendingContactStateChangedEvent ||
+		if (e instanceof PendingContactStateChangedEvent ||
 				e instanceof PendingContactRemovedEvent) {
 			loadPendingContacts();
 		}
