@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.rendezvous;
 
 import static java.util.concurrent.TimeUnit.DAYS;
+import static java.util.concurrent.TimeUnit.MINUTES;
 
 public interface RendezvousConstants {
 
@@ -13,6 +14,11 @@ public interface RendezvousConstants {
 	 * How long to try to rendezvous with a pending contact before giving up.
 	 */
 	long RENDEZVOUS_TIMEOUT_MS = DAYS.toMillis(2);
+
+	/**
+	 * How often to try to rendezvous with pending contacts.
+	 */
+	long POLLING_INTERVAL_MS = MINUTES.toMillis(1);
 
 	/**
 	 * Label for deriving the rendezvous key from the handshake key pairs.

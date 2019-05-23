@@ -52,8 +52,10 @@ public interface DuplexPlugin extends Plugin {
 	/**
 	 * Creates and returns an endpoint that uses the given key material to
 	 * rendezvous with a pending contact, and the given connection handler to
-	 * handle incoming connections.
+	 * handle incoming connections. Returns null if an endpoint cannot be
+	 * created.
 	 */
+	@Nullable
 	RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			ConnectionHandler incoming);
 }
