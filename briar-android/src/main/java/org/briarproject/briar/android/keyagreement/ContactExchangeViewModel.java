@@ -66,13 +66,24 @@ class ContactExchangeViewModel extends AndroidViewModel {
 				remoteAuthor = contact.getAuthor();
 				succeeded.postValue(true);
 			} catch (ContactExistsException e) {
+				tryToClose(conn);
 				duplicateAuthor = e.getRemoteAuthor();
 				succeeded.postValue(false);
 			} catch (DbException | IOException e) {
+				tryToClose(conn);
 				logException(LOG, WARNING, e);
 				succeeded.postValue(false);
 			}
 		});
+	}
+
+	private void tryToClose(DuplexTransportConnection conn) {
+		try {
+			conn.getReader().dispose(true, true);
+			conn.getWriter().dispose(true);
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+		}
 	}
 
 	@UiThread
