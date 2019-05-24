@@ -630,7 +630,8 @@ interface Database<T> {
 	/**
 	 * Removes the given transport keys from the database.
 	 */
-	void removeTransportKeys(T txn, TransportId t, KeySetId k) throws DbException;
+	void removeTransportKeys(T txn, TransportId t, KeySetId k)
+			throws DbException;
 
 	/**
 	 * Resets the transmission count and expiry time of the given message with
@@ -684,6 +685,14 @@ interface Database<T> {
 	 * Marks the given transport keys as usable for outgoing streams.
 	 */
 	void setTransportKeysActive(T txn, TransportId t, KeySetId k)
+			throws DbException;
+
+	/**
+	 * Transfers ownership of any transport keys from the given pending contact
+	 * to the given contact and copies the pending contact's handshake public
+	 * key to the contact.
+	 */
+	void transferKeys(T txn, PendingContactId p, ContactId c)
 			throws DbException;
 
 	/**

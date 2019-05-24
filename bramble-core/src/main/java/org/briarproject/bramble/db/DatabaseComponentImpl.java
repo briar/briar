@@ -249,6 +249,28 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public ContactId addContact(Transaction transaction, PendingContactId p,
+			Author remote, AuthorId local, boolean verified)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsPendingContact(txn, p))
+			throw new NoSuchPendingContactException();
+		if (!db.containsIdentity(txn, local))
+			throw new NoSuchIdentityException();
+		if (db.containsIdentity(txn, remote.getId()))
+			throw new ContactExistsException(local, remote);
+		if (db.containsContact(txn, remote.getId(), local))
+			throw new ContactExistsException(local, remote);
+		ContactId c = db.addContact(txn, remote, local, verified);
+		db.transferKeys(txn, p, c);
+		db.removePendingContact(txn, p);
+		transaction.attach(new ContactAddedEvent(c));
+		transaction.attach(new PendingContactRemovedEvent(p));
+		return c;
+	}
+
+	@Override
 	public void addGroup(Transaction transaction, Group g) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);

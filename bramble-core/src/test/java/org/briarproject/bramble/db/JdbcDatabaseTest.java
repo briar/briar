@@ -2204,16 +2204,71 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(emptyList(), db.getPendingContacts(txn));
 
 		db.addPendingContact(txn, pendingContact);
-		Collection<PendingContact> pendingContacts =
-				db.getPendingContacts(txn);
+		Collection<PendingContact> pendingContacts = db.getPendingContacts(txn);
 		assertEquals(1, pendingContacts.size());
 		PendingContact retrieved = pendingContacts.iterator().next();
 		assertEquals(pendingContact.getId(), retrieved.getId());
 		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
+		assertArrayEquals(pendingContact.getPublicKey().getEncoded(),
+				retrieved.getPublicKey().getEncoded());
 		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
 
 		db.removePendingContact(txn, pendingContact.getId());
 		assertEquals(emptyList(), db.getPendingContacts(txn));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testTransferKeys() throws Exception {
+		boolean alice = random.nextBoolean();
+		TransportKeys transportKeys =
+				createHandshakeKeys(1000, getSecretKey(), alice);
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add the pending contact, the transport and the handshake keys
+		db.addPendingContact(txn, pendingContact);
+		db.addTransport(txn, transportId, 123);
+		assertEquals(keySetId, db.addTransportKeys(txn, pendingContact.getId(),
+				transportKeys));
+
+		Collection<TransportKeySet> allKeys =
+				db.getTransportKeys(txn, transportId);
+		assertEquals(1, allKeys.size());
+		TransportKeySet ks = allKeys.iterator().next();
+		assertEquals(keySetId, ks.getKeySetId());
+		assertNull(ks.getContactId());
+		assertEquals(pendingContact.getId(), ks.getPendingContactId());
+
+		// Add a contact
+		db.addIdentity(txn, identity);
+		assertEquals(contactId,
+				db.addContact(txn, author, localAuthor.getId(), true));
+
+		// The contact shouldn't have a handshake public key
+		Contact contact = db.getContact(txn, contactId);
+		assertNull(contact.getHandshakePublicKey());
+
+		// Transfer the keys to the contact
+		db.transferKeys(txn, pendingContact.getId(), contactId);
+
+		// The handshake public key should have been copied to the contact
+		contact = db.getContact(txn, contactId);
+		PublicKey handshakePublicKey = contact.getHandshakePublicKey();
+		assertNotNull(handshakePublicKey);
+		assertArrayEquals(pendingContact.getPublicKey().getEncoded(),
+				handshakePublicKey.getEncoded());
+
+		// The transport keys should have been transferred to the contact
+		allKeys = db.getTransportKeys(txn, transportId);
+		assertEquals(1, allKeys.size());
+		ks = allKeys.iterator().next();
+		assertEquals(keySetId, ks.getKeySetId());
+		assertEquals(contactId, ks.getContactId());
+		assertNull(ks.getPendingContactId());
 
 		db.commitTransaction(txn);
 		db.close();
