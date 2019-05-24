@@ -16,10 +16,10 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
-import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
@@ -72,8 +72,7 @@ public class ConversationViewModel extends AndroidViewModel {
 	private final Executor dbExecutor;
 	@CryptoExecutor
 	private final Executor cryptoExecutor;
-	// TODO replace with TransactionManager once it exists
-	private final DatabaseComponent db;
+	private final TransactionManager db;
 	private final MessagingManager messagingManager;
 	private final ContactManager contactManager;
 	private final SettingsManager settingsManager;
@@ -105,7 +104,7 @@ public class ConversationViewModel extends AndroidViewModel {
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor cryptoExecutor, DatabaseComponent db,
+			@CryptoExecutor Executor cryptoExecutor, TransactionManager db,
 			MessagingManager messagingManager, ContactManager contactManager,
 			SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory) {
