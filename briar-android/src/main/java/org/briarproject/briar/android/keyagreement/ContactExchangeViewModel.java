@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.UiThread;
 
+import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.ContactExistsException;
@@ -13,6 +14,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 
@@ -35,6 +37,7 @@ class ContactExchangeViewModel extends AndroidViewModel {
 
 	private final Executor ioExecutor;
 	private final ContactExchangeManager contactExchangeManager;
+	private final ConnectionManager connectionManager;
 	private final MutableLiveData<Boolean> succeeded = new MutableLiveData<>();
 
 	@Nullable
@@ -42,10 +45,12 @@ class ContactExchangeViewModel extends AndroidViewModel {
 
 	@Inject
 	ContactExchangeViewModel(Application app, @IoExecutor Executor ioExecutor,
-			ContactExchangeManager contactExchangeManager) {
+			ContactExchangeManager contactExchangeManager,
+			ConnectionManager connectionManager) {
 		super(app);
 		this.ioExecutor = ioExecutor;
 		this.contactExchangeManager = contactExchangeManager;
+		this.connectionManager = connectionManager;
 	}
 
 	@UiThread
@@ -53,8 +58,12 @@ class ContactExchangeViewModel extends AndroidViewModel {
 			SecretKey masterKey, boolean alice) {
 		ioExecutor.execute(() -> {
 			try {
-				remoteAuthor = contactExchangeManager.exchangeContacts(t, conn,
-						masterKey, alice);
+				Contact contact = contactExchangeManager.exchangeContacts(t,
+						conn, masterKey, alice);
+				// Reuse the connection as a transport connection
+				connectionManager.manageOutgoingConnection(contact.getId(),
+						t, conn);
+				remoteAuthor = contact.getAuthor();
 				succeeded.postValue(true);
 			} catch (ContactExistsException e) {
 				duplicateAuthor = e.getRemoteAuthor();

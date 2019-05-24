@@ -34,4 +34,10 @@ public class ContactModule {
 			PendingContactFactoryImpl pendingContactFactory) {
 		return pendingContactFactory;
 	}
+
+	@Provides
+	ContactExchangeCrypto provideContactExchangeCrypto(
+			ContactExchangeCryptoImpl contactExchangeCrypto) {
+		return contactExchangeCrypto;
+	}
 }
