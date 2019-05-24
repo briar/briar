@@ -89,13 +89,9 @@ public class StartupActivity extends BaseActivity implements
 			if (!isFragmentAdded(PasswordFragment.TAG)) {
 				showInitialFragment(new PasswordFragment());
 			}
-		} else if (state == SIGNED_IN) {
+		} else if (state == SIGNED_IN || state == STARTING) {
 			startService(new Intent(this, BriarService.class));
-		} else if (state == STARTING) {
 			// Only show OpenDatabaseFragment if not already visible.
-			// This can happen because several LifecycleManager states are
-			// mapped to STARTING, so this can get called several times
-			// as the app's lifecycle advances.
 			if (!isFragmentAdded(OpenDatabaseFragment.TAG)) {
 				showNextFragment(new OpenDatabaseFragment());
 			}
