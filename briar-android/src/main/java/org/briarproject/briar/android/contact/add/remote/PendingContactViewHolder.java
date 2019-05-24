@@ -11,8 +11,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.TextAvatarView;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
 @NotNullByDefault
@@ -48,7 +46,6 @@ class PendingContactViewHolder extends ViewHolder {
 
 		int color = ContextCompat
 				.getColor(status.getContext(), R.color.briar_green);
-		int buttonVisibility = GONE;
 		switch (item.getState()) {
 			case WAITING_FOR_CONNECTION:
 				color = ContextCompat
@@ -65,13 +62,11 @@ class PendingContactViewHolder extends ViewHolder {
 				color = ContextCompat
 						.getColor(status.getContext(), R.color.briar_red);
 				status.setText(R.string.adding_contact_failed);
-				buttonVisibility = VISIBLE;
 				break;
 			default:
 				throw new IllegalStateException();
 		}
 		status.setTextColor(color);
-		removeButton.setVisibility(buttonVisibility);
 		removeButton.setEnabled(true);
 	}
 
