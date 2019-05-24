@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
@@ -33,5 +34,10 @@ public class DatabaseModule {
 			ShutdownManager shutdownManager) {
 		return new DatabaseComponentImpl<>(db, Connection.class, eventBus,
 				eventExecutor, shutdownManager);
+	}
+
+	@Provides
+	TransactionManager provideTransactionManager(DatabaseComponent db) {
+		return db;
 	}
 }
