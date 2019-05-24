@@ -9,7 +9,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 
-import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -89,15 +88,15 @@ public class PendingContactListActivity extends BriarActivity
 	}
 
 	@Override
-	public void onFailedPendingContactRemoved(PendingContact pendingContact) {
+	public void onPendingContactItemRemoved(PendingContactItem item) {
 		// no need to show warning dialog for failed pending contacts
-		if (pendingContact.getState() == FAILED) {
-			removePendingContact(pendingContact.getId());
+		if (item.getState() == FAILED) {
+			removePendingContact(item.getPendingContact().getId());
 			return;
 		}
 		// show warning dialog
 		OnClickListener removeListener = (dialog, which) ->
-				removePendingContact(pendingContact.getId());
+				removePendingContact(item.getPendingContact().getId());
 		AlertDialog.Builder builder = new AlertDialog.Builder(
 				PendingContactListActivity.this, R.style.BriarDialogTheme);
 		builder.setTitle(

@@ -40,7 +40,7 @@ class PendingContactViewHolder extends ViewHolder {
 		name.setText(p.getAlias());
 		time.setText(formatDate(time.getContext(), p.getTimestamp()));
 		removeButton.setOnClickListener(v -> {
-			listener.onFailedPendingContactRemoved(p);
+			listener.onPendingContactItemRemoved(item);
 			removeButton.setEnabled(false);
 		});
 
