@@ -7,58 +7,63 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
-import org.briarproject.bramble.api.contact.event.ContactExchangeFailedEvent;
-import org.briarproject.bramble.api.contact.event.ContactExchangeSucceededEvent;
 import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.db.ContactExistsException;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 
+import java.io.IOException;
 import java.util.concurrent.Executor;
+import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-class ContactExchangeViewModel extends AndroidViewModel
-		implements EventListener {
+class ContactExchangeViewModel extends AndroidViewModel {
+
+	private static final Logger LOG =
+			getLogger(ContactExchangeViewModel.class.getName());
 
 	private final Executor ioExecutor;
 	private final ContactExchangeManager contactExchangeManager;
-	private final EventBus eventBus;
 	private final MutableLiveData<Boolean> succeeded = new MutableLiveData<>();
 
 	@Nullable
-	private Author remoteAuthor, duplicateAuthor;
+	private volatile Author remoteAuthor, duplicateAuthor;
 
 	@Inject
 	ContactExchangeViewModel(Application app, @IoExecutor Executor ioExecutor,
-			ContactExchangeManager contactExchangeManager, EventBus eventBus) {
+			ContactExchangeManager contactExchangeManager) {
 		super(app);
 		this.ioExecutor = ioExecutor;
 		this.contactExchangeManager = contactExchangeManager;
-		this.eventBus = eventBus;
-		eventBus.addListener(this);
-	}
-
-	@Override
-	protected void onCleared() {
-		super.onCleared();
-		eventBus.removeListener(this);
 	}
 
 	@UiThread
 	void startContactExchange(TransportId t, DuplexTransportConnection conn,
 			SecretKey masterKey, boolean alice) {
-		ioExecutor.execute(() -> contactExchangeManager.exchangeContacts(t,
-				conn, masterKey, alice));
+		ioExecutor.execute(() -> {
+			try {
+				remoteAuthor = contactExchangeManager.exchangeContacts(t, conn,
+						masterKey, alice);
+				succeeded.postValue(true);
+			} catch (ContactExistsException e) {
+				duplicateAuthor = e.getRemoteAuthor();
+				succeeded.postValue(false);
+			} catch (DbException | IOException e) {
+				logException(LOG, WARNING, e);
+				succeeded.postValue(false);
+			}
+		});
 	}
 
 	@UiThread
@@ -75,19 +80,5 @@ class ContactExchangeViewModel extends AndroidViewModel
 
 	LiveData<Boolean> getSucceeded() {
 		return succeeded;
-	}
-
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof ContactExchangeSucceededEvent) {
-			ContactExchangeSucceededEvent c = (ContactExchangeSucceededEvent) e;
-			remoteAuthor = c.getRemoteAuthor();
-			succeeded.setValue(true);
-		} else if (e instanceof ContactExchangeFailedEvent) {
-			ContactExchangeFailedEvent c = (ContactExchangeFailedEvent) e;
-			if (c.wasDuplicateContact())
-				duplicateAuthor = requireNonNull(c.getDuplicateRemoteAuthor());
-			succeeded.setValue(false);
-		}
 	}
 }
