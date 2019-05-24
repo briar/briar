@@ -1,6 +1,7 @@
 package org.briarproject.bramble.sync;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.record.Record;
@@ -14,7 +15,6 @@ import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.util.ByteUtils;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +33,21 @@ import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 @NotNullByDefault
 class SyncRecordReaderImpl implements SyncRecordReader {
 
+	// Accept records with current protocol version, known record type
+	private static final Predicate<Record> ACCEPT = r ->
+			r.getProtocolVersion() == PROTOCOL_VERSION &&
+					isKnownRecordType(r.getRecordType());
+
+	// Ignore records with current protocol version, unknown record type
+	private static final Predicate<Record> IGNORE = r ->
+			r.getProtocolVersion() == PROTOCOL_VERSION &&
+					!isKnownRecordType(r.getRecordType());
+
+	private static boolean isKnownRecordType(byte type) {
+		return type == ACK || type == MESSAGE || type == OFFER ||
+				type == REQUEST;
+	}
+
 	private final MessageFactory messageFactory;
 	private final RecordReader reader;
 
@@ -43,22 +58,6 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 	SyncRecordReaderImpl(MessageFactory messageFactory, RecordReader reader) {
 		this.messageFactory = messageFactory;
 		this.reader = reader;
-	}
-
-	private void readRecord() throws IOException {
-		if (nextRecord != null) throw new AssertionError();
-		while (true) {
-			nextRecord = reader.readRecord();
-			// Check the protocol version
-			byte version = nextRecord.getProtocolVersion();
-			if (version != PROTOCOL_VERSION) throw new FormatException();
-			byte type = nextRecord.getRecordType();
-			// Return if this is a known record type, otherwise continue
-			if (type == ACK || type == MESSAGE || type == OFFER ||
-					type == REQUEST) {
-				return;
-			}
-		}
 	}
 
 	private byte getNextRecordType() {
@@ -78,14 +77,9 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 	public boolean eof() throws IOException {
 		if (nextRecord != null) return false;
 		if (eof) return true;
-		try {
-			readRecord();
-			return false;
-		} catch (EOFException e) {
-			nextRecord = null;
-			eof = true;
-			return true;
-		}
+		nextRecord = reader.readRecord(ACCEPT, IGNORE);
+		if (nextRecord == null) eof = true;
+		return eof;
 	}
 
 	@Override
@@ -154,5 +148,4 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 		if (!hasRequest()) throw new FormatException();
 		return new Request(readMessageIds());
 	}
-
 }

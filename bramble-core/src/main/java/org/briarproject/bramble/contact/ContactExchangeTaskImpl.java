@@ -1,6 +1,7 @@
 package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactExchangeTask;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -60,6 +61,20 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 	private static final String SIGNING_LABEL_EXCHANGE =
 			"org.briarproject.briar.contact/EXCHANGE";
+
+	// Accept records with current protocol version, known record type
+	private static final Predicate<Record> ACCEPT = r ->
+			r.getProtocolVersion() == PROTOCOL_VERSION &&
+					isKnownRecordType(r.getRecordType());
+
+	// Ignore records with current protocol version, unknown record type
+	private static final Predicate<Record> IGNORE = r ->
+			r.getProtocolVersion() == PROTOCOL_VERSION &&
+					!isKnownRecordType(r.getRecordType());
+
+	private static boolean isKnownRecordType(byte type) {
+		return type == CONTACT_INFO;
+	}
 
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
@@ -191,11 +206,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 			// Send EOF on the outgoing stream
 			streamWriter.sendEndOfStream();
 			// Skip any remaining records from the incoming stream
-			try {
-				while (true) recordReader.readRecord();
-			} catch (EOFException expected) {
-				LOG.info("End of stream");
-			}
+			recordReader.readRecord(r -> false, IGNORE);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			eventBus.broadcast(new ContactExchangeFailedEvent());
@@ -268,12 +279,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 
 	private ContactInfo receiveContactInfo(RecordReader recordReader)
 			throws IOException {
-		Record record;
-		do {
-			record = recordReader.readRecord();
-			if (record.getProtocolVersion() != PROTOCOL_VERSION)
-				throw new FormatException();
-		} while (record.getRecordType() != CONTACT_INFO);
+		Record record = recordReader.readRecord(ACCEPT, IGNORE);
+		if (record == null) throw new EOFException();
 		LOG.info("Received contact info");
 		BdfList payload = clientHelper.toList(record.getPayload());
 		checkSize(payload, 4);

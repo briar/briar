@@ -1,5 +1,6 @@
 package org.briarproject.bramble.keyagreement;
 
+import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -10,6 +11,7 @@ import org.briarproject.bramble.api.record.RecordReaderFactory;
 import org.briarproject.bramble.api.record.RecordWriter;
 import org.briarproject.bramble.api.record.RecordWriterFactory;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +32,20 @@ class KeyAgreementTransport {
 
 	private static final Logger LOG =
 			Logger.getLogger(KeyAgreementTransport.class.getName());
+
+	// Accept records with current protocol version, known record type
+	private static Predicate<Record> ACCEPT = r ->
+			r.getProtocolVersion() == PROTOCOL_VERSION &&
+					isKnownRecordType(r.getRecordType());
+
+	// Ignore records with current protocol version, unknown record type
+	private static Predicate<Record> IGNORE = r ->
+			r.getProtocolVersion() == PROTOCOL_VERSION &&
+					!isKnownRecordType(r.getRecordType());
+
+	private static boolean isKnownRecordType(byte type) {
+		return type == KEY || type == CONFIRM || type == ABORT;
+	}
 
 	private final KeyAgreementConnection kac;
 	private final RecordReader reader;
@@ -94,22 +110,15 @@ class KeyAgreementTransport {
 	}
 
 	private byte[] readRecord(byte expectedType) throws AbortException {
-		while (true) {
-			try {
-				Record record = reader.readRecord();
-				// Reject unrecognised protocol version
-				if (record.getProtocolVersion() != PROTOCOL_VERSION)
-					throw new AbortException(false);
-				byte type = record.getRecordType();
-				if (type == ABORT) throw new AbortException(true);
-				if (type == expectedType) return record.getPayload();
-				// Reject recognised but unexpected record type
-				if (type == KEY || type == CONFIRM)
-					throw new AbortException(false);
-				// Skip unrecognised record type
-			} catch (IOException e) {
-				throw new AbortException(e);
-			}
+		try {
+			Record record = reader.readRecord(ACCEPT, IGNORE);
+			if (record == null) throw new AbortException(new EOFException());
+			byte type = record.getRecordType();
+			if (type == ABORT) throw new AbortException(true);
+			if (type != expectedType) throw new AbortException(false);
+			return record.getPayload();
+		} catch (IOException e) {
+			throw new AbortException(e);
 		}
 	}
 }
