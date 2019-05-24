@@ -3,24 +3,21 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Predicate;
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.contact.ContactExchangeTask;
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.contact.event.ContactExchangeFailedEvent;
-import org.briarproject.bramble.api.contact.event.ContactExchangeSucceededEvent;
-import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
-import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -39,28 +36,24 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.contact.ContactExchangeConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
+class ContactExchangeManagerImpl implements ContactExchangeManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(ContactExchangeTaskImpl.class.getName());
-
-	private static final String SIGNING_LABEL_EXCHANGE =
-			"org.briarproject.briar.contact/EXCHANGE";
+			getLogger(ContactExchangeManagerImpl.class.getName());
 
 	// Accept records with current protocol version, known record type
 	private static final Predicate<Record> ACCEPT = r ->
@@ -80,190 +73,108 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 	private final ClientHelper clientHelper;
 	private final RecordReaderFactory recordReaderFactory;
 	private final RecordWriterFactory recordWriterFactory;
-	private final EventBus eventBus;
 	private final Clock clock;
-	private final ConnectionManager connectionManager;
 	private final ContactManager contactManager;
+	private final IdentityManager identityManager;
 	private final TransportPropertyManager transportPropertyManager;
-	private final CryptoComponent crypto;
+	private final ContactExchangeCrypto contactExchangeCrypto;
 	private final StreamReaderFactory streamReaderFactory;
 	private final StreamWriterFactory streamWriterFactory;
 
-	private volatile LocalAuthor localAuthor;
-	private volatile DuplexTransportConnection conn;
-	private volatile TransportId transportId;
-	private volatile SecretKey masterKey;
-	private volatile boolean alice;
-
 	@Inject
-	ContactExchangeTaskImpl(DatabaseComponent db, ClientHelper clientHelper,
+	ContactExchangeManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			RecordReaderFactory recordReaderFactory,
-			RecordWriterFactory recordWriterFactory, EventBus eventBus,
-			Clock clock, ConnectionManager connectionManager,
-			ContactManager contactManager,
+			RecordWriterFactory recordWriterFactory, Clock clock,
+			ContactManager contactManager, IdentityManager identityManager,
 			TransportPropertyManager transportPropertyManager,
-			CryptoComponent crypto, StreamReaderFactory streamReaderFactory,
+			ContactExchangeCrypto contactExchangeCrypto,
+			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.recordReaderFactory = recordReaderFactory;
 		this.recordWriterFactory = recordWriterFactory;
-		this.eventBus = eventBus;
 		this.clock = clock;
-		this.connectionManager = connectionManager;
 		this.contactManager = contactManager;
+		this.identityManager = identityManager;
 		this.transportPropertyManager = transportPropertyManager;
-		this.crypto = crypto;
+		this.contactExchangeCrypto = contactExchangeCrypto;
 		this.streamReaderFactory = streamReaderFactory;
 		this.streamWriterFactory = streamWriterFactory;
 	}
 
 	@Override
-	public void startExchange(LocalAuthor localAuthor, SecretKey masterKey,
-			DuplexTransportConnection conn, TransportId transportId,
-			boolean alice) {
-		this.localAuthor = localAuthor;
-		this.conn = conn;
-		this.transportId = transportId;
-		this.masterKey = masterKey;
-		this.alice = alice;
-		start();
-	}
-
-	@Override
-	public void run() {
+	public Contact exchangeContacts(TransportId t,
+			DuplexTransportConnection conn, SecretKey masterKey, boolean alice)
+			throws IOException, DbException {
 		// Get the transport connection's input and output streams
-		InputStream in;
-		OutputStream out;
-		try {
-			in = conn.getReader().getInputStream();
-			out = conn.getWriter().getOutputStream();
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-			tryToClose(conn);
-			eventBus.broadcast(new ContactExchangeFailedEvent());
-			return;
-		}
+		InputStream in = conn.getReader().getInputStream();
+		OutputStream out = conn.getWriter().getOutputStream();
 
-		// Get the local transport properties
-		Map<TransportId, TransportProperties> localProperties;
-		try {
-			localProperties = transportPropertyManager.getLocalProperties();
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-			eventBus.broadcast(new ContactExchangeFailedEvent());
-			tryToClose(conn);
-			return;
-		}
+		// Get the local author and transport properties
+		LocalAuthor localAuthor = identityManager.getLocalAuthor();
+		Map<TransportId, TransportProperties> localProperties =
+				transportPropertyManager.getLocalProperties();
 
 		// Derive the header keys for the transport streams
-		SecretKey aliceHeaderKey = crypto.deriveKey(ALICE_KEY_LABEL, masterKey,
-				new byte[] {PROTOCOL_VERSION});
-		SecretKey bobHeaderKey = crypto.deriveKey(BOB_KEY_LABEL, masterKey,
-				new byte[] {PROTOCOL_VERSION});
+		SecretKey localHeaderKey =
+				contactExchangeCrypto.deriveHeaderKey(masterKey, alice);
+		SecretKey remoteHeaderKey =
+				contactExchangeCrypto.deriveHeaderKey(masterKey, !alice);
 
 		// Create the readers
-		InputStream streamReader =
-				streamReaderFactory.createContactExchangeStreamReader(in,
-						alice ? bobHeaderKey : aliceHeaderKey);
+		InputStream streamReader = streamReaderFactory
+				.createContactExchangeStreamReader(in, remoteHeaderKey);
 		RecordReader recordReader =
 				recordReaderFactory.createRecordReader(streamReader);
 
 		// Create the writers
-		StreamWriter streamWriter =
-				streamWriterFactory.createContactExchangeStreamWriter(out,
-						alice ? aliceHeaderKey : bobHeaderKey);
-		RecordWriter recordWriter =
-				recordWriterFactory
-						.createRecordWriter(streamWriter.getOutputStream());
+		StreamWriter streamWriter = streamWriterFactory
+				.createContactExchangeStreamWriter(out, localHeaderKey);
+		RecordWriter recordWriter = recordWriterFactory
+				.createRecordWriter(streamWriter.getOutputStream());
 
-		// Derive the nonces to be signed
-		byte[] aliceNonce = crypto.mac(ALICE_NONCE_LABEL, masterKey,
-				new byte[] {PROTOCOL_VERSION});
-		byte[] bobNonce = crypto.mac(BOB_NONCE_LABEL, masterKey,
-				new byte[] {PROTOCOL_VERSION});
-		byte[] localNonce = alice ? aliceNonce : bobNonce;
-		byte[] remoteNonce = alice ? bobNonce : aliceNonce;
-
-		// Sign the nonce
-		byte[] localSignature = sign(localAuthor, localNonce);
+		// Create our signature
+		byte[] localSignature = contactExchangeCrypto
+				.sign(localAuthor.getPrivateKey(), masterKey, alice);
 
 		// Exchange contact info
 		long localTimestamp = clock.currentTimeMillis();
 		ContactInfo remoteInfo;
-		try {
-			if (alice) {
-				sendContactInfo(recordWriter, localAuthor, localProperties,
-						localSignature, localTimestamp);
-				recordWriter.flush();
-				remoteInfo = receiveContactInfo(recordReader);
-			} else {
-				remoteInfo = receiveContactInfo(recordReader);
-				sendContactInfo(recordWriter, localAuthor, localProperties,
-						localSignature, localTimestamp);
-				recordWriter.flush();
-			}
-			// Send EOF on the outgoing stream
-			streamWriter.sendEndOfStream();
-			// Skip any remaining records from the incoming stream
-			recordReader.readRecord(r -> false, IGNORE);
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-			eventBus.broadcast(new ContactExchangeFailedEvent());
-			tryToClose(conn);
-			return;
+		if (alice) {
+			sendContactInfo(recordWriter, localAuthor, localProperties,
+					localSignature, localTimestamp);
+			remoteInfo = receiveContactInfo(recordReader);
+		} else {
+			remoteInfo = receiveContactInfo(recordReader);
+			sendContactInfo(recordWriter, localAuthor, localProperties,
+					localSignature, localTimestamp);
 		}
 
+		// Send EOF on the outgoing stream
+		streamWriter.sendEndOfStream();
+
+		// Skip any remaining records from the incoming stream
+		recordReader.readRecord(r -> false, IGNORE);
+
 		// Verify the contact's signature
-		if (!verify(remoteInfo.author, remoteNonce, remoteInfo.signature)) {
+		PublicKey remotePublicKey = remoteInfo.author.getPublicKey();
+		if (!contactExchangeCrypto.verify(remotePublicKey,
+				masterKey, !alice, remoteInfo.signature)) {
 			LOG.warning("Invalid signature");
-			eventBus.broadcast(new ContactExchangeFailedEvent());
-			tryToClose(conn);
-			return;
+			throw new FormatException();
 		}
 
 		// The agreed timestamp is the minimum of the peers' timestamps
 		long timestamp = Math.min(localTimestamp, remoteInfo.timestamp);
 
-		try {
-			// Add the contact
-			ContactId contactId = addContact(remoteInfo.author, timestamp,
-					remoteInfo.properties);
-			// Reuse the connection as a transport connection
-			connectionManager.manageOutgoingConnection(contactId, transportId,
-					conn);
-			// Pseudonym exchange succeeded
-			LOG.info("Pseudonym exchange succeeded");
-			eventBus.broadcast(
-					new ContactExchangeSucceededEvent(remoteInfo.author));
-		} catch (ContactExistsException e) {
-			logException(LOG, WARNING, e);
-			tryToClose(conn);
-			eventBus.broadcast(
-					new ContactExchangeFailedEvent(remoteInfo.author));
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-			tryToClose(conn);
-			eventBus.broadcast(new ContactExchangeFailedEvent());
-		}
-	}
+		// Add the contact
+		Contact contact = addContact(remoteInfo.author, localAuthor,
+				masterKey, timestamp, alice, remoteInfo.properties);
 
-	private byte[] sign(LocalAuthor author, byte[] nonce) {
-		try {
-			return crypto.sign(SIGNING_LABEL_EXCHANGE, nonce,
-					author.getPrivateKey());
-		} catch (GeneralSecurityException e) {
-			throw new AssertionError();
-		}
-	}
-
-	private boolean verify(Author author, byte[] nonce, byte[] signature) {
-		try {
-			return crypto.verifySignature(signature, SIGNING_LABEL_EXCHANGE,
-					nonce, author.getPublicKey());
-		} catch (GeneralSecurityException e) {
-			return false;
-		}
+		// Contact exchange succeeded
+		LOG.info("Contact exchange succeeded");
+		return contact;
 	}
 
 	private void sendContactInfo(RecordWriter recordWriter, Author author,
@@ -274,6 +185,7 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		BdfList payload = BdfList.of(authorList, props, signature, timestamp);
 		recordWriter.writeRecord(new Record(PROTOCOL_VERSION, CONTACT_INFO,
 				clientHelper.toByteArray(payload)));
+		recordWriter.flush();
 		LOG.info("Sent contact info");
 	}
 
@@ -295,7 +207,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 		return new ContactInfo(author, properties, signature, timestamp);
 	}
 
-	private ContactId addContact(Author remoteAuthor, long timestamp,
+	private Contact addContact(Author remoteAuthor, LocalAuthor localAuthor,
+			SecretKey masterKey, long timestamp, boolean alice,
 			Map<TransportId, TransportProperties> remoteProperties)
 			throws DbException {
 		return db.transactionWithResult(false, txn -> {
@@ -304,18 +217,8 @@ class ContactExchangeTaskImpl extends Thread implements ContactExchangeTask {
 					true, true);
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);
-			return contactId;
+			return contactManager.getContact(txn, contactId);
 		});
-	}
-
-	private void tryToClose(DuplexTransportConnection conn) {
-		try {
-			LOG.info("Closing connection");
-			conn.getReader().dispose(true, true);
-			conn.getWriter().dispose(true);
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-		}
 	}
 
 	private static class ContactInfo {

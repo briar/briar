@@ -1,16 +1,6 @@
-package org.briarproject.bramble.api.contact;
+package org.briarproject.bramble.contact;
 
-import org.briarproject.bramble.api.crypto.SecretKey;
-import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-
-/**
- * A task for conducting a contact information exchange with a remote peer.
- */
-@NotNullByDefault
-public interface ContactExchangeTask {
+interface ContactExchangeConstants {
 
 	/**
 	 * The current version of the contact exchange protocol.
@@ -39,9 +29,7 @@ public interface ContactExchangeTask {
 	String BOB_NONCE_LABEL = "org.briarproject.bramble.contact/BOB_NONCE";
 
 	/**
-	 * Exchanges contact information with a remote peer.
+	 * Label for signing key binding nonces.
 	 */
-	void startExchange(LocalAuthor localAuthor, SecretKey masterKey,
-			DuplexTransportConnection conn, TransportId transportId,
-			boolean alice);
+	String SIGNING_LABEL = "org.briarproject.briar.contact/EXCHANGE";
 }

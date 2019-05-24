@@ -94,6 +94,11 @@ public interface ContactManager {
 	Contact getContact(ContactId c) throws DbException;
 
 	/**
+	 * Returns the contact with the given ID.
+	 */
+	Contact getContact(Transaction txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the contact with the given remoteAuthorId
 	 * that was added by the LocalAuthor with the given localAuthorId
 	 *

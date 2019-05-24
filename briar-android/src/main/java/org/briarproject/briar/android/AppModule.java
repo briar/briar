@@ -33,6 +33,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.account.LockManagerImpl;
+import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
@@ -59,7 +60,7 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 
-@Module(includes = ViewModelModule.class)
+@Module(includes = {ContactExchangeModule.class, ViewModelModule.class})
 public class AppModule {
 
 	static class EagerSingletons {

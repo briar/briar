@@ -138,6 +138,11 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	public Contact getContact(Transaction txn, ContactId c) throws DbException {
+		return db.getContact(txn, c);
+	}
+
+	@Override
 	public Contact getContact(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException {
 		return db.transactionWithResult(true, txn ->

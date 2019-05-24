@@ -1,6 +1,6 @@
 package org.briarproject.bramble.contact;
 
-import org.briarproject.bramble.api.contact.ContactExchangeTask;
+import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 
 import javax.inject.Inject;
@@ -19,19 +19,25 @@ public class ContactModule {
 
 	@Provides
 	@Singleton
-	ContactManager getContactManager(ContactManagerImpl contactManager) {
+	ContactManager provideContactManager(ContactManagerImpl contactManager) {
 		return contactManager;
 	}
 
 	@Provides
-	ContactExchangeTask provideContactExchangeTask(
-			ContactExchangeTaskImpl contactExchangeTask) {
-		return contactExchangeTask;
+	ContactExchangeManager provideContactExchangeManager(
+			ContactExchangeManagerImpl contactExchangeManager) {
+		return contactExchangeManager;
 	}
 
 	@Provides
 	PendingContactFactory providePendingContactFactory(
 			PendingContactFactoryImpl pendingContactFactory) {
 		return pendingContactFactory;
+	}
+
+	@Provides
+	ContactExchangeCrypto provideContactExchangeCrypto(
+			ContactExchangeCryptoImpl contactExchangeCrypto) {
+		return contactExchangeCrypto;
 	}
 }
