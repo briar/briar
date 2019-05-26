@@ -7,11 +7,13 @@ import android.arch.lifecycle.MutableLiveData;
 import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import java.util.concurrent.Executor;
@@ -38,7 +40,7 @@ public class AddContactViewModel extends AndroidViewModel {
 			new MutableLiveData<>();
 	private final MutableLiveEvent<Boolean> remoteLinkEntered =
 			new MutableLiveEvent<>();
-	private final MutableLiveData<Boolean> addContactResult =
+	private final MutableLiveData<LiveResult<Boolean>> addContactResult =
 			new MutableLiveData<>();
 	@Nullable
 	private String remoteHandshakeLink;
@@ -96,15 +98,18 @@ public class AddContactViewModel extends AndroidViewModel {
 		dbExecutor.execute(() -> {
 			try {
 				contactManager.addPendingContact(remoteHandshakeLink, nickname);
-				addContactResult.postValue(true);
+				addContactResult.postValue(new LiveResult<>(true));
+			} catch (UnsupportedVersionException e) {
+				logException(LOG, WARNING, e);
+				addContactResult.postValue(new LiveResult<>(e));
 			} catch (DbException | FormatException e) {
 				logException(LOG, WARNING, e);
-				addContactResult.postValue(false);
+				addContactResult.postValue(new LiveResult<>(e));
 			}
 		});
 	}
 
-	LiveData<Boolean> getAddContactResult() {
+	public LiveData<LiveResult<Boolean>> getAddContactResult() {
 		return addContactResult;
 	}
 

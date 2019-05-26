@@ -202,6 +202,7 @@
 	<string name="own_link_error">Enter your contact\'s link, not your own</string>
 	<string name="nickname_missing">Please enter a nickname</string>
 	<string name="invalid_link">Invalid link</string>
+	<string name="unsupported_link">This link comes from a newer version of Briar. Please upgrade to the latest version and try again.</string>
 	<string name="intent_own_link">You opened your own link. Use the one of the contact you want to add!</string>
 	<string name="missing_link">Please enter a link</string>
 	<!-- This is a numeral indicating the first step in a series of screens -->
