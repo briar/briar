@@ -8,7 +8,7 @@ import java.io.IOException;
  * An interface for making and accepting rendezvous connections with a pending
  * contact over a given transport.
  */
-public interface RendezvousHandler {
+public interface RendezvousEndpoint {
 
 	/**
 	 * Returns a set of transport properties for connecting to the pending

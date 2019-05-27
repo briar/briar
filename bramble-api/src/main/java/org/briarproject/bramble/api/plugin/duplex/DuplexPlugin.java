@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
-import org.briarproject.bramble.api.rendezvous.RendezvousHandler;
+import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 
 import javax.annotation.Nullable;
 
@@ -50,10 +50,10 @@ public interface DuplexPlugin extends Plugin {
 	boolean supportsRendezvous();
 
 	/**
-	 * Creates and returns a handler that uses the given key material to
-	 * rendezvous with a pending contact and the given connection handler to
+	 * Creates and returns an endpoint that uses the given key material to
+	 * rendezvous with a pending contact, and the given connection handler to
 	 * handle incoming connections.
 	 */
-	RendezvousHandler createRendezvousHandler(KeyMaterialSource k,
+	RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			ConnectionHandler incoming);
 }
