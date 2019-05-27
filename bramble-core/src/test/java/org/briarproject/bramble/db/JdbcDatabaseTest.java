@@ -2204,20 +2204,29 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(emptyList(), db.getPendingContacts(txn));
 
 		db.addPendingContact(txn, pendingContact);
+		PendingContact retrieved =
+				db.getPendingContact(txn, pendingContact.getId());
+		assertPendingContactEquals(pendingContact, retrieved);
+
 		Collection<PendingContact> pendingContacts = db.getPendingContacts(txn);
 		assertEquals(1, pendingContacts.size());
-		PendingContact retrieved = pendingContacts.iterator().next();
-		assertEquals(pendingContact.getId(), retrieved.getId());
-		assertEquals(pendingContact.getAlias(), retrieved.getAlias());
-		assertArrayEquals(pendingContact.getPublicKey().getEncoded(),
-				retrieved.getPublicKey().getEncoded());
-		assertEquals(pendingContact.getTimestamp(), retrieved.getTimestamp());
+		retrieved = pendingContacts.iterator().next();
+		assertPendingContactEquals(pendingContact, retrieved);
 
 		db.removePendingContact(txn, pendingContact.getId());
 		assertEquals(emptyList(), db.getPendingContacts(txn));
 
 		db.commitTransaction(txn);
 		db.close();
+	}
+
+	private void assertPendingContactEquals(PendingContact expected,
+			PendingContact actual) {
+		assertEquals(expected.getId(), actual.getId());
+		assertArrayEquals(expected.getPublicKey().getEncoded(),
+				actual.getPublicKey().getEncoded());
+		assertEquals(expected.getAlias(), actual.getAlias());
+		assertEquals(expected.getTimestamp(), actual.getTimestamp());
 	}
 
 	@Test

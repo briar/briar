@@ -2206,6 +2206,30 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public PendingContact getPendingContact(Connection txn, PendingContactId p)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT publicKey, alias, timestamp"
+					+ " FROM pendingContacts"
+					+ " WHERE pendingContactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, p.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			PublicKey publicKey = new AgreementPublicKey(rs.getBytes(1));
+			String alias = rs.getString(2);
+			long timestamp = rs.getLong(3);
+			return new PendingContact(p, publicKey, alias, timestamp);
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<PendingContact> getPendingContacts(Connection txn)
 			throws DbException {
 		Statement s = null;
