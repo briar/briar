@@ -398,7 +398,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public RendezvousHandler createRendezvousHandler(KeyMaterialSource k) {
+	public RendezvousHandler createRendezvousHandler(KeyMaterialSource k,
+			ConnectionHandler incoming) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.plugin.duplex;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
@@ -50,7 +51,9 @@ public interface DuplexPlugin extends Plugin {
 
 	/**
 	 * Creates and returns a handler that uses the given key material to
-	 * rendezvous with a pending contact.
+	 * rendezvous with a pending contact and the given connection handler to
+	 * handle incoming connections.
 	 */
-	RendezvousHandler createRendezvousHandler(KeyMaterialSource k);
+	RendezvousHandler createRendezvousHandler(KeyMaterialSource k,
+			ConnectionHandler incoming);
 }
