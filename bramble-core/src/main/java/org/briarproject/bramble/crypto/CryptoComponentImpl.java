@@ -34,6 +34,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.lang.System.arraycopy;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
@@ -191,10 +192,39 @@ class CryptoComponentImpl implements CryptoComponent {
 	public SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
 			KeyPair ourKeyPair, byte[]... inputs)
 			throws GeneralSecurityException {
-		PrivateKey ourPriv = ourKeyPair.getPrivate();
+		PrivateKey ourPrivateKey = ourKeyPair.getPrivate();
 		byte[][] hashInputs = new byte[inputs.length + 1][];
-		hashInputs[0] = performRawKeyAgreement(ourPriv, theirPublicKey);
-		System.arraycopy(inputs, 0, hashInputs, 1, inputs.length);
+		hashInputs[0] = performRawKeyAgreement(ourPrivateKey, theirPublicKey);
+		arraycopy(inputs, 0, hashInputs, 1, inputs.length);
+		byte[] hash = hash(label, hashInputs);
+		if (hash.length != SecretKey.LENGTH) throw new IllegalStateException();
+		return new SecretKey(hash);
+	}
+
+	@Override
+	public SecretKey deriveSharedSecret(String label,
+			PublicKey theirStaticPublicKey, PublicKey theirEphemeralPublicKey,
+			KeyPair ourStaticKeyPair, KeyPair ourEphemeralKeyPair,
+			boolean alice, byte[]... inputs) throws GeneralSecurityException {
+		PrivateKey ourStaticPrivateKey = ourStaticKeyPair.getPrivate();
+		PrivateKey ourEphemeralPrivateKey = ourEphemeralKeyPair.getPrivate();
+		byte[][] hashInputs = new byte[inputs.length + 3][];
+		// Alice static/Bob static
+		hashInputs[0] = performRawKeyAgreement(ourStaticPrivateKey,
+				theirStaticPublicKey);
+		// Alice static/Bob ephemeral, Bob static/Alice ephemeral
+		if (alice) {
+			hashInputs[1] = performRawKeyAgreement(ourStaticPrivateKey,
+					theirEphemeralPublicKey);
+			hashInputs[2] = performRawKeyAgreement(ourEphemeralPrivateKey,
+					theirStaticPublicKey);
+		} else {
+			hashInputs[1] = performRawKeyAgreement(ourEphemeralPrivateKey,
+					theirStaticPublicKey);
+			hashInputs[2] = performRawKeyAgreement(ourStaticPrivateKey,
+					theirEphemeralPublicKey);
+		}
+		arraycopy(inputs, 0, hashInputs, 3, inputs.length);
 		byte[] hash = hash(label, hashInputs);
 		if (hash.length != SecretKey.LENGTH) throw new IllegalStateException();
 		return new SecretKey(hash);
@@ -304,13 +334,13 @@ class CryptoComponentImpl implements CryptoComponent {
 		output[outputOff] = PBKDF_FORMAT_SCRYPT;
 		outputOff++;
 		// Salt
-		System.arraycopy(salt, 0, output, outputOff, salt.length);
+		arraycopy(salt, 0, output, outputOff, salt.length);
 		outputOff += salt.length;
 		// Cost parameter
 		ByteUtils.writeUint32(cost, output, outputOff);
 		outputOff += INT_32_BYTES;
 		// IV
-		System.arraycopy(iv, 0, output, outputOff, iv.length);
+		arraycopy(iv, 0, output, outputOff, iv.length);
 		outputOff += iv.length;
 		// Initialise the cipher and encrypt the plaintext
 		try {
@@ -340,7 +370,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			return null; // Unknown format
 		// Salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
-		System.arraycopy(input, inputOff, salt, 0, salt.length);
+		arraycopy(input, inputOff, salt, 0, salt.length);
 		inputOff += salt.length;
 		// Cost parameter
 		long cost = ByteUtils.readUint32(input, inputOff);
@@ -349,7 +379,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			return null; // Invalid cost parameter
 		// IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
-		System.arraycopy(input, inputOff, iv, 0, iv.length);
+		arraycopy(input, inputOff, iv, 0, iv.length);
 		inputOff += iv.length;
 		// Derive the key from the password
 		SecretKey key = passwordBasedKdf.deriveKey(password, salt, (int) cost);

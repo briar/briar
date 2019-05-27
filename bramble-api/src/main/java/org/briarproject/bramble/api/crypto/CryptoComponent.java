@@ -27,31 +27,55 @@ public interface CryptoComponent {
 	/**
 	 * Derives another secret key from the given secret key.
 	 *
-	 * @param label a namespaced label indicating the purpose of the derived
+	 * @param label A namespaced label indicating the purpose of the derived
 	 * key, to prevent it from being repurposed or colliding with a key derived
 	 * for another purpose
+	 * @param inputs Additional inputs that will be included in the derivation
+	 * of the key
 	 */
 	SecretKey deriveKey(String label, SecretKey k, byte[]... inputs);
 
 	/**
-	 * Derives a common shared secret from two public keys and one of the
-	 * corresponding private keys.
+	 * Derives a shared secret from two key pairs.
 	 *
-	 * @param label a namespaced label indicating the purpose of this shared
+	 * @param label A namespaced label indicating the purpose of this shared
 	 * secret, to prevent it from being repurposed or colliding with a shared
 	 * secret derived for another purpose
-	 * @param theirPublicKey the public key of the remote party
-	 * @param ourKeyPair the key pair of the local party
-	 * @return the shared secret
+	 * @param theirPublicKey The public key of the remote party
+	 * @param ourKeyPair The key pair of the local party
+	 * @param inputs Additional inputs that will be included in the derivation
+	 * of the shared secret
+	 * @return The shared secret
 	 */
 	SecretKey deriveSharedSecret(String label, PublicKey theirPublicKey,
 			KeyPair ourKeyPair, byte[]... inputs)
 			throws GeneralSecurityException;
 
 	/**
+	 * Derives a shared secret from two static and two ephemeral key pairs.
+	 *
+	 * @param label A namespaced label indicating the purpose of this shared
+	 * secret, to prevent it from being repurposed or colliding with a shared
+	 * secret derived for another purpose
+	 * @param theirStaticPublicKey The static public key of the remote party
+	 * @param theirEphemeralPublicKey The ephemeral public key of the remote
+	 * party
+	 * @param ourStaticKeyPair The static key pair of the local party
+	 * @param ourEphemeralKeyPair The ephemeral key pair of the local party
+	 * @param alice True if the local party is Alice
+	 * @param inputs Additional inputs that will be included in the
+	 * derivation of the shared secret
+	 * @return The shared secret
+	 */
+	SecretKey deriveSharedSecret(String label, PublicKey theirStaticPublicKey,
+			PublicKey theirEphemeralPublicKey, KeyPair ourStaticKeyPair,
+			KeyPair ourEphemeralKeyPair, boolean alice, byte[]... inputs)
+			throws GeneralSecurityException;
+
+	/**
 	 * Signs the given byte[] with the given private key.
 	 *
-	 * @param label a namespaced label indicating the purpose of this
+	 * @param label A namespaced label indicating the purpose of this
 	 * signature, to prevent it from being repurposed or colliding with a
 	 * signature created for another purpose
 	 */
@@ -62,10 +86,10 @@ public interface CryptoComponent {
 	 * Verifies that the given signature is valid for the signed data
 	 * and the given public key.
 	 *
-	 * @param label a namespaced label indicating the purpose of this
+	 * @param label A namespaced label indicating the purpose of this
 	 * signature, to prevent it from being repurposed or colliding with a
 	 * signature created for another purpose
-	 * @return true if the signature was valid, false otherwise.
+	 * @return True if the signature was valid, false otherwise.
 	 */
 	boolean verifySignature(byte[] signature, String label, byte[] signed,
 			PublicKey publicKey) throws GeneralSecurityException;
@@ -74,7 +98,7 @@ public interface CryptoComponent {
 	 * Returns the hash of the given inputs. The inputs are unambiguously
 	 * combined by prefixing each input with its length.
 	 *
-	 * @param label a namespaced label indicating the purpose of this hash, to
+	 * @param label A namespaced label indicating the purpose of this hash, to
 	 * prevent it from being repurposed or colliding with a hash created for
 	 * another purpose
 	 */
@@ -85,7 +109,7 @@ public interface CryptoComponent {
 	 * given inputs. The inputs are unambiguously combined by prefixing each
 	 * input with its length.
 	 *
-	 * @param label a namespaced label indicating the purpose of this MAC, to
+	 * @param label A namespaced label indicating the purpose of this MAC, to
 	 * prevent it from being repurposed or colliding with a MAC created for
 	 * another purpose
 	 */
@@ -95,10 +119,10 @@ public interface CryptoComponent {
 	 * Verifies that the given message authentication code is valid for the
 	 * given secret key and inputs.
 	 *
-	 * @param label a namespaced label indicating the purpose of this MAC, to
+	 * @param label A namespaced label indicating the purpose of this MAC, to
 	 * prevent it from being repurposed or colliding with a MAC created for
 	 * another purpose
-	 * @return true if the MAC was valid, false otherwise.
+	 * @return True if the MAC was valid, false otherwise.
 	 */
 	boolean verifyMac(byte[] mac, String label, SecretKey macKey,
 			byte[]... inputs);
