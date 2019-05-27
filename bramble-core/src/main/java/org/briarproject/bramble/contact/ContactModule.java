@@ -2,6 +2,7 @@ package org.briarproject.bramble.contact;
 
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.HandshakeManager;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,5 +40,18 @@ public class ContactModule {
 	ContactExchangeCrypto provideContactExchangeCrypto(
 			ContactExchangeCryptoImpl contactExchangeCrypto) {
 		return contactExchangeCrypto;
+	}
+
+	@Provides
+	@Singleton
+	HandshakeManager provideHandshakeManager(
+			HandshakeManagerImpl handshakeManager) {
+		return handshakeManager;
+	}
+
+	@Provides
+	HandshakeCrypto provideHandshakeCrypto(
+			HandshakeCryptoImpl handshakeCrypto) {
+		return handshakeCrypto;
 	}
 }
