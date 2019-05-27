@@ -143,7 +143,7 @@ The following events are relevant here:
   * `PendingContactAddedEvent`
   * `PendingContactStateChangedEvent`
   * `PendingContactRemovedEvent`
-  * `ContactAddedRemotelyEvent` (when the pending contact becomes an actual contact)
+  * `ContactAddedEvent` (when the pending contact becomes an actual contact)
 
 To remove a pending contact and abort the process of adding it:
 
@@ -287,28 +287,15 @@ it will send a JSON object to connected websocket clients:
 Note that the JSON object in `data` is exactly what the REST API returns
 when listing private messages.
 
-### A new contact was added remotely
-
-When the Briar peer adds a new contact remotely,
-it will send a JSON object representing the new contact to connected websocket clients:
+### A new contact was added
 
 ```json
 {
     "data": {
-        "contact": {
-            "author": {
-                "formatVersion": 1,
-                "id": "y1wkIzAimAbYoCGgWxkWlr6vnq1F8t1QRA/UMPgI0E0=",
-                "name": "Test",
-                "publicKey": "BDu6h1S02bF4W6rgoZfZ6BMjTj/9S9hNN7EQoV05qUo="
-            },
-            "contactId": 1,
-            "alias" : "A local nickname",
-            "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
-            "verified": true
-        }
+        "contactId": 1,
+        "verified": false
     },
-    "name": "ContactAddedRemotelyEvent",
+    "name": "ContactAddedEvent",
     "type": "event"
 }
 ```
@@ -334,8 +321,8 @@ it will send a JSON object representing the new contact to connected websocket c
 ```json
 {
     "data": {
-        "pendingContactId":"YqKjsczCuxScXohb5+RAYtFEwK71icoB4ldztV2gh7M=",
-        "state":"waiting_for_connection"
+        "pendingContactId": "YqKjsczCuxScXohb5+RAYtFEwK71icoB4ldztV2gh7M=",
+        "state": "waiting_for_connection"
     },
     "name": "PendingContactStateChangedEvent",
     "type": "event"

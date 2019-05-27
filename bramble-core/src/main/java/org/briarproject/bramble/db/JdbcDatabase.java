@@ -3116,6 +3116,48 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void transferKeys(Connection txn, PendingContactId p, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			// Transfer the handshake public key
+			String sql = "SELECT publicKey from pendingContacts"
+					+ " WHERE pendingContactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, p.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			byte[] publicKey = rs.getBytes(1);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			sql = "UPDATE contacts SET handshakePublicKey = ?"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, publicKey);
+			ps.setInt(2, c.getInt());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+			// Transfer the transport keys
+			sql = "UPDATE outgoingKeys"
+					+ " SET contactId = ?, pendingContactId = NULL"
+					+ " WHERE pendingContactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setBytes(2, p.getBytes());
+			affected = ps.executeUpdate();
+			if (affected < 0) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void updateExpiryTimeAndEta(Connection txn, ContactId c, MessageId m,
 			int maxLatency) throws DbException {
 		PreparedStatement ps = null;

@@ -64,6 +64,13 @@ public interface DatabaseComponent extends TransactionManager {
 			boolean verified) throws DbException;
 
 	/**
+	 * Stores a contact associated with the given local and remote pseudonyms,
+	 * replacing the given pending contact, and returns an ID for the contact.
+	 */
+	ContactId addContact(Transaction txn, PendingContactId p, Author remote,
+			AuthorId local, boolean verified) throws DbException;
+
+	/**
 	 * Stores a group.
 	 */
 	void addGroup(Transaction txn, Group g) throws DbException;

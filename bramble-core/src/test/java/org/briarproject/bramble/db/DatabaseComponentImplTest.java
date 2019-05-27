@@ -763,15 +763,24 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the pending contact is in the DB (which it's not)
-			exactly(2).of(database).startTransaction();
+			exactly(3).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(2).of(database).containsPendingContact(txn,
+			exactly(3).of(database).containsPendingContact(txn,
 					pendingContactId);
 			will(returnValue(false));
-			exactly(2).of(database).abortTransaction(txn);
+			exactly(3).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addContact(transaction, pendingContactId, author,
+							localAuthor.getId(), true));
+			fail();
+		} catch (NoSuchPendingContactException expected) {
+			// Expected
+		}
 
 		try {
 			db.transaction(false, transaction ->
@@ -1487,6 +1496,69 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.addContact(transaction, author, localAuthor.getId(),
 							true));
+			fail();
+		} catch (ContactExistsException expected) {
+			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());
+			assertEquals(author, expected.getRemoteAuthor());
+		}
+	}
+
+	@Test
+	public void testCannotAddLocalIdentityAsContactFromPendingContact()
+			throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsPendingContact(txn, pendingContactId);
+			will(returnValue(true));
+			oneOf(database).containsIdentity(txn, localAuthor.getId());
+			will(returnValue(true));
+			// Contact is a local identity
+			oneOf(database).containsIdentity(txn, author.getId());
+			will(returnValue(true));
+			oneOf(database).abortTransaction(txn);
+		}});
+
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addContact(transaction, pendingContactId, author,
+							localAuthor.getId(), true));
+			fail();
+		} catch (ContactExistsException expected) {
+			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());
+			assertEquals(author, expected.getRemoteAuthor());
+		}
+	}
+
+	@Test
+	public void testCannotAddDuplicateContactFromPendingContact()
+			throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(database).startTransaction();
+			will(returnValue(txn));
+			oneOf(database).containsPendingContact(txn, pendingContactId);
+			will(returnValue(true));
+			oneOf(database).containsIdentity(txn, localAuthor.getId());
+			will(returnValue(true));
+			oneOf(database).containsIdentity(txn, author.getId());
+			will(returnValue(false));
+			// Contact already exists for this local identity
+			oneOf(database).containsContact(txn, author.getId(),
+					localAuthor.getId());
+			will(returnValue(true));
+			oneOf(database).abortTransaction(txn);
+		}});
+
+		DatabaseComponent db = createDatabaseComponent(database, eventBus,
+				eventExecutor, shutdownManager);
+
+		try {
+			db.transaction(false, transaction ->
+					db.addContact(transaction, pendingContactId, author,
+							localAuthor.getId(), true));
 			fail();
 		} catch (ContactExistsException expected) {
 			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());

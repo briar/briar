@@ -32,11 +32,22 @@ public interface ContactManager {
 	 * derives and stores transport keys for each transport, and returns an ID
 	 * for the contact.
 	 *
-	 * @param alice true if the local party is Alice
+	 * @param alice True if the local party is Alice
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException;
+
+	/**
+	 * Stores a contact associated with the given local and remote pseudonyms,
+	 * replacing the given pending contact, derives and stores transport keys
+	 * for each transport, and returns an ID for the contact.
+	 *
+	 * @param alice True if the local party is Alice
+	 */
+	ContactId addContact(Transaction txn, PendingContactId p, Author remote,
+			AuthorId local, SecretKey rootKey, long timestamp, boolean alice,
+			boolean verified, boolean active) throws DbException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms
@@ -50,7 +61,7 @@ public interface ContactManager {
 	 * derives and stores transport keys for each transport, and returns an ID
 	 * for the contact.
 	 *
-	 * @param alice true if the local party is Alice
+	 * @param alice True if the local party is Alice
 	 */
 	ContactId addContact(Author remote, AuthorId local, SecretKey rootKey,
 			long timestamp, boolean alice, boolean verified, boolean active)
@@ -132,13 +143,13 @@ public interface ContactManager {
 	void removeContact(Transaction txn, ContactId c) throws DbException;
 
 	/**
-	 * Sets an alias name for the contact or unsets it if alias is null.
+	 * Sets an alias for the contact or unsets it if alias is null.
 	 */
 	void setContactAlias(Transaction txn, ContactId c, @Nullable String alias)
 			throws DbException;
 
 	/**
-	 * Sets an alias name for the contact or unsets it if alias is null.
+	 * Sets an alias for the contact or unsets it if alias is null.
 	 */
 	void setContactAlias(ContactId c, @Nullable String alias)
 			throws DbException;

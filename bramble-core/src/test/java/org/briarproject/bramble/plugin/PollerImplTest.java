@@ -153,7 +153,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			will(returnValue(false));
 		}});
 
-		poller.eventOccurred(new ContactAddedEvent(contactId));
+		poller.eventOccurred(new ContactAddedEvent(contactId, true));
 	}
 
 	@Test

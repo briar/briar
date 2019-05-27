@@ -16,6 +16,7 @@ import android.support.v4.app.TaskStackBuilder;
 
 import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
@@ -42,7 +43,6 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 
 import java.util.Set;
@@ -230,8 +230,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		} else if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			if (!b.isLocal()) showBlogPostNotification(b.getGroupId());
-		} else if (e instanceof ContactAddedRemotelyEvent) {
-			showContactAddedNotification();
+		} else if (e instanceof ContactAddedEvent) {
+			ContactAddedEvent c = (ContactAddedEvent) e;
+			// Don't show notifications for contacts added in person
+			if (!c.isVerified()) showContactAddedNotification();
 		}
 	}
 

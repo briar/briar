@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -32,7 +33,6 @@ import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
@@ -1217,7 +1217,6 @@ public class IntroductionIntegrationTest
 		volatile boolean aborted = false;
 		volatile Event latestEvent;
 
-		@SuppressWarnings("WeakerAccess")
 		IntroductionResponse getResponse() {
 			assertTrue(
 					latestEvent instanceof IntroductionResponseReceivedEvent);
@@ -1273,12 +1272,11 @@ public class IntroductionIntegrationTest
 				// only broadcast for DECLINE messages in introducee role
 				latestEvent = e;
 				eventWaiter.resume();
-			} else if (e instanceof ContactAddedRemotelyEvent) {
+			} else if (e instanceof ContactAddedEvent) {
 				latestEvent = e;
 				succeeded = true;
-				Contact contact = ((ContactAddedRemotelyEvent) e).getContact();
-				eventWaiter
-						.assertFalse(contact.getId().equals(contactId0From1));
+				ContactId contactId = ((ContactAddedEvent) e).getContactId();
+				eventWaiter.assertFalse(contactId.equals(contactId0From1));
 				eventWaiter.resume();
 			} else if (e instanceof IntroductionAbortedEvent) {
 				latestEvent = e;
@@ -1357,13 +1355,10 @@ public class IntroductionIntegrationTest
 		Message m = ch.getMessage(id);
 		BdfList body = ch.getMessageAsList(id);
 		if (type == ACCEPT) {
-			//noinspection ConstantConditions
 			return c0.getMessageParser().parseAcceptMessage(m, body);
 		} else if (type == DECLINE) {
-			//noinspection ConstantConditions
 			return c0.getMessageParser().parseDeclineMessage(m, body);
 		} else if (type == AUTH) {
-			//noinspection ConstantConditions
 			return c0.getMessageParser().parseAuthMessage(m, body);
 		} else throw new AssertionError("Not implemented");
 	}
