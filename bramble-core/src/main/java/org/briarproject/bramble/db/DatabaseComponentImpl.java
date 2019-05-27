@@ -244,7 +244,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException(local, remote);
 		ContactId c = db.addContact(txn, remote, local, verified);
-		transaction.attach(new ContactAddedEvent(c));
+		transaction.attach(new ContactAddedEvent(c, verified));
 		return c;
 	}
 
@@ -265,7 +265,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		ContactId c = db.addContact(txn, remote, local, verified);
 		db.transferKeys(txn, p, c);
 		db.removePendingContact(txn, p);
-		transaction.attach(new ContactAddedEvent(c));
+		transaction.attach(new ContactAddedEvent(c, verified));
 		transaction.attach(new PendingContactRemovedEvent(p));
 		return c;
 	}

@@ -7,7 +7,7 @@ import io.javalin.NotFoundResponse
 import org.briarproject.bramble.api.contact.ContactManager
 import org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX
 import org.briarproject.bramble.api.contact.PendingContactId
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
@@ -27,7 +27,7 @@ import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
 
-internal const val EVENT_CONTACT_ADDED_REMOTELY = "ContactAddedRemotelyEvent"
+internal const val EVENT_CONTACT_ADDED = "ContactAddedEvent"
 internal const val EVENT_PENDING_CONTACT_STATE_CHANGED = "PendingContactStateChangedEvent"
 internal const val EVENT_PENDING_CONTACT_ADDED = "PendingContactAddedEvent"
 internal const val EVENT_PENDING_CONTACT_REMOVED = "PendingContactRemovedEvent"
@@ -43,8 +43,8 @@ constructor(
 ) : ContactController, EventListener {
 
     override fun eventOccurred(e: Event) = when (e) {
-        is ContactAddedRemotelyEvent -> {
-            webSocket.sendEvent(EVENT_CONTACT_ADDED_REMOTELY, e.output())
+        is ContactAddedEvent -> {
+            webSocket.sendEvent(EVENT_CONTACT_ADDED, e.output())
         }
         is PendingContactStateChangedEvent -> {
             webSocket.sendEvent(EVENT_PENDING_CONTACT_STATE_CHANGED, e.output())

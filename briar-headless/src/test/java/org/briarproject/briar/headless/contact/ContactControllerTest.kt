@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.contact.PendingContactId
 import org.briarproject.bramble.api.contact.PendingContactState.FAILED
 import org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent
@@ -207,12 +207,12 @@ internal class ContactControllerTest : ControllerTest() {
     }
 
     @Test
-    fun testContactAddedRemotelyEvent() {
-        val event = ContactAddedRemotelyEvent(contact)
+    fun testContactAddedEvent() {
+        val event = ContactAddedEvent(contact.id, contact.isVerified)
 
         every {
             webSocketController.sendEvent(
-                EVENT_CONTACT_ADDED_REMOTELY,
+                EVENT_CONTACT_ADDED,
                 event.output()
             )
         } just runs
@@ -291,11 +291,12 @@ internal class ContactControllerTest : ControllerTest() {
     }
 
     @Test
-    fun testOutputContactAddedRemotelyEvent() {
-        val event = ContactAddedRemotelyEvent(contact)
+    fun testOutputContactAddedEvent() {
+        val event = ContactAddedEvent(contact.id, contact.isVerified)
         val json = """
             {
-                "contact": ${toJson(contact.output())}
+                "contactId": ${contact.id.int},
+                "verified": ${contact.isVerified}
             }
         """
         assertJsonEquals(json, event.output())

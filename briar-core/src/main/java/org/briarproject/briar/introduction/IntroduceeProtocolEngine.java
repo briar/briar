@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.contact.event.ContactAddedRemotelyEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -453,10 +452,6 @@ class IntroduceeProtocolEngine
 			//noinspection ConstantConditions
 			transportPropertyManager.addRemoteProperties(txn, c.getId(),
 					s.getRemote().transportProperties);
-
-			// Broadcast IntroductionSucceededEvent, because contact got added
-			ContactAddedRemotelyEvent e = new ContactAddedRemotelyEvent(c);
-			txn.attach(e);
 		} catch (ContactExistsException e) {
 			// Ignore this, because the other introducee might have deleted us.
 			// So we still want updated transport properties
