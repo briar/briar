@@ -497,6 +497,14 @@ interface Database<T> {
 	long getNextSendTime(T txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns the pending contact with the given ID.
+	 * <p/>
+	 * Read-only.
+	 */
+	PendingContact getPendingContact(T txn, PendingContactId p)
+			throws DbException;
+
+	/**
 	 * Returns all pending contacts.
 	 * <p/>
 	 * Read-only.

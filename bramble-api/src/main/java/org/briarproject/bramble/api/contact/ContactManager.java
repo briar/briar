@@ -88,6 +88,12 @@ public interface ContactManager {
 			throws DbException, FormatException;
 
 	/**
+	 * Returns the pending contact with the given ID.
+	 */
+	PendingContact getPendingContact(Transaction txn, PendingContactId p)
+			throws DbException;
+
+	/**
 	 * Returns a list of {@link PendingContact PendingContacts} and their
 	 * {@link PendingContactState states}.
 	 */

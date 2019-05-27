@@ -128,6 +128,12 @@ class ContactManagerImpl implements ContactManager {
 	}
 
 	@Override
+	public PendingContact getPendingContact(Transaction txn, PendingContactId p)
+			throws DbException {
+		return db.getPendingContact(txn, p);
+	}
+
+	@Override
 	public Collection<Pair<PendingContact, PendingContactState>> getPendingContacts()
 			throws DbException {
 		Collection<PendingContact> pendingContacts =

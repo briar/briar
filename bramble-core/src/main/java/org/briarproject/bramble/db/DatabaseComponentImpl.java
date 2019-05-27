@@ -713,6 +713,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public PendingContact getPendingContact(Transaction transaction,
+			PendingContactId p) throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsPendingContact(txn, p))
+			throw new NoSuchPendingContactException();
+		return db.getPendingContact(txn, p);
+	}
+
+	@Override
 	public Collection<PendingContact> getPendingContacts(
 			Transaction transaction) throws DbException {
 		T txn = unbox(transaction);

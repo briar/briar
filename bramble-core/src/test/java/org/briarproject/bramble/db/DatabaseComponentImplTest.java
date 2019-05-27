@@ -763,12 +763,12 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the pending contact is in the DB (which it's not)
-			exactly(3).of(database).startTransaction();
+			exactly(4).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(3).of(database).containsPendingContact(txn,
+			exactly(4).of(database).containsPendingContact(txn,
 					pendingContactId);
 			will(returnValue(false));
-			exactly(3).of(database).abortTransaction(txn);
+			exactly(4).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -786,6 +786,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.addTransportKeys(transaction, pendingContactId,
 							createHandshakeKeys()));
+			fail();
+		} catch (NoSuchPendingContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.getPendingContact(transaction, pendingContactId));
 			fail();
 		} catch (NoSuchPendingContactException expected) {
 			// Expected
