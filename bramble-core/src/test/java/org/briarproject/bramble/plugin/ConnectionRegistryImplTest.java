@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -8,93 +9,106 @@ import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
-import org.briarproject.bramble.test.BrambleTestCase;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.Collection;
-import java.util.Collections;
-import java.util.NoSuchElementException;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-public class ConnectionRegistryImplTest extends BrambleTestCase {
+public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
-	private final ContactId contactId, contactId1;
-	private final TransportId transportId, transportId1;
+	private final EventBus eventBus = context.mock(EventBus.class);
 
-	public ConnectionRegistryImplTest() {
-		contactId = getContactId();
-		contactId1 = getContactId();
-		transportId = getTransportId();
-		transportId1 = getTransportId();
-	}
+	private final ContactId contactId = getContactId();
+	private final ContactId contactId1 = getContactId();
+	private final TransportId transportId = getTransportId();
+	private final TransportId transportId1 = getTransportId();
+	private final PendingContactId pendingContactId =
+			new PendingContactId(getRandomId());
 
 	@Test
 	public void testRegisterAndUnregister() {
-		Mockery context = new Mockery();
-		EventBus eventBus = context.mock(EventBus.class);
-		context.checking(new Expectations() {{
-			exactly(5).of(eventBus).broadcast(with(any(
-					ConnectionOpenedEvent.class)));
-			exactly(2).of(eventBus).broadcast(with(any(
-					ConnectionClosedEvent.class)));
-			exactly(3).of(eventBus).broadcast(with(any(
-					ContactConnectedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(
-					ContactDisconnectedEvent.class)));
-		}});
-
 		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
 
 		// The registry should be empty
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+
 		// Check that a registered connection shows up - this should
 		// broadcast a ConnectionOpenedEvent and a ContactConnectedEvent
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
+		}});
 		c.registerConnection(contactId, transportId, true);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(singletonList(contactId),
 				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		context.assertIsSatisfied();
+
 		// Register an identical connection - this should broadcast a
 		// ConnectionOpenedEvent and lookup should be unaffected
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
 		c.registerConnection(contactId, transportId, true);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(singletonList(contactId),
 				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		context.assertIsSatisfied();
+
 		// Unregister one of the connections - this should broadcast a
 		// ConnectionClosedEvent and lookup should be unaffected
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
+		}});
 		c.unregisterConnection(contactId, transportId, true);
-		assertEquals(Collections.singletonList(contactId),
+		assertEquals(singletonList(contactId),
 				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		context.assertIsSatisfied();
+
 		// Unregister the other connection - this should broadcast a
 		// ConnectionClosedEvent and a ContactDisconnectedEvent
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(
+					ContactDisconnectedEvent.class)));
+		}});
 		c.unregisterConnection(contactId, transportId, true);
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId));
-		assertEquals(Collections.emptyList(),
-				c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		context.assertIsSatisfied();
+
 		// Try to unregister the connection again - exception should be thrown
 		try {
 			c.unregisterConnection(contactId, transportId, true);
 			fail();
-		} catch (NoSuchElementException expected) {
+		} catch (IllegalArgumentException expected) {
 			// Expected
 		}
+
 		// Register both contacts with one transport, one contact with both -
 		// this should broadcast three ConnectionOpenedEvents and two
 		// ContactConnectedEvents
+		context.checking(new Expectations() {{
+			exactly(3).of(eventBus).broadcast(with(any(
+					ConnectionOpenedEvent.class)));
+			exactly(2).of(eventBus).broadcast(with(any(
+					ContactConnectedEvent.class)));
+		}});
 		c.registerConnection(contactId, transportId, true);
 		c.registerConnection(contactId1, transportId, true);
 		c.registerConnection(contactId1, transportId1, true);
@@ -102,8 +116,34 @@ public class ConnectionRegistryImplTest extends BrambleTestCase {
 		assertEquals(2, connected.size());
 		assertTrue(connected.contains(contactId));
 		assertTrue(connected.contains(contactId1));
-		assertEquals(Collections.singletonList(contactId1),
+		assertEquals(singletonList(contactId1),
 				c.getConnectedContacts(transportId1));
+	}
+
+	@Test
+	public void testRegisterAndUnregisterPendingContacts() {
+		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
+
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(
+					RendezvousConnectionOpenedEvent.class)));
+		}});
+		assertTrue(c.registerConnection(pendingContactId));
+		assertFalse(c.registerConnection(pendingContactId)); // Redundant
 		context.assertIsSatisfied();
+
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(
+					RendezvousConnectionClosedEvent.class)));
+		}});
+		c.unregisterConnection(pendingContactId, true);
+		context.assertIsSatisfied();
+
+		try {
+			c.unregisterConnection(pendingContactId, true);
+			fail();
+		} catch (IllegalArgumentException expected) {
+			// Expected
+		}
 	}
 }
