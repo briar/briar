@@ -443,7 +443,6 @@ class ConnectionManagerImpl implements ConnectionManager {
 				reader.dispose(false, true);
 				// Interrupt the outgoing session so it finishes cleanly
 				SyncSession out = outgoingSession;
-				outgoingSession = null;
 				if (out != null) out.interrupt();
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
