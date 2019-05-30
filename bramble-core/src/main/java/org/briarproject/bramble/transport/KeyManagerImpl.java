@@ -1,11 +1,11 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -101,46 +101,51 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addContactWithRotationKeys(
+	public Map<TransportId, KeySetId> addRotationKeys(
 			Transaction txn, ContactId c, SecretKey rootKey, long timestamp,
 			boolean alice, boolean active) throws DbException {
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addContactWithRotationKeys(txn, c, rootKey, timestamp,
+			ids.put(t, m.addRotationKeys(txn, c, rootKey, timestamp,
 					alice, active));
 		}
 		return ids;
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addContactWithHandshakeKeys(
-			Transaction txn, ContactId c, SecretKey rootKey, boolean alice)
-			throws DbException {
+	public Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
+			PublicKey theirPublicKey, KeyPair ourKeyPair)
+			throws DbException, GeneralSecurityException {
+		SecretKey staticMasterKey = transportCrypto
+				.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
+		SecretKey rootKey =
+				transportCrypto.deriveHandshakeRootKey(staticMasterKey, true);
+		boolean alice = transportCrypto.isAlice(theirPublicKey, ourKeyPair);
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addContactWithHandshakeKeys(txn, c, rootKey, alice));
+			ids.put(t, m.addHandshakeKeys(txn, c, rootKey, alice));
 		}
 		return ids;
 	}
 
 	@Override
 	public Map<TransportId, KeySetId> addPendingContact(Transaction txn,
-			PendingContact p, KeyPair ourKeyPair)
+			PendingContactId p, PublicKey theirPublicKey, KeyPair ourKeyPair)
 			throws DbException, GeneralSecurityException {
 		SecretKey staticMasterKey = transportCrypto
-					.deriveStaticMasterKey(p.getPublicKey(), ourKeyPair);
+					.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
 		SecretKey rootKey =
 				transportCrypto.deriveHandshakeRootKey(staticMasterKey, true);
-		boolean alice = transportCrypto.isAlice(p.getPublicKey(), ourKeyPair);
+		boolean alice = transportCrypto.isAlice(theirPublicKey, ourKeyPair);
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addPendingContact(txn, p.getId(), rootKey, alice));
+			ids.put(t, m.addHandshakeKeys(txn, p, rootKey, alice));
 		}
 		return ids;
 	}

@@ -1,10 +1,10 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -31,8 +31,8 @@ import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENG
 import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
-import static org.briarproject.bramble.test.TestUtils.getPendingContact;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
+import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.junit.Assert.assertEquals;
@@ -52,8 +52,8 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 	private final DeterministicExecutor executor = new DeterministicExecutor();
 	private final Transaction txn = new Transaction(null, false);
 	private final ContactId contactId = getContactId();
-	private final PendingContact pendingContact = getPendingContact();
-	private final PendingContactId pendingContactId = pendingContact.getId();
+	private final PendingContactId pendingContactId =
+			new PendingContactId(getRandomId());
 	private final KeySetId keySetId = new KeySetId(345);
 	private final TransportId transportId = getTransportId();
 	private final TransportId unknownTransportId = getTransportId();
@@ -64,6 +64,11 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 			new StreamContext(null, pendingContactId, transportId,
 					getSecretKey(), getSecretKey(), 1, true);
 	private final byte[] tag = getRandomBytes(TAG_LENGTH);
+	private final PublicKey theirPublicKey = getAgreementPublicKey();
+	private final KeyPair ourKeyPair =
+			new KeyPair(getAgreementPublicKey(), getAgreementPrivateKey());
+	private final SecretKey staticMasterKey = getSecretKey();
+	private final SecretKey rootKey = getSecretKey();
 	private final Random random = new Random();
 
 	private final KeyManagerImpl keyManager = new KeyManagerImpl(db, executor,
@@ -105,57 +110,59 @@ public class KeyManagerImplTest extends BrambleMockTestCase {
 		boolean active = random.nextBoolean();
 
 		context.checking(new Expectations() {{
-			oneOf(transportKeyManager).addContactWithRotationKeys(txn,
+			oneOf(transportKeyManager).addRotationKeys(txn,
 					contactId, secretKey, timestamp, alice, active);
 			will(returnValue(keySetId));
 		}});
 
-		Map<TransportId, KeySetId> ids = keyManager.addContactWithRotationKeys(
+		Map<TransportId, KeySetId> ids = keyManager.addRotationKeys(
 				txn, contactId, secretKey, timestamp, alice, active);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 
 	@Test
-	public void testAddContactWithHandshakeModeKeys() throws Exception {
-		SecretKey secretKey = getSecretKey();
+	public void testAddContactWithHandshakePublicKey() throws Exception {
 		boolean alice = random.nextBoolean();
 
 		context.checking(new Expectations() {{
-			oneOf(transportKeyManager).addContactWithHandshakeKeys(
-					txn, contactId, secretKey, alice);
+			oneOf(transportCrypto)
+					.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
+			will(returnValue(staticMasterKey));
+			oneOf(transportCrypto)
+					.deriveHandshakeRootKey(staticMasterKey, false);
+			will(returnValue(rootKey));
+			oneOf(transportCrypto).isAlice(theirPublicKey, ourKeyPair);
+			will(returnValue(alice));
+			oneOf(transportKeyManager).addHandshakeKeys(txn, contactId,
+					rootKey, alice);
 			will(returnValue(keySetId));
 		}});
 
-		Map<TransportId, KeySetId> ids = keyManager.addContactWithHandshakeKeys(
-				txn, contactId, secretKey, alice);
+		Map<TransportId, KeySetId> ids = keyManager.addContact(txn, contactId,
+				theirPublicKey, ourKeyPair);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 
 	@Test
 	public void testAddPendingContact() throws Exception {
-		KeyPair ourKeyPair =
-				new KeyPair(getAgreementPublicKey(), getAgreementPrivateKey());
-		SecretKey staticMasterKey = getSecretKey();
-		SecretKey rootKey = getSecretKey();
 		boolean alice = random.nextBoolean();
 
 		context.checking(new Expectations() {{
-			oneOf(transportCrypto).deriveStaticMasterKey(
-					pendingContact.getPublicKey(), ourKeyPair);
+			oneOf(transportCrypto)
+					.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
 			will(returnValue(staticMasterKey));
 			oneOf(transportCrypto)
 					.deriveHandshakeRootKey(staticMasterKey, true);
 			will(returnValue(rootKey));
-			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
-					ourKeyPair);
+			oneOf(transportCrypto).isAlice(theirPublicKey, ourKeyPair);
 			will(returnValue(alice));
-			oneOf(transportKeyManager).addPendingContact(txn, pendingContactId,
+			oneOf(transportKeyManager).addHandshakeKeys(txn, pendingContactId,
 					rootKey, alice);
 			will(returnValue(keySetId));
 		}});
 
 		Map<TransportId, KeySetId> ids = keyManager.addPendingContact(txn,
-				pendingContact, ourKeyPair);
+				pendingContactId, theirPublicKey, ourKeyPair);
 		assertEquals(singletonMap(transportId, keySetId), ids);
 	}
 

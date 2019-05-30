@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.security.GeneralSecurityException;
 import java.util.Collection;
 
 import javax.annotation.Nullable;
@@ -44,10 +45,13 @@ public interface ContactManager {
 	 * for each transport, and returns an ID for the contact.
 	 *
 	 * @param alice True if the local party is Alice
+	 * @throws GeneralSecurityException If the pending contact's handshake
+	 * public key is invalid
 	 */
 	ContactId addContact(Transaction txn, PendingContactId p, Author remote,
 			AuthorId local, SecretKey rootKey, long timestamp, boolean alice,
-			boolean verified, boolean active) throws DbException;
+			boolean verified, boolean active)
+			throws DbException, GeneralSecurityException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms
@@ -83,9 +87,11 @@ public interface ContactManager {
 	 * @throws UnsupportedVersionException If the link uses a format version
 	 * that is not supported
 	 * @throws FormatException If the link is invalid
+	 * @throws GeneralSecurityException If the pending contact's handshake
+	 * public key is invalid
 	 */
 	PendingContact addPendingContact(String link, String alias)
-			throws DbException, FormatException;
+			throws DbException, FormatException, GeneralSecurityException;
 
 	/**
 	 * Returns the pending contact with the given ID.

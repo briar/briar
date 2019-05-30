@@ -16,6 +16,7 @@ import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
+import java.security.GeneralSecurityException;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -102,14 +103,15 @@ public class AddContactViewModel extends AndroidViewModel {
 			} catch (UnsupportedVersionException e) {
 				logException(LOG, WARNING, e);
 				addContactResult.postValue(new LiveResult<>(e));
-			} catch (DbException | FormatException e) {
+			} catch (DbException | FormatException
+					| GeneralSecurityException e) {
 				logException(LOG, WARNING, e);
 				addContactResult.postValue(new LiveResult<>(e));
 			}
 		});
 	}
 
-	public LiveData<LiveResult<Boolean>> getAddContactResult() {
+	LiveData<LiveResult<Boolean>> getAddContactResult() {
 		return addContactResult;
 	}
 

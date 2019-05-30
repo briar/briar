@@ -444,7 +444,7 @@ class IntroduceeProtocolEngine
 
 			// add the keys to the new contact
 			//noinspection ConstantConditions
-			keys = keyManager.addContactWithRotationKeys(txn, c.getId(),
+			keys = keyManager.addRotationKeys(txn, c.getId(),
 					new SecretKey(s.getMasterKey()), timestamp,
 					s.getLocal().alice, false);
 

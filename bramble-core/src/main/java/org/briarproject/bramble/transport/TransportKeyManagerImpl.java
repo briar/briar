@@ -115,11 +115,14 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			TransportKeys k = ks.getKeys();
 			TransportKeys k1 = transportCrypto.updateTransportKeys(k,
 					timePeriod);
-			TransportKeySet ks1 = new TransportKeySet(ks.getKeySetId(),
-					ks.getContactId(), null, k1);
-			if (k1.getTimePeriod() > k.getTimePeriod())
+			if (k1.getTimePeriod() > k.getTimePeriod()) {
+				TransportKeySet ks1 = new TransportKeySet(ks.getKeySetId(),
+						ks.getContactId(), ks.getPendingContactId(), k1);
 				updateResult.updated.add(ks1);
-			updateResult.current.add(ks1);
+				updateResult.current.add(ks1);
+			} else {
+				updateResult.current.add(ks);
+			}
 		}
 		return updateResult;
 	}
@@ -207,7 +210,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public KeySetId addContactWithRotationKeys(Transaction txn, ContactId c,
+	public KeySetId addRotationKeys(Transaction txn, ContactId c,
 			SecretKey rootKey, long timestamp, boolean alice, boolean active)
 			throws DbException {
 		lock.lock();
@@ -222,7 +225,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			k = transportCrypto.updateTransportKeys(k, timePeriod);
 			// Write the keys back to the DB
 			KeySetId keySetId = db.addTransportKeys(txn, c, k);
-			// Initialise mutable state for the contact
+			// Initialise mutable state for the keys
 			addKeys(keySetId, c, null, new MutableTransportKeys(k));
 			return keySetId;
 		} finally {
@@ -231,7 +234,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public KeySetId addContactWithHandshakeKeys(Transaction txn, ContactId c,
+	public KeySetId addHandshakeKeys(Transaction txn, ContactId c,
 			SecretKey rootKey, boolean alice) throws DbException {
 		lock.lock();
 		try {
@@ -242,7 +245,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 					rootKey, timePeriod, alice);
 			// Write the keys back to the DB
 			KeySetId keySetId = db.addTransportKeys(txn, c, k);
-			// Initialise mutable state for the contact
+			// Initialise mutable state for the keys
 			addKeys(keySetId, c, null, new MutableTransportKeys(k));
 			return keySetId;
 		} finally {
@@ -251,7 +254,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@Override
-	public KeySetId addPendingContact(Transaction txn, PendingContactId p,
+	public KeySetId addHandshakeKeys(Transaction txn, PendingContactId p,
 			SecretKey rootKey, boolean alice) throws DbException {
 		lock.lock();
 		try {
@@ -262,7 +265,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 					rootKey, timePeriod, alice);
 			// Write the keys back to the DB
 			KeySetId keySetId = db.addTransportKeys(txn, p, k);
-			// Initialise mutable state for the pending contact
+			// Initialise mutable state for the keys
 			addKeys(keySetId, null, p, new MutableTransportKeys(k));
 			return keySetId;
 		} finally {

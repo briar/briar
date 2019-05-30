@@ -78,8 +78,7 @@ class ContactManagerImpl implements ContactManager {
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
 		ContactId c = db.addContact(txn, remote, local, null, verified);
-		keyManager.addContactWithRotationKeys(txn, c, rootKey, timestamp,
-				alice, active);
+		keyManager.addRotationKeys(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -89,12 +88,14 @@ class ContactManagerImpl implements ContactManager {
 	public ContactId addContact(Transaction txn, PendingContactId p,
 			Author remote, AuthorId local, SecretKey rootKey, long timestamp,
 			boolean alice, boolean verified, boolean active)
-			throws DbException {
-		PublicKey handshake = db.getPendingContact(txn, p).getPublicKey();
+			throws DbException, GeneralSecurityException {
+		PublicKey theirPublicKey = db.getPendingContact(txn, p).getPublicKey();
 		db.removePendingContact(txn, p);
-		ContactId c = db.addContact(txn, remote, local, handshake, verified);
-		keyManager.addContactWithRotationKeys(txn, c, rootKey, timestamp,
-				alice, active);
+		ContactId c =
+				db.addContact(txn, remote, local, theirPublicKey, verified);
+		KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
+		keyManager.addContact(txn, c, theirPublicKey, ourKeyPair);
+		keyManager.addRotationKeys(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -126,18 +127,19 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public PendingContact addPendingContact(String link, String alias)
-			throws DbException, FormatException {
+			throws DbException, FormatException, GeneralSecurityException {
 		PendingContact p =
 				pendingContactFactory.createPendingContact(link, alias);
-		db.transaction(false, txn -> {
+		Transaction txn = db.startTransaction(false);
+		try {
 			db.addPendingContact(txn, p);
 			KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
-			try {
-				keyManager.addPendingContact(txn, p, ourKeyPair);
-			} catch (GeneralSecurityException e) {
-				throw new AssertionError();
-			}
-		});
+			keyManager.addPendingContact(txn, p.getId(), p.getPublicKey(),
+					ourKeyPair);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
 		return p;
 	}
 
