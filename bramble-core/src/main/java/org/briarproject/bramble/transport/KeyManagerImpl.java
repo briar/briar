@@ -121,7 +121,7 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 		SecretKey staticMasterKey = transportCrypto
 				.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
 		SecretKey rootKey =
-				transportCrypto.deriveHandshakeRootKey(staticMasterKey, true);
+				transportCrypto.deriveHandshakeRootKey(staticMasterKey, false);
 		boolean alice = transportCrypto.isAlice(theirPublicKey, ourKeyPair);
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
