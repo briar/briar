@@ -3,11 +3,27 @@ package org.briarproject.bramble.api.crypto;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
+import java.security.GeneralSecurityException;
+
 /**
  * Crypto operations for the transport security protocol - see
  * https://code.briarproject.org/briar/briar-spec/blob/master/protocols/BTP.md
  */
 public interface TransportCrypto {
+
+	/**
+	 * Derives the static master key shared with a contact or pending contact.
+	 */
+	SecretKey deriveStaticMasterKey(PublicKey theirHandshakePublicKey,
+			KeyPair ourHandshakeKeyPair) throws GeneralSecurityException;
+
+	/**
+	 * Derives the handshake mode root key from the static master key.
+	 * @param pendingContact Whether the static master key is shared with a
+	 * pending contact or a contact
+	 */
+	SecretKey deriveHandshakeRootKey(SecretKey staticMasterKey,
+			boolean pendingContact);
 
 	/**
 	 * Derives initial rotation mode transport keys for the given transport in
