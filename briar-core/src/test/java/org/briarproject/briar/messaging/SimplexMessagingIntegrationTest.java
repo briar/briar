@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
+import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
@@ -24,7 +25,6 @@ import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -40,11 +40,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
+import java.util.concurrent.CountDownLatch;
 
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
 import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertEquals;
@@ -52,6 +56,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
+
+	private static final int TIMEOUT_MS = 5_000;
 
 	private final File testDir = getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
@@ -88,14 +94,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		bob.getEventBus().addListener(listener);
 		// Alice sends a private message to Bob
 		sendMessage(alice, bobId);
-		// Send three simplex streams to exchange client versions and the
-		// private message
-		read(bob, aliceId, write(alice, bobId));
-		read(alice, bobId, write(bob, aliceId));
-		read(bob, aliceId, write(alice, bobId));
-		// Tear down the devices
-		tearDown(alice);
-		tearDown(bob);
+		// Sync Alice's client versions and transport properties
+		read(bob, aliceId, write(alice, bobId), 2);
+		// Sync Bob's client versions and transport properties
+		read(alice, bobId, write(bob, aliceId), 2);
+		// Sync the private message
+		read(bob, aliceId, write(alice, bobId), 1);
 		// Bob should have received the private message
 		assertTrue(listener.messageAdded);
 	}
@@ -128,7 +132,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	private void read(SimplexMessagingIntegrationTestComponent device,
-			ContactId contactId, byte[] stream) throws Exception {
+			ContactId contactId, byte[] stream, int deliveries)
+			throws Exception {
+		// Listen for message deliveries
+		MessageDeliveryListener listener =
+				new MessageDeliveryListener(deliveries);
+		device.getEventBus().addListener(listener);
 		// Read and recognise the tag
 		ByteArrayInputStream in = new ByteArrayInputStream(stream);
 		byte[] tag = new byte[TAG_LENGTH];
@@ -149,6 +158,10 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Read whatever needs to be read
 		session.run();
 		streamReader.close();
+		// Wait for the messages to be delivered
+		assertTrue(listener.delivered.await(TIMEOUT_MS, MILLISECONDS));
+		// Clean up the listener
+		device.getEventBus().removeListener(listener);
 	}
 
 	private byte[] write(SimplexMessagingIntegrationTestComponent device,
@@ -184,8 +197,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	@After
-	public void tearDown() {
-		TestUtils.deleteTestDirectory(testDir);
+	public void tearDown() throws Exception {
+		// Tear down the devices
+		tearDown(alice);
+		tearDown(bob);
+		deleteTestDirectory(testDir);
 	}
 
 	private static void injectEagerSingletons(
@@ -198,6 +214,24 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		component.inject(new TransportModule.EagerSingletons());
 		component.inject(new ValidationModule.EagerSingletons());
 		component.inject(new VersioningModule.EagerSingletons());
+	}
+
+	@NotNullByDefault
+	private static class MessageDeliveryListener implements EventListener {
+
+		private final CountDownLatch delivered;
+
+		private MessageDeliveryListener(int deliveries) {
+			delivered = new CountDownLatch(deliveries);
+		}
+
+		@Override
+		public void eventOccurred(Event e) {
+			if (e instanceof MessageStateChangedEvent) {
+				MessageStateChangedEvent m = (MessageStateChangedEvent) e;
+				if (m.getState().equals(DELIVERED)) delivered.countDown();
+			}
+		}
 	}
 
 	@NotNullByDefault
