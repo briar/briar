@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
@@ -12,6 +13,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
@@ -194,12 +196,24 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			removeContact(((ContactRemovedEvent) e).getContactId());
+		} else if (e instanceof PendingContactRemovedEvent) {
+			PendingContactRemovedEvent p = (PendingContactRemovedEvent) e;
+			removePendingContact(p.getId());
 		}
 	}
 
+	@EventExecutor
 	private void removeContact(ContactId c) {
 		dbExecutor.execute(() -> {
 			for (TransportKeyManager m : managers.values()) m.removeContact(c);
+		});
+	}
+
+	@EventExecutor
+	private void removePendingContact(PendingContactId p) {
+		dbExecutor.execute(() -> {
+			for (TransportKeyManager m : managers.values())
+				m.removePendingContact(p);
 		});
 	}
 
