@@ -1,9 +1,12 @@
 package org.briarproject.bramble.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
+import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -21,6 +24,7 @@ import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,17 +50,22 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final Executor dbExecutor;
 	private final PluginConfig pluginConfig;
 	private final TransportKeyManagerFactory transportKeyManagerFactory;
+	private final TransportCrypto transportCrypto;
+
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
-	KeyManagerImpl(DatabaseComponent db, @DatabaseExecutor Executor dbExecutor,
+	KeyManagerImpl(DatabaseComponent db,
+			@DatabaseExecutor Executor dbExecutor,
 			PluginConfig pluginConfig,
-			TransportKeyManagerFactory transportKeyManagerFactory) {
+			TransportKeyManagerFactory transportKeyManagerFactory,
+			TransportCrypto transportCrypto) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.pluginConfig = pluginConfig;
 		this.transportKeyManagerFactory = transportKeyManagerFactory;
+		this.transportCrypto = transportCrypto;
 		managers = new ConcurrentHashMap<>();
 	}
 
@@ -118,13 +127,18 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 
 	@Override
 	public Map<TransportId, KeySetId> addPendingContact(Transaction txn,
-			PendingContactId p, SecretKey rootKey, boolean alice)
-			throws DbException {
+			PendingContact p, KeyPair ourKeyPair)
+			throws DbException, GeneralSecurityException {
+		SecretKey staticMasterKey = transportCrypto
+					.deriveStaticMasterKey(p.getPublicKey(), ourKeyPair);
+		SecretKey rootKey =
+				transportCrypto.deriveHandshakeRootKey(staticMasterKey, true);
+		boolean alice = transportCrypto.isAlice(p.getPublicKey(), ourKeyPair);
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addPendingContact(txn, p, rootKey, alice));
+			ids.put(t, m.addPendingContact(txn, p.getId(), rootKey, alice));
 		}
 		return ids;
 	}

@@ -49,14 +49,22 @@ class TransportCryptoImpl implements TransportCrypto {
 	}
 
 	@Override
+	public boolean isAlice(PublicKey theirHandshakePublicKey,
+			KeyPair ourHandshakeKeyPair) {
+		byte[] theirPublic = theirHandshakePublicKey.getEncoded();
+		byte[] ourPublic = ourHandshakeKeyPair.getPublic().getEncoded();
+		return compare(ourPublic, theirPublic) < 0;
+	}
+
+	@Override
 	public SecretKey deriveStaticMasterKey(PublicKey theirHandshakePublicKey,
 			KeyPair ourHandshakeKeyPair) throws GeneralSecurityException {
 		byte[] theirPublic = theirHandshakePublicKey.getEncoded();
 		byte[] ourPublic = ourHandshakeKeyPair.getPublic().getEncoded();
 		boolean alice = compare(ourPublic, theirPublic) < 0;
 		byte[][] inputs = {
-			alice ? ourPublic : theirPublic,
-			alice ? theirPublic : ourPublic
+				alice ? ourPublic : theirPublic,
+				alice ? theirPublic : ourPublic
 		};
 		return crypto.deriveSharedSecret(STATIC_MASTER_KEY_LABEL,
 				theirHandshakePublicKey, ourHandshakeKeyPair, inputs);

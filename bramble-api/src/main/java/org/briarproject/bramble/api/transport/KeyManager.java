@@ -1,12 +1,15 @@
 package org.briarproject.bramble.api.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.plugin.TransportId;
 
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -53,12 +56,10 @@ public interface KeyManager {
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the pending contact can be
 	 * created after this method has returned.
-	 *
-	 * @param alice True if the local party is Alice
 	 */
 	Map<TransportId, KeySetId> addPendingContact(Transaction txn,
-			PendingContactId p, SecretKey rootKey, boolean alice)
-			throws DbException;
+			PendingContact p, KeyPair ourKeyPair)
+			throws DbException, GeneralSecurityException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.

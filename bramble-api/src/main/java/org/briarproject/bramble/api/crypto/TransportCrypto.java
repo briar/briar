@@ -12,6 +12,12 @@ import java.security.GeneralSecurityException;
 public interface TransportCrypto {
 
 	/**
+	 * Returns true if the local peer is Alice.
+	 */
+	boolean isAlice(PublicKey theirHandshakePublicKey,
+			KeyPair ourHandshakeKeyPair);
+
+	/**
 	 * Derives the static master key shared with a contact or pending contact.
 	 */
 	SecretKey deriveStaticMasterKey(PublicKey theirHandshakePublicKey,
@@ -19,6 +25,7 @@ public interface TransportCrypto {
 
 	/**
 	 * Derives the handshake mode root key from the static master key.
+	 *
 	 * @param pendingContact Whether the static master key is shared with a
 	 * pending contact or a contact
 	 */

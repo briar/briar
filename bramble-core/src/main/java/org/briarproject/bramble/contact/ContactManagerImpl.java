@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
+import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -21,6 +22,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.KeyManager;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -51,6 +53,7 @@ class ContactManagerImpl implements ContactManager {
 	private final KeyManager keyManager;
 	private final IdentityManager identityManager;
 	private final PendingContactFactory pendingContactFactory;
+
 	private final List<ContactHook> hooks;
 
 	@Inject
@@ -123,7 +126,15 @@ class ContactManagerImpl implements ContactManager {
 			throws DbException, FormatException {
 		PendingContact p =
 				pendingContactFactory.createPendingContact(link, alias);
-		db.transaction(false, txn -> db.addPendingContact(txn, p));
+		db.transaction(false, txn -> {
+			db.addPendingContact(txn, p);
+			KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
+			try {
+				keyManager.addPendingContact(txn, p, ourKeyPair);
+			} catch (GeneralSecurityException e) {
+				throw new AssertionError();
+			}
+		});
 		return p;
 	}
 
