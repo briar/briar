@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -76,7 +77,7 @@ class ContactManagerImpl implements ContactManager {
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified);
+		ContactId c = db.addContact(txn, remote, local, null, verified);
 		keyManager.addContactWithRotationKeys(txn, c, rootKey, timestamp,
 				alice, active);
 		Contact contact = db.getContact(txn, c);
@@ -89,7 +90,9 @@ class ContactManagerImpl implements ContactManager {
 			Author remote, AuthorId local, SecretKey rootKey, long timestamp,
 			boolean alice, boolean verified, boolean active)
 			throws DbException {
-		ContactId c = db.addContact(txn, p, remote, local, verified);
+		PublicKey handshake = db.getPendingContact(txn, p).getPublicKey();
+		db.removePendingContact(txn, p);
+		ContactId c = db.addContact(txn, remote, local, handshake, verified);
 		keyManager.addContactWithRotationKeys(txn, c, rootKey, timestamp,
 				alice, active);
 		Contact contact = db.getContact(txn, c);
@@ -100,7 +103,7 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			boolean verified) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified);
+		ContactId c = db.addContact(txn, remote, local, null, verified);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;

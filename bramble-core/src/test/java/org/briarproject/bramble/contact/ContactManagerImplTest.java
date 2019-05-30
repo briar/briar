@@ -71,7 +71,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(false), withDbCallable(txn));
-			oneOf(db).addContact(txn, remote, local, verified);
+			oneOf(db).addContact(txn, remote, local, null, verified);
 			will(returnValue(contactId));
 			oneOf(keyManager).addContactWithRotationKeys(txn, contactId,
 					rootKey, timestamp, alice, active);
