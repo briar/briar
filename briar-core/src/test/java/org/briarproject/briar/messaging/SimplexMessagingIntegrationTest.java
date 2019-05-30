@@ -94,11 +94,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		bob.getEventBus().addListener(listener);
 		// Alice sends a private message to Bob
 		sendMessage(alice, bobId);
-		// Send three simplex streams to exchange client versions and the
-		// private message
-		read(bob, aliceId, write(alice, bobId), 1); // Alice's client versions
-		read(alice, bobId, write(bob, aliceId), 1); // Bob's client versions
-		read(bob, aliceId, write(alice, bobId), 1); // Alice's private message
+		// Sync Alice's client versions and transport properties
+		read(bob, aliceId, write(alice, bobId), 2);
+		// Sync Bob's client versions and transport properties
+		read(alice, bobId, write(bob, aliceId), 2);
+		// Sync the private message
+		read(bob, aliceId, write(alice, bobId), 1);
 		// Bob should have received the private message
 		assertTrue(listener.messageAdded);
 	}
@@ -131,8 +132,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	private void read(SimplexMessagingIntegrationTestComponent device,
-			ContactId contactId, byte[] stream,
-			@SuppressWarnings("SameParameterValue") int deliveries)
+			ContactId contactId, byte[] stream, int deliveries)
 			throws Exception {
 		// Listen for message deliveries
 		MessageDeliveryListener listener =
