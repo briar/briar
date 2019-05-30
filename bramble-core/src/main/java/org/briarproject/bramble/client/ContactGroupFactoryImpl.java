@@ -1,6 +1,5 @@
 package org.briarproject.bramble.client;
 
-import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
@@ -55,7 +54,7 @@ class ContactGroupFactoryImpl implements ContactGroupFactory {
 
 	private byte[] createGroupDescriptor(AuthorId local, AuthorId remote) {
 		try {
-			if (Bytes.COMPARATOR.compare(local, remote) < 0)
+			if (local.compareTo(remote) < 0)
 				return clientHelper.toByteArray(BdfList.of(local, remote));
 			else return clientHelper.toByteArray(BdfList.of(remote, local));
 		} catch (FormatException e) {
