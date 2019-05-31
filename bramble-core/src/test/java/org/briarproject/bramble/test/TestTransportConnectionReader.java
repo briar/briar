@@ -3,6 +3,7 @@ package org.briarproject.bramble.test;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -24,6 +25,8 @@ public class TestTransportConnectionReader
 	}
 
 	@Override
-	public void dispose(boolean exception, boolean recognised) {
+	public void dispose(boolean exception, boolean recognised)
+			throws IOException {
+		in.close();
 	}
 }

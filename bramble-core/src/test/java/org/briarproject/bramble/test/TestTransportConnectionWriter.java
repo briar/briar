@@ -3,6 +3,7 @@ package org.briarproject.bramble.test;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 
+import java.io.IOException;
 import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 
@@ -10,7 +11,8 @@ import javax.annotation.concurrent.ThreadSafe;
 
 @ThreadSafe
 @NotNullByDefault
-public class TestTransportConnectionWriter implements TransportConnectionWriter {
+public class TestTransportConnectionWriter
+		implements TransportConnectionWriter {
 
 	private final OutputStream out;
 	private final CountDownLatch disposed = new CountDownLatch(1);
@@ -39,7 +41,8 @@ public class TestTransportConnectionWriter implements TransportConnectionWriter 
 	}
 
 	@Override
-	public void dispose(boolean exception) {
+	public void dispose(boolean exception) throws IOException {
 		disposed.countDown();
+		out.close();
 	}
 }
