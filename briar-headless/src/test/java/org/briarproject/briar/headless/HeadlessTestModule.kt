@@ -3,14 +3,13 @@ package org.briarproject.briar.headless
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
-import org.briarproject.bramble.api.crypto.PublicKey
 import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.plugin.PluginConfig
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
-import org.briarproject.bramble.api.reporting.DevConfig
 import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
+import org.briarproject.bramble.socks.SocksModule
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.briar.headless.blogs.HeadlessBlogModule
 import org.briarproject.briar.headless.contact.HeadlessContactModule
@@ -26,6 +25,7 @@ import javax.inject.Singleton
         JavaNetworkModule::class,
         JavaSystemModule::class,
         CircumventionModule::class,
+        SocksModule::class,
         HeadlessBlogModule::class,
         HeadlessContactModule::class,
         HeadlessEventModule::class,
@@ -55,14 +55,6 @@ internal class HeadlessTestModule(private val appDir: File) {
             override fun getSimplexFactories(): Collection<SimplexPluginFactory> = emptyList()
             override fun shouldPoll(): Boolean = false
         }
-    }
-
-    @Provides
-    @Singleton
-    internal fun provideDevConfig(): DevConfig = object : DevConfig {
-        override fun getDevPublicKey(): PublicKey = throw NotImplementedError()
-        override fun getDevOnionAddress(): String = throw NotImplementedError()
-        override fun getReportDir(): File = throw NotImplementedError()
     }
 
     @Provides
