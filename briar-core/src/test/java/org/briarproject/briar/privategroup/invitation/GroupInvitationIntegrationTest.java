@@ -58,23 +58,23 @@ public class GroupInvitationIntegrationTest
 	protected void createComponents() {
 		BriarIntegrationTestComponent component =
 				DaggerBriarIntegrationTestComponent.builder().build();
-		injectEagerSingletons(component);
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 
 		c0 = DaggerBriarIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
 				.build();
-		injectEagerSingletons(c0);
+		c0.injectBriarEagerSingletons();
 
 		c1 = DaggerBriarIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
 				.build();
-		injectEagerSingletons(c1);
+		c1.injectBriarEagerSingletons();
 
 		c2 = DaggerBriarIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
 				.build();
-		injectEagerSingletons(c2);
+		c2.injectBriarEagerSingletons();
 	}
 
 	@Test

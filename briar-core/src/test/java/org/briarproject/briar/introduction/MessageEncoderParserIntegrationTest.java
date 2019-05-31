@@ -1,6 +1,5 @@
 package org.briarproject.briar.introduction;
 
-import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -18,12 +17,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.client.SessionId;
-import org.briarproject.briar.blog.BlogModule;
-import org.briarproject.briar.forum.ForumModule;
-import org.briarproject.briar.messaging.MessagingModule;
-import org.briarproject.briar.privategroup.PrivateGroupModule;
-import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
-import org.briarproject.briar.sharing.SharingModule;
 import org.junit.Test;
 
 import java.util.Map;
@@ -81,7 +74,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	public MessageEncoderParserIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
-		injectEagerSingletons(component);
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 
 		messageEncoder = new MessageEncoderImpl(clientHelper, messageFactory);
@@ -252,17 +245,5 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(m.getTimestamp(), am.getTimestamp());
 		assertEquals(previousMsgId, am.getPreviousMessageId());
 		assertEquals(sessionId, am.getSessionId());
-	}
-
-	private static void injectEagerSingletons(
-			IntroductionIntegrationTestComponent component) {
-		BrambleCoreModule.initEagerSingletons(component);
-		component.inject(new BlogModule.EagerSingletons());
-		component.inject(new ForumModule.EagerSingletons());
-		component.inject(new GroupInvitationModule.EagerSingletons());
-		component.inject(new IntroductionModule.EagerSingletons());
-		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new PrivateGroupModule.EagerSingletons());
-		component.inject(new SharingModule.EagerSingletons());
 	}
 }

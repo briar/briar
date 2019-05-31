@@ -1,6 +1,5 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -67,11 +66,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(
 						new TestDatabaseConfigModule(aliceDir)).build();
-		injectEagerSingletons(alice);
+		alice.injectSimplexMessagingEagerSingletons();
 		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(bobDir))
 				.build();
-		injectEagerSingletons(bob);
+		bob.injectSimplexMessagingEagerSingletons();
 	}
 
 	@Test
@@ -198,12 +197,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		tearDown(alice);
 		tearDown(bob);
 		deleteTestDirectory(testDir);
-	}
-
-	private static void injectEagerSingletons(
-			SimplexMessagingIntegrationTestComponent component) {
-		BrambleCoreModule.initEagerSingletons(component);
-		component.inject(new MessagingModule.EagerSingletons());
 	}
 
 	@NotNullByDefault

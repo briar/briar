@@ -66,6 +66,17 @@ public interface BriarIntegrationTestComponent
 
 	void inject(SharingModule.EagerSingletons init);
 
+	default void injectBriarEagerSingletons() {
+		injectBrambleCoreEagerSingletons();
+		inject(new BlogModule.EagerSingletons());
+		inject(new ForumModule.EagerSingletons());
+		inject(new GroupInvitationModule.EagerSingletons());
+		inject(new IntroductionModule.EagerSingletons());
+		inject(new MessagingModule.EagerSingletons());
+		inject(new PrivateGroupModule.EagerSingletons());
+		inject(new SharingModule.EagerSingletons());
+	}
+
 	LifecycleManager getLifecycleManager();
 
 	EventBus getEventBus();

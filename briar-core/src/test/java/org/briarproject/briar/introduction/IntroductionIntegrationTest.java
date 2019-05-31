@@ -106,23 +106,23 @@ public class IntroductionIntegrationTest
 	protected void createComponents() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
-		injectEagerSingletons(component);
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 
 		c0 = DaggerIntroductionIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
 				.build();
-		injectEagerSingletons(c0);
+		c0.injectBriarEagerSingletons();
 
 		c1 = DaggerIntroductionIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
 				.build();
-		injectEagerSingletons(c1);
+		c1.injectBriarEagerSingletons();
 
 		c2 = DaggerIntroductionIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
 				.build();
-		injectEagerSingletons(c2);
+		c2.injectBriarEagerSingletons();
 	}
 
 	@Test

@@ -1,6 +1,5 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
@@ -73,7 +72,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 
 		SyncIntegrationTestComponent component =
 				DaggerSyncIntegrationTestComponent.builder().build();
-		BrambleCoreModule.initEagerSingletons(component);
+		component.injectBrambleCoreEagerSingletons();
 		component.inject(this);
 
 		contactId = getContactId();

@@ -52,16 +52,6 @@ import dagger.Module;
 public class BrambleCoreModule {
 
 	public static void initEagerSingletons(BrambleCoreEagerSingletons c) {
-		c.inject(new ContactModule.EagerSingletons());
-		c.inject(new CryptoExecutorModule.EagerSingletons());
-		c.inject(new DatabaseExecutorModule.EagerSingletons());
-		c.inject(new IdentityModule.EagerSingletons());
-		c.inject(new LifecycleModule.EagerSingletons());
-		c.inject(new PluginModule.EagerSingletons());
-		c.inject(new PropertiesModule.EagerSingletons());
-		c.inject(new SystemModule.EagerSingletons());
-		c.inject(new TransportModule.EagerSingletons());
-		c.inject(new ValidationModule.EagerSingletons());
-		c.inject(new VersioningModule.EagerSingletons());
+		c.injectBrambleCoreEagerSingletons();
 	}
 }

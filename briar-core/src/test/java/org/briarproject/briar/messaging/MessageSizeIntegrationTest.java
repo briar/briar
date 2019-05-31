@@ -1,6 +1,5 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.identity.AuthorFactory;
@@ -11,7 +10,6 @@ import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
-import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.test.BriarTestCase;
 import org.junit.Test;
 
@@ -41,7 +39,7 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	public MessageSizeIntegrationTest() {
 		MessageSizeIntegrationTestComponent component =
 				DaggerMessageSizeIntegrationTestComponent.builder().build();
-		injectEagerSingletons(component);
+		component.injectMessageSizeEagerSingletons();
 		component.inject(this);
 	}
 
@@ -78,12 +76,5 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 				+ MAX_AUTHOR_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH
 				+ MAX_FORUM_POST_TEXT_LENGTH);
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
-	}
-
-	private static void injectEagerSingletons(
-			MessageSizeIntegrationTestComponent component) {
-		BrambleCoreModule.initEagerSingletons(component);
-		component.inject(new ForumModule.EagerSingletons());
-		component.inject(new MessagingModule.EagerSingletons());
 	}
 }

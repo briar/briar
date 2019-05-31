@@ -31,6 +31,11 @@ interface SimplexMessagingIntegrationTestComponent
 
 	void inject(MessagingModule.EagerSingletons init);
 
+	default void injectSimplexMessagingEagerSingletons() {
+		injectBrambleCoreEagerSingletons();
+		inject(new MessagingModule.EagerSingletons());
+	}
+
 	LifecycleManager getLifecycleManager();
 
 	IdentityManager getIdentityManager();

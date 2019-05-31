@@ -1,6 +1,5 @@
 package org.briarproject.briar.feed;
 
-import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -11,7 +10,6 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
-import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.test.BriarTestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -40,7 +38,7 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 				DaggerFeedManagerIntegrationTestComponent.builder()
 						.testDatabaseConfigModule(
 								new TestDatabaseConfigModule(testFile)).build();
-		injectEagerSingletons(component);
+		component.injectFeedManagerEagerSingletons();
 		component.inject(this);
 
 		IdentityManager identityManager = component.getIdentityManager();
@@ -111,12 +109,4 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		lifecycleManager.waitForShutdown();
 		TestUtils.deleteTestDirectory(testDir);
 	}
-
-	protected void injectEagerSingletons(
-			FeedManagerIntegrationTestComponent component) {
-		BrambleCoreModule.initEagerSingletons(component);
-		component.inject(new BlogModule.EagerSingletons());
-		component.inject(new FeedModule.EagerSingletons());
-	}
-
 }

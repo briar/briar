@@ -35,4 +35,18 @@ public interface BrambleCoreEagerSingletons {
 	void inject(ValidationModule.EagerSingletons init);
 
 	void inject(VersioningModule.EagerSingletons init);
+
+	default void injectBrambleCoreEagerSingletons() {
+		inject(new ContactModule.EagerSingletons());
+		inject(new CryptoExecutorModule.EagerSingletons());
+		inject(new DatabaseExecutorModule.EagerSingletons());
+		inject(new IdentityModule.EagerSingletons());
+		inject(new LifecycleModule.EagerSingletons());
+		inject(new PluginModule.EagerSingletons());
+		inject(new PropertiesModule.EagerSingletons());
+		inject(new SystemModule.EagerSingletons());
+		inject(new TransportModule.EagerSingletons());
+		inject(new ValidationModule.EagerSingletons());
+		inject(new VersioningModule.EagerSingletons());
+	}
 }

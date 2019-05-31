@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.tor;
 
-import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -46,7 +45,7 @@ public class BridgeTest extends BrambleTestCase {
 	public static Iterable<String> data() {
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
-		BrambleCoreModule.initEagerSingletons(component);
+		component.injectBrambleCoreEagerSingletons();
 		return component.getCircumventionProvider().getBridges(false);
 	}
 
@@ -91,7 +90,7 @@ public class BridgeTest extends BrambleTestCase {
 
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
-		BrambleCoreModule.initEagerSingletons(component);
+		component.injectBrambleCoreEagerSingletons();
 		component.inject(this);
 
 		LocationUtils locationUtils = () -> "US";

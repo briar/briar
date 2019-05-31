@@ -2,7 +2,6 @@ package org.briarproject.briar.test;
 
 import net.jodah.concurrentunit.Waiter;
 
-import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
@@ -38,13 +37,6 @@ import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
-import org.briarproject.briar.blog.BlogModule;
-import org.briarproject.briar.forum.ForumModule;
-import org.briarproject.briar.introduction.IntroductionModule;
-import org.briarproject.briar.messaging.MessagingModule;
-import org.briarproject.briar.privategroup.PrivateGroupModule;
-import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
-import org.briarproject.briar.sharing.SharingModule;
 import org.junit.After;
 import org.junit.Before;
 
@@ -174,18 +166,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	abstract protected void createComponents();
-
-	protected void injectEagerSingletons(
-			BriarIntegrationTestComponent component) {
-		BrambleCoreModule.initEagerSingletons(component);
-		component.inject(new BlogModule.EagerSingletons());
-		component.inject(new ForumModule.EagerSingletons());
-		component.inject(new GroupInvitationModule.EagerSingletons());
-		component.inject(new IntroductionModule.EagerSingletons());
-		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new PrivateGroupModule.EagerSingletons());
-		component.inject(new SharingModule.EagerSingletons());
-	}
 
 	private void startLifecycles() throws InterruptedException {
 		// Start the lifecycle manager and wait for it to finish starting

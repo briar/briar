@@ -26,4 +26,10 @@ interface MessageSizeIntegrationTestComponent
 	void inject(ForumModule.EagerSingletons init);
 
 	void inject(MessagingModule.EagerSingletons init);
+
+	default void injectMessageSizeEagerSingletons() {
+		injectBrambleCoreEagerSingletons();
+		inject(new ForumModule.EagerSingletons());
+		inject(new MessagingModule.EagerSingletons());
+	}
 }
