@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
@@ -37,10 +38,8 @@ import org.briarproject.briar.test.BriarIntegrationTest;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
@@ -1009,13 +1008,12 @@ public class IntroductionIntegrationTest
 		// 0 and 1 remove and re-add each other
 		contactManager0.removeContact(contactId1From0);
 		contactManager1.removeContact(contactId0From1);
-		contactId1From0 = contactManager0
-				.addContact(author1, author0.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		SecretKey rootKey0_1 = getSecretKey();
+		contactId1From0 = contactManager0.addContact(author1, author0.getId(),
+				rootKey0_1, clock.currentTimeMillis(), true, true, true);
 		contact1From0 = contactManager0.getContact(contactId1From0);
-		contactId0From1 = contactManager1
-				.addContact(author0, author1.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId0From1 = contactManager1.addContact(author0, author1.getId(),
+				rootKey0_1, clock.currentTimeMillis(), false, true, true);
 		contact0From1 = contactManager1.getContact(contactId0From1);
 
 		// Sync initial client versioning updates and transport properties
@@ -1044,8 +1042,7 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.requestReceived);
 	}
 
-	private void testModifiedResponse(StateVisitor visitor)
-			throws Exception {
+	private void testModifiedResponse(StateVisitor visitor) throws Exception {
 		addListeners(true, true);
 
 		// make introduction
@@ -1157,20 +1154,22 @@ public class IntroductionIntegrationTest
 		);
 	}
 
-	private void addTransportProperties()
-			throws DbException, IOException, TimeoutException {
+	private void addTransportProperties() throws Exception {
 		TransportPropertyManager tpm0 = c0.getTransportPropertyManager();
 		TransportPropertyManager tpm1 = c1.getTransportPropertyManager();
 		TransportPropertyManager tpm2 = c2.getTransportPropertyManager();
 
-		tpm0.mergeLocalProperties(SIMPLEX_TRANSPORT_ID, getTransportProperties(2));
+		tpm0.mergeLocalProperties(SIMPLEX_TRANSPORT_ID,
+				getTransportProperties(2));
 		sync0To1(1, true);
 		sync0To2(1, true);
 
-		tpm1.mergeLocalProperties(SIMPLEX_TRANSPORT_ID, getTransportProperties(2));
+		tpm1.mergeLocalProperties(SIMPLEX_TRANSPORT_ID,
+				getTransportProperties(2));
 		sync1To0(1, true);
 
-		tpm2.mergeLocalProperties(SIMPLEX_TRANSPORT_ID, getTransportProperties(2));
+		tpm2.mergeLocalProperties(SIMPLEX_TRANSPORT_ID,
+				getTransportProperties(2));
 		sync2To0(1, true);
 	}
 
