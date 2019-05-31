@@ -42,7 +42,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.TimeoutException;
 
-import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
@@ -1163,14 +1163,14 @@ public class IntroductionIntegrationTest
 		TransportPropertyManager tpm1 = c1.getTransportPropertyManager();
 		TransportPropertyManager tpm2 = c2.getTransportPropertyManager();
 
-		tpm0.mergeLocalProperties(TRANSPORT_ID, getTransportProperties(2));
+		tpm0.mergeLocalProperties(SIMPLEX_TRANSPORT_ID, getTransportProperties(2));
 		sync0To1(1, true);
 		sync0To2(1, true);
 
-		tpm1.mergeLocalProperties(TRANSPORT_ID, getTransportProperties(2));
+		tpm1.mergeLocalProperties(SIMPLEX_TRANSPORT_ID, getTransportProperties(2));
 		sync1To0(1, true);
 
-		tpm2.mergeLocalProperties(TRANSPORT_ID, getTransportProperties(2));
+		tpm2.mergeLocalProperties(SIMPLEX_TRANSPORT_ID, getTransportProperties(2));
 		sync2To0(1, true);
 	}
 

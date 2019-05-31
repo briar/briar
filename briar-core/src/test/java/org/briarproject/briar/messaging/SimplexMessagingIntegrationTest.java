@@ -11,15 +11,10 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.SyncSession;
-import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
-import org.briarproject.bramble.api.transport.KeyManager;
-import org.briarproject.bramble.api.transport.StreamContext;
-import org.briarproject.bramble.api.transport.StreamReaderFactory;
-import org.briarproject.bramble.api.transport.StreamWriter;
-import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.bramble.test.TestTransportConnectionReader;
+import org.briarproject.bramble.test.TestTransportConnectionWriter;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -32,20 +27,15 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
 import static java.util.Collections.emptyList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
-import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
-import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
-import static org.briarproject.bramble.test.TestPluginConfigModule.TRANSPORT_ID;
+import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
@@ -55,6 +45,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private final File testDir = getTestDirectory();
 	private final File aliceDir = new File(testDir, "alice");
 	private final File bobDir = new File(testDir, "bob");
+
 	private final SecretKey rootKey = getSecretKey();
 	private final long timestamp = System.currentTimeMillis();
 
@@ -90,11 +81,11 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		// Alice sends a private message to Bob
 		sendMessage(alice, bobId);
 		// Sync Alice's client versions and transport properties
-		read(bob, aliceId, write(alice, bobId), 2);
+		read(bob, write(alice, bobId), 2);
 		// Sync Bob's client versions and transport properties
-		read(alice, bobId, write(bob, aliceId), 2);
+		read(alice, write(bob, aliceId), 2);
 		// Sync the private message
-		read(bob, aliceId, write(alice, bobId), 1);
+		read(bob, write(alice, bobId), 1);
 		// Bob should have received the private message
 		assertTrue(listener.messageAdded);
 	}
@@ -127,32 +118,17 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	}
 
 	private void read(SimplexMessagingIntegrationTestComponent device,
-			ContactId contactId, byte[] stream, int deliveries)
-			throws Exception {
+			byte[] stream, int deliveries) throws Exception {
 		// Listen for message deliveries
 		MessageDeliveryListener listener =
 				new MessageDeliveryListener(deliveries);
 		device.getEventBus().addListener(listener);
-		// Read and recognise the tag
+		// Read the incoming stream
 		ByteArrayInputStream in = new ByteArrayInputStream(stream);
-		byte[] tag = new byte[TAG_LENGTH];
-		int read = in.read(tag);
-		assertEquals(tag.length, read);
-		KeyManager keyManager = device.getKeyManager();
-		StreamContext ctx = keyManager.getStreamContext(TRANSPORT_ID, tag);
-		assertNotNull(ctx);
-		// Create a stream reader
-		StreamReaderFactory streamReaderFactory =
-				device.getStreamReaderFactory();
-		InputStream streamReader = streamReaderFactory.createStreamReader(
-				in, ctx);
-		// Create an incoming sync session
-		SyncSessionFactory syncSessionFactory = device.getSyncSessionFactory();
-		SyncSession session = syncSessionFactory.createIncomingSession(
-				contactId, streamReader);
-		// Read whatever needs to be read
-		session.run();
-		streamReader.close();
+		TestTransportConnectionReader reader =
+				new TestTransportConnectionReader(in);
+		device.getConnectionManager().manageIncomingConnection(
+				SIMPLEX_TRANSPORT_ID, reader);
 		// Wait for the messages to be delivered
 		assertTrue(listener.delivered.await(TIMEOUT_MS, MILLISECONDS));
 		// Clean up the listener
@@ -161,24 +137,14 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private byte[] write(SimplexMessagingIntegrationTestComponent device,
 			ContactId contactId) throws Exception {
+		// Write the outgoing stream
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		// Get a stream context
-		KeyManager keyManager = device.getKeyManager();
-		StreamContext ctx = keyManager.getStreamContext(contactId,
-				TRANSPORT_ID);
-		assertNotNull(ctx);
-		// Create a stream writer
-		StreamWriterFactory streamWriterFactory =
-				device.getStreamWriterFactory();
-		StreamWriter streamWriter =
-				streamWriterFactory.createStreamWriter(out, ctx);
-		// Create an outgoing sync session
-		SyncSessionFactory syncSessionFactory = device.getSyncSessionFactory();
-		SyncSession session = syncSessionFactory.createSimplexOutgoingSession(
-				contactId, MAX_LATENCY, streamWriter);
-		// Write whatever needs to be written
-		session.run();
-		streamWriter.sendEndOfStream();
+		TestTransportConnectionWriter writer =
+				new TestTransportConnectionWriter(out);
+		device.getConnectionManager().manageOutgoingConnection(contactId,
+				SIMPLEX_TRANSPORT_ID, writer);
+		// Wait for the writer to be disposed
+		writer.getDisposedLatch().await(TIMEOUT_MS, MILLISECONDS);
 		// Return the contents of the stream
 		return out.toByteArray();
 	}
