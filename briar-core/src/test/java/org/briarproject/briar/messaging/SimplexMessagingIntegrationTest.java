@@ -1,5 +1,6 @@
 package org.briarproject.briar.messaging;
 
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -19,16 +20,7 @@ import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.db.DatabaseExecutorModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -210,16 +202,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private static void injectEagerSingletons(
 			SimplexMessagingIntegrationTestComponent component) {
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new CryptoExecutorModule.EagerSingletons());
-		component.inject(new DatabaseExecutorModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
-		component.inject(new LifecycleModule.EagerSingletons());
+		BrambleCoreModule.initEagerSingletons(component);
 		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
 	}
 
 	@NotNullByDefault

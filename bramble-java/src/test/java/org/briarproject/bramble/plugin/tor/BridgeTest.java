@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -9,21 +10,10 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.db.DatabaseExecutorModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.plugin.PluginModule;
-import org.briarproject.bramble.properties.PropertiesModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
-import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.util.OsUtils;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,7 +46,7 @@ public class BridgeTest extends BrambleTestCase {
 	public static Iterable<String> data() {
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
-		injectEagerSingletons(component);
+		BrambleCoreModule.initEagerSingletons(component);
 		return component.getCircumventionProvider().getBridges(false);
 	}
 
@@ -101,7 +91,7 @@ public class BridgeTest extends BrambleTestCase {
 
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
-		injectEagerSingletons(component);
+		BrambleCoreModule.initEagerSingletons(component);
 		component.inject(this);
 
 		LocationUtils locationUtils = () -> "US";
@@ -160,20 +150,5 @@ public class BridgeTest extends BrambleTestCase {
 		} finally {
 			plugin.stop();
 		}
-	}
-
-	private static void injectEagerSingletons(
-			BrambleJavaIntegrationTestComponent component) {
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new CryptoExecutorModule.EagerSingletons());
-		component.inject(new DatabaseExecutorModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
-		component.inject(new LifecycleModule.EagerSingletons());
-		component.inject(new PluginModule.EagerSingletons());
-		component.inject(new PropertiesModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
 	}
 }

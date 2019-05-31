@@ -2,6 +2,7 @@ package org.briarproject.briar.test;
 
 import net.jodah.concurrentunit.Waiter;
 
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.client.ContactGroupFactory;
@@ -28,17 +29,7 @@ import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamWriter;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.db.DatabaseExecutorModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.properties.PropertiesModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -186,23 +177,14 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	protected void injectEagerSingletons(
 			BriarIntegrationTestComponent component) {
+		BrambleCoreModule.initEagerSingletons(component);
 		component.inject(new BlogModule.EagerSingletons());
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new CryptoExecutorModule.EagerSingletons());
-		component.inject(new DatabaseExecutorModule.EagerSingletons());
 		component.inject(new ForumModule.EagerSingletons());
 		component.inject(new GroupInvitationModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
 		component.inject(new IntroductionModule.EagerSingletons());
-		component.inject(new LifecycleModule.EagerSingletons());
 		component.inject(new MessagingModule.EagerSingletons());
 		component.inject(new PrivateGroupModule.EagerSingletons());
-		component.inject(new PropertiesModule.EagerSingletons());
 		component.inject(new SharingModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
 	}
 
 	private void startLifecycles() throws InterruptedException {

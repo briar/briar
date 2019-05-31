@@ -1,5 +1,6 @@
 package org.briarproject.briar.introduction;
 
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.crypto.PrivateKey;
@@ -15,7 +16,13 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.blog.BlogModule;
+import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
+import org.briarproject.briar.messaging.MessagingModule;
+import org.briarproject.briar.privategroup.PrivateGroupModule;
+import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
+import org.briarproject.briar.sharing.SharingModule;
 import org.junit.Test;
 
 import java.util.HashMap;
@@ -83,6 +90,7 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 	public SessionEncoderParserIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
+		injectEagerSingletons(component);
 		component.inject(this);
 
 		sessionEncoder = new SessionEncoderImpl(clientHelper);
@@ -339,4 +347,15 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(i1.lastRemoteMessageId, i2.lastRemoteMessageId);
 	}
 
+	private static void injectEagerSingletons(
+			IntroductionIntegrationTestComponent component) {
+		BrambleCoreModule.initEagerSingletons(component);
+		component.inject(new BlogModule.EagerSingletons());
+		component.inject(new ForumModule.EagerSingletons());
+		component.inject(new GroupInvitationModule.EagerSingletons());
+		component.inject(new IntroductionModule.EagerSingletons());
+		component.inject(new MessagingModule.EagerSingletons());
+		component.inject(new PrivateGroupModule.EagerSingletons());
+		component.inject(new SharingModule.EagerSingletons());
+	}
 }

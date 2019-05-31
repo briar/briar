@@ -1,5 +1,7 @@
 package org.briarproject.briar.test;
 
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -9,27 +11,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
-import org.briarproject.bramble.client.ClientModule;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.crypto.CryptoModule;
-import org.briarproject.bramble.data.DataModule;
-import org.briarproject.bramble.db.DatabaseExecutorModule;
-import org.briarproject.bramble.db.DatabaseModule;
-import org.briarproject.bramble.event.DefaultEventExecutorModule;
-import org.briarproject.bramble.event.EventModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.properties.PropertiesModule;
-import org.briarproject.bramble.record.RecordModule;
-import org.briarproject.bramble.sync.SyncModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseConfigModule;
-import org.briarproject.bramble.test.TestPluginConfigModule;
-import org.briarproject.bramble.test.TestSecureRandomModule;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
+import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -54,73 +36,35 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		TestDatabaseConfigModule.class,
-		TestPluginConfigModule.class,
-		TestSecureRandomModule.class,
+		BrambleCoreIntegrationTestModule.class,
+		BrambleCoreModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
-		ClientModule.class,
-		ContactModule.class,
-		CryptoModule.class,
-		CryptoExecutorModule.class,
-		DataModule.class,
-		DatabaseExecutorModule.class,
-		DatabaseModule.class,
-		DefaultEventExecutorModule.class,
-		EventModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,
-		IdentityModule.class,
 		IntroductionModule.class,
-		LifecycleModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
-		PropertiesModule.class,
-		RecordModule.class,
-		SharingModule.class,
-		SyncModule.class,
-		SystemModule.class,
-		TransportModule.class,
-		ValidationModule.class,
-		VersioningModule.class
+		SharingModule.class
 })
-public interface BriarIntegrationTestComponent {
+public interface BriarIntegrationTestComponent
+		extends BrambleCoreEagerSingletons {
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
 
 	void inject(BlogModule.EagerSingletons init);
 
-	void inject(ContactModule.EagerSingletons init);
-
-	void inject(CryptoExecutorModule.EagerSingletons init);
-
-	void inject(DatabaseExecutorModule.EagerSingletons init);
-
 	void inject(ForumModule.EagerSingletons init);
 
 	void inject(GroupInvitationModule.EagerSingletons init);
 
-	void inject(IdentityModule.EagerSingletons init);
-
 	void inject(IntroductionModule.EagerSingletons init);
-
-	void inject(LifecycleModule.EagerSingletons init);
 
 	void inject(MessagingModule.EagerSingletons init);
 
 	void inject(PrivateGroupModule.EagerSingletons init);
 
-	void inject(PropertiesModule.EagerSingletons init);
-
 	void inject(SharingModule.EagerSingletons init);
-
-	void inject(SystemModule.EagerSingletons init);
-
-	void inject(TransportModule.EagerSingletons init);
-
-	void inject(ValidationModule.EagerSingletons init);
-
-	void inject(VersioningModule.EagerSingletons init);
 
 	LifecycleManager getLifecycleManager();
 

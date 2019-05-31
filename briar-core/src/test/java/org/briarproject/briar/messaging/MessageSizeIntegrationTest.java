@@ -1,20 +1,12 @@
 package org.briarproject.briar.messaging;
 
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.db.DatabaseExecutorModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -90,16 +82,8 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 
 	private static void injectEagerSingletons(
 			MessageSizeIntegrationTestComponent component) {
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new CryptoExecutorModule.EagerSingletons());
-		component.inject(new DatabaseExecutorModule.EagerSingletons());
+		BrambleCoreModule.initEagerSingletons(component);
 		component.inject(new ForumModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
-		component.inject(new LifecycleModule.EagerSingletons());
 		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
 	}
 }

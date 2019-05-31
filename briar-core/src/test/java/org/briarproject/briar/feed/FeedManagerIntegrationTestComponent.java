@@ -1,27 +1,11 @@
 package org.briarproject.briar.feed;
 
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.client.ClientModule;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.crypto.CryptoModule;
-import org.briarproject.bramble.data.DataModule;
-import org.briarproject.bramble.db.DatabaseExecutorModule;
-import org.briarproject.bramble.db.DatabaseModule;
-import org.briarproject.bramble.event.DefaultEventExecutorModule;
-import org.briarproject.bramble.event.EventModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.sync.SyncModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseConfigModule;
-import org.briarproject.bramble.test.TestPluginConfigModule;
-import org.briarproject.bramble.test.TestSecureRandomModule;
+import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.TestSocksModule;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.blog.BlogModule;
@@ -34,56 +18,22 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		TestDatabaseConfigModule.class,
-		TestDnsModule.class,
-		TestPluginConfigModule.class,
-		TestSecureRandomModule.class,
-		TestSocksModule.class,
+		BrambleCoreIntegrationTestModule.class,
+		BrambleCoreModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
-		ClientModule.class,
-		ContactModule.class,
-		CryptoModule.class,
-		CryptoExecutorModule.class,
-		DataModule.class,
-		DatabaseExecutorModule.class,
-		DatabaseModule.class,
-		DefaultEventExecutorModule.class,
-		EventModule.class,
 		FeedModule.class,
-		IdentityModule.class,
-		LifecycleModule.class,
-		SyncModule.class,
-		SystemModule.class,
-		TransportModule.class,
-		ValidationModule.class,
-		VersioningModule.class
+		TestDnsModule.class,
+		TestSocksModule.class,
 })
-interface FeedManagerIntegrationTestComponent {
+interface FeedManagerIntegrationTestComponent
+		extends BrambleCoreEagerSingletons {
 
 	void inject(FeedManagerIntegrationTest testCase);
 
 	void inject(BlogModule.EagerSingletons init);
 
-	void inject(ContactModule.EagerSingletons init);
-
-	void inject(CryptoExecutorModule.EagerSingletons init);
-
-	void inject(DatabaseExecutorModule.EagerSingletons init);
-
 	void inject(FeedModule.EagerSingletons init);
-
-	void inject(IdentityModule.EagerSingletons init);
-
-	void inject(LifecycleModule.EagerSingletons init);
-
-	void inject(SystemModule.EagerSingletons init);
-
-	void inject(TransportModule.EagerSingletons init);
-
-	void inject(ValidationModule.EagerSingletons init);
-
-	void inject(VersioningModule.EagerSingletons init);
 
 	IdentityManager getIdentityManager();
 
