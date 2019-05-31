@@ -1,7 +1,7 @@
 package org.briarproject.briar.forum;
 
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumPost;
@@ -56,18 +56,22 @@ public class ForumManagerTest
 	protected void createComponents() {
 		BriarIntegrationTestComponent component =
 				DaggerBriarIntegrationTestComponent.builder().build();
+		injectEagerSingletons(component);
 		component.inject(this);
 
 		c0 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
+				.build();
 		injectEagerSingletons(c0);
 
 		c1 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
+				.build();
 		injectEagerSingletons(c1);
 
 		c2 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
+				.build();
 		injectEagerSingletons(c2);
 	}
 

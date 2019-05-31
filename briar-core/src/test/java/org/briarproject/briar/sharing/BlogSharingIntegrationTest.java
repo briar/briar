@@ -9,7 +9,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogInvitationRequest;
@@ -82,18 +82,22 @@ public class BlogSharingIntegrationTest
 	protected void createComponents() {
 		BriarIntegrationTestComponent component =
 				DaggerBriarIntegrationTestComponent.builder().build();
+		injectEagerSingletons(component);
 		component.inject(this);
 
 		c0 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
+				.build();
 		injectEagerSingletons(c0);
 
 		c1 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
+				.build();
 		injectEagerSingletons(c1);
 
 		c2 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
+				.build();
 		injectEagerSingletons(c2);
 	}
 

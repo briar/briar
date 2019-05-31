@@ -5,15 +5,16 @@ import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
+import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.db.DatabaseModule;
 import org.briarproject.bramble.event.DefaultEventExecutorModule;
 import org.briarproject.bramble.event.EventModule;
 import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.bramble.test.TestLifecycleModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
@@ -27,8 +28,7 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		TestDatabaseModule.class,
-		TestLifecycleModule.class,
+		TestDatabaseConfigModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
 		BriarClientModule.class,
@@ -37,11 +37,13 @@ import dagger.Component;
 		CryptoModule.class,
 		CryptoExecutorModule.class,
 		DataModule.class,
+		DatabaseExecutorModule.class,
 		DatabaseModule.class,
 		DefaultEventExecutorModule.class,
 		EventModule.class,
 		ForumModule.class,
 		IdentityModule.class,
+		LifecycleModule.class,
 		MessagingModule.class,
 		SyncModule.class,
 		SystemModule.class,
@@ -57,9 +59,13 @@ interface MessageSizeIntegrationTestComponent {
 
 	void inject(CryptoExecutorModule.EagerSingletons init);
 
+	void inject(DatabaseExecutorModule.EagerSingletons init);
+
 	void inject(ForumModule.EagerSingletons init);
 
 	void inject(IdentityModule.EagerSingletons init);
+
+	void inject(LifecycleModule.EagerSingletons init);
 
 	void inject(MessagingModule.EagerSingletons init);
 

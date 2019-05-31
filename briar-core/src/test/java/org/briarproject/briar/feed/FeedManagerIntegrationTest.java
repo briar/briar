@@ -5,11 +5,12 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
+import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
@@ -45,10 +46,10 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		assertTrue(testDir.mkdirs());
 		FeedManagerIntegrationTestComponent component =
 				DaggerFeedManagerIntegrationTestComponent.builder()
-						.testDatabaseModule(new TestDatabaseModule(testFile))
-						.build();
-		component.inject(this);
+						.testDatabaseConfigModule(
+								new TestDatabaseConfigModule(testFile)).build();
 		injectEagerSingletons(component);
+		component.inject(this);
 
 		IdentityManager identityManager = component.getIdentityManager();
 		Identity identity = identityManager.createIdentity("feedTest");
@@ -124,6 +125,7 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		component.inject(new BlogModule.EagerSingletons());
 		component.inject(new ContactModule.EagerSingletons());
 		component.inject(new CryptoExecutorModule.EagerSingletons());
+		component.inject(new DatabaseExecutorModule.EagerSingletons());
 		component.inject(new FeedModule.EagerSingletons());
 		component.inject(new IdentityModule.EagerSingletons());
 		component.inject(new LifecycleModule.EagerSingletons());

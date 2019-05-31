@@ -30,6 +30,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
+import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.properties.PropertiesModule;
@@ -188,6 +189,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		component.inject(new BlogModule.EagerSingletons());
 		component.inject(new ContactModule.EagerSingletons());
 		component.inject(new CryptoExecutorModule.EagerSingletons());
+		component.inject(new DatabaseExecutorModule.EagerSingletons());
 		component.inject(new ForumModule.EagerSingletons());
 		component.inject(new GroupInvitationModule.EagerSingletons());
 		component.inject(new IdentityModule.EagerSingletons());

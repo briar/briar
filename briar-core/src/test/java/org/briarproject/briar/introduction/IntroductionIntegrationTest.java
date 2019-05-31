@@ -22,7 +22,7 @@ import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -106,18 +106,22 @@ public class IntroductionIntegrationTest
 	protected void createComponents() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
+		injectEagerSingletons(component);
 		component.inject(this);
 
 		c0 = DaggerIntroductionIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
+				.build();
 		injectEagerSingletons(c0);
 
 		c1 = DaggerIntroductionIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
+				.build();
 		injectEagerSingletons(c1);
 
 		c2 = DaggerIntroductionIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
+				.build();
 		injectEagerSingletons(c2);
 	}
 

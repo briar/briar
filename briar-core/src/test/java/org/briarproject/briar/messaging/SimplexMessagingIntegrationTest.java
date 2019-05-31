@@ -20,11 +20,13 @@ import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import org.briarproject.bramble.contact.ContactModule;
+import org.briarproject.bramble.crypto.CryptoExecutorModule;
+import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -71,10 +73,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	public void setUp() {
 		assertTrue(testDir.mkdirs());
 		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(aliceDir)).build();
+				.testDatabaseConfigModule(
+						new TestDatabaseConfigModule(aliceDir)).build();
 		injectEagerSingletons(alice);
 		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(bobDir)).build();
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(bobDir))
+				.build();
 		injectEagerSingletons(bob);
 	}
 
@@ -207,6 +211,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private static void injectEagerSingletons(
 			SimplexMessagingIntegrationTestComponent component) {
 		component.inject(new ContactModule.EagerSingletons());
+		component.inject(new CryptoExecutorModule.EagerSingletons());
+		component.inject(new DatabaseExecutorModule.EagerSingletons());
 		component.inject(new IdentityModule.EagerSingletons());
 		component.inject(new LifecycleModule.EagerSingletons());
 		component.inject(new MessagingModule.EagerSingletons());

@@ -5,6 +5,7 @@ import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
 import org.briarproject.bramble.data.DataModule;
+import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.db.DatabaseModule;
 import org.briarproject.bramble.event.DefaultEventExecutorModule;
 import org.briarproject.bramble.event.EventModule;
@@ -15,7 +16,7 @@ import org.briarproject.bramble.record.RecordModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestPluginConfigModule;
 import org.briarproject.bramble.test.TestSecureRandomModule;
 import org.briarproject.bramble.transport.TransportModule;
@@ -35,7 +36,7 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		TestDatabaseModule.class,
+		TestDatabaseConfigModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class,
 		BlogModule.class,
@@ -45,6 +46,7 @@ import dagger.Component;
 		CryptoModule.class,
 		CryptoExecutorModule.class,
 		DataModule.class,
+		DatabaseExecutorModule.class,
 		DatabaseModule.class,
 		DefaultEventExecutorModule.class,
 		EventModule.class,

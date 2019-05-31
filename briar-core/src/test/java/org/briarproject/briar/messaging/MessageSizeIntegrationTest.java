@@ -8,7 +8,9 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
+import org.briarproject.bramble.db.DatabaseExecutorModule;
 import org.briarproject.bramble.identity.IdentityModule;
+import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
@@ -47,8 +49,8 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	public MessageSizeIntegrationTest() {
 		MessageSizeIntegrationTestComponent component =
 				DaggerMessageSizeIntegrationTestComponent.builder().build();
-		component.inject(this);
 		injectEagerSingletons(component);
+		component.inject(this);
 	}
 
 	@Test
@@ -90,8 +92,10 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 			MessageSizeIntegrationTestComponent component) {
 		component.inject(new ContactModule.EagerSingletons());
 		component.inject(new CryptoExecutorModule.EagerSingletons());
+		component.inject(new DatabaseExecutorModule.EagerSingletons());
 		component.inject(new ForumModule.EagerSingletons());
 		component.inject(new IdentityModule.EagerSingletons());
+		component.inject(new LifecycleModule.EagerSingletons());
 		component.inject(new MessagingModule.EagerSingletons());
 		component.inject(new SystemModule.EagerSingletons());
 		component.inject(new TransportModule.EagerSingletons());
