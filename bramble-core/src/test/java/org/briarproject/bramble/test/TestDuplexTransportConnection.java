@@ -21,6 +21,7 @@ public class TestDuplexTransportConnection
 	private final TransportConnectionReader reader;
 	private final TransportConnectionWriter writer;
 
+	@SuppressWarnings("WeakerAccess")
 	public TestDuplexTransportConnection(InputStream in, OutputStream out) {
 		reader = new TestTransportConnectionReader(in);
 		writer = new TestTransportConnectionWriter(out);
@@ -42,8 +43,9 @@ public class TestDuplexTransportConnection
 	 */
 	public static TestDuplexTransportConnection[] createPair()
 			throws IOException {
-		PipedInputStream aliceIn = new PipedInputStream();
-		PipedInputStream bobIn = new PipedInputStream();
+		// Use 64k buffers to prevent deadlock
+		PipedInputStream aliceIn = new PipedInputStream(1 << 16);
+		PipedInputStream bobIn = new PipedInputStream(1 << 16);
 		PipedOutputStream aliceOut = new PipedOutputStream(bobIn);
 		PipedOutputStream bobOut = new PipedOutputStream(aliceIn);
 		TestDuplexTransportConnection alice =
