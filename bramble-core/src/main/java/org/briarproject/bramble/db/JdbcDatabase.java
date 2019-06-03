@@ -629,22 +629,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public ContactId addContact(Connection txn, Author remote, AuthorId local,
-			boolean verified) throws DbException {
+			@Nullable PublicKey handshake, boolean verified)
+			throws DbException {
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			// Create a contact row
 			String sql = "INSERT INTO contacts"
 					+ " (authorId, formatVersion, name, publicKey,"
-					+ " localAuthorId, verified)"
-					+ " VALUES (?, ?, ?, ?, ?, ?)";
+					+ " localAuthorId, handshakePublicKey, verified)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, remote.getId().getBytes());
 			ps.setInt(2, remote.getFormatVersion());
 			ps.setString(3, remote.getName());
 			ps.setBytes(4, remote.getPublicKey().getEncoded());
 			ps.setBytes(5, local.getBytes());
-			ps.setBoolean(6, verified);
+			if (handshake == null) ps.setNull(6, BINARY);
+			else ps.setBytes(6, handshake.getEncoded());
+			ps.setBoolean(7, verified);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -3134,48 +3137,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void transferKeys(Connection txn, PendingContactId p, ContactId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			// Transfer the handshake public key
-			String sql = "SELECT publicKey from pendingContacts"
-					+ " WHERE pendingContactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, p.getBytes());
-			rs = ps.executeQuery();
-			if (!rs.next()) throw new DbStateException();
-			byte[] publicKey = rs.getBytes(1);
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			sql = "UPDATE contacts SET handshakePublicKey = ?"
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, publicKey);
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-			// Transfer the transport keys
-			sql = "UPDATE outgoingKeys"
-					+ " SET contactId = ?, pendingContactId = NULL"
-					+ " WHERE pendingContactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, p.getBytes());
-			affected = ps.executeUpdate();
-			if (affected < 0) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}

@@ -85,6 +85,7 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
@@ -99,7 +100,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	private static final Logger LOG =
-			Logger.getLogger(DatabaseComponentImpl.class.getName());
+			getLogger(DatabaseComponentImpl.class.getName());
 
 	private final Database<T> db;
 	private final Class<T> txnClass;
@@ -234,39 +235,18 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public ContactId addContact(Transaction transaction, Author remote,
-			AuthorId local, boolean verified) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsIdentity(txn, local))
-			throw new NoSuchIdentityException();
-		if (db.containsIdentity(txn, remote.getId()))
-			throw new ContactExistsException(local, remote);
-		if (db.containsContact(txn, remote.getId(), local))
-			throw new ContactExistsException(local, remote);
-		ContactId c = db.addContact(txn, remote, local, verified);
-		transaction.attach(new ContactAddedEvent(c, verified));
-		return c;
-	}
-
-	@Override
-	public ContactId addContact(Transaction transaction, PendingContactId p,
-			Author remote, AuthorId local, boolean verified)
+			AuthorId local, @Nullable PublicKey handshake, boolean verified)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (!db.containsPendingContact(txn, p))
-			throw new NoSuchPendingContactException();
 		if (!db.containsIdentity(txn, local))
 			throw new NoSuchIdentityException();
 		if (db.containsIdentity(txn, remote.getId()))
 			throw new ContactExistsException(local, remote);
 		if (db.containsContact(txn, remote.getId(), local))
 			throw new ContactExistsException(local, remote);
-		ContactId c = db.addContact(txn, remote, local, verified);
-		db.transferKeys(txn, p, c);
-		db.removePendingContact(txn, p);
+		ContactId c = db.addContact(txn, remote, local, handshake, verified);
 		transaction.attach(new ContactAddedEvent(c, verified));
-		transaction.attach(new PendingContactRemovedEvent(p));
 		return c;
 	}
 

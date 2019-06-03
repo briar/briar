@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.StringUtils;
 
 import java.util.Arrays;
-import java.util.Comparator;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
@@ -15,8 +14,6 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 @NotNullByDefault
 public class Bytes implements Comparable<Bytes> {
-
-	public static final BytesComparator COMPARATOR = new BytesComparator();
 
 	private final byte[] bytes;
 
@@ -45,14 +42,7 @@ public class Bytes implements Comparable<Bytes> {
 
 	@Override
 	public int compareTo(Bytes other) {
-		byte[] aBytes = bytes, bBytes = other.bytes;
-		int length = Math.min(aBytes.length, bBytes.length);
-		for (int i = 0; i < length; i++) {
-			int aUnsigned = aBytes[i] & 0xFF, bUnsigned = bBytes[i] & 0xFF;
-			if (aUnsigned < bUnsigned) return -1;
-			if (aUnsigned > bUnsigned) return 1;
-		}
-		return aBytes.length - bBytes.length;
+		return compare(bytes, other.bytes);
 	}
 
 	@Override
@@ -61,11 +51,13 @@ public class Bytes implements Comparable<Bytes> {
 				"(" + StringUtils.toHexString(getBytes()) + ")";
 	}
 
-	public static class BytesComparator implements Comparator<Bytes> {
-
-		@Override
-		public int compare(Bytes a, Bytes b) {
-			return a.compareTo(b);
+	public static int compare(byte[] a, byte[] b) {
+		int length = Math.min(a.length, b.length);
+		for (int i = 0; i < length; i++) {
+			int aUnsigned = a[i] & 0xFF, bUnsigned = b[i] & 0xFF;
+			if (aUnsigned < bUnsigned) return -1;
+			if (aUnsigned > bUnsigned) return 1;
 		}
+		return a.length - b.length;
 	}
 }

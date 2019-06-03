@@ -2,11 +2,14 @@ package org.briarproject.bramble.api.transport;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.plugin.TransportId;
 
+import java.security.GeneralSecurityException;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -18,9 +21,9 @@ import javax.annotation.Nullable;
 public interface KeyManager {
 
 	/**
-	 * Informs the key manager that a new contact has been added. Derives and
-	 * stores a set of rotation mode transport keys for communicating with the
-	 * contact over each transport and returns the key set IDs.
+	 * Derives and stores a set of rotation mode transport keys for
+	 * communicating with the given contact over each transport and returns the
+	 * key set IDs.
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
@@ -28,7 +31,7 @@ public interface KeyManager {
 	 * @param alice True if the local party is Alice
 	 * @param active Whether the derived keys can be used for outgoing streams
 	 */
-	Map<TransportId, KeySetId> addContactWithRotationKeys(Transaction txn,
+	Map<TransportId, KeySetId> addRotationKeys(Transaction txn,
 			ContactId c, SecretKey rootKey, long timestamp, boolean alice,
 			boolean active) throws DbException;
 
@@ -39,11 +42,10 @@ public interface KeyManager {
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the contact can be created
 	 * after this method has returned.
-	 *
-	 * @param alice True if the local party is Alice
 	 */
-	Map<TransportId, KeySetId> addContactWithHandshakeKeys(Transaction txn,
-			ContactId c, SecretKey rootKey, boolean alice) throws DbException;
+	Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
+			PublicKey theirPublicKey, KeyPair ourKeyPair)
+			throws DbException, GeneralSecurityException;
 
 	/**
 	 * Informs the key manager that a new pending contact has been added.
@@ -53,12 +55,10 @@ public interface KeyManager {
 	 * <p/>
 	 * {@link StreamContext StreamContexts} for the pending contact can be
 	 * created after this method has returned.
-	 *
-	 * @param alice True if the local party is Alice
 	 */
 	Map<TransportId, KeySetId> addPendingContact(Transaction txn,
-			PendingContactId p, SecretKey rootKey, boolean alice)
-			throws DbException;
+			PendingContactId p, PublicKey theirPublicKey, KeyPair ourKeyPair)
+			throws DbException, GeneralSecurityException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.

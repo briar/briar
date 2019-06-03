@@ -64,14 +64,6 @@ public interface TransportConstants {
 			- MAC_LENGTH;
 
 	/**
-	 * The minimum stream length in bytes that all transport plugins must
-	 * support. Streams may be shorter than this length, but all transport
-	 * plugins must support streams of at least this length.
-	 */
-	int MIN_STREAM_LENGTH = STREAM_HEADER_LENGTH + FRAME_HEADER_LENGTH
-			+ MAC_LENGTH;
-
-	/**
 	 * The maximum difference in milliseconds between two peers' clocks.
 	 */
 	int MAX_CLOCK_DIFFERENCE = 24 * 60 * 60 * 1000; // 24 hours
@@ -80,6 +72,26 @@ public interface TransportConstants {
 	 * The size of the reordering window.
 	 */
 	int REORDERING_WINDOW_SIZE = 32;
+
+	/**
+	 * Label for deriving the static master key from handshake key pairs.
+	 */
+	String STATIC_MASTER_KEY_LABEL =
+			"org.briarproject.bramble.transport/STATIC_MASTER_KEY";
+
+	/**
+	 * Label for deriving the handshake mode root key for a pending contact
+	 * from the static master key.
+	 */
+	String PENDING_CONTACT_ROOT_KEY_LABEL =
+			"org.briarproject.bramble.transport/PENDING_CONTACT_ROOT_KEY";
+
+	/**
+	 * Label for deriving the handshake mode root key for a contact from the
+	 * static master key.
+	 */
+	String CONTACT_ROOT_KEY_LABEL =
+			"org.briarproject.bramble.transport/CONTACT_ROOT_KEY";
 
 	/**
 	 * Label for deriving Alice's initial tag key from the root key in

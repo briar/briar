@@ -176,7 +176,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsContact(txn, author.getId(),
 					localAuthor.getId());
 			will(returnValue(false));
-			oneOf(database).addContact(txn, author, localAuthor.getId(), true);
+			oneOf(database).addContact(txn, author, localAuthor.getId(),
+					null, true);
 			will(returnValue(contactId));
 			oneOf(eventBus).broadcast(with(any(ContactAddedEvent.class)));
 			// getContacts()
@@ -224,7 +225,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		db.transaction(false, transaction -> {
 			db.addIdentity(transaction, identity);
 			assertEquals(contactId, db.addContact(transaction, author,
-					localAuthor.getId(), true));
+					localAuthor.getId(), null, true));
 			assertEquals(singletonList(contact),
 					db.getContacts(transaction));
 			db.addGroup(transaction, group); // First time - listeners called
@@ -445,7 +446,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.addContact(transaction, author, localAuthor.getId(),
-							true));
+							null, true));
 			fail();
 		} catch (NoSuchIdentityException expected) {
 			// Expected
@@ -763,24 +764,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the pending contact is in the DB (which it's not)
-			exactly(4).of(database).startTransaction();
+			exactly(3).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(4).of(database).containsPendingContact(txn,
+			exactly(3).of(database).containsPendingContact(txn,
 					pendingContactId);
 			will(returnValue(false));
-			exactly(4).of(database).abortTransaction(txn);
+			exactly(3).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
-
-		try {
-			db.transaction(false, transaction ->
-					db.addContact(transaction, pendingContactId, author,
-							localAuthor.getId(), true));
-			fail();
-		} catch (NoSuchPendingContactException expected) {
-			// Expected
-		}
 
 		try {
 			db.transaction(false, transaction ->
@@ -1473,7 +1465,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.addContact(transaction, author, localAuthor.getId(),
-							true));
+							null, true));
 			fail();
 		} catch (ContactExistsException expected) {
 			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());
@@ -1503,70 +1495,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.addContact(transaction, author, localAuthor.getId(),
-							true));
-			fail();
-		} catch (ContactExistsException expected) {
-			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());
-			assertEquals(author, expected.getRemoteAuthor());
-		}
-	}
-
-	@Test
-	public void testCannotAddLocalIdentityAsContactFromPendingContact()
-			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsPendingContact(txn, pendingContactId);
-			will(returnValue(true));
-			oneOf(database).containsIdentity(txn, localAuthor.getId());
-			will(returnValue(true));
-			// Contact is a local identity
-			oneOf(database).containsIdentity(txn, author.getId());
-			will(returnValue(true));
-			oneOf(database).abortTransaction(txn);
-		}});
-
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				eventExecutor, shutdownManager);
-
-		try {
-			db.transaction(false, transaction ->
-					db.addContact(transaction, pendingContactId, author,
-							localAuthor.getId(), true));
-			fail();
-		} catch (ContactExistsException expected) {
-			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());
-			assertEquals(author, expected.getRemoteAuthor());
-		}
-	}
-
-	@Test
-	public void testCannotAddDuplicateContactFromPendingContact()
-			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(database).startTransaction();
-			will(returnValue(txn));
-			oneOf(database).containsPendingContact(txn, pendingContactId);
-			will(returnValue(true));
-			oneOf(database).containsIdentity(txn, localAuthor.getId());
-			will(returnValue(true));
-			oneOf(database).containsIdentity(txn, author.getId());
-			will(returnValue(false));
-			// Contact already exists for this local identity
-			oneOf(database).containsContact(txn, author.getId(),
-					localAuthor.getId());
-			will(returnValue(true));
-			oneOf(database).abortTransaction(txn);
-		}});
-
-		DatabaseComponent db = createDatabaseComponent(database, eventBus,
-				eventExecutor, shutdownManager);
-
-		try {
-			db.transaction(false, transaction ->
-					db.addContact(transaction, pendingContactId, author,
-							localAuthor.getId(), true));
+							null, true));
 			fail();
 		} catch (ContactExistsException expected) {
 			assertEquals(localAuthor.getId(), expected.getLocalAuthorId());

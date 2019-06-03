@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
+import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -21,6 +23,7 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.transport.KeyManager;
 
+import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -51,6 +54,7 @@ class ContactManagerImpl implements ContactManager {
 	private final KeyManager keyManager;
 	private final IdentityManager identityManager;
 	private final PendingContactFactory pendingContactFactory;
+
 	private final List<ContactHook> hooks;
 
 	@Inject
@@ -73,9 +77,8 @@ class ContactManagerImpl implements ContactManager {
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
 			boolean active) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified);
-		keyManager.addContactWithRotationKeys(txn, c, rootKey, timestamp,
-				alice, active);
+		ContactId c = db.addContact(txn, remote, local, null, verified);
+		keyManager.addRotationKeys(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -85,10 +88,14 @@ class ContactManagerImpl implements ContactManager {
 	public ContactId addContact(Transaction txn, PendingContactId p,
 			Author remote, AuthorId local, SecretKey rootKey, long timestamp,
 			boolean alice, boolean verified, boolean active)
-			throws DbException {
-		ContactId c = db.addContact(txn, p, remote, local, verified);
-		keyManager.addContactWithRotationKeys(txn, c, rootKey, timestamp,
-				alice, active);
+			throws DbException, GeneralSecurityException {
+		PublicKey theirPublicKey = db.getPendingContact(txn, p).getPublicKey();
+		db.removePendingContact(txn, p);
+		ContactId c =
+				db.addContact(txn, remote, local, theirPublicKey, verified);
+		KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
+		keyManager.addContact(txn, c, theirPublicKey, ourKeyPair);
+		keyManager.addRotationKeys(txn, c, rootKey, timestamp, alice, active);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -97,7 +104,7 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			boolean verified) throws DbException {
-		ContactId c = db.addContact(txn, remote, local, verified);
+		ContactId c = db.addContact(txn, remote, local, null, verified);
 		Contact contact = db.getContact(txn, c);
 		for (ContactHook hook : hooks) hook.addingContact(txn, contact);
 		return c;
@@ -120,10 +127,19 @@ class ContactManagerImpl implements ContactManager {
 
 	@Override
 	public PendingContact addPendingContact(String link, String alias)
-			throws DbException, FormatException {
+			throws DbException, FormatException, GeneralSecurityException {
 		PendingContact p =
 				pendingContactFactory.createPendingContact(link, alias);
-		db.transaction(false, txn -> db.addPendingContact(txn, p));
+		Transaction txn = db.startTransaction(false);
+		try {
+			db.addPendingContact(txn, p);
+			KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
+			keyManager.addPendingContact(txn, p.getId(), p.getPublicKey(),
+					ourKeyPair);
+			db.commitTransaction(txn);
+		} finally {
+			db.endTransaction(txn);
+		}
 		return p;
 	}
 

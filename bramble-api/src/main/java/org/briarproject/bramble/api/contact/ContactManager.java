@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.security.GeneralSecurityException;
 import java.util.Collection;
 
 import javax.annotation.Nullable;
@@ -29,10 +30,18 @@ public interface ContactManager {
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * derives and stores transport keys for each transport, and returns an ID
-	 * for the contact.
+	 * derives and stores rotation mode transport keys for each transport, and
+	 * returns an ID for the contact.
 	 *
+	 * @param rootKey The root key for a set of rotation mode transport keys
+	 * @param timestamp The timestamp for deriving rotation mode transport
+	 * keys from the root key
 	 * @param alice True if the local party is Alice
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
+	 * @param active True if the rotation mode transport keys can be used for
+	 * outgoing streams
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			SecretKey rootKey, long timestamp, boolean alice, boolean verified,
@@ -40,28 +49,52 @@ public interface ContactManager {
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * replacing the given pending contact, derives and stores transport keys
-	 * for each transport, and returns an ID for the contact.
+	 * replacing the given pending contact, derives and stores handshake mode
+	 * and rotation mode transport keys for each transport, and returns an ID
+	 * for the contact.
 	 *
+	 * @param rootKey The root key for a set of rotation mode transport keys
+	 * @param timestamp The timestamp for deriving rotation mode transport
+	 * keys from the root key
 	 * @param alice True if the local party is Alice
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
+	 * @param active True if the rotation mode transport keys can be used for
+	 * outgoing streams
+	 * @throws GeneralSecurityException If the pending contact's handshake
+	 * public key is invalid
 	 */
 	ContactId addContact(Transaction txn, PendingContactId p, Author remote,
 			AuthorId local, SecretKey rootKey, long timestamp, boolean alice,
-			boolean verified, boolean active) throws DbException;
+			boolean verified, boolean active)
+			throws DbException, GeneralSecurityException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms
 	 * and returns an ID for the contact.
+	 *
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			boolean verified) throws DbException;
 
 	/**
 	 * Stores a contact associated with the given local and remote pseudonyms,
-	 * derives and stores transport keys for each transport, and returns an ID
-	 * for the contact.
+	 * derives and stores rotation mode transport keys for each transport, and
+	 * returns an ID for the contact.
 	 *
+	 * @param rootKey The root key for a set of rotation mode transport keys
+	 * @param timestamp The timestamp for deriving rotation mode transport
+	 * keys from the root key
 	 * @param alice True if the local party is Alice
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
+	 * @param active True if the rotation mode transport keys can be used for
+	 * outgoing streams
 	 */
 	ContactId addContact(Author remote, AuthorId local, SecretKey rootKey,
 			long timestamp, boolean alice, boolean verified, boolean active)
@@ -77,15 +110,16 @@ public interface ContactManager {
 	 * Creates a {@link PendingContact} from the given handshake link and
 	 * alias, adds it to the database and returns it.
 	 *
-	 * @param link The handshake link received from the contact we want to add
-	 * @param alias The alias the user has given this contact
-	 * @return A PendingContact representing the contact to be added
+	 * @param link The handshake link received from the pending contact
+	 * @param alias The alias the user has given this pending contact
 	 * @throws UnsupportedVersionException If the link uses a format version
 	 * that is not supported
 	 * @throws FormatException If the link is invalid
+	 * @throws GeneralSecurityException If the pending contact's handshake
+	 * public key is invalid
 	 */
 	PendingContact addPendingContact(String link, String alias)
-			throws DbException, FormatException;
+			throws DbException, FormatException, GeneralSecurityException;
 
 	/**
 	 * Returns the pending contact with the given ID.
@@ -116,8 +150,8 @@ public interface ContactManager {
 	Contact getContact(Transaction txn, ContactId c) throws DbException;
 
 	/**
-	 * Returns the contact with the given remoteAuthorId
-	 * that was added by the LocalAuthor with the given localAuthorId
+	 * Returns the contact with the given {@code remoteAuthorId}
+	 * that belongs to the local pseudonym with the given {@code localAuthorId}.
 	 *
 	 * @throws NoSuchContactException If the contact is not in the database
 	 */
@@ -125,8 +159,8 @@ public interface ContactManager {
 			throws DbException;
 
 	/**
-	 * Returns the contact with the given remoteAuthorId
-	 * that was added by the LocalAuthor with the given localAuthorId
+	 * Returns the contact with the given {@code remoteAuthorId}
+	 * that belongs to the local pseudonym with the given {@code localAuthorId}.
 	 *
 	 * @throws NoSuchContactException If the contact is not in the database
 	 */
@@ -134,7 +168,7 @@ public interface ContactManager {
 			AuthorId localAuthorId) throws DbException;
 
 	/**
-	 * Returns all active contacts.
+	 * Returns all contacts.
 	 */
 	Collection<Contact> getContacts() throws DbException;
 
@@ -149,25 +183,27 @@ public interface ContactManager {
 	void removeContact(Transaction txn, ContactId c) throws DbException;
 
 	/**
-	 * Sets an alias for the contact or unsets it if alias is null.
+	 * Sets an alias for the contact or unsets it if {@code alias} is null.
 	 */
 	void setContactAlias(Transaction txn, ContactId c, @Nullable String alias)
 			throws DbException;
 
 	/**
-	 * Sets an alias for the contact or unsets it if alias is null.
+	 * Sets an alias for the contact or unsets it if {@code alias} is null.
 	 */
 	void setContactAlias(ContactId c, @Nullable String alias)
 			throws DbException;
 
 	/**
-	 * Return true if a contact with this name and public key already exists
+	 * Returns true if a contact with this {@code remoteAuthorId} belongs to
+	 * the local pseudonym with this {@code localAuthorId}.
 	 */
 	boolean contactExists(Transaction txn, AuthorId remoteAuthorId,
 			AuthorId localAuthorId) throws DbException;
 
 	/**
-	 * Return true if a contact with this name and public key already exists
+	 * Returns true if a contact with this {@code remoteAuthorId} belongs to
+	 * the local pseudonym with this {@code localAuthorId}.
 	 */
 	boolean contactExists(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException;

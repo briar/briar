@@ -3,12 +3,17 @@ package org.briarproject.bramble.transport;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
+import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
@@ -21,6 +26,7 @@ import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 
+import java.security.GeneralSecurityException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,17 +52,22 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	private final Executor dbExecutor;
 	private final PluginConfig pluginConfig;
 	private final TransportKeyManagerFactory transportKeyManagerFactory;
+	private final TransportCrypto transportCrypto;
+
 	private final ConcurrentHashMap<TransportId, TransportKeyManager> managers;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
-	KeyManagerImpl(DatabaseComponent db, @DatabaseExecutor Executor dbExecutor,
+	KeyManagerImpl(DatabaseComponent db,
+			@DatabaseExecutor Executor dbExecutor,
 			PluginConfig pluginConfig,
-			TransportKeyManagerFactory transportKeyManagerFactory) {
+			TransportKeyManagerFactory transportKeyManagerFactory,
+			TransportCrypto transportCrypto) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.pluginConfig = pluginConfig;
 		this.transportKeyManagerFactory = transportKeyManagerFactory;
+		this.transportCrypto = transportCrypto;
 		managers = new ConcurrentHashMap<>();
 	}
 
@@ -90,41 +101,51 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addContactWithRotationKeys(
+	public Map<TransportId, KeySetId> addRotationKeys(
 			Transaction txn, ContactId c, SecretKey rootKey, long timestamp,
 			boolean alice, boolean active) throws DbException {
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addContactWithRotationKeys(txn, c, rootKey, timestamp,
+			ids.put(t, m.addRotationKeys(txn, c, rootKey, timestamp,
 					alice, active));
 		}
 		return ids;
 	}
 
 	@Override
-	public Map<TransportId, KeySetId> addContactWithHandshakeKeys(
-			Transaction txn, ContactId c, SecretKey rootKey, boolean alice)
-			throws DbException {
+	public Map<TransportId, KeySetId> addContact(Transaction txn, ContactId c,
+			PublicKey theirPublicKey, KeyPair ourKeyPair)
+			throws DbException, GeneralSecurityException {
+		SecretKey staticMasterKey = transportCrypto
+				.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
+		SecretKey rootKey =
+				transportCrypto.deriveHandshakeRootKey(staticMasterKey, false);
+		boolean alice = transportCrypto.isAlice(theirPublicKey, ourKeyPair);
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addContactWithHandshakeKeys(txn, c, rootKey, alice));
+			ids.put(t, m.addHandshakeKeys(txn, c, rootKey, alice));
 		}
 		return ids;
 	}
 
 	@Override
 	public Map<TransportId, KeySetId> addPendingContact(Transaction txn,
-			PendingContactId p, SecretKey rootKey, boolean alice)
-			throws DbException {
+			PendingContactId p, PublicKey theirPublicKey, KeyPair ourKeyPair)
+			throws DbException, GeneralSecurityException {
+		SecretKey staticMasterKey = transportCrypto
+					.deriveStaticMasterKey(theirPublicKey, ourKeyPair);
+		SecretKey rootKey =
+				transportCrypto.deriveHandshakeRootKey(staticMasterKey, true);
+		boolean alice = transportCrypto.isAlice(theirPublicKey, ourKeyPair);
 		Map<TransportId, KeySetId> ids = new HashMap<>();
 		for (Entry<TransportId, TransportKeyManager> e : managers.entrySet()) {
 			TransportId t = e.getKey();
 			TransportKeyManager m = e.getValue();
-			ids.put(t, m.addPendingContact(txn, p, rootKey, alice));
+			ids.put(t, m.addHandshakeKeys(txn, p, rootKey, alice));
 		}
 		return ids;
 	}
@@ -180,12 +201,24 @@ class KeyManagerImpl implements KeyManager, Service, EventListener {
 	public void eventOccurred(Event e) {
 		if (e instanceof ContactRemovedEvent) {
 			removeContact(((ContactRemovedEvent) e).getContactId());
+		} else if (e instanceof PendingContactRemovedEvent) {
+			PendingContactRemovedEvent p = (PendingContactRemovedEvent) e;
+			removePendingContact(p.getId());
 		}
 	}
 
+	@EventExecutor
 	private void removeContact(ContactId c) {
 		dbExecutor.execute(() -> {
 			for (TransportKeyManager m : managers.values()) m.removeContact(c);
+		});
+	}
+
+	@EventExecutor
+	private void removePendingContact(PendingContactId p) {
+		dbExecutor.execute(() -> {
+			for (TransportKeyManager m : managers.values())
+				m.removePendingContact(p);
 		});
 	}
 

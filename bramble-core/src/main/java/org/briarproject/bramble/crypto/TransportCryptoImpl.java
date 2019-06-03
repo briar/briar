@@ -1,6 +1,8 @@
 package org.briarproject.bramble.crypto;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -10,9 +12,12 @@ import org.briarproject.bramble.api.transport.TransportKeys;
 import org.spongycastle.crypto.Digest;
 import org.spongycastle.crypto.digests.Blake2bDigest;
 
+import java.security.GeneralSecurityException;
+
 import javax.inject.Inject;
 
 import static java.lang.System.arraycopy;
+import static org.briarproject.bramble.api.Bytes.compare;
 import static org.briarproject.bramble.api.transport.TransportConstants.ALICE_HANDSHAKE_HEADER_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.ALICE_HANDSHAKE_TAG_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.ALICE_HEADER_LABEL;
@@ -21,7 +26,10 @@ import static org.briarproject.bramble.api.transport.TransportConstants.BOB_HAND
 import static org.briarproject.bramble.api.transport.TransportConstants.BOB_HANDSHAKE_TAG_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.BOB_HEADER_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.BOB_TAG_LABEL;
+import static org.briarproject.bramble.api.transport.TransportConstants.CONTACT_ROOT_KEY_LABEL;
+import static org.briarproject.bramble.api.transport.TransportConstants.PENDING_CONTACT_ROOT_KEY_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.ROTATE_LABEL;
+import static org.briarproject.bramble.api.transport.TransportConstants.STATIC_MASTER_KEY_LABEL;
 import static org.briarproject.bramble.api.transport.TransportConstants.TAG_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.INT_16_BYTES;
 import static org.briarproject.bramble.util.ByteUtils.INT_64_BYTES;
@@ -38,6 +46,36 @@ class TransportCryptoImpl implements TransportCrypto {
 	@Inject
 	TransportCryptoImpl(CryptoComponent crypto) {
 		this.crypto = crypto;
+	}
+
+	@Override
+	public boolean isAlice(PublicKey theirHandshakePublicKey,
+			KeyPair ourHandshakeKeyPair) {
+		byte[] theirPublic = theirHandshakePublicKey.getEncoded();
+		byte[] ourPublic = ourHandshakeKeyPair.getPublic().getEncoded();
+		return compare(ourPublic, theirPublic) < 0;
+	}
+
+	@Override
+	public SecretKey deriveStaticMasterKey(PublicKey theirHandshakePublicKey,
+			KeyPair ourHandshakeKeyPair) throws GeneralSecurityException {
+		byte[] theirPublic = theirHandshakePublicKey.getEncoded();
+		byte[] ourPublic = ourHandshakeKeyPair.getPublic().getEncoded();
+		boolean alice = compare(ourPublic, theirPublic) < 0;
+		byte[][] inputs = {
+				alice ? ourPublic : theirPublic,
+				alice ? theirPublic : ourPublic
+		};
+		return crypto.deriveSharedSecret(STATIC_MASTER_KEY_LABEL,
+				theirHandshakePublicKey, ourHandshakeKeyPair, inputs);
+	}
+
+	@Override
+	public SecretKey deriveHandshakeRootKey(SecretKey staticMasterKey,
+			boolean pendingContact) {
+		String label = pendingContact ?
+				PENDING_CONTACT_ROOT_KEY_LABEL : CONTACT_ROOT_KEY_LABEL;
+		return crypto.deriveKey(label, staticMasterKey);
 	}
 
 	@Override
