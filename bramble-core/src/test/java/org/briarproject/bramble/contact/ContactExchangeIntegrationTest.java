@@ -3,9 +3,9 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.contact.HandshakeManager.HandshakeResult;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactState;
+import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.Identity;
@@ -14,19 +14,14 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestDuplexTransportConnection;
-import org.briarproject.bramble.test.TestStreamWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
-import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static junit.framework.TestCase.assertNotNull;
@@ -34,12 +29,12 @@ import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.fail;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.test.TestDuplexTransportConnection.createPair;
+import static org.briarproject.bramble.test.TestPluginConfigModule.DUPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ContactExchangeIntegrationTest extends BrambleTestCase {
@@ -116,8 +111,8 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 				fail();
 			}
 		});
-		aliceFinished.await(TIMEOUT, MILLISECONDS);
-		bobFinished.await(TIMEOUT, MILLISECONDS);
+		assertTrue(aliceFinished.await(TIMEOUT, MILLISECONDS));
+		assertTrue(bobFinished.await(TIMEOUT, MILLISECONDS));
 		assertContacts(verified, false);
 		assertNoPendingContacts();
 	}
@@ -155,8 +150,8 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 				fail();
 			}
 		});
-		aliceFinished.await(TIMEOUT, MILLISECONDS);
-		bobFinished.await(TIMEOUT, MILLISECONDS);
+		assertTrue(aliceFinished.await(TIMEOUT, MILLISECONDS));
+		assertTrue(bobFinished.await(TIMEOUT, MILLISECONDS));
 		assertContacts(verified, true);
 		assertNoPendingContacts();
 	}
@@ -168,54 +163,29 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		PendingContact aliceFromBob = addPendingContact(bob, alice);
 		assertPendingContacts();
 
-		PipedInputStream aliceHandshakeIn = new PipedInputStream();
-		PipedInputStream bobHandshakeIn = new PipedInputStream();
-		OutputStream aliceHandshakeOut = new PipedOutputStream(bobHandshakeIn);
-		OutputStream bobHandshakeOut = new PipedOutputStream(aliceHandshakeIn);
-		AtomicReference<HandshakeResult> aliceResult = new AtomicReference<>();
-		AtomicReference<HandshakeResult> bobResult = new AtomicReference<>();
-
 		TestDuplexTransportConnection[] pair = createPair();
 		TestDuplexTransportConnection aliceConnection = pair[0];
 		TestDuplexTransportConnection bobConnection = pair[1];
 		CountDownLatch aliceFinished = new CountDownLatch(1);
 		CountDownLatch bobFinished = new CountDownLatch(1);
-		boolean verified = random.nextBoolean();
 
-		alice.getIoExecutor().execute(() -> {
-			try {
-				HandshakeResult result = alice.getHandshakeManager().handshake(
-						bobFromAlice.getId(), aliceHandshakeIn,
-						new TestStreamWriter(aliceHandshakeOut));
-				aliceResult.set(result);
-				alice.getContactExchangeManager().exchangeContacts(
-						bobFromAlice.getId(), aliceConnection,
-						result.getMasterKey(), result.isAlice(), verified);
-				aliceFinished.countDown();
-			} catch (Exception e) {
-				fail();
-			}
+		alice.getEventBus().addListener(e -> {
+			if (e instanceof ContactAddedEvent) aliceFinished.countDown();
 		});
-		bob.getIoExecutor().execute(() -> {
-			try {
-				HandshakeResult result = bob.getHandshakeManager().handshake(
-						aliceFromBob.getId(), bobHandshakeIn,
-						new TestStreamWriter(bobHandshakeOut));
-				bobResult.set(result);
-				bob.getContactExchangeManager().exchangeContacts(
-						aliceFromBob.getId(), bobConnection,
-						result.getMasterKey(), result.isAlice(), verified);
-				bobFinished.countDown();
-			} catch (Exception e) {
-				fail();
-			}
+		alice.getIoExecutor().execute(() ->
+				alice.getConnectionManager().manageOutgoingConnection(
+						bobFromAlice.getId(), DUPLEX_TRANSPORT_ID,
+						aliceConnection));
+		bob.getEventBus().addListener(e -> {
+			if (e instanceof ContactAddedEvent) bobFinished.countDown();
 		});
-		aliceFinished.await(TIMEOUT, MILLISECONDS);
-		bobFinished.await(TIMEOUT, MILLISECONDS);
-		assertArrayEquals(aliceResult.get().getMasterKey().getBytes(),
-				bobResult.get().getMasterKey().getBytes());
-		assertNotEquals(aliceResult.get().isAlice(), bobResult.get().isAlice());
-		assertContacts(verified, true);
+		bob.getIoExecutor().execute(() ->
+				bob.getConnectionManager().manageIncomingConnection(
+						aliceFromBob.getId(), DUPLEX_TRANSPORT_ID,
+						bobConnection));
+		assertTrue(aliceFinished.await(TIMEOUT, MILLISECONDS));
+		assertTrue(bobFinished.await(TIMEOUT, MILLISECONDS));
+		assertContacts(false, true);
 		assertNoPendingContacts();
 	}
 
