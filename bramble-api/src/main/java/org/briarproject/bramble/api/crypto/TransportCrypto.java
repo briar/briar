@@ -24,7 +24,9 @@ public interface TransportCrypto {
 			KeyPair ourHandshakeKeyPair) throws GeneralSecurityException;
 
 	/**
-	 * Derives the handshake mode root key from the static master key.
+	 * Derives the handshake mode root key from the static master key. To
+	 * prevent tag reuse, separate root keys are derived for contacts and
+	 * pending contacts.
 	 *
 	 * @param pendingContact Whether the static master key is shared with a
 	 * pending contact or a contact
