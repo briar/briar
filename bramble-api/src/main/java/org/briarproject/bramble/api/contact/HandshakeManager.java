@@ -21,8 +21,8 @@ public interface HandshakeManager {
 	 * @param out An outgoing stream for the handshake, which must be secured
 	 * in handshake mode
 	 */
-	HandshakeResult handshake(PendingContactId p,
-			InputStream in, StreamWriter out) throws DbException, IOException;
+	HandshakeResult handshake(PendingContactId p, InputStream in,
+			StreamWriter out) throws DbException, IOException;
 
 	class HandshakeResult {
 
