@@ -3,6 +3,7 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.HandshakeManager.HandshakeResult;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -25,6 +26,7 @@ import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static junit.framework.TestCase.assertNotNull;
@@ -37,6 +39,7 @@ import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 public class ContactExchangeIntegrationTest extends BrambleTestCase {
@@ -169,19 +172,25 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		PipedInputStream bobHandshakeIn = new PipedInputStream();
 		OutputStream aliceHandshakeOut = new PipedOutputStream(bobHandshakeIn);
 		OutputStream bobHandshakeOut = new PipedOutputStream(aliceHandshakeIn);
+		AtomicReference<HandshakeResult> aliceResult = new AtomicReference<>();
+		AtomicReference<HandshakeResult> bobResult = new AtomicReference<>();
 
 		TestDuplexTransportConnection[] pair = createPair();
 		TestDuplexTransportConnection aliceConnection = pair[0];
 		TestDuplexTransportConnection bobConnection = pair[1];
 		CountDownLatch aliceFinished = new CountDownLatch(1);
 		CountDownLatch bobFinished = new CountDownLatch(1);
+		boolean verified = random.nextBoolean();
 
 		alice.getIoExecutor().execute(() -> {
 			try {
-				alice.getHandshakeManager().handshakeAndAddContact(
+				HandshakeResult result = alice.getHandshakeManager().handshake(
 						bobFromAlice.getId(), aliceHandshakeIn,
-						new TestStreamWriter(aliceHandshakeOut),
-						aliceConnection);
+						new TestStreamWriter(aliceHandshakeOut));
+				aliceResult.set(result);
+				alice.getContactExchangeManager().exchangeContacts(
+						bobFromAlice.getId(), aliceConnection,
+						result.getMasterKey(), result.isAlice(), verified);
 				aliceFinished.countDown();
 			} catch (Exception e) {
 				fail();
@@ -189,10 +198,13 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		});
 		bob.getIoExecutor().execute(() -> {
 			try {
-				bob.getHandshakeManager().handshakeAndAddContact(
+				HandshakeResult result = bob.getHandshakeManager().handshake(
 						aliceFromBob.getId(), bobHandshakeIn,
-						new TestStreamWriter(bobHandshakeOut),
-						bobConnection);
+						new TestStreamWriter(bobHandshakeOut));
+				bobResult.set(result);
+				bob.getContactExchangeManager().exchangeContacts(
+						aliceFromBob.getId(), bobConnection,
+						result.getMasterKey(), result.isAlice(), verified);
 				bobFinished.countDown();
 			} catch (Exception e) {
 				fail();
@@ -200,7 +212,10 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		});
 		aliceFinished.await(TIMEOUT, MILLISECONDS);
 		bobFinished.await(TIMEOUT, MILLISECONDS);
-		assertContacts(false, true);
+		assertArrayEquals(aliceResult.get().getMasterKey().getBytes(),
+				bobResult.get().getMasterKey().getBytes());
+		assertNotEquals(aliceResult.get().isAlice(), bobResult.get().isAlice());
+		assertContacts(verified, true);
 		assertNoPendingContacts();
 	}
 

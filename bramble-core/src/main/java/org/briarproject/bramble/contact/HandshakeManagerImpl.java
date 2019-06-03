@@ -3,8 +3,6 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.Predicate;
-import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.HandshakeManager;
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -18,7 +16,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.record.Record;
 import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.api.record.RecordReaderFactory;
@@ -58,7 +55,6 @@ class HandshakeManagerImpl implements HandshakeManager {
 	private final HandshakeCrypto handshakeCrypto;
 	private final RecordReaderFactory recordReaderFactory;
 	private final RecordWriterFactory recordWriterFactory;
-	private final ContactExchangeManager contactExchangeManager;
 
 	@Inject
 	HandshakeManagerImpl(DatabaseComponent db,
@@ -66,21 +62,18 @@ class HandshakeManagerImpl implements HandshakeManager {
 			ContactManager contactManager,
 			HandshakeCrypto handshakeCrypto,
 			RecordReaderFactory recordReaderFactory,
-			RecordWriterFactory recordWriterFactory,
-			ContactExchangeManager contactExchangeManager) {
+			RecordWriterFactory recordWriterFactory) {
 		this.db = db;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
 		this.handshakeCrypto = handshakeCrypto;
 		this.recordReaderFactory = recordReaderFactory;
 		this.recordWriterFactory = recordWriterFactory;
-		this.contactExchangeManager = contactExchangeManager;
 	}
 
 	@Override
-	public Contact handshakeAndAddContact(PendingContactId p,
-			InputStream in, StreamWriter out, DuplexTransportConnection conn)
-			throws DbException, IOException {
+	public HandshakeResult handshake(PendingContactId p, InputStream in,
+			StreamWriter out) throws DbException, IOException {
 		Pair<PublicKey, KeyPair> keys = db.transactionWithResult(true, txn -> {
 			PendingContact pendingContact =
 					contactManager.getPendingContact(txn, p);
@@ -125,8 +118,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 		recordReader.readRecord(r -> false, IGNORE);
 		if (!handshakeCrypto.verifyOwnership(masterKey, !alice, theirProof))
 			throw new FormatException();
-		return contactExchangeManager.exchangeContacts(p, conn, masterKey,
-				alice, false);
+		return new HandshakeResult(masterKey, alice);
 	}
 
 	private void sendPublicKey(RecordWriter w, PublicKey k) throws IOException {

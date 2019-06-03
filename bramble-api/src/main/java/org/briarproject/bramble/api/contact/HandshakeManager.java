@@ -1,8 +1,8 @@
 package org.briarproject.bramble.api.contact;
 
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.IOException;
@@ -12,16 +12,34 @@ import java.io.InputStream;
 public interface HandshakeManager {
 
 	/**
-	 * Handshakes and exchanges pseudonyms with the given pending contact,
-	 * converts the pending contact to a contact and returns the contact.
+	 * Handshakes with the given pending contact. Returns an ephemeral master
+	 * key authenticated with both parties' handshake key pairs and a flag
+	 * indicating whether the local peer is Alice or Bob.
 	 *
 	 * @param in An incoming stream for the handshake, which must be secured in
 	 * handshake mode
 	 * @param out An outgoing stream for the handshake, which must be secured
 	 * in handshake mode
-	 * @param conn The connection to use for the handshake and contact exchange
 	 */
-	Contact handshakeAndAddContact(PendingContactId p,
-			InputStream in, StreamWriter out, DuplexTransportConnection conn)
-			throws DbException, IOException;
+	HandshakeResult handshake(PendingContactId p,
+			InputStream in, StreamWriter out) throws DbException, IOException;
+
+	class HandshakeResult {
+
+		private final SecretKey masterKey;
+		private final boolean alice;
+
+		public HandshakeResult(SecretKey masterKey, boolean alice) {
+			this.masterKey = masterKey;
+			this.alice = alice;
+		}
+
+		public SecretKey getMasterKey() {
+			return masterKey;
+		}
+
+		public boolean isAlice() {
+			return alice;
+		}
+	}
 }
