@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
@@ -71,6 +72,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private final ScheduledExecutorService scheduler;
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
+	private final TransportCrypto transportCrypto;
 	private final RendezvousCrypto rendezvousCrypto;
 	private final PluginManager pluginManager;
 	private final ConnectionManager connectionManager;
@@ -91,6 +93,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			@Scheduler ScheduledExecutorService scheduler,
 			DatabaseComponent db,
 			IdentityManager identityManager,
+			TransportCrypto transportCrypto,
 			RendezvousCrypto rendezvousCrypto,
 			PluginManager pluginManager,
 			ConnectionManager connectionManager,
@@ -99,6 +102,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		this.scheduler = scheduler;
 		this.db = db;
 		this.identityManager = identityManager;
+		this.transportCrypto = transportCrypto;
 		this.rendezvousCrypto = rendezvousCrypto;
 		this.pluginManager = pluginManager;
 		this.connectionManager = connectionManager;
@@ -145,8 +149,10 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 				handshakeKeyPair = db.transactionWithResult(true,
 						identityManager::getHandshakeKeys);
 			}
+			SecretKey staticMasterKey = transportCrypto
+					.deriveStaticMasterKey(p.getPublicKey(), handshakeKeyPair);
 			SecretKey rendezvousKey = rendezvousCrypto
-					.deriveRendezvousKey(p.getPublicKey(), handshakeKeyPair);
+					.deriveRendezvousKey(staticMasterKey);
 			requireNull(rendezvousKeys.put(p.getId(), rendezvousKey));
 			for (PluginState ps : pluginStates.values()) {
 				RendezvousEndpoint endpoint =

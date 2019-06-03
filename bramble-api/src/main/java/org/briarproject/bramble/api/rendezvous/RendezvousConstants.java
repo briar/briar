@@ -21,7 +21,7 @@ public interface RendezvousConstants {
 	long POLLING_INTERVAL_MS = MINUTES.toMillis(1);
 
 	/**
-	 * Label for deriving the rendezvous key from the handshake key pairs.
+	 * Label for deriving the rendezvous key from the static master key.
 	 */
 	String RENDEZVOUS_KEY_LABEL =
 			"org.briarproject.bramble.rendezvous/RENDEZVOUS_KEY";
