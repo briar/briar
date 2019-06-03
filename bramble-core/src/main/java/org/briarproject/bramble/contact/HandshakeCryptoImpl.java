@@ -1,6 +1,5 @@
 package org.briarproject.bramble.contact;
 
-import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -12,6 +11,7 @@ import java.security.GeneralSecurityException;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.Bytes.compare;
 import static org.briarproject.bramble.contact.HandshakeConstants.ALICE_PROOF_LABEL;
 import static org.briarproject.bramble.contact.HandshakeConstants.BOB_PROOF_LABEL;
 import static org.briarproject.bramble.contact.HandshakeConstants.MASTER_KEY_LABEL;
@@ -32,7 +32,7 @@ class HandshakeCryptoImpl implements HandshakeCrypto {
 			KeyPair ourStaticKeyPair) {
 		byte[] ours = ourStaticKeyPair.getPublic().getEncoded();
 		byte[] theirs = theirStaticPublicKey.getEncoded();
-		return new Bytes(ours).compareTo(new Bytes(theirs)) < 0;
+		return compare(ours, theirs) < 0;
 	}
 
 	@Override
