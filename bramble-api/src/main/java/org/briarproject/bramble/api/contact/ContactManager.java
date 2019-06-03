@@ -37,7 +37,9 @@ public interface ContactManager {
 	 * @param timestamp The timestamp for deriving rotation mode transport
 	 * keys from the root key
 	 * @param alice True if the local party is Alice
-	 * @param verified True if the contact's identity has been verified
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
 	 * @param active True if the rotation mode transport keys can be used for
 	 * outgoing streams
 	 */
@@ -55,7 +57,9 @@ public interface ContactManager {
 	 * @param timestamp The timestamp for deriving rotation mode transport
 	 * keys from the root key
 	 * @param alice True if the local party is Alice
-	 * @param verified True if the contact's identity has been verified
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
 	 * @param active True if the rotation mode transport keys can be used for
 	 * outgoing streams
 	 * @throws GeneralSecurityException If the pending contact's handshake
@@ -70,7 +74,9 @@ public interface ContactManager {
 	 * Stores a contact associated with the given local and remote pseudonyms
 	 * and returns an ID for the contact.
 	 *
-	 * @param verified True if the contact's identity has been verified
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
 	 */
 	ContactId addContact(Transaction txn, Author remote, AuthorId local,
 			boolean verified) throws DbException;
@@ -84,7 +90,9 @@ public interface ContactManager {
 	 * @param timestamp The timestamp for deriving rotation mode transport
 	 * keys from the root key
 	 * @param alice True if the local party is Alice
-	 * @param verified True if the contact's identity has been verified
+	 * @param verified True if the contact's identity has been verified, which
+	 * is true if the contact was added in person or false if the contact was
+	 * introduced or added remotely
 	 * @param active True if the rotation mode transport keys can be used for
 	 * outgoing streams
 	 */
