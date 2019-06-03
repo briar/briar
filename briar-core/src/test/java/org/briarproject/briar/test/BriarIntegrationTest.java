@@ -28,16 +28,7 @@ import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamWriter;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.properties.PropertiesModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -46,13 +37,6 @@ import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationFactory;
-import org.briarproject.briar.blog.BlogModule;
-import org.briarproject.briar.forum.ForumModule;
-import org.briarproject.briar.introduction.IntroductionModule;
-import org.briarproject.briar.messaging.MessagingModule;
-import org.briarproject.briar.privategroup.PrivateGroupModule;
-import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
-import org.briarproject.briar.sharing.SharingModule;
 import org.junit.After;
 import org.junit.Before;
 
@@ -182,26 +166,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	abstract protected void createComponents();
-
-	protected void injectEagerSingletons(
-			BriarIntegrationTestComponent component) {
-		component.inject(new BlogModule.EagerSingletons());
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new CryptoExecutorModule.EagerSingletons());
-		component.inject(new ForumModule.EagerSingletons());
-		component.inject(new GroupInvitationModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
-		component.inject(new IntroductionModule.EagerSingletons());
-		component.inject(new LifecycleModule.EagerSingletons());
-		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new PrivateGroupModule.EagerSingletons());
-		component.inject(new PropertiesModule.EagerSingletons());
-		component.inject(new SharingModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
-	}
 
 	private void startLifecycles() throws InterruptedException {
 		// Start the lifecycle manager and wait for it to finish starting

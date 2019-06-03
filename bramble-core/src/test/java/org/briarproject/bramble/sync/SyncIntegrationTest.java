@@ -72,6 +72,7 @@ public class SyncIntegrationTest extends BrambleTestCase {
 
 		SyncIntegrationTestComponent component =
 				DaggerSyncIntegrationTestComponent.builder().build();
+		component.injectBrambleCoreEagerSingletons();
 		component.inject(this);
 
 		contactId = getContactId();

@@ -2,7 +2,7 @@ package org.briarproject.briar.privategroup.invitation;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.sync.Group;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.privategroup.GroupMessage;
@@ -58,19 +58,23 @@ public class GroupInvitationIntegrationTest
 	protected void createComponents() {
 		BriarIntegrationTestComponent component =
 				DaggerBriarIntegrationTestComponent.builder().build();
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 
 		c0 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
-		injectEagerSingletons(c0);
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
+				.build();
+		c0.injectBriarEagerSingletons();
 
 		c1 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
-		injectEagerSingletons(c1);
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
+				.build();
+		c1.injectBriarEagerSingletons();
 
 		c2 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
-		injectEagerSingletons(c2);
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
+				.build();
+		c2.injectBriarEagerSingletons();
 	}
 
 	@Test

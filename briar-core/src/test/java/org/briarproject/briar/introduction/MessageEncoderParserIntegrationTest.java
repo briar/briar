@@ -74,6 +74,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	public MessageEncoderParserIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 
 		messageEncoder = new MessageEncoderImpl(clientHelper, messageFactory);
@@ -245,5 +246,4 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(previousMsgId, am.getPreviousMessageId());
 		assertEquals(sessionId, am.getSessionId());
 	}
-
 }

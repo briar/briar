@@ -3,22 +3,13 @@ package org.briarproject.briar.feed;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestUtils;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.feed.Feed;
 import org.briarproject.briar.api.feed.FeedManager;
-import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.test.BriarTestCase;
 import org.junit.After;
 import org.junit.Before;
@@ -45,10 +36,10 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		assertTrue(testDir.mkdirs());
 		FeedManagerIntegrationTestComponent component =
 				DaggerFeedManagerIntegrationTestComponent.builder()
-						.testDatabaseModule(new TestDatabaseModule(testFile))
-						.build();
+						.testDatabaseConfigModule(
+								new TestDatabaseConfigModule(testFile)).build();
+		component.injectFeedManagerEagerSingletons();
 		component.inject(this);
-		injectEagerSingletons(component);
 
 		IdentityManager identityManager = component.getIdentityManager();
 		Identity identity = identityManager.createIdentity("feedTest");
@@ -118,19 +109,4 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		lifecycleManager.waitForShutdown();
 		TestUtils.deleteTestDirectory(testDir);
 	}
-
-	protected void injectEagerSingletons(
-			FeedManagerIntegrationTestComponent component) {
-		component.inject(new BlogModule.EagerSingletons());
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new CryptoExecutorModule.EagerSingletons());
-		component.inject(new FeedModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
-		component.inject(new LifecycleModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
-	}
-
 }

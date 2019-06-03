@@ -1,11 +1,8 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.crypto.CryptoModule;
-import org.briarproject.bramble.record.RecordModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestSecureRandomModule;
-import org.briarproject.bramble.transport.TransportModule;
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 
 import javax.inject.Singleton;
 
@@ -13,15 +10,10 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		TestSecureRandomModule.class,
-		CryptoModule.class,
-		RecordModule.class,
-		SyncModule.class,
-		SystemModule.class,
-		ValidationModule.class,
-		TransportModule.class
+		BrambleCoreIntegrationTestModule.class,
+		BrambleCoreModule.class
 })
-interface SyncIntegrationTestComponent {
+interface SyncIntegrationTestComponent extends BrambleCoreEagerSingletons {
 
 	void inject(SyncIntegrationTest testCase);
 }

@@ -6,18 +6,10 @@ import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.crypto.CryptoExecutorModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
-import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.test.BriarTestCase;
 import org.junit.Test;
 
@@ -47,8 +39,8 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	public MessageSizeIntegrationTest() {
 		MessageSizeIntegrationTestComponent component =
 				DaggerMessageSizeIntegrationTestComponent.builder().build();
+		component.injectMessageSizeEagerSingletons();
 		component.inject(this);
-		injectEagerSingletons(component);
 	}
 
 	@Test
@@ -84,18 +76,5 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 				+ MAX_AUTHOR_NAME_LENGTH + MAX_PUBLIC_KEY_LENGTH
 				+ MAX_FORUM_POST_TEXT_LENGTH);
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
-	}
-
-	private static void injectEagerSingletons(
-			MessageSizeIntegrationTestComponent component) {
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new CryptoExecutorModule.EagerSingletons());
-		component.inject(new ForumModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
-		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
 	}
 }

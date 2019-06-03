@@ -1,13 +1,10 @@
 package org.briarproject.bramble.test;
 
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.BrambleJavaModule;
-import org.briarproject.bramble.battery.DefaultBatteryManagerModule;
-import org.briarproject.bramble.event.DefaultEventExecutorModule;
-import org.briarproject.bramble.event.EventModule;
-import org.briarproject.bramble.plugin.PluginModule;
 import org.briarproject.bramble.plugin.tor.BridgeTest;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
-import org.briarproject.bramble.system.SystemModule;
 
 import javax.inject.Singleton;
 
@@ -15,15 +12,12 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		BrambleJavaModule.class,
-		TestLifecycleModule.class,
-		DefaultBatteryManagerModule.class,
-		DefaultEventExecutorModule.class,
-		EventModule.class,
-		PluginModule.class,  // needed for BackoffFactory
-		SystemModule.class,
+		BrambleCoreIntegrationTestModule.class,
+		BrambleCoreModule.class,
+		BrambleJavaModule.class
 })
-public interface BrambleJavaIntegrationTestComponent {
+public interface BrambleJavaIntegrationTestComponent
+		extends BrambleCoreEagerSingletons {
 
 	void inject(BridgeTest init);
 

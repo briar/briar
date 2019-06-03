@@ -21,6 +21,7 @@ import javax.inject.Singleton
 )
 @Singleton
 internal interface BriarHeadlessApp : BrambleCoreEagerSingletons, BriarCoreEagerSingletons {
+
     fun getRouter(): Router
 
     fun getSecureRandom(): SecureRandom

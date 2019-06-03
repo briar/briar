@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -22,7 +23,6 @@ import org.junit.runners.Parameterized.Parameters;
 import java.io.File;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -30,6 +30,7 @@ import javax.net.SocketFactory;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
@@ -44,14 +45,17 @@ public class BridgeTest extends BrambleTestCase {
 	public static Iterable<String> data() {
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
+		component.injectBrambleCoreEagerSingletons();
 		return component.getCircumventionProvider().getBridges(false);
 	}
 
 	private final static long TIMEOUT = SECONDS.toMillis(30);
 
-	private final static Logger LOG =
-			Logger.getLogger(BridgeTest.class.getName());
+	private final static Logger LOG = getLogger(BridgeTest.class.getName());
 
+	@Inject
+	@IoExecutor
+	Executor ioExecutor;
 	@Inject
 	NetworkManager networkManager;
 	@Inject
@@ -86,9 +90,9 @@ public class BridgeTest extends BrambleTestCase {
 
 		BrambleJavaIntegrationTestComponent component =
 				DaggerBrambleJavaIntegrationTestComponent.builder().build();
+		component.injectBrambleCoreEagerSingletons();
 		component.inject(this);
 
-		Executor ioExecutor = Executors.newCachedThreadPool();
 		LocationUtils locationUtils = () -> "US";
 		SocketFactory torSocketFactory = SocketFactory.getDefault();
 
@@ -146,5 +150,4 @@ public class BridgeTest extends BrambleTestCase {
 			plugin.stop();
 		}
 	}
-
 }

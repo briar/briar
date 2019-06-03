@@ -83,6 +83,7 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 	public SessionEncoderParserIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 
 		sessionEncoder = new SessionEncoderImpl(clientHelper);
@@ -338,5 +339,4 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(i1.lastLocalMessageId, i2.lastLocalMessageId);
 		assertEquals(i1.lastRemoteMessageId, i2.lastRemoteMessageId);
 	}
-
 }

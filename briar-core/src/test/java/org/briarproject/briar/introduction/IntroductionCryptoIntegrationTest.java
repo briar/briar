@@ -54,6 +54,7 @@ public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 	public IntroductionCryptoIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 		crypto = new IntroductionCryptoImpl(cryptoComponent, clientHelper);
 
@@ -148,5 +149,4 @@ public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 		byte[] bobMac = crypto.activateMac(bobMacKey);
 		crypto.verifyActivateMac(bobMac, bobMacKey);
 	}
-
 }

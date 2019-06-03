@@ -4,7 +4,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.test.TestDatabaseModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.GroupMessage;
@@ -59,19 +59,23 @@ public class PrivateGroupManagerIntegrationTest
 	protected void createComponents() {
 		BriarIntegrationTestComponent component =
 				DaggerBriarIntegrationTestComponent.builder().build();
+		component.injectBriarEagerSingletons();
 		component.inject(this);
 
 		c0 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t0Dir)).build();
-		injectEagerSingletons(c0);
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
+				.build();
+		c0.injectBriarEagerSingletons();
 
 		c1 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t1Dir)).build();
-		injectEagerSingletons(c1);
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
+				.build();
+		c1.injectBriarEagerSingletons();
 
 		c2 = DaggerBriarIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(t2Dir)).build();
-		injectEagerSingletons(c2);
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
+				.build();
+		c2.injectBriarEagerSingletons();
 	}
 
 	@Test

@@ -19,14 +19,7 @@ import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
-import org.briarproject.bramble.contact.ContactModule;
-import org.briarproject.bramble.identity.IdentityModule;
-import org.briarproject.bramble.lifecycle.LifecycleModule;
-import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
-import org.briarproject.bramble.test.TestDatabaseModule;
-import org.briarproject.bramble.transport.TransportModule;
-import org.briarproject.bramble.versioning.VersioningModule;
+import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
@@ -71,11 +64,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	public void setUp() {
 		assertTrue(testDir.mkdirs());
 		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(aliceDir)).build();
-		injectEagerSingletons(alice);
+				.testDatabaseConfigModule(
+						new TestDatabaseConfigModule(aliceDir)).build();
+		alice.injectSimplexMessagingEagerSingletons();
 		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
-				.testDatabaseModule(new TestDatabaseModule(bobDir)).build();
-		injectEagerSingletons(bob);
+				.testDatabaseConfigModule(new TestDatabaseConfigModule(bobDir))
+				.build();
+		bob.injectSimplexMessagingEagerSingletons();
 	}
 
 	@Test
@@ -202,18 +197,6 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		tearDown(alice);
 		tearDown(bob);
 		deleteTestDirectory(testDir);
-	}
-
-	private static void injectEagerSingletons(
-			SimplexMessagingIntegrationTestComponent component) {
-		component.inject(new ContactModule.EagerSingletons());
-		component.inject(new IdentityModule.EagerSingletons());
-		component.inject(new LifecycleModule.EagerSingletons());
-		component.inject(new MessagingModule.EagerSingletons());
-		component.inject(new SystemModule.EagerSingletons());
-		component.inject(new TransportModule.EagerSingletons());
-		component.inject(new ValidationModule.EagerSingletons());
-		component.inject(new VersioningModule.EagerSingletons());
 	}
 
 	@NotNullByDefault

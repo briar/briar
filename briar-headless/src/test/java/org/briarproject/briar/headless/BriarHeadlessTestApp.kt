@@ -24,6 +24,7 @@ import javax.inject.Singleton
 )
 @Singleton
 internal interface BriarHeadlessTestApp : BrambleCoreEagerSingletons, BriarCoreEagerSingletons {
+
     fun getRouter(): Router
 
     fun getCryptoComponent(): CryptoComponent

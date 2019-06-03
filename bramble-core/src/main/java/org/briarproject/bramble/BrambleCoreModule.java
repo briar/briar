@@ -16,9 +16,7 @@ import org.briarproject.bramble.properties.PropertiesModule;
 import org.briarproject.bramble.record.RecordModule;
 import org.briarproject.bramble.reliability.ReliabilityModule;
 import org.briarproject.bramble.rendezvous.RendezvousModule;
-import org.briarproject.bramble.reporting.ReportingModule;
 import org.briarproject.bramble.settings.SettingsModule;
-import org.briarproject.bramble.socks.SocksModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
@@ -44,9 +42,7 @@ import dagger.Module;
 		RecordModule.class,
 		ReliabilityModule.class,
 		RendezvousModule.class,
-		ReportingModule.class,
 		SettingsModule.class,
-		SocksModule.class,
 		SyncModule.class,
 		SystemModule.class,
 		TransportModule.class,
@@ -56,17 +52,6 @@ import dagger.Module;
 public class BrambleCoreModule {
 
 	public static void initEagerSingletons(BrambleCoreEagerSingletons c) {
-		c.inject(new ContactModule.EagerSingletons());
-		c.inject(new CryptoExecutorModule.EagerSingletons());
-		c.inject(new DatabaseExecutorModule.EagerSingletons());
-		c.inject(new IdentityModule.EagerSingletons());
-		c.inject(new LifecycleModule.EagerSingletons());
-		c.inject(new PluginModule.EagerSingletons());
-		c.inject(new PropertiesModule.EagerSingletons());
-		c.inject(new ReportingModule.EagerSingletons());
-		c.inject(new SystemModule.EagerSingletons());
-		c.inject(new TransportModule.EagerSingletons());
-		c.inject(new ValidationModule.EagerSingletons());
-		c.inject(new VersioningModule.EagerSingletons());
+		c.injectBrambleCoreEagerSingletons();
 	}
 }
