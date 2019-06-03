@@ -13,11 +13,15 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestDuplexTransportConnection;
+import org.briarproject.bramble.test.TestStreamWriter;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
+import java.io.OutputStream;
+import java.io.PipedInputStream;
+import java.io.PipedOutputStream;
 import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.CountDownLatch;
@@ -88,6 +92,7 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		TestDuplexTransportConnection aliceConnection = pair[0];
 		TestDuplexTransportConnection bobConnection = pair[1];
 		CountDownLatch aliceFinished = new CountDownLatch(1);
+		CountDownLatch bobFinished = new CountDownLatch(1);
 		boolean verified = random.nextBoolean();
 
 		alice.getIoExecutor().execute(() -> {
@@ -99,7 +104,6 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 				fail();
 			}
 		});
-		CountDownLatch bobFinished = new CountDownLatch(1);
 		bob.getIoExecutor().execute(() -> {
 			try {
 				bob.getContactExchangeManager().exchangeContacts(bobConnection,
@@ -117,20 +121,15 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testExchangeContactsFromPendingContacts() throws Exception {
-		ContactManager aliceContactManager = alice.getContactManager();
-		ContactManager bobContactManager = bob.getContactManager();
-		String aliceLink = aliceContactManager.getHandshakeLink();
-		String bobLink = bobContactManager.getHandshakeLink();
-		PendingContact bobFromAlice =
-				aliceContactManager.addPendingContact(bobLink, "Bob");
-		PendingContact aliceFromBob =
-				bobContactManager.addPendingContact(aliceLink, "Alice");
+		PendingContact bobFromAlice = addPendingContact(alice, bob);
+		PendingContact aliceFromBob = addPendingContact(bob, alice);
 		assertPendingContacts();
 
 		TestDuplexTransportConnection[] pair = createPair();
 		TestDuplexTransportConnection aliceConnection = pair[0];
 		TestDuplexTransportConnection bobConnection = pair[1];
 		CountDownLatch aliceFinished = new CountDownLatch(1);
+		CountDownLatch bobFinished = new CountDownLatch(1);
 		boolean verified = random.nextBoolean();
 
 		alice.getIoExecutor().execute(() -> {
@@ -143,7 +142,6 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 				fail();
 			}
 		});
-		CountDownLatch bobFinished = new CountDownLatch(1);
 		bob.getIoExecutor().execute(() -> {
 			try {
 				bob.getContactExchangeManager().exchangeContacts(
@@ -160,16 +158,70 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		assertNoPendingContacts();
 	}
 
+	@Test
+	public void testHandshakeAndExchangeContactsFromPendingContacts()
+			throws Exception {
+		PendingContact bobFromAlice = addPendingContact(alice, bob);
+		PendingContact aliceFromBob = addPendingContact(bob, alice);
+		assertPendingContacts();
+
+		PipedInputStream aliceHandshakeIn = new PipedInputStream();
+		PipedInputStream bobHandshakeIn = new PipedInputStream();
+		OutputStream aliceHandshakeOut = new PipedOutputStream(bobHandshakeIn);
+		OutputStream bobHandshakeOut = new PipedOutputStream(aliceHandshakeIn);
+
+		TestDuplexTransportConnection[] pair = createPair();
+		TestDuplexTransportConnection aliceConnection = pair[0];
+		TestDuplexTransportConnection bobConnection = pair[1];
+		CountDownLatch aliceFinished = new CountDownLatch(1);
+		CountDownLatch bobFinished = new CountDownLatch(1);
+
+		alice.getIoExecutor().execute(() -> {
+			try {
+				alice.getHandshakeManager().handshakeAndAddContact(
+						bobFromAlice.getId(), aliceHandshakeIn,
+						new TestStreamWriter(aliceHandshakeOut),
+						aliceConnection);
+				aliceFinished.countDown();
+			} catch (Exception e) {
+				fail();
+			}
+		});
+		bob.getIoExecutor().execute(() -> {
+			try {
+				bob.getHandshakeManager().handshakeAndAddContact(
+						aliceFromBob.getId(), bobHandshakeIn,
+						new TestStreamWriter(bobHandshakeOut),
+						bobConnection);
+				bobFinished.countDown();
+			} catch (Exception e) {
+				fail();
+			}
+		});
+		aliceFinished.await(TIMEOUT, MILLISECONDS);
+		bobFinished.await(TIMEOUT, MILLISECONDS);
+		assertContacts(false, true);
+		assertNoPendingContacts();
+	}
+
+	private PendingContact addPendingContact(
+			ContactExchangeIntegrationTestComponent local,
+			ContactExchangeIntegrationTestComponent remote) throws Exception {
+		String link = remote.getContactManager().getHandshakeLink();
+		String alias = remote.getIdentityManager().getLocalAuthor().getName();
+		return local.getContactManager().addPendingContact(link, alias);
+	}
+
 	private void assertContacts(boolean verified,
 			boolean withHandshakeKeys) throws Exception {
 		assertContact(alice, bobIdentity, verified, withHandshakeKeys);
 		assertContact(bob, aliceIdentity, verified, withHandshakeKeys);
 	}
 
-	private void assertContact(ContactExchangeIntegrationTestComponent device,
+	private void assertContact(ContactExchangeIntegrationTestComponent local,
 			Identity expectedIdentity, boolean verified,
-			boolean withHandshakeKeys) throws Exception {
-		Collection<Contact> contacts = device.getContactManager().getContacts();
+			boolean withHandshakeKey) throws Exception {
+		Collection<Contact> contacts = local.getContactManager().getContacts();
 		assertEquals(1, contacts.size());
 		Contact contact = contacts.iterator().next();
 		assertEquals(expectedIdentity.getLocalAuthor(), contact.getAuthor());
@@ -177,7 +229,7 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		PublicKey expectedPublicKey = expectedIdentity.getHandshakePublicKey();
 		PublicKey actualPublicKey = contact.getHandshakePublicKey();
 		assertNotNull(expectedPublicKey);
-		if (withHandshakeKeys) {
+		if (withHandshakeKey) {
 			assertNotNull(actualPublicKey);
 			assertArrayEquals(expectedPublicKey.getEncoded(),
 					actualPublicKey.getEncoded());
@@ -197,10 +249,10 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 	}
 
 	private void assertPendingContact(
-			ContactExchangeIntegrationTestComponent device,
+			ContactExchangeIntegrationTestComponent local,
 			Identity expectedIdentity) throws Exception {
 		Collection<Pair<PendingContact, PendingContactState>> pairs =
-				device.getContactManager().getPendingContacts();
+				local.getContactManager().getPendingContacts();
 		assertEquals(1, pairs.size());
 		Pair<PendingContact, PendingContactState> pair =
 				pairs.iterator().next();
