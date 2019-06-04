@@ -553,21 +553,14 @@ class ConnectionManagerImpl implements ConnectionManager {
 				onError(true);
 				return;
 			}
-			// Flush the output stream to send the outgoing stream header
-			StreamWriter out;
-			try {
-				out = streamWriterFactory.createStreamWriter(
-						writer.getOutputStream(), ctxOut);
-				out.getOutputStream().flush();
-			} catch (IOException e) {
-				logException(LOG, WARNING, e);
-				onError(true);
-				return;
-			}
 			// Handshake and exchange contacts
 			try {
 				InputStream in = streamReaderFactory.createStreamReader(
 						reader.getInputStream(), ctxIn);
+				// Flush the output stream to send the outgoing stream header
+				StreamWriter out = streamWriterFactory.createStreamWriter(
+						writer.getOutputStream(), ctxOut);
+				out.getOutputStream().flush();
 				HandshakeResult result = handshakeManager.handshake(
 						pendingContactId, in, out);
 				Contact contact = contactExchangeManager.exchangeContacts(
@@ -671,7 +664,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 				onError();
 				return;
 			}
-			// Create and run the handshake session
+			// Handshake and exchange contacts
 			try {
 				InputStream in = streamReaderFactory.createStreamReader(
 						reader.getInputStream(), ctxIn);
