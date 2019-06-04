@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
@@ -54,6 +55,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 	private final TransactionManager db;
 	private final IdentityManager identityManager;
 	private final ContactManager contactManager;
+	private final TransportCrypto transportCrypto;
 	private final HandshakeCrypto handshakeCrypto;
 	private final RecordReaderFactory recordReaderFactory;
 	private final RecordWriterFactory recordWriterFactory;
@@ -62,12 +64,14 @@ class HandshakeManagerImpl implements HandshakeManager {
 	HandshakeManagerImpl(DatabaseComponent db,
 			IdentityManager identityManager,
 			ContactManager contactManager,
+			TransportCrypto transportCrypto,
 			HandshakeCrypto handshakeCrypto,
 			RecordReaderFactory recordReaderFactory,
 			RecordWriterFactory recordWriterFactory) {
 		this.db = db;
 		this.identityManager = identityManager;
 		this.contactManager = contactManager;
+		this.transportCrypto = transportCrypto;
 		this.handshakeCrypto = handshakeCrypto;
 		this.recordReaderFactory = recordReaderFactory;
 		this.recordWriterFactory = recordWriterFactory;
@@ -84,7 +88,7 @@ class HandshakeManagerImpl implements HandshakeManager {
 		});
 		PublicKey theirStaticPublicKey = keys.getFirst();
 		KeyPair ourStaticKeyPair = keys.getSecond();
-		boolean alice = handshakeCrypto.isLocalPeerAlice(theirStaticPublicKey,
+		boolean alice = transportCrypto.isAlice(theirStaticPublicKey,
 				ourStaticKeyPair);
 		RecordReader recordReader = recordReaderFactory.createRecordReader(in);
 		RecordWriter recordWriter = recordWriterFactory

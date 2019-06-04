@@ -10,9 +10,6 @@ import java.security.GeneralSecurityException;
 @NotNullByDefault
 interface HandshakeCrypto {
 
-	boolean isLocalPeerAlice(PublicKey theirStaticPublicKey,
-			KeyPair ourStaticKeyPair);
-
 	KeyPair generateEphemeralKeyPair();
 
 	/**
