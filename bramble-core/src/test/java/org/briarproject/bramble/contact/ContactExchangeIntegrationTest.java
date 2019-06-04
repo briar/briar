@@ -172,17 +172,13 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		alice.getEventBus().addListener(e -> {
 			if (e instanceof ContactAddedEvent) aliceFinished.countDown();
 		});
-		alice.getIoExecutor().execute(() ->
-				alice.getConnectionManager().manageOutgoingConnection(
-						bobFromAlice.getId(), DUPLEX_TRANSPORT_ID,
-						aliceConnection));
+		alice.getConnectionManager().manageOutgoingConnection(
+				bobFromAlice.getId(), DUPLEX_TRANSPORT_ID, aliceConnection);
 		bob.getEventBus().addListener(e -> {
 			if (e instanceof ContactAddedEvent) bobFinished.countDown();
 		});
-		bob.getIoExecutor().execute(() ->
-				bob.getConnectionManager().manageIncomingConnection(
-						aliceFromBob.getId(), DUPLEX_TRANSPORT_ID,
-						bobConnection));
+		bob.getConnectionManager().manageIncomingConnection(
+				aliceFromBob.getId(), DUPLEX_TRANSPORT_ID, bobConnection);
 		assertTrue(aliceFinished.await(TIMEOUT, MILLISECONDS));
 		assertTrue(bobFinished.await(TIMEOUT, MILLISECONDS));
 		assertContacts(false, true);
