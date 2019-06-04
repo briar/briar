@@ -22,4 +22,8 @@ interface HandshakeConstants {
 	 */
 	String BOB_PROOF_LABEL = "org.briarproject.bramble.handshake/BOB_PROOF";
 
+	/**
+	 * The length of the proof of ownership in bytes.
+	 */
+	int PROOF_BYTES = 32;
 }

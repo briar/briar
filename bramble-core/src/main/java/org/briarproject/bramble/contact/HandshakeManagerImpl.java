@@ -32,9 +32,11 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
+import static org.briarproject.bramble.contact.HandshakeConstants.PROOF_BYTES;
 import static org.briarproject.bramble.contact.HandshakeConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.EPHEMERAL_PUBLIC_KEY;
 import static org.briarproject.bramble.contact.HandshakeRecordTypes.PROOF_OF_OWNERSHIP;
+import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 
 @Immutable
 @NotNullByDefault
@@ -128,11 +130,9 @@ class HandshakeManagerImpl implements HandshakeManager {
 	}
 
 	private PublicKey receivePublicKey(RecordReader r) throws IOException {
-		Record rec = readRecord(r, EPHEMERAL_PUBLIC_KEY);
-		int length = rec.getPayload().length;
-		if (length == 0 || length > MAX_AGREEMENT_PUBLIC_KEY_BYTES)
-			throw new FormatException();
-		return new AgreementPublicKey(rec.getPayload());
+		byte[] key = readRecord(r, EPHEMERAL_PUBLIC_KEY).getPayload();
+		checkLength(key, 1, MAX_AGREEMENT_PUBLIC_KEY_BYTES);
+		return new AgreementPublicKey(key);
 	}
 
 	private void sendProof(RecordWriter w, byte[] proof) throws IOException {
@@ -141,7 +141,9 @@ class HandshakeManagerImpl implements HandshakeManager {
 	}
 
 	private byte[] receiveProof(RecordReader r) throws IOException {
-		return readRecord(r, PROOF_OF_OWNERSHIP).getPayload();
+		byte[] proof = readRecord(r, PROOF_OF_OWNERSHIP).getPayload();
+		checkLength(proof, PROOF_BYTES, PROOF_BYTES);
+		return proof;
 	}
 
 	private Record readRecord(RecordReader r, byte expectedType)
