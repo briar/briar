@@ -1,5 +1,7 @@
 package org.briarproject.bramble.contact;
 
+import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
+
 interface HandshakeConstants {
 
 	/**
@@ -25,5 +27,5 @@ interface HandshakeConstants {
 	/**
 	 * The length of the proof of ownership in bytes.
 	 */
-	int PROOF_BYTES = 32;
+	int PROOF_BYTES = MAC_BYTES;
 }
