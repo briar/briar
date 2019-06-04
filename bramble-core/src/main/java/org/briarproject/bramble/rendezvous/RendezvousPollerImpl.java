@@ -53,6 +53,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -154,11 +155,11 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			SecretKey rendezvousKey = rendezvousCrypto
 					.deriveRendezvousKey(staticMasterKey);
 			requireNull(rendezvousKeys.put(p.getId(), rendezvousKey));
-			for (PluginState ps : pluginStates.values()) {
+			for (PluginState state : pluginStates.values()) {
 				RendezvousEndpoint endpoint =
-						createEndpoint(ps.plugin, p.getId(), rendezvousKey);
+						createEndpoint(state.plugin, p.getId(), rendezvousKey);
 				if (endpoint != null)
-					requireNull(ps.endpoints.put(p.getId(), endpoint));
+					requireNull(state.endpoints.put(p.getId(), endpoint));
 			}
 		} catch (DbException | GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
@@ -210,10 +211,10 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 				new ArrayList<>();
 		for (Entry<PendingContactId, RendezvousEndpoint> e :
 				state.endpoints.entrySet()) {
-			TransportProperties p =
+			TransportProperties props =
 					e.getValue().getRemoteTransportProperties();
 			Handler h = new Handler(e.getKey(), state.plugin.getId(), false);
-			properties.add(new Pair<>(p, h));
+			properties.add(new Pair<>(props, h));
 		}
 		state.plugin.poll(properties);
 	}
@@ -241,7 +242,23 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 	@EventExecutor
 	private void addPendingContactAsync(PendingContact p) {
-		worker.execute(() -> addPendingContact(p));
+		worker.execute(() -> {
+			addPendingContact(p);
+			poll(p.getId());
+		});
+	}
+
+	// Worker
+	private void poll(PendingContactId p) {
+		for (PluginState state : pluginStates.values()) {
+			RendezvousEndpoint endpoint = state.endpoints.get(p);
+			if (endpoint != null) {
+				TransportProperties props =
+						endpoint.getRemoteTransportProperties();
+				Handler h = new Handler(p, state.plugin.getId(), false);
+				state.plugin.poll(singletonList(new Pair<>(props, h)));
+			}
+		}
 	}
 
 	@EventExecutor
