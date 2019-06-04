@@ -58,8 +58,8 @@ class ContactExchangeViewModel extends AndroidViewModel {
 			SecretKey masterKey, boolean alice) {
 		ioExecutor.execute(() -> {
 			try {
-				Contact contact = contactExchangeManager.exchangeContacts(t,
-						conn, masterKey, alice);
+				Contact contact = contactExchangeManager.exchangeContacts(conn,
+						masterKey, alice, true);
 				// Reuse the connection as a transport connection
 				connectionManager.manageOutgoingConnection(contact.getId(),
 						t, conn);

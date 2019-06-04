@@ -7,17 +7,18 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -36,20 +37,23 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.security.GeneralSecurityException;
 import java.util.Map;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.contact.RecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.contact.ContactExchangeConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.contact.ContactExchangeRecordTypes.CONTACT_INFO;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@Immutable
+@NotNullByDefault
 class ContactExchangeManagerImpl implements ContactExchangeManager {
 
 	private static final Logger LOG =
@@ -104,9 +108,22 @@ class ContactExchangeManagerImpl implements ContactExchangeManager {
 	}
 
 	@Override
-	public Contact exchangeContacts(TransportId t,
-			DuplexTransportConnection conn, SecretKey masterKey, boolean alice)
-			throws IOException, DbException {
+	public Contact exchangeContacts(DuplexTransportConnection conn,
+			SecretKey masterKey, boolean alice,
+			boolean verified) throws IOException, DbException {
+		return exchange(null, conn, masterKey, alice, verified);
+	}
+
+	@Override
+	public Contact exchangeContacts(PendingContactId p,
+			DuplexTransportConnection conn, SecretKey masterKey, boolean alice,
+			boolean verified) throws IOException, DbException {
+		return exchange(p, conn, masterKey, alice, verified);
+	}
+
+	private Contact exchange(@Nullable PendingContactId p,
+			DuplexTransportConnection conn, SecretKey masterKey, boolean alice,
+			boolean verified) throws IOException, DbException {
 		// Get the transport connection's input and output streams
 		InputStream in = conn.getReader().getInputStream();
 		OutputStream out = conn.getWriter().getOutputStream();
@@ -169,8 +186,8 @@ class ContactExchangeManagerImpl implements ContactExchangeManager {
 		long timestamp = Math.min(localTimestamp, remoteInfo.timestamp);
 
 		// Add the contact
-		Contact contact = addContact(remoteInfo.author, localAuthor,
-				masterKey, timestamp, alice, remoteInfo.properties);
+		Contact contact = addContact(p, remoteInfo.author, localAuthor,
+				masterKey, timestamp, alice, verified, remoteInfo.properties);
 
 		// Contact exchange succeeded
 		LOG.info("Contact exchange succeeded");
@@ -207,18 +224,34 @@ class ContactExchangeManagerImpl implements ContactExchangeManager {
 		return new ContactInfo(author, properties, signature, timestamp);
 	}
 
-	private Contact addContact(Author remoteAuthor, LocalAuthor localAuthor,
-			SecretKey masterKey, long timestamp, boolean alice,
+	private Contact addContact(@Nullable PendingContactId pendingContactId,
+			Author remoteAuthor, LocalAuthor localAuthor, SecretKey masterKey,
+			long timestamp, boolean alice, boolean verified,
 			Map<TransportId, TransportProperties> remoteProperties)
-			throws DbException {
-		return db.transactionWithResult(false, txn -> {
-			ContactId contactId = contactManager.addContact(txn, remoteAuthor,
-					localAuthor.getId(), masterKey, timestamp, alice,
-					true, true);
+			throws DbException, FormatException {
+		Transaction txn = db.startTransaction(false);
+		try {
+			ContactId contactId;
+			if (pendingContactId == null) {
+				contactId = contactManager.addContact(txn, remoteAuthor,
+						localAuthor.getId(), masterKey, timestamp, alice,
+						verified, true);
+			} else {
+				contactId = contactManager.addContact(txn, pendingContactId,
+						remoteAuthor, localAuthor.getId(), masterKey,
+						timestamp, alice, verified, true);
+			}
 			transportPropertyManager.addRemoteProperties(txn, contactId,
 					remoteProperties);
-			return contactManager.getContact(txn, contactId);
-		});
+			Contact contact = contactManager.getContact(txn, contactId);
+			db.commitTransaction(txn);
+			return contact;
+		} catch (GeneralSecurityException e) {
+			// Pending contact's public key is invalid
+			throw new FormatException();
+		} finally {
+			db.endTransaction(txn);
+		}
 	}
 
 	private static class ContactInfo {

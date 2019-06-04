@@ -20,6 +20,7 @@ import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.FORMAT
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.ID_LABEL;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.RAW_LINK_BYTES;
+import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
 
 class PendingContactFactoryImpl implements PendingContactFactory {
 
@@ -41,18 +42,31 @@ class PendingContactFactoryImpl implements PendingContactFactory {
 		return new PendingContact(id, publicKey, alias, timestamp);
 	}
 
+	@Override
+	public String createHandshakeLink(PublicKey k) {
+		if (!k.getKeyType().equals(KEY_TYPE_AGREEMENT))
+			throw new IllegalArgumentException();
+		byte[] encoded = k.getEncoded();
+		if (encoded.length != RAW_LINK_BYTES - 1)
+			throw new IllegalArgumentException();
+		byte[] raw = new byte[RAW_LINK_BYTES];
+		raw[0] = FORMAT_VERSION;
+		arraycopy(encoded, 0, raw, 1, encoded.length);
+		return "briar://" + Base32.encode(raw).toLowerCase();
+	}
+
 	private PublicKey parseHandshakeLink(String link) throws FormatException {
 		Matcher matcher = LINK_REGEX.matcher(link);
 		if (!matcher.find()) throw new FormatException();
 		// Discard 'briar://' and anything before or after the link
 		link = matcher.group(2);
-		byte[] base32 = Base32.decode(link, false);
-		if (base32.length != RAW_LINK_BYTES) throw new AssertionError();
-		byte version = base32[0];
+		byte[] raw = Base32.decode(link, false);
+		if (raw.length != RAW_LINK_BYTES) throw new AssertionError();
+		byte version = raw[0];
 		if (version != FORMAT_VERSION)
 			throw new UnsupportedVersionException(version < FORMAT_VERSION);
-		byte[] publicKeyBytes = new byte[base32.length - 1];
-		arraycopy(base32, 1, publicKeyBytes, 0, publicKeyBytes.length);
+		byte[] publicKeyBytes = new byte[raw.length - 1];
+		arraycopy(raw, 1, publicKeyBytes, 0, publicKeyBytes.length);
 		try {
 			KeyParser parser = crypto.getAgreementKeyParser();
 			return parser.parsePublicKey(publicKeyBytes);

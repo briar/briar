@@ -3,6 +3,7 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.crypto.PublicKey;
 
 interface PendingContactFactory {
 
@@ -15,4 +16,9 @@ interface PendingContactFactory {
 	 */
 	PendingContact createPendingContact(String link, String alias)
 			throws FormatException;
+
+	/**
+	 * Creates a handshake link from the given public key.
+	 */
+	String createHandshakeLink(PublicKey k);
 }

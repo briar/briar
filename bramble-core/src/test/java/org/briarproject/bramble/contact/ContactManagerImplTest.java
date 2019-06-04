@@ -3,6 +3,9 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.crypto.KeyPair;
+import org.briarproject.bramble.api.crypto.PrivateKey;
+import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -17,7 +20,6 @@ import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
-import org.jmock.Mockery;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -25,16 +27,20 @@ import java.util.Random;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.BASE32_LINK_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
+import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
+import static org.briarproject.bramble.util.StringUtils.getRandomBase32String;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -42,7 +48,6 @@ import static org.junit.Assert.assertTrue;
 
 public class ContactManagerImplTest extends BrambleMockTestCase {
 
-	private final Mockery context = new Mockery();
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final KeyManager keyManager = context.mock(KeyManager.class);
 	private final IdentityManager identityManager =
@@ -196,7 +201,6 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, true);
 
 		context.checking(new DbExpectations() {{
-			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(localAuthor));
 			oneOf(db).getContactsByAuthorId(txn, remote.getId());
@@ -258,4 +262,22 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
+	@Test
+	public void testGetHandshakeLink() throws Exception {
+		Transaction txn = new Transaction(null, true);
+		PublicKey publicKey = getAgreementPublicKey();
+		PrivateKey privateKey = getAgreementPrivateKey();
+		KeyPair keyPair = new KeyPair(publicKey, privateKey);
+		String link = "briar://" + getRandomBase32String(BASE32_LINK_BYTES);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(identityManager).getHandshakeKeys(txn);
+			will(returnValue(keyPair));
+			oneOf(pendingContactFactory).createHandshakeLink(publicKey);
+			will(returnValue(link));
+		}});
+
+		assertEquals(link, contactManager.getHandshakeLink());
+	}
 }
