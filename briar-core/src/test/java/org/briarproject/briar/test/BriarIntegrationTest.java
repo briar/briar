@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.BdfStringUtils;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -23,11 +24,10 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.SyncSession;
-import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.transport.StreamWriter;
+import org.briarproject.bramble.test.TestTransportConnectionReader;
+import org.briarproject.bramble.test.TestTransportConnectionWriter;
 import org.briarproject.bramble.test.TestUtils;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogPostFactory;
@@ -43,10 +43,8 @@ import org.junit.Before;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.IOException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
@@ -56,11 +54,12 @@ import javax.inject.Inject;
 import static java.util.concurrent.Executors.newSingleThreadExecutor;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.INVALID;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
-import static org.briarproject.bramble.test.TestPluginConfigModule.MAX_LATENCY;
+import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.junit.Assert.assertEquals;
@@ -73,8 +72,11 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		extends BriarTestCase {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarIntegrationTest.class.getName());
+			getLogger(BriarIntegrationTest.class.getName());
+
 	private static final boolean DEBUG = false;
+
+	protected final static int TIMEOUT = 15000;
 
 	@Nullable
 	protected ContactId contactId1From2, contactId2From1;
@@ -91,7 +93,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	private LifecycleManager lifecycleManager0, lifecycleManager1,
 			lifecycleManager2;
-	private SyncSessionFactory sync0, sync1, sync2;
+	private SecretKey rootKey0_1 = getSecretKey();
+	private SecretKey rootKey0_2 = getSecretKey();
+	private SecretKey rootKey1_2 = getSecretKey();
 
 	@Inject
 	protected Clock clock;
@@ -120,7 +124,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	private volatile Waiter validationWaiter;
 	private volatile Waiter deliveryWaiter;
 
-	protected final static int TIMEOUT = 15000;
 	protected C c0, c1, c2;
 
 	private final Semaphore messageSemaphore = new Semaphore(0);
@@ -151,9 +154,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		db0 = c0.getDatabaseComponent();
 		db1 = c1.getDatabaseComponent();
 		db2 = c2.getDatabaseComponent();
-		sync0 = c0.getSyncSessionFactory();
-		sync1 = c1.getSyncSessionFactory();
-		sync2 = c2.getSyncSessionFactory();
 
 		// initialize waiters fresh for each test
 		validationWaiter = new Waiter();
@@ -251,21 +251,17 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	protected void addDefaultContacts() throws Exception {
-		contactId1From0 = contactManager0
-				.addContact(author1, author0.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId1From0 = contactManager0.addContact(author1, author0.getId(),
+				rootKey0_1, clock.currentTimeMillis(), true, true, true);
 		contact1From0 = contactManager0.getContact(contactId1From0);
-		contactId0From1 = contactManager1
-				.addContact(author0, author1.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId0From1 = contactManager1.addContact(author0, author1.getId(),
+				rootKey0_1, clock.currentTimeMillis(), false, true, true);
 		contact0From1 = contactManager1.getContact(contactId0From1);
-		contactId2From0 = contactManager0
-				.addContact(author2, author0.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId2From0 = contactManager0.addContact(author2, author0.getId(),
+				rootKey0_2, clock.currentTimeMillis(), true, true, true);
 		contact2From0 = contactManager0.getContact(contactId2From0);
-		contactId0From2 = contactManager2
-				.addContact(author0, author2.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId0From2 = contactManager2.addContact(author0, author2.getId(),
+				rootKey0_2, clock.currentTimeMillis(), false, true, true);
 		contact0From2 = contactManager2.getContact(contactId0From2);
 
 		// Sync initial client versioning updates
@@ -283,12 +279,10 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	protected void addContacts1And2(boolean haveTransportProperties)
 			throws Exception {
-		contactId2From1 = contactManager1
-				.addContact(author2, author1.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
-		contactId1From2 = contactManager2
-				.addContact(author1, author2.getId(), getSecretKey(),
-						clock.currentTimeMillis(), true, true, true);
+		contactId2From1 = contactManager1.addContact(author2, author1.getId(),
+				rootKey1_2, clock.currentTimeMillis(), true, true, true);
+		contactId1From2 = contactManager2.addContact(author1, author2.getId(),
+				rootKey1_2, clock.currentTimeMillis(), false, true, true);
 
 		// Sync initial client versioning updates
 		sync1To2(1, true);
@@ -322,69 +316,55 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		lifecycleManager2.waitForShutdown();
 	}
 
-	protected void sync0To1(int num, boolean valid)
-			throws IOException, TimeoutException {
-		syncMessage(sync0, contactId0From1, sync1, contactId1From0, num, valid);
+	protected void sync0To1(int num, boolean valid) throws Exception {
+		syncMessage(c0, c1, contactId1From0, num, valid);
 	}
 
-	protected void sync0To2(int num, boolean valid)
-			throws IOException, TimeoutException {
-		syncMessage(sync0, contactId0From2, sync2, contactId2From0, num, valid);
+	protected void sync0To2(int num, boolean valid) throws Exception {
+		syncMessage(c0, c2, contactId2From0, num, valid);
 	}
 
-	protected void sync1To0(int num, boolean valid)
-			throws IOException, TimeoutException {
-		syncMessage(sync1, contactId1From0, sync0, contactId0From1, num, valid);
+	protected void sync1To0(int num, boolean valid) throws Exception {
+		syncMessage(c1, c0, contactId0From1, num, valid);
 	}
 
-	protected void sync2To0(int num, boolean valid)
-			throws IOException, TimeoutException {
-		syncMessage(sync2, contactId2From0, sync0, contactId0From2, num, valid);
+	protected void sync2To0(int num, boolean valid) throws Exception {
+		syncMessage(c2, c0, contactId0From2, num, valid);
 	}
 
-	protected void sync2To1(int num, boolean valid)
-			throws IOException, TimeoutException {
-		assertNotNull(contactId2From1);
+	protected void sync2To1(int num, boolean valid) throws Exception {
 		assertNotNull(contactId1From2);
-		syncMessage(sync2, contactId2From1, sync1, contactId1From2, num, valid);
+		syncMessage(c2, c1, contactId1From2, num, valid);
 	}
 
-	protected void sync1To2(int num, boolean valid)
-			throws IOException, TimeoutException {
+	protected void sync1To2(int num, boolean valid) throws Exception {
 		assertNotNull(contactId2From1);
-		assertNotNull(contactId1From2);
-		syncMessage(sync1, contactId1From2, sync2, contactId2From1, num, valid);
+		syncMessage(c1, c2, contactId2From1, num, valid);
 	}
 
-	private void syncMessage(SyncSessionFactory fromSync, ContactId fromId,
-			SyncSessionFactory toSync, ContactId toId, int num, boolean valid)
-			throws IOException, TimeoutException {
+	private void syncMessage(BriarIntegrationTestComponent fromComponent,
+			BriarIntegrationTestComponent toComponent, ContactId toId, int num,
+			boolean valid) throws Exception {
 
 		// Debug output
-		String from = "0";
-		if (fromSync == sync1) from = "1";
-		else if (fromSync == sync2) from = "2";
-		String to = "0";
-		if (toSync == sync1) to = "1";
-		else if (toSync == sync2) to = "2";
+		String from =
+				fromComponent.getIdentityManager().getLocalAuthor().getName();
+		String to = toComponent.getIdentityManager().getLocalAuthor().getName();
 		LOG.info("TEST: Sending " + num + " message(s) from " + from + " to " +
 				to);
 
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		StreamWriter streamWriter = new TestStreamWriter(out);
-		// Create an outgoing sync session
-		SyncSession sessionFrom = fromSync.createSimplexOutgoingSession(toId,
-				MAX_LATENCY, streamWriter);
-		// Write whatever needs to be written
-		sessionFrom.run();
-		out.close();
+		TestTransportConnectionWriter writer =
+				new TestTransportConnectionWriter(out);
+		fromComponent.getConnectionManager().manageOutgoingConnection(toId,
+				SIMPLEX_TRANSPORT_ID, writer);
+		writer.getDisposedLatch().await(TIMEOUT, MILLISECONDS);
 
 		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
-		// Create an incoming sync session
-		SyncSession sessionTo = toSync.createIncomingSession(fromId, in);
-		// Read whatever needs to be read
-		sessionTo.run();
-		in.close();
+		TestTransportConnectionReader reader =
+				new TestTransportConnectionReader(in);
+		toComponent.getConnectionManager().manageIncomingConnection(
+				SIMPLEX_TRANSPORT_ID, reader);
 
 		if (valid) {
 			deliveryWaiter.await(TIMEOUT, num);
