@@ -82,7 +82,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 					items.add(new PendingContactItem(p.getFirst(),
 							p.getSecond()));
 				}
-				pendingContacts.setValue(items);
+				pendingContacts.postValue(items);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
