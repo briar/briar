@@ -25,12 +25,13 @@ class UnixTorPlugin extends JavaTorPlugin {
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Backoff backoff,
+			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, File torDirectory) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, callback, architecture, maxLatency, maxIdleTime,
-				torDirectory);
+				backoff, torRendezvousCrypto, callback, architecture,
+				maxLatency, maxIdleTime, torDirectory);
 	}
 
 	@Override

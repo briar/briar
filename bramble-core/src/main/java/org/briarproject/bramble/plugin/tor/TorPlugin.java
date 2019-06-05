@@ -105,6 +105,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Clock clock;
 	private final BatteryManager batteryManager;
 	private final Backoff backoff;
+	private final TorRendezvousCrypto torRendezvousCrypto;
 	private final PluginCallback callback;
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
@@ -131,6 +132,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Backoff backoff,
+			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, File torDirectory) {
 		this.ioExecutor = ioExecutor;
@@ -142,6 +144,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
 		this.backoff = backoff;
+		this.torRendezvousCrypto = torRendezvousCrypto;
 		this.callback = callback;
 		this.architecture = architecture;
 		this.maxLatency = maxLatency;
@@ -609,13 +612,58 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public boolean supportsRendezvous() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			boolean alice, ConnectionHandler incoming) {
-		throw new UnsupportedOperationException();
+		byte[] aliceSeed = k.getKeyMaterial(32);
+		byte[] bobSeed = k.getKeyMaterial(32);
+		byte[] localSeed = alice ? aliceSeed : bobSeed;
+		byte[] remoteSeed = alice ? bobSeed : aliceSeed;
+		String blob = torRendezvousCrypto.getPrivateKeyBlob(localSeed);
+		String localOnion = torRendezvousCrypto.getOnionAddress(localSeed);
+		String remoteOnion = torRendezvousCrypto.getOnionAddress(remoteSeed);
+		TransportProperties remote = new TransportProperties();
+		remote.put(PROP_ONION_V3, remoteOnion);
+		try {
+			ServerSocket ss = new ServerSocket();
+			ss.bind(new InetSocketAddress("127.0.0.1", 0));
+			int port = ss.getLocalPort();
+			ioExecutor.execute(() -> {
+				try {
+					//noinspection InfiniteLoopStatement
+					while (true) {
+						Socket s = ss.accept();
+						incoming.handleConnection(
+								new TorTransportConnection(this, s));
+					}
+				} catch (IOException e) {
+					// This is expected when the socket is closed
+					if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+				}
+			});
+			Map<Integer, String> portLines =
+					singletonMap(80, "127.0.0.1:" + port);
+			controlConnection.addOnion(blob, portLines);
+			return new RendezvousEndpoint() {
+
+				@Override
+				public TransportProperties getRemoteTransportProperties() {
+					return remote;
+				}
+
+				@Override
+				public void close() throws IOException {
+					controlConnection.delOnion(localOnion);
+					tryToClose(ss);
+				}
+			};
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+			return null;
+		}
 	}
 
 	@Override

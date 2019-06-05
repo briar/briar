@@ -41,11 +41,12 @@ class AndroidTorPlugin extends TorPlugin {
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Backoff backoff,
+			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, callback, architecture, maxLatency, maxIdleTime,
+				backoff, torRendezvousCrypto, callback, architecture, maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
 		PowerManager pm = (PowerManager)

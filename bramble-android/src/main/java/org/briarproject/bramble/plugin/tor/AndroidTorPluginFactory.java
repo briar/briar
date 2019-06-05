@@ -106,10 +106,12 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
 		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor, scheduler,
 				appContext, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, callback, architecture, MAX_LATENCY, MAX_IDLE_TIME);
+				backoff, torRendezvousCrypto, callback, architecture,
+				MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}
