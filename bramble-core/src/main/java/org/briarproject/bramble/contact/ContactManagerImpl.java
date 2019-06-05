@@ -84,10 +84,13 @@ class ContactManagerImpl implements ContactManager {
 			Author remote, AuthorId local, SecretKey rootKey, long timestamp,
 			boolean alice, boolean verified, boolean active)
 			throws DbException, GeneralSecurityException {
-		PublicKey theirPublicKey = db.getPendingContact(txn, p).getPublicKey();
+		PendingContact pendingContact = db.getPendingContact(txn, p);
 		db.removePendingContact(txn, p);
+		PublicKey theirPublicKey = pendingContact.getPublicKey();
 		ContactId c =
 				db.addContact(txn, remote, local, theirPublicKey, verified);
+		String alias = pendingContact.getAlias();
+		if (!alias.equals(remote.getName())) db.setContactAlias(txn, c, alias);
 		KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
 		keyManager.addContact(txn, c, theirPublicKey, ourKeyPair);
 		keyManager.addRotationKeys(txn, c, rootKey, timestamp, alice, active);
