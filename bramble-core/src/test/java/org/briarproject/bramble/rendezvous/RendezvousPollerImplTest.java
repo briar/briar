@@ -30,6 +30,7 @@ import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
@@ -79,6 +80,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 	private final TransportId transportId = getTransportId();
 	private final TransportProperties transportProperties =
 			getTransportProperties(3);
+	private final boolean alice = new Random().nextBoolean();
 
 	private RendezvousPollerImpl rendezvousPoller;
 
@@ -122,6 +124,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(staticMasterKey));
 			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
 			will(returnValue(rendezvousKey));
+			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
+					handshakeKeyPair);
+			will(returnValue(alice));
 		}});
 
 		rendezvousPoller.startService();
@@ -182,11 +187,14 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(staticMasterKey));
 			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
 			will(returnValue(rendezvousKey));
+			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
+					handshakeKeyPair);
+			will(returnValue(alice));
 			oneOf(rendezvousCrypto).createKeyMaterialSource(rendezvousKey,
 					transportId);
 			will(returnValue(keyMaterialSource));
 			oneOf(plugin).createRendezvousEndpoint(with(keyMaterialSource),
-					with(any(ConnectionHandler.class)));
+					with(alice), with(any(ConnectionHandler.class)));
 			will(returnValue(rendezvousEndpoint));
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
@@ -250,11 +258,14 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(staticMasterKey));
 			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
 			will(returnValue(rendezvousKey));
+			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
+					handshakeKeyPair);
+			will(returnValue(alice));
 			oneOf(rendezvousCrypto).createKeyMaterialSource(rendezvousKey,
 					transportId);
 			will(returnValue(keyMaterialSource));
 			oneOf(plugin).createRendezvousEndpoint(with(keyMaterialSource),
-					with(any(ConnectionHandler.class)));
+					with(alice), with(any(ConnectionHandler.class)));
 			will(returnValue(rendezvousEndpoint));
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
@@ -305,6 +316,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(staticMasterKey));
 			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
 			will(returnValue(rendezvousKey));
+			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
+					handshakeKeyPair);
+			will(returnValue(alice));
 		}});
 
 		rendezvousPoller.eventOccurred(
@@ -323,7 +337,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					transportId);
 			will(returnValue(keyMaterialSource));
 			oneOf(plugin).createRendezvousEndpoint(with(keyMaterialSource),
-					with(any(ConnectionHandler.class)));
+					with(alice), with(any(ConnectionHandler.class)));
 			will(returnValue(rendezvousEndpoint));
 		}});
 

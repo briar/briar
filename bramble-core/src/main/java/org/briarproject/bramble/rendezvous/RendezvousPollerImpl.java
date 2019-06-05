@@ -83,7 +83,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private final Executor worker;
 	// The following fields are only accessed on the worker
 	private final Map<TransportId, PluginState> pluginStates = new HashMap<>();
-	private final Map<PendingContactId, SecretKey> rendezvousKeys =
+	private final Map<PendingContactId, CryptoState> cryptoStates =
 			new HashMap<>();
 	@Nullable
 	private KeyPair handshakeKeyPair = null;
@@ -153,12 +153,15 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 					.deriveStaticMasterKey(p.getPublicKey(), handshakeKeyPair);
 			SecretKey rendezvousKey = rendezvousCrypto
 					.deriveRendezvousKey(staticMasterKey);
-			requireNull(rendezvousKeys.put(p.getId(), rendezvousKey));
-			for (PluginState state : pluginStates.values()) {
+			boolean alice = transportCrypto
+					.isAlice(p.getPublicKey(), handshakeKeyPair);
+			CryptoState cs = new CryptoState(rendezvousKey, alice);
+			requireNull(cryptoStates.put(p.getId(), cs));
+			for (PluginState ps : pluginStates.values()) {
 				RendezvousEndpoint endpoint =
-						createEndpoint(state.plugin, p.getId(), rendezvousKey);
+						createEndpoint(ps.plugin, p.getId(), cs);
 				if (endpoint != null)
-					requireNull(state.endpoints.put(p.getId(), endpoint));
+					requireNull(ps.endpoints.put(p.getId(), endpoint));
 			}
 		} catch (DbException | GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
@@ -179,9 +182,9 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	// Worker
 	private boolean removePendingContact(PendingContactId p) {
 		// We can come here twice if a pending contact fails and is then removed
-		if (rendezvousKeys.remove(p) == null) return false;
-		for (PluginState state : pluginStates.values()) {
-			RendezvousEndpoint endpoint = state.endpoints.remove(p);
+		if (cryptoStates.remove(p) == null) return false;
+		for (PluginState ps : pluginStates.values()) {
+			RendezvousEndpoint endpoint = ps.endpoints.remove(p);
 			if (endpoint != null) tryToClose(endpoint, LOG, INFO);
 		}
 		return true;
@@ -189,33 +192,33 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 	@Nullable
 	private RendezvousEndpoint createEndpoint(DuplexPlugin plugin,
-			PendingContactId p, SecretKey rendezvousKey) {
+			PendingContactId p, CryptoState cs) {
 		TransportId t = plugin.getId();
 		KeyMaterialSource k =
-				rendezvousCrypto.createKeyMaterialSource(rendezvousKey, t);
+				rendezvousCrypto.createKeyMaterialSource(cs.rendezvousKey, t);
 		Handler h = new Handler(p, t, true);
-		return plugin.createRendezvousEndpoint(k, h);
+		return plugin.createRendezvousEndpoint(k, cs.alice, h);
 	}
 
 	@Scheduler
 	private void poll() {
 		worker.execute(() -> {
-			for (PluginState state : pluginStates.values()) poll(state);
+			for (PluginState ps : pluginStates.values()) poll(ps);
 		});
 	}
 
 	// Worker
-	private void poll(PluginState state) {
+	private void poll(PluginState ps) {
 		List<Pair<TransportProperties, ConnectionHandler>> properties =
 				new ArrayList<>();
 		for (Entry<PendingContactId, RendezvousEndpoint> e :
-				state.endpoints.entrySet()) {
+				ps.endpoints.entrySet()) {
 			TransportProperties props =
 					e.getValue().getRemoteTransportProperties();
-			Handler h = new Handler(e.getKey(), state.plugin.getId(), false);
+			Handler h = new Handler(e.getKey(), ps.plugin.getId(), false);
 			properties.add(new Pair<>(props, h));
 		}
-		state.plugin.poll(properties);
+		ps.plugin.poll(properties);
 	}
 
 	@Override
@@ -249,13 +252,13 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 	// Worker
 	private void poll(PendingContactId p) {
-		for (PluginState state : pluginStates.values()) {
-			RendezvousEndpoint endpoint = state.endpoints.get(p);
+		for (PluginState ps : pluginStates.values()) {
+			RendezvousEndpoint endpoint = ps.endpoints.get(p);
 			if (endpoint != null) {
 				TransportProperties props =
 						endpoint.getRemoteTransportProperties();
-				Handler h = new Handler(p, state.plugin.getId(), false);
-				state.plugin.poll(singletonList(new Pair<>(props, h)));
+				Handler h = new Handler(p, ps.plugin.getId(), false);
+				ps.plugin.poll(singletonList(new Pair<>(props, h)));
 			}
 		}
 	}
@@ -279,7 +282,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private void addTransport(DuplexPlugin plugin) {
 		TransportId t = plugin.getId();
 		Map<PendingContactId, RendezvousEndpoint> endpoints = new HashMap<>();
-		for (Entry<PendingContactId, SecretKey> e : rendezvousKeys.entrySet()) {
+		for (Entry<PendingContactId, CryptoState> e : cryptoStates.entrySet()) {
 			RendezvousEndpoint endpoint =
 					createEndpoint(plugin, e.getKey(), e.getValue());
 			if (endpoint != null) endpoints.put(e.getKey(), endpoint);
@@ -294,9 +297,9 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 	// Worker
 	private void removeTransport(TransportId t) {
-		PluginState state = pluginStates.remove(t);
-		if (state != null) {
-			for (RendezvousEndpoint endpoint : state.endpoints.values()) {
+		PluginState ps = pluginStates.remove(t);
+		if (ps != null) {
+			for (RendezvousEndpoint endpoint : ps.endpoints.values()) {
 				tryToClose(endpoint, LOG, INFO);
 			}
 		}
@@ -311,6 +314,17 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 				Map<PendingContactId, RendezvousEndpoint> endpoints) {
 			this.plugin = plugin;
 			this.endpoints = endpoints;
+		}
+	}
+
+	private static class CryptoState {
+
+		private final SecretKey rendezvousKey;
+		private final boolean alice;
+
+		private CryptoState(SecretKey rendezvousKey, boolean alice) {
+			this.rendezvousKey = rendezvousKey;
+			this.alice = alice;
 		}
 	}
 

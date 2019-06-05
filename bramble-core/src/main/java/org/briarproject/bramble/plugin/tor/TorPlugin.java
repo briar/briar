@@ -614,7 +614,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
-			ConnectionHandler incoming) {
+			boolean alice, ConnectionHandler incoming) {
 		throw new UnsupportedOperationException();
 	}
 

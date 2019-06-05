@@ -310,7 +310,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
-			ConnectionHandler incoming) {
+			boolean alice, ConnectionHandler incoming) {
 		throw new UnsupportedOperationException();
 	}
 

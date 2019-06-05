@@ -57,5 +57,5 @@ public interface DuplexPlugin extends Plugin {
 	 */
 	@Nullable
 	RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
-			ConnectionHandler incoming);
+			boolean alice, ConnectionHandler incoming);
 }

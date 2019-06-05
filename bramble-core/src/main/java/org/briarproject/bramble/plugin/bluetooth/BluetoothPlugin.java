@@ -399,7 +399,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
-			ConnectionHandler incoming) {
+			boolean alice, ConnectionHandler incoming) {
 		throw new UnsupportedOperationException();
 	}
 

@@ -193,7 +193,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
-			ConnectionHandler incoming) {
+			boolean alice, ConnectionHandler incoming) {
 		throw new UnsupportedOperationException();
 	}
 
