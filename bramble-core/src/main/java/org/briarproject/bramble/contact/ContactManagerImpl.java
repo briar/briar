@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
+import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -15,24 +16,35 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousFailedEvent;
 import org.briarproject.bramble.api.transport.KeyManager;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CONTACT;
+import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
@@ -43,24 +55,31 @@ import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @ThreadSafe
 @NotNullByDefault
-class ContactManagerImpl implements ContactManager {
+class ContactManagerImpl implements ContactManager, EventListener {
 
 	private final DatabaseComponent db;
 	private final KeyManager keyManager;
 	private final IdentityManager identityManager;
 	private final PendingContactFactory pendingContactFactory;
+	private final EventBus eventBus;
 
-	private final List<ContactHook> hooks;
+	private final List<ContactHook> hooks = new CopyOnWriteArrayList<>();
+	private final Object statesLock = new Object();
+	@GuardedBy("statesLock")
+	private final Map<PendingContactId, PendingContactState> states =
+			new HashMap<>();
 
 	@Inject
-	ContactManagerImpl(DatabaseComponent db, KeyManager keyManager,
+	ContactManagerImpl(DatabaseComponent db,
+			KeyManager keyManager,
 			IdentityManager identityManager,
-			PendingContactFactory pendingContactFactory) {
+			PendingContactFactory pendingContactFactory,
+			EventBus eventBus) {
 		this.db = db;
 		this.keyManager = keyManager;
 		this.identityManager = identityManager;
 		this.pendingContactFactory = pendingContactFactory;
-		hooks = new CopyOnWriteArrayList<>();
+		this.eventBus = eventBus;
 	}
 
 	@Override
@@ -139,6 +158,7 @@ class ContactManagerImpl implements ContactManager {
 		} finally {
 			db.endTransaction(txn);
 		}
+		setState(p.getId(), WAITING_FOR_CONNECTION);
 		return p;
 	}
 
@@ -156,7 +176,12 @@ class ContactManagerImpl implements ContactManager {
 		List<Pair<PendingContact, PendingContactState>> pairs =
 				new ArrayList<>(pendingContacts.size());
 		for (PendingContact p : pendingContacts) {
-			pairs.add(new Pair<>(p, WAITING_FOR_CONNECTION)); // TODO
+			PendingContactState state;
+			synchronized (statesLock) {
+				state = states.get(p.getId());
+			}
+			if (state == null) state = WAITING_FOR_CONNECTION;
+			pairs.add(new Pair<>(p, state));
 		}
 		return pairs;
 	}
@@ -164,6 +189,9 @@ class ContactManagerImpl implements ContactManager {
 	@Override
 	public void removePendingContact(PendingContactId p) throws DbException {
 		db.transaction(false, txn -> db.removePendingContact(txn, p));
+		synchronized (statesLock) {
+			states.remove(p);
+		}
 	}
 
 	@Override
@@ -263,4 +291,34 @@ class ContactManagerImpl implements ContactManager {
 		else return new AuthorInfo(UNVERIFIED, c.getAlias());
 	}
 
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof RendezvousConnectionOpenedEvent) {
+			RendezvousConnectionOpenedEvent r =
+					(RendezvousConnectionOpenedEvent) e;
+			setState(r.getPendingContactId(), ADDING_CONTACT);
+		} else if (e instanceof RendezvousConnectionClosedEvent) {
+			RendezvousConnectionClosedEvent r =
+					(RendezvousConnectionClosedEvent) e;
+			// We're only interested in failures - if the rendezvous succeeds
+			// the pending contact will be removed
+			if (!r.isSuccess())
+				setState(r.getPendingContactId(), WAITING_FOR_CONNECTION);
+		} else if (e instanceof RendezvousFailedEvent) {
+			RendezvousFailedEvent r = (RendezvousFailedEvent) e;
+			setState(r.getPendingContactId(), FAILED);
+		}
+	}
+
+	/*
+	 * Sets the state of the given pending contact and broadcasts an event,
+	 * unless the current state is FAILED.
+	 */
+	private void setState(PendingContactId p, PendingContactState state) {
+		synchronized (statesLock) {
+			if (states.get(p) == FAILED) return;
+			states.put(p, state);
+			eventBus.broadcast(new PendingContactStateChangedEvent(p, state));
+		}
+	}
 }

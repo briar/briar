@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.AuthorInfo;
@@ -20,6 +21,7 @@ import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
@@ -54,7 +56,8 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 			context.mock(IdentityManager.class);
 	private final PendingContactFactory pendingContactFactory =
 			context.mock(PendingContactFactory.class);
-	private final ContactManager contactManager;
+	private final EventBus eventBus = context.mock(EventBus.class);
+
 	private final Author remote = getAuthor();
 	private final LocalAuthor localAuthor = getLocalAuthor();
 	private final AuthorId local = localAuthor.getId();
@@ -62,9 +65,12 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final Contact contact = getContact(remote, local, verified);
 	private final ContactId contactId = contact.getId();
 
-	public ContactManagerImplTest() {
+	private ContactManager contactManager;
+
+	@Before
+	public void setUp() {
 		contactManager = new ContactManagerImpl(db, keyManager,
-				identityManager, pendingContactFactory);
+				identityManager, pendingContactFactory, eventBus);
 	}
 
 	@Test
