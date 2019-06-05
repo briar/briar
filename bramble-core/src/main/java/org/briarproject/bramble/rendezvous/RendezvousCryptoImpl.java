@@ -11,6 +11,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.KEY_MATERIAL_LABEL;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_KEY_LABEL;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
@@ -27,7 +28,8 @@ class RendezvousCryptoImpl implements RendezvousCrypto {
 
 	@Override
 	public SecretKey deriveRendezvousKey(SecretKey staticMasterKey) {
-		return crypto.deriveKey(RENDEZVOUS_KEY_LABEL, staticMasterKey);
+		return crypto.deriveKey(RENDEZVOUS_KEY_LABEL, staticMasterKey,
+				new byte[] {PROTOCOL_VERSION});
 	}
 
 	@Override
