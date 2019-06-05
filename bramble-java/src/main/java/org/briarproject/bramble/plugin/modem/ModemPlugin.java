@@ -14,7 +14,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
-import org.briarproject.bramble.api.rendezvous.RendezvousHandler;
+import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -192,7 +192,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public RendezvousHandler createRendezvousHandler(KeyMaterialSource k) {
+	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
+			boolean alice, ConnectionHandler incoming) {
 		throw new UnsupportedOperationException();
 	}
 

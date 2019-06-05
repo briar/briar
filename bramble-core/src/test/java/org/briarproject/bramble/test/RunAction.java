@@ -7,7 +7,7 @@ import org.jmock.api.Invocation;
 public class RunAction implements Action {
 
 	@Override
-	public Object invoke(Invocation invocation) throws Throwable {
+	public Object invoke(Invocation invocation) {
 		Runnable task = (Runnable) invocation.getParameter(0);
 		task.run();
 		return null;

@@ -5,12 +5,13 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
-import org.briarproject.bramble.api.rendezvous.RendezvousCrypto;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.rendezvous.RendezvousConstants.KEY_MATERIAL_LABEL;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.KEY_MATERIAL_LABEL;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_KEY_LABEL;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @Immutable
@@ -25,10 +26,16 @@ class RendezvousCryptoImpl implements RendezvousCrypto {
 	}
 
 	@Override
-	public KeyMaterialSource createKeyMaterialSource(SecretKey masterKey,
+	public SecretKey deriveRendezvousKey(SecretKey staticMasterKey) {
+		return crypto.deriveKey(RENDEZVOUS_KEY_LABEL, staticMasterKey,
+				new byte[] {PROTOCOL_VERSION});
+	}
+
+	@Override
+	public KeyMaterialSource createKeyMaterialSource(SecretKey rendezvousKey,
 			TransportId t) {
-		SecretKey sourceKey = crypto.deriveKey(KEY_MATERIAL_LABEL, masterKey,
-				toUtf8(t.getString()));
+		SecretKey sourceKey = crypto.deriveKey(KEY_MATERIAL_LABEL,
+				rendezvousKey, toUtf8(t.getString()));
 		return new KeyMaterialSourceImpl(sourceKey);
 	}
 }

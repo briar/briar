@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
-import org.briarproject.bramble.api.rendezvous.RendezvousHandler;
+import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
@@ -309,7 +309,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	}
 
 	@Override
-	public RendezvousHandler createRendezvousHandler(KeyMaterialSource k) {
+	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
+			boolean alice, ConnectionHandler incoming) {
 		throw new UnsupportedOperationException();
 	}
 

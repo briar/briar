@@ -7,6 +7,7 @@ import org.briarproject.bramble.identity.IdentityModule;
 import org.briarproject.bramble.lifecycle.LifecycleModule;
 import org.briarproject.bramble.plugin.PluginModule;
 import org.briarproject.bramble.properties.PropertiesModule;
+import org.briarproject.bramble.rendezvous.RendezvousModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
 import org.briarproject.bramble.system.SystemModule;
 import org.briarproject.bramble.transport.TransportModule;
@@ -28,6 +29,8 @@ public interface BrambleCoreEagerSingletons {
 
 	void inject(PropertiesModule.EagerSingletons init);
 
+	void inject(RendezvousModule.EagerSingletons init);
+
 	void inject(SystemModule.EagerSingletons init);
 
 	void inject(TransportModule.EagerSingletons init);
@@ -42,6 +45,7 @@ public interface BrambleCoreEagerSingletons {
 		inject(new DatabaseExecutorModule.EagerSingletons());
 		inject(new IdentityModule.EagerSingletons());
 		inject(new LifecycleModule.EagerSingletons());
+		inject(new RendezvousModule.EagerSingletons());
 		inject(new PluginModule.EagerSingletons());
 		inject(new PropertiesModule.EagerSingletons());
 		inject(new SystemModule.EagerSingletons());
