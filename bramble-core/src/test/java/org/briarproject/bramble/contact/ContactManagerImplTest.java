@@ -23,15 +23,14 @@ import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedE
 import org.briarproject.bramble.api.rendezvous.event.RendezvousFailedEvent;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.DbExpectations;
+import org.briarproject.bramble.test.PredicateMatcher;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -332,20 +331,14 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testFailedStateIsNotReplaced() throws Exception {
 		Transaction txn = new Transaction(null, true);
-		AtomicReference<PendingContactStateChangedEvent> captureFirstEvent =
-				new AtomicReference<>();
-		AtomicReference<PendingContactStateChangedEvent> captureSecondEvent =
-				new AtomicReference<>();
 
 		context.checking(new Expectations() {{
-			oneOf(eventBus).broadcast(with(any(
-					PendingContactStateChangedEvent.class)));
-			will(new CaptureArgumentAction<>(captureFirstEvent,
-					PendingContactStateChangedEvent.class, 0));
-			oneOf(eventBus).broadcast(with(any(
-					PendingContactStateChangedEvent.class)));
-			will(new CaptureArgumentAction<>(captureSecondEvent,
-					PendingContactStateChangedEvent.class, 0));
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == ADDING_CONTACT)));
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == FAILED)));
 		}});
 
 		// A rendezvous connection is opened, then the pending contact expires,
@@ -356,10 +349,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 				pendingContact.getId()));
 		contactManager.eventOccurred(new RendezvousConnectionClosedEvent(
 				pendingContact.getId(), false));
-
-		assertEquals(ADDING_CONTACT,
-				captureFirstEvent.get().getPendingContactState());
-		assertEquals(FAILED, captureSecondEvent.get().getPendingContactState());
+		context.assertIsSatisfied();
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
