@@ -32,7 +32,6 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.EOFException;
 import java.io.File;
@@ -55,7 +54,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
-import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
 import static java.util.Arrays.asList;
@@ -79,6 +77,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -314,8 +313,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (!doneFile.createNewFile())
 				LOG.warning("Failed to create done file");
 		} catch (IOException e) {
-			IoUtils.tryToClose(in, LOG, WARNING);
-			IoUtils.tryToClose(out, LOG, WARNING);
+			tryToClose(in, LOG, WARNING);
+			tryToClose(out, LOG, WARNING);
 			throw new PluginException(e);
 		}
 	}
@@ -374,7 +373,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 			return b;
 		} finally {
-			IoUtils.tryToClose(in, LOG, WARNING);
+			tryToClose(in, LOG, WARNING);
 		}
 	}
 
@@ -392,11 +391,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				ss.bind(new InetSocketAddress("127.0.0.1", port));
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
-				tryToClose(ss);
+				tryToClose(ss, LOG, WARNING);
 				return;
 			}
 			if (!running) {
-				tryToClose(ss);
+				tryToClose(ss, LOG, WARNING);
 				return;
 			}
 			socket = ss;
@@ -411,11 +410,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Accept incoming hidden service connections from Tor
 			acceptContactConnections(ss);
 		});
-	}
-
-	private void tryToClose(@Nullable ServerSocket ss) {
-		IoUtils.tryToClose(ss, LOG, WARNING);
-		callback.transportDisabled();
 	}
 
 	private void publishHiddenService(String port) {
@@ -502,7 +496,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void stop() {
 		running = false;
-		tryToClose(socket);
+		tryToClose(socket, LOG, WARNING);
+		callback.transportDisabled();
 		if (controlSocket != null && controlConnection != null) {
 			try {
 				LOG.info("Stopping Tor");
@@ -589,7 +584,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Could not connect to " + scrubOnion(bestOnion)
 						+ ": " + e.toString());
 			}
-			IoUtils.tryToClose(s, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
 			return null;
 		}
 	}
@@ -657,7 +652,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				@Override
 				public void close() throws IOException {
 					controlConnection.delOnion(localOnion);
-					tryToClose(ss);
+					tryToClose(ss, LOG, WARNING);
 				}
 			};
 		} catch (IOException e) {
