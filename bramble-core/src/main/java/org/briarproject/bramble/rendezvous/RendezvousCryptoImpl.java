@@ -10,8 +10,8 @@ import org.briarproject.bramble.api.rendezvous.RendezvousCrypto;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.rendezvous.RendezvousConstants.KEY_MATERIAL_LABEL;
-import static org.briarproject.bramble.api.rendezvous.RendezvousConstants.RENDEZVOUS_KEY_LABEL;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.KEY_MATERIAL_LABEL;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_KEY_LABEL;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 
 @Immutable

@@ -1,9 +1,9 @@
-package org.briarproject.bramble.api.rendezvous;
+package org.briarproject.bramble.rendezvous;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 
-public interface RendezvousConstants {
+interface RendezvousConstants {
 
 	/**
 	 * The current version of the rendezvous protocol.

@@ -59,8 +59,8 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNull;
-import static org.briarproject.bramble.api.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
-import static org.briarproject.bramble.api.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 

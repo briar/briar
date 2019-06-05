@@ -37,8 +37,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.briarproject.bramble.api.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
-import static org.briarproject.bramble.api.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
+import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
 import static org.briarproject.bramble.test.CollectionMatcher.collectionOf;
 import static org.briarproject.bramble.test.PairMatcher.pairOf;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
