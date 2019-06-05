@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
-import org.briarproject.bramble.api.rendezvous.RendezvousCrypto;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;

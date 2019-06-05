@@ -2,7 +2,6 @@ package org.briarproject.bramble.rendezvous;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.rendezvous.RendezvousCrypto;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;

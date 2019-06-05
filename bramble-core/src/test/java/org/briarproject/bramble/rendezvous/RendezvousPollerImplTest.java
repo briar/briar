@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
-import org.briarproject.bramble.api.rendezvous.RendezvousCrypto;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousFailedEvent;
 import org.briarproject.bramble.api.system.Clock;
