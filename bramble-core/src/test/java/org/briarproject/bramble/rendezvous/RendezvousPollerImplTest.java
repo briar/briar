@@ -115,19 +115,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(captureExpiryTask, Runnable.class,
 					0));
-			// Load our handshake key pair
-			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			will(returnValue(handshakeKeyPair));
-			// Derive the rendezvous key
-			oneOf(transportCrypto).deriveStaticMasterKey(
-					pendingContact.getPublicKey(), handshakeKeyPair);
-			will(returnValue(staticMasterKey));
-			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
-			will(returnValue(rendezvousKey));
-			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
-					handshakeKeyPair);
-			will(returnValue(alice));
 		}});
+
+		expectDeriveRendezvousKey();
 
 		rendezvousPoller.startService();
 		context.assertIsSatisfied();
@@ -157,45 +147,27 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreatesAndClosesEndpointsWhenPendingContactIsAddedAndRemoved()
 			throws Exception {
-		Transaction txn = new Transaction(null, true);
 		long now = pendingContact.getTimestamp();
 
 		// Enable the transport - no endpoints should be created yet
-		context.checking(new Expectations() {{
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			oneOf(plugin).supportsRendezvous();
-			will(returnValue(true));
-			allowing(plugin).getId();
-			will(returnValue(transportId));
-		}});
+		expectGetPlugin();
 
 		rendezvousPoller.eventOccurred(new TransportEnabledEvent(transportId));
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
-		context.checking(new DbExpectations() {{
+		context.checking(new Expectations() {{
 			// Add pending contact
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(RENDEZVOUS_TIMEOUT_MS), with(MILLISECONDS));
-			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			will(returnValue(handshakeKeyPair));
-			oneOf(transportCrypto).deriveStaticMasterKey(
-					pendingContact.getPublicKey(), handshakeKeyPair);
-			will(returnValue(staticMasterKey));
-			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
-			will(returnValue(rendezvousKey));
-			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
-					handshakeKeyPair);
-			will(returnValue(alice));
-			oneOf(rendezvousCrypto).createKeyMaterialSource(rendezvousKey,
-					transportId);
-			will(returnValue(keyMaterialSource));
-			oneOf(plugin).createRendezvousEndpoint(with(keyMaterialSource),
-					with(alice), with(any(ConnectionHandler.class)));
-			will(returnValue(rendezvousEndpoint));
+		}});
+
+		expectDeriveRendezvousKey();
+		expectCreateEndpoint();
+
+		context.checking(new Expectations() {{
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
 			will(returnValue(transportProperties));
@@ -224,25 +196,17 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreatesAndClosesEndpointsWhenPendingContactIsAddedAndExpired()
 			throws Exception {
-		Transaction txn = new Transaction(null, true);
 		long now = pendingContact.getTimestamp();
 		AtomicReference<Runnable> captureExpiryTask = new AtomicReference<>();
 
 		// Enable the transport - no endpoints should be created yet
-		context.checking(new Expectations() {{
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			oneOf(plugin).supportsRendezvous();
-			will(returnValue(true));
-			allowing(plugin).getId();
-			will(returnValue(transportId));
-		}});
+		expectGetPlugin();
 
 		rendezvousPoller.eventOccurred(new TransportEnabledEvent(transportId));
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
-		context.checking(new DbExpectations() {{
+		context.checking(new Expectations() {{
 			// Add pending contact
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
@@ -251,22 +215,12 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					with(RENDEZVOUS_TIMEOUT_MS), with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(captureExpiryTask, Runnable.class,
 					0));
-			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			will(returnValue(handshakeKeyPair));
-			oneOf(transportCrypto).deriveStaticMasterKey(
-					pendingContact.getPublicKey(), handshakeKeyPair);
-			will(returnValue(staticMasterKey));
-			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
-			will(returnValue(rendezvousKey));
-			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
-					handshakeKeyPair);
-			will(returnValue(alice));
-			oneOf(rendezvousCrypto).createKeyMaterialSource(rendezvousKey,
-					transportId);
-			will(returnValue(keyMaterialSource));
-			oneOf(plugin).createRendezvousEndpoint(with(keyMaterialSource),
-					with(alice), with(any(ConnectionHandler.class)));
-			will(returnValue(rendezvousEndpoint));
+		}});
+
+		expectDeriveRendezvousKey();
+		expectCreateEndpoint();
+
+		context.checking(new Expectations() {{
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
 			will(returnValue(transportProperties));
@@ -300,7 +254,6 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreatesAndClosesEndpointsWhenTransportIsEnabledAndDisabled()
 			throws Exception {
-		Transaction txn = new Transaction(null, true);
 		long now = pendingContact.getTimestamp();
 
 		// Add the pending contact - no endpoints should be created yet
@@ -309,37 +262,17 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(RENDEZVOUS_TIMEOUT_MS), with(MILLISECONDS));
-			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			will(returnValue(handshakeKeyPair));
-			oneOf(transportCrypto).deriveStaticMasterKey(
-					pendingContact.getPublicKey(), handshakeKeyPair);
-			will(returnValue(staticMasterKey));
-			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
-			will(returnValue(rendezvousKey));
-			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
-					handshakeKeyPair);
-			will(returnValue(alice));
 		}});
+
+		expectDeriveRendezvousKey();
 
 		rendezvousPoller.eventOccurred(
 				new PendingContactAddedEvent(pendingContact));
 		context.assertIsSatisfied();
 
 		// Enable the transport - endpoint should be created
-		context.checking(new Expectations() {{
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			oneOf(plugin).supportsRendezvous();
-			will(returnValue(true));
-			allowing(plugin).getId();
-			will(returnValue(transportId));
-			oneOf(rendezvousCrypto).createKeyMaterialSource(rendezvousKey,
-					transportId);
-			will(returnValue(keyMaterialSource));
-			oneOf(plugin).createRendezvousEndpoint(with(keyMaterialSource),
-					with(alice), with(any(ConnectionHandler.class)));
-			will(returnValue(rendezvousEndpoint));
-		}});
+		expectGetPlugin();
+		expectCreateEndpoint();
 
 		rendezvousPoller.eventOccurred(new TransportEnabledEvent(transportId));
 		context.assertIsSatisfied();
@@ -355,5 +288,44 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		// Remove the pending contact - endpoint is already closed
 		rendezvousPoller.eventOccurred(
 				new PendingContactRemovedEvent(pendingContact.getId()));
+	}
+
+	private void expectDeriveRendezvousKey() throws Exception {
+		Transaction txn = new Transaction(null, true);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			will(returnValue(handshakeKeyPair));
+			oneOf(transportCrypto).deriveStaticMasterKey(
+					pendingContact.getPublicKey(), handshakeKeyPair);
+			will(returnValue(staticMasterKey));
+			oneOf(rendezvousCrypto).deriveRendezvousKey(staticMasterKey);
+			will(returnValue(rendezvousKey));
+			oneOf(transportCrypto).isAlice(pendingContact.getPublicKey(),
+					handshakeKeyPair);
+			will(returnValue(alice));
+		}});
+	}
+
+	private void expectCreateEndpoint() {
+		context.checking(new Expectations() {{
+			oneOf(rendezvousCrypto).createKeyMaterialSource(rendezvousKey,
+					transportId);
+			will(returnValue(keyMaterialSource));
+			oneOf(plugin).createRendezvousEndpoint(with(keyMaterialSource),
+					with(alice), with(any(ConnectionHandler.class)));
+			will(returnValue(rendezvousEndpoint));
+		}});
+	}
+
+	private void expectGetPlugin() {
+		context.checking(new Expectations() {{
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			oneOf(plugin).supportsRendezvous();
+			will(returnValue(true));
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+		}});
 	}
 }
