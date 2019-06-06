@@ -47,6 +47,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -79,6 +80,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private final EventBus eventBus;
 	private final Clock clock;
 
+	private final AtomicBoolean used = new AtomicBoolean(false);
 	// Executor that runs one task at a time
 	private final Executor worker;
 	// The following fields are only accessed on the worker
@@ -113,6 +115,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 	@Override
 	public void startService() throws ServiceException {
+		if (used.getAndSet(true)) throw new IllegalStateException();
 		try {
 			db.transaction(true, txn -> {
 				Collection<PendingContact> pending = db.getPendingContacts(txn);
