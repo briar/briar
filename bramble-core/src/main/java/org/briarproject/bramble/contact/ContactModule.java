@@ -3,6 +3,7 @@ package org.briarproject.bramble.contact;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.HandshakeManager;
+import org.briarproject.bramble.api.event.EventBus;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,7 +21,9 @@ public class ContactModule {
 
 	@Provides
 	@Singleton
-	ContactManager provideContactManager(ContactManagerImpl contactManager) {
+	ContactManager provideContactManager(EventBus eventBus,
+			ContactManagerImpl contactManager) {
+		eventBus.addListener(contactManager);
 		return contactManager;
 	}
 
