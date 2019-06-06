@@ -35,6 +35,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
@@ -92,28 +93,28 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testAddsPendingContactsAndSchedulesExpiryAtStartup()
+	public void testAddsPendingContactsAndSchedulesPollingAtStartup()
 			throws Exception {
 		Transaction txn = new Transaction(null, true);
-		long now = pendingContact.getTimestamp() + RENDEZVOUS_TIMEOUT_MS - 1000;
-		AtomicReference<Runnable> captureExpiryTask = new AtomicReference<>();
+		long beforeExpiry = pendingContact.getTimestamp()
+				+ RENDEZVOUS_TIMEOUT_MS - 1000;
+		long afterExpiry = beforeExpiry + POLLING_INTERVAL_MS;
+		AtomicReference<Runnable> capturePollTask = new AtomicReference<>();
 
+		// Start the service
 		context.checking(new DbExpectations() {{
 			// Load the pending contacts
 			oneOf(db).transaction(with(true), withDbRunnable(txn));
 			oneOf(db).getPendingContacts(txn);
 			will(returnValue(singletonList(pendingContact)));
-			// Schedule the first poll
+			// The pending contact has not expired
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(beforeExpiry));
+			// Capture the poll task, we'll run it later
 			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
 					with(MILLISECONDS));
-			// Calculate the pending contact's expiry time, 1 second from now
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			// Capture the expiry task, we'll run it later
-			oneOf(scheduler).schedule(with(any(Runnable.class)), with(1000L),
-					with(MILLISECONDS));
-			will(new CaptureArgumentAction<>(captureExpiryTask, Runnable.class,
+			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
 					0));
 		}});
 
@@ -122,32 +123,50 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		rendezvousPoller.startService();
 		context.assertIsSatisfied();
 
+		// Run the poll task - pending contact expires
 		context.checking(new Expectations() {{
-			// Run the expiry task
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(afterExpiry));
 			oneOf(eventBus).broadcast(with(any(RendezvousFailedEvent.class)));
 		}});
 
-		captureExpiryTask.get().run();
+		capturePollTask.get().run();
 	}
 
 	@Test
-	public void testBroadcastsEventWhenExpiredPendingContactIsAdded() {
-		long now = pendingContact.getTimestamp() + RENDEZVOUS_TIMEOUT_MS;
+	public void testExpiresPendingContactAtStartup() throws Exception {
+		Transaction txn = new Transaction(null, true);
+		long atExpiry = pendingContact.getTimestamp() + RENDEZVOUS_TIMEOUT_MS;
 
-		context.checking(new Expectations() {{
+		// Start the service
+		context.checking(new DbExpectations() {{
+			// Load the pending contacts
+			oneOf(db).transaction(with(true), withDbRunnable(txn));
+			oneOf(db).getPendingContacts(txn);
+			will(returnValue(singletonList(pendingContact)));
+			// The pending contact has already expired
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
+			will(returnValue(atExpiry));
 			oneOf(eventBus).broadcast(with(any(RendezvousFailedEvent.class)));
+			// Schedule the poll task
+			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
+					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
+					with(MILLISECONDS));
 		}});
 
-		rendezvousPoller.eventOccurred(
-				new PendingContactAddedEvent(pendingContact));
+		rendezvousPoller.startService();
 	}
 
 	@Test
 	public void testCreatesAndClosesEndpointsWhenPendingContactIsAddedAndRemoved()
 			throws Exception {
-		long now = pendingContact.getTimestamp();
+		long beforeExpiry = pendingContact.getTimestamp();
+
+		// Start the service
+		expectStartupWithNoPendingContacts();
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
 
 		// Enable the transport - no endpoints should be created yet
 		expectGetPlugin();
@@ -157,11 +176,8 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 
 		// Add the pending contact - endpoint should be created and polled
 		context.checking(new Expectations() {{
-			// Add pending contact
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(RENDEZVOUS_TIMEOUT_MS), with(MILLISECONDS));
+			will(returnValue(beforeExpiry));
 		}});
 
 		expectDeriveRendezvousKey();
@@ -196,8 +212,16 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreatesAndClosesEndpointsWhenPendingContactIsAddedAndExpired()
 			throws Exception {
-		long now = pendingContact.getTimestamp();
-		AtomicReference<Runnable> captureExpiryTask = new AtomicReference<>();
+		long beforeExpiry = pendingContact.getTimestamp()
+				+ RENDEZVOUS_TIMEOUT_MS - 1000;
+		long afterExpiry = beforeExpiry + POLLING_INTERVAL_MS;
+
+		// Start the service, capturing the poll task
+		AtomicReference<Runnable> capturePollTask =
+				expectStartupWithNoPendingContacts();
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
 
 		// Enable the transport - no endpoints should be created yet
 		expectGetPlugin();
@@ -207,14 +231,8 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 
 		// Add the pending contact - endpoint should be created and polled
 		context.checking(new Expectations() {{
-			// Add pending contact
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			// Capture the expiry task, we'll run it later
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(RENDEZVOUS_TIMEOUT_MS), with(MILLISECONDS));
-			will(new CaptureArgumentAction<>(captureExpiryTask, Runnable.class,
-					0));
+			will(returnValue(beforeExpiry));
 		}});
 
 		expectDeriveRendezvousKey();
@@ -233,13 +251,15 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 				new PendingContactAddedEvent(pendingContact));
 		context.assertIsSatisfied();
 
-		// The pending contact expires - endpoint should be closed
+		// Run the poll task - pending contact expires, endpoint is closed
 		context.checking(new Expectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(afterExpiry));
 			oneOf(rendezvousEndpoint).close();
 			oneOf(eventBus).broadcast(with(any(RendezvousFailedEvent.class)));
 		}});
 
-		captureExpiryTask.get().run();
+		capturePollTask.get().run();
 		context.assertIsSatisfied();
 
 		// Remove the pending contact - endpoint is already closed
@@ -254,14 +274,18 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testCreatesAndClosesEndpointsWhenTransportIsEnabledAndDisabled()
 			throws Exception {
-		long now = pendingContact.getTimestamp();
+		long beforeExpiry = pendingContact.getTimestamp();
+
+		// Start the service
+		expectStartupWithNoPendingContacts();
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
 
 		// Add the pending contact - no endpoints should be created yet
 		context.checking(new DbExpectations() {{
 			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(RENDEZVOUS_TIMEOUT_MS), with(MILLISECONDS));
+			will(returnValue(beforeExpiry));
 		}});
 
 		expectDeriveRendezvousKey();
@@ -288,6 +312,25 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		// Remove the pending contact - endpoint is already closed
 		rendezvousPoller.eventOccurred(
 				new PendingContactRemovedEvent(pendingContact.getId()));
+	}
+
+	private AtomicReference<Runnable> expectStartupWithNoPendingContacts()
+			throws Exception {
+		Transaction txn = new Transaction(null, true);
+		AtomicReference<Runnable> capturePollTask = new AtomicReference<>();
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(true), withDbRunnable(txn));
+			oneOf(db).getPendingContacts(txn);
+			will(returnValue(emptyList()));
+			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
+					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
+					with(MILLISECONDS));
+			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
+					0));
+		}});
+
+		return capturePollTask;
 	}
 
 	private void expectDeriveRendezvousKey() throws Exception {
