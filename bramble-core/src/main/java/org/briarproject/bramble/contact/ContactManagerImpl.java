@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -25,25 +24,20 @@ import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
-import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
-import org.briarproject.bramble.api.rendezvous.event.RendezvousFailedEvent;
 import org.briarproject.bramble.api.transport.KeyManager;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CONTACT;
-import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
@@ -60,23 +54,20 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	private final KeyManager keyManager;
 	private final IdentityManager identityManager;
 	private final PendingContactFactory pendingContactFactory;
-	private final EventBus eventBus;
 
 	private final List<ContactHook> hooks = new CopyOnWriteArrayList<>();
-	private final ConcurrentMap<PendingContactId, PendingContactState> states =
+	private final Map<PendingContactId, PendingContactState> states =
 			new ConcurrentHashMap<>();
 
 	@Inject
 	ContactManagerImpl(DatabaseComponent db,
 			KeyManager keyManager,
 			IdentityManager identityManager,
-			PendingContactFactory pendingContactFactory,
-			EventBus eventBus) {
+			PendingContactFactory pendingContactFactory) {
 		this.db = db;
 		this.keyManager = keyManager;
 		this.identityManager = identityManager;
 		this.pendingContactFactory = pendingContactFactory;
-		this.eventBus = eventBus;
 	}
 
 	@Override
@@ -156,7 +147,7 @@ class ContactManagerImpl implements ContactManager, EventListener {
 		} finally {
 			db.endTransaction(txn);
 		}
-		setState(p.getId(), WAITING_FOR_CONNECTION);
+		states.put(p.getId(), WAITING_FOR_CONNECTION);
 		return p;
 	}
 
@@ -286,46 +277,10 @@ class ContactManagerImpl implements ContactManager, EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof RendezvousConnectionOpenedEvent) {
-			RendezvousConnectionOpenedEvent r =
-					(RendezvousConnectionOpenedEvent) e;
-			setStateConnected(r.getPendingContactId());
-		} else if (e instanceof RendezvousConnectionClosedEvent) {
-			RendezvousConnectionClosedEvent r =
-					(RendezvousConnectionClosedEvent) e;
-			// We're only interested in failures - if the rendezvous succeeds
-			// the pending contact will be removed
-			if (!r.isSuccess()) setStateDisconnected(r.getPendingContactId());
-		} else if (e instanceof RendezvousFailedEvent) {
-			RendezvousFailedEvent r = (RendezvousFailedEvent) e;
-			setState(r.getPendingContactId(), FAILED);
-		}
-	}
-
-	/**
-	 * Sets the state of the given pending contact and broadcasts an event.
-	 */
-	private void setState(PendingContactId p, PendingContactState state) {
-		states.put(p, state);
-		eventBus.broadcast(new PendingContactStateChangedEvent(p, state));
-	}
-
-	private void setStateConnected(PendingContactId p) {
-		// Set the state to ADDING_CONTACT if there's no current state or the
-		// current state is WAITING_FOR_CONNECTION
-		if (states.putIfAbsent(p, ADDING_CONTACT) == null ||
-				states.replace(p, WAITING_FOR_CONNECTION, ADDING_CONTACT)) {
-			eventBus.broadcast(new PendingContactStateChangedEvent(p,
-					ADDING_CONTACT));
-		}
-	}
-
-	private void setStateDisconnected(PendingContactId p) {
-		// Set the state to WAITING_FOR_CONNECTION if the current state is
-		// ADDING_CONTACT
-		if (states.replace(p, ADDING_CONTACT, WAITING_FOR_CONNECTION)) {
-			eventBus.broadcast(new PendingContactStateChangedEvent(p,
-					WAITING_FOR_CONNECTION));
+		if (e instanceof PendingContactStateChangedEvent) {
+			PendingContactStateChangedEvent p =
+					(PendingContactStateChangedEvent) e;
+			states.put(p.getId(), p.getPendingContactState());
 		}
 	}
 }
