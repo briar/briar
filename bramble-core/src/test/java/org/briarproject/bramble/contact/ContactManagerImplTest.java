@@ -76,6 +76,9 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	private final KeyPair handshakeKeyPair =
 			new KeyPair(getAgreementPublicKey(), getAgreementPrivateKey());
 	private final PendingContact pendingContact = getPendingContact();
+	private final SecretKey rootKey = getSecretKey();
+	private final long timestamp = System.currentTimeMillis();
+	private final boolean alice = new Random().nextBoolean();
 
 	private ContactManagerImpl contactManager;
 
@@ -87,9 +90,6 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAddContact() throws Exception {
-		SecretKey rootKey = getSecretKey();
-		long timestamp = System.currentTimeMillis();
-		boolean alice = new Random().nextBoolean();
 		Transaction txn = new Transaction(null, false);
 
 		context.checking(new DbExpectations() {{
@@ -329,7 +329,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testPendingContactFailsBeforeConnection() {
+	public void testPendingContactExpiresBeforeConnection() {
 		// The pending contact expires - the FAILED state is broadcast
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
@@ -338,6 +338,7 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 		}});
 		contactManager.eventOccurred(new RendezvousFailedEvent(
 				pendingContact.getId()));
+		context.assertIsSatisfied();
 
 		// A rendezvous connection is opened - no state is broadcast
 		contactManager.eventOccurred(new RendezvousConnectionOpenedEvent(
@@ -347,11 +348,10 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 		// The rendezvous connection fails - no state is broadcast
 		contactManager.eventOccurred(new RendezvousConnectionClosedEvent(
 				pendingContact.getId(), false));
-		context.assertIsSatisfied();
 	}
 
 	@Test
-	public void testPendingContactFailsDuringConnection() {
+	public void testPendingContactExpiresDuringFailedConnection() {
 		// A rendezvous connection is opened - the ADDING_CONTACT state is
 		// broadcast
 		context.checking(new Expectations() {{
@@ -370,12 +370,101 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 					PendingContactStateChangedEvent.class, e ->
 					e.getPendingContactState() == FAILED)));
 		}});
+
 		contactManager.eventOccurred(new RendezvousFailedEvent(
 				pendingContact.getId()));
+		context.assertIsSatisfied();
 
 		// The rendezvous connection fails - no state is broadcast
 		contactManager.eventOccurred(new RendezvousConnectionClosedEvent(
 				pendingContact.getId(), false));
+	}
+
+	@Test
+	public void testPendingContactExpiresDuringSuccessfulConnection()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		// A rendezvous connection is opened - the ADDING_CONTACT state is
+		// broadcast
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == ADDING_CONTACT)));
+		}});
+
+		contactManager.eventOccurred(new RendezvousConnectionOpenedEvent(
+				pendingContact.getId()));
 		context.assertIsSatisfied();
+
+		// The pending contact expires - the FAILED state is broadcast
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == FAILED)));
+		}});
+
+		contactManager.eventOccurred(new RendezvousFailedEvent(
+				pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// The pending contact is converted to a contact - no state is broadcast
+		context.checking(new DbExpectations() {{
+			oneOf(db).getPendingContact(txn, pendingContact.getId());
+			will(returnValue(pendingContact));
+			oneOf(db).removePendingContact(txn, pendingContact.getId());
+			oneOf(db).addContact(txn, remote, local,
+					pendingContact.getPublicKey(), verified);
+			will(returnValue(contactId));
+			oneOf(db).setContactAlias(txn, contactId,
+					pendingContact.getAlias());
+			oneOf(identityManager).getHandshakeKeys(txn);
+			will(returnValue(handshakeKeyPair));
+			oneOf(keyManager).addContact(txn, contactId,
+					pendingContact.getPublicKey(), handshakeKeyPair);
+			oneOf(keyManager).addRotationKeys(txn, contactId, rootKey,
+					timestamp, alice, active);
+			oneOf(db).getContact(txn, contactId);
+			will(returnValue(contact));
+		}});
+
+		contactManager.addContact(txn, pendingContact.getId(), remote,
+				local, rootKey, timestamp, alice, verified, active);
+		context.assertIsSatisfied();
+
+		// The rendezvous connection succeeds - no state is broadcast
+		contactManager.eventOccurred(new RendezvousConnectionClosedEvent(
+				pendingContact.getId(), true));
+	}
+
+	@Test
+	public void testPendingContactRemovedDuringFailedConnection()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+
+		// A rendezvous connection is opened - the ADDING_CONTACT state is
+		// broadcast
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == ADDING_CONTACT)));
+		}});
+
+		contactManager.eventOccurred(new RendezvousConnectionOpenedEvent(
+				pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// The pending contact is removed - no state is broadcast
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			oneOf(db).removePendingContact(txn, pendingContact.getId());
+		}});
+
+		contactManager.removePendingContact(pendingContact.getId());
+		context.assertIsSatisfied();
+
+		// The rendezvous connection fails - no state is broadcast
+		contactManager.eventOccurred(new RendezvousConnectionClosedEvent(
+				pendingContact.getId(), false));
 	}
 }

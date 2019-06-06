@@ -102,6 +102,7 @@ class ContactManagerImpl implements ContactManager, EventListener {
 			throws DbException, GeneralSecurityException {
 		PendingContact pendingContact = db.getPendingContact(txn, p);
 		db.removePendingContact(txn, p);
+		states.remove(p);
 		PublicKey theirPublicKey = pendingContact.getPublicKey();
 		ContactId c =
 				db.addContact(txn, remote, local, theirPublicKey, verified);
@@ -288,17 +289,13 @@ class ContactManagerImpl implements ContactManager, EventListener {
 		if (e instanceof RendezvousConnectionOpenedEvent) {
 			RendezvousConnectionOpenedEvent r =
 					(RendezvousConnectionOpenedEvent) e;
-			PendingContactId p = r.getPendingContactId();
-			setState(p, WAITING_FOR_CONNECTION, ADDING_CONTACT);
+			setStateConnected(r.getPendingContactId());
 		} else if (e instanceof RendezvousConnectionClosedEvent) {
 			RendezvousConnectionClosedEvent r =
 					(RendezvousConnectionClosedEvent) e;
 			// We're only interested in failures - if the rendezvous succeeds
 			// the pending contact will be removed
-			if (!r.isSuccess()) {
-				PendingContactId p = r.getPendingContactId();
-				setState(p, ADDING_CONTACT, WAITING_FOR_CONNECTION);
-			}
+			if (!r.isSuccess()) setStateDisconnected(r.getPendingContactId());
 		} else if (e instanceof RendezvousFailedEvent) {
 			RendezvousFailedEvent r = (RendezvousFailedEvent) e;
 			setState(r.getPendingContactId(), FAILED);
@@ -313,14 +310,22 @@ class ContactManagerImpl implements ContactManager, EventListener {
 		eventBus.broadcast(new PendingContactStateChangedEvent(p, state));
 	}
 
-	/*
-	 * Sets the state of the given pending contact and broadcasts an event if
-	 * there is no current state or the current state equals {@code expected}.
-	 */
-	private void setState(PendingContactId p, PendingContactState expected,
-			PendingContactState state) {
-		PendingContactState old = states.putIfAbsent(p, state);
-		if (old == null || states.replace(p, expected, state))
-			eventBus.broadcast(new PendingContactStateChangedEvent(p, state));
+	private void setStateConnected(PendingContactId p) {
+		// Set the state to ADDING_CONTACT if there's no current state or the
+		// current state is WAITING_FOR_CONNECTION
+		if (states.putIfAbsent(p, ADDING_CONTACT) == null ||
+				states.replace(p, WAITING_FOR_CONNECTION, ADDING_CONTACT)) {
+			eventBus.broadcast(new PendingContactStateChangedEvent(p,
+					ADDING_CONTACT));
+		}
+	}
+
+	private void setStateDisconnected(PendingContactId p) {
+		// Set the state to WAITING_FOR_CONNECTION if the current state is
+		// ADDING_CONTACT
+		if (states.replace(p, ADDING_CONTACT, WAITING_FOR_CONNECTION)) {
+			eventBus.broadcast(new PendingContactStateChangedEvent(p,
+					WAITING_FOR_CONNECTION));
+		}
 	}
 }
