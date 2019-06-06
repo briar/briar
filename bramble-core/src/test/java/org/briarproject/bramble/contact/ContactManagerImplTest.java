@@ -329,41 +329,53 @@ public class ContactManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testFailedStateIsNotReplaced() throws Exception {
-		Transaction txn = new Transaction(null, true);
-
+	public void testPendingContactFailsBeforeConnection() {
+		// The pending contact expires - the FAILED state is broadcast
 		context.checking(new Expectations() {{
-			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
-					PendingContactStateChangedEvent.class, e ->
-					e.getPendingContactState() == ADDING_CONTACT)));
 			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
 					PendingContactStateChangedEvent.class, e ->
 					e.getPendingContactState() == FAILED)));
 		}});
-
-		// A rendezvous connection is opened, then the pending contact expires,
-		// then the rendezvous connection is closed
-		contactManager.eventOccurred(new RendezvousConnectionOpenedEvent(
-				pendingContact.getId()));
 		contactManager.eventOccurred(new RendezvousFailedEvent(
 				pendingContact.getId()));
+
+		// A rendezvous connection is opened - no state is broadcast
+		contactManager.eventOccurred(new RendezvousConnectionOpenedEvent(
+				pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// The rendezvous connection fails - no state is broadcast
 		contactManager.eventOccurred(new RendezvousConnectionClosedEvent(
 				pendingContact.getId(), false));
 		context.assertIsSatisfied();
+	}
 
-		context.checking(new DbExpectations() {{
-			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			oneOf(db).getPendingContacts(txn);
-			will(returnValue(singletonList(pendingContact)));
+	@Test
+	public void testPendingContactFailsDuringConnection() {
+		// A rendezvous connection is opened - the ADDING_CONTACT state is
+		// broadcast
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == ADDING_CONTACT)));
 		}});
 
-		// The FAILED state should not have been overwritten
-		Collection<Pair<PendingContact, PendingContactState>> pairs =
-				contactManager.getPendingContacts();
-		assertEquals(1, pairs.size());
-		Pair<PendingContact, PendingContactState> pair =
-				pairs.iterator().next();
-		assertEquals(pendingContact, pair.getFirst());
-		assertEquals(FAILED, pair.getSecond());
+		contactManager.eventOccurred(new RendezvousConnectionOpenedEvent(
+				pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// The pending contact expires - the FAILED state is broadcast
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == FAILED)));
+		}});
+		contactManager.eventOccurred(new RendezvousFailedEvent(
+				pendingContact.getId()));
+
+		// The rendezvous connection fails - no state is broadcast
+		contactManager.eventOccurred(new RendezvousConnectionClosedEvent(
+				pendingContact.getId(), false));
+		context.assertIsSatisfied();
 	}
 }
