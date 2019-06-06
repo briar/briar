@@ -12,11 +12,11 @@ import android.widget.CheckBox;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.login.StartupActivity;
-import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.logout.ExitActivity;
 import org.briarproject.briar.api.android.LockManager;
 
@@ -66,9 +66,7 @@ public abstract class BriarActivity extends BaseActivity {
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD) {
-			// The result can be RESULT_CANCELED if there's no account
 			if (result == RESULT_OK) briarController.startAndBindService();
-			else finish();
 		} else if (request == REQUEST_UNLOCK && result != RESULT_OK) {
 			// We arrive here, if the user presses 'back'
 			// in the Keyguard unlock screen, because UnlockActivity finishes.

@@ -79,10 +79,10 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_SIGN_OUT;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
@@ -578,7 +578,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 					language.setValue(newValue);
 					Intent intent = new Intent(getContext(), ENTRY_ACTIVITY);
 					intent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-					intent.putExtra(INTENT_SIGN_OUT, true);
+					intent.setData(SIGN_OUT_URI);
 					requireActivity().startActivity(intent);
 					requireActivity().finish();
 				});

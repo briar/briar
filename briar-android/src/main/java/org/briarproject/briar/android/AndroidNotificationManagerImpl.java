@@ -9,6 +9,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.annotation.UiThread;
 import android.support.v4.app.NotificationCompat;
@@ -73,10 +74,11 @@ import static android.support.v4.app.NotificationCompat.VISIBILITY_SECRET;
 import static android.support.v4.content.ContextCompat.getColor;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_BLOGS;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_CONTACTS;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_FORUMS;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.INTENT_GROUPS;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.BLOG_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.CONTACT_ADDED_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.CONTACT_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.FORUM_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.GROUP_URI;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 
 @ThreadSafe
@@ -101,7 +103,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	private final Multiset<GroupId> blogCounts = new Multiset<>();
 	private int contactAddedTotal = 0;
 	private int nextRequestId = 0;
+	@Nullable
 	private ContactId blockedContact = null;
+	@Nullable
 	private GroupId blockedGroup = null;
 	private boolean blockSignInReminder = false;
 	private boolean blockBlogs = false;
@@ -325,9 +329,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			} else {
 				// Touching the notification shows the contact list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
-				i.putExtra(INTENT_CONTACTS, true);
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				i.setData(Uri.parse(CONTACT_URI));
+				i.setData(CONTACT_URI);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
@@ -363,9 +366,9 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		return defaults;
 	}
 
-	private void setDeleteIntent(BriarNotificationBuilder b, String uri) {
+	private void setDeleteIntent(BriarNotificationBuilder b, Uri uri) {
 		Intent i = new Intent(appContext, NotificationCleanupService.class);
-		i.setData(Uri.parse(uri));
+		i.setData(uri);
 		b.setDeleteIntent(PendingIntent.getService(appContext, nextRequestId++,
 				i, 0));
 	}
@@ -425,9 +428,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			} else {
 				// Touching the notification shows the group list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
-				i.putExtra(INTENT_GROUPS, true);
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				i.setData(Uri.parse(GROUP_URI));
+				i.setData(GROUP_URI);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
@@ -493,9 +495,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			} else {
 				// Touching the notification shows the forum list
 				Intent i = new Intent(appContext, NavDrawerActivity.class);
-				i.putExtra(INTENT_FORUMS, true);
 				i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				i.setData(Uri.parse(FORUM_URI));
+				i.setData(FORUM_URI);
 				TaskStackBuilder t = TaskStackBuilder.create(appContext);
 				t.addParentStack(NavDrawerActivity.class);
 				t.addNextIntent(i);
@@ -546,9 +547,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			setDeleteIntent(b, BLOG_URI);
 			// Touching the notification shows the combined blog feed
 			Intent i = new Intent(appContext, NavDrawerActivity.class);
-			i.putExtra(INTENT_BLOGS, true);
 			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-			i.setData(Uri.parse(BLOG_URI));
+			i.setData(BLOG_URI);
 			TaskStackBuilder t = TaskStackBuilder.create(appContext);
 			t.addParentStack(NavDrawerActivity.class);
 			t.addNextIntent(i);
@@ -585,9 +585,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		setDeleteIntent(b, CONTACT_ADDED_URI);
 		// Touching the notification shows the contact list
 		Intent i = new Intent(appContext, NavDrawerActivity.class);
-		i.putExtra(INTENT_CONTACTS, true);
 		i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-		i.setData(Uri.parse(CONTACT_URI));
+		i.setData(CONTACT_URI);
 		TaskStackBuilder t = TaskStackBuilder.create(appContext);
 		t.addParentStack(NavDrawerActivity.class);
 		t.addNextIntent(i);

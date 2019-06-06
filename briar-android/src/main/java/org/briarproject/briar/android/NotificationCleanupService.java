@@ -2,17 +2,18 @@ package org.briarproject.briar.android;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.Nullable;
 
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import javax.inject.Inject;
 
-import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_URI;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_URI;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_URI;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.GROUP_URI;
-import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_ADDED_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.BLOG_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.CONTACT_ADDED_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.CONTACT_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.FORUM_URI;
+import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.GROUP_URI;
 
 public class NotificationCleanupService extends IntentService {
 
@@ -37,7 +38,7 @@ public class NotificationCleanupService extends IntentService {
 	@Override
 	protected void onHandleIntent(@Nullable Intent i) {
 		if (i == null || i.getData() == null) return;
-		String uri = i.getData().toString();
+		Uri uri = i.getData();
 		if (uri.equals(CONTACT_URI)) {
 			notificationManager.clearAllContactNotifications();
 		} else if (uri.equals(GROUP_URI)) {
