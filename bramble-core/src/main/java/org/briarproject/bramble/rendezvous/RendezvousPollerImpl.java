@@ -140,10 +140,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private void addPendingContact(PendingContact p) {
 		long now = clock.currentTimeMillis();
 		long expiry = p.getTimestamp() + RENDEZVOUS_TIMEOUT_MS;
-		if (expiry > now) {
-			scheduler.schedule(() -> expirePendingContactAsync(p.getId()),
-					expiry - now, MILLISECONDS);
-		} else {
+		if (expiry <= now) {
 			eventBus.broadcast(new RendezvousFailedEvent(p.getId()));
 			return;
 		}
@@ -158,7 +155,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 					.deriveRendezvousKey(staticMasterKey);
 			boolean alice = transportCrypto
 					.isAlice(p.getPublicKey(), handshakeKeyPair);
-			CryptoState cs = new CryptoState(rendezvousKey, alice);
+			CryptoState cs = new CryptoState(rendezvousKey, alice, expiry);
 			requireNull(cryptoStates.put(p.getId(), cs));
 			for (PluginState ps : pluginStates.values()) {
 				RendezvousEndpoint endpoint =
@@ -169,28 +166,6 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		} catch (DbException | GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
 		}
-	}
-
-	@Scheduler
-	private void expirePendingContactAsync(PendingContactId p) {
-		worker.execute(() -> expirePendingContact(p));
-	}
-
-	// Worker
-	private void expirePendingContact(PendingContactId p) {
-		if (removePendingContact(p))
-			eventBus.broadcast(new RendezvousFailedEvent(p));
-	}
-
-	// Worker
-	private boolean removePendingContact(PendingContactId p) {
-		// We can come here twice if a pending contact fails and is then removed
-		if (cryptoStates.remove(p) == null) return false;
-		for (PluginState ps : pluginStates.values()) {
-			RendezvousEndpoint endpoint = ps.endpoints.remove(p);
-			if (endpoint != null) tryToClose(endpoint, LOG, INFO);
-		}
-		return true;
 	}
 
 	@Nullable
@@ -206,8 +181,32 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	@Scheduler
 	private void poll() {
 		worker.execute(() -> {
+			removeExpiredPendingContacts();
 			for (PluginState ps : pluginStates.values()) poll(ps);
 		});
+	}
+
+	// Worker
+	private void removeExpiredPendingContacts() {
+		long now = clock.currentTimeMillis();
+		List<PendingContactId> expired = new ArrayList<>();
+		for (Entry<PendingContactId, CryptoState> e : cryptoStates.entrySet()) {
+			if (e.getValue().expiry <= now) expired.add(e.getKey());
+		}
+		for (PendingContactId p : expired) {
+			removePendingContact(p);
+			eventBus.broadcast(new RendezvousFailedEvent(p));
+		}
+	}
+
+	// Worker
+	private void removePendingContact(PendingContactId p) {
+		// We can come here twice if a pending contact expires and is removed
+		if (cryptoStates.remove(p) == null) return;
+		for (PluginState ps : pluginStates.values()) {
+			RendezvousEndpoint endpoint = ps.endpoints.remove(p);
+			if (endpoint != null) tryToClose(endpoint, LOG, INFO);
+		}
 	}
 
 	// Worker
@@ -221,7 +220,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			Handler h = new Handler(e.getKey(), ps.plugin.getId(), false);
 			properties.add(new Pair<>(props, h));
 		}
-		ps.plugin.poll(properties);
+		if (!properties.isEmpty()) ps.plugin.poll(properties);
 	}
 
 	@Override
@@ -324,10 +323,13 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 		private final SecretKey rendezvousKey;
 		private final boolean alice;
+		private final long expiry;
 
-		private CryptoState(SecretKey rendezvousKey, boolean alice) {
+		private CryptoState(SecretKey rendezvousKey, boolean alice,
+				long expiry) {
 			this.rendezvousKey = rendezvousKey;
 			this.alice = alice;
+			this.expiry = expiry;
 		}
 	}
 
