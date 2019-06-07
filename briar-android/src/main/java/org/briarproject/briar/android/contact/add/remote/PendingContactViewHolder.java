@@ -1,9 +1,9 @@
 package org.briarproject.briar.android.contact.add.remote;
 
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.AppCompatImageButton;
 import android.support.v7.widget.RecyclerView.ViewHolder;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.contact.PendingContact;
@@ -21,7 +21,7 @@ class PendingContactViewHolder extends ViewHolder {
 	private final TextView name;
 	private final TextView time;
 	private final TextView status;
-	private final Button removeButton;
+	private final AppCompatImageButton removeButton;
 
 	PendingContactViewHolder(View v, PendingContactListener listener) {
 		super(v);
