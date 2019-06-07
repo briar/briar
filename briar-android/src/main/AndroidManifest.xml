@@ -21,6 +21,8 @@
 	<uses-permission android:name="android.permission.CAMERA"/>
 	<uses-permission android:name="android.permission.INTERNET"/>
 	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+	<!--suppress DeprecatedClassUsageInspection -->
+	<uses-permission android:name="android.permission.USE_FINGERPRINT"/>
 	<uses-permission android:name="android.permission.VIBRATE"/>
 	<uses-permission android:name="android.permission.WAKE_LOCK"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -104,11 +106,6 @@
 			android:name="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:launchMode="singleTask"
 			android:theme="@style/BriarTheme.NoActionBar">
-
-			<intent-filter>
-				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
-				<category android:name="android.intent.category.DEFAULT"/>
-			</intent-filter>
 			<intent-filter android:label="@string/add_contact_remotely_title_case">
 				<action android:name="android.intent.action.VIEW"/>
 
@@ -122,7 +119,6 @@
 				<category android:name="android.intent.category.DEFAULT"/>
 				<data android:mimeType="text/plain"/>
 			</intent-filter>
-
 		</activity>
 
 		<activity
@@ -364,6 +360,10 @@
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
+			<intent-filter>
+				<action android:name="android.intent.action.MANAGE_NETWORK_USAGE"/>
+				<category android:name="android.intent.category.DEFAULT"/>
+			</intent-filter>
 		</activity>
 
 		<activity

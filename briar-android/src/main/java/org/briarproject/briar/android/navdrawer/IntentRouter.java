@@ -5,9 +5,7 @@ import android.content.Intent;
 
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contact.add.remote.AddContactActivity;
-import org.briarproject.briar.android.settings.SettingsActivity;
 
-import static android.content.Intent.ACTION_MANAGE_NETWORK_USAGE;
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.ACTION_VIEW;
 import static android.content.Intent.EXTRA_TEXT;
@@ -28,10 +26,6 @@ class IntentRouter {
 				i.getStringExtra(EXTRA_TEXT) != null &&
 				LINK_REGEX.matcher(i.getStringExtra(EXTRA_TEXT)).find()) {
 			redirect(ctx, i, AddContactActivity.class);
-		}
-		// network settings as launched from system settings app
-		else if (ACTION_MANAGE_NETWORK_USAGE.equals(action)) {
-			redirect(ctx, i, SettingsActivity.class);
 		}
 	}
 

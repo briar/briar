@@ -66,6 +66,8 @@ public abstract class BriarActivity extends BaseActivity {
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD) {
+			// We get RESULT_CANCELED when the account gets deleted or
+			// StartupActivity finishes before entering the password.
 			if (result == RESULT_OK) briarController.startAndBindService();
 		} else if (request == REQUEST_UNLOCK && result != RESULT_OK) {
 			// We arrive here, if the user presses 'back'
