@@ -76,6 +76,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
+import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -613,15 +614,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			boolean alice, ConnectionHandler incoming) {
-		byte[] aliceSeed = k.getKeyMaterial(32);
-		byte[] bobSeed = k.getKeyMaterial(32);
+		byte[] aliceSeed = k.getKeyMaterial(SEED_BYTES);
+		byte[] bobSeed = k.getKeyMaterial(SEED_BYTES);
 		byte[] localSeed = alice ? aliceSeed : bobSeed;
 		byte[] remoteSeed = alice ? bobSeed : aliceSeed;
 		String blob = torRendezvousCrypto.getPrivateKeyBlob(localSeed);
 		String localOnion = torRendezvousCrypto.getOnionAddress(localSeed);
 		String remoteOnion = torRendezvousCrypto.getOnionAddress(remoteSeed);
-		TransportProperties remote = new TransportProperties();
-		remote.put(PROP_ONION_V3, remoteOnion);
+		TransportProperties remoteProperties = new TransportProperties();
+		remoteProperties.put(PROP_ONION_V3, remoteOnion);
 		try {
 			ServerSocket ss = new ServerSocket();
 			ss.bind(new InetSocketAddress("127.0.0.1", 0));
@@ -646,7 +647,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 				@Override
 				public TransportProperties getRemoteTransportProperties() {
-					return remote;
+					return remoteProperties;
 				}
 
 				@Override

@@ -18,6 +18,9 @@ public class TorRendezvousCryptoImpl implements TorRendezvousCrypto {
 	private static final EdDSANamedCurveSpec CURVE_SPEC =
 			EdDSANamedCurveTable.getByName("Ed25519");
 
+	private static final byte HS_PROTOCOL_VERSION = 3;
+	private static final int CHECKSUM_BYTES = 2;
+
 	@Override
 	public String getOnionAddress(byte[] seed) {
 		EdDSAPrivateKeySpec spec = new EdDSAPrivateKeySpec(seed, CURVE_SPEC);
@@ -26,13 +29,13 @@ public class TorRendezvousCryptoImpl implements TorRendezvousCrypto {
 		byte[] label = ".onion checksum".getBytes(Charset.forName("US-ASCII"));
 		digest.update(label, 0, label.length);
 		digest.update(publicKey, 0, publicKey.length);
-		digest.update((byte) 3);
+		digest.update(HS_PROTOCOL_VERSION);
 		byte[] checksum = new byte[digest.getDigestSize()];
 		digest.doFinal(checksum, 0);
-		byte[] address = new byte[publicKey.length + 3];
+		byte[] address = new byte[publicKey.length + CHECKSUM_BYTES + 1];
 		arraycopy(publicKey, 0, address, 0, publicKey.length);
-		arraycopy(checksum, 0, address, publicKey.length, 2);
-		address[address.length - 1] = 3;
+		arraycopy(checksum, 0, address, publicKey.length, CHECKSUM_BYTES);
+		address[address.length - 1] = HS_PROTOCOL_VERSION;
 		return Base32.encode(address).toLowerCase();
 	}
 
