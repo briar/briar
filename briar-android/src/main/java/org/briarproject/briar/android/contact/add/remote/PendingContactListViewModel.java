@@ -18,6 +18,9 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.rendezvous.RendezvousPoller;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,6 +44,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 	private final ContactManager contactManager;
+	private final RendezvousPoller rendezvousPoller;
 	private final EventBus eventBus;
 
 	private final MutableLiveData<Collection<PendingContactItem>>
@@ -49,10 +53,13 @@ public class PendingContactListViewModel extends AndroidViewModel
 	@Inject
 	PendingContactListViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
-			ContactManager contactManager, EventBus eventBus) {
+			ContactManager contactManager,
+			RendezvousPoller rendezvousPoller,
+			EventBus eventBus) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.contactManager = contactManager;
+		this.rendezvousPoller = rendezvousPoller;
 		this.eventBus = eventBus;
 		this.eventBus.addListener(this);
 		loadPendingContacts();
@@ -67,7 +74,8 @@ public class PendingContactListViewModel extends AndroidViewModel
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof PendingContactStateChangedEvent ||
-				e instanceof PendingContactRemovedEvent) {
+				e instanceof PendingContactRemovedEvent ||
+				e instanceof RendezvousPollEvent) {
 			loadPendingContacts();
 		}
 	}
@@ -75,12 +83,14 @@ public class PendingContactListViewModel extends AndroidViewModel
 	private void loadPendingContacts() {
 		dbExecutor.execute(() -> {
 			try {
+				long lastPoll =
+						rendezvousPoller.getLastPollTime(TorConstants.ID);
 				Collection<Pair<PendingContact, PendingContactState>> pairs =
 						contactManager.getPendingContacts();
 				List<PendingContactItem> items = new ArrayList<>(pairs.size());
 				for (Pair<PendingContact, PendingContactState> p : pairs) {
 					items.add(new PendingContactItem(p.getFirst(),
-							p.getSecond()));
+							p.getSecond(), lastPoll));
 				}
 				pendingContacts.postValue(items);
 			} catch (DbException e) {

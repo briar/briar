@@ -211,15 +211,19 @@ public class BriarRecyclerView extends FrameLayout {
 	}
 
 	public void startPeriodicUpdate() {
+		startPeriodicUpdate(MIN_DATE_RESOLUTION);
+	}
+
+	public void startPeriodicUpdate(long interval) {
 		if (recyclerView == null || recyclerView.getAdapter() == null) {
 			throw new IllegalStateException("Need to call setAdapter() first!");
 		}
 		refresher = () -> {
 			Adapter adapter = recyclerView.getAdapter();
 			adapter.notifyItemRangeChanged(0, adapter.getItemCount());
-			handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
+			handler.postDelayed(refresher, interval);
 		};
-		handler.postDelayed(refresher, MIN_DATE_RESOLUTION);
+		handler.postDelayed(refresher, interval);
 	}
 
 	public void stopPeriodicUpdate() {

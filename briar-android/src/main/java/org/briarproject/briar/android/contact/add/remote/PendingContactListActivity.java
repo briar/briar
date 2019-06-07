@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
+import static org.briarproject.briar.android.contact.add.remote.PendingContactItem.POLL_DURATION_MS;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -69,7 +70,7 @@ public class PendingContactListActivity extends BriarActivity
 	@Override
 	public void onStart() {
 		super.onStart();
-		list.startPeriodicUpdate();
+		list.startPeriodicUpdate(POLL_DURATION_MS);
 	}
 
 	@Override
