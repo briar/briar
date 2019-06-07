@@ -90,7 +90,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private final Clock clock;
 
 	private final AtomicBoolean used = new AtomicBoolean(false);
-	private final Map<TransportId, Long> lastPollTimes =
+	private final Map<PendingContactId, Long> lastPollTimes =
 			new ConcurrentHashMap<>();
 
 	// Executor that runs one task at a time
@@ -126,8 +126,8 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	}
 
 	@Override
-	public long getLastPollTime(TransportId t) {
-		Long time = lastPollTimes.get(t);
+	public long getLastPollTime(PendingContactId p) {
+		Long time = lastPollTimes.get(p);
 		return time == null ? 0 : time;
 	}
 
@@ -227,6 +227,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private void removePendingContact(PendingContactId p) {
 		// We can come here twice if a pending contact expires and is removed
 		if (cryptoStates.remove(p) == null) return;
+		lastPollTimes.remove(p);
 		for (PluginState ps : pluginStates.values()) {
 			RendezvousEndpoint endpoint = ps.endpoints.remove(p);
 			if (endpoint != null) tryToClose(endpoint, LOG, INFO);
@@ -246,9 +247,10 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			Handler h = new Handler(e.getKey(), t, false);
 			properties.add(new Pair<>(props, h));
 		}
-		lastPollTimes.put(t, clock.currentTimeMillis());
-		eventBus.broadcast(new RendezvousPollEvent(t,
-				new ArrayList<>(ps.endpoints.keySet())));
+		List<PendingContactId> polled = new ArrayList<>(ps.endpoints.keySet());
+		long now = clock.currentTimeMillis();
+		for (PendingContactId p : polled) lastPollTimes.put(p, now);
+		eventBus.broadcast(new RendezvousPollEvent(t, polled));
 		ps.plugin.poll(properties);
 	}
 
@@ -294,9 +296,13 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		for (PluginState ps : pluginStates.values()) {
 			RendezvousEndpoint endpoint = ps.endpoints.get(p);
 			if (endpoint != null) {
+				TransportId t = ps.plugin.getId();
 				TransportProperties props =
 						endpoint.getRemoteTransportProperties();
-				Handler h = new Handler(p, ps.plugin.getId(), false);
+				Handler h = new Handler(p, t, false);
+				lastPollTimes.put(p, clock.currentTimeMillis());
+				eventBus.broadcast(
+						new RendezvousPollEvent(t, singletonList(p)));
 				ps.plugin.poll(singletonList(new Pair<>(props, h)));
 			}
 		}

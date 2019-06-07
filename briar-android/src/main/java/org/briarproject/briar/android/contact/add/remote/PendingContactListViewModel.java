@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.rendezvous.RendezvousPoller;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 
@@ -83,14 +82,14 @@ public class PendingContactListViewModel extends AndroidViewModel
 	private void loadPendingContacts() {
 		dbExecutor.execute(() -> {
 			try {
-				long lastPoll =
-						rendezvousPoller.getLastPollTime(TorConstants.ID);
 				Collection<Pair<PendingContact, PendingContactState>> pairs =
 						contactManager.getPendingContacts();
 				List<PendingContactItem> items = new ArrayList<>(pairs.size());
-				for (Pair<PendingContact, PendingContactState> p : pairs) {
-					items.add(new PendingContactItem(p.getFirst(),
-							p.getSecond(), lastPoll));
+				for (Pair<PendingContact, PendingContactState> pair : pairs) {
+					PendingContact p = pair.getFirst();
+					long lastPoll = rendezvousPoller.getLastPollTime(p.getId());
+					items.add(new PendingContactItem(p, pair.getSecond(),
+							lastPoll));
 				}
 				pendingContacts.postValue(items);
 			} catch (DbException e) {

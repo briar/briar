@@ -24,6 +24,7 @@ import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
@@ -191,6 +192,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
 			will(returnValue(transportProperties));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(beforeExpiry));
+			oneOf(eventBus).broadcast(with(any(RendezvousPollEvent.class)));
 			oneOf(plugin).poll(with(collectionOf(pairOf(
 					equal(transportProperties),
 					any(ConnectionHandler.class)))));
@@ -242,6 +246,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
 			will(returnValue(transportProperties));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(beforeExpiry));
+			oneOf(eventBus).broadcast(with(any(RendezvousPollEvent.class)));
 			oneOf(plugin).poll(with(collectionOf(pairOf(
 					equal(transportProperties),
 					any(ConnectionHandler.class)))));

@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.rendezvous;
 
-import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.contact.PendingContactId;
 
 /**
  * Interface for the poller that makes rendezvous connections to pending
@@ -8,5 +8,5 @@ import org.briarproject.bramble.api.plugin.TransportId;
  */
 public interface RendezvousPoller {
 
-	long getLastPollTime(TransportId t);
+	long getLastPollTime(PendingContactId p);
 }
