@@ -30,6 +30,7 @@ import static android.content.Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.logging.Level.INFO;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
@@ -66,9 +67,15 @@ public abstract class BriarActivity extends BaseActivity {
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD) {
-			// We get RESULT_CANCELED when the account gets deleted or
-			// StartupActivity finishes before entering the password.
-			if (result == RESULT_OK) briarController.startAndBindService();
+			// Recreate the activity so any DB tasks that failed before
+			// signing in can be retried
+			if (result == RESULT_OK) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Recreating " + getClass().getSimpleName()
+							+ " after signing in");
+				}
+				recreate();
+			}
 		} else if (request == REQUEST_UNLOCK && result != RESULT_OK) {
 			// We arrive here, if the user presses 'back'
 			// in the Keyguard unlock screen, because UnlockActivity finishes.

@@ -347,7 +347,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private int openConnections = 0; // Locking: connectionsLock
 	private boolean closed = false; // Locking: connectionsLock
 
-	protected abstract Connection createConnection() throws SQLException;
+	protected abstract Connection createConnection()
+			throws DbException, SQLException;
 
 	protected abstract void compactAndClose() throws DbException;
 
