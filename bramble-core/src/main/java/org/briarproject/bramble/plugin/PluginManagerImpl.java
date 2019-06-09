@@ -250,6 +250,7 @@ class PluginManagerImpl implements PluginManager, Service {
 	private class Callback implements PluginCallback {
 
 		private final TransportId id;
+		private final AtomicBoolean enabled = new AtomicBoolean(false);
 
 		private Callback(TransportId id) {
 			this.id = id;
@@ -295,12 +296,14 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		@Override
 		public void transportEnabled() {
-			eventBus.broadcast(new TransportEnabledEvent(id));
+			if (!enabled.getAndSet(true))
+				eventBus.broadcast(new TransportEnabledEvent(id));
 		}
 
 		@Override
 		public void transportDisabled() {
-			eventBus.broadcast(new TransportDisabledEvent(id));
+			if (enabled.getAndSet(false))
+				eventBus.broadcast(new TransportDisabledEvent(id));
 		}
 
 		@Override

@@ -96,10 +96,12 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
+		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
 		UnixTorPlugin plugin = new UnixTorPlugin(ioExecutor, networkManager,
 				locationUtils, torSocketFactory, clock, resourceProvider,
-				circumventionProvider, batteryManager, backoff, callback,
-				architecture, MAX_LATENCY, MAX_IDLE_TIME, torDirectory);
+				circumventionProvider, batteryManager, backoff,
+				torRendezvousCrypto, callback, architecture, MAX_LATENCY,
+				MAX_IDLE_TIME, torDirectory);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

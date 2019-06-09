@@ -32,7 +32,6 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.EOFException;
 import java.io.File;
@@ -55,7 +54,6 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
-import javax.annotation.Nullable;
 import javax.net.SocketFactory;
 
 import static java.util.Arrays.asList;
@@ -78,7 +76,9 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
+import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubOnion;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -105,6 +105,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final Clock clock;
 	private final BatteryManager batteryManager;
 	private final Backoff backoff;
+	private final TorRendezvousCrypto torRendezvousCrypto;
 	private final PluginCallback callback;
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
@@ -131,6 +132,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Backoff backoff,
+			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
 			int maxIdleTime, File torDirectory) {
 		this.ioExecutor = ioExecutor;
@@ -142,6 +144,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
 		this.backoff = backoff;
+		this.torRendezvousCrypto = torRendezvousCrypto;
 		this.callback = callback;
 		this.architecture = architecture;
 		this.maxLatency = maxLatency;
@@ -311,8 +314,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (!doneFile.createNewFile())
 				LOG.warning("Failed to create done file");
 		} catch (IOException e) {
-			IoUtils.tryToClose(in, LOG, WARNING);
-			IoUtils.tryToClose(out, LOG, WARNING);
+			tryToClose(in, LOG, WARNING);
+			tryToClose(out, LOG, WARNING);
 			throw new PluginException(e);
 		}
 	}
@@ -371,7 +374,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 			return b;
 		} finally {
-			IoUtils.tryToClose(in, LOG, WARNING);
+			tryToClose(in, LOG, WARNING);
 		}
 	}
 
@@ -389,11 +392,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				ss.bind(new InetSocketAddress("127.0.0.1", port));
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
-				tryToClose(ss);
+				tryToClose(ss, LOG, WARNING);
 				return;
 			}
 			if (!running) {
-				tryToClose(ss);
+				tryToClose(ss, LOG, WARNING);
 				return;
 			}
 			socket = ss;
@@ -408,11 +411,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Accept incoming hidden service connections from Tor
 			acceptContactConnections(ss);
 		});
-	}
-
-	private void tryToClose(@Nullable ServerSocket ss) {
-		IoUtils.tryToClose(ss, LOG, WARNING);
-		callback.transportDisabled();
 	}
 
 	private void publishHiddenService(String port) {
@@ -499,7 +497,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void stop() {
 		running = false;
-		tryToClose(socket);
+		tryToClose(socket, LOG, WARNING);
+		callback.transportDisabled();
 		if (controlSocket != null && controlConnection != null) {
 			try {
 				LOG.info("Stopping Tor");
@@ -586,7 +585,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Could not connect to " + scrubOnion(bestOnion)
 						+ ": " + e.toString());
 			}
-			IoUtils.tryToClose(s, LOG, WARNING);
+			tryToClose(s, LOG, WARNING);
 			return null;
 		}
 	}
@@ -609,13 +608,58 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public boolean supportsRendezvous() {
-		return false;
+		return true;
 	}
 
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			boolean alice, ConnectionHandler incoming) {
-		throw new UnsupportedOperationException();
+		byte[] aliceSeed = k.getKeyMaterial(SEED_BYTES);
+		byte[] bobSeed = k.getKeyMaterial(SEED_BYTES);
+		byte[] localSeed = alice ? aliceSeed : bobSeed;
+		byte[] remoteSeed = alice ? bobSeed : aliceSeed;
+		String blob = torRendezvousCrypto.getPrivateKeyBlob(localSeed);
+		String localOnion = torRendezvousCrypto.getOnionAddress(localSeed);
+		String remoteOnion = torRendezvousCrypto.getOnionAddress(remoteSeed);
+		TransportProperties remoteProperties = new TransportProperties();
+		remoteProperties.put(PROP_ONION_V3, remoteOnion);
+		try {
+			ServerSocket ss = new ServerSocket();
+			ss.bind(new InetSocketAddress("127.0.0.1", 0));
+			int port = ss.getLocalPort();
+			ioExecutor.execute(() -> {
+				try {
+					//noinspection InfiniteLoopStatement
+					while (true) {
+						Socket s = ss.accept();
+						incoming.handleConnection(
+								new TorTransportConnection(this, s));
+					}
+				} catch (IOException e) {
+					// This is expected when the socket is closed
+					if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+				}
+			});
+			Map<Integer, String> portLines =
+					singletonMap(80, "127.0.0.1:" + port);
+			controlConnection.addOnion(blob, portLines);
+			return new RendezvousEndpoint() {
+
+				@Override
+				public TransportProperties getRemoteTransportProperties() {
+					return remoteProperties;
+				}
+
+				@Override
+				public void close() throws IOException {
+					controlConnection.delOnion(localOnion);
+					tryToClose(ss, LOG, WARNING);
+				}
+			};
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+			return null;
+		}
 	}
 
 	@Override
