@@ -56,7 +56,7 @@ public class AddContactViewModel extends AndroidViewModel {
 	}
 
 	void onCreate() {
-		loadHandshakeLink();
+		if (handshakeLink.getValue() == null) loadHandshakeLink();
 	}
 
 	private void loadHandshakeLink() {

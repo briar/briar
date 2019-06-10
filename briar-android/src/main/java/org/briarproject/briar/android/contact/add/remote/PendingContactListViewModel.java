@@ -64,7 +64,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 	}
 
 	void onCreate() {
-		loadPendingContacts();
+		if (pendingContacts.getValue() == null) loadPendingContacts();
 	}
 
 	@Override
