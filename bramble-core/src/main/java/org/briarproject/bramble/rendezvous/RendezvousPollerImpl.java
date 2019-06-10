@@ -4,8 +4,10 @@ import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
@@ -34,7 +36,10 @@ import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
-import org.briarproject.bramble.api.rendezvous.event.RendezvousFailedEvent;
+import org.briarproject.bramble.api.rendezvous.RendezvousPoller;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.Scheduler;
 
@@ -45,6 +50,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -58,6 +64,9 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CONTACT;
+import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
+import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNull;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
@@ -81,6 +90,9 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private final Clock clock;
 
 	private final AtomicBoolean used = new AtomicBoolean(false);
+	private final Map<PendingContactId, Long> lastPollTimes =
+			new ConcurrentHashMap<>();
+
 	// Executor that runs one task at a time
 	private final Executor worker;
 	// The following fields are only accessed on the worker
@@ -114,6 +126,12 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	}
 
 	@Override
+	public long getLastPollTime(PendingContactId p) {
+		Long time = lastPollTimes.get(p);
+		return time == null ? 0 : time;
+	}
+
+	@Override
 	public void startService() throws ServiceException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		try {
@@ -140,8 +158,10 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private void addPendingContact(PendingContact p) {
 		long now = clock.currentTimeMillis();
 		long expiry = p.getTimestamp() + RENDEZVOUS_TIMEOUT_MS;
-		if (expiry <= now) {
-			eventBus.broadcast(new RendezvousFailedEvent(p.getId()));
+		if (expiry > now) {
+			broadcastState(p.getId(), WAITING_FOR_CONNECTION);
+		} else {
+			broadcastState(p.getId(), FAILED);
 			return;
 		}
 		try {
@@ -166,6 +186,10 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		} catch (DbException | GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
 		}
+	}
+
+	private void broadcastState(PendingContactId p, PendingContactState state) {
+		eventBus.broadcast(new PendingContactStateChangedEvent(p, state));
 	}
 
 	@Nullable
@@ -195,7 +219,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		}
 		for (PendingContactId p : expired) {
 			removePendingContact(p);
-			eventBus.broadcast(new RendezvousFailedEvent(p));
+			broadcastState(p, FAILED);
 		}
 	}
 
@@ -203,6 +227,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private void removePendingContact(PendingContactId p) {
 		// We can come here twice if a pending contact expires and is removed
 		if (cryptoStates.remove(p) == null) return;
+		lastPollTimes.remove(p);
 		for (PluginState ps : pluginStates.values()) {
 			RendezvousEndpoint endpoint = ps.endpoints.remove(p);
 			if (endpoint != null) tryToClose(endpoint, LOG, INFO);
@@ -211,16 +236,22 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 	// Worker
 	private void poll(PluginState ps) {
+		if (ps.endpoints.isEmpty()) return;
+		TransportId t = ps.plugin.getId();
 		List<Pair<TransportProperties, ConnectionHandler>> properties =
 				new ArrayList<>();
 		for (Entry<PendingContactId, RendezvousEndpoint> e :
 				ps.endpoints.entrySet()) {
 			TransportProperties props =
 					e.getValue().getRemoteTransportProperties();
-			Handler h = new Handler(e.getKey(), ps.plugin.getId(), false);
+			Handler h = new Handler(e.getKey(), t, false);
 			properties.add(new Pair<>(props, h));
 		}
-		if (!properties.isEmpty()) ps.plugin.poll(properties);
+		List<PendingContactId> polled = new ArrayList<>(ps.endpoints.keySet());
+		long now = clock.currentTimeMillis();
+		for (PendingContactId p : polled) lastPollTimes.put(p, now);
+		eventBus.broadcast(new RendezvousPollEvent(t, polled));
+		ps.plugin.poll(properties);
 	}
 
 	@Override
@@ -241,6 +272,14 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		} else if (e instanceof TransportDisabledEvent) {
 			TransportDisabledEvent t = (TransportDisabledEvent) e;
 			removeTransportAsync(t.getTransportId());
+		} else if (e instanceof RendezvousConnectionOpenedEvent) {
+			RendezvousConnectionOpenedEvent r =
+					(RendezvousConnectionOpenedEvent) e;
+			connectionOpenedAsync(r.getPendingContactId());
+		} else if (e instanceof RendezvousConnectionClosedEvent) {
+			RendezvousConnectionClosedEvent r =
+					(RendezvousConnectionClosedEvent) e;
+			if (!r.isSuccess()) connectionFailedAsync(r.getPendingContactId());
 		}
 	}
 
@@ -257,9 +296,13 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		for (PluginState ps : pluginStates.values()) {
 			RendezvousEndpoint endpoint = ps.endpoints.get(p);
 			if (endpoint != null) {
+				TransportId t = ps.plugin.getId();
 				TransportProperties props =
 						endpoint.getRemoteTransportProperties();
-				Handler h = new Handler(p, ps.plugin.getId(), false);
+				Handler h = new Handler(p, t, false);
+				lastPollTimes.put(p, clock.currentTimeMillis());
+				eventBus.broadcast(
+						new RendezvousPollEvent(t, singletonList(p)));
 				ps.plugin.poll(singletonList(new Pair<>(props, h)));
 			}
 		}
@@ -305,6 +348,29 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 				tryToClose(endpoint, LOG, INFO);
 			}
 		}
+	}
+
+	@EventExecutor
+	private void connectionOpenedAsync(PendingContactId p) {
+		worker.execute(() -> connectionOpened(p));
+	}
+
+	// Worker
+	private void connectionOpened(PendingContactId p) {
+		// Check that the pending contact hasn't expired
+		if (cryptoStates.containsKey(p)) broadcastState(p, ADDING_CONTACT);
+	}
+
+	@EventExecutor
+	private void connectionFailedAsync(PendingContactId p) {
+		worker.execute(() -> connectionFailed(p));
+	}
+
+	// Worker
+	private void connectionFailed(PendingContactId p) {
+		// Check that the pending contact hasn't expired
+		if (cryptoStates.containsKey(p))
+			broadcastState(p, WAITING_FOR_CONNECTION);
 	}
 
 	private static class PluginState {

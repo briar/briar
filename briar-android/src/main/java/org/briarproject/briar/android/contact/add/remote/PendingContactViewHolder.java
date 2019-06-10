@@ -52,7 +52,7 @@ class PendingContactViewHolder extends ViewHolder {
 						.getColor(status.getContext(), R.color.briar_yellow);
 				status.setText(R.string.waiting_for_contact_to_come_online);
 				break;
-			case CONNECTED:
+			case CONNECTING:
 				status.setText(R.string.connecting);
 				break;
 			case ADDING_CONTACT:

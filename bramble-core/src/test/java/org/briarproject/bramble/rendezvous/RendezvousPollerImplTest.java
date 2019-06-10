@@ -1,8 +1,10 @@
 package org.briarproject.bramble.rendezvous;
 
 import org.briarproject.bramble.api.contact.PendingContact;
+import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
@@ -20,12 +22,15 @@ import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
-import org.briarproject.bramble.api.rendezvous.event.RendezvousFailedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.DbExpectations;
 import org.briarproject.bramble.test.ImmediateExecutor;
+import org.briarproject.bramble.test.PredicateMatcher;
 import org.jmock.Expectations;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,6 +43,9 @@ import java.util.concurrent.atomic.AtomicReference;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CONTACT;
+import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
+import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
 import static org.briarproject.bramble.test.CollectionMatcher.collectionOf;
@@ -110,7 +118,10 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			// The pending contact has not expired
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(beforeExpiry));
-			// Capture the poll task, we'll run it later
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == WAITING_FOR_CONNECTION)));
+			// Capture the poll task
 			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
 					with(MILLISECONDS));
@@ -124,11 +135,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Run the poll task - pending contact expires
-		context.checking(new Expectations() {{
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(afterExpiry));
-			oneOf(eventBus).broadcast(with(any(RendezvousFailedEvent.class)));
-		}});
+		expectPendingContactExpires(afterExpiry);
 
 		capturePollTask.get().run();
 	}
@@ -147,7 +154,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			// The pending contact has already expired
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(atExpiry));
-			oneOf(eventBus).broadcast(with(any(RendezvousFailedEvent.class)));
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == FAILED)));
 			// Schedule the poll task
 			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
@@ -175,11 +184,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
-		context.checking(new Expectations() {{
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(beforeExpiry));
-		}});
-
+		expectAddUnexpiredPendingContact(beforeExpiry);
 		expectDeriveRendezvousKey();
 		expectCreateEndpoint();
 
@@ -187,6 +192,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
 			will(returnValue(transportProperties));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(beforeExpiry));
+			oneOf(eventBus).broadcast(with(any(RendezvousPollEvent.class)));
 			oneOf(plugin).poll(with(collectionOf(pairOf(
 					equal(transportProperties),
 					any(ConnectionHandler.class)))));
@@ -230,11 +238,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
-		context.checking(new Expectations() {{
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(beforeExpiry));
-		}});
-
+		expectAddUnexpiredPendingContact(beforeExpiry);
 		expectDeriveRendezvousKey();
 		expectCreateEndpoint();
 
@@ -242,6 +246,9 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			// Poll newly added pending contact
 			oneOf(rendezvousEndpoint).getRemoteTransportProperties();
 			will(returnValue(transportProperties));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(beforeExpiry));
+			oneOf(eventBus).broadcast(with(any(RendezvousPollEvent.class)));
 			oneOf(plugin).poll(with(collectionOf(pairOf(
 					equal(transportProperties),
 					any(ConnectionHandler.class)))));
@@ -252,11 +259,10 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Run the poll task - pending contact expires, endpoint is closed
+		expectPendingContactExpires(afterExpiry);
+
 		context.checking(new Expectations() {{
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(afterExpiry));
 			oneOf(rendezvousEndpoint).close();
-			oneOf(eventBus).broadcast(with(any(RendezvousFailedEvent.class)));
 		}});
 
 		capturePollTask.get().run();
@@ -283,11 +289,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Add the pending contact - no endpoints should be created yet
-		context.checking(new DbExpectations() {{
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(beforeExpiry));
-		}});
-
+		expectAddUnexpiredPendingContact(beforeExpiry);
 		expectDeriveRendezvousKey();
 
 		rendezvousPoller.eventOccurred(
@@ -314,15 +316,162 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 				new PendingContactRemovedEvent(pendingContact.getId()));
 	}
 
+	@Test
+	public void testRendezvousConnectionEvents() throws Exception {
+		long beforeExpiry = pendingContact.getTimestamp();
+
+		// Start the service
+		expectStartupWithPendingContact(beforeExpiry);
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
+
+		// Connection is opened - event should be broadcast
+		expectStateChangedEvent(ADDING_CONTACT);
+
+		rendezvousPoller.eventOccurred(
+				new RendezvousConnectionOpenedEvent(pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// Connection fails - event should be broadcast
+		expectStateChangedEvent(WAITING_FOR_CONNECTION);
+
+		rendezvousPoller.eventOccurred(new RendezvousConnectionClosedEvent(
+				pendingContact.getId(), false));
+	}
+
+	@Test
+	public void testPendingContactExpiresBeforeConnection() throws Exception {
+		long beforeExpiry = pendingContact.getTimestamp()
+				+ RENDEZVOUS_TIMEOUT_MS - 1000;
+		long afterExpiry = beforeExpiry + POLLING_INTERVAL_MS;
+
+		// Start the service, capturing the poll task
+		AtomicReference<Runnable> capturePollTask =
+				expectStartupWithPendingContact(beforeExpiry);
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
+
+		// Run the poll task - pending contact expires
+		expectPendingContactExpires(afterExpiry);
+
+		capturePollTask.get().run();
+		context.assertIsSatisfied();
+
+		// Connection is opened - no event should be broadcast
+		rendezvousPoller.eventOccurred(
+				new RendezvousConnectionOpenedEvent(pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// Connection fails - no event should be broadcast
+		rendezvousPoller.eventOccurred(new RendezvousConnectionClosedEvent(
+				pendingContact.getId(), false));
+	}
+
+	@Test
+	public void testPendingContactExpiresDuringFailedConnection()
+			throws Exception {
+		long beforeExpiry = pendingContact.getTimestamp()
+				+ RENDEZVOUS_TIMEOUT_MS - 1000;
+		long afterExpiry = beforeExpiry + POLLING_INTERVAL_MS;
+
+		// Start the service, capturing the poll task
+		AtomicReference<Runnable> capturePollTask =
+				expectStartupWithPendingContact(beforeExpiry);
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
+
+		// Connection is opened - event should be broadcast
+		expectStateChangedEvent(ADDING_CONTACT);
+
+		rendezvousPoller.eventOccurred(
+				new RendezvousConnectionOpenedEvent(pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// Run the poll task - pending contact expires
+		expectPendingContactExpires(afterExpiry);
+
+		capturePollTask.get().run();
+		context.assertIsSatisfied();
+
+		// Connection fails - no event should be broadcast
+		rendezvousPoller.eventOccurred(new RendezvousConnectionClosedEvent(
+				pendingContact.getId(), false));
+	}
+
+	@Test
+	public void testPendingContactExpiresDuringSuccessfulConnection()
+			throws Exception {
+		long beforeExpiry = pendingContact.getTimestamp()
+				+ RENDEZVOUS_TIMEOUT_MS - 1000;
+		long afterExpiry = beforeExpiry + POLLING_INTERVAL_MS;
+
+		// Start the service, capturing the poll task
+		AtomicReference<Runnable> capturePollTask =
+				expectStartupWithPendingContact(beforeExpiry);
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
+
+		// Connection is opened - event should be broadcast
+		expectStateChangedEvent(ADDING_CONTACT);
+
+		rendezvousPoller.eventOccurred(
+				new RendezvousConnectionOpenedEvent(pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// Run the poll task - pending contact expires
+		expectPendingContactExpires(afterExpiry);
+
+		capturePollTask.get().run();
+		context.assertIsSatisfied();
+
+		// Pending contact is removed - no event should be broadcast
+		rendezvousPoller.eventOccurred(
+				new PendingContactRemovedEvent(pendingContact.getId()));
+	}
+
+	@Test
+	public void testPendingContactRemovedDuringFailedConnection()
+			throws Exception {
+		long beforeExpiry = pendingContact.getTimestamp();
+
+		// Start the service
+		expectStartupWithPendingContact(beforeExpiry);
+
+		rendezvousPoller.startService();
+		context.assertIsSatisfied();
+
+		// Connection is opened - event should be broadcast
+		expectStateChangedEvent(ADDING_CONTACT);
+
+		rendezvousPoller.eventOccurred(
+				new RendezvousConnectionOpenedEvent(pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// Pending contact is removed - no event should be broadcast
+		rendezvousPoller.eventOccurred(
+				new PendingContactRemovedEvent(pendingContact.getId()));
+		context.assertIsSatisfied();
+
+		// Connection fails - no event should be broadcast
+		rendezvousPoller.eventOccurred(new RendezvousConnectionClosedEvent(
+				pendingContact.getId(), false));
+	}
+
 	private AtomicReference<Runnable> expectStartupWithNoPendingContacts()
 			throws Exception {
 		Transaction txn = new Transaction(null, true);
 		AtomicReference<Runnable> capturePollTask = new AtomicReference<>();
 
 		context.checking(new DbExpectations() {{
+			// Load the pending contacts
 			oneOf(db).transaction(with(true), withDbRunnable(txn));
 			oneOf(db).getPendingContacts(txn);
 			will(returnValue(emptyList()));
+			// Capture the poll task
 			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
 					with(MILLISECONDS));
@@ -331,6 +480,16 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		}});
 
 		return capturePollTask;
+	}
+
+	private void expectAddUnexpiredPendingContact(long now) {
+		context.checking(new Expectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == WAITING_FOR_CONNECTION)));
+		}});
 	}
 
 	private void expectDeriveRendezvousKey() throws Exception {
@@ -369,6 +528,52 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			allowing(plugin).getId();
 			will(returnValue(transportId));
+		}});
+	}
+
+	private AtomicReference<Runnable> expectStartupWithPendingContact(long now)
+			throws Exception {
+		Transaction txn = new Transaction(null, true);
+		AtomicReference<Runnable> capturePollTask = new AtomicReference<>();
+
+		context.checking(new DbExpectations() {{
+			// Load the pending contacts
+			oneOf(db).transaction(with(true), withDbRunnable(txn));
+			oneOf(db).getPendingContacts(txn);
+			will(returnValue(singletonList(pendingContact)));
+			// The pending contact has not expired
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == WAITING_FOR_CONNECTION)));
+			// Capture the poll task
+			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
+					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
+					with(MILLISECONDS));
+			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
+					0));
+		}});
+
+		expectDeriveRendezvousKey();
+
+		return capturePollTask;
+	}
+
+	private void expectPendingContactExpires(long now) {
+		context.checking(new Expectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+		}});
+
+		expectStateChangedEvent(FAILED);
+	}
+
+	private void expectStateChangedEvent(PendingContactState state) {
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
+					PendingContactStateChangedEvent.class, e ->
+					e.getPendingContactState() == state)));
 		}});
 	}
 }

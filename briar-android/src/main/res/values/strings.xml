@@ -193,7 +193,7 @@
 	<string name="pending_contact_requests">Pending Contact Requests</string>
 	<string name="no_pending_contacts">No pending contacts</string>
 	<string name="add_contact_remote_connecting">Connecting…</string>
-	<string name="waiting_for_contact_to_come_online">Waiting for contact to come online…\n\nDid they enter your link already?</string>
+	<string name="waiting_for_contact_to_come_online">Waiting for contact to come online…</string>
 	<string name="connecting">Connecting…</string>
 	<string name="adding_contact">Adding contact…</string>
 	<string name="adding_contact_failed">Adding contact has failed</string>
