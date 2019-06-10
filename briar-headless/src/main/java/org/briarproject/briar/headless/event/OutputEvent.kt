@@ -20,7 +20,7 @@ internal class OutputEvent(val name: String, val data: JsonDict) {
     val type = "event"
 }
 
-internal fun ConversationMessageReceivedEvent<*>.output(text: String): JsonDict {
+internal fun ConversationMessageReceivedEvent<*>.output(text: String?): JsonDict {
     check(messageHeader is PrivateMessageHeader)
     return (messageHeader as PrivateMessageHeader).output(contactId, text)
 }

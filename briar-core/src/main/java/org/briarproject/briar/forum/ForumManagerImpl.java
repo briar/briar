@@ -136,7 +136,8 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				meta.put(KEY_AUTHOR, clientHelper.toList(a));
 				meta.put(KEY_LOCAL, true);
 				meta.put(MSG_KEY_READ, true);
-				clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
+				clientHelper.addLocalMessage(txn, p.getMessage(), meta, true,
+						false);
 				messageTracker.trackOutgoingMessage(txn, p.getMessage());
 			} catch (FormatException e) {
 				throw new AssertionError(e);

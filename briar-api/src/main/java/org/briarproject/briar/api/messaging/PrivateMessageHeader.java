@@ -19,10 +19,10 @@ public class PrivateMessageHeader extends ConversationMessageHeader {
 
 	public PrivateMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean read, boolean sent, boolean seen,
-			boolean hasText, List<AttachmentHeader> attachmentHeaders) {
+			boolean hasText, List<AttachmentHeader> headers) {
 		super(id, groupId, timestamp, local, read, sent, seen);
 		this.hasText = hasText;
-		this.attachmentHeaders = attachmentHeaders;
+		this.attachmentHeaders = headers;
 	}
 
 	public boolean hasText() {

@@ -67,16 +67,16 @@ constructor(
     override fun write(ctx: Context): Context {
         val contact = getContact(ctx)
 
-        val message = ctx.getFromJson(objectMapper, "text")
-        if (utf8IsTooLong(message, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
+        val text = ctx.getFromJson(objectMapper, "text")
+        if (utf8IsTooLong(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
             throw BadRequestResponse("Message text is too long")
 
         val group = messagingManager.getContactGroup(contact)
         val now = clock.currentTimeMillis()
-        val m = privateMessageFactory.createPrivateMessage(group.id, now, message, emptyList())
+        val m = privateMessageFactory.createPrivateMessage(group.id, now, text, emptyList())
 
         messagingManager.addLocalMessage(m)
-        return ctx.json(m.output(contact.id, message))
+        return ctx.json(m.output(contact.id, text))
     }
 
     override fun eventOccurred(e: Event) {

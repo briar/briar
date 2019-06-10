@@ -234,7 +234,8 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta.put(KEY_AUTHOR, clientHelper.toList(p.getAuthor()));
 			meta.put(KEY_READ, true);
 			meta.put(KEY_RSS_FEED, b.isRssFeed());
-			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true);
+			clientHelper.addLocalMessage(txn, p.getMessage(), meta, true,
+					false);
 
 			// broadcast event about new post
 			MessageId postId = p.getMessage().getId();
@@ -279,7 +280,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			meta.put(KEY_AUTHOR, clientHelper.toList(author));
 
 			// Send comment
-			clientHelper.addLocalMessage(txn, message, meta, true);
+			clientHelper.addLocalMessage(txn, message, meta, true, false);
 
 			// broadcast event
 			BlogPostHeader h = getPostHeaderFromMetadata(txn, groupId,
@@ -377,7 +378,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		meta.put(KEY_TIME_RECEIVED, header.getTimeReceived());
 
 		// Send wrapped message and store metadata
-		clientHelper.addLocalMessage(txn, wrappedMessage, meta, true);
+		clientHelper.addLocalMessage(txn, wrappedMessage, meta, true, false);
 		return wrappedMessage.getId();
 	}
 

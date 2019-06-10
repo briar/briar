@@ -85,15 +85,21 @@ class ClientHelperImpl implements ClientHelper {
 	@Override
 	public void addLocalMessage(Message m, BdfDictionary metadata,
 			boolean shared) throws DbException, FormatException {
-		db.transaction(false, txn -> addLocalMessage(txn, m, metadata, shared));
+		db.transaction(false, txn -> addLocalMessage(txn, m, metadata, shared,
+				false));
 	}
 
 	@Override
 	public void addLocalMessage(Transaction txn, Message m,
-			BdfDictionary metadata, boolean shared)
+			BdfDictionary metadata, boolean shared, boolean temporary)
 			throws DbException, FormatException {
 		db.addLocalMessage(txn, m, metadataEncoder.encode(metadata), shared,
-				false);
+				temporary);
+	}
+
+	@Override
+	public Message createMessage(GroupId g, long timestamp, byte[] body) {
+		return messageFactory.createMessage(g, timestamp, body);
 	}
 
 	@Override

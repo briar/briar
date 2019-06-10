@@ -25,7 +25,10 @@ public interface ClientHelper {
 			throws DbException, FormatException;
 
 	void addLocalMessage(Transaction txn, Message m, BdfDictionary metadata,
-			boolean shared) throws DbException, FormatException;
+			boolean shared, boolean temporary)
+			throws DbException, FormatException;
+
+	Message createMessage(GroupId g, long timestamp, byte[] body);
 
 	Message createMessage(GroupId g, long timestamp, BdfList body)
 			throws FormatException;
@@ -108,7 +111,7 @@ public interface ClientHelper {
 	Author parseAndValidateAuthor(BdfList author) throws FormatException;
 
 	PublicKey parseAndValidateAgreementPublicKey(byte[] publicKeyBytes)
-		throws FormatException;
+			throws FormatException;
 
 	TransportProperties parseAndValidateTransportProperties(
 			BdfDictionary properties) throws FormatException;

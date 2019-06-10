@@ -169,7 +169,12 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val event = PrivateMessageReceivedEvent(header, contact.id)
 
         every { messagingManager.getMessageText(message.id) } returns text
-        every { webSocketController.sendEvent(EVENT_CONVERSATION_MESSAGE, event.output(text)) } just runs
+        every {
+            webSocketController.sendEvent(
+                EVENT_CONVERSATION_MESSAGE,
+                event.output(text)
+            )
+        } just runs
 
         controller.eventOccurred(event)
     }

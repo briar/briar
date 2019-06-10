@@ -287,7 +287,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(blog1));
 			oneOf(clientHelper).toList(localAuthor1);
 			will(returnValue(authorList1));
-			oneOf(clientHelper).addLocalMessage(txn, message, meta, true);
+			oneOf(clientHelper).addLocalMessage(txn, message, meta, true,
+					false);
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
 			oneOf(contactManager).getAuthorInfo(txn, localAuthor1.getId());
@@ -340,7 +341,8 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(rssBlog));
 			oneOf(clientHelper).toList(rssLocalAuthor);
 			will(returnValue(rssAuthorList));
-			oneOf(clientHelper).addLocalMessage(txn, rssMessage, meta, true);
+			oneOf(clientHelper).addLocalMessage(txn, rssMessage, meta, true,
+					false);
 			oneOf(clientHelper).parseAndValidateAuthor(rssAuthorList);
 			will(returnValue(rssLocalAuthor));
 			oneOf(db).commitTransaction(txn);
@@ -407,7 +409,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(authorList1));
 			// Store the comment
 			oneOf(clientHelper).addLocalMessage(txn, commentMsg, commentMeta,
-					true);
+					true, false);
 			// Create the headers for the comment and its parent
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
@@ -508,7 +510,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(authorList1));
 			// Store the wrapped post
 			oneOf(clientHelper).addLocalMessage(txn, wrappedPostMsg,
-					wrappedPostMeta, true);
+					wrappedPostMeta, true, false);
 			// Create the comment
 			oneOf(blogPostFactory).createBlogComment(blog2.getId(),
 					localAuthor2, comment, messageId, wrappedPostId);
@@ -517,7 +519,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(authorList2));
 			// Store the comment
 			oneOf(clientHelper).addLocalMessage(txn, commentMsg, commentMeta,
-					true);
+					true, false);
 			// Create the headers for the comment and the wrapped post
 			oneOf(clientHelper).parseAndValidateAuthor(authorList2);
 			will(returnValue(localAuthor2));
@@ -619,7 +621,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(rssAuthorList));
 			// Store the wrapped post
 			oneOf(clientHelper).addLocalMessage(txn, wrappedPostMsg,
-					wrappedPostMeta, true);
+					wrappedPostMeta, true, false);
 			// Create the comment
 			oneOf(blogPostFactory).createBlogComment(blog1.getId(),
 					localAuthor1, comment, rssMessageId, wrappedPostId);
@@ -628,7 +630,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(authorList1));
 			// Store the comment
 			oneOf(clientHelper).addLocalMessage(txn, commentMsg, commentMeta,
-					true);
+					true, false);
 			// Create the headers for the comment and the wrapped post
 			oneOf(clientHelper).parseAndValidateAuthor(authorList1);
 			will(returnValue(localAuthor1));
@@ -741,7 +743,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(rssAuthorList));
 			// Store the rewrapped post
 			oneOf(clientHelper).addLocalMessage(txn, rewrappedPostMsg,
-					rewrappedPostMeta, true);
+					rewrappedPostMeta, true, false);
 			// Wrap the original comment for blog 2
 			oneOf(clientHelper).getMessageAsList(txn, originalCommentId);
 			will(returnValue(originalCommentBody));
@@ -758,7 +760,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(authorList1));
 			// Store the wrapped comment
 			oneOf(clientHelper).addLocalMessage(txn, wrappedCommentMsg,
-					wrappedCommentMeta, true);
+					wrappedCommentMeta, true, false);
 			// Create the new comment
 			oneOf(blogPostFactory).createBlogComment(blog2.getId(),
 					localAuthor2, localComment, originalCommentId,
@@ -768,7 +770,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			will(returnValue(authorList2));
 			// Store the new comment
 			oneOf(clientHelper).addLocalMessage(txn, localCommentMsg,
-					localCommentMeta, true);
+					localCommentMeta, true, false);
 			// Create the headers for the new comment, the wrapped comment and
 			// the rewrapped post
 			oneOf(clientHelper).parseAndValidateAuthor(authorList2);

@@ -18,7 +18,8 @@ public abstract class ConversationMessageReceivedEvent<H extends ConversationMes
 	private final H messageHeader;
 	private final ContactId contactId;
 
-	public ConversationMessageReceivedEvent(H messageHeader, ContactId contactId) {
+	public ConversationMessageReceivedEvent(H messageHeader,
+			ContactId contactId) {
 		this.messageHeader = messageHeader;
 		this.contactId = contactId;
 	}

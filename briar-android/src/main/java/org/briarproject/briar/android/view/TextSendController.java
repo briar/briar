@@ -84,6 +84,7 @@ public class TextSendController implements TextInputListener {
 		return state;
 	}
 
+	@UiThread
 	public interface SendListener {
 		void onSendClick(@Nullable String text, List<AttachmentHeader> headers);
 	}

@@ -12,6 +12,8 @@ import org.briarproject.briar.api.conversation.ConversationManager.ConversationC
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.Nullable;
+
 @NotNullByDefault
 public interface MessagingManager extends ConversationClient {
 
@@ -28,7 +30,7 @@ public interface MessagingManager extends ConversationClient {
 	/**
 	 * The current minor version of the messaging client.
 	 */
-	int MINOR_VERSION = 0;
+	int MINOR_VERSION = 1;
 
 	/**
 	 * Stores a local private message.
@@ -59,8 +61,10 @@ public interface MessagingManager extends ConversationClient {
 	GroupId getConversationId(ContactId c) throws DbException;
 
 	/**
-	 * Returns the text of the private message with the given ID.
+	 * Returns the text of the private message with the given ID, or null if
+	 * the private message has no text.
 	 */
+	@Nullable
 	String getMessageText(MessageId m) throws DbException;
 
 	/**

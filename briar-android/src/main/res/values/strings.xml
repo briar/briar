@@ -150,6 +150,7 @@
 	<string name="dialog_message_no_image_support">Your contact\'s Briar does not yet support image attachments. Once they upgrade you\'ll see a different icon.</string>
 	<string name="dialog_title_image_support">You can now send images to this contact</string>
 	<string name="dialog_message_image_support">Tap this icon to attach images.</string>
+	<string name="messaging_too_many_attachments_toast">Only the first %d images will be sent</string>
 
 	<!-- Adding Contacts -->
 

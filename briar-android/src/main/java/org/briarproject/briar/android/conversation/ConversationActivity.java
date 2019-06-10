@@ -6,6 +6,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -34,7 +35,6 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
-import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -46,7 +46,6 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
-import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
@@ -65,10 +64,9 @@ import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.ImagePreview;
 import org.briarproject.briar.android.view.TextAttachmentController;
-import org.briarproject.briar.android.view.TextAttachmentController.AttachImageListener;
+import org.briarproject.briar.android.view.TextAttachmentController.AttachmentListener;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
-import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
@@ -83,7 +81,6 @@ import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
-import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
@@ -94,7 +91,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -129,6 +125,7 @@ import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
@@ -136,8 +133,8 @@ import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.S
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
-		implements EventListener, ConversationListener, SendListener,
-		TextCache, AttachmentCache, AttachImageListener {
+		implements EventListener, ConversationListener, TextCache,
+		AttachmentCache, AttachmentListener {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -152,9 +149,6 @@ public class ConversationActivity extends BriarActivity
 	@Inject
 	ConnectionRegistry connectionRegistry;
 	@Inject
-	@CryptoExecutor
-	Executor cryptoExecutor;
-	@Inject
 	ViewModelProvider.Factory viewModelFactory;
 	@Inject
 	FeatureFlags featureFlags;
@@ -168,10 +162,6 @@ public class ConversationActivity extends BriarActivity
 	volatile ConversationManager conversationManager;
 	@Inject
 	volatile EventBus eventBus;
-	@Inject
-	volatile SettingsManager settingsManager;
-	@Inject
-	volatile PrivateMessageFactory privateMessageFactory;
 	@Inject
 	volatile IntroductionManager introductionManager;
 	@Inject
@@ -267,10 +257,10 @@ public class ConversationActivity extends BriarActivity
 		if (featureFlags.shouldEnableImageAttachments()) {
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
-					imagePreview, this, this, viewModel);
+					imagePreview, this, viewModel);
 			observeOnce(viewModel.hasImageSupport(), this, hasSupport -> {
 				if (hasSupport != null && hasSupport) {
-					// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+					// TODO: remove cast when removing feature flag
 					((TextAttachmentController) sendController)
 							.setImagesSupported();
 				}
@@ -305,7 +295,7 @@ public class ConversationActivity extends BriarActivity
 							Snackbar.LENGTH_SHORT)
 					.show();
 		} else if (request == REQUEST_ATTACH_IMAGE && result == RESULT_OK) {
-			// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+			// TODO: remove cast when removing feature flag
 			((TextAttachmentController) sendController).onImageReceived(data);
 		}
 	}
@@ -454,7 +444,7 @@ public class ConversationActivity extends BriarActivity
 			if (text == null) {
 				LOG.info("Eagerly loading text for latest message");
 				text = messagingManager.getMessageText(id);
-				textCache.put(id, text);
+				textCache.put(id, requireNonNull(text));
 			}
 		}
 		// If the message has a single image, load its size - for multiple
@@ -478,8 +468,10 @@ public class ConversationActivity extends BriarActivity
 				adapter.incrementRevision();
 				textInputView.setReady(true);
 				// start observing onboarding after enabling
-				viewModel.showImageOnboarding().observeEvent(this,
-						this::showImageOnboarding);
+				if (featureFlags.shouldEnableImageAttachments()) {
+					viewModel.showImageOnboarding().observeEvent(this,
+							this::showImageOnboarding);
+				}
 				List<ConversationItem> items = createItems(headers);
 				adapter.addAll(items);
 				list.showData();
@@ -515,7 +507,7 @@ public class ConversationActivity extends BriarActivity
 				long start = now();
 				String text = messagingManager.getMessageText(m);
 				logDuration(LOG, "Loading text", start);
-				displayMessageText(m, text);
+				displayMessageText(m, requireNonNull(text));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -661,6 +653,18 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
+	public List<Uri> filterAttachmentUris(List<Uri> uris) {
+		if (uris.size() > MAX_ATTACHMENTS_PER_MESSAGE) {
+			String format = getResources().getString(
+					R.string.messaging_too_many_attachments_toast);
+			String warning = String.format(format, MAX_ATTACHMENTS_PER_MESSAGE);
+			Toast.makeText(this, warning, LENGTH_SHORT).show();
+			uris = uris.subList(0, MAX_ATTACHMENTS_PER_MESSAGE);
+		}
+		return new ArrayList<>(uris);
+	}
+
+	@Override
 	public void onSendClick(@Nullable String text,
 			List<AttachmentHeader> attachmentHeaders) {
 		if (isNullOrEmpty(text) && attachmentHeaders.isEmpty())
@@ -729,7 +733,7 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void showImageOnboarding() {
-		// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
+		// TODO: remove cast when removing feature flag
 		((TextAttachmentController) sendController)
 				.showImageOnboarding(this, () ->
 						viewModel.onImageOnboardingSeen());

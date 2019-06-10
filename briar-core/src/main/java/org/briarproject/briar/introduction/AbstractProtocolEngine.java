@@ -140,7 +140,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 				.encodeMetadata(type, sessionId, m.getTimestamp(), true, true,
 						visibleInConversation);
 		try {
-			clientHelper.addLocalMessage(txn, m, meta, true);
+			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
@@ -177,8 +177,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	boolean isInvalidDependency(@Nullable MessageId lastRemoteMessageId,
 			@Nullable MessageId dependency) {
 		if (dependency == null) return lastRemoteMessageId != null;
-		return lastRemoteMessageId == null ||
-				!dependency.equals(lastRemoteMessageId);
+		return !dependency.equals(lastRemoteMessageId);
 	}
 
 	long getLocalTimestamp(long localTimestamp, long requestTimestamp) {

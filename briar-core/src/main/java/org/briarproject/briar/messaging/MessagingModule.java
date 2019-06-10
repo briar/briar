@@ -1,7 +1,7 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.data.BdfReaderFactory;
 import org.briarproject.bramble.api.data.MetadataEncoder;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.sync.validation.ValidationManager;
@@ -42,10 +42,10 @@ public class MessagingModule {
 	@Provides
 	@Singleton
 	PrivateMessageValidator getValidator(ValidationManager validationManager,
-			ClientHelper clientHelper, MetadataEncoder metadataEncoder,
+			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
 			Clock clock) {
 		PrivateMessageValidator validator = new PrivateMessageValidator(
-				clientHelper, metadataEncoder, clock);
+				bdfReaderFactory, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				validator);
 		return validator;

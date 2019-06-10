@@ -314,6 +314,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 			try {
 				shareMsg = hook.incomingMessage(txn, m, meta);
 			} catch (InvalidMessageException e) {
+				logException(LOG, INFO, e);
 				invalidateMessage(txn, m.getId());
 				return new DeliveryResult(false, false);
 			}

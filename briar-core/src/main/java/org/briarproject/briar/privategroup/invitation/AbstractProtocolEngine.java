@@ -93,7 +93,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	boolean isValidDependency(S session, @Nullable MessageId dependency) {
 		MessageId expected = session.getLastRemoteMessageId();
 		if (dependency == null) return expected == null;
-		return expected != null && dependency.equals(expected);
+		return dependency.equals(expected);
 	}
 
 	void setPrivateGroupVisibility(Transaction txn, S session,
@@ -223,7 +223,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 				.encodeMetadata(type, privateGroupId, m.getTimestamp(), true,
 						true, visibleInConversation, false, false);
 		try {
-			clientHelper.addLocalMessage(txn, m, meta, true);
+			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
