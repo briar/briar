@@ -2,6 +2,7 @@ package org.briarproject.bramble.db;
 
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
+import org.briarproject.bramble.api.db.DbClosedException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -89,9 +90,9 @@ class H2Database extends JdbcDatabase {
 	}
 
 	@Override
-	protected Connection createConnection() throws SQLException {
+	protected Connection createConnection() throws DbException, SQLException {
 		SecretKey key = this.key;
-		if (key == null) throw new IllegalStateException();
+		if (key == null) throw new DbClosedException();
 		Properties props = new Properties();
 		props.setProperty("user", "user");
 		// Separate the file password from the user password with a space

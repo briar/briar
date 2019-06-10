@@ -55,6 +55,7 @@ public class PendingContactListActivity extends BriarActivity
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(PendingContactListViewModel.class);
+		viewModel.onCreate();
 		viewModel.getPendingContacts()
 				.observe(this, this::onPendingContactsChanged);
 

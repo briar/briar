@@ -49,6 +49,7 @@ public class AddContactActivity extends BriarActivity implements
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(AddContactViewModel.class);
+		viewModel.onCreate();
 		viewModel.getRemoteLinkEntered().observeEvent(this, entered -> {
 			if (entered) {
 				NicknameFragment f = new NicknameFragment();
@@ -93,13 +94,11 @@ public class AddContactActivity extends BriarActivity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 }

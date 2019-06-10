@@ -61,7 +61,10 @@ public class PendingContactListViewModel extends AndroidViewModel
 		this.rendezvousPoller = rendezvousPoller;
 		this.eventBus = eventBus;
 		this.eventBus.addListener(this);
-		loadPendingContacts();
+	}
+
+	void onCreate() {
+		if (pendingContacts.getValue() == null) loadPendingContacts();
 	}
 
 	@Override
