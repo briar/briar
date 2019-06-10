@@ -34,7 +34,7 @@ public interface TestingConstants {
 	/**
 	 * Feature flag for enabling image attachments.
 	 */
-	boolean FEATURE_FLAG_IMAGE_ATTACHMENTS = IS_DEBUG_BUILD;
+	boolean FEATURE_FLAG_IMAGE_ATTACHMENTS = false;
 
 	/**
 	 * Feature flag for enabling adding contacts at a distance.
