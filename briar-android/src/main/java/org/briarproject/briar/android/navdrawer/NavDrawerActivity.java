@@ -143,7 +143,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			startFragment(ContactListFragment.newInstance(),
 					R.id.nav_btn_contacts);
 		}
-		if (state == null && getIntent() != null) {
+		if (state == null) {
 			// do not call this again when there's existing state
 			onNewIntent(getIntent());
 		}

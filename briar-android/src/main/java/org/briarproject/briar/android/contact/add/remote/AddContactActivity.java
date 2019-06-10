@@ -57,7 +57,7 @@ public class AddContactActivity extends BriarActivity implements
 		});
 
 		Intent i = getIntent();
-		if (state == null && i != null) {
+		if (state == null) {
 			// do not react to the intent again when recreating the activity
 			onNewIntent(i);
 		}
