@@ -277,7 +277,7 @@ public class ReportFormFragment extends Fragment
 					}
 					getDevReportActivity().sendCrashReport(comment, email);
 				}
-				if (getActivity() != null) getDevReportActivity().closeReport();
+				if (getActivity() != null) getDevReportActivity().exit();
 			}
 		}.execute();
 	}

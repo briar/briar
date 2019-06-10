@@ -151,6 +151,10 @@ public class DevReportActivity extends BaseCrashReportDialog {
 
 	void closeReport() {
 		cancelReports();
+		exit();
+	}
+
+	void exit() {
 		if (!isFeedback()) {
 			Intent i = new Intent(this, HideUiActivity.class);
 			i.addFlags(FLAG_ACTIVITY_NEW_TASK
