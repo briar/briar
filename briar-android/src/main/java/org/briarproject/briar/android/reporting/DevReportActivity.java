@@ -151,11 +151,13 @@ public class DevReportActivity extends BaseCrashReportDialog {
 
 	void closeReport() {
 		cancelReports();
-		Intent i = new Intent(this, HideUiActivity.class);
-		i.addFlags(FLAG_ACTIVITY_NEW_TASK
-				| FLAG_ACTIVITY_NO_ANIMATION
-				| FLAG_ACTIVITY_CLEAR_TASK);
-		startActivity(i);
+		if (!isFeedback()) {
+			Intent i = new Intent(this, HideUiActivity.class);
+			i.addFlags(FLAG_ACTIVITY_NEW_TASK
+					| FLAG_ACTIVITY_NO_ANIMATION
+					| FLAG_ACTIVITY_CLEAR_TASK);
+			startActivity(i);
+		}
 		finish();
 	}
 
