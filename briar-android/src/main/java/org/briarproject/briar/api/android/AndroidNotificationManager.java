@@ -43,13 +43,6 @@ public interface AndroidNotificationManager {
 	String FAILURE_CHANNEL_ID = "zStartupFailure";
 	String REMINDER_CHANNEL_ID = "zSignInReminder";
 
-	// Content URIs for pending intents
-	String CONTACT_URI = "content://org.briarproject.briar/contact";
-	String GROUP_URI = "content://org.briarproject.briar/group";
-	String FORUM_URI = "content://org.briarproject.briar/forum";
-	String BLOG_URI = "content://org.briarproject.briar/blog";
-	String CONTACT_ADDED_URI = "content://org.briarproject.briar/contact/added";
-
 	// Actions for pending intents
 	String ACTION_DISMISS_REMINDER = "dismissReminder";
 

@@ -3,6 +3,7 @@ package org.briarproject.briar.android.navdrawer;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -60,9 +61,11 @@ import static android.support.v4.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static java.util.Objects.requireNonNull;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
+import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
 import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
@@ -73,14 +76,21 @@ public class NavDrawerActivity extends BriarActivity implements
 		BaseFragmentListener, TransportStateListener,
 		OnNavigationItemSelectedListener {
 
-	public static final String INTENT_CONTACTS = "intent_contacts";
-	public static final String INTENT_GROUPS = "intent_groups";
-	public static final String INTENT_FORUMS = "intent_forums";
-	public static final String INTENT_BLOGS = "intent_blogs";
-	public static final String INTENT_SIGN_OUT = "intent_sign_out";
-
 	private static final Logger LOG =
-			Logger.getLogger(NavDrawerActivity.class.getName());
+			getLogger(NavDrawerActivity.class.getName());
+
+	public static Uri CONTACT_URI =
+			Uri.parse("briar-content://org.briarproject.briar/contact");
+	public static Uri GROUP_URI =
+			Uri.parse("briar-content://org.briarproject.briar/group");
+	public static Uri FORUM_URI =
+			Uri.parse("briar-content://org.briarproject.briar/forum");
+	public static Uri BLOG_URI =
+			Uri.parse("briar-content://org.briarproject.briar/blog");
+	public static Uri CONTACT_ADDED_URI =
+			Uri.parse("briar-content://org.briarproject.briar/contact/added");
+	public static Uri SIGN_OUT_URI =
+			Uri.parse("briar-content://org.briarproject.briar/sign-out");
 
 	private ActionBarDrawerToggle drawerToggle;
 
@@ -94,26 +104,6 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
-
-	@Override
-	protected void onNewIntent(Intent intent) {
-		super.onNewIntent(intent);
-		exitIfStartupFailed(intent);
-		// TODO don't create new instances if they are on the stack (#606)
-		if (intent.getBooleanExtra(INTENT_GROUPS, false)) {
-			startFragment(GroupListFragment.newInstance(), R.id.nav_btn_groups);
-		} else if (intent.getBooleanExtra(INTENT_FORUMS, false)) {
-			startFragment(ForumListFragment.newInstance(), R.id.nav_btn_forums);
-		} else if (intent.getBooleanExtra(INTENT_CONTACTS, false)) {
-			startFragment(ContactListFragment.newInstance(),
-					R.id.nav_btn_contacts);
-		} else if (intent.getBooleanExtra(INTENT_BLOGS, false)) {
-			startFragment(FeedFragment.newInstance(), R.id.nav_btn_blogs);
-		} else if (intent.getBooleanExtra(INTENT_SIGN_OUT, false)) {
-			signOut(false, false);
-		}
-		setIntent(null);
-	}
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -153,7 +143,8 @@ public class NavDrawerActivity extends BriarActivity implements
 			startFragment(ContactListFragment.newInstance(),
 					R.id.nav_btn_contacts);
 		}
-		if (getIntent() != null) {
+		if (state == null) {
+			// do not call this again when there's existing state
 			onNewIntent(getIntent());
 		}
 	}
@@ -187,6 +178,37 @@ public class NavDrawerActivity extends BriarActivity implements
 							}
 						}
 					});
+		}
+	}
+
+	@Override
+	protected void onNewIntent(Intent intent) {
+		super.onNewIntent(intent);
+
+		// will call System.exit()
+		exitIfStartupFailed(intent);
+
+		if ("briar-content".equals(intent.getScheme())) {
+			handleContentIntent(intent);
+		} else {
+			handleExternalIntent(this, intent);
+		}
+	}
+
+	private void handleContentIntent(Intent intent) {
+		Uri uri = intent.getData();
+		// TODO don't create new instances if they are on the stack (#606)
+		if (CONTACT_URI.equals(uri) || CONTACT_ADDED_URI.equals(uri)) {
+			startFragment(ContactListFragment.newInstance(),
+					R.id.nav_btn_contacts);
+		} else if (GROUP_URI.equals(uri)) {
+			startFragment(GroupListFragment.newInstance(), R.id.nav_btn_groups);
+		} else if (FORUM_URI.equals(uri)) {
+			startFragment(ForumListFragment.newInstance(), R.id.nav_btn_forums);
+		} else if (BLOG_URI.equals(uri)) {
+			startFragment(FeedFragment.newInstance(), R.id.nav_btn_blogs);
+		} else if (SIGN_OUT_URI.equals(uri)) {
+			signOut(false, false);
 		}
 	}
 
@@ -325,7 +347,6 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (item != null) item.setVisible(visible);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	private void showExpiryWarning(ExpiryWarning expiry) {
 		int daysUntilExpiry = getDaysUntilExpiry();
 		if (daysUntilExpiry < 0) signOut();
