@@ -107,8 +107,11 @@ class LifecycleManagerImpl implements LifecycleManager, MigrationListener {
 			else logDuration(LOG, "Creating database", start);
 
 			db.transaction(false, txn -> {
+				long start1 = now();
+				db.removeTemporaryMessages(txn);
+				logDuration(LOG, "Removing temporary messages", start1);
 				for (OpenDatabaseHook hook : openDatabaseHooks) {
-					long start1 = now();
+					start1 = now();
 					hook.onDatabaseOpened(txn);
 					if (LOG.isLoggable(FINE)) {
 						logDuration(LOG, "Calling open database hook "
