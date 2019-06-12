@@ -122,6 +122,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final KeySetId keySetId;
 	private final PendingContactId pendingContactId;
 	private final Random random = new Random();
+	private final boolean shared = random.nextBoolean();
+	private final boolean temporary = random.nextBoolean();
 
 	public DatabaseComponentImplTest() {
 		clientId = getClientId();
@@ -244,9 +246,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test(expected = NoSuchGroupException.class)
 	public void testLocalMessagesAreNotStoredUnlessGroupExists()
 			throws Exception {
-		boolean shared = random.nextBoolean();
-		boolean temporary = random.nextBoolean();
-
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -264,9 +263,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testAddLocalMessage() throws Exception {
-		boolean shared = random.nextBoolean();
-		boolean temporary = random.nextBoolean();
-
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -1528,8 +1524,6 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	public void testMessageDependencies() throws Exception {
 		int shutdownHandle = 12345;
 		MessageId messageId2 = new MessageId(getRandomId());
-		boolean shared = random.nextBoolean();
-		boolean temporary = random.nextBoolean();
 
 		context.checking(new Expectations() {{
 			// open()
