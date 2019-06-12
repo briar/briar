@@ -172,7 +172,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					localVersionsBody);
 			will(returnValue(localVersions));
 			oneOf(db).addLocalMessage(txn, localVersions, new Metadata(),
-					false);
+					false, false);
 			// Inform contacts that client versions have changed
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact)));
@@ -259,7 +259,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					newLocalVersionsBody);
 			will(returnValue(newLocalVersions));
 			oneOf(db).addLocalMessage(txn, newLocalVersions, new Metadata(),
-					false);
+					false, false);
 			// Inform contacts that client versions have changed
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact)));
@@ -355,7 +355,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					newLocalVersionsBody);
 			will(returnValue(newLocalVersions));
 			oneOf(db).addLocalMessage(txn, newLocalVersions, new Metadata(),
-					false);
+					false, false);
 			// Inform contacts that client versions have changed
 			oneOf(db).getContacts(txn);
 			will(returnValue(singletonList(contact)));

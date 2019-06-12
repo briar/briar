@@ -248,7 +248,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	private MessageId createStorageId(Transaction txn, GroupId g)
 			throws DbException {
 		Message m = clientHelper.createMessageForStoringMetadata(g);
-		db.addLocalMessage(txn, m, new Metadata(), false);
+		db.addLocalMessage(txn, m, new Metadata(), false, false);
 		return m.getId();
 	}
 

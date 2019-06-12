@@ -42,6 +42,7 @@ public class LifecycleManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).open(dbKey, lifecycleManager);
 			will(returnValue(false));
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			oneOf(db).removeTemporaryMessages(txn);
 			allowing(eventBus).broadcast(with(any(LifecycleEvent.class)));
 		}});
 

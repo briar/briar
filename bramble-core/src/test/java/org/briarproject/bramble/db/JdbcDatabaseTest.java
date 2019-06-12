@@ -153,7 +153,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		db.addGroup(txn, group);
 		assertTrue(db.containsGroup(txn, groupId));
 		assertFalse(db.containsMessage(txn, messageId));
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 		assertTrue(db.containsMessage(txn, messageId));
 		db.commitTransaction(txn);
 		db.close();
@@ -191,7 +191,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// Removing the group should remove the message
 		assertTrue(db.containsMessage(txn, messageId));
@@ -213,7 +213,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// The contact has not seen the message, so it should be sendable
 		Collection<MessageId> ids =
@@ -244,7 +244,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, UNKNOWN, true, null);
+		db.addMessage(txn, message, UNKNOWN, true, false, null);
 
 		// The message has not been validated, so it should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -288,7 +288,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// The group is invisible, so the message should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -340,7 +340,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, false, null);
+		db.addMessage(txn, message, DELIVERED, false, false, null);
 
 		// The message is not shared, so it should not be sendable
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -371,7 +371,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// The message is sendable, but too large to send
 		Collection<MessageId> ids =
@@ -402,8 +402,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Add some messages to ack
 		Message message1 = getMessage(groupId);
 		MessageId messageId1 = message1.getId();
-		db.addMessage(txn, message, DELIVERED, true, contactId);
-		db.addMessage(txn, message1, DELIVERED, true, contactId);
+		db.addMessage(txn, message, DELIVERED, true, false, contactId);
+		db.addMessage(txn, message1, DELIVERED, true, false, contactId);
 
 		// Both message IDs should be returned
 		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
@@ -439,7 +439,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// Retrieve the message from the database and mark it as sent
 		Collection<MessageId> ids = db.getMessagesToSend(txn, contactId,
@@ -608,7 +608,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// The group is not visible so the message should not be visible
 		assertFalse(db.containsVisibleMessage(txn, contactId, messageId));
@@ -1223,7 +1223,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// Attach some metadata to the message
 		Metadata metadata = new Metadata();
@@ -1294,7 +1294,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// Attach some metadata to the message
 		Metadata metadata = new Metadata();
@@ -1355,8 +1355,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and two messages
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
-		db.addMessage(txn, message1, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
+		db.addMessage(txn, message1, DELIVERED, true, false, null);
 
 		// Attach some metadata to the messages
 		Metadata metadata = new Metadata();
@@ -1459,8 +1459,8 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and two messages
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, DELIVERED, true, null);
-		db.addMessage(txn, message1, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
+		db.addMessage(txn, message1, DELIVERED, true, false, null);
 
 		// Attach some metadata to the messages
 		Metadata metadata = new Metadata();
@@ -1536,9 +1536,9 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and some messages
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, PENDING, true, contactId);
-		db.addMessage(txn, message1, PENDING, true, contactId);
-		db.addMessage(txn, message2, INVALID, true, contactId);
+		db.addMessage(txn, message, PENDING, true, false, contactId);
+		db.addMessage(txn, message1, PENDING, true, false, contactId);
+		db.addMessage(txn, message2, INVALID, true, false, contactId);
 
 		// Add dependencies
 		db.addMessageDependency(txn, message, messageId1, PENDING);
@@ -1589,7 +1589,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(0, dependents.size());
 
 		// Add message 3
-		db.addMessage(txn, message3, UNKNOWN, false, contactId);
+		db.addMessage(txn, message3, UNKNOWN, false, false, contactId);
 
 		// Message 3 has message 1 as a dependent
 		dependents = db.getMessageDependents(txn, messageId3);
@@ -1601,7 +1601,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(0, dependents.size());
 
 		// Add message 4
-		db.addMessage(txn, message4, UNKNOWN, false, contactId);
+		db.addMessage(txn, message4, UNKNOWN, false, false, contactId);
 
 		// Message 4 has message 2 as a dependent
 		dependents = db.getMessageDependents(txn, messageId4);
@@ -1619,7 +1619,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, PENDING, true, contactId);
+		db.addMessage(txn, message, PENDING, true, false, contactId);
 
 		// Add a second group
 		Group group1 = getGroup(clientId, 123);
@@ -1629,7 +1629,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Add a message to the second group
 		Message message1 = getMessage(groupId1);
 		MessageId messageId1 = message1.getId();
-		db.addMessage(txn, message1, DELIVERED, true, contactId);
+		db.addMessage(txn, message1, DELIVERED, true, false, contactId);
 
 		// Create an ID for a missing message
 		MessageId messageId2 = new MessageId(getRandomId());
@@ -1637,7 +1637,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		// Add another message to the first group
 		Message message3 = getMessage(groupId);
 		MessageId messageId3 = message3.getId();
-		db.addMessage(txn, message3, DELIVERED, true, contactId);
+		db.addMessage(txn, message3, DELIVERED, true, false, contactId);
 
 		// Add dependencies between the messages
 		db.addMessageDependency(txn, message, messageId1, PENDING);
@@ -1680,10 +1680,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and some messages with different states
 		db.addGroup(txn, group);
-		db.addMessage(txn, message1, UNKNOWN, true, contactId);
-		db.addMessage(txn, message2, INVALID, true, contactId);
-		db.addMessage(txn, message3, PENDING, true, contactId);
-		db.addMessage(txn, message4, DELIVERED, true, contactId);
+		db.addMessage(txn, message1, UNKNOWN, true, false, contactId);
+		db.addMessage(txn, message2, INVALID, true, false, contactId);
+		db.addMessage(txn, message3, PENDING, true, false, contactId);
+		db.addMessage(txn, message4, DELIVERED, true, false, contactId);
 
 		Collection<MessageId> result;
 
@@ -1713,10 +1713,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and some messages
 		db.addGroup(txn, group);
-		db.addMessage(txn, message1, DELIVERED, true, contactId);
-		db.addMessage(txn, message2, DELIVERED, false, contactId);
-		db.addMessage(txn, message3, DELIVERED, false, contactId);
-		db.addMessage(txn, message4, DELIVERED, true, contactId);
+		db.addMessage(txn, message1, DELIVERED, true, false, contactId);
+		db.addMessage(txn, message2, DELIVERED, false, false, contactId);
+		db.addMessage(txn, message3, DELIVERED, false, false, contactId);
+		db.addMessage(txn, message4, DELIVERED, true, false, contactId);
 
 		// Introduce dependencies between the messages
 		db.addMessageDependency(txn, message1, message2.getId(), DELIVERED);
@@ -1744,7 +1744,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// The message should not be sent or seen
 		MessageStatus status = db.getMessageStatus(txn, contactId, messageId);
@@ -1878,7 +1878,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// The message should be visible to the contact
 		assertTrue(db.containsVisibleMessage(txn, contactId, messageId));
@@ -1961,7 +1961,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Add a group and a message
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, UNKNOWN, false, contactId);
+		db.addMessage(txn, message, UNKNOWN, false, false, contactId);
 
 		// Walk the message through the validation and delivery states
 		assertEquals(UNKNOWN, db.getMessageState(txn, messageId));
@@ -1988,7 +1988,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		assertEquals(contactId,
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
-		db.addMessage(txn, message, UNKNOWN, false, null);
+		db.addMessage(txn, message, UNKNOWN, false, false, null);
 
 		// There should be no messages to send
 		assertEquals(Long.MAX_VALUE, db.getNextSendTime(txn, contactId));
@@ -2073,7 +2073,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// Time: now
 		// Retrieve the message from the database
@@ -2118,7 +2118,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 				db.addContact(txn, author, localAuthor.getId(), null, true));
 		db.addGroup(txn, group);
 		db.addGroupVisibility(txn, contactId, groupId, true);
-		db.addMessage(txn, message, DELIVERED, true, null);
+		db.addMessage(txn, message, DELIVERED, true, false, null);
 
 		// Time: now
 		// Retrieve the message from the database
@@ -2252,6 +2252,35 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		PrivateKey handshakePriv = retrieved.getHandshakePrivateKey();
 		assertNotNull(handshakePriv);
 		assertArrayEquals(privateKey.getEncoded(), handshakePriv.getEncoded());
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testTemporaryMessages() throws Exception {
+		Message message1 = getMessage(groupId);
+		MessageId messageId1 = message1.getId();
+
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a group and two temporary messages
+		db.addGroup(txn, group);
+		db.addMessage(txn, message, DELIVERED, false, true, null);
+		db.addMessage(txn, message1, DELIVERED, false, true, null);
+
+		// Mark one of the messages as permanent
+		db.setMessagePermanent(txn, messageId);
+
+		// Remove all temporary messages
+		db.removeTemporaryMessages(txn);
+
+		// The permanent message should not have been removed
+		assertTrue(db.containsMessage(txn, messageId));
+
+		// The temporary message should have been removed
+		assertFalse(db.containsMessage(txn, messageId1));
 
 		db.commitTransaction(txn);
 		db.close();

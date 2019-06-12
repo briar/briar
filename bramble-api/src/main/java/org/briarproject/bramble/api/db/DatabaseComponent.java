@@ -77,7 +77,7 @@ public interface DatabaseComponent extends TransactionManager {
 	 * Stores a local message.
 	 */
 	void addLocalMessage(Transaction txn, Message m, Metadata meta,
-			boolean shared) throws DbException;
+			boolean shared, boolean temporary) throws DbException;
 
 	/**
 	 * Stores a pending contact.
@@ -511,6 +511,12 @@ public interface DatabaseComponent extends TransactionManager {
 			throws DbException;
 
 	/**
+	 * Removes all temporary messages (and all associated state) from the
+	 * database.
+	 */
+	void removeTemporaryMessages(Transaction txn) throws DbException;
+
+	/**
 	 * Removes a transport (and all associated state) from the database.
 	 */
 	void removeTransport(Transaction txn, TransportId t) throws DbException;
@@ -537,6 +543,11 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	void setGroupVisibility(Transaction txn, ContactId c, GroupId g,
 			Visibility v) throws DbException;
+
+	/**
+	 * Marks the given message as permanent, i.e. not temporary.
+	 */
+	void setMessagePermanent(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Marks the given message as shared.

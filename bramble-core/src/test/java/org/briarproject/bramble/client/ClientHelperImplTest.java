@@ -96,7 +96,7 @@ public class ClientHelperImplTest extends BrambleTestCase {
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			oneOf(metadataEncoder).encode(dictionary);
 			will(returnValue(metadata));
-			oneOf(db).addLocalMessage(txn, message, metadata, shared);
+			oneOf(db).addLocalMessage(txn, message, metadata, shared, false);
 		}});
 
 		clientHelper.addLocalMessage(message, dictionary, shared);
