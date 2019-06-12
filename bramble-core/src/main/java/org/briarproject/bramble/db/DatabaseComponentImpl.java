@@ -273,13 +273,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 
 	@Override
 	public void addLocalMessage(Transaction transaction, Message m,
-			Metadata meta, boolean shared) throws DbException {
+			Metadata meta, boolean shared, boolean temporary)
+			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsGroup(txn, m.getGroupId()))
 			throw new NoSuchGroupException();
 		if (!db.containsMessage(txn, m.getId())) {
-			db.addMessage(txn, m, DELIVERED, shared, null);
+			db.addMessage(txn, m, DELIVERED, shared, temporary, null);
 			transaction.attach(new MessageAddedEvent(m, null));
 			transaction.attach(new MessageStateChangedEvent(m.getId(), true,
 					DELIVERED));
@@ -800,7 +801,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				db.raiseSeenFlag(txn, c, m.getId());
 				db.raiseAckFlag(txn, c, m.getId());
 			} else {
-				db.addMessage(txn, m, UNKNOWN, false, c);
+				db.addMessage(txn, m, UNKNOWN, false, false, c);
 				transaction.attach(new MessageAddedEvent(m, c));
 			}
 			transaction.attach(new MessageToAckEvent(c));
@@ -909,6 +910,14 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void removeTemporaryMessages(Transaction transaction)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		db.removeTemporaryMessages(txn);
+	}
+
+	@Override
 	public void removeTransport(Transaction transaction, TransportId t)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -968,6 +977,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public void setMessagePermanent(Transaction transaction, MessageId m)
+			throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsMessage(txn, m))
+			throw new NoSuchMessageException();
+		db.setMessagePermanent(txn, m);
+	}
+
+	@Override
 	public void setMessageShared(Transaction transaction, MessageId m)
 			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
@@ -975,8 +994,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
 		if (db.getMessageState(txn, m) != DELIVERED)
-			throw new IllegalArgumentException(
-					"Shared undelivered message");
+			throw new IllegalArgumentException("Shared undelivered message");
 		db.setMessageShared(txn, m);
 		transaction.attach(new MessageSharedEvent(m));
 	}

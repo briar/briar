@@ -62,6 +62,7 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import static java.sql.Types.BINARY;
 import static java.sql.Types.BOOLEAN;
@@ -97,7 +98,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 45;
+	static final int CODE_SCHEMA_VERSION = 46;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -177,6 +178,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " timestamp BIGINT NOT NULL,"
 					+ " state INT NOT NULL,"
 					+ " shared BOOLEAN NOT NULL,"
+					+ " temporary BOOLEAN NOT NULL,"
 					+ " length INT NOT NULL,"
 					+ " raw BLOB," // Null if message has been deleted
 					+ " PRIMARY KEY (messageId),"
@@ -336,24 +338,25 @@ abstract class JdbcDatabase implements Database<Connection> {
 	private static final Logger LOG =
 			getLogger(JdbcDatabase.class.getName());
 
-	// Different database libraries use different names for certain types
 	private final MessageFactory messageFactory;
 	private final Clock clock;
 	private final DatabaseTypes dbTypes;
 
-	// Locking: connectionsLock
+	private final Lock connectionsLock = new ReentrantLock();
+	private final Condition connectionsChanged = connectionsLock.newCondition();
+
+	@GuardedBy("connectionsLock")
 	private final LinkedList<Connection> connections = new LinkedList<>();
 
-	private int openConnections = 0; // Locking: connectionsLock
-	private boolean closed = false; // Locking: connectionsLock
+	@GuardedBy("connectionsLock")
+	private int openConnections = 0;
+	@GuardedBy("connectionsLock")
+	private boolean closed = false;
 
 	protected abstract Connection createConnection()
 			throws DbException, SQLException;
 
 	protected abstract void compactAndClose() throws DbException;
-
-	private final Lock connectionsLock = new ReentrantLock();
-	private final Condition connectionsChanged = connectionsLock.newCondition();
 
 	JdbcDatabase(DatabaseTypes databaseTypes, MessageFactory messageFactory,
 			Clock clock) {
@@ -457,7 +460,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration41_42(dbTypes),
 				new Migration42_43(dbTypes),
 				new Migration43_44(dbTypes),
-				new Migration44_45()
+				new Migration44_45(),
+				new Migration45_46()
 		);
 	}
 
@@ -777,22 +781,23 @@ abstract class JdbcDatabase implements Database<Connection> {
 
 	@Override
 	public void addMessage(Connection txn, Message m, MessageState state,
-			boolean messageShared, @Nullable ContactId sender)
+			boolean shared, boolean temporary, @Nullable ContactId sender)
 			throws DbException {
 		PreparedStatement ps = null;
 		try {
 			String sql = "INSERT INTO messages (messageId, groupId, timestamp,"
-					+ " state, shared, length, raw)"
-					+ " VALUES (?, ?, ?, ?, ?, ?, ?)";
+					+ " state, shared, temporary, length, raw)"
+					+ " VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 			ps = txn.prepareStatement(sql);
 			ps.setBytes(1, m.getId().getBytes());
 			ps.setBytes(2, m.getGroupId().getBytes());
 			ps.setLong(3, m.getTimestamp());
 			ps.setInt(4, state.getValue());
-			ps.setBoolean(5, messageShared);
+			ps.setBoolean(5, shared);
+			ps.setBoolean(6, temporary);
 			byte[] raw = messageFactory.getRawMessage(m);
-			ps.setInt(6, raw.length);
-			ps.setBytes(7, raw);
+			ps.setInt(7, raw.length);
+			ps.setBytes(8, raw);
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
 			ps.close();
@@ -804,8 +809,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean offered = removeOfferedMessage(txn, c, m.getId());
 				boolean seen = offered || c.equals(sender);
 				addStatus(txn, m.getId(), c, m.getGroupId(), m.getTimestamp(),
-						raw.length, state, e.getValue(), messageShared,
-						false, seen);
+						raw.length, state, e.getValue(), shared, false, seen);
 			}
 			// Update denormalised column in messageDependencies if dependency
 			// is in same group as dependent
@@ -2877,6 +2881,21 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public void removeTemporaryMessages(Connection txn) throws DbException {
+		Statement s = null;
+		try {
+			String sql = "DELETE FROM messages WHERE temporary = TRUE";
+			s = txn.createStatement();
+			int affected = s.executeUpdate(sql);
+			if (affected < 0) throw new DbStateException();
+			s.close();
+		} catch (SQLException e) {
+			tryToClose(s, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public void removeTransport(Connection txn, TransportId t)
 			throws DbException {
 		PreparedStatement ps = null;
@@ -3012,6 +3031,24 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, publicKey.getEncoded());
 			ps.setBytes(2, privateKey.getEncoded());
 			ps.setBytes(3, local.getBytes());
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setMessagePermanent(Connection txn, MessageId m)
+			throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE messages SET temporary = FALSE"
+					+ " WHERE messageId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

@@ -115,7 +115,7 @@ interface Database<T> {
 	 * if the message was created locally.
 	 */
 	void addMessage(T txn, Message m, MessageState state, boolean shared,
-			@Nullable ContactId sender) throws DbException;
+			boolean temporary, @Nullable ContactId sender) throws DbException;
 
 	/**
 	 * Adds a dependency between two messages, where the dependent message is
@@ -631,6 +631,12 @@ interface Database<T> {
 	void removePendingContact(T txn, PendingContactId p) throws DbException;
 
 	/**
+	 * Removes all temporary messages (and all associated state) from the
+	 * database.
+	 */
+	void removeTemporaryMessages(T txn) throws DbException;
+
+	/**
 	 * Removes a transport (and all associated state) from the database.
 	 */
 	void removeTransport(T txn, TransportId t) throws DbException;
@@ -670,6 +676,11 @@ interface Database<T> {
 	 */
 	void setHandshakeKeyPair(T txn, AuthorId local, PublicKey publicKey,
 			PrivateKey privateKey) throws DbException;
+
+	/**
+	 * Marks the given message as permanent, i.e. not temporary.
+	 */
+	void setMessagePermanent(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Marks the given message as shared.

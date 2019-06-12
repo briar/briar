@@ -92,7 +92,8 @@ class ClientHelperImpl implements ClientHelper {
 	public void addLocalMessage(Transaction txn, Message m,
 			BdfDictionary metadata, boolean shared)
 			throws DbException, FormatException {
-		db.addLocalMessage(txn, m, metadataEncoder.encode(metadata), shared);
+		db.addLocalMessage(txn, m, metadataEncoder.encode(metadata), shared,
+				false);
 	}
 
 	@Override

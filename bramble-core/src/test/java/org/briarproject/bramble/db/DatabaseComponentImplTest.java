@@ -61,6 +61,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -120,6 +121,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	private final Contact contact;
 	private final KeySetId keySetId;
 	private final PendingContactId pendingContactId;
+	private final Random random = new Random();
 
 	public DatabaseComponentImplTest() {
 		clientId = getClientId();
@@ -242,6 +244,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	@Test(expected = NoSuchGroupException.class)
 	public void testLocalMessagesAreNotStoredUnlessGroupExists()
 			throws Exception {
+		boolean shared = random.nextBoolean();
+		boolean temporary = random.nextBoolean();
+
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -253,11 +258,15 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 				eventExecutor, shutdownManager);
 
 		db.transaction(false, transaction ->
-				db.addLocalMessage(transaction, message, metadata, true));
+				db.addLocalMessage(transaction, message, metadata, shared,
+						temporary));
 	}
 
 	@Test
 	public void testAddLocalMessage() throws Exception {
+		boolean shared = random.nextBoolean();
+		boolean temporary = random.nextBoolean();
+
 		context.checking(new Expectations() {{
 			oneOf(database).startTransaction();
 			will(returnValue(txn));
@@ -265,20 +274,23 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			oneOf(database).addMessage(txn, message, DELIVERED, true, null);
+			oneOf(database).addMessage(txn, message, DELIVERED, shared,
+					temporary, null);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			oneOf(database).commitTransaction(txn);
 			// The message was added, so the listeners should be called
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
-			oneOf(eventBus)
-					.broadcast(with(any(MessageStateChangedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(
+					MessageStateChangedEvent.class)));
+			if (shared)
+				oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
 
 		db.transaction(false, transaction ->
-				db.addLocalMessage(transaction, message, metadata, true));
+				db.addLocalMessage(transaction, message, metadata, shared,
+						temporary));
 	}
 
 	@Test
@@ -569,11 +581,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the message is in the DB (which it's not)
-			exactly(11).of(database).startTransaction();
+			exactly(12).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(11).of(database).containsMessage(txn, messageId);
+			exactly(12).of(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			exactly(11).of(database).abortTransaction(txn);
+			exactly(12).of(database).abortTransaction(txn);
 			// Allow other checks to pass
 			allowing(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -632,6 +644,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		try {
 			db.transaction(false, transaction ->
 					db.mergeMessageMetadata(transaction, messageId, metadata));
+			fail();
+		} catch (NoSuchMessageException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.setMessagePermanent(transaction, message.getId()));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
@@ -972,7 +992,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(VISIBLE));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			oneOf(database).addMessage(txn, message, UNKNOWN, false, contactId);
+			oneOf(database).addMessage(txn, message, UNKNOWN, false, false,
+					contactId);
 			// Second time
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
@@ -1507,6 +1528,9 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 	public void testMessageDependencies() throws Exception {
 		int shutdownHandle = 12345;
 		MessageId messageId2 = new MessageId(getRandomId());
+		boolean shared = random.nextBoolean();
+		boolean temporary = random.nextBoolean();
+
 		context.checking(new Expectations() {{
 			// open()
 			oneOf(database).open(key, null);
@@ -1521,7 +1545,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 			oneOf(database).containsMessage(txn, messageId);
 			will(returnValue(false));
-			oneOf(database).addMessage(txn, message, DELIVERED, true, null);
+			oneOf(database).addMessage(txn, message, DELIVERED, shared,
+					temporary, null);
 			oneOf(database).mergeMessageMetadata(txn, messageId, metadata);
 			// addMessageDependencies()
 			oneOf(database).containsMessage(txn, messageId);
@@ -1544,7 +1569,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
 					MessageStateChangedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
+			if (shared)
+				oneOf(eventBus).broadcast(with(any(MessageSharedEvent.class)));
 			// endTransaction()
 			oneOf(database).commitTransaction(txn);
 			// close()
@@ -1555,7 +1581,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		assertFalse(db.open(key, null));
 		db.transaction(false, transaction -> {
-			db.addLocalMessage(transaction, message, metadata, true);
+			db.addLocalMessage(transaction, message, metadata, shared,
+					temporary);
 			Collection<MessageId> dependencies = new ArrayList<>(2);
 			dependencies.add(messageId1);
 			dependencies.add(messageId2);

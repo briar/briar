@@ -243,7 +243,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 		try {
 			Message m = clientHelper.createMessage(localGroup.getId(), now,
 					body);
-			db.addLocalMessage(txn, m, new Metadata(), false);
+			db.addLocalMessage(txn, m, new Metadata(), false, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
