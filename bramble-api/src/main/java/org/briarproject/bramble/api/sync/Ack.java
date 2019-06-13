@@ -1,10 +1,16 @@
 package org.briarproject.bramble.api.sync;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import java.util.Collection;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * A record acknowledging receipt of one or more {@link Message Messages}.
  */
+@Immutable
+@NotNullByDefault
 public class Ack {
 
 	private final Collection<MessageId> acked;
