@@ -35,4 +35,10 @@ public interface SyncConstants {
 	 * The maximum number of message IDs in an ack, offer or request record.
 	 */
 	int MAX_MESSAGE_IDS = MAX_RECORD_PAYLOAD_BYTES / UniqueId.LENGTH;
+
+	/**
+	 * The maximum number of versions of the sync protocol a peer may support
+	 * simultaneously.
+	 */
+	int MAX_SUPPORTED_VERSIONS = 10;
 }
