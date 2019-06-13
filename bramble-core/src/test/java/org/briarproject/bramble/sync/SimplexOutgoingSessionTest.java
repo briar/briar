@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
+import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
@@ -49,6 +50,8 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 		context.checking(new DbExpectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
+			// Send the protocol versions
+			oneOf(recordWriter).writeVersions(with(any(Versions.class)));
 			// No acks to send
 			oneOf(db).transactionWithNullableResult(with(false),
 					withNullableDbCallable(noAckTxn));
@@ -83,6 +86,8 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 		context.checking(new DbExpectations() {{
 			// Add listener
 			oneOf(eventBus).addListener(session);
+			// Send the protocol versions
+			oneOf(recordWriter).writeVersions(with(any(Versions.class)));
 			// One ack to send
 			oneOf(db).transactionWithNullableResult(with(false),
 					withNullableDbCallable(ackTxn));
