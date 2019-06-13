@@ -98,7 +98,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 46;
+	static final int CODE_SCHEMA_VERSION = 47;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -135,6 +135,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " handshakePublicKey _BINARY," // Null if key is unknown
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
+					+ " syncVersions _BINARY DEFAULT '00' NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
@@ -461,7 +462,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration42_43(dbTypes),
 				new Migration43_44(dbTypes),
 				new Migration44_45(),
-				new Migration45_46()
+				new Migration45_46(),
+				new Migration46_47(dbTypes)
 		);
 	}
 
