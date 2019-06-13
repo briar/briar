@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.SyncSession;
+import org.briarproject.bramble.api.sync.Versions;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -25,6 +26,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -80,6 +82,13 @@ class IncomingSession implements SyncSession, EventListener {
 				} else if (recordReader.hasRequest()) {
 					Request r = recordReader.readRequest();
 					dbExecutor.execute(new ReceiveRequest(r));
+				} else if (recordReader.hasVersions()) {
+					Versions v = recordReader.readVersions();
+					// TODO: Store remote peer's supported versions
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Received supported versions: "
+								+ v.getSupportedVersions());
+					}
 				} else {
 					// unknown records are ignored in RecordReader#eof()
 					throw new FormatException();
