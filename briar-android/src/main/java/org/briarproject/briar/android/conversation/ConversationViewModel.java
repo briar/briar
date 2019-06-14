@@ -4,6 +4,7 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.Transformations;
 import android.net.Uri;
 import android.support.annotation.Nullable;
@@ -124,7 +125,7 @@ public class ConversationViewModel extends AndroidViewModel
 	@Override
 	protected void onCleared() {
 		super.onCleared();
-		attachmentCreator.deleteUnsentAttachments();
+		attachmentCreator.cancel();
 	}
 
 	/**
@@ -200,12 +201,23 @@ public class ConversationViewModel extends AndroidViewModel
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(Collection<Uri> uris,
 			boolean restart) {
-		if (restart) {
-			return attachmentCreator.getLiveAttachments();
-		} else {
-			// messagingGroupId is loaded with the contact
-			return attachmentCreator.storeAttachments(messagingGroupId, uris);
-		}
+		MutableLiveData<AttachmentResult> delegate = new MutableLiveData<>();
+		// messagingGroupId is loaded with the contact
+		observeForeverOnce(messagingGroupId, groupId -> {
+			requireNonNull(groupId);
+			LiveData<AttachmentResult> result;
+			if (restart) result = attachmentCreator.getLiveAttachments();
+			else result = attachmentCreator.storeAttachments(groupId, uris);
+			result.observeForever(new Observer<AttachmentResult>() {
+				@Override
+				public void onChanged(@Nullable AttachmentResult value) {
+					requireNonNull(value);
+					if (value.isFinished()) result.removeObserver(this);
+					delegate.setValue(value);
+				}
+			});
+		});
+		return delegate;
 	}
 
 	@Override
@@ -294,7 +306,7 @@ public class ConversationViewModel extends AndroidViewModel
 	}
 
 	private void storeMessage(PrivateMessage m) {
-		attachmentCreator.onAttachmentsSent(m.getMessage().getId());
+		attachmentCreator.onAttachmentsSent();
 		dbExecutor.execute(() -> {
 			try {
 				long start = now();

@@ -22,6 +22,8 @@ import org.briarproject.briar.android.attachment.AttachmentItemResult;
 import org.briarproject.briar.android.attachment.AttachmentManager;
 import org.briarproject.briar.android.attachment.AttachmentResult;
 import org.briarproject.briar.android.view.ImagePreview.ImagePreviewListener;
+import org.briarproject.briar.api.messaging.FileTooBigException;
+import org.jsoup.UnsupportedMimeTypeException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -41,9 +43,11 @@ import static android.support.v4.content.ContextCompat.getColor;
 import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
 import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_LONG;
+import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
@@ -186,18 +190,16 @@ public class TextAttachmentController extends TextSendController
 		result.observe(attachmentListener, new Observer<AttachmentResult>() {
 			@Override
 			public void onChanged(@Nullable AttachmentResult attachmentResult) {
-				if (attachmentResult == null) {
-					// The fresh LiveData was deliberately set to null.
-					// This means that we can stop observing it.
+				requireNonNull(attachmentResult);
+				boolean finished = attachmentResult.isFinished();
+				boolean success = attachmentResult.isSuccess();
+				if (finished) {
 					result.removeObserver(this);
-				} else {
-					boolean noError = onNewAttachmentItemResults(
-							attachmentResult.getItemResults());
-					if (noError && attachmentResult.isFinished()) {
-						onAllAttachmentsCreated();
-						result.removeObserver(this);
-					}
+					if (!success) return;
 				}
+				boolean noError = onNewAttachmentItemResults(
+						attachmentResult.getItemResults());
+				if (noError && success) onAllAttachmentsCreated();
 			}
 		});
 	}
@@ -207,7 +209,7 @@ public class TextAttachmentController extends TextSendController
 		if (!loadingUris) throw new AssertionError();
 		for (AttachmentItemResult result : itemResults) {
 			if (result.hasError()) {
-				onError(result.getErrorMsg());
+				onError(requireNonNull(result.getException()));
 				return false;
 			} else {
 				imagePreview.loadPreviewImage(result);
@@ -253,12 +255,20 @@ public class TextAttachmentController extends TextSendController
 	}
 
 	@UiThread
-	private void onError(@Nullable String errorMsg) {
-		if (errorMsg == null) {
-			errorMsg = imagePreview.getContext()
-					.getString(R.string.image_attach_error);
+	private void onError(Exception e) {
+		String errorMsg;
+		Context ctx = imagePreview.getContext();
+		if (e instanceof UnsupportedMimeTypeException) {
+			String mimeType = ((UnsupportedMimeTypeException) e).getMimeType();
+			errorMsg = ctx.getString(
+					R.string.image_attach_error_invalid_mime_type, mimeType);
+		} else if (e instanceof FileTooBigException) {
+			int mb = MAX_IMAGE_SIZE / 1024 / 1024;
+			errorMsg = ctx.getString(R.string.image_attach_error_too_big, mb);
+		} else {
+			errorMsg = ctx.getString(R.string.image_attach_error);
 		}
-		Toast.makeText(textInput.getContext(), errorMsg, LENGTH_LONG).show();
+		Toast.makeText(ctx, errorMsg, LENGTH_LONG).show();
 		onCancel();
 	}
 

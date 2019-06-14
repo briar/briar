@@ -448,14 +448,16 @@ public class ConversationActivity extends BriarActivity
 		}
 		// If the message has a single image, load its size - for multiple
 		// images we use a grid so the size is fixed
-		if (h.getAttachmentHeaders().size() == 1) {
-			List<AttachmentItem> items = attachmentRetriever.cacheGet(id);
-			if (items == null) {
+		List<AttachmentHeader> headers = h.getAttachmentHeaders();
+		if (headers.size() == 1) {
+			MessageId attachmentId = headers.get(0).getMessageId();
+			AttachmentItem item = attachmentRetriever.cacheGet(attachmentId);
+			if (item == null) {
 				LOG.info("Eagerly loading image size for latest message");
-				items = attachmentRetriever.getAttachmentItems(
-						attachmentRetriever.getMessageAttachments(
-								h.getAttachmentHeaders()));
-				attachmentRetriever.cachePut(id, items);
+				item = attachmentRetriever.getAttachmentItems(
+						attachmentRetriever.getMessageAttachments(headers))
+						.get(0);
+				attachmentRetriever.cachePut(item);
 			}
 		}
 	}
@@ -553,7 +555,9 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessageAttachments(MessageId m,
 			List<AttachmentItem> items) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			attachmentRetriever.cachePut(m, items);
+			for (AttachmentItem item : items) {
+				attachmentRetriever.cachePut(item);
+			}
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
@@ -905,12 +909,17 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public List<AttachmentItem> getAttachmentItems(MessageId m,
 			List<AttachmentHeader> headers) {
-		List<AttachmentItem> attachments = attachmentRetriever.cacheGet(m);
-		if (attachments == null) {
-			loadMessageAttachments(m, headers);
-			return emptyList();
+		List<AttachmentItem> items = new ArrayList<>(headers.size());
+		for (AttachmentHeader header : headers) {
+			AttachmentItem item =
+					attachmentRetriever.cacheGet(header.getMessageId());
+			if (item == null) {
+				loadMessageAttachments(m, headers);
+				return emptyList();
+			}
+			items.add(item);
 		}
-		return attachments;
+		return items;
 	}
 
 }

@@ -56,7 +56,7 @@ public class AttachmentRetriever {
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
 
-	private final Map<MessageId, List<AttachmentItem>> attachmentCache =
+	private final Map<MessageId, AttachmentItem> attachmentCache =
 			new ConcurrentHashMap<>();
 
 	@VisibleForTesting
@@ -94,13 +94,13 @@ public class AttachmentRetriever {
 		});
 	}
 
-	public void cachePut(MessageId messageId, List<AttachmentItem> attachments) {
-		attachmentCache.put(messageId, attachments);
+	public void cachePut(AttachmentItem item) {
+		attachmentCache.put(item.getMessageId(), item);
 	}
 
 	@Nullable
-	public List<AttachmentItem> cacheGet(MessageId messageId) {
-		return attachmentCache.get(messageId);
+	public AttachmentItem cacheGet(MessageId attachmentId) {
+		return attachmentCache.get(attachmentId);
 	}
 
 	@DatabaseExecutor
@@ -117,7 +117,6 @@ public class AttachmentRetriever {
 		return attachments;
 	}
 
-	@DatabaseExecutor
 	Attachment getMessageAttachment(AttachmentHeader h) throws DbException {
 		return messagingManager.getAttachment(h.getMessageId());
 	}

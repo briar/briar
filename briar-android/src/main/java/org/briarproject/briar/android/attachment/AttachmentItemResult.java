@@ -15,18 +15,18 @@ public class AttachmentItemResult {
 	@Nullable
 	private final AttachmentItem item;
 	@Nullable
-	private final String errorMsg;
+	private final Exception exception;
 
 	AttachmentItemResult(Uri uri, AttachmentItem item) {
 		this.uri = uri;
 		this.item = item;
-		this.errorMsg = null;
+		this.exception = null;
 	}
 
-	AttachmentItemResult(Uri uri, @Nullable String errorMsg) {
+	AttachmentItemResult(Uri uri, Exception exception) {
 		this.uri = uri;
 		this.item = null;
-		this.errorMsg = errorMsg;
+		this.exception = exception;
 	}
 
 	public Uri getUri() {
@@ -43,8 +43,8 @@ public class AttachmentItemResult {
 	}
 
 	@Nullable
-	public String getErrorMsg() {
-		return errorMsg;
+	public Exception getException() {
+		return exception;
 	}
 
 }

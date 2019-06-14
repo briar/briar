@@ -12,11 +12,13 @@ public class AttachmentResult {
 
 	private final Collection<AttachmentItemResult> itemResults;
 	private final boolean finished;
+	private final boolean success;
 
-	public AttachmentResult(Collection<AttachmentItemResult> itemResults,
-			boolean finished) {
+	AttachmentResult(Collection<AttachmentItemResult> itemResults,
+			boolean finished, boolean success) {
 		this.itemResults = itemResults;
 		this.finished = finished;
+		this.success = success;
 	}
 
 	public Collection<AttachmentItemResult> getItemResults() {
@@ -27,4 +29,7 @@ public class AttachmentResult {
 		return finished;
 	}
 
+	public boolean isSuccess() {
+		return success;
+	}
 }
