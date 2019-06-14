@@ -199,9 +199,12 @@ public class ConversationViewModel extends AndroidViewModel
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(Collection<Uri> uris,
 			boolean restart) {
-		// messagingGroupId is loaded with the contact
-		return attachmentCreator
-				.storeAttachments(messagingGroupId, uris, restart);
+		if (restart) {
+			return attachmentCreator.getLiveAttachments();
+		} else {
+			// messagingGroupId is loaded with the contact
+			return attachmentCreator.storeAttachments(messagingGroupId, uris);
+		}
 	}
 
 	@Override

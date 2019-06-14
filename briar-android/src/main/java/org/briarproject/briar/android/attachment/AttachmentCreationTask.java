@@ -106,8 +106,7 @@ class AttachmentCreationTask {
 		return h;
 	}
 
-	private boolean isValidMimeType(@Nullable String mimeType) {
-		if (mimeType == null) return false;
+	private boolean isValidMimeType(String mimeType) {
 		for (String supportedType : IMAGE_MIME_TYPES) {
 			if (supportedType.equals(mimeType)) return true;
 		}

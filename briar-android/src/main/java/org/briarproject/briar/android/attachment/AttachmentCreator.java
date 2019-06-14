@@ -64,31 +64,35 @@ public class AttachmentCreator {
 
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(
-			LiveData<GroupId> groupId, Collection<Uri> newUris, boolean restart) {
-		MutableLiveData<AttachmentResult> result;
-		if (restart) {
-			// This can happen due to configuration changes.
-			// So don't create new attachments. They are already being created
-			// and returned by the existing LiveData.
-			result = this.result;
-			if (task == null || uris.isEmpty() || result == null)
-				throw new IllegalStateException();
-			// A task is already running. It will update the result LiveData.
-			// So nothing more to do here.
-		} else {
-			if (this.result != null || !uris.isEmpty())
-				throw new IllegalStateException();
-			result = new MutableLiveData<>();
-			this.result = result;
-			uris.addAll(newUris);
-			observeForeverOnce(groupId, id -> {
-				if (id == null) throw new IllegalStateException();
-				boolean needsSize = uris.size() == 1;
-				task = new AttachmentCreationTask(messagingManager,
-						app.getContentResolver(), this, id, uris, needsSize);
-				ioExecutor.execute(() -> task.storeAttachments());
-			});
-		}
+			LiveData<GroupId> groupId, Collection<Uri> newUris) {
+		if (this.result != null || !uris.isEmpty())
+			throw new IllegalStateException();
+		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
+		this.result = result;
+		uris.addAll(newUris);
+		observeForeverOnce(groupId, id -> {
+			if (id == null) throw new IllegalStateException();
+			boolean needsSize = uris.size() == 1;
+			task = new AttachmentCreationTask(messagingManager,
+					app.getContentResolver(), this, id, uris, needsSize);
+			ioExecutor.execute(() -> task.storeAttachments());
+		});
+		return result;
+	}
+
+	/**
+	 * This should be only called after configuration changes.
+	 * In this case we should not create new attachments.
+	 * They are already being created and returned by the existing LiveData.
+	 */
+	@UiThread
+	public LiveData<AttachmentResult> getLiveAttachments() {
+		//
+		MutableLiveData<AttachmentResult> result = this.result;
+		if (task == null || uris.isEmpty() || result == null)
+			throw new IllegalStateException();
+		// A task is already running. It will update the result LiveData.
+		// So nothing more to do here.
 		return result;
 	}
 
