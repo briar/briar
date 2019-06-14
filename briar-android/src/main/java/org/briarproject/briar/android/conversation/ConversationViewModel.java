@@ -6,6 +6,7 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
@@ -46,6 +47,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static android.os.Looper.getMainLooper;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -302,7 +304,10 @@ public class ConversationViewModel extends AndroidViewModel
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, true, false, false,
 						text != null, attachments);
-				attachmentCreator.onAttachmentsSent(m.getMessage().getId());
+				MessageId id = m.getMessage().getId();
+				// use the UiThread to call onAttachmentsSent
+				new Handler(getMainLooper()).post(() ->
+						attachmentCreator.onAttachmentsSent(id));
 				// TODO add text to cache when available here
 				addedHeader.postEvent(h);
 			} catch (DbException e) {

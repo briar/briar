@@ -49,8 +49,8 @@ public class AttachmentCreator {
 	private final CopyOnWriteArrayList<AttachmentItemResult> itemResults =
 			new CopyOnWriteArrayList<>();
 
-	@Nullable
-	private volatile MutableLiveData<AttachmentResult> result = null;
+	private final MutableLiveData<AttachmentResult> result =
+			new MutableLiveData<>();
 	@Nullable
 	private AttachmentCreationTask task;
 
@@ -65,10 +65,8 @@ public class AttachmentCreator {
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(
 			LiveData<GroupId> groupId, Collection<Uri> newUris) {
-		if (this.result != null || !uris.isEmpty())
+		if (task != null || !uris.isEmpty())
 			throw new IllegalStateException();
-		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
-		this.result = result;
 		uris.addAll(newUris);
 		observeForeverOnce(groupId, id -> {
 			if (id == null) throw new IllegalStateException();
@@ -87,9 +85,7 @@ public class AttachmentCreator {
 	 */
 	@UiThread
 	public LiveData<AttachmentResult> getLiveAttachments() {
-		//
-		MutableLiveData<AttachmentResult> result = this.result;
-		if (task == null || uris.isEmpty() || result == null)
+		if (task == null || uris.isEmpty())
 			throw new IllegalStateException();
 		// A task is already running. It will update the result LiveData.
 		// So nothing more to do here.
@@ -99,8 +95,6 @@ public class AttachmentCreator {
 	@IoExecutor
 	void onAttachmentHeaderReceived(Uri uri, AttachmentHeader h,
 			boolean needsSize) {
-		MutableLiveData<AttachmentResult> result = this.result;
-		if (result == null) return;
 		// get and cache AttachmentItem for ImagePreview
 		try {
 			Attachment a = retriever.getMessageAttachment(h);
@@ -118,8 +112,6 @@ public class AttachmentCreator {
 
 	@IoExecutor
 	void onAttachmentError(Uri uri, Throwable t) {
-		MutableLiveData<AttachmentResult> result = this.result;
-		if (result == null) return;
 		// get error message
 		String errorMsg;
 		if (t instanceof UnsupportedMimeTypeException) {
@@ -143,8 +135,6 @@ public class AttachmentCreator {
 	void onAttachmentCreationFinished() {
 		if (uris.size() != itemResults.size())
 			throw new IllegalStateException();
-		MutableLiveData<AttachmentResult> result = this.result;
-		if (result == null) return;
 		result.postValue(new AttachmentResult(itemResults, true));
 	}
 
@@ -164,6 +154,7 @@ public class AttachmentCreator {
 	 *
 	 * @param id The MessageId of the sent message.
 	 */
+	@UiThread
 	public void onAttachmentsSent(MessageId id) {
 		List<AttachmentItem> items = new ArrayList<>(itemResults.size());
 		for (AttachmentItemResult itemResult : itemResults) {
@@ -182,11 +173,6 @@ public class AttachmentCreator {
 	public void cancel() {
 		if (task == null) throw new AssertionError();
 		task.cancel();
-		// let observers know that they can remove themselves
-		MutableLiveData<AttachmentResult> result = this.result;
-		if (result != null) {
-			result.setValue(null);
-		}
 		deleteUnsentAttachments();
 		resetState();
 	}
@@ -196,7 +182,7 @@ public class AttachmentCreator {
 		task = null;
 		uris.clear();
 		itemResults.clear();
-		result = null;
+		result.setValue(null);
 	}
 
 	@UiThread
