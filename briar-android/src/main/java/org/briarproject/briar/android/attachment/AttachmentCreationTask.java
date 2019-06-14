@@ -59,7 +59,7 @@ class AttachmentCreationTask {
 	}
 
 	@IoExecutor
-	public void storeAttachments() {
+	void storeAttachments() {
 		for (Uri uri: uris) processUri(uri);
 		AttachmentCreator attachmentCreator = this.attachmentCreator;
 		if (!canceled && attachmentCreator != null)

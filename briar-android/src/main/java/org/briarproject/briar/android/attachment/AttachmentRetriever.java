@@ -47,6 +47,7 @@ public class AttachmentRetriever {
 
 	private static final Logger LOG =
 			getLogger(AttachmentRetriever.class.getName());
+
 	private static final int READ_LIMIT = 1024 * 8192;
 
 	private final MessagingManager messagingManager;

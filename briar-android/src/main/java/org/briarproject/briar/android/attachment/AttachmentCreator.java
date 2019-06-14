@@ -111,14 +111,14 @@ public class AttachmentCreator {
 	}
 
 	@IoExecutor
-	void onAttachmentError(Uri uri, Throwable t) {
+	void onAttachmentError(Uri uri, Exception e) {
 		// get error message
 		String errorMsg;
-		if (t instanceof UnsupportedMimeTypeException) {
-			String mimeType = ((UnsupportedMimeTypeException) t).getMimeType();
+		if (e instanceof UnsupportedMimeTypeException) {
+			String mimeType = ((UnsupportedMimeTypeException) e).getMimeType();
 			errorMsg = app.getString(
 					R.string.image_attach_error_invalid_mime_type, mimeType);
-		} else if (t instanceof FileTooBigException) {
+		} else if (e instanceof FileTooBigException) {
 			int mb = MAX_IMAGE_SIZE / 1024 / 1024;
 			errorMsg = app.getString(R.string.image_attach_error_too_big, mb);
 		} else {
