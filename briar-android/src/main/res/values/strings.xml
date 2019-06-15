@@ -213,6 +213,7 @@
 		<item quantity="one">New contact added.</item>
 		<item quantity="other">%d new contacts added.</item>
 	</plurals>
+	<string name="offline_state">No Internet connection</string>
 
 	<!-- Introductions -->
 
