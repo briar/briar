@@ -213,6 +213,13 @@
 		<item quantity="one">New contact added.</item>
 		<item quantity="other">%d new contacts added.</item>
 	</plurals>
+	<string name="duplicate_link_dialog_title">Duplicate Link</string>
+	<string name="duplicate_link_dialog_text_1">You already have a pending contact with this link: %s</string>
+	<string name="duplicate_link_dialog_text_2">Are %s and %s the same person?</string>
+	<string name="same_person_button">Same Person</string>
+	<string name="different_person_button">Different Person</string>
+	<string name="duplicate_link_dialog_text_3">%s and %s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
+	<string name="pending_contact_updated_toast">Pending contact updated</string>
 
 	<!-- Introductions -->
 
