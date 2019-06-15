@@ -131,6 +131,7 @@ This will return a JSON array of pending contacts and their states:
 The state can be one of these values:
 
   * `waiting_for_connection`
+  * `offline`
   * `connecting`
   * `adding_contact`
   * `failed`
