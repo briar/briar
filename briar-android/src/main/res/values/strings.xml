@@ -216,6 +216,7 @@
 	<string name="adding_contact_slow_warning">Adding this contact is taking longer than usual</string>
 	<string name="adding_contact_slow_title">Cannot Connect to Contact</string>
 	<string name="adding_contact_slow_text">Adding this contact is taking longer than usual.\n\nPlease check that your contact has received your link and added you:</string>
+	<string name="offline_state">No Internet connection</string>
 
 	<!-- Introductions -->
 
