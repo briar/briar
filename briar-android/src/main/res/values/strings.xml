@@ -215,8 +215,15 @@
 	</plurals>
 	<string name="duplicate_link_dialog_title">Duplicate Link</string>
 	<string name="duplicate_link_dialog_text_1">You already have a pending contact with this link: %s</string>
+	<!-- This is a question asking whether two nicknames refer to the same person -->
 	<string name="duplicate_link_dialog_text_2">Are %s and %s the same person?</string>
+	<!-- This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button -->
 	<string name="same_person_button">Same Person</string>
+	<!-- This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button -->
 	<string name="different_person_button">Different Person</string>
 	<string name="duplicate_link_dialog_text_3">%s and %s sent you the same link.\n\nOne of them may be trying to discover who your contacts are.\n\nDon\'t tell them you received the same link from someone else.</string>
 	<string name="pending_contact_updated_toast">Pending contact updated</string>
