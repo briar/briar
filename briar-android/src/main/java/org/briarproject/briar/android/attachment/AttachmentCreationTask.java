@@ -2,6 +2,7 @@ package org.briarproject.briar.android.attachment;
 
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
+import android.arch.lifecycle.Observer;
 import android.content.ContentResolver;
 import android.net.Uri;
 
@@ -19,10 +20,14 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.ThreadSafe;
 
+import static java.util.Objects.requireNonNull;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -31,12 +36,14 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 
+@ThreadSafe
 @NotNullByDefault
 class AttachmentCreationTask {
 
 	private static Logger LOG =
 			getLogger(AttachmentCreationTask.class.getName());
 
+	private final Executor ioExecutor;
 	private final MessagingManager messagingManager;
 	private final ContentResolver contentResolver;
 	private final AttachmentRetriever retriever;
@@ -47,9 +54,11 @@ class AttachmentCreationTask {
 
 	private volatile boolean canceled = false;
 
-	AttachmentCreationTask(MessagingManager messagingManager,
-			ContentResolver contentResolver, AttachmentRetriever retriever,
-			GroupId groupId, Collection<Uri> uris, boolean needsSize) {
+	AttachmentCreationTask(Executor ioExecutor,
+			MessagingManager messagingManager, ContentResolver contentResolver,
+			AttachmentRetriever retriever, GroupId groupId,
+			Collection<Uri> uris, boolean needsSize) {
+		this.ioExecutor = ioExecutor;
 		this.messagingManager = messagingManager;
 		this.contentResolver = contentResolver;
 		this.retriever = retriever;
@@ -63,21 +72,42 @@ class AttachmentCreationTask {
 		return result;
 	}
 
+	/**
+	 * Cancels the task, asynchronously waits for it to finish, and deletes any
+	 * created attachments.
+	 */
 	void cancel() {
 		canceled = true;
+		// Observe the task until it finishes (which may already have happened)
+		result.observeForever(new Observer<AttachmentResult>() {
+			@Override
+			public void onChanged(@Nullable AttachmentResult attachmentResult) {
+				requireNonNull(attachmentResult);
+				if (attachmentResult.isFinished()) {
+					deleteUnsentAttachments(attachmentResult.getItemResults());
+					result.removeObserver(this);
+				}
+			}
+		});
 	}
 
-	@IoExecutor
+	/**
+	 * Asynchronously creates and stores the attachments.
+	 */
 	void storeAttachments() {
-		List<AttachmentItemResult> results = new ArrayList<>();
-		for (Uri uri : uris) {
-			if (canceled) break;
-			results.add(processUri(uri));
+		ioExecutor.execute(() -> {
+			if (LOG.isLoggable(INFO))
+				LOG.info("Storing " + uris.size() + " attachments");
+			List<AttachmentItemResult> results = new ArrayList<>();
+			for (Uri uri : uris) {
+				if (canceled) break;
+				results.add(processUri(uri));
+				result.postValue(new AttachmentResult(new ArrayList<>(results),
+						false, false));
+			}
 			result.postValue(new AttachmentResult(new ArrayList<>(results),
-					false, false));
-		}
-		result.postValue(new AttachmentResult(new ArrayList<>(results), true,
-				!canceled));
+					true, !canceled));
+		});
 	}
 
 	@IoExecutor
@@ -133,5 +163,25 @@ class AttachmentCreationTask {
 		} catch (DbException e1) {
 			logException(LOG, WARNING, e1);
 		}
+	}
+
+	private void deleteUnsentAttachments(
+			Collection<AttachmentItemResult> itemResults) {
+		List<AttachmentHeader> headers = new ArrayList<>(itemResults.size());
+		for (AttachmentItemResult itemResult : itemResults) {
+			AttachmentItem item = itemResult.getItem();
+			if (item != null) headers.add(item.getHeader());
+		}
+		if (LOG.isLoggable(INFO))
+			LOG.info("Deleting " + headers.size() + " unsent attachments");
+		ioExecutor.execute(() -> {
+			for (AttachmentHeader header : headers) {
+				try {
+					messagingManager.removeAttachment(header);
+				} catch (DbException e) {
+					logException(LOG, WARNING, e);
+				}
+			}
+		});
 	}
 }

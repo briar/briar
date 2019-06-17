@@ -1,14 +1,11 @@
 package org.briarproject.briar.android.attachment;
 
-
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -19,18 +16,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import static java.util.Collections.emptyList;
-import static java.util.Objects.requireNonNull;
-import static java.util.logging.Level.WARNING;
-import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 public class AttachmentCreator {
-
-	private static Logger LOG = getLogger(AttachmentCreator.class.getName());
 
 	private final Application app;
 	@IoExecutor
@@ -58,9 +48,9 @@ public class AttachmentCreator {
 			Collection<Uri> uris) {
 		if (task != null) throw new IllegalStateException();
 		boolean needsSize = uris.size() == 1;
-		task = new AttachmentCreationTask(messagingManager,
+		task = new AttachmentCreationTask(ioExecutor, messagingManager,
 				app.getContentResolver(), retriever, groupId, uris, needsSize);
-		ioExecutor.execute(() -> task.storeAttachments());
+		task.storeAttachments();
 		return task.getResult();
 	}
 
@@ -79,7 +69,8 @@ public class AttachmentCreator {
 
 	/**
 	 * Returns the headers of any attachments created by
-	 * {@link #storeAttachments(GroupId, Collection)}.
+	 * {@link #storeAttachments(GroupId, Collection)}, unless
+	 * {@link #onAttachmentsSent()} or {@link #cancel()} has been called.
 	 */
 	@UiThread
 	public List<AttachmentHeader> getAttachmentHeadersForSending() {
@@ -100,50 +91,19 @@ public class AttachmentCreator {
 	 */
 	@UiThread
 	public void onAttachmentsSent() {
-		task = null;
+		task = null; // Prevent cancel() from cancelling the task
 	}
 
 	/**
 	 * Cancels the task started by
-	 * {@link #storeAttachments(GroupId, Collection)} and deletes any
-	 * created attachments, unless {@link #onAttachmentsSent()} has
-	 * been called.
+	 * {@link #storeAttachments(GroupId, Collection)}, if any, unless
+	 * {@link #onAttachmentsSent()} has been called.
 	 */
 	@UiThread
 	public void cancel() {
-		if (task == null) return; // Already sent or cancelled
-		task.cancel();
-		// Observe the task until it finishes (which may already have
-		// happened) and delete any created attachments
-		LiveData<AttachmentResult> taskResult = task.getResult();
-		taskResult.observeForever(new Observer<AttachmentResult>() {
-			@Override
-			public void onChanged(@Nullable AttachmentResult result) {
-				requireNonNull(result);
-				if (result.isFinished()) {
-					deleteUnsentAttachments(result.getItemResults());
-					taskResult.removeObserver(this);
-				}
-			}
-		});
-		task = null;
-	}
-
-	private void deleteUnsentAttachments(
-			Collection<AttachmentItemResult> itemResults) {
-		List<AttachmentHeader> headers = new ArrayList<>(itemResults.size());
-		for (AttachmentItemResult itemResult : itemResults) {
-			AttachmentItem item = itemResult.getItem();
-			if (item != null) headers.add(item.getHeader());
+		if (task != null) {
+			task.cancel();
+			task = null;
 		}
-		ioExecutor.execute(() -> {
-			for (AttachmentHeader header : headers) {
-				try {
-					messagingManager.removeAttachment(header);
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-				}
-			}
-		});
 	}
 }
