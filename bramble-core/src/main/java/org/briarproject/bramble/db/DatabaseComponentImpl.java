@@ -65,6 +65,7 @@ import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
 import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.sync.event.SyncVersionsUpdatedEvent;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.TransportKeySet;
@@ -717,6 +718,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
+	public List<Byte> getSyncVersions(Transaction transaction, ContactId c)
+			throws DbException {
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		return db.getSyncVersions(txn, c);
+	}
+
+	@Override
 	public Collection<TransportKeySet> getTransportKeys(Transaction transaction,
 			TransportId t) throws DbException {
 		T txn = unbox(transaction);
@@ -1044,6 +1054,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (!db.containsTransport(txn, t))
 			throw new NoSuchTransportException();
 		db.setReorderingWindow(txn, k, t, timePeriod, base, bitmap);
+	}
+
+	@Override
+	public void setSyncVersions(Transaction transaction, ContactId c,
+			List<Byte> supported) throws DbException {
+		if (transaction.isReadOnly()) throw new IllegalArgumentException();
+		T txn = unbox(transaction);
+		if (!db.containsContact(txn, c))
+			throw new NoSuchContactException();
+		db.setSyncVersions(txn, c, supported);
+		transaction.attach(new SyncVersionsUpdatedEvent(c, supported));
 	}
 
 	@Override

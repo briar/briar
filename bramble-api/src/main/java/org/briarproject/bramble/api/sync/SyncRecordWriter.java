@@ -15,5 +15,7 @@ public interface SyncRecordWriter {
 
 	void writeRequest(Request r) throws IOException;
 
+	void writeVersions(Versions v) throws IOException;
+
 	void flush() throws IOException;
 }

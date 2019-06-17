@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
+import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.IOException;
@@ -29,9 +30,11 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.api.sync.SyncConstants.SUPPORTED_VERSIONS;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 /**
@@ -44,7 +47,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class SimplexOutgoingSession implements SyncSession, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(SimplexOutgoingSession.class.getName());
+			getLogger(SimplexOutgoingSession.class.getName());
 
 	private static final ThrowingRunnable<IOException> CLOSE = () -> {
 	};
@@ -80,6 +83,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 	public void run() throws IOException {
 		eventBus.addListener(this);
 		try {
+			// Send our supported protocol versions
+			recordWriter.writeVersions(new Versions(SUPPORTED_VERSIONS));
 			// Start a query for each type of record
 			dbExecutor.execute(new GenerateAck());
 			dbExecutor.execute(new GenerateBatch());

@@ -98,7 +98,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 46;
+	static final int CODE_SCHEMA_VERSION = 47;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -135,6 +135,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " handshakePublicKey _BINARY," // Null if key is unknown
 					+ " localAuthorId _HASH NOT NULL,"
 					+ " verified BOOLEAN NOT NULL,"
+					+ " syncVersions _BINARY DEFAULT '00' NOT NULL,"
 					+ " PRIMARY KEY (contactId),"
 					+ " FOREIGN KEY (localAuthorId)"
 					+ " REFERENCES localAuthors (authorId)"
@@ -461,7 +462,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration42_43(dbTypes),
 				new Migration43_44(dbTypes),
 				new Migration44_45(),
-				new Migration45_46()
+				new Migration45_46(),
+				new Migration46_47(dbTypes)
 		);
 	}
 
@@ -2329,6 +2331,32 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public List<Byte> getSyncVersions(Connection txn, ContactId c)
+			throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT syncVersions FROM contacts"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			rs = ps.executeQuery();
+			if (!rs.next()) throw new DbStateException();
+			byte[] bytes = rs.getBytes(1);
+			List<Byte> supported = new ArrayList<>(bytes.length);
+			for (byte b : bytes) supported.add(b);
+			if (rs.next()) throw new DbStateException();
+			rs.close();
+			ps.close();
+			return supported;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<TransportKeySet> getTransportKeys(Connection txn,
 			TransportId t) throws DbException {
 		PreparedStatement ps = null;
@@ -3152,6 +3180,29 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setString(3, t.getString());
 			ps.setInt(4, k.getInt());
 			ps.setLong(5, timePeriod);
+			int affected = ps.executeUpdate();
+			if (affected < 0 || affected > 1) throw new DbStateException();
+			ps.close();
+		} catch (SQLException e) {
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public void setSyncVersions(Connection txn, ContactId c,
+			List<Byte> supported) throws DbException {
+		PreparedStatement ps = null;
+		try {
+			String sql = "UPDATE contacts SET syncVersions = ?"
+					+ " WHERE contactId = ?";
+			ps = txn.prepareStatement(sql);
+			byte[] bytes = new byte[supported.size()];
+			for (int i = 0; i < bytes.length; i++) {
+				bytes[i] = supported.get(i);
+			}
+			ps.setBytes(1, bytes);
+			ps.setInt(2, c.getInt());
 			int affected = ps.executeUpdate();
 			if (affected < 0 || affected > 1) throw new DbStateException();
 			ps.close();

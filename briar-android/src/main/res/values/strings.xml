@@ -213,6 +213,10 @@
 		<item quantity="one">New contact added.</item>
 		<item quantity="other">%d new contacts added.</item>
 	</plurals>
+	<string name="adding_contact_slow_warning">Adding this contact is taking longer than usual</string>
+	<string name="adding_contact_slow_title">Cannot Connect to Contact</string>
+	<string name="adding_contact_slow_text">Adding this contact is taking longer than usual.\n\nPlease check that your contact has received your link and added you:</string>
+	<string name="offline_state">No Internet connection</string>
 	<string name="duplicate_link_dialog_title">Duplicate Link</string>
 	<string name="duplicate_link_dialog_text_1">You already have a pending contact with this link: %s</string>
 	<!-- This is a question asking whether two nicknames refer to the same person -->

@@ -2,6 +2,9 @@ package org.briarproject.bramble.api.sync;
 
 import org.briarproject.bramble.api.UniqueId;
 
+import java.util.List;
+
+import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 
 public interface SyncConstants {
@@ -10,6 +13,11 @@ public interface SyncConstants {
 	 * The current version of the sync protocol.
 	 */
 	byte PROTOCOL_VERSION = 0;
+
+	/**
+	 * The versions of the sync protocol this peer supports.
+	 */
+	List<Byte> SUPPORTED_VERSIONS = singletonList(PROTOCOL_VERSION);
 
 	/**
 	 * The maximum length of a group descriptor in bytes.
@@ -35,4 +43,10 @@ public interface SyncConstants {
 	 * The maximum number of message IDs in an ack, offer or request record.
 	 */
 	int MAX_MESSAGE_IDS = MAX_RECORD_PAYLOAD_BYTES / UniqueId.LENGTH;
+
+	/**
+	 * The maximum number of versions of the sync protocol a peer may support
+	 * simultaneously.
+	 */
+	int MAX_SUPPORTED_VERSIONS = 10;
 }

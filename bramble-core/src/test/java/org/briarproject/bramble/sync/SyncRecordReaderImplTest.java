@@ -10,11 +10,14 @@ import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
+import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.ByteArrayOutputStream;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -22,7 +25,9 @@ import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTE
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
+import static org.briarproject.bramble.api.sync.RecordTypes.VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_SUPPORTED_VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
@@ -35,12 +40,17 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 			context.mock(MessageFactory.class);
 	private final RecordReader recordReader = context.mock(RecordReader.class);
 
+	private SyncRecordReader reader;
+
+	@Before
+	public void setUp() {
+		reader = new SyncRecordReaderImpl(messageFactory, recordReader);
+	}
+
 	@Test
 	public void testNoFormatExceptionIfAckIsMaximumSize() throws Exception {
 		expectReadRecord(createAck());
 
-		SyncRecordReader reader =
-				new SyncRecordReaderImpl(messageFactory, recordReader);
 		Ack ack = reader.readAck();
 		assertEquals(MAX_MESSAGE_IDS, ack.getMessageIds().size());
 	}
@@ -49,8 +59,6 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfAckIsEmpty() throws Exception {
 		expectReadRecord(createEmptyAck());
 
-		SyncRecordReader reader =
-				new SyncRecordReaderImpl(messageFactory, recordReader);
 		reader.readAck();
 	}
 
@@ -58,8 +66,6 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 	public void testNoFormatExceptionIfOfferIsMaximumSize() throws Exception {
 		expectReadRecord(createOffer());
 
-		SyncRecordReader reader =
-				new SyncRecordReaderImpl(messageFactory, recordReader);
 		Offer offer = reader.readOffer();
 		assertEquals(MAX_MESSAGE_IDS, offer.getMessageIds().size());
 	}
@@ -68,8 +74,6 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfOfferIsEmpty() throws Exception {
 		expectReadRecord(createEmptyOffer());
 
-		SyncRecordReader reader =
-				new SyncRecordReaderImpl(messageFactory, recordReader);
 		reader.readOffer();
 	}
 
@@ -77,8 +81,6 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 	public void testNoFormatExceptionIfRequestIsMaximumSize() throws Exception {
 		expectReadRecord(createRequest());
 
-		SyncRecordReader reader =
-				new SyncRecordReaderImpl(messageFactory, recordReader);
 		Request request = reader.readRequest();
 		assertEquals(MAX_MESSAGE_IDS, request.getMessageIds().size());
 	}
@@ -87,9 +89,34 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 	public void testFormatExceptionIfRequestIsEmpty() throws Exception {
 		expectReadRecord(createEmptyRequest());
 
-		SyncRecordReader reader =
-				new SyncRecordReaderImpl(messageFactory, recordReader);
 		reader.readRequest();
+	}
+
+	@Test
+	public void testNoFormatExceptionIfVersionsIsMaximumSize()
+			throws Exception {
+		expectReadRecord(createVersions(MAX_SUPPORTED_VERSIONS));
+
+		Versions versions = reader.readVersions();
+		List<Byte> supported = versions.getSupportedVersions();
+		assertEquals(MAX_SUPPORTED_VERSIONS, supported.size());
+		for (int i = 0; i < supported.size(); i++) {
+			assertEquals(i, (int) supported.get(i));
+		}
+	}
+
+	@Test(expected = FormatException.class)
+	public void testFormatExceptionIfVersionsIsEmpty() throws Exception {
+		expectReadRecord(createVersions(0));
+
+		reader.readVersions();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testFormatExceptionIfVersionsIsTooLarge() throws Exception {
+		expectReadRecord(createVersions(MAX_SUPPORTED_VERSIONS + 1));
+
+		reader.readVersions();
 	}
 
 	@Test
@@ -138,6 +165,12 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 
 	private Record createEmptyRequest() {
 		return new Record(PROTOCOL_VERSION, REQUEST, new byte[0]);
+	}
+
+	private Record createVersions(int numVersions) {
+		byte[] payload = new byte[numVersions];
+		for (int i = 0; i < payload.length; i++) payload[i] = (byte) i;
+		return new Record(PROTOCOL_VERSION, VERSIONS, payload);
 	}
 
 	private byte[] createPayload() throws Exception {
