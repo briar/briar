@@ -21,6 +21,7 @@ import com.github.chrisbanes.photoview.PhotoView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 
 import javax.annotation.ParametersAreNonnullByDefault;

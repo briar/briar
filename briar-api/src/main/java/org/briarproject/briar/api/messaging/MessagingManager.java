@@ -37,9 +37,16 @@ public interface MessagingManager extends ConversationClient {
 
 	/**
 	 * Stores a local attachment message.
+	 *
+	 * @throws FileTooBigException
 	 */
 	AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
 			String contentType, InputStream is) throws DbException, IOException;
+
+	/**
+	 * Removes an unsent attachment.
+	 */
+	void removeAttachment(AttachmentHeader header) throws DbException;
 
 	/**
 	 * Returns the ID of the contact with the given private conversation.

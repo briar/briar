@@ -8,4 +8,20 @@ public interface MessagingConstants {
 	 * The maximum length of a private message's text in UTF-8 bytes.
 	 */
 	int MAX_PRIVATE_MESSAGE_TEXT_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
+
+	/**
+	 * The supported mime types for image attachments.
+	 */
+	String[] IMAGE_MIME_TYPES = {
+			"image/jpeg",
+			"image/png",
+			"image/gif",
+	};
+
+	/**
+	 * The maximum allowed size of image attachments.
+	 * TODO: Different limit for GIFs?
+	 */
+	int MAX_IMAGE_SIZE = MAX_MESSAGE_BODY_LENGTH; // 6 * 1024 * 1024;
+
 }

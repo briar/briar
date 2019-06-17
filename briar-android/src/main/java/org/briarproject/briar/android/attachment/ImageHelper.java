@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
 import android.support.annotation.Nullable;
 

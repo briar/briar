@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.view;
 
-import android.net.Uri;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
 import android.support.annotation.UiThread;
@@ -10,6 +9,7 @@ import android.view.View;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.EmojiTextInputView.TextInputListener;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.List;
 
@@ -85,7 +85,7 @@ public class TextSendController implements TextInputListener {
 	}
 
 	public interface SendListener {
-		void onSendClick(@Nullable String text, List<Uri> imageUris);
+		void onSendClick(@Nullable String text, List<AttachmentHeader> headers);
 	}
 
 }

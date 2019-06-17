@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.attachment.AttachmentItem;
 
 import static android.support.constraint.ConstraintSet.WRAP_CONTENT;
 import static android.support.v4.content.ContextCompat.getColor;

@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.CallSuper;
@@ -34,6 +33,7 @@ import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.Collection;
 import java.util.List;
@@ -341,7 +341,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
+	public void onSendClick(@Nullable String text,
+			List<AttachmentHeader> headers) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		I replyItem = adapter.getHighlightedItem();

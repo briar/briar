@@ -6,7 +6,6 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -53,6 +52,8 @@ import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.blog.BlogActivity;
 import org.briarproject.briar.android.conversation.ConversationVisitor.AttachmentCache;
 import org.briarproject.briar.android.conversation.ConversationVisitor.TextCache;
@@ -184,7 +185,7 @@ public class ConversationActivity extends BriarActivity
 		loadMessages();
 	};
 
-	private AttachmentController attachmentController;
+	private AttachmentRetriever attachmentRetriever;
 	private ConversationViewModel viewModel;
 	private ConversationVisitor visitor;
 	private ConversationAdapter adapter;
@@ -219,7 +220,7 @@ public class ConversationActivity extends BriarActivity
 
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(ConversationViewModel.class);
-		attachmentController = viewModel.getAttachmentController();
+		attachmentRetriever = viewModel.getAttachmentRetriever();
 
 		setContentView(R.layout.activity_conversation);
 
@@ -242,7 +243,7 @@ public class ConversationActivity extends BriarActivity
 			requireNonNull(deleted);
 			if (deleted) finish();
 		});
-		viewModel.getAddedPrivateMessage().observe(this,
+		viewModel.getAddedPrivateMessage().observeEvent(this,
 				this::onAddedPrivateMessage);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
@@ -264,7 +265,7 @@ public class ConversationActivity extends BriarActivity
 		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
-					imagePreview, this, this);
+					imagePreview, this, this, viewModel);
 			observeOnce(viewModel.hasImageSupport(), this, hasSupport -> {
 				if (hasSupport != null && hasSupport) {
 					// remove cast when removing FEATURE_FLAG_IMAGE_ATTACHMENTS
@@ -457,13 +458,13 @@ public class ConversationActivity extends BriarActivity
 		// If the message has a single image, load its size - for multiple
 		// images we use a grid so the size is fixed
 		if (h.getAttachmentHeaders().size() == 1) {
-			List<AttachmentItem> items = attachmentController.get(id);
+			List<AttachmentItem> items = attachmentRetriever.cacheGet(id);
 			if (items == null) {
 				LOG.info("Eagerly loading image size for latest message");
-				items = attachmentController.getAttachmentItems(
-						attachmentController.getMessageAttachments(
+				items = attachmentRetriever.getAttachmentItems(
+						attachmentRetriever.getMessageAttachments(
 								h.getAttachmentHeaders()));
-				attachmentController.put(id, items);
+				attachmentRetriever.cachePut(id, items);
 			}
 		}
 	}
@@ -545,10 +546,10 @@ public class ConversationActivity extends BriarActivity
 		runOnDbThread(() -> {
 			try {
 				List<Pair<AttachmentHeader, Attachment>> attachments =
-						attachmentController.getMessageAttachments(headers);
+						attachmentRetriever.getMessageAttachments(headers);
 				// TODO move getting the items off to IoExecutor, if size == 1
 				List<AttachmentItem> items =
-						attachmentController.getAttachmentItems(attachments);
+						attachmentRetriever.getAttachmentItems(attachments);
 				displayMessageAttachments(messageId, items);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -559,7 +560,7 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessageAttachments(MessageId m,
 			List<AttachmentItem> items) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			attachmentController.put(m, items);
+			attachmentRetriever.cachePut(m, items);
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
@@ -658,12 +659,13 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public void onSendClick(@Nullable String text, List<Uri> imageUris) {
-		if (isNullOrEmpty(text) && imageUris.isEmpty())
+	public void onSendClick(@Nullable String text,
+			List<AttachmentHeader> attachmentHeaders) {
+		if (isNullOrEmpty(text) && attachmentHeaders.isEmpty())
 			throw new AssertionError();
 		long timestamp = System.currentTimeMillis();
 		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		viewModel.sendMessage(text, imageUris, timestamp);
+		viewModel.sendMessage(text, attachmentHeaders, timestamp);
 		textInputView.clearText();
 	}
 
@@ -676,7 +678,6 @@ public class ConversationActivity extends BriarActivity
 	private void onAddedPrivateMessage(@Nullable PrivateMessageHeader h) {
 		if (h == null) return;
 		addConversationItem(h.accept(visitor));
-		viewModel.onAddedPrivateMessageSeen();
 	}
 
 	private void askToRemoveContact() {
@@ -903,7 +904,7 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public List<AttachmentItem> getAttachmentItems(MessageId m,
 			List<AttachmentHeader> headers) {
-		List<AttachmentItem> attachments = attachmentController.get(m);
+		List<AttachmentItem> attachments = attachmentRetriever.cacheGet(m);
 		if (attachments == null) {
 			loadMessageAttachments(m, headers);
 			return emptyList();

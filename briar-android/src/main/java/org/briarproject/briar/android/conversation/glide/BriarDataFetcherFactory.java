@@ -2,7 +2,7 @@ package org.briarproject.briar.android.conversation.glide;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.conversation.AttachmentItem;
+import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.util.concurrent.Executor;

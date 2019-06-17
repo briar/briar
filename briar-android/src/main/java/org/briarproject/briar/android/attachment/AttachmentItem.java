@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
 import android.os.Parcel;
 import android.os.Parcelable;
@@ -6,18 +6,21 @@ import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Objects.requireNonNull;
+
 @Immutable
 @NotNullByDefault
 public class AttachmentItem implements Parcelable {
 
-	private final MessageId messageId;
+	private final AttachmentHeader header;
 	private final int width, height;
-	private final String mimeType, extension;
+	private final String extension;
 	private final int thumbnailWidth, thumbnailHeight;
 	private final boolean hasError;
 	private final long instanceId;
@@ -37,13 +40,12 @@ public class AttachmentItem implements Parcelable {
 
 	private static final AtomicLong NEXT_INSTANCE_ID = new AtomicLong(0);
 
-	AttachmentItem(MessageId messageId, int width, int height, String mimeType,
+	AttachmentItem(AttachmentHeader header, int width, int height,
 			String extension, int thumbnailWidth, int thumbnailHeight,
 			boolean hasError) {
-		this.messageId = messageId;
+		this.header = header;
 		this.width = width;
 		this.height = height;
-		this.mimeType = mimeType;
 		this.extension = extension;
 		this.thumbnailWidth = thumbnailWidth;
 		this.thumbnailHeight = thumbnailHeight;
@@ -54,19 +56,24 @@ public class AttachmentItem implements Parcelable {
 	protected AttachmentItem(Parcel in) {
 		byte[] messageIdByte = new byte[MessageId.LENGTH];
 		in.readByteArray(messageIdByte);
-		messageId = new MessageId(messageIdByte);
+		MessageId messageId = new MessageId(messageIdByte);
 		width = in.readInt();
 		height = in.readInt();
-		mimeType = in.readString();
-		extension = in.readString();
+		String mimeType = requireNonNull(in.readString());
+		extension = requireNonNull(in.readString());
 		thumbnailWidth = in.readInt();
 		thumbnailHeight = in.readInt();
 		hasError = in.readByte() != 0;
 		instanceId = in.readLong();
+		header = new AttachmentHeader(messageId, mimeType);
+	}
+
+	AttachmentHeader getHeader() {
+		return header;
 	}
 
 	public MessageId getMessageId() {
-		return messageId;
+		return header.getMessageId();
 	}
 
 	int getWidth() {
@@ -77,27 +84,27 @@ public class AttachmentItem implements Parcelable {
 		return height;
 	}
 
-	String getMimeType() {
-		return mimeType;
+	public String getMimeType() {
+		return header.getContentType();
 	}
 
-	String getExtension() {
+	public String getExtension() {
 		return extension;
 	}
 
-	int getThumbnailWidth() {
+	public int getThumbnailWidth() {
 		return thumbnailWidth;
 	}
 
-	int getThumbnailHeight() {
+	public int getThumbnailHeight() {
 		return thumbnailHeight;
 	}
 
-	boolean hasError() {
+	public boolean hasError() {
 		return hasError;
 	}
 
-	String getTransitionName() {
+	public String getTransitionName() {
 		return String.valueOf(instanceId);
 	}
 
@@ -108,10 +115,10 @@ public class AttachmentItem implements Parcelable {
 
 	@Override
 	public void writeToParcel(Parcel dest, int flags) {
-		dest.writeByteArray(messageId.getBytes());
+		dest.writeByteArray(header.getMessageId().getBytes());
 		dest.writeInt(width);
 		dest.writeInt(height);
-		dest.writeString(mimeType);
+		dest.writeString(header.getContentType());
 		dest.writeString(extension);
 		dest.writeInt(thumbnailWidth);
 		dest.writeInt(thumbnailHeight);

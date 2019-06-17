@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
@@ -10,11 +9,13 @@ import android.view.LayoutInflater;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.attachment.AttachmentItemResult;
 
 import java.util.Collection;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.support.v4.content.ContextCompat.getColor;
+import static android.support.v7.widget.RecyclerView.NO_POSITION;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static java.util.Objects.requireNonNull;
 
@@ -60,34 +61,28 @@ public class ImagePreview extends ConstraintLayout {
 		this.listener = listener;
 	}
 
-	void showPreview(Collection<Uri> imageUris) {
+	void showPreview(Collection<ImagePreviewItem> items) {
 		if (listener == null) throw new IllegalStateException();
-		if (imageUris.size() == 1) {
+		if (items.size() == 1) {
 			LayoutParams params = (LayoutParams) imageList.getLayoutParams();
 			params.width = MATCH_PARENT;
 			imageList.setLayoutParams(params);
 		}
 		setVisibility(VISIBLE);
-		imageList.setAdapter(new ImagePreviewAdapter(imageUris, listener));
+		ImagePreviewAdapter adapter = new ImagePreviewAdapter(items);
+		imageList.setAdapter(adapter);
 	}
 
-	void removeUri(Uri uri) {
+	void loadPreviewImage(AttachmentItemResult result) {
 		ImagePreviewAdapter adapter =
-				(ImagePreviewAdapter) imageList.getAdapter();
-		requireNonNull(adapter).removeUri(uri);
+				((ImagePreviewAdapter) imageList.getAdapter());
+		int pos = requireNonNull(adapter).loadItemPreview(result);
+		if (pos != NO_POSITION) {
+			imageList.smoothScrollToPosition(pos);
+		}
 	}
 
 	interface ImagePreviewListener {
-
-		void onPreviewLoaded();
-
-		/**
-		 * Called when Glide can't load a preview image.
-		 *
-		 * Warning: Glide may call this multiple times.
-		 */
-		void onUriError(Uri uri);
-
 		void onCancel();
 	}
 

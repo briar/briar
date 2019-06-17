@@ -8,7 +8,7 @@ import com.bumptech.glide.signature.ObjectKey;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.android.conversation.AttachmentItem;
+import org.briarproject.briar.android.attachment.AttachmentItem;
 
 import java.io.InputStream;
 

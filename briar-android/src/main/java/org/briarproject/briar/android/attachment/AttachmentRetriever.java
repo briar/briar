@@ -1,8 +1,9 @@
-package org.briarproject.briar.android.conversation;
+package org.briarproject.briar.android.attachment;
 
 import android.graphics.BitmapFactory;
 import android.graphics.BitmapFactory.Options;
 import android.support.annotation.Nullable;
+import android.support.annotation.VisibleForTesting;
 import android.support.media.ExifInterface;
 import android.webkit.MimeTypeMap;
 
@@ -13,7 +14,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.android.conversation.ImageHelper.DecodeResult;
+import org.briarproject.briar.android.attachment.ImageHelper.DecodeResult;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -42,10 +43,10 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
-class AttachmentController {
+public class AttachmentRetriever {
 
 	private static final Logger LOG =
-			getLogger(AttachmentController.class.getName());
+			getLogger(AttachmentRetriever.class.getName());
 	private static final int READ_LIMIT = 1024 * 8192;
 
 	private final MessagingManager messagingManager;
@@ -57,7 +58,8 @@ class AttachmentController {
 	private final Map<MessageId, List<AttachmentItem>> attachmentCache =
 			new ConcurrentHashMap<>();
 
-	AttachmentController(MessagingManager messagingManager,
+	@VisibleForTesting
+	AttachmentRetriever(MessagingManager messagingManager,
 			AttachmentDimensions dimensions, ImageHelper imageHelper) {
 		this.messagingManager = messagingManager;
 		this.imageHelper = imageHelper;
@@ -68,7 +70,7 @@ class AttachmentController {
 		maxHeight = dimensions.maxHeight;
 	}
 
-	AttachmentController(MessagingManager messagingManager,
+	public AttachmentRetriever(MessagingManager messagingManager,
 			AttachmentDimensions dimensions) {
 		this(messagingManager, dimensions, new ImageHelper() {
 			@Override
@@ -91,17 +93,17 @@ class AttachmentController {
 		});
 	}
 
-	void put(MessageId messageId, List<AttachmentItem> attachments) {
+	public void cachePut(MessageId messageId, List<AttachmentItem> attachments) {
 		attachmentCache.put(messageId, attachments);
 	}
 
 	@Nullable
-	List<AttachmentItem> get(MessageId messageId) {
+	public List<AttachmentItem> cacheGet(MessageId messageId) {
 		return attachmentCache.get(messageId);
 	}
 
 	@DatabaseExecutor
-	List<Pair<AttachmentHeader, Attachment>> getMessageAttachments(
+	public List<Pair<AttachmentHeader, Attachment>> getMessageAttachments(
 			List<AttachmentHeader> headers) throws DbException {
 		long start = now();
 		List<Pair<AttachmentHeader, Attachment>> attachments =
@@ -110,8 +112,13 @@ class AttachmentController {
 			Attachment a = messagingManager.getAttachment(h.getMessageId());
 			attachments.add(new Pair<>(h, a));
 		}
-		logDuration(LOG, "Loading attachment", start);
+		logDuration(LOG, "Loading attachments", start);
 		return attachments;
+	}
+
+	@DatabaseExecutor
+	Attachment getMessageAttachment(AttachmentHeader h) throws DbException {
+		return messagingManager.getAttachment(h.getMessageId());
 	}
 
 	/**
@@ -119,7 +126,7 @@ class AttachmentController {
 	 * <p>
 	 * Note: This closes the {@link Attachment}'s {@link InputStream}.
 	 */
-	List<AttachmentItem> getAttachmentItems(
+	public List<AttachmentItem> getAttachmentItems(
 			List<Pair<AttachmentHeader, Attachment>> attachments) {
 		boolean needsSize = attachments.size() == 1;
 		List<AttachmentItem> items = new ArrayList<>(attachments.size());
@@ -137,17 +144,15 @@ class AttachmentController {
 	 */
 	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
 			boolean needsSize) {
-		MessageId messageId = h.getMessageId();
 		if (!needsSize) {
-			String mimeType = h.getContentType();
-			String extension = imageHelper.getExtensionFromMimeType(mimeType);
+			String extension =
+					imageHelper.getExtensionFromMimeType(h.getContentType());
 			boolean hasError = false;
 			if (extension == null) {
 				extension = "";
 				hasError = true;
 			}
-			return new AttachmentItem(messageId, 0, 0, mimeType, extension, 0,
-					0, hasError);
+			return new AttachmentItem(h, 0, 0, extension, 0, 0, hasError);
 		}
 
 		Size size = new Size();
@@ -185,10 +190,17 @@ class AttachmentController {
 		// get file extension
 		String extension = imageHelper.getExtensionFromMimeType(size.mimeType);
 		boolean hasError = extension == null || size.error;
+		if (!h.getContentType().equals(size.mimeType)) {
+			if (LOG.isLoggable(WARNING)) {
+				LOG.warning("Header has different mime type (" +
+						h.getContentType() + ") than image (" + size.mimeType +
+						").");
+			}
+			hasError = true;
+		}
 		if (extension == null) extension = "";
-		return new AttachmentItem(messageId, size.width, size.height,
-				size.mimeType, extension, thumbnailSize.width,
-				thumbnailSize.height, hasError);
+		return new AttachmentItem(h, size.width, size.height, extension,
+				thumbnailSize.width, thumbnailSize.height, hasError);
 	}
 
 	/**
