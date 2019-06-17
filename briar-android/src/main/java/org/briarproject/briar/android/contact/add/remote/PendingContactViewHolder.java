@@ -55,7 +55,7 @@ class PendingContactViewHolder extends ViewHolder {
 			case OFFLINE:
 				color = ContextCompat
 						.getColor(status.getContext(), R.color.briar_yellow);
-				status.setText(R.string.offline_state);
+				status.setText("");
 				break;
 			case CONNECTING:
 				status.setText(R.string.connecting);
