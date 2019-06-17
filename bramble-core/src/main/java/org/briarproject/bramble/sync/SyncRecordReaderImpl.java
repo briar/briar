@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
+import org.briarproject.bramble.api.sync.Versions;
 import org.briarproject.bramble.util.ByteUtils;
 
 import java.io.IOException;
@@ -26,6 +27,8 @@ import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.MESSAGE;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
+import static org.briarproject.bramble.api.sync.RecordTypes.VERSIONS;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_SUPPORTED_VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 
@@ -45,7 +48,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 
 	private static boolean isKnownRecordType(byte type) {
 		return type == ACK || type == MESSAGE || type == OFFER ||
-				type == REQUEST;
+				type == REQUEST || type == VERSIONS;
 	}
 
 	private final MessageFactory messageFactory;
@@ -147,5 +150,28 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 	public Request readRequest() throws IOException {
 		if (!hasRequest()) throw new FormatException();
 		return new Request(readMessageIds());
+	}
+
+	@Override
+	public boolean hasVersions() throws IOException {
+		return !eof() && getNextRecordType() == VERSIONS;
+	}
+
+	@Override
+	public Versions readVersions() throws IOException {
+		if (!hasVersions()) throw new FormatException();
+		return new Versions(readSupportedVersions());
+	}
+
+	private List<Byte> readSupportedVersions() throws IOException {
+		if (nextRecord == null) throw new AssertionError();
+		byte[] payload = nextRecord.getPayload();
+		if (payload.length == 0) throw new FormatException();
+		if (payload.length > MAX_SUPPORTED_VERSIONS)
+			throw new FormatException();
+		List<Byte> supported = new ArrayList<>(payload.length);
+		for (byte b : payload) supported.add(b);
+		nextRecord = null;
+		return supported;
 	}
 }

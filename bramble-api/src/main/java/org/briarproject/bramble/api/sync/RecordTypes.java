@@ -9,5 +9,5 @@ public interface RecordTypes {
 	byte MESSAGE = 1;
 	byte OFFER = 2;
 	byte REQUEST = 3;
-
+	byte VERSIONS = 4;
 }

@@ -66,6 +66,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
@@ -294,11 +295,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			throws Exception {
 		context.checking(new Expectations() {{
 			// Check whether the contact is in the DB (which it's not)
-			exactly(16).of(database).startTransaction();
+			exactly(18).of(database).startTransaction();
 			will(returnValue(txn));
-			exactly(16).of(database).containsContact(txn, contactId);
+			exactly(18).of(database).containsContact(txn, contactId);
 			will(returnValue(false));
-			exactly(16).of(database).abortTransaction(txn);
+			exactly(18).of(database).abortTransaction(txn);
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -377,6 +378,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 		}
 
 		try {
+			db.transaction(false, transaction ->
+					db.getSyncVersions(transaction, contactId));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
 			Ack a = new Ack(singletonList(messageId));
 			db.transaction(false, transaction ->
 					db.receiveAck(transaction, contactId, a));
@@ -431,6 +440,14 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			db.transaction(false, transaction ->
 					db.setGroupVisibility(transaction, contactId, groupId,
 							SHARED));
+			fail();
+		} catch (NoSuchContactException expected) {
+			// Expected
+		}
+
+		try {
+			db.transaction(false, transaction ->
+					db.setSyncVersions(transaction, contactId, emptyList()));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected

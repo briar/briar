@@ -25,4 +25,7 @@ public interface SyncRecordReader {
 
 	Request readRequest() throws IOException;
 
+	boolean hasVersions() throws IOException;
+
+	Versions readVersions() throws IOException;
 }
