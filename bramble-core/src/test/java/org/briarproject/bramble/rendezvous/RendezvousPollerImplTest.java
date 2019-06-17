@@ -45,6 +45,7 @@ import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CONTACT;
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
+import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
@@ -120,7 +121,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(beforeExpiry));
 			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
 					PendingContactStateChangedEvent.class, e ->
-					e.getPendingContactState() == WAITING_FOR_CONNECTION)));
+					e.getPendingContactState() == OFFLINE)));
 			// Capture the poll task
 			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
@@ -184,7 +185,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
-		expectAddUnexpiredPendingContact(beforeExpiry);
+		expectAddPendingContact(beforeExpiry, WAITING_FOR_CONNECTION);
 		expectDeriveRendezvousKey();
 		expectCreateEndpoint();
 
@@ -205,9 +206,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Remove the pending contact - endpoint should be closed
-		context.checking(new Expectations() {{
-			oneOf(rendezvousEndpoint).close();
-		}});
+		expectCloseEndpoint();
 
 		rendezvousPoller.eventOccurred(
 				new PendingContactRemovedEvent(pendingContact.getId()));
@@ -238,7 +237,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
-		expectAddUnexpiredPendingContact(beforeExpiry);
+		expectAddPendingContact(beforeExpiry, WAITING_FOR_CONNECTION);
 		expectDeriveRendezvousKey();
 		expectCreateEndpoint();
 
@@ -260,10 +259,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 
 		// Run the poll task - pending contact expires, endpoint is closed
 		expectPendingContactExpires(afterExpiry);
-
-		context.checking(new Expectations() {{
-			oneOf(rendezvousEndpoint).close();
-		}});
+		expectCloseEndpoint();
 
 		capturePollTask.get().run();
 		context.assertIsSatisfied();
@@ -289,7 +285,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Add the pending contact - no endpoints should be created yet
-		expectAddUnexpiredPendingContact(beforeExpiry);
+		expectAddPendingContact(beforeExpiry, OFFLINE);
 		expectDeriveRendezvousKey();
 
 		rendezvousPoller.eventOccurred(
@@ -299,14 +295,14 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		// Enable the transport - endpoint should be created
 		expectGetPlugin();
 		expectCreateEndpoint();
+		expectStateChangedEvent(WAITING_FOR_CONNECTION);
 
 		rendezvousPoller.eventOccurred(new TransportEnabledEvent(transportId));
 		context.assertIsSatisfied();
 
 		// Disable the transport - endpoint should be closed
-		context.checking(new Expectations() {{
-			oneOf(rendezvousEndpoint).close();
-		}});
+		expectCloseEndpoint();
+		expectStateChangedEvent(OFFLINE);
 
 		rendezvousPoller.eventOccurred(new TransportDisabledEvent(transportId));
 		context.assertIsSatisfied();
@@ -482,13 +478,14 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		return capturePollTask;
 	}
 
-	private void expectAddUnexpiredPendingContact(long now) {
+	private void expectAddPendingContact(long now,
+			PendingContactState initialState) {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now));
 			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
 					PendingContactStateChangedEvent.class, e ->
-					e.getPendingContactState() == WAITING_FOR_CONNECTION)));
+					e.getPendingContactState() == initialState)));
 		}});
 	}
 
@@ -546,7 +543,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(now));
 			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
 					PendingContactStateChangedEvent.class, e ->
-					e.getPendingContactState() == WAITING_FOR_CONNECTION)));
+					e.getPendingContactState() == OFFLINE)));
 			// Capture the poll task
 			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
@@ -574,6 +571,12 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(new PredicateMatcher<>(
 					PendingContactStateChangedEvent.class, e ->
 					e.getPendingContactState() == state)));
+		}});
+	}
+
+	private void expectCloseEndpoint() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(rendezvousEndpoint).close();
 		}});
 	}
 }

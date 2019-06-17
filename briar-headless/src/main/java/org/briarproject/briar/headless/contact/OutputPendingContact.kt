@@ -16,6 +16,7 @@ internal fun PendingContact.output() = JsonDict(
 
 internal fun PendingContactState.output() = when(this) {
     WAITING_FOR_CONNECTION -> "waiting_for_connection"
+    OFFLINE -> "offline"
     CONNECTING -> "connecting"
     ADDING_CONTACT -> "adding_contact"
     FAILED -> "failed"

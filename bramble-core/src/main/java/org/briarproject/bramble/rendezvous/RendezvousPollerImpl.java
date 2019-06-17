@@ -66,6 +66,7 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CONTACT;
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
+import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNull;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
@@ -158,9 +159,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private void addPendingContact(PendingContact p) {
 		long now = clock.currentTimeMillis();
 		long expiry = p.getTimestamp() + RENDEZVOUS_TIMEOUT_MS;
-		if (expiry > now) {
-			broadcastState(p.getId(), WAITING_FOR_CONNECTION);
-		} else {
+		if (expiry <= now) {
 			broadcastState(p.getId(), FAILED);
 			return;
 		}
@@ -180,9 +179,13 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			for (PluginState ps : pluginStates.values()) {
 				RendezvousEndpoint endpoint =
 						createEndpoint(ps.plugin, p.getId(), cs);
-				if (endpoint != null)
+				if (endpoint != null) {
 					requireNull(ps.endpoints.put(p.getId(), endpoint));
+					cs.numEndpoints++;
+				}
 			}
+			if (cs.numEndpoints == 0) broadcastState(p.getId(), OFFLINE);
+			else broadcastState(p.getId(), WAITING_FOR_CONNECTION);
 		} catch (DbException | GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
 		}
@@ -328,9 +331,14 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		TransportId t = plugin.getId();
 		Map<PendingContactId, RendezvousEndpoint> endpoints = new HashMap<>();
 		for (Entry<PendingContactId, CryptoState> e : cryptoStates.entrySet()) {
-			RendezvousEndpoint endpoint =
-					createEndpoint(plugin, e.getKey(), e.getValue());
-			if (endpoint != null) endpoints.put(e.getKey(), endpoint);
+			PendingContactId p = e.getKey();
+			CryptoState cs = e.getValue();
+			RendezvousEndpoint endpoint = createEndpoint(plugin, p, cs);
+			if (endpoint != null) {
+				endpoints.put(p, endpoint);
+				if (++cs.numEndpoints == 1)
+					broadcastState(p, WAITING_FOR_CONNECTION);
+			}
 		}
 		requireNull(pluginStates.put(t, new PluginState(plugin, endpoints)));
 	}
@@ -344,8 +352,11 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private void removeTransport(TransportId t) {
 		PluginState ps = pluginStates.remove(t);
 		if (ps != null) {
-			for (RendezvousEndpoint endpoint : ps.endpoints.values()) {
-				tryToClose(endpoint, LOG, INFO);
+			for (Entry<PendingContactId, RendezvousEndpoint> e :
+					ps.endpoints.entrySet()) {
+				tryToClose(e.getValue(), LOG, INFO);
+				CryptoState cs = cryptoStates.get(e.getKey());
+				if (--cs.numEndpoints == 0) broadcastState(e.getKey(), OFFLINE);
 			}
 		}
 	}
@@ -390,6 +401,8 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		private final SecretKey rendezvousKey;
 		private final boolean alice;
 		private final long expiry;
+
+		private int numEndpoints = 0;
 
 		private CryptoState(SecretKey rendezvousKey, boolean alice,
 				long expiry) {
