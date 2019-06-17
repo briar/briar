@@ -181,10 +181,10 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 						createEndpoint(ps.plugin, p.getId(), cs);
 				if (endpoint != null) {
 					requireNull(ps.endpoints.put(p.getId(), endpoint));
-					cs.endpoints++;
+					cs.numEndpoints++;
 				}
 			}
-			if (cs.endpoints == 0) broadcastState(p.getId(), OFFLINE);
+			if (cs.numEndpoints == 0) broadcastState(p.getId(), OFFLINE);
 			else broadcastState(p.getId(), WAITING_FOR_CONNECTION);
 		} catch (DbException | GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
@@ -336,7 +336,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			RendezvousEndpoint endpoint = createEndpoint(plugin, p, cs);
 			if (endpoint != null) {
 				endpoints.put(p, endpoint);
-				if (++cs.endpoints == 1)
+				if (++cs.numEndpoints == 1)
 					broadcastState(p, WAITING_FOR_CONNECTION);
 			}
 		}
@@ -356,7 +356,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 					ps.endpoints.entrySet()) {
 				tryToClose(e.getValue(), LOG, INFO);
 				CryptoState cs = cryptoStates.get(e.getKey());
-				if (--cs.endpoints == 0) broadcastState(e.getKey(), OFFLINE);
+				if (--cs.numEndpoints == 0) broadcastState(e.getKey(), OFFLINE);
 			}
 		}
 	}
@@ -402,7 +402,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		private final boolean alice;
 		private final long expiry;
 
-		private int endpoints = 0;
+		private int numEndpoints = 0;
 
 		private CryptoState(SecretKey rendezvousKey, boolean alice,
 				long expiry) {
