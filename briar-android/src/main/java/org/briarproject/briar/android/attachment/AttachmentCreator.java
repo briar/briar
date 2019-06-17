@@ -103,7 +103,7 @@ public class AttachmentCreator {
 			AttachmentItemResult itemResult =
 					new AttachmentItemResult(uri, item);
 			itemResults.add(itemResult);
-			result.postValue(new AttachmentResult(itemResults, false));
+			result.postValue(getResult(false));
 		} catch (IOException | DbException e) {
 			logException(LOG, WARNING, e);
 			onAttachmentError(uri, e);
@@ -127,15 +127,13 @@ public class AttachmentCreator {
 		AttachmentItemResult itemResult =
 				new AttachmentItemResult(uri, errorMsg);
 		itemResults.add(itemResult);
-		result.postValue(new AttachmentResult(itemResults, false));
+		result.postValue(getResult(false));
 		// expect to receive a cancel from the UI
 	}
 
 	@IoExecutor
 	void onAttachmentCreationFinished() {
-		if (uris.size() != itemResults.size())
-			throw new IllegalStateException();
-		result.postValue(new AttachmentResult(itemResults, true));
+		result.postValue(getResult(true));
 	}
 
 	@UiThread
@@ -203,6 +201,18 @@ public class AttachmentCreator {
 				}
 			}
 		});
+	}
+
+	private AttachmentResult getResult(boolean finished) {
+		// Make a copy of the list,
+		// because our copy will continue to change in the background.
+		// (As it's a CopyOnWriteArrayList,
+		//  the code that receives the result can safely do simple things
+		//  like iterating over the list,
+		//  but anything that involves calling more than one list method
+		//  is still unsafe.)
+		Collection<AttachmentItemResult> items = new ArrayList<>(itemResults);
+		return new AttachmentResult(items, finished);
 	}
 
 }
