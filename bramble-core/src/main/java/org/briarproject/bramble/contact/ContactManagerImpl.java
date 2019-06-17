@@ -147,7 +147,6 @@ class ContactManagerImpl implements ContactManager, EventListener {
 		} finally {
 			db.endTransaction(txn);
 		}
-		states.put(p.getId(), WAITING_FOR_CONNECTION);
 		return p;
 	}
 

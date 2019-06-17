@@ -6,11 +6,15 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
+import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.Identity;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestDuplexTransportConnection;
@@ -27,7 +31,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static junit.framework.TestCase.assertNotNull;
 import static junit.framework.TestCase.assertNull;
 import static junit.framework.TestCase.fail;
-import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
+import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
 import static org.briarproject.bramble.test.TestDuplexTransportConnection.createPair;
 import static org.briarproject.bramble.test.TestPluginConfigModule.DUPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
@@ -188,9 +192,14 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 	private PendingContact addPendingContact(
 			ContactExchangeIntegrationTestComponent local,
 			ContactExchangeIntegrationTestComponent remote) throws Exception {
+		EventWaiter waiter = new EventWaiter();
+		local.getEventBus().addListener(waiter);
 		String link = remote.getContactManager().getHandshakeLink();
 		String alias = remote.getIdentityManager().getLocalAuthor().getName();
-		return local.getContactManager().addPendingContact(link, alias);
+		PendingContact pendingContact =
+				local.getContactManager().addPendingContact(link, alias);
+		waiter.latch.await(TIMEOUT, MILLISECONDS);
+		return pendingContact;
 	}
 
 	private void assertContacts(boolean verified,
@@ -237,7 +246,7 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		assertEquals(1, pairs.size());
 		Pair<PendingContact, PendingContactState> pair =
 				pairs.iterator().next();
-		assertEquals(WAITING_FOR_CONNECTION, pair.getSecond());
+		assertEquals(OFFLINE, pair.getSecond());
 		PendingContact pendingContact = pair.getFirst();
 		assertEquals(expectedIdentity.getLocalAuthor().getName(),
 				pendingContact.getAlias());
@@ -260,5 +269,20 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		tearDown(alice);
 		tearDown(bob);
 		deleteTestDirectory(testDir);
+	}
+
+	@NotNullByDefault
+	private static class EventWaiter implements EventListener {
+
+		private final CountDownLatch latch = new CountDownLatch(1);
+
+		@Override
+		public void eventOccurred(Event e) {
+			if (e instanceof PendingContactStateChangedEvent) {
+				PendingContactStateChangedEvent p =
+						(PendingContactStateChangedEvent) e;
+				if (p.getPendingContactState() == OFFLINE) latch.countDown();
+			}
+		}
 	}
 }
