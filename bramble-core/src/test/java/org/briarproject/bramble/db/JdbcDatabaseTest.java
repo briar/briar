@@ -41,7 +41,6 @@ import org.junit.Test;
 import java.io.File;
 import java.sql.Connection;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +50,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
@@ -407,10 +407,10 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Both message IDs should be returned
 		Collection<MessageId> ids = db.getMessagesToAck(txn, contactId, 1234);
-		assertEquals(Arrays.asList(messageId, messageId1), ids);
+		assertEquals(asList(messageId, messageId1), ids);
 
 		// Remove both message IDs
-		db.lowerAckFlag(txn, contactId, Arrays.asList(messageId, messageId1));
+		db.lowerAckFlag(txn, contactId, asList(messageId, messageId1));
 
 		// Both message IDs should have been removed
 		assertEquals(emptyList(), db.getMessagesToAck(txn,
@@ -422,7 +422,7 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// Both message IDs should be returned
 		ids = db.getMessagesToAck(txn, contactId, 1234);
-		assertEquals(Arrays.asList(messageId, messageId1), ids);
+		assertEquals(asList(messageId, messageId1), ids);
 
 		db.commitTransaction(txn);
 		db.close();
@@ -2281,6 +2281,29 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 
 		// The temporary message should have been removed
 		assertFalse(db.containsMessage(txn, messageId1));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testSyncVersions() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add a contact
+		db.addIdentity(txn, identity);
+		assertEquals(contactId,
+				db.addContact(txn, author, localAuthor.getId(), null, true));
+
+		// Only sync version 0 should be supported by default
+		List<Byte> defaultSupported = singletonList((byte) 0);
+		assertEquals(defaultSupported, db.getSyncVersions(txn, contactId));
+
+		// Set the supported versions and check that they're returned
+		List<Byte> supported = asList((byte) 0, (byte) 1);
+		db.setSyncVersions(txn, contactId, supported);
+		assertEquals(supported, db.getSyncVersions(txn, contactId));
 
 		db.commitTransaction(txn);
 		db.close();

@@ -18,14 +18,17 @@ import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.SyncSession;
+import org.briarproject.bramble.api.sync.Versions;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
@@ -37,7 +40,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class IncomingSession implements SyncSession, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(IncomingSession.class.getName());
+			getLogger(IncomingSession.class.getName());
 
 	private final DatabaseComponent db;
 	private final Executor dbExecutor;
@@ -80,6 +83,9 @@ class IncomingSession implements SyncSession, EventListener {
 				} else if (recordReader.hasRequest()) {
 					Request r = recordReader.readRequest();
 					dbExecutor.execute(new ReceiveRequest(r));
+				} else if (recordReader.hasVersions()) {
+					Versions v = recordReader.readVersions();
+					dbExecutor.execute(new ReceiveVersions(v));
 				} else {
 					// unknown records are ignored in RecordReader#eof()
 					throw new FormatException();
@@ -184,6 +190,28 @@ class IncomingSession implements SyncSession, EventListener {
 			try {
 				db.transaction(false, txn ->
 						db.receiveRequest(txn, contactId, request));
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				interrupt();
+			}
+		}
+	}
+
+	private class ReceiveVersions implements Runnable {
+
+		private final Versions versions;
+
+		private ReceiveVersions(Versions versions) {
+			this.versions = versions;
+		}
+
+		@DatabaseExecutor
+		@Override
+		public void run() {
+			try {
+				List<Byte> supported = versions.getSupportedVersions();
+				db.transaction(false,
+						txn -> db.setSyncVersions(txn, contactId, supported));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				interrupt();

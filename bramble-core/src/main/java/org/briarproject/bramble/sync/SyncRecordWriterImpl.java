@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
+import org.briarproject.bramble.api.sync.Versions;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,6 +21,7 @@ import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.MESSAGE;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
+import static org.briarproject.bramble.api.sync.RecordTypes.VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 
 @NotThreadSafe
@@ -63,6 +65,12 @@ class SyncRecordWriterImpl implements SyncRecordWriter {
 	public void writeRequest(Request r) throws IOException {
 		for (MessageId m : r.getMessageIds()) payload.write(m.getBytes());
 		writeRecord(REQUEST);
+	}
+
+	@Override
+	public void writeVersions(Versions v) throws IOException {
+		for (byte b : v.getSupportedVersions()) payload.write(b);
+		writeRecord(VERSIONS);
 	}
 
 	@Override

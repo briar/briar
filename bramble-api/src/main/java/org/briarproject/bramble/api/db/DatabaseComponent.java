@@ -29,6 +29,7 @@ import org.briarproject.bramble.api.transport.TransportKeySet;
 import org.briarproject.bramble.api.transport.TransportKeys;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nullable;
@@ -428,6 +429,13 @@ public interface DatabaseComponent extends TransactionManager {
 	Settings getSettings(Transaction txn, String namespace) throws DbException;
 
 	/**
+	 * Returns the versions of the sync protocol supported by the given contact.
+	 * <p/>
+	 * Read-only.
+	 */
+	List<Byte> getSyncVersions(Transaction txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns all transport keys for the given transport.
 	 * <p/>
 	 * Read-only.
@@ -578,6 +586,12 @@ public interface DatabaseComponent extends TransactionManager {
 	 */
 	void setReorderingWindow(Transaction txn, KeySetId k, TransportId t,
 			long timePeriod, long base, byte[] bitmap) throws DbException;
+
+	/**
+	 * Sets the versions of the sync protocol supported by the given contact.
+	 */
+	void setSyncVersions(Transaction txn, ContactId c, List<Byte> supported)
+			throws DbException;
 
 	/**
 	 * Marks the given transport keys as usable for outgoing streams.

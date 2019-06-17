@@ -1,8 +1,14 @@
 package org.briarproject.bramble.api.sync;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import javax.annotation.concurrent.Immutable;
+
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 
+@Immutable
+@NotNullByDefault
 public class Message {
 
 	/**
