@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -52,7 +53,7 @@ import static org.acra.ReportField.STACK_TRACE;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ReportFormFragment extends Fragment
-		implements CompoundButton.OnCheckedChangeListener {
+		implements OnCheckedChangeListener {
 
 	private static final Logger LOG =
 			getLogger(ReportFormFragment.class.getName());
@@ -91,7 +92,7 @@ public class ReportFormFragment extends Fragment
 	}
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 	}

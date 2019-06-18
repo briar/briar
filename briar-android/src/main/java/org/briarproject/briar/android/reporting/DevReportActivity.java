@@ -75,7 +75,7 @@ public class DevReportActivity extends BaseCrashReportDialog {
 				R.string.crash_report_title);
 		requireNonNull(getDelegate().getSupportActionBar()).setTitle(title);
 
-		if (state == null) showReportForm(isFeedback());
+		if (state == null) displayFragment(isFeedback());
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class DevReportActivity extends BaseCrashReportDialog {
 		return getException() instanceof UserFeedback;
 	}
 
-	void showReportForm(boolean showReportForm) {
+	void displayFragment(boolean showReportForm) {
 		Fragment f;
 		if (showReportForm) {
 			File file =
@@ -145,8 +145,15 @@ public class DevReportActivity extends BaseCrashReportDialog {
 			requireNonNull(getDelegate().getSupportActionBar()).hide();
 		}
 		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, f)
+				.replace(R.id.fragmentContainer, f, f.getTag())
 				.commit();
+
+	}
+
+	@Override
+	public void invalidateOptionsMenu() {
+		super.invalidateOptionsMenu();
+		getDelegate().invalidateOptionsMenu();
 	}
 
 	void closeReport() {

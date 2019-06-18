@@ -26,7 +26,7 @@ public class CrashFragment extends Fragment {
 				.inflate(R.layout.fragment_crash, container, false);
 
 		v.findViewById(R.id.acceptButton).setOnClickListener(view ->
-				getDevReportActivity().showReportForm(true));
+				getDevReportActivity().displayFragment(true));
 		v.findViewById(R.id.declineButton).setOnClickListener(view ->
 				getDevReportActivity().closeReport());
 
