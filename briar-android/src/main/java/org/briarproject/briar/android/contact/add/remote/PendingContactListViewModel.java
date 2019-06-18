@@ -31,6 +31,7 @@ import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -48,6 +49,8 @@ public class PendingContactListViewModel extends AndroidViewModel
 
 	private final MutableLiveData<Collection<PendingContactItem>>
 			pendingContacts = new MutableLiveData<>();
+	private final MutableLiveData<Boolean> hasInternetConnection =
+			new MutableLiveData<>();
 
 	@Inject
 	PendingContactListViewModel(Application application,
@@ -88,13 +91,16 @@ public class PendingContactListViewModel extends AndroidViewModel
 				Collection<Pair<PendingContact, PendingContactState>> pairs =
 						contactManager.getPendingContacts();
 				List<PendingContactItem> items = new ArrayList<>(pairs.size());
+				boolean online = false;
 				for (Pair<PendingContact, PendingContactState> pair : pairs) {
 					PendingContact p = pair.getFirst();
+					PendingContactState state = pair.getSecond();
 					long lastPoll = rendezvousPoller.getLastPollTime(p.getId());
-					items.add(new PendingContactItem(p, pair.getSecond(),
-							lastPoll));
+					items.add(new PendingContactItem(p, state, lastPoll));
+					online = online || state != OFFLINE;
 				}
 				pendingContacts.postValue(items);
+				hasInternetConnection.postValue(online);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -113,6 +119,10 @@ public class PendingContactListViewModel extends AndroidViewModel
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	LiveData<Boolean> getHasInternetConnection() {
+		return hasInternetConnection;
 	}
 
 }

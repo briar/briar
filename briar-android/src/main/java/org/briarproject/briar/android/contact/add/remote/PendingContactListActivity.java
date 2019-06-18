@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -15,6 +16,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 
 import java.util.Collection;
@@ -22,6 +24,7 @@ import java.util.Collection;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.briar.android.contact.add.remote.PendingContactItem.POLL_DURATION_MS;
 
@@ -36,6 +39,7 @@ public class PendingContactListActivity extends BriarActivity
 	private PendingContactListViewModel viewModel;
 	private PendingContactListAdapter adapter;
 	private BriarRecyclerView list;
+	private Snackbar offlineSnackbar;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -58,6 +62,8 @@ public class PendingContactListActivity extends BriarActivity
 		viewModel.onCreate();
 		viewModel.getPendingContacts()
 				.observe(this, this::onPendingContactsChanged);
+		viewModel.getHasInternetConnection()
+				.observe(this, this::onInternetConnectionChanged);
 
 		adapter = new PendingContactListAdapter(this, this,
 				PendingContactItem.class);
@@ -66,6 +72,10 @@ public class PendingContactListActivity extends BriarActivity
 		list.setLayoutManager(new LinearLayoutManager(this));
 		list.setAdapter(adapter);
 		list.showProgressBar();
+
+		offlineSnackbar = new BriarSnackbarBuilder()
+				.setBackgroundColor(R.color.briar_red)
+				.make(list, R.string.offline_state, LENGTH_INDEFINITE);
 	}
 
 	@Override
@@ -128,6 +138,11 @@ public class PendingContactListActivity extends BriarActivity
 		} else {
 			adapter.setItems(items);
 		}
+	}
+
+	private void onInternetConnectionChanged(boolean online) {
+		if (online) offlineSnackbar.dismiss();
+		else offlineSnackbar.show();
 	}
 
 }
