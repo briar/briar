@@ -82,19 +82,20 @@ public class NicknameFragment extends BaseFragment {
 
 	@Nullable
 	private String getNicknameOrNull() {
-		Editable name = contactNameInput.getText();
-		if (name == null || name.toString().trim().length() == 0) {
+		Editable text = contactNameInput.getText();
+		if (text == null || text.toString().trim().length() == 0) {
 			contactNameLayout.setError(getString(R.string.nickname_missing));
 			contactNameInput.requestFocus();
 			return null;
 		}
-		if (utf8IsTooLong(name.toString(), MAX_AUTHOR_NAME_LENGTH)) {
+		String name = text.toString().trim();
+		if (utf8IsTooLong(name, MAX_AUTHOR_NAME_LENGTH)) {
 			contactNameLayout.setError(getString(R.string.name_too_long));
 			contactNameInput.requestFocus();
 			return null;
 		}
 		contactNameLayout.setError(null);
-		return name.toString().trim();
+		return name;
 	}
 
 	private void onAddButtonClicked() {
