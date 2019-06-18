@@ -567,7 +567,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 				.encodeMetadata(type, shareableId, m.getTimestamp(), true, true,
 						visibleInConversation, false, false);
 		try {
-			clientHelper.addLocalMessage(txn, m, meta, true);
+			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
@@ -627,7 +627,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			@Nullable MessageId dependency) {
 		MessageId expected = session.getLastRemoteMessageId();
 		if (dependency == null) return expected != null;
-		return expected == null || !dependency.equals(expected);
+		return !dependency.equals(expected);
 	}
 
 	private long getLocalTimestamp(Session session) {

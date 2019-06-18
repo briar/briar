@@ -3,6 +3,7 @@ package org.briarproject.briar.headless
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
+import org.briarproject.bramble.api.FeatureFlags
 import org.briarproject.bramble.api.battery.BatteryManager
 import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.event.EventBus
@@ -94,4 +95,9 @@ internal class HeadlessModule(private val appDir: File) {
     @Singleton
     internal fun provideObjectMapper() = ObjectMapper()
 
+    @Provides
+    internal fun provideFeatureFlags() = object : FeatureFlags {
+        override fun shouldEnableImageAttachments() = false
+        override fun shouldEnableRemoteContacts() = true
+    }
 }

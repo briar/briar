@@ -131,7 +131,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					localUpdateBody);
 			will(returnValue(localUpdate));
 			oneOf(clientHelper).addLocalMessage(txn, localUpdate,
-					localUpdateMeta, true);
+					localUpdateMeta, true, false);
 		}});
 	}
 
@@ -284,7 +284,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					newLocalUpdateBody);
 			will(returnValue(newLocalUpdate));
 			oneOf(clientHelper).addLocalMessage(txn, newLocalUpdate,
-					newLocalUpdateMeta, true);
+					newLocalUpdateMeta, true, false);
 			// No visibilities have changed
 		}});
 
@@ -382,7 +382,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					newLocalUpdateBody);
 			will(returnValue(newLocalUpdate));
 			oneOf(clientHelper).addLocalMessage(txn, newLocalUpdate,
-					newLocalUpdateMeta, true);
+					newLocalUpdateMeta, true, false);
 			// The client's visibility has changed
 			oneOf(hook).onClientVisibilityChanging(txn, contact, visibility);
 		}});
@@ -567,7 +567,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					newLocalUpdateBody);
 			will(returnValue(newLocalUpdate));
 			oneOf(clientHelper).addLocalMessage(txn, newLocalUpdate,
-					newLocalUpdateMeta, true);
+					newLocalUpdateMeta, true, false);
 			// The client's visibility has changed
 			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
 					contactGroup.getId());
@@ -640,7 +640,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					newLocalUpdateBody);
 			will(returnValue(newLocalUpdate));
 			oneOf(clientHelper).addLocalMessage(txn, newLocalUpdate,
-					newLocalUpdateMeta, true);
+					newLocalUpdateMeta, true, false);
 			// The client's visibility has changed
 			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
 					contactGroup.getId());

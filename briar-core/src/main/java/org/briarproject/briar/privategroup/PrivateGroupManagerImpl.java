@@ -138,7 +138,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		meta.put(KEY_TYPE, JOIN.getInt());
 		meta.put(KEY_INITIAL_JOIN_MSG, creator);
 		addMessageMetadata(meta, m);
-		clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
+		clientHelper.addLocalMessage(txn, m.getMessage(), meta, true, false);
 		messageTracker.trackOutgoingMessage(txn, m.getMessage());
 		addMember(txn, m.getMessage().getGroupId(), m.getMember(), VISIBLE);
 		setPreviousMsgId(txn, m.getMessage().getGroupId(),
@@ -217,7 +217,8 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 				meta.put(KEY_PARENT_MSG_ID, m.getParent());
 			addMessageMetadata(meta, m);
 			GroupId g = m.getMessage().getGroupId();
-			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
+			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
+					false);
 
 			// track message
 			setPreviousMsgId(txn, g, m.getMessage().getId());

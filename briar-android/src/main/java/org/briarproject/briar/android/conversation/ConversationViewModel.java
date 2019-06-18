@@ -61,6 +61,7 @@ public class ConversationViewModel extends AndroidViewModel
 
 	private static Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
+
 	private static final String SHOW_ONBOARDING_IMAGE =
 			"showOnboardingImage";
 	private static final String SHOW_ONBOARDING_INTRODUCTION =
@@ -181,12 +182,17 @@ public class ConversationViewModel extends AndroidViewModel
 		});
 	}
 
+	@UiThread
 	void sendMessage(@Nullable String text,
-			List<AttachmentHeader> attachmentHeaders, long timestamp) {
+			List<AttachmentHeader> headers, long timestamp) {
 		// messagingGroupId is loaded with the contact
 		observeForeverOnce(messagingGroupId, groupId -> {
-			if (groupId == null) throw new IllegalStateException();
-			createMessage(groupId, text, attachmentHeaders, timestamp);
+			requireNonNull(groupId);
+			observeForeverOnce(imageSupport, hasImageSupport -> {
+				requireNonNull(hasImageSupport);
+				createMessage(groupId, text, headers, timestamp,
+						hasImageSupport);
+			});
 		});
 	}
 
@@ -270,21 +276,24 @@ public class ConversationViewModel extends AndroidViewModel
 	}
 
 	private void createMessage(GroupId groupId, @Nullable String text,
-			List<AttachmentHeader> attachments, long timestamp) {
+			List<AttachmentHeader> headers, long timestamp,
+			boolean hasImageSupport) {
 		try {
-			// TODO remove when text can be null in the backend
-			String msgText = text == null ? "null" : text;
-			PrivateMessage pm = privateMessageFactory
-					.createPrivateMessage(groupId, timestamp, msgText,
-							attachments);
-			storeMessage(pm, msgText, attachments);
+			PrivateMessage pm;
+			if (hasImageSupport) {
+				pm = privateMessageFactory.createPrivateMessage(groupId,
+						timestamp, text, headers);
+			} else {
+				pm = privateMessageFactory.createLegacyPrivateMessage(
+						groupId, timestamp, requireNonNull(text));
+			}
+			storeMessage(pm);
 		} catch (FormatException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		}
 	}
 
-	private void storeMessage(PrivateMessage m, @Nullable String text,
-			List<AttachmentHeader> attachments) {
+	private void storeMessage(PrivateMessage m) {
 		attachmentCreator.onAttachmentsSent(m.getMessage().getId());
 		dbExecutor.execute(() -> {
 			try {
@@ -295,7 +304,7 @@ public class ConversationViewModel extends AndroidViewModel
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, true, false, false,
-						text != null, attachments);
+						m.hasText(), m.getAttachmentHeaders());
 				// TODO add text to cache when available here
 				addedHeader.postEvent(h);
 			} catch (DbException e) {

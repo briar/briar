@@ -12,11 +12,13 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
+import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 
 @Immutable
 @NotNullByDefault
@@ -30,15 +32,36 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 	}
 
 	@Override
-	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
-			String text, List<AttachmentHeader> attachments)
-			throws FormatException {
+	public PrivateMessage createLegacyPrivateMessage(GroupId groupId,
+			long timestamp, String text) throws FormatException {
 		// Validate the arguments
 		if (utf8IsTooLong(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH))
 			throw new IllegalArgumentException();
 		// Serialise the message
-		BdfList message = BdfList.of(text);
-		Message m = clientHelper.createMessage(groupId, timestamp, message);
+		BdfList body = BdfList.of(text);
+		Message m = clientHelper.createMessage(groupId, timestamp, body);
 		return new PrivateMessage(m);
+	}
+
+	@Override
+	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
+			@Nullable String text, List<AttachmentHeader> headers)
+			throws FormatException {
+		// Validate the arguments
+		if (text == null) {
+			if (headers.isEmpty()) throw new IllegalArgumentException();
+		} else if (utf8IsTooLong(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH)) {
+			throw new IllegalArgumentException();
+		}
+		// Serialise the attachment headers
+		BdfList attachmentList = new BdfList();
+		for (AttachmentHeader a : headers) {
+			attachmentList.add(
+					BdfList.of(a.getMessageId(), a.getContentType()));
+		}
+		// Serialise the message
+		BdfList body = BdfList.of(PRIVATE_MESSAGE, text, attachmentList);
+		Message m = clientHelper.createMessage(groupId, timestamp, body);
+		return new PrivateMessage(m, text != null, headers);
 	}
 }

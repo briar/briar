@@ -325,20 +325,14 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 		Transaction txn = db.startTransaction(false);
 		try {
-			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
+			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
+					false);
 			if (local) messageTracker.trackOutgoingMessage(txn, m.getMessage());
 			else messageTracker.trackIncomingMessage(txn, m.getMessage());
 			db.commitTransaction(txn);
 		} finally {
 			db.endTransaction(txn);
 		}
-	}
-
-	@Override
-	public void addPrivateMessage(Contact contact, String text, long time,
-			boolean local) throws DbException, FormatException {
-		Group group = messagingManager.getContactGroup(contact);
-		createPrivateMessage(group.getId(), text, time, local);
 	}
 
 	private void createBlogPosts(List<Contact> contacts, int numBlogPosts)

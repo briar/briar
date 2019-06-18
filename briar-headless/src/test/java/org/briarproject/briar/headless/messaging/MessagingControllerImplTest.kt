@@ -115,11 +115,10 @@ internal class MessagingControllerImplTest : ControllerTest() {
         every { messagingManager.getContactGroup(contact) } returns group
         every { clock.currentTimeMillis() } returns timestamp
         every {
-            privateMessageFactory.createPrivateMessage(
+            privateMessageFactory.createLegacyPrivateMessage(
                 group.id,
                 timestamp,
-                text,
-                emptyList()
+                text
             )
         } returns privateMessage
         every { messagingManager.addLocalMessage(privateMessage) } just runs
@@ -169,7 +168,12 @@ internal class MessagingControllerImplTest : ControllerTest() {
         val event = PrivateMessageReceivedEvent(header, contact.id)
 
         every { messagingManager.getMessageText(message.id) } returns text
-        every { webSocketController.sendEvent(EVENT_CONVERSATION_MESSAGE, event.output(text)) } just runs
+        every {
+            webSocketController.sendEvent(
+                EVENT_CONVERSATION_MESSAGE,
+                event.output(text)
+            )
+        } just runs
 
         controller.eventOccurred(event)
     }

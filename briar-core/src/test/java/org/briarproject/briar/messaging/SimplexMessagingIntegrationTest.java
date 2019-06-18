@@ -15,9 +15,11 @@ import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.bramble.test.TestTransportConnectionReader;
 import org.briarproject.bramble.test.TestTransportConnectionWriter;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
 import org.briarproject.briar.test.BriarTestCase;
 import org.junit.After;
@@ -27,9 +29,10 @@ import org.junit.Test;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.InputStream;
 import java.util.concurrent.CountDownLatch;
 
-import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
@@ -84,10 +87,12 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		read(bob, write(alice, bobId), 2);
 		// Sync Bob's client versions and transport properties
 		read(alice, write(bob, aliceId), 2);
-		// Sync the private message
-		read(bob, write(alice, bobId), 1);
+		// Sync the private message and the attachment
+		read(bob, write(alice, bobId), 2);
 		// Bob should have received the private message
 		assertTrue(listener.messageAdded);
+		// Bob should have received the attachment
+		assertTrue(listener.attachmentAdded);
 	}
 
 	private ContactId setUp(SimplexMessagingIntegrationTestComponent device,
@@ -107,16 +112,20 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 
 	private void sendMessage(SimplexMessagingIntegrationTestComponent device,
 			ContactId contactId) throws Exception {
-		// Send Bob a message
 		MessagingManager messagingManager = device.getMessagingManager();
 		GroupId groupId = messagingManager.getConversationId(contactId);
+		long timestamp = System.currentTimeMillis();
+		InputStream in = new ByteArrayInputStream(new byte[] {0, 1, 2, 3});
+		AttachmentHeader attachmentHeader = messagingManager.addLocalAttachment(
+				groupId, timestamp, "image/png", in);
 		PrivateMessageFactory privateMessageFactory =
 				device.getPrivateMessageFactory();
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, System.currentTimeMillis(), "Hi!", emptyList());
+				groupId, timestamp, "Hi!", singletonList(attachmentHeader));
 		messagingManager.addLocalMessage(message);
 	}
 
+	@SuppressWarnings("SameParameterValue")
 	private void read(SimplexMessagingIntegrationTestComponent device,
 			byte[] stream, int deliveries) throws Exception {
 		// Listen for message deliveries
@@ -187,10 +196,15 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 	private static class PrivateMessageListener implements EventListener {
 
 		private volatile boolean messageAdded = false;
+		private volatile boolean attachmentAdded = false;
 
 		@Override
 		public void eventOccurred(Event e) {
-			if (e instanceof PrivateMessageReceivedEvent) messageAdded = true;
+			if (e instanceof PrivateMessageReceivedEvent) {
+				messageAdded = true;
+			} else if (e instanceof AttachmentReceivedEvent) {
+				attachmentAdded = true;
+			}
 		}
 	}
 }

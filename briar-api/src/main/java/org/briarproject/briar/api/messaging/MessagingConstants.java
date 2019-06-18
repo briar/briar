@@ -10,6 +10,16 @@ public interface MessagingConstants {
 	int MAX_PRIVATE_MESSAGE_TEXT_LENGTH = MAX_MESSAGE_BODY_LENGTH - 1024;
 
 	/**
+	 * The maximum number of attachments per private message.
+	 */
+	int MAX_ATTACHMENTS_PER_MESSAGE = 10;
+
+	/**
+	 * The maximum length of an attachment's content type in UTF-8 bytes.
+	 */
+	int MAX_CONTENT_TYPE_BYTES = 50;
+
+	/**
 	 * The supported mime types for image attachments.
 	 */
 	String[] IMAGE_MIME_TYPES = {
@@ -22,6 +32,6 @@ public interface MessagingConstants {
 	 * The maximum allowed size of image attachments.
 	 * TODO: Different limit for GIFs?
 	 */
-	int MAX_IMAGE_SIZE = MAX_MESSAGE_BODY_LENGTH; // 6 * 1024 * 1024;
+	int MAX_IMAGE_SIZE = MAX_MESSAGE_BODY_LENGTH - 100; // 6 * 1024 * 1024;
 
 }

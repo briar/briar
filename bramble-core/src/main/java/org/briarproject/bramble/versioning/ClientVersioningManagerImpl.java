@@ -438,7 +438,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(MSG_KEY_UPDATE_VERSION, updateVersion);
 			meta.put(MSG_KEY_LOCAL, true);
-			clientHelper.addLocalMessage(txn, m, meta, true);
+			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
 		}

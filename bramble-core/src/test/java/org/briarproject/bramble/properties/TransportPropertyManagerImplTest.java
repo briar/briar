@@ -637,7 +637,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(timestamp));
 			oneOf(clientHelper).createMessage(g, timestamp, body);
 			will(returnValue(message));
-			oneOf(clientHelper).addLocalMessage(txn, message, meta, shared);
+			oneOf(clientHelper).addLocalMessage(txn, message, meta, shared,
+					false);
 		}});
 	}
 }

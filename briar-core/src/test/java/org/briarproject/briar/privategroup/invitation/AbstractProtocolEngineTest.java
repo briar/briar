@@ -169,7 +169,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 			oneOf(messageEncoder).encodeMetadata(type, privateGroupId,
 					message.getTimestamp(), true, true, visible, false, false);
 			will(returnValue(meta));
-			oneOf(clientHelper).addLocalMessage(txn, message, meta, true);
+			oneOf(clientHelper).addLocalMessage(txn, message, meta, true,
+					false);
 		}});
 	}
 

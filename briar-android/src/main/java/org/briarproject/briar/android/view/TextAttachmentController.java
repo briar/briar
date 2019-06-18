@@ -41,9 +41,9 @@ import static android.support.v4.content.ContextCompat.getColor;
 import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
 import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
@@ -53,7 +53,7 @@ public class TextAttachmentController extends TextSendController
 		implements ImagePreviewListener {
 
 	private final ImagePreview imagePreview;
-	private final AttachImageListener imageListener;
+	private final AttachmentListener attachmentListener;
 	private final CompositeSendButton sendButton;
 	private final AttachmentManager attachmentManager;
 
@@ -62,10 +62,10 @@ public class TextAttachmentController extends TextSendController
 	private boolean loadingUris = false;
 
 	public TextAttachmentController(TextInputView v, ImagePreview imagePreview,
-			SendListener listener, AttachImageListener imageListener,
+			AttachmentListener attachmentListener,
 			AttachmentManager attachmentManager) {
-		super(v, listener, false);
-		this.imageListener = imageListener;
+		super(v, attachmentListener, false);
+		this.attachmentListener = attachmentListener;
 		this.imagePreview = imagePreview;
 		this.attachmentManager = attachmentManager;
 		this.imagePreview.setImagePreviewListener(this);
@@ -124,8 +124,8 @@ public class TextAttachmentController extends TextSendController
 			return;
 		}
 		Intent intent = getAttachFileIntent();
-		if (imageListener.getLifecycle().getCurrentState() != DESTROYED) {
-			requireNonNull(imageListener).onAttachImage(intent);
+		if (attachmentListener.getLifecycle().getCurrentState() != DESTROYED) {
+			attachmentListener.onAttachImage(intent);
 		}
 	}
 
@@ -144,30 +144,38 @@ public class TextAttachmentController extends TextSendController
 	 * returned by the Activity started with {@link #getAttachFileIntent()}.
 	 * <p>
 	 * This method must be called at most once per call to
-	 * {@link AttachImageListener#onAttachImage(Intent)}.
+	 * {@link AttachmentListener#onAttachImage(Intent)}.
 	 * Normally, this is true if called from
 	 * {@link Activity#onActivityResult(int, int, Intent)} since this is called
-	 * at most once per call to {@link Activity#startActivityForResult(Intent, int)}.
+	 * at most once per call to
+	 * {@link Activity#startActivityForResult(Intent, int)}.
 	 */
+	@SuppressWarnings("JavadocReference")
 	public void onImageReceived(@Nullable Intent resultData) {
 		if (resultData == null) return;
 		if (loadingUris || !imageUris.isEmpty()) throw new AssertionError();
+		List<Uri> newUris = new ArrayList<>();
 		if (resultData.getData() != null) {
-			imageUris.add(resultData.getData());
-			onNewUris(false);
+			newUris.add(resultData.getData());
+			onNewUris(false, newUris);
 		} else if (SDK_INT >= 18 && resultData.getClipData() != null) {
 			ClipData clipData = resultData.getClipData();
 			for (int i = 0; i < clipData.getItemCount(); i++) {
-				imageUris.add(clipData.getItemAt(i).getUri());
+				newUris.add(clipData.getItemAt(i).getUri());
 			}
-			onNewUris(false);
+			onNewUris(false, newUris);
 		}
 	}
 
-	private void onNewUris(boolean restart) {
-		if (imageUris.isEmpty()) return;
+	private void onNewUris(boolean restart, List<Uri> newUris) {
+		if (newUris.isEmpty()) return;
 		if (loadingUris) throw new AssertionError();
 		loadingUris = true;
+		if (newUris.size() > MAX_ATTACHMENTS_PER_MESSAGE) {
+			newUris = newUris.subList(0, MAX_ATTACHMENTS_PER_MESSAGE);
+			attachmentListener.onTooManyAttachments();
+		}
+		imageUris.addAll(newUris);
 		updateViewState();
 		textInput.setHint(R.string.image_caption_hint);
 		List<ImagePreviewItem> items = ImagePreviewItem.fromUris(imageUris);
@@ -175,7 +183,7 @@ public class TextAttachmentController extends TextSendController
 		// store attachments and show preview when successful
 		LiveData<AttachmentResult> result =
 				attachmentManager.storeAttachments(imageUris, restart);
-		result.observe(imageListener, new Observer<AttachmentResult>() {
+		result.observe(attachmentListener, new Observer<AttachmentResult>() {
 			@Override
 			public void onChanged(@Nullable AttachmentResult attachmentResult) {
 				if (attachmentResult == null) {
@@ -240,8 +248,7 @@ public class TextAttachmentController extends TextSendController
 	public Parcelable onRestoreInstanceState(Parcelable inState) {
 		SavedState state = (SavedState) inState;
 		if (!imageUris.isEmpty()) throw new AssertionError();
-		if (state.imageUris != null) imageUris.addAll(state.imageUris);
-		onNewUris(true);
+		if (state.imageUris != null) onNewUris(true, state.imageUris);
 		return state.getSuperState();
 	}
 
@@ -316,8 +323,11 @@ public class TextAttachmentController extends TextSendController
 				};
 	}
 
-	public interface AttachImageListener extends LifecycleOwner {
-		void onAttachImage(Intent intent);
-	}
+	@UiThread
+	public interface AttachmentListener extends SendListener, LifecycleOwner {
 
+		void onAttachImage(Intent intent);
+
+		void onTooManyAttachments();
+	}
 }

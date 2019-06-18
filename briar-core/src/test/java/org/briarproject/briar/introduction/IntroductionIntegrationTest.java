@@ -1075,8 +1075,8 @@ public class IntroductionIntegrationTest
 							m.getPreviousMessageId(), m.getSessionId(),
 							m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
 							m.getTransportProperties());
-			c0.getClientHelper()
-					.addLocalMessage(txn, msg, new BdfDictionary(), true);
+			c0.getClientHelper().addLocalMessage(txn, msg, new BdfDictionary(),
+					true, false);
 			Group group0 = getLocalGroup();
 			BdfDictionary query = BdfDictionary.of(
 					new BdfEntry(SESSION_KEY_SESSION_ID, m.getSessionId())

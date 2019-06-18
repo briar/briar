@@ -11,20 +11,23 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
-import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
+import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
-import org.briarproject.bramble.util.IoUtils;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
@@ -32,15 +35,16 @@ import org.briarproject.briar.api.messaging.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
-import org.briarproject.briar.client.ConversationClientImpl;
 
 import java.io.ByteArrayInputStream;
-import java.io.EOFException;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.concurrent.Immutable;
@@ -48,28 +52,57 @@ import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
+import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
+import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
+import static org.briarproject.briar.messaging.MessagingConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_LOCAL;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_MSG_TYPE;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_TIMESTAMP;
 
 @Immutable
 @NotNullByDefault
-class MessagingManagerImpl extends ConversationClientImpl
-		implements MessagingManager, OpenDatabaseHook, ContactHook,
+class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
+		ConversationClient, OpenDatabaseHook, ContactHook,
 		ClientVersioningHook {
 
+	private final DatabaseComponent db;
+	private final ClientHelper clientHelper;
+	private final MetadataParser metadataParser;
+	private final MessageTracker messageTracker;
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
-	private final MessageFactory messageFactory;
 
 	@Inject
 	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
-			ContactGroupFactory contactGroupFactory,
-			MessageFactory messageFactory) {
-		super(db, clientHelper, metadataParser, messageTracker);
+			ContactGroupFactory contactGroupFactory) {
+		this.db = db;
+		this.clientHelper = clientHelper;
+		this.metadataParser = metadataParser;
+		this.messageTracker = messageTracker;
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
-		this.messageFactory = messageFactory;
+	}
+
+	@Override
+	public GroupCount getGroupCount(Transaction txn, ContactId contactId)
+			throws DbException {
+		Contact contact = db.getContact(txn, contactId);
+		GroupId groupId = getContactGroup(contact).getId();
+		return messageTracker.getGroupCount(txn, groupId);
+	}
+
+	@Override
+	public void setReadFlag(GroupId g, MessageId m, boolean read)
+			throws DbException {
+		messageTracker.setReadFlag(g, m, read);
 	}
 
 	@Override
@@ -94,14 +127,14 @@ class MessagingManagerImpl extends ConversationClientImpl
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
 		BdfDictionary d = new BdfDictionary();
-		d.put("contactId", c.getId().getInt());
+		d.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
 		try {
 			clientHelper.mergeGroupMetadata(txn, g.getId(), d);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
 		// Initialize the group count with current time
-		initializeGroupCount(txn, g.getId());
+		messageTracker.initializeGroupCount(txn, g.getId());
 	}
 
 	@Override
@@ -124,24 +157,66 @@ class MessagingManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	protected boolean incomingMessage(Transaction txn, Message m, BdfList body,
-			BdfDictionary meta) throws DbException, FormatException {
+	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
+			throws DbException, InvalidMessageException {
+		try {
+			BdfDictionary metaDict = metadataParser.parse(meta);
+			// Message type is null for version 0.0 private messages
+			Long messageType = metaDict.getOptionalLong(MSG_KEY_MSG_TYPE);
+			if (messageType == null) {
+				incomingPrivateMessage(txn, m, metaDict, true, emptyList());
+			} else if (messageType == PRIVATE_MESSAGE) {
+				boolean hasText = metaDict.getBoolean(MSG_KEY_HAS_TEXT);
+				List<AttachmentHeader> headers =
+						parseAttachmentHeaders(metaDict);
+				incomingPrivateMessage(txn, m, metaDict, hasText, headers);
+			} else if (messageType == ATTACHMENT) {
+				incomingAttachment(txn, m);
+			} else {
+				throw new InvalidMessageException();
+			}
+		} catch (FormatException e) {
+			throw new InvalidMessageException(e);
+		}
+		// Don't share message
+		return false;
+	}
 
+	private void incomingPrivateMessage(Transaction txn, Message m,
+			BdfDictionary meta, boolean hasText, List<AttachmentHeader> headers)
+			throws DbException, FormatException {
 		GroupId groupId = m.getGroupId();
-		long timestamp = meta.getLong("timestamp");
-		boolean local = meta.getBoolean("local");
+		long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
+		boolean local = meta.getBoolean(MSG_KEY_LOCAL);
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 		PrivateMessageHeader header =
 				new PrivateMessageHeader(m.getId(), groupId, timestamp, local,
-						read, false, false, true, emptyList());
+						read, false, false, hasText, headers);
 		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event =
 				new PrivateMessageReceivedEvent(header, contactId);
 		txn.attach(event);
 		messageTracker.trackIncomingMessage(txn, m);
+	}
 
-		// don't share message
-		return false;
+	private List<AttachmentHeader> parseAttachmentHeaders(BdfDictionary meta)
+			throws FormatException {
+		BdfList attachmentHeaders = meta.getList(MSG_KEY_ATTACHMENT_HEADERS);
+		int length = attachmentHeaders.size();
+		List<AttachmentHeader> headers = new ArrayList<>(length);
+		for (int i = 0; i < length; i++) {
+			BdfList header = attachmentHeaders.getList(i);
+			MessageId id = new MessageId(header.getRaw(0));
+			String contentType = header.getString(1);
+			headers.add(new AttachmentHeader(id, contentType));
+		}
+		return headers;
+	}
+
+	private void incomingAttachment(Transaction txn, Message m)
+			throws DbException {
+		ContactId contactId = getContactId(txn, m.getGroupId());
+		txn.attach(new AttachmentReceivedEvent(m.getId(), contactId));
 	}
 
 	@Override
@@ -149,14 +224,30 @@ class MessagingManagerImpl extends ConversationClientImpl
 		Transaction txn = db.startTransaction(false);
 		try {
 			BdfDictionary meta = new BdfDictionary();
-			meta.put("timestamp", m.getMessage().getTimestamp());
-			meta.put("local", true);
-			meta.put("read", true);
-			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true);
+			meta.put(MSG_KEY_TIMESTAMP, m.getMessage().getTimestamp());
+			meta.put(MSG_KEY_LOCAL, true);
+			meta.put(MSG_KEY_READ, true);
+			if (!m.isLegacyFormat()) {
+				meta.put(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE);
+				meta.put(MSG_KEY_HAS_TEXT, m.hasText());
+				BdfList headers = new BdfList();
+				for (AttachmentHeader a : m.getAttachmentHeaders()) {
+					headers.add(
+							BdfList.of(a.getMessageId(), a.getContentType()));
+				}
+				meta.put(MSG_KEY_ATTACHMENT_HEADERS, headers);
+			}
+			// Mark attachments as shared and permanent now we're ready to send
+			for (AttachmentHeader a : m.getAttachmentHeaders()) {
+				db.setMessageShared(txn, a.getMessageId());
+				db.setMessagePermanent(txn, a.getMessageId());
+			}
+			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
+					false);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
 			db.commitTransaction(txn);
 		} catch (FormatException e) {
-			throw new RuntimeException(e);
+			throw new AssertionError(e);
 		} finally {
 			db.endTransaction(txn);
 		}
@@ -164,22 +255,27 @@ class MessagingManagerImpl extends ConversationClientImpl
 
 	@Override
 	public AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
-			String contentType, InputStream is)
+			String contentType, InputStream in)
 			throws DbException, IOException {
-		// TODO add real implementation
-		byte[] body = new byte[MAX_MESSAGE_BODY_LENGTH];
-		try {
-			IoUtils.read(is, body);
-		} catch (EOFException ignored) {
-		}
-		if (is.available() > 0) throw new FileTooBigException();
-		is.close();
-		try {
-			Thread.sleep(1000);
-		} catch (InterruptedException ignored) {
-		}
-		Message m = messageFactory.createMessage(groupId, timestamp, body);
-		clientHelper.addLocalMessage(m, new BdfDictionary(), false);
+		// TODO: Support large messages
+		ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
+		byte[] descriptor =
+				clientHelper.toByteArray(BdfList.of(ATTACHMENT, contentType));
+		bodyOut.write(descriptor);
+		copyAndClose(in, bodyOut);
+		if (bodyOut.size() > MAX_MESSAGE_BODY_LENGTH)
+			throw new FileTooBigException();
+		byte[] body = bodyOut.toByteArray();
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(MSG_KEY_TIMESTAMP, timestamp);
+		meta.put(MSG_KEY_LOCAL, true);
+		meta.put(MSG_KEY_MSG_TYPE, ATTACHMENT);
+		meta.put(MSG_KEY_CONTENT_TYPE, contentType);
+		meta.put(MSG_KEY_DESCRIPTOR_LENGTH, descriptor.length);
+		Message m = clientHelper.createMessage(groupId, timestamp, body);
+		// Mark attachments as temporary, not shared until we're ready to send
+		db.transaction(false, txn ->
+				clientHelper.addLocalMessage(txn, m, meta, false, true));
 		return new AttachmentHeader(m.getId(), contentType);
 	}
 
@@ -242,11 +338,23 @@ class MessagingManagerImpl extends ConversationClientImpl
 			BdfDictionary meta = metadata.get(id);
 			if (meta == null) continue;
 			try {
-				long timestamp = meta.getLong("timestamp");
-				boolean local = meta.getBoolean("local");
-				boolean read = meta.getBoolean("read");
-				headers.add(new PrivateMessageHeader(id, g, timestamp, local,
-						read, s.isSent(), s.isSeen(), true, emptyList()));
+				// Message type is null for version 0.0 private messages
+				Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+				if (messageType != null && messageType != PRIVATE_MESSAGE)
+					continue;
+				long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
+				boolean local = meta.getBoolean(MSG_KEY_LOCAL);
+				boolean read = meta.getBoolean(MSG_KEY_READ);
+				if (messageType == null) {
+					headers.add(new PrivateMessageHeader(id, g, timestamp,
+							local, read, s.isSent(), s.isSeen(), true,
+							emptyList()));
+				} else {
+					boolean hasText = meta.getBoolean(MSG_KEY_HAS_TEXT);
+					headers.add(new PrivateMessageHeader(id, g, timestamp,
+							local, read, s.isSent(), s.isSeen(), hasText,
+							parseAttachmentHeaders(meta)));
+				}
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -257,19 +365,26 @@ class MessagingManagerImpl extends ConversationClientImpl
 	@Override
 	public String getMessageText(MessageId m) throws DbException {
 		try {
-			// 0: private message text
-			return clientHelper.getMessageAsList(m).getString(0);
+			BdfList body = clientHelper.getMessageAsList(m);
+			if (body.size() == 1) return body.getString(0); // Legacy format
+			else return body.getOptionalString(1);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
 	}
 
 	@Override
-	public Attachment getAttachment(MessageId mId) throws DbException {
-		// TODO add real implementation
-		Message m = clientHelper.getMessage(mId);
-		byte[] bytes = m.getBody();
-		return new Attachment(new ByteArrayInputStream(bytes));
+	public Attachment getAttachment(MessageId m) throws DbException {
+		// TODO: Support large messages
+		byte[] body = clientHelper.getMessage(m).getBody();
+		try {
+			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
+			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
+			return new Attachment(new ByteArrayInputStream(body, offset,
+					body.length - offset));
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override
@@ -278,7 +393,7 @@ class MessagingManagerImpl extends ConversationClientImpl
 		int minorVersion = clientVersioningManager
 				.getClientMinorVersion(txn, c, CLIENT_ID, 0);
 		// support was added in 0.1
-		return minorVersion == 1;
+		return minorVersion > 0;
 	}
 
 }

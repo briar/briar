@@ -8,20 +8,25 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
+import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.test.BriarTestCase;
 import org.junit.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.inject.Inject;
 
-import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.junit.Assert.assertTrue;
 
@@ -44,17 +49,39 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	}
 
 	@Test
+	public void testLegacyPrivateMessageFitsIntoRecord() throws Exception {
+		// Create a maximum-length private message
+		GroupId groupId = new GroupId(getRandomId());
+		long timestamp = Long.MAX_VALUE;
+		String text = getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+		PrivateMessage message = privateMessageFactory
+				.createLegacyPrivateMessage(groupId, timestamp, text);
+		// Check the size of the serialised message
+		int length = message.getMessage().getRawLength();
+		assertTrue(length > UniqueId.LENGTH + 8
+				+ MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
+	}
+
+	@Test
 	public void testPrivateMessageFitsIntoRecord() throws Exception {
 		// Create a maximum-length private message
 		GroupId groupId = new GroupId(getRandomId());
 		long timestamp = Long.MAX_VALUE;
 		String text = getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+		// Create the maximum number of maximum-length attachment headers
+		List<AttachmentHeader> headers = new ArrayList<>();
+		for (int i = 0; i < MAX_ATTACHMENTS_PER_MESSAGE; i++) {
+			headers.add(new AttachmentHeader(new MessageId(getRandomId()),
+					getRandomString(MAX_CONTENT_TYPE_BYTES)));
+		}
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, text, emptyList());
+				groupId, timestamp, text, headers);
 		// Check the size of the serialised message
 		int length = message.getMessage().getRawLength();
 		assertTrue(length > UniqueId.LENGTH + 8
-				+ MAX_PRIVATE_MESSAGE_TEXT_LENGTH);
+				+ MAX_PRIVATE_MESSAGE_TEXT_LENGTH + MAX_ATTACHMENTS_PER_MESSAGE
+				* (UniqueId.LENGTH + MAX_CONTENT_TYPE_BYTES));
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
 	}
 
