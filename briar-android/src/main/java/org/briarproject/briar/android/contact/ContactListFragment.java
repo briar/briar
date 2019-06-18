@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -67,7 +68,6 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_REMOTE_CONTACTS;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 import static org.briarproject.briar.android.util.UiUtils.isSamsung7;
 
@@ -85,6 +85,8 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	EventBus eventBus;
 	@Inject
 	AndroidNotificationManager notificationManager;
+	@Inject
+	FeatureFlags featureFlags;
 
 	private ContactListAdapter adapter;
 	private BriarRecyclerView list;
@@ -124,7 +126,7 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 				container, false);
 
 		FabSpeedDial speedDial = contentView.findViewById(R.id.speedDial);
-		if (FEATURE_FLAG_REMOTE_CONTACTS) {
+		if (featureFlags.shouldEnableRemoteContacts()) {
 			speedDial.addOnMenuItemClickListener(this);
 		} else {
 			speedDial.setMenu(new FabSpeedDialMenu(contentView.getContext()));
