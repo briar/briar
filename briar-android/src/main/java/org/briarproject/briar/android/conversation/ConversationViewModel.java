@@ -13,7 +13,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
-import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
@@ -69,8 +68,6 @@ public class ConversationViewModel extends AndroidViewModel
 
 	@DatabaseExecutor
 	private final Executor dbExecutor;
-	@CryptoExecutor
-	private final Executor cryptoExecutor;
 	private final TransactionManager db;
 	private final MessagingManager messagingManager;
 	private final ContactManager contactManager;
@@ -103,14 +100,12 @@ public class ConversationViewModel extends AndroidViewModel
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
-			@CryptoExecutor Executor cryptoExecutor,
 			@IoExecutor Executor ioExecutor, TransactionManager db,
 			MessagingManager messagingManager, ContactManager contactManager,
 			SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory) {
 		super(application);
 		this.dbExecutor = dbExecutor;
-		this.cryptoExecutor = cryptoExecutor;
 		this.db = db;
 		this.messagingManager = messagingManager;
 		this.contactManager = contactManager;
@@ -276,18 +271,16 @@ public class ConversationViewModel extends AndroidViewModel
 
 	private void createMessage(GroupId groupId, @Nullable String text,
 			List<AttachmentHeader> attachments, long timestamp) {
-		cryptoExecutor.execute(() -> {
-			try {
-				// TODO remove when text can be null in the backend
-				String msgText = text == null ? "null" : text;
-				PrivateMessage pm = privateMessageFactory
-						.createPrivateMessage(groupId, timestamp, msgText,
-								attachments);
-				storeMessage(pm, msgText, attachments);
-			} catch (FormatException e) {
-				throw new RuntimeException(e);
-			}
-		});
+		try {
+			// TODO remove when text can be null in the backend
+			String msgText = text == null ? "null" : text;
+			PrivateMessage pm = privateMessageFactory
+					.createPrivateMessage(groupId, timestamp, msgText,
+							attachments);
+			storeMessage(pm, msgText, attachments);
+		} catch (FormatException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	private void storeMessage(PrivateMessage m, @Nullable String text,
