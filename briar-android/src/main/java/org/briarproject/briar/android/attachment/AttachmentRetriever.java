@@ -109,16 +109,15 @@ public class AttachmentRetriever {
 		List<Pair<AttachmentHeader, Attachment>> attachments =
 				new ArrayList<>(headers.size());
 		for (AttachmentHeader h : headers) {
-			Attachment a = messagingManager.getAttachment(h.getMessageId());
+			Attachment a = messagingManager.getAttachment(h);
 			attachments.add(new Pair<>(h, a));
 		}
 		logDuration(LOG, "Loading attachments", start);
 		return attachments;
 	}
 
-	@DatabaseExecutor
 	Attachment getMessageAttachment(AttachmentHeader h) throws DbException {
-		return messagingManager.getAttachment(h.getMessageId());
+		return messagingManager.getAttachment(h);
 	}
 
 	/**

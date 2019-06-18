@@ -374,13 +374,14 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public Attachment getAttachment(MessageId m) throws DbException {
+	public Attachment getAttachment(AttachmentHeader h) throws DbException {
 		// TODO: Support large messages
+		MessageId m = h.getMessageId();
 		byte[] body = clientHelper.getMessage(m).getBody();
 		try {
 			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
 			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
-			return new Attachment(new ByteArrayInputStream(body, offset,
+			return new Attachment(h, new ByteArrayInputStream(body, offset,
 					body.length - offset));
 		} catch (FormatException e) {
 			throw new DbException(e);

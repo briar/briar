@@ -54,7 +54,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testSmallJpegImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(smallKitten);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(msgId, item.getMessageId());
 		assertEquals(160, item.getWidth());
@@ -70,7 +70,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testBigJpegImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(originalKitten);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(msgId, item.getMessageId());
 		assertEquals(1728, item.getWidth());
@@ -86,7 +86,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testSmallPngImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/png");
 		InputStream is = getUrlInputStream(pngKitten);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(msgId, item.getMessageId());
 		assertEquals(737, item.getWidth());
@@ -102,7 +102,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testUberGif() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(uberGif);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(1, item.getWidth());
 		assertEquals(1, item.getHeight());
@@ -117,7 +117,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testLottaPixels() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(lottaPixel);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(64250, item.getWidth());
 		assertEquals(64250, item.getHeight());
@@ -132,7 +132,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testImageIoCrash() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(imageIoCrash);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(1184, item.getWidth());
 		assertEquals(448, item.getHeight());
@@ -147,7 +147,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testGimpCrash() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(gimpCrash);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(1, item.getWidth());
 		assertEquals(1, item.getHeight());
@@ -162,7 +162,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testOptiPngAfl() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(optiPngAfl);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(32, item.getWidth());
 		assertEquals(32, item.getHeight());
@@ -177,7 +177,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testLibrawError() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getUrlInputStream(librawError);
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertTrue(item.hasError());
 	}
@@ -186,7 +186,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testSmallAnimatedGifMaxDimensions() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/gif");
 		InputStream is = getAssetInputStream("animated.gif");
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(65535, item.getWidth());
 		assertEquals(65535, item.getHeight());
@@ -201,7 +201,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testSmallAnimatedGifHugeDimensions() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/gif");
 		InputStream is = getAssetInputStream("animated2.gif");
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(10000, item.getWidth());
 		assertEquals(10000, item.getHeight());
@@ -216,7 +216,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testSmallGifLargeDimensions() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/gif");
 		InputStream is = getAssetInputStream("error_large.gif");
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(16384, item.getWidth());
 		assertEquals(16384, item.getHeight());
@@ -231,7 +231,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testHighError() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getAssetInputStream("error_high.jpg");
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(1, item.getWidth());
 		assertEquals(10000, item.getHeight());
@@ -246,7 +246,7 @@ public class AttachmentRetrieverIntegrationTest {
 	public void testWideError() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
 		InputStream is = getAssetInputStream("error_wide.jpg");
-		Attachment a = new Attachment(is);
+		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(h, a, true);
 		assertEquals(1920, item.getWidth());
 		assertEquals(1, item.getHeight());

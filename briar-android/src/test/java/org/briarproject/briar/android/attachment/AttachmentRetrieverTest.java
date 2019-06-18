@@ -15,6 +15,8 @@ import java.io.InputStream;
 
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -25,7 +27,10 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			100, 50, 200, 75, 300
 	);
 	private final MessageId msgId = new MessageId(getRandomId());
-	private final Attachment attachment = new Attachment(
+	private final String mimeType = getRandomString(MAX_CONTENT_TYPE_BYTES);
+	private final AttachmentHeader header =
+			new AttachmentHeader(msgId, mimeType);
+	private final Attachment attachment = new Attachment(header,
 			new BufferedInputStream(
 					new ByteArrayInputStream(getRandomBytes(42))));
 

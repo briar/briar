@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
@@ -135,10 +134,10 @@ public class ImageViewModel extends AndroidViewModel {
 
 	private void saveImage(AttachmentItem attachment, OutputStreamProvider osp,
 			@Nullable Runnable afterCopy) {
-		MessageId messageId = attachment.getMessageId();
 		dbExecutor.execute(() -> {
 			try {
-				Attachment a = messagingManager.getAttachment(messageId);
+				Attachment a =
+						messagingManager.getAttachment(attachment.getHeader());
 				copyImageFromDb(a, osp, afterCopy);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
