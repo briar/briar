@@ -7,6 +7,7 @@ import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.account.BriarAccountModule;
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -160,6 +161,8 @@ public interface AndroidComponent
 	CircumventionProvider circumventionProvider();
 
 	ViewModelProvider.Factory viewModelFactory();
+
+	FeatureFlags featureFlags();
 
 	void inject(SignInReminderReceiver briarService);
 

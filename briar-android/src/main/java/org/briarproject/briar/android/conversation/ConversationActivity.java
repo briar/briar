@@ -29,6 +29,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -119,7 +120,6 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
-import static org.briarproject.briar.android.TestingConstants.FEATURE_FLAG_IMAGE_ATTACHMENTS;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENTS;
@@ -156,6 +156,8 @@ public class ConversationActivity extends BriarActivity
 	Executor cryptoExecutor;
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
+	@Inject
+	FeatureFlags featureFlags;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -262,7 +264,7 @@ public class ConversationActivity extends BriarActivity
 		list.getRecyclerView().addOnScrollListener(scrollListener);
 
 		textInputView = findViewById(R.id.text_input_container);
-		if (FEATURE_FLAG_IMAGE_ATTACHMENTS) {
+		if (featureFlags.shouldEnableImageAttachments()) {
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
 					imagePreview, this, this, viewModel);

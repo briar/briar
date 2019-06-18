@@ -30,15 +30,4 @@ public interface TestingConstants {
 	long EXPIRY_DATE = IS_DEBUG_BUILD || IS_BETA_BUILD ?
 			BuildConfig.BuildTimestamp + 90 * 24 * 60 * 60 * 1000L :
 			Long.MAX_VALUE;
-
-	/**
-	 * Feature flag for enabling image attachments.
-	 */
-	boolean FEATURE_FLAG_IMAGE_ATTACHMENTS = IS_DEBUG_BUILD;
-
-	/**
-	 * Feature flag for enabling adding contacts at a distance.
-	 */
-	boolean FEATURE_FLAG_REMOTE_CONTACTS = IS_DEBUG_BUILD;
-
 }

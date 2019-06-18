@@ -7,6 +7,7 @@ import android.os.StrictMode;
 
 import com.vanniktech.emoji.RecentEmoji;
 
+import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.PublicKey;
@@ -59,6 +60,7 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @Module(includes = {ContactExchangeModule.class, ViewModelModule.class})
 public class AppModule {
@@ -229,5 +231,21 @@ public class AppModule {
 			RecentEmojiImpl recentEmoji) {
 		lifecycleManager.registerOpenDatabaseHook(recentEmoji);
 		return recentEmoji;
+	}
+
+	@Provides
+	FeatureFlags provideFeatureFlags() {
+		return new FeatureFlags() {
+
+			@Override
+			public boolean shouldEnableImageAttachments() {
+				return IS_DEBUG_BUILD;
+			}
+
+			@Override
+			public boolean shouldEnableRemoteContacts() {
+				return IS_DEBUG_BUILD;
+			}
+		};
 	}
 }
