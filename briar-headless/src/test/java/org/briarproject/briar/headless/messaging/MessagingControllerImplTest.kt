@@ -115,11 +115,10 @@ internal class MessagingControllerImplTest : ControllerTest() {
         every { messagingManager.getContactGroup(contact) } returns group
         every { clock.currentTimeMillis() } returns timestamp
         every {
-            privateMessageFactory.createPrivateMessage(
+            privateMessageFactory.createLegacyPrivateMessage(
                 group.id,
                 timestamp,
-                text,
-                emptyList()
+                text
             )
         } returns privateMessage
         every { messagingManager.addLocalMessage(privateMessage) } just runs

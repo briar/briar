@@ -73,7 +73,7 @@ constructor(
 
         val group = messagingManager.getContactGroup(contact)
         val now = clock.currentTimeMillis()
-        val m = privateMessageFactory.createPrivateMessage(group.id, now, text, emptyList())
+        val m = privateMessageFactory.createLegacyPrivateMessage(group.id, now, text)
 
         messagingManager.addLocalMessage(m)
         return ctx.json(m.output(contact.id, text))
