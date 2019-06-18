@@ -43,6 +43,7 @@ import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
+import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
 import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
@@ -153,25 +154,28 @@ public class TextAttachmentController extends TextSendController
 	public void onImageReceived(@Nullable Intent resultData) {
 		if (resultData == null) return;
 		if (loadingUris || !imageUris.isEmpty()) throw new AssertionError();
+		List<Uri> newUris = new ArrayList<>();
 		if (resultData.getData() != null) {
-			imageUris.add(resultData.getData());
-			onNewUris(false);
+			newUris.add(resultData.getData());
+			onNewUris(false, newUris);
 		} else if (SDK_INT >= 18 && resultData.getClipData() != null) {
 			ClipData clipData = resultData.getClipData();
 			for (int i = 0; i < clipData.getItemCount(); i++) {
-				imageUris.add(clipData.getItemAt(i).getUri());
+				newUris.add(clipData.getItemAt(i).getUri());
 			}
-			onNewUris(false);
+			onNewUris(false, newUris);
 		}
 	}
 
-	private void onNewUris(boolean restart) {
-		if (imageUris.isEmpty()) return;
+	private void onNewUris(boolean restart, List<Uri> newUris) {
+		if (newUris.isEmpty()) return;
 		if (loadingUris) throw new AssertionError();
 		loadingUris = true;
-		List<Uri> filtered = attachmentListener.filterAttachmentUris(imageUris);
-		imageUris.clear();
-		imageUris.addAll(filtered);
+		if (newUris.size() > MAX_ATTACHMENTS_PER_MESSAGE) {
+			newUris = newUris.subList(0, MAX_ATTACHMENTS_PER_MESSAGE);
+			attachmentListener.onTooManyAttachments();
+		}
+		imageUris.addAll(newUris);
 		updateViewState();
 		textInput.setHint(R.string.image_caption_hint);
 		List<ImagePreviewItem> items = ImagePreviewItem.fromUris(imageUris);
@@ -244,8 +248,7 @@ public class TextAttachmentController extends TextSendController
 	public Parcelable onRestoreInstanceState(Parcelable inState) {
 		SavedState state = (SavedState) inState;
 		if (!imageUris.isEmpty()) throw new AssertionError();
-		if (state.imageUris != null) imageUris.addAll(state.imageUris);
-		onNewUris(true);
+		if (state.imageUris != null) onNewUris(true, state.imageUris);
 		return state.getSuperState();
 	}
 
@@ -325,7 +328,6 @@ public class TextAttachmentController extends TextSendController
 
 		void onAttachImage(Intent intent);
 
-		List<Uri> filterAttachmentUris(List<Uri> uris);
+		void onTooManyAttachments();
 	}
-
 }

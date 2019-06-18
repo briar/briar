@@ -6,7 +6,6 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
@@ -653,15 +652,11 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public List<Uri> filterAttachmentUris(List<Uri> uris) {
-		if (uris.size() > MAX_ATTACHMENTS_PER_MESSAGE) {
-			String format = getResources().getString(
-					R.string.messaging_too_many_attachments_toast);
-			String warning = String.format(format, MAX_ATTACHMENTS_PER_MESSAGE);
-			Toast.makeText(this, warning, LENGTH_SHORT).show();
-			uris = uris.subList(0, MAX_ATTACHMENTS_PER_MESSAGE);
-		}
-		return new ArrayList<>(uris);
+	public void onTooManyAttachments() {
+		String format = getResources().getString(
+				R.string.messaging_too_many_attachments_toast);
+		String warning = String.format(format, MAX_ATTACHMENTS_PER_MESSAGE);
+		Toast.makeText(this, warning, LENGTH_SHORT).show();
 	}
 
 	@Override
