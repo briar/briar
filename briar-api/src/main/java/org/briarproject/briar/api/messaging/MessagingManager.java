@@ -69,6 +69,10 @@ public interface MessagingManager extends ConversationClient {
 
 	/**
 	 * Returns the attachment with the given message ID and content type.
+	 *
+	 * @throws InvalidAttachmentException If the header refers to a message
+	 * that is not an attachment, or to an attachment that does not have the
+	 * expected content type
 	 */
 	Attachment getAttachment(AttachmentHeader h) throws DbException;
 

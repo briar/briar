@@ -37,6 +37,7 @@ import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -107,6 +108,7 @@ import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.view.Gravity.RIGHT;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
@@ -434,29 +436,36 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void eagerlyLoadMessageSize(PrivateMessageHeader h)
-			throws DbException {
-		MessageId id = h.getId();
-		// If the message has text, load it
-		if (h.hasText()) {
-			String text = textCache.get(id);
-			if (text == null) {
-				LOG.info("Eagerly loading text for latest message");
-				text = messagingManager.getMessageText(id);
-				textCache.put(id, requireNonNull(text));
+	private void eagerlyLoadMessageSize(PrivateMessageHeader h) {
+		try {
+			MessageId id = h.getId();
+			// If the message has text, load it
+			if (h.hasText()) {
+				String text = textCache.get(id);
+				if (text == null) {
+					LOG.info("Eagerly loading text for latest message");
+					text = messagingManager.getMessageText(id);
+					textCache.put(id, requireNonNull(text));
+				}
 			}
-		}
-		// If the message has a single image, load its size - for multiple
-		// images we use a grid so the size is fixed
-		if (h.getAttachmentHeaders().size() == 1) {
-			List<AttachmentItem> items = attachmentRetriever.cacheGet(id);
-			if (items == null) {
-				LOG.info("Eagerly loading image size for latest message");
-				items = attachmentRetriever.getAttachmentItems(
-						attachmentRetriever.getMessageAttachments(
-								h.getAttachmentHeaders()));
-				attachmentRetriever.cachePut(id, items);
+			// If the message has a single image, load its size - for multiple
+			// images we use a grid so the size is fixed
+			List<AttachmentHeader> headers = h.getAttachmentHeaders();
+			if (headers.size() == 1) {
+				List<AttachmentItem> items = attachmentRetriever.cacheGet(id);
+				if (items == null) {
+					LOG.info("Eagerly loading image size for latest message");
+					Attachment a = attachmentRetriever
+							.getMessageAttachment(headers.get(0));
+					AttachmentItem item =
+							attachmentRetriever.getAttachmentItem(a, true);
+					attachmentRetriever.cachePut(id, singletonList(item));
+				}
 			}
+		} catch (NoSuchMessageException e) {
+			LOG.info("Attachment not received yet");
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -536,14 +545,23 @@ public class ConversationActivity extends BriarActivity
 
 	private void loadMessageAttachments(MessageId messageId,
 			List<AttachmentHeader> headers) {
+		// TODO: Use placeholders for missing/invalid attachments
 		runOnDbThread(() -> {
 			try {
-				List<Pair<AttachmentHeader, Attachment>> attachments =
-						attachmentRetriever.getMessageAttachments(headers);
 				// TODO move getting the items off to IoExecutor, if size == 1
-				List<AttachmentItem> items =
-						attachmentRetriever.getAttachmentItems(attachments);
+				boolean needsSize = headers.size() == 1;
+				List<AttachmentItem> items = new ArrayList<>(headers.size());
+				for (AttachmentHeader h : headers) {
+					Attachment a = attachmentRetriever.getMessageAttachment(h);
+					AttachmentItem item =
+							attachmentRetriever.getAttachmentItem(a, needsSize);
+					items.add(item);
+				}
+				// TODO: Don't cache items unless all are present and valid
+				attachmentRetriever.cachePut(messageId, items);
 				displayMessageAttachments(messageId, items);
+			} catch (NoSuchMessageException e) {
+				LOG.info("Attachment not received yet");
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -553,7 +571,6 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessageAttachments(MessageId m,
 			List<AttachmentItem> items) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			attachmentRetriever.cachePut(m, items);
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
@@ -567,6 +584,7 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void eventOccurred(Event e) {
+		// TODO: Load missing attachments when they arrive
 		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) {

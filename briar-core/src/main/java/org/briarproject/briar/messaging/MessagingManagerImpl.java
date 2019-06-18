@@ -32,6 +32,7 @@ import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.FileTooBigException;
+import org.briarproject.briar.api.messaging.InvalidAttachmentException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
@@ -380,6 +381,12 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		byte[] body = clientHelper.getMessage(m).getBody();
 		try {
 			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
+			Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+			if (messageType == null || messageType != ATTACHMENT)
+				throw new InvalidAttachmentException();
+			String contentType = meta.getString(MSG_KEY_CONTENT_TYPE);
+			if (!contentType.equals(h.getContentType()))
+				throw new InvalidAttachmentException();
 			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
 			return new Attachment(h, new ByteArrayInputStream(body, offset,
 					body.length - offset));

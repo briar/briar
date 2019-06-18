@@ -9,8 +9,6 @@ import android.webkit.MimeTypeMap;
 
 import com.bumptech.glide.util.MarkEnforcingInputStream;
 
-import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -22,7 +20,6 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -38,9 +35,7 @@ import static android.support.media.ExifInterface.TAG_ORIENTATION;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
-import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.LogUtils.now;
 
 @NotNullByDefault
 public class AttachmentRetriever {
@@ -93,7 +88,8 @@ public class AttachmentRetriever {
 		});
 	}
 
-	public void cachePut(MessageId messageId, List<AttachmentItem> attachments) {
+	public void cachePut(MessageId messageId,
+			List<AttachmentItem> attachments) {
 		attachmentCache.put(messageId, attachments);
 	}
 
@@ -102,47 +98,17 @@ public class AttachmentRetriever {
 		return attachmentCache.get(messageId);
 	}
 
-	@DatabaseExecutor
-	public List<Pair<AttachmentHeader, Attachment>> getMessageAttachments(
-			List<AttachmentHeader> headers) throws DbException {
-		long start = now();
-		List<Pair<AttachmentHeader, Attachment>> attachments =
-				new ArrayList<>(headers.size());
-		for (AttachmentHeader h : headers) {
-			Attachment a = messagingManager.getAttachment(h);
-			attachments.add(new Pair<>(h, a));
-		}
-		logDuration(LOG, "Loading attachments", start);
-		return attachments;
-	}
-
-	Attachment getMessageAttachment(AttachmentHeader h) throws DbException {
+	public Attachment getMessageAttachment(AttachmentHeader h)
+			throws DbException {
 		return messagingManager.getAttachment(h);
-	}
-
-	/**
-	 * Creates {@link AttachmentItem}s from the passed headers and Attachments.
-	 * <p>
-	 * Note: This closes the {@link Attachment}'s {@link InputStream}.
-	 */
-	public List<AttachmentItem> getAttachmentItems(
-			List<Pair<AttachmentHeader, Attachment>> attachments) {
-		boolean needsSize = attachments.size() == 1;
-		List<AttachmentItem> items = new ArrayList<>(attachments.size());
-		for (Pair<AttachmentHeader, Attachment> a : attachments) {
-			AttachmentItem item =
-					getAttachmentItem(a.getFirst(), a.getSecond(), needsSize);
-			items.add(item);
-		}
-		return items;
 	}
 
 	/**
 	 * Creates an {@link AttachmentItem} from the {@link Attachment}'s
 	 * {@link InputStream} which will be closed when this method returns.
 	 */
-	AttachmentItem getAttachmentItem(AttachmentHeader h, Attachment a,
-			boolean needsSize) {
+	public AttachmentItem getAttachmentItem(Attachment a, boolean needsSize) {
+		AttachmentHeader h = a.getHeader();
 		if (!needsSize) {
 			String extension =
 					imageHelper.getExtensionFromMimeType(h.getContentType());

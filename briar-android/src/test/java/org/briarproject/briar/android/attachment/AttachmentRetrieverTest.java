@@ -9,14 +9,11 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
-import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -27,35 +24,26 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			100, 50, 200, 75, 300
 	);
 	private final MessageId msgId = new MessageId(getRandomId());
-	private final String mimeType = getRandomString(MAX_CONTENT_TYPE_BYTES);
-	private final AttachmentHeader header =
-			new AttachmentHeader(msgId, mimeType);
-	private final Attachment attachment = new Attachment(header,
-			new BufferedInputStream(
-					new ByteArrayInputStream(getRandomBytes(42))));
-
 	private final MessagingManager messagingManager =
 			context.mock(MessagingManager.class);
 	private final ImageHelper imageHelper = context.mock(ImageHelper.class);
-	private final AttachmentRetriever controller =
-			new AttachmentRetriever(
-					messagingManager,
-					dimensions,
-					imageHelper
-			);
+	private final AttachmentRetriever retriever = new AttachmentRetriever(
+			messagingManager,
+			dimensions,
+			imageHelper
+	);
 
 	@Test
 	public void testNoSize() {
 		String mimeType = "image/jpeg";
-		AttachmentHeader h = getAttachmentHeader(mimeType);
+		Attachment attachment = getAttachment(mimeType);
 
 		context.checking(new Expectations() {{
 			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue("jpg"));
 		}});
 
-		AttachmentItem item =
-				controller.getAttachmentItem(h, attachment, false);
+		AttachmentItem item = retriever.getAttachmentItem(attachment, false);
 		assertEquals(mimeType, item.getMimeType());
 		assertEquals("jpg", item.getExtension());
 		assertFalse(item.hasError());
@@ -64,22 +52,21 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	@Test
 	public void testNoSizeWrongMimeTypeProducesError() {
 		String mimeType = "application/octet-stream";
-		AttachmentHeader h = getAttachmentHeader(mimeType);
+		Attachment attachment = getAttachment(mimeType);
 
 		context.checking(new Expectations() {{
 			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue(null));
 		}});
 
-		AttachmentItem item =
-				controller.getAttachmentItem(h, attachment, false);
+		AttachmentItem item = retriever.getAttachmentItem(attachment, false);
 		assertTrue(item.hasError());
 	}
 
 	@Test
 	public void testSmallJpegImage() {
 		String mimeType = "image/jpeg";
-		AttachmentHeader h = getAttachmentHeader(mimeType);
+		Attachment attachment = getAttachment(mimeType);
 
 		context.checking(new Expectations() {{
 			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
@@ -88,7 +75,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue("jpg"));
 		}});
 
-		AttachmentItem item = controller.getAttachmentItem(h, attachment, true);
+		AttachmentItem item = retriever.getAttachmentItem(attachment, true);
 		assertEquals(msgId, item.getMessageId());
 		assertEquals(160, item.getWidth());
 		assertEquals(240, item.getHeight());
@@ -102,7 +89,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	@Test
 	public void testBigJpegImage() {
 		String mimeType = "image/jpeg";
-		AttachmentHeader h = getAttachmentHeader(mimeType);
+		Attachment attachment = getAttachment(mimeType);
 
 		context.checking(new Expectations() {{
 			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
@@ -111,7 +98,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue("jpg"));
 		}});
 
-		AttachmentItem item = controller.getAttachmentItem(h, attachment, true);
+		AttachmentItem item = retriever.getAttachmentItem(attachment, true);
 		assertEquals(1728, item.getWidth());
 		assertEquals(2592, item.getHeight());
 		assertEquals(dimensions.maxWidth, item.getThumbnailWidth());
@@ -121,7 +108,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 
 	@Test
 	public void testMalformedError() {
-		AttachmentHeader h = getAttachmentHeader("image/jpeg");
+		Attachment attachment = getAttachment("image/jpeg");
 
 		context.checking(new Expectations() {{
 			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
@@ -130,12 +117,13 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue(null));
 		}});
 
-		AttachmentItem item = controller.getAttachmentItem(h, attachment, true);
+		AttachmentItem item = retriever.getAttachmentItem(attachment, true);
 		assertTrue(item.hasError());
 	}
 
-	private AttachmentHeader getAttachmentHeader(String contentType) {
-		return new AttachmentHeader(msgId, contentType);
+	private Attachment getAttachment(String contentType) {
+		AttachmentHeader header = new AttachmentHeader(msgId, contentType);
+		InputStream in = new ByteArrayInputStream(getRandomBytes(42));
+		return new Attachment(header, in);
 	}
-
 }
