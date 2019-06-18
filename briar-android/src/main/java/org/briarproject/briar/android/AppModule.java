@@ -239,7 +239,7 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableImageAttachments() {
-				return IS_DEBUG_BUILD;
+				return false;
 			}
 
 			@Override
