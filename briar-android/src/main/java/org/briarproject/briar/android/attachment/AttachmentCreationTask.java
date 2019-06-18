@@ -119,7 +119,7 @@ class AttachmentCreationTask {
 			AttachmentItem item =
 					retriever.getAttachmentItem(header, a, needsSize);
 			if (item.hasError()) throw new IOException();
-			retriever.cachePut(item);
+			if (needsSize) retriever.cachePut(item);
 			return new AttachmentItemResult(uri, item);
 		} catch (DbException | IOException e) {
 			logException(LOG, WARNING, e);

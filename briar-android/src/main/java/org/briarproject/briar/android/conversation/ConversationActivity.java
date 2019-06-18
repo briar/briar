@@ -545,6 +545,8 @@ public class ConversationActivity extends BriarActivity
 				// TODO move getting the items off to IoExecutor, if size == 1
 				List<AttachmentItem> items =
 						attachmentRetriever.getAttachmentItems(attachments);
+				if (items.size() == 1)
+					attachmentRetriever.cachePut(items.get(0));
 				displayMessageAttachments(messageId, items);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -555,9 +557,6 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessageAttachments(MessageId m,
 			List<AttachmentItem> items) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			for (AttachmentItem item : items) {
-				attachmentRetriever.cachePut(item);
-			}
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
