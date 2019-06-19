@@ -89,6 +89,7 @@ class Migration41_42 implements Migration<Connection> {
 					+ " FOREIGN KEY (keySetId)"
 					+ " REFERENCES outgoingHandshakeKeys (keySetId)"
 					+ " ON DELETE CASCADE)"));
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

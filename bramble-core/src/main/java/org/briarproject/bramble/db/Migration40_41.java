@@ -38,6 +38,7 @@ class Migration40_41 implements Migration<Connection> {
 			s = txn.createStatement();
 			s.execute("ALTER TABLE contacts"
 					+ dbTypes.replaceTypes(" ADD alias _STRING"));
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

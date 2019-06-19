@@ -36,6 +36,7 @@ class Migration39_40 implements Migration<Connection> {
 			s.execute("ALTER TABLE statuses"
 					+ " ALTER COLUMN eta"
 					+ " SET NOT NULL");
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

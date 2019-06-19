@@ -37,6 +37,7 @@ class Migration38_39 implements Migration<Connection> {
 			s.execute("ALTER TABLE incomingKeys"
 					+ " ALTER COLUMN contactId"
 					+ " SET NOT NULL");
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

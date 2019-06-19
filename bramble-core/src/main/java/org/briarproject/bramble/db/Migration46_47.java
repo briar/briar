@@ -39,6 +39,7 @@ class Migration46_47 implements Migration<Connection> {
 			s.execute(dbTypes.replaceTypes("ALTER TABLE contacts"
 					+ " ADD COLUMN syncVersions"
 					+ " _BINARY DEFAULT '00' NOT NULL"));
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

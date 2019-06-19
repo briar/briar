@@ -50,6 +50,7 @@ class Migration43_44 implements Migration<Connection> {
 					+ " ADD COLUMN rootKey _SECRET"));
 			s.execute("ALTER TABLE outgoingKeys"
 					+ " ADD COLUMN alice BOOLEAN");
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

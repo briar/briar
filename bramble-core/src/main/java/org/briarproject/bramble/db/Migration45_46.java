@@ -32,6 +32,7 @@ class Migration45_46 implements Migration<Connection> {
 			s = txn.createStatement();
 			s.execute("ALTER TABLE messages"
 					+ " ADD COLUMN temporary BOOLEAN DEFAULT FALSE NOT NULL");
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

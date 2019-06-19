@@ -44,6 +44,7 @@ class Migration42_43 implements Migration<Connection> {
 					+ " ADD COLUMN handshakePublicKey _BINARY"));
 			s.execute("ALTER TABLE contacts"
 					+ " DROP COLUMN active");
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);

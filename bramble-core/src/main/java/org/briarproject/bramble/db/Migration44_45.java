@@ -31,6 +31,7 @@ class Migration44_45 implements Migration<Connection> {
 		try {
 			s = txn.createStatement();
 			s.execute("ALTER TABLE pendingContacts DROP COLUMN state");
+			s.close();
 		} catch (SQLException e) {
 			tryToClose(s, LOG, WARNING);
 			throw new DbException(e);
