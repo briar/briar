@@ -5,6 +5,10 @@
 
 # QR codes
 -keep class com.google.zxing.Result
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
 
 # RSS libraries
 -keep,includedescriptorclasses class com.rometools.rome.feed.synd.impl.** { *; }
