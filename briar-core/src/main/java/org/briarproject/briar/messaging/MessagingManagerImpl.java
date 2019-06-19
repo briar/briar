@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.MessageStatus;
 import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
+import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -47,13 +48,19 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
@@ -72,6 +79,10 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		ConversationClient, OpenDatabaseHook, ContactHook,
 		ClientVersioningHook {
 
+	private static final Logger LOG =
+			getLogger(MessagingManagerImpl.class.getName());
+
+	private final ScheduledExecutorService scheduler;
 	private final DatabaseComponent db;
 	private final ClientHelper clientHelper;
 	private final MetadataParser metadataParser;
@@ -80,10 +91,12 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	private final ContactGroupFactory contactGroupFactory;
 
 	@Inject
-	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+	MessagingManagerImpl(@Scheduler ScheduledExecutorService scheduler,
+			DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser, MessageTracker messageTracker,
 			ContactGroupFactory contactGroupFactory) {
+		this.scheduler = scheduler;
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.metadataParser = metadataParser;
@@ -239,10 +252,19 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				meta.put(MSG_KEY_ATTACHMENT_HEADERS, headers);
 			}
 			// Mark attachments as shared and permanent now we're ready to send
-			for (AttachmentHeader a : m.getAttachmentHeaders()) {
-				db.setMessageShared(txn, a.getMessageId());
-				db.setMessagePermanent(txn, a.getMessageId());
-			}
+			// FIXME: Revert
+			scheduler.schedule(() -> {
+				try {
+					db.transaction(false, txn1 -> {
+						for (AttachmentHeader a : m.getAttachmentHeaders()) {
+							db.setMessageShared(txn1, a.getMessageId());
+							db.setMessagePermanent(txn1, a.getMessageId());
+						}
+					});
+				} catch (DbException e) {
+					logException(LOG, WARNING, e);
+				}
+			}, 30, SECONDS);
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
 					false);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
