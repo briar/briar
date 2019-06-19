@@ -49,10 +49,11 @@ public class AttachmentCreator {
 	private final CopyOnWriteArrayList<AttachmentItemResult> itemResults =
 			new CopyOnWriteArrayList<>();
 
-	private final MutableLiveData<AttachmentResult> result =
-			new MutableLiveData<>();
 	@Nullable
 	private AttachmentCreationTask task;
+
+	@Nullable
+	private volatile MutableLiveData<AttachmentResult> result;
 
 	public AttachmentCreator(Application app, @IoExecutor Executor ioExecutor,
 			MessagingManager messagingManager, AttachmentRetriever retriever) {
@@ -65,7 +66,7 @@ public class AttachmentCreator {
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(
 			LiveData<GroupId> groupId, Collection<Uri> newUris) {
-		if (task != null || !uris.isEmpty())
+		if (task != null || result != null || !uris.isEmpty())
 			throw new IllegalStateException();
 		uris.addAll(newUris);
 		observeForeverOnce(groupId, id -> {
@@ -75,6 +76,8 @@ public class AttachmentCreator {
 					app.getContentResolver(), this, id, uris, needsSize);
 			ioExecutor.execute(() -> task.storeAttachments());
 		});
+		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
+		this.result = result;
 		return result;
 	}
 
@@ -85,7 +88,8 @@ public class AttachmentCreator {
 	 */
 	@UiThread
 	public LiveData<AttachmentResult> getLiveAttachments() {
-		if (task == null || uris.isEmpty())
+		MutableLiveData<AttachmentResult> result = this.result;
+		if (task == null || result == null || uris.isEmpty())
 			throw new IllegalStateException();
 		// A task is already running. It will update the result LiveData.
 		// So nothing more to do here.
@@ -103,7 +107,8 @@ public class AttachmentCreator {
 			AttachmentItemResult itemResult =
 					new AttachmentItemResult(uri, item);
 			itemResults.add(itemResult);
-			result.postValue(getResult(false));
+			MutableLiveData<AttachmentResult> result = this.result;
+			if (result != null) result.postValue(getResult(false));
 		} catch (IOException | DbException e) {
 			logException(LOG, WARNING, e);
 			onAttachmentError(uri, e);
@@ -127,13 +132,15 @@ public class AttachmentCreator {
 		AttachmentItemResult itemResult =
 				new AttachmentItemResult(uri, errorMsg);
 		itemResults.add(itemResult);
-		result.postValue(getResult(false));
+		MutableLiveData<AttachmentResult> result = this.result;
+		if (result != null) result.postValue(getResult(false));
 		// expect to receive a cancel from the UI
 	}
 
 	@IoExecutor
 	void onAttachmentCreationFinished() {
-		result.postValue(getResult(true));
+		MutableLiveData<AttachmentResult> result = this.result;
+		if (result != null) result.postValue(getResult(true));
 	}
 
 	@UiThread
@@ -180,7 +187,11 @@ public class AttachmentCreator {
 		task = null;
 		uris.clear();
 		itemResults.clear();
-		result.setValue(null);
+		MutableLiveData<AttachmentResult> result = this.result;
+		if (result != null) {
+			result.setValue(null);
+			this.result = null;
+		}
 	}
 
 	@UiThread
