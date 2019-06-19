@@ -447,10 +447,12 @@ abstract class JdbcDatabase implements Database<Connection> {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Migrating from schema " + start + " to " + end);
 				if (listener != null) listener.onDatabaseMigration();
+				long startTime = now();
 				// Apply the migration
 				m.migrate(txn);
 				// Store the new schema version
 				storeSchemaVersion(txn, end);
+				logDuration(LOG, "Migration", startTime);
 				dataSchemaVersion = end;
 			}
 		}

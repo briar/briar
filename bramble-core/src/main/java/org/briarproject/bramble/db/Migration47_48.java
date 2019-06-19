@@ -46,12 +46,9 @@ class Migration47_48 implements Migration<Connection> {
 			s = txn.createStatement();
 			s.execute("ALTER TABLE messages"
 					+ " ADD COLUMN deleted BOOLEAN DEFAULT FALSE NOT NULL");
-			LOG.info("Created column messages.deleted");
 			s.execute("UPDATE messages SET deleted = TRUE WHERE raw IS NULL");
-			LOG.info("Populated column messages.deleted");
 			s.execute("ALTER TABLE messages"
 					+ " ADD COLUMN blockCount INT DEFAULT 1 NOT NULL");
-			LOG.info("Created column messages.blockCount");
 			s.execute(dbTypes.replaceTypes("CREATE TABLE blocks"
 					+ " (messageId _HASH NOT NULL,"
 					+ " blockNumber INT NOT NULL,"
@@ -61,7 +58,6 @@ class Migration47_48 implements Migration<Connection> {
 					+ " FOREIGN KEY (messageId)"
 					+ " REFERENCES messages (messageId)"
 					+ " ON DELETE CASCADE)"));
-			LOG.info("Created table blocks");
 			rs = s.executeQuery("SELECT messageId, length, raw FROM messages");
 			ps = txn.prepareStatement("INSERT INTO blocks"
 					+ " (messageId, blockNumber, blockLength, data)"
@@ -85,11 +81,10 @@ class Migration47_48 implements Migration<Connection> {
 			}
 			ps.close();
 			rs.close();
+			s.execute("ALTER TABLE messages DROP COLUMN raw");
+			s.close();
 			if (LOG.isLoggable(INFO))
 				LOG.info("Migrated " + migrated + " messages");
-			s.execute("ALTER TABLE messages DROP COLUMN raw");
-			LOG.info("Dropped column messages.raw");
-			s.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
 			tryToClose(rs, LOG, WARNING);
