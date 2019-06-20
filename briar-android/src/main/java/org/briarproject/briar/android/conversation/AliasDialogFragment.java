@@ -82,7 +82,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 	}
 
 	private void onSetButtonClicked() {
-		String alias = aliasEditText.getText().toString();
+		String alias = aliasEditText.getText().toString().trim();
 		if (toUtf8(alias).length > MAX_AUTHOR_NAME_LENGTH) {
 			aliasEditLayout.setError(getString(R.string.name_too_long));
 		} else {

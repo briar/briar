@@ -3,6 +3,7 @@ package org.briarproject.briar.android.account;
 import android.os.Bundle;
 import android.support.design.widget.TextInputEditText;
 import android.support.design.widget.TextInputLayout;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,7 +11,6 @@ import android.widget.Button;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 
@@ -20,6 +20,7 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_NONE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
+import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
@@ -77,7 +78,7 @@ public class AuthorNameFragment extends SetupFragment {
 
 	@Override
 	public void onTextChanged(CharSequence authorName, int i, int i1, int i2) {
-		int authorNameLength = StringUtils.toUtf8(authorName.toString()).length;
+		int authorNameLength = toUtf8(authorName.toString().trim()).length;
 		boolean error = authorNameLength > MAX_AUTHOR_NAME_LENGTH;
 		setError(authorNameWrapper, getString(R.string.name_too_long), error);
 		boolean enabled = authorNameLength > 0 && !error;
@@ -89,8 +90,11 @@ public class AuthorNameFragment extends SetupFragment {
 
 	@Override
 	public void onClick(View view) {
-		setupController.setAuthorName(authorNameInput.getText().toString());
-		setupController.showPasswordFragment();
+		Editable text = authorNameInput.getText();
+		if (text != null) {
+			setupController.setAuthorName(text.toString().trim());
+			setupController.showPasswordFragment();
+		}
 	}
 
 }
