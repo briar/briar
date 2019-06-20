@@ -30,9 +30,14 @@ public interface SyncConstants {
 	int MESSAGE_HEADER_LENGTH = UniqueId.LENGTH + 8;
 
 	/**
+	 * The maximum length of a block in bytes.
+	 */
+	int MAX_BLOCK_LENGTH = 32 * 1024; // 32 KiB
+
+	/**
 	 * The maximum length of a message body in bytes.
 	 */
-	int MAX_MESSAGE_BODY_LENGTH = 32 * 1024; // 32 KiB
+	int MAX_MESSAGE_BODY_LENGTH = MAX_BLOCK_LENGTH;
 
 	/**
 	 * The maximum length of a message in bytes.

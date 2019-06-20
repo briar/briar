@@ -186,7 +186,8 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 				Collection<Message> b =
 						db.transactionWithNullableResult(false, txn ->
 								db.generateBatch(txn, contactId,
-										MAX_RECORD_PAYLOAD_BYTES, maxLatency));
+										MAX_RECORD_PAYLOAD_BYTES, maxLatency,
+										true));
 				if (LOG.isLoggable(INFO))
 					LOG.info("Generated batch: " + (b != null));
 				if (b == null) decrementOutstandingQueries();

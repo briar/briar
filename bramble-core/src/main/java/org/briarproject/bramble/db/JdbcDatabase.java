@@ -75,6 +75,8 @@ import static org.briarproject.bramble.api.db.Metadata.REMOVE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
+import static org.briarproject.bramble.api.sync.SyncConstants.MAX_BLOCK_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
@@ -178,7 +180,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " state INT NOT NULL,"
 					+ " shared BOOLEAN NOT NULL,"
 					+ " temporary BOOLEAN NOT NULL,"
-					+ " length INT NOT NULL,"
+					+ " length INT NOT NULL," // Includes message header
 					+ " deleted BOOLEAN NOT NULL,"
 					+ " blockCount INT NOT NULL,"
 					+ " PRIMARY KEY (messageId),"
@@ -230,7 +232,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			"CREATE TABLE blocks"
 					+ " (messageId _HASH NOT NULL,"
 					+ " blockNumber INT NOT NULL,"
-					+ " blockLength INT NOT NULL,"
+					+ " blockLength INT NOT NULL," // Excludes block header
 					+ " data BLOB," // Null if message has been deleted
 					+ " PRIMARY KEY (messageId, blockNumber),"
 					+ " FOREIGN KEY (messageId)"
@@ -2135,6 +2137,42 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
+	public Collection<MessageId> getSmallMessagesToOffer(Connection txn,
+			ContactId c, int maxMessages, int maxLatency) throws DbException {
+		long now = clock.currentTimeMillis();
+		long eta = now + maxLatency;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT messageId FROM statuses"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND length <= ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE"
+					+ " AND seen = FALSE AND requested = FALSE"
+					+ " AND (expiry <= ? OR eta > ?)"
+					+ " ORDER BY timestamp LIMIT ?";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			ps.setInt(3, MESSAGE_HEADER_LENGTH + MAX_BLOCK_LENGTH);
+			ps.setLong(4, now);
+			ps.setLong(5, eta);
+			ps.setInt(6, maxMessages);
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<>();
+			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
+			rs.close();
+			ps.close();
+			return ids;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Collection<MessageId> getMessagesToRequest(Connection txn,
 			ContactId c, int maxMessages) throws DbException {
 		PreparedStatement ps = null;
@@ -2179,6 +2217,47 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setInt(2, DELIVERED.getValue());
 			ps.setLong(3, now);
 			ps.setLong(4, eta);
+			rs = ps.executeQuery();
+			List<MessageId> ids = new ArrayList<>();
+			int total = 0;
+			while (rs.next()) {
+				int length = rs.getInt(1);
+				if (total + length > maxLength) break;
+				ids.add(new MessageId(rs.getBytes(2)));
+				total += length;
+			}
+			rs.close();
+			ps.close();
+			return ids;
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
+	@Override
+	public Collection<MessageId> getSmallMessagesToSend(Connection txn,
+			ContactId c, int maxLength, int maxLatency) throws DbException {
+		long now = clock.currentTimeMillis();
+		long eta = now + maxLatency;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT length, messageId FROM statuses"
+					+ " WHERE contactId = ? AND state = ?"
+					+ " AND length <= ?"
+					+ " AND groupShared = TRUE AND messageShared = TRUE"
+					+ " AND deleted = FALSE"
+					+ " AND seen = FALSE"
+					+ " AND (expiry <= ? OR eta > ?)"
+					+ " ORDER BY timestamp";
+			ps = txn.prepareStatement(sql);
+			ps.setInt(1, c.getInt());
+			ps.setInt(2, DELIVERED.getValue());
+			ps.setInt(3, MESSAGE_HEADER_LENGTH + MAX_BLOCK_LENGTH);
+			ps.setLong(4, now);
+			ps.setLong(5, eta);
 			rs = ps.executeQuery();
 			List<MessageId> ids = new ArrayList<>();
 			int total = 0;

@@ -163,19 +163,23 @@ public interface DatabaseComponent extends TransactionManager {
 	 * less than or equal to the given length, for transmission over a
 	 * transport with the given maximum latency. Returns null if there are no
 	 * sendable messages that fit in the given length.
+	 *
+	 * @param small True if only single-block messages should be sent
 	 */
 	@Nullable
 	Collection<Message> generateBatch(Transaction txn, ContactId c,
-			int maxLength, int maxLatency) throws DbException;
+			int maxLength, int maxLatency, boolean small) throws DbException;
 
 	/**
 	 * Returns an offer for the given contact for transmission over a
 	 * transport with the given maximum latency, or null if there are no
 	 * messages to offer.
+	 *
+	 * @param small True if only single-block messages should be offered
 	 */
 	@Nullable
 	Offer generateOffer(Transaction txn, ContactId c, int maxMessages,
-			int maxLatency) throws DbException;
+			int maxLatency, boolean small) throws DbException;
 
 	/**
 	 * Returns a request for the given contact, or null if there are no

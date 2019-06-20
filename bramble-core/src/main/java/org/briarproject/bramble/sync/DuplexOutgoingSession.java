@@ -340,7 +340,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			try {
 				Offer o = db.transactionWithNullableResult(false, txn -> {
 					Offer offer = db.generateOffer(txn, contactId,
-							MAX_MESSAGE_IDS, maxLatency);
+							MAX_MESSAGE_IDS, maxLatency, true);
 					setNextSendTime(db.getNextSendTime(txn, contactId));
 					return offer;
 				});

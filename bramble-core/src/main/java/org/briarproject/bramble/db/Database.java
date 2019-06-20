@@ -457,6 +457,15 @@ interface Database<T> {
 			int maxMessages, int maxLatency) throws DbException;
 
 	/**
+	 * Returns the IDs of some single-block messages that are eligible to be
+	 * offered to the given contact, up to the given number of messages.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getSmallMessagesToOffer(T txn, ContactId c,
+			int maxMessages, int maxLatency) throws DbException;
+
+	/**
 	 * Returns the IDs of some messages that are eligible to be requested from
 	 * the given contact, up to the given number of messages.
 	 * <p/>
@@ -473,6 +482,15 @@ interface Database<T> {
 	 */
 	Collection<MessageId> getMessagesToSend(T txn, ContactId c, int maxLength,
 			int maxLatency) throws DbException;
+
+	/**
+	 * Returns the IDs of some single-block messages that are eligible to be
+	 * sent to the given contact, up to the given total length.
+	 * <p/>
+	 * Read-only.
+	 */
+	Collection<MessageId> getSmallMessagesToSend(T txn, ContactId c,
+			int maxLength, int maxLatency) throws DbException;
 
 	/**
 	 * Returns the IDs of any messages that need to be validated.

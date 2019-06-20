@@ -323,7 +323,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.generateBatch(transaction, contactId, 123, 456));
+					db.generateBatch(transaction, contactId, 123, 456, true));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -331,7 +331,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.generateOffer(transaction, contactId, 123, 456));
+					db.generateOffer(transaction, contactId, 123, 456, true));
 			fail();
 		} catch (NoSuchContactException expected) {
 			// Expected
@@ -865,7 +865,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getMessagesToSend(txn, contactId,
+			oneOf(database).getSmallMessagesToSend(txn, contactId,
 					MAX_MESSAGE_LENGTH * 2, maxLatency);
 			will(returnValue(ids));
 			oneOf(database).getMessage(txn, messageId);
@@ -885,7 +885,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		db.transaction(false, transaction ->
 				assertEquals(messages, db.generateBatch(transaction, contactId,
-						MAX_MESSAGE_LENGTH * 2, maxLatency)));
+						MAX_MESSAGE_LENGTH * 2, maxLatency, true)));
 	}
 
 	@Test
@@ -897,7 +897,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(database).containsContact(txn, contactId);
 			will(returnValue(true));
-			oneOf(database).getMessagesToOffer(txn, contactId, 123, maxLatency);
+			oneOf(database).getSmallMessagesToOffer(txn, contactId, 123,
+					maxLatency);
 			will(returnValue(ids));
 			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
 					maxLatency);
@@ -909,7 +910,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 				eventExecutor, shutdownManager);
 
 		db.transaction(false, transaction -> {
-			Offer o = db.generateOffer(transaction, contactId, 123, maxLatency);
+			Offer o = db.generateOffer(transaction, contactId, 123, maxLatency,
+					true);
 			assertNotNull(o);
 			assertEquals(ids, o.getMessageIds());
 		});

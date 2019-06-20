@@ -406,13 +406,16 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Collection<Message> generateBatch(Transaction transaction,
-			ContactId c, int maxLength, int maxLatency) throws DbException {
+			ContactId c, int maxLength, int maxLatency, boolean small)
+			throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> ids =
-				db.getMessagesToSend(txn, c, maxLength, maxLatency);
+		Collection<MessageId> ids;
+		if (small)
+			ids = db.getSmallMessagesToSend(txn, c, maxLength, maxLatency);
+		else ids = db.getMessagesToSend(txn, c, maxLength, maxLatency);
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getMessage(txn, m));
@@ -427,13 +430,15 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	@Nullable
 	@Override
 	public Offer generateOffer(Transaction transaction, ContactId c,
-			int maxMessages, int maxLatency) throws DbException {
+			int maxMessages, int maxLatency, boolean small) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> ids =
-				db.getMessagesToOffer(txn, c, maxMessages, maxLatency);
+		Collection<MessageId> ids;
+		if (small)
+			ids = db.getSmallMessagesToOffer(txn, c, maxMessages, maxLatency);
+		else ids = db.getMessagesToOffer(txn, c, maxMessages, maxLatency);
 		if (ids.isEmpty()) return null;
 		for (MessageId m : ids)
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
@@ -448,8 +453,8 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		Collection<MessageId> ids = db.getMessagesToRequest(txn, c,
-				maxMessages);
+		Collection<MessageId> ids =
+				db.getMessagesToRequest(txn, c, maxMessages);
 		if (ids.isEmpty()) return null;
 		db.removeOfferedMessages(txn, c, ids);
 		return new Request(ids);

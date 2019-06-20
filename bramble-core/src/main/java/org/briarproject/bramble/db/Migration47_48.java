@@ -52,7 +52,7 @@ class Migration47_48 implements Migration<Connection> {
 			s.execute(dbTypes.replaceTypes("CREATE TABLE blocks"
 					+ " (messageId _HASH NOT NULL,"
 					+ " blockNumber INT NOT NULL,"
-					+ " blockLength INT NOT NULL,"
+					+ " blockLength INT NOT NULL," // Excludes block header
 					+ " data BLOB," // Null if message has been deleted
 					+ " PRIMARY KEY (messageId, blockNumber),"
 					+ " FOREIGN KEY (messageId)"
