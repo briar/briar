@@ -49,7 +49,8 @@ class ImageAdapter extends Adapter<ImageViewHolder> {
 	public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
 		View v = LayoutInflater.from(viewGroup.getContext()).inflate(
 				R.layout.list_item_image, viewGroup, false);
-		return new ImageViewHolder(v, imageSize);
+		requireNonNull(conversationItem);
+		return new ImageViewHolder(v, imageSize, conversationItem.getId());
 	}
 
 	@Override
@@ -58,7 +59,7 @@ class ImageAdapter extends Adapter<ImageViewHolder> {
 		// get item
 		requireNonNull(conversationItem);
 		AttachmentItem item = items.get(position);
-		// set onClick listener
+		// set onClick listener, if not missing or error
 		imageViewHolder.itemView.setOnClickListener(v ->
 				listener.onAttachmentClicked(v, conversationItem, item)
 		);

@@ -7,6 +7,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.load.Transformation;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.conversation.glide.BriarImageTransformation;
@@ -18,8 +19,12 @@ import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static android.widget.ImageView.ScaleType.CENTER_CROP;
+import static android.widget.ImageView.ScaleType.FIT_CENTER;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 
 @NotNullByDefault
 class ImageViewHolder extends ViewHolder {
@@ -29,25 +34,33 @@ class ImageViewHolder extends ViewHolder {
 
 	protected final ImageView imageView;
 	private final int imageSize;
+	private final MessageId conversationItemId;
 
-	ImageViewHolder(View v, int imageSize) {
+	ImageViewHolder(View v, int imageSize, MessageId conversationItemId) {
 		super(v);
 		imageView = v.findViewById(R.id.imageView);
 		this.imageSize = imageSize;
+		this.conversationItemId = conversationItemId;
 	}
 
 	void bind(AttachmentItem attachment, Radii r, boolean single,
 			boolean needsStretch) {
-		if (attachment.hasError()) {
-			GlideApp.with(imageView)
-					.clear(imageView);
-			imageView.setImageResource(ERROR_RES);
+		setImageViewDimensions(attachment, single, needsStretch);
+		if (attachment.getState() != AVAILABLE) {
+			GlideApp.with(imageView).clear(imageView);
+			if (attachment.getState() == ERROR) {
+				imageView.setImageResource(ERROR_RES);
+			} else {
+				imageView.setImageResource(R.drawable.ic_image_missing);
+			}
+			imageView.setScaleType(FIT_CENTER);
 		} else {
-			setImageViewDimensions(attachment, single, needsStretch);
 			loadImage(attachment, r);
 			if (SDK_INT >= 21) {
-				imageView.setTransitionName(attachment.getTransitionName());
+				imageView.setTransitionName(
+						attachment.getTransitionName(conversationItemId));
 			}
+			imageView.setScaleType(CENTER_CROP);
 		}
 	}
 
