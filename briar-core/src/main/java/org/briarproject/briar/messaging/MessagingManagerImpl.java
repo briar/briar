@@ -253,18 +253,20 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			}
 			// Mark attachments as shared and permanent now we're ready to send
 			// FIXME: Revert
-			scheduler.schedule(() -> {
-				try {
-					db.transaction(false, txn1 -> {
-						for (AttachmentHeader a : m.getAttachmentHeaders()) {
+			int i = 15;
+			for (AttachmentHeader a : m.getAttachmentHeaders()) {
+				scheduler.schedule(() -> {
+					try {
+						db.transaction(false, txn1 -> {
 							db.setMessageShared(txn1, a.getMessageId());
 							db.setMessagePermanent(txn1, a.getMessageId());
-						}
-					});
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-				}
-			}, 30, SECONDS);
+						});
+					} catch (DbException e) {
+						logException(LOG, WARNING, e);
+					}
+				}, i, SECONDS);
+				i *= 2;
+			}
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
 					false);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
