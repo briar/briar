@@ -15,6 +15,7 @@ import com.bumptech.glide.request.target.Target;
 import com.github.chrisbanes.photoview.PhotoView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.attachment.AttachmentItem;
@@ -33,6 +34,7 @@ import static android.widget.ImageView.ScaleType.FIT_START;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
+import static org.briarproject.briar.android.conversation.ImageActivity.ITEM_ID;
 
 @MethodsNotNullByDefault
 @ParametersAreNonnullByDefault
@@ -45,14 +47,17 @@ public class ImageFragment extends Fragment {
 
 	private AttachmentItem attachment;
 	private boolean isFirst;
+	private MessageId conversationItemId;
 	private ImageViewModel viewModel;
 	private PhotoView photoView;
 
-	static ImageFragment newInstance(AttachmentItem a, boolean isFirst) {
+	static ImageFragment newInstance(AttachmentItem a,
+			MessageId conversationMessageId, boolean isFirst) {
 		ImageFragment f = new ImageFragment();
 		Bundle args = new Bundle();
 		args.putParcelable(ATTACHMENT_POSITION, a);
 		args.putBoolean(IS_FIRST, isFirst);
+		args.putByteArray(ITEM_ID, conversationMessageId.getBytes());
 		f.setArguments(args);
 		return f;
 	}
@@ -70,6 +75,8 @@ public class ImageFragment extends Fragment {
 		Bundle args = requireNonNull(getArguments());
 		attachment = requireNonNull(args.getParcelable(ATTACHMENT_POSITION));
 		isFirst = args.getBoolean(IS_FIRST);
+		conversationItemId =
+				new MessageId(requireNonNull(args.getByteArray(ITEM_ID)));
 	}
 
 	@Nullable
@@ -107,7 +114,7 @@ public class ImageFragment extends Fragment {
 					// set transition name only when not animatable,
 					// because the animation won't start otherwise
 					photoView.setTransitionName(
-							attachment.getTransitionName());
+							attachment.getTransitionName(conversationItemId));
 				}
 				// Move image to the top if overlapping toolbar
 				if (viewModel.isOverlappingToolbar(photoView, resource)) {

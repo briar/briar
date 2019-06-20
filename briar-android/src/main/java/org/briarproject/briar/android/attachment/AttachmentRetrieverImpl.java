@@ -1,14 +1,20 @@
 package org.briarproject.briar.android.attachment;
 
+import org.briarproject.bramble.api.Pair;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.android.attachment.AttachmentItem.State;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.io.BufferedInputStream;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,10 +22,12 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
-
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.LOADING;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.MISSING;
 
 @NotNullByDefault
 class AttachmentRetrieverImpl implements AttachmentRetriever {
@@ -34,7 +42,11 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
 
-	private final Map<MessageId, List<AttachmentItem>> attachmentCache =
+	// Info for AttachmentItems that are either still LOADING or MISSING
+	private final Map<MessageId, UnavailableItem> unavailableItems =
+			new ConcurrentHashMap<>();
+	// We cache only items in their final state: AVAILABLE or ERROR
+	private final Map<MessageId, AttachmentItem> itemCache =
 			new ConcurrentHashMap<>();
 
 	@Inject
@@ -52,40 +64,95 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	}
 
 	@Override
-	public void cachePut(MessageId messageId,
-			List<AttachmentItem> attachments) {
-		attachmentCache.put(messageId, attachments);
-	}
-
-	@Override
-	@Nullable
-	public List<AttachmentItem> cacheGet(MessageId messageId) {
-		return attachmentCache.get(messageId);
-	}
-
-	@Override
+	@DatabaseExecutor
 	public Attachment getMessageAttachment(AttachmentHeader h)
 			throws DbException {
 		return messagingManager.getAttachment(h);
 	}
 
 	@Override
-	public AttachmentItem getAttachmentItem(Attachment a, boolean needsSize) {
+	public List<AttachmentItem> getAttachmentItems(
+			PrivateMessageHeader messageHeader) {
+		List<AttachmentHeader> headers = messageHeader.getAttachmentHeaders();
+		List<AttachmentItem> items = new ArrayList<>(headers.size());
+		boolean needsSize = headers.size() == 1;
+		for (AttachmentHeader h : headers) {
+			AttachmentItem item = itemCache.get(h.getMessageId());
+			if (item == null || (needsSize && !item.hasSize())) {
+				item = new AttachmentItem(h, defaultSize, defaultSize, LOADING);
+				UnavailableItem unavailableItem = new UnavailableItem(
+						messageHeader.getId(), h, needsSize);
+				unavailableItems.put(h.getMessageId(), unavailableItem);
+			}
+			items.add(item);
+		}
+		return items;
+	}
+
+	@Override
+	@DatabaseExecutor
+	public void cacheAttachmentItem(MessageId conversationMessageId,
+			AttachmentHeader h) throws DbException {
+		try {
+			Attachment a = messagingManager.getAttachment(h);
+			// this adds it to the cache automatically
+			createAttachmentItem(a, true);
+		} catch (NoSuchMessageException e) {
+			LOG.info("Attachment not received yet");
+		}
+	}
+
+	@Override
+	@DatabaseExecutor
+	public Pair<MessageId, AttachmentItem> loadAttachmentItem(
+			MessageId attachmentId) throws DbException {
+		UnavailableItem unavailableItem = unavailableItems.get(attachmentId);
+		if (unavailableItem == null) throw new AssertionError();
+
+		MessageId conversationMessageId =
+				unavailableItem.getConversationMessageId();
+		AttachmentHeader h = unavailableItem.getHeader();
+		boolean needsSize = unavailableItem.needsSize();
+
+		AttachmentItem item;
+		try {
+			Attachment a = messagingManager.getAttachment(h);
+			item = createAttachmentItem(a, needsSize);
+			unavailableItems.remove(attachmentId);
+		} catch (NoSuchMessageException e) {
+			LOG.info("Attachment not received yet");
+			// unavailable item is still tracked, no need to add it again
+			item = new AttachmentItem(h, defaultSize, defaultSize, MISSING);
+		}
+		return new Pair<>(conversationMessageId, item);
+	}
+
+	@Override
+	public AttachmentItem createAttachmentItem(Attachment a,
+			boolean needsSize) {
 		AttachmentHeader h = a.getHeader();
-		if (!needsSize) {
+		AttachmentItem item = itemCache.get(h.getMessageId());
+		if (item != null && (needsSize && item.hasSize())) return item;
+
+		if (needsSize) {
+			InputStream is = new BufferedInputStream(a.getStream());
+			Size size = imageSizeCalculator.getSize(is, h.getContentType());
+			item = createAttachmentItem(h, size);
+		} else {
 			String extension =
 					imageHelper.getExtensionFromMimeType(h.getContentType());
-			boolean hasError = false;
+			State state = AVAILABLE;
 			if (extension == null) {
 				extension = "";
-				hasError = true;
+				state = ERROR;
 			}
-			return new AttachmentItem(h, 0, 0, extension, 0, 0, hasError);
+			item = new AttachmentItem(h, extension, state);
 		}
+		itemCache.put(h.getMessageId(), item);
+		return item;
+	}
 
-		InputStream is = new BufferedInputStream(a.getStream());
-		Size size = imageSizeCalculator.getSize(is, h.getContentType());
-
+	private AttachmentItem createAttachmentItem(AttachmentHeader h, Size size) {
 		// calculate thumbnail size
 		Size thumbnailSize = new Size(defaultSize, defaultSize, size.mimeType);
 		if (!size.error) {
@@ -104,8 +171,9 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 			hasError = true;
 		}
 		if (extension == null) extension = "";
-		return new AttachmentItem(h, size.width, size.height, extension,
-				thumbnailSize.width, thumbnailSize.height, hasError);
+		State state = hasError ? ERROR : AVAILABLE;
+		return new AttachmentItem(h, size.width, size.height,
+				extension, thumbnailSize.width, thumbnailSize.height, state);
 	}
 
 	private Size getThumbnailSize(int width, int height, String mimeType) {

@@ -14,9 +14,9 @@ import java.io.InputStream;
 
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 public class AttachmentRetrieverTest extends BrambleMockTestCase {
 
@@ -47,10 +47,10 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue("jpg"));
 		}});
 
-		AttachmentItem item = retriever.getAttachmentItem(attachment, false);
+		AttachmentItem item = retriever.createAttachmentItem(attachment, false);
 		assertEquals(mimeType, item.getMimeType());
 		assertEquals("jpg", item.getExtension());
-		assertFalse(item.hasError());
+		assertEquals(AVAILABLE, item.getState());
 	}
 
 	@Test
@@ -63,8 +63,8 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue(null));
 		}});
 
-		AttachmentItem item = retriever.getAttachmentItem(attachment, false);
-		assertTrue(item.hasError());
+		AttachmentItem item = retriever.createAttachmentItem(attachment, false);
+		assertEquals(ERROR, item.getState());
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue("jpg"));
 		}});
 
-		AttachmentItem item = retriever.getAttachmentItem(attachment, true);
+		AttachmentItem item = retriever.createAttachmentItem(attachment, true);
 		assertEquals(msgId, item.getMessageId());
 		assertEquals(160, item.getWidth());
 		assertEquals(240, item.getHeight());
@@ -88,7 +88,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 		assertEquals(240, item.getThumbnailHeight());
 		assertEquals(mimeType, item.getMimeType());
 		assertEquals("jpg", item.getExtension());
-		assertFalse(item.hasError());
+		assertEquals(AVAILABLE, item.getState());
 	}
 
 	@Test
@@ -104,12 +104,12 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue("jpg"));
 		}});
 
-		AttachmentItem item = retriever.getAttachmentItem(attachment, true);
+		AttachmentItem item = retriever.createAttachmentItem(attachment, true);
 		assertEquals(1728, item.getWidth());
 		assertEquals(2592, item.getHeight());
 		assertEquals(dimensions.maxWidth, item.getThumbnailWidth());
 		assertEquals(dimensions.maxHeight, item.getThumbnailHeight());
-		assertFalse(item.hasError());
+		assertEquals(AVAILABLE, item.getState());
 	}
 
 	@Test
@@ -125,8 +125,8 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			will(returnValue(null));
 		}});
 
-		AttachmentItem item = retriever.getAttachmentItem(attachment, true);
-		assertTrue(item.hasError());
+		AttachmentItem item = retriever.createAttachmentItem(attachment, true);
+		assertEquals(ERROR, item.getState());
 	}
 
 	private Attachment getAttachment(String contentType) {
