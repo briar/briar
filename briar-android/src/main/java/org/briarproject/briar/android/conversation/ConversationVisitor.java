@@ -15,7 +15,6 @@ import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRequest;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
@@ -56,8 +55,7 @@ class ConversationVisitor implements
 		if (h.getAttachmentHeaders().isEmpty()) {
 			attachments = emptyList();
 		} else {
-			attachments = attachmentCache
-					.getAttachmentItems(h.getId(), h.getAttachmentHeaders());
+			attachments = attachmentCache.getAttachmentItems(h);
 		}
 		if (h.isLocal()) {
 			item = new ConversationMessageItem(
@@ -295,7 +293,6 @@ class ConversationVisitor implements
 	}
 
 	interface AttachmentCache {
-		List<AttachmentItem> getAttachmentItems(MessageId m,
-				List<AttachmentHeader> headers);
+		List<AttachmentItem> getAttachmentItems(PrivateMessageHeader h);
 	}
 }

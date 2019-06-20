@@ -68,7 +68,7 @@ public class AttachmentItem implements Parcelable {
 		header = new AttachmentHeader(messageId, mimeType);
 	}
 
-	AttachmentHeader getHeader() {
+	public AttachmentHeader getHeader() {
 		return header;
 	}
 

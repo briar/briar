@@ -40,7 +40,7 @@ public interface MessagingManager extends ConversationClient {
 	/**
 	 * Stores a local attachment message.
 	 *
-	 * @throws FileTooBigException
+	 * @throws FileTooBigException If the attachment is too big
 	 */
 	AttachmentHeader addLocalAttachment(GroupId groupId, long timestamp,
 			String contentType, InputStream is) throws DbException, IOException;
@@ -68,9 +68,13 @@ public interface MessagingManager extends ConversationClient {
 	String getMessageText(MessageId m) throws DbException;
 
 	/**
-	 * Returns the attachment with the given ID.
+	 * Returns the attachment with the given message ID and content type.
+	 *
+	 * @throws InvalidAttachmentException If the header refers to a message
+	 * that is not an attachment, or to an attachment that does not have the
+	 * expected content type
 	 */
-	Attachment getAttachment(MessageId m) throws DbException;
+	Attachment getAttachment(AttachmentHeader h) throws DbException;
 
 	/**
 	 * Returns true if the contact with the given {@link ContactId} does support

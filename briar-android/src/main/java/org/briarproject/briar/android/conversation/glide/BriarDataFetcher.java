@@ -9,8 +9,8 @@ import com.bumptech.glide.load.data.DataFetcher;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.io.InputStream;
@@ -50,11 +50,12 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	@Override
 	public void loadData(Priority priority,
 			DataCallback<? super InputStream> callback) {
-		MessageId id = attachment.getMessageId();
 		dbExecutor.execute(() -> {
 			if (cancel) return;
 			try {
-				inputStream = messagingManager.getAttachment(id).getStream();
+				Attachment a =
+						messagingManager.getAttachment(attachment.getHeader());
+				inputStream = a.getStream();
 				callback.onDataReady(inputStream);
 			} catch (DbException e) {
 				callback.onLoadFailed(e);

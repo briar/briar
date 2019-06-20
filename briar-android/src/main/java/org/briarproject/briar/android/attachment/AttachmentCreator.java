@@ -98,7 +98,7 @@ public class AttachmentCreator {
 		// get and cache AttachmentItem for ImagePreview
 		try {
 			Attachment a = retriever.getMessageAttachment(h);
-			AttachmentItem item = retriever.getAttachmentItem(h, a, needsSize);
+			AttachmentItem item = retriever.getAttachmentItem(a, needsSize);
 			if (item.hasError()) throw new IOException();
 			AttachmentItemResult itemResult =
 					new AttachmentItemResult(uri, item);

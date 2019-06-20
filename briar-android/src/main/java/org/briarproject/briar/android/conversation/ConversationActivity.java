@@ -37,6 +37,7 @@ import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -81,6 +82,7 @@ import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
 import java.util.ArrayList;
@@ -107,10 +109,12 @@ import static android.support.v7.util.SortedList.INVALID_POSITION;
 import static android.view.Gravity.RIGHT;
 import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -138,7 +142,7 @@ public class ConversationActivity extends BriarActivity
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
 	private static final Logger LOG =
-			Logger.getLogger(ConversationActivity.class.getName());
+			getLogger(ConversationActivity.class.getName());
 
 	private static final int TRANSITION_DURATION_MS = 500;
 	private static final int ONBOARDING_DELAY_MS = 250;
@@ -171,6 +175,8 @@ public class ConversationActivity extends BriarActivity
 	volatile GroupInvitationManager groupInvitationManager;
 
 	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
+	private final Map<MessageId, PrivateMessageHeader> missingAttachments =
+			new ConcurrentHashMap<>();
 	private final Observer<String> contactNameObserver = name -> {
 		requireNonNull(name);
 		loadMessages();
@@ -434,29 +440,40 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void eagerlyLoadMessageSize(PrivateMessageHeader h)
-			throws DbException {
-		MessageId id = h.getId();
-		// If the message has text, load it
-		if (h.hasText()) {
-			String text = textCache.get(id);
-			if (text == null) {
-				LOG.info("Eagerly loading text for latest message");
-				text = messagingManager.getMessageText(id);
-				textCache.put(id, requireNonNull(text));
+	private void eagerlyLoadMessageSize(PrivateMessageHeader h) {
+		try {
+			MessageId id = h.getId();
+			// If the message has text, load it
+			if (h.hasText()) {
+				String text = textCache.get(id);
+				if (text == null) {
+					LOG.info("Eagerly loading text for latest message");
+					text = messagingManager.getMessageText(id);
+					textCache.put(id, requireNonNull(text));
+				}
 			}
-		}
-		// If the message has a single image, load its size - for multiple
-		// images we use a grid so the size is fixed
-		if (h.getAttachmentHeaders().size() == 1) {
-			List<AttachmentItem> items = attachmentRetriever.cacheGet(id);
-			if (items == null) {
-				LOG.info("Eagerly loading image size for latest message");
-				items = attachmentRetriever.getAttachmentItems(
-						attachmentRetriever.getMessageAttachments(
-								h.getAttachmentHeaders()));
-				attachmentRetriever.cachePut(id, items);
+			// If the message has a single image, load its size - for multiple
+			// images we use a grid so the size is fixed
+			List<AttachmentHeader> headers = h.getAttachmentHeaders();
+			if (headers.size() == 1) {
+				List<AttachmentItem> items = attachmentRetriever.cacheGet(id);
+				if (items == null) {
+					LOG.info("Eagerly loading image size for latest message");
+					AttachmentHeader header = headers.get(0);
+					try {
+						Attachment a = attachmentRetriever
+								.getMessageAttachment(header);
+						AttachmentItem item =
+								attachmentRetriever.getAttachmentItem(a, true);
+						attachmentRetriever.cachePut(id, singletonList(item));
+					} catch (NoSuchMessageException e) {
+						LOG.info("Attachment not received yet");
+						missingAttachments.put(header.getMessageId(), h);
+					}
+				}
 			}
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -534,16 +551,30 @@ public class ConversationActivity extends BriarActivity
 				&& adapter.isScrolledToBottom(layoutManager);
 	}
 
-	private void loadMessageAttachments(MessageId messageId,
-			List<AttachmentHeader> headers) {
+	private void loadMessageAttachments(PrivateMessageHeader h) {
+		// TODO: Use placeholders for missing/invalid attachments
 		runOnDbThread(() -> {
 			try {
-				List<Pair<AttachmentHeader, Attachment>> attachments =
-						attachmentRetriever.getMessageAttachments(headers);
 				// TODO move getting the items off to IoExecutor, if size == 1
-				List<AttachmentItem> items =
-						attachmentRetriever.getAttachmentItems(attachments);
-				displayMessageAttachments(messageId, items);
+				List<AttachmentHeader> headers = h.getAttachmentHeaders();
+				boolean needsSize = headers.size() == 1;
+				List<AttachmentItem> items = new ArrayList<>(headers.size());
+				for (AttachmentHeader header : headers) {
+					try {
+						Attachment a = attachmentRetriever
+								.getMessageAttachment(header);
+						AttachmentItem item = attachmentRetriever
+								.getAttachmentItem(a, needsSize);
+						items.add(item);
+					} catch (NoSuchMessageException e) {
+						LOG.info("Attachment not received yet");
+						missingAttachments.put(header.getMessageId(), h);
+						return;
+					}
+				}
+				// Don't cache items unless all are present and valid
+				attachmentRetriever.cachePut(h.getId(), items);
+				displayMessageAttachments(h.getId(), items);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -553,7 +584,6 @@ public class ConversationActivity extends BriarActivity
 	private void displayMessageAttachments(MessageId m,
 			List<AttachmentItem> items) {
 		runOnUiThreadUnlessDestroyed(() -> {
-			attachmentRetriever.cachePut(m, items);
 			Pair<Integer, ConversationMessageItem> pair =
 					adapter.getMessageItem(m);
 			if (pair != null) {
@@ -567,6 +597,13 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void eventOccurred(Event e) {
+		if (e instanceof AttachmentReceivedEvent) {
+			AttachmentReceivedEvent a = (AttachmentReceivedEvent) e;
+			if (a.getContactId().equals(contactId)) {
+				LOG.info("Attachment received");
+				onAttachmentReceived(a.getMessageId());
+			}
+		}
 		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) {
@@ -615,6 +652,15 @@ public class ConversationActivity extends BriarActivity
 		// is visible, even if we're not currently at the bottom
 		if (getLifecycle().getCurrentState().isAtLeast(STARTED))
 			scrollToBottom();
+	}
+
+	@UiThread
+	private void onAttachmentReceived(MessageId attachmentId) {
+		PrivateMessageHeader h = missingAttachments.remove(attachmentId);
+		if (h != null) {
+			LOG.info("Missing attachment received");
+			loadMessageAttachments(h);
+		}
 	}
 
 	@UiThread
@@ -903,11 +949,11 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	@Override
-	public List<AttachmentItem> getAttachmentItems(MessageId m,
-			List<AttachmentHeader> headers) {
-		List<AttachmentItem> attachments = attachmentRetriever.cacheGet(m);
+	public List<AttachmentItem> getAttachmentItems(PrivateMessageHeader h) {
+		List<AttachmentItem> attachments =
+				attachmentRetriever.cacheGet(h.getId());
 		if (attachments == null) {
-			loadMessageAttachments(m, headers);
+			loadMessageAttachments(h);
 			return emptyList();
 		}
 		return attachments;
