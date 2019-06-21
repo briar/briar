@@ -99,7 +99,7 @@ import static org.briarproject.bramble.util.LogUtils.now;
 abstract class JdbcDatabase implements Database<Connection> {
 
 	// Package access for testing
-	static final int CODE_SCHEMA_VERSION = 48;
+	static final int CODE_SCHEMA_VERSION = 49;
 
 	// Time period offsets for incoming transport keys
 	private static final int OFFSET_PREV = -1;
@@ -458,7 +458,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
 		return asList(
-				// TODO: Add migration that drops offers table
 				new Migration38_39(),
 				new Migration39_40(),
 				new Migration40_41(dbTypes),
@@ -468,7 +467,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				new Migration44_45(),
 				new Migration45_46(),
 				new Migration46_47(dbTypes),
-				new Migration47_48(dbTypes)
+				new Migration47_48(dbTypes),
+				new Migration48_49()
 		);
 	}
 
