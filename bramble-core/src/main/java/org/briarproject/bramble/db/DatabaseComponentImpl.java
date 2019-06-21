@@ -415,12 +415,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		if (small)
 			ids = db.getSmallMessagesToSend(txn, c, maxLength, maxLatency);
 		else ids = db.getMessagesToSend(txn, c, maxLength, maxLatency);
+		if (ids.isEmpty()) return null;
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getSmallMessage(txn, m));
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
-		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
 		transaction.attach(new MessagesSentEvent(c, ids));
 		return messages;
@@ -454,12 +454,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 			throw new NoSuchContactException();
 		Collection<MessageId> ids =
 				db.getRequestedMessagesToSend(txn, c, maxLength, maxLatency);
+		if (ids.isEmpty()) return null;
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
 			messages.add(db.getSmallMessage(txn, m));
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
-		if (ids.isEmpty()) return null;
 		db.lowerRequestedFlag(txn, c, ids);
 		transaction.attach(new MessagesSentEvent(c, ids));
 		return messages;
