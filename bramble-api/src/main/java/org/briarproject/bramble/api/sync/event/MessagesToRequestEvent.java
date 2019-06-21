@@ -12,17 +12,17 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * An event that is broadcast when a message is offered by a contact and needs
- * to be requested.
+ * An event that is broadcast when one or more messages are offered by a
+ * contact and need to be requested.
  */
 @Immutable
 @NotNullByDefault
-public class MessageToRequestEvent extends Event {
+public class MessagesToRequestEvent extends Event {
 
 	private final ContactId contactId;
 	private final Consumable<Collection<MessageId>> ids;
 
-	public MessageToRequestEvent(ContactId contactId,
+	public MessagesToRequestEvent(ContactId contactId,
 			Collection<MessageId> ids) {
 		this.contactId = contactId;
 		this.ids = new Consumable<>(ids);

@@ -61,10 +61,10 @@ import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
 import org.briarproject.bramble.api.sync.event.MessageRequestedEvent;
 import org.briarproject.bramble.api.sync.event.MessageSharedEvent;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
-import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
-import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.sync.event.MessagesToAckEvent;
+import org.briarproject.bramble.api.sync.event.MessagesToRequestEvent;
 import org.briarproject.bramble.api.sync.event.SyncVersionsUpdatedEvent;
 import org.briarproject.bramble.api.sync.validation.MessageState;
 import org.briarproject.bramble.api.transport.KeySetId;
@@ -808,7 +808,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				db.addMessage(txn, m, UNKNOWN, false, false, c);
 				transaction.attach(new MessageAddedEvent(m, c));
 			}
-			transaction.attach(new MessageToAckEvent(c));
+			transaction.attach(new MessagesToAckEvent(c));
 		}
 	}
 
@@ -830,9 +830,9 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				request.add(m);
 			}
 		}
-		if (ack) transaction.attach(new MessageToAckEvent(c));
+		if (ack) transaction.attach(new MessagesToAckEvent(c));
 		if (!request.isEmpty())
-			transaction.attach(new MessageToRequestEvent(c, request));
+			transaction.attach(new MessagesToRequestEvent(c, request));
 	}
 
 	@Override

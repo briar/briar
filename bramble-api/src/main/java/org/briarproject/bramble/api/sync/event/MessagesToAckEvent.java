@@ -7,16 +7,16 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * An event that is broadcast when a message is received from, or offered by, a
- * contact and needs to be acknowledged.
+ * An event that is broadcast when one or more messages are received from, or
+ * offered by, a contact and need to be acknowledged.
  */
 @Immutable
 @NotNullByDefault
-public class MessageToAckEvent extends Event {
+public class MessagesToAckEvent extends Event {
 
 	private final ContactId contactId;
 
-	public MessageToAckEvent(ContactId contactId) {
+	public MessagesToAckEvent(ContactId contactId) {
 		this.contactId = contactId;
 	}
 

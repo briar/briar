@@ -26,8 +26,8 @@ import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.bramble.api.sync.event.MessageRequestedEvent;
 import org.briarproject.bramble.api.sync.event.MessageSharedEvent;
-import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
-import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
+import org.briarproject.bramble.api.sync.event.MessagesToAckEvent;
+import org.briarproject.bramble.api.sync.event.MessagesToRequestEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.StreamWriter;
 
@@ -220,11 +220,11 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof MessageRequestedEvent) {
 			if (((MessageRequestedEvent) e).getContactId().equals(contactId))
 				generateBatch();
-		} else if (e instanceof MessageToAckEvent) {
-			if (((MessageToAckEvent) e).getContactId().equals(contactId))
+		} else if (e instanceof MessagesToAckEvent) {
+			if (((MessagesToAckEvent) e).getContactId().equals(contactId))
 				generateAck();
-		} else if (e instanceof MessageToRequestEvent) {
-			MessageToRequestEvent m = (MessageToRequestEvent) e;
+		} else if (e instanceof MessagesToRequestEvent) {
+			MessagesToRequestEvent m = (MessagesToRequestEvent) e;
 			if (m.getContactId().equals(contactId)) {
 				Collection<MessageId> ids = m.consumeIds();
 				if (ids != null)

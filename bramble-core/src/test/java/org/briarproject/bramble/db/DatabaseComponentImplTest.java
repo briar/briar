@@ -44,10 +44,10 @@ import org.briarproject.bramble.api.sync.event.MessageAddedEvent;
 import org.briarproject.bramble.api.sync.event.MessageRequestedEvent;
 import org.briarproject.bramble.api.sync.event.MessageSharedEvent;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
-import org.briarproject.bramble.api.sync.event.MessageToAckEvent;
-import org.briarproject.bramble.api.sync.event.MessageToRequestEvent;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.sync.event.MessagesToAckEvent;
+import org.briarproject.bramble.api.sync.event.MessagesToRequestEvent;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
@@ -987,10 +987,10 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			// First time: the message was received and added
-			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessagesToAckEvent.class)));
 			oneOf(eventBus).broadcast(with(any(MessageAddedEvent.class)));
 			// Second time: the message needs to be acked
-			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessagesToAckEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -1018,7 +1018,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).raiseAckFlag(txn, contactId, messageId);
 			oneOf(database).commitTransaction(txn);
 			// The message was received but not added
-			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessagesToAckEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
@@ -1067,8 +1067,8 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).containsVisibleMessage(txn, contactId, messageId2);
 			will(returnValue(false));
 			oneOf(database).commitTransaction(txn);
-			oneOf(eventBus).broadcast(with(any(MessageToAckEvent.class)));
-			oneOf(eventBus).broadcast(with(any(MessageToRequestEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessagesToAckEvent.class)));
+			oneOf(eventBus).broadcast(with(any(MessagesToRequestEvent.class)));
 		}});
 		DatabaseComponent db = createDatabaseComponent(database, eventBus,
 				eventExecutor, shutdownManager);
