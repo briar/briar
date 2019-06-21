@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
 import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.Request;
@@ -87,8 +88,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final AtomicBoolean generateAckQueued = new AtomicBoolean(false);
 	private final AtomicBoolean generateBatchQueued = new AtomicBoolean(false);
 	private final AtomicBoolean generateOfferQueued = new AtomicBoolean(false);
-	private final AtomicBoolean generateRequestQueued =
-			new AtomicBoolean(false);
 	private final AtomicLong nextSendTime = new AtomicLong(Long.MAX_VALUE);
 
 	private volatile boolean interrupted = false;
@@ -125,7 +124,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			generateAck();
 			generateBatch();
 			generateOffer();
-			generateRequest();
 			long now = clock.currentTimeMillis();
 			long nextKeepalive = now + maxIdleTime;
 			boolean dataToFlush = true;
@@ -197,11 +195,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			dbExecutor.execute(new GenerateOffer());
 	}
 
-	private void generateRequest() {
-		if (generateRequestQueued.compareAndSet(false, true))
-			dbExecutor.execute(new GenerateRequest());
-	}
-
 	private void setNextSendTime(long time) {
 		long old = nextSendTime.getAndSet(time);
 		if (time < old) writerTasks.add(NEXT_SEND_TIME_DECREASED);
@@ -231,8 +224,12 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (((MessageToAckEvent) e).getContactId().equals(contactId))
 				generateAck();
 		} else if (e instanceof MessageToRequestEvent) {
-			if (((MessageToRequestEvent) e).getContactId().equals(contactId))
-				generateRequest();
+			MessageToRequestEvent m = (MessageToRequestEvent) e;
+			if (m.getContactId().equals(contactId)) {
+				Collection<MessageId> ids = m.consumeIds();
+				if (ids != null)
+					writerTasks.add(new WriteRequest(new Request(ids)));
+			}
 		} else if (e instanceof LifecycleEvent) {
 			LifecycleEvent l = (LifecycleEvent) e;
 			if (l.getLifecycleState() == STOPPING) interrupt();
@@ -372,27 +369,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		}
 	}
 
-	private class GenerateRequest implements Runnable {
-
-		@DatabaseExecutor
-		@Override
-		public void run() {
-			if (interrupted) return;
-			if (!generateRequestQueued.getAndSet(false))
-				throw new AssertionError();
-			try {
-				Request r = db.transactionWithNullableResult(false, txn ->
-						db.generateRequest(txn, contactId, MAX_MESSAGE_IDS));
-				if (LOG.isLoggable(INFO))
-					LOG.info("Generated request: " + (r != null));
-				if (r != null) writerTasks.add(new WriteRequest(r));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				interrupt();
-			}
-		}
-	}
-
 	private class WriteRequest implements ThrowingRunnable<IOException> {
 
 		private final Request request;
@@ -407,7 +383,6 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 			if (interrupted) return;
 			recordWriter.writeRequest(request);
 			LOG.info("Sent request");
-			generateRequest();
 		}
 	}
 }

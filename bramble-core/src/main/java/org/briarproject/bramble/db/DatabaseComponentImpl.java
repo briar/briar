@@ -91,7 +91,6 @@ import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.UNKNOWN;
-import static org.briarproject.bramble.db.DatabaseConstants.MAX_OFFERED_MESSAGES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -443,21 +442,6 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		for (MessageId m : ids)
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		return new Offer(ids);
-	}
-
-	@Nullable
-	@Override
-	public Request generateRequest(Transaction transaction, ContactId c,
-			int maxMessages) throws DbException {
-		if (transaction.isReadOnly()) throw new IllegalArgumentException();
-		T txn = unbox(transaction);
-		if (!db.containsContact(txn, c))
-			throw new NoSuchContactException();
-		Collection<MessageId> ids =
-				db.getMessagesToRequest(txn, c, maxMessages);
-		if (ids.isEmpty()) return null;
-		db.removeOfferedMessages(txn, c, ids);
-		return new Request(ids);
 	}
 
 	@Nullable
@@ -835,21 +819,20 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		T txn = unbox(transaction);
 		if (!db.containsContact(txn, c))
 			throw new NoSuchContactException();
-		boolean ack = false, request = false;
-		int count = db.countOfferedMessages(txn, c);
+		boolean ack = false;
+		List<MessageId> request = new ArrayList<>(o.getMessageIds().size());
 		for (MessageId m : o.getMessageIds()) {
 			if (db.containsVisibleMessage(txn, c, m)) {
 				db.raiseSeenFlag(txn, c, m);
 				db.raiseAckFlag(txn, c, m);
 				ack = true;
-			} else if (count < MAX_OFFERED_MESSAGES) {
-				db.addOfferedMessage(txn, c, m);
-				request = true;
-				count++;
+			} else {
+				request.add(m);
 			}
 		}
 		if (ack) transaction.attach(new MessageToAckEvent(c));
-		if (request) transaction.attach(new MessageToRequestEvent(c));
+		if (!request.isEmpty())
+			transaction.attach(new MessageToRequestEvent(c, request));
 	}
 
 	@Override

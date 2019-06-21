@@ -182,14 +182,6 @@ public interface DatabaseComponent extends TransactionManager {
 			int maxLatency, boolean small) throws DbException;
 
 	/**
-	 * Returns a request for the given contact, or null if there are no
-	 * messages to request.
-	 */
-	@Nullable
-	Request generateRequest(Transaction txn, ContactId c, int maxMessages)
-			throws DbException;
-
-	/**
 	 * Returns a batch of messages for the given contact, with a total length
 	 * less than or equal to the given length, for transmission over a
 	 * transport with the given maximum latency. Only messages that have been

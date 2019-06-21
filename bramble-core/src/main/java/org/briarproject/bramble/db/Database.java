@@ -127,11 +127,6 @@ interface Database<T> {
 			MessageState dependentState) throws DbException;
 
 	/**
-	 * Records that a message has been offered by the given contact.
-	 */
-	void addOfferedMessage(T txn, ContactId c, MessageId m) throws DbException;
-
-	/**
 	 * Stores a pending contact.
 	 */
 	void addPendingContact(T txn, PendingContact p) throws DbException;
@@ -218,13 +213,6 @@ interface Database<T> {
 	 */
 	boolean containsVisibleMessage(T txn, ContactId c, MessageId m)
 			throws DbException;
-
-	/**
-	 * Returns the number of messages offered by the given contact.
-	 * <p/>
-	 * Read-only.
-	 */
-	int countOfferedMessages(T txn, ContactId c) throws DbException;
 
 	/**
 	 * Deletes the message with the given ID. Unlike
@@ -468,15 +456,6 @@ interface Database<T> {
 			int maxMessages, int maxLatency) throws DbException;
 
 	/**
-	 * Returns the IDs of some messages that are eligible to be requested from
-	 * the given contact, up to the given number of messages.
-	 * <p/>
-	 * Read-only.
-	 */
-	Collection<MessageId> getMessagesToRequest(T txn, ContactId c,
-			int maxMessages) throws DbException;
-
-	/**
 	 * Returns the IDs of some messages that are eligible to be sent to the
 	 * given contact, up to the given total length.
 	 * <p/>
@@ -655,13 +634,6 @@ interface Database<T> {
 	 * Removes a message (and all associated state) from the database.
 	 */
 	void removeMessage(T txn, MessageId m) throws DbException;
-
-	/**
-	 * Removes the given offered messages that were offered by the given
-	 * contact.
-	 */
-	void removeOfferedMessages(T txn, ContactId c,
-			Collection<MessageId> requested) throws DbException;
 
 	/**
 	 * Removes a pending contact (and all associated state) from the database.

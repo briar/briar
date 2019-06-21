@@ -41,7 +41,6 @@ import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
-import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.UTest.Result.INCONCLUSIVE;
 import static org.briarproject.bramble.test.UTest.Z_CRITICAL_0_1;
@@ -81,7 +80,6 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	private static final int METADATA_KEYS_PER_MESSAGE = 5;
 	private static final int METADATA_KEY_LENGTH = 10;
 	private static final int METADATA_VALUE_LENGTH = 100;
-	private static final int OFFERED_MESSAGES_PER_CONTACT = 100;
 
 	/**
 	 * How many benchmark iterations to run in each block.
@@ -188,16 +186,6 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 			Connection txn = db.startTransaction();
 			db.containsVisibleMessage(txn, pickRandom(contacts).getId(),
 					pickRandom(messages).getId());
-			db.commitTransaction(txn);
-		});
-	}
-
-	@Test
-	public void testCountOfferedMessages() throws Exception {
-		String name = "countOfferedMessages(T, ContactId)";
-		benchmark(name, db -> {
-			Connection txn = db.startTransaction();
-			db.countOfferedMessages(txn, pickRandom(contacts).getId());
 			db.commitTransaction(txn);
 		});
 	}
@@ -455,17 +443,6 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetMessagesToRequest() throws Exception {
-		String name = "getMessagesToRequest(T, ContactId, int)";
-		benchmark(name, db -> {
-			Connection txn = db.startTransaction();
-			db.getMessagesToRequest(txn, pickRandom(contacts).getId(),
-					MAX_MESSAGE_IDS);
-			db.commitTransaction(txn);
-		});
-	}
-
-	@Test
 	public void testGetMessagesToSend() throws Exception {
 		String name = "getMessagesToSend(T, ContactId, int)";
 		benchmark(name, db -> {
@@ -582,9 +559,6 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 					}
 					groupMessages.get(g.getId()).add(m.getId());
 				}
-			}
-			for (int j = 0; j < OFFERED_MESSAGES_PER_CONTACT; j++) {
-				db.addOfferedMessage(txn, c, new MessageId(getRandomId()));
 			}
 		}
 		for (int i = 0; i < LOCAL_GROUPS; i++) {

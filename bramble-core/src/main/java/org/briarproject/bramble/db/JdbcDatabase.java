@@ -220,15 +220,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 					+ " REFERENCES messages (messageId)"
 					+ " ON DELETE CASCADE)";
 
-	private static final String CREATE_OFFERS =
-			"CREATE TABLE offers"
-					+ " (messageId _HASH NOT NULL," // Not a foreign key
-					+ " contactId INT NOT NULL,"
-					+ " PRIMARY KEY (messageId, contactId),"
-					+ " FOREIGN KEY (contactId)"
-					+ " REFERENCES contacts (contactId)"
-					+ " ON DELETE CASCADE)";
-
 	private static final String CREATE_BLOCKS =
 			"CREATE TABLE blocks"
 					+ " (messageId _HASH NOT NULL,"
@@ -467,6 +458,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 	// Package access for testing
 	List<Migration<Connection>> getMigrations() {
 		return asList(
+				// TODO: Add migration that drops offers table
 				new Migration38_39(),
 				new Migration39_40(),
 				new Migration40_41(dbTypes),
@@ -521,7 +513,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGES));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_METADATA));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_MESSAGE_DEPENDENCIES));
-			s.executeUpdate(dbTypes.replaceTypes(CREATE_OFFERS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_BLOCKS));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_STATUSES));
 			s.executeUpdate(dbTypes.replaceTypes(CREATE_TRANSPORTS));
@@ -753,9 +744,8 @@ abstract class JdbcDatabase implements Database<Connection> {
 				boolean messageShared = rs.getBoolean(4);
 				int length = rs.getInt(5);
 				boolean deleted = rs.getBoolean(6);
-				boolean seen = removeOfferedMessage(txn, c, id);
 				addStatus(txn, id, c, g, timestamp, length, state, groupShared,
-						messageShared, deleted, seen);
+						messageShared, deleted, false);
 			}
 			rs.close();
 			ps.close();
@@ -830,8 +820,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 					getGroupVisibility(txn, m.getGroupId());
 			for (Entry<ContactId, Boolean> e : visibility.entrySet()) {
 				ContactId c = e.getKey();
-				boolean offered = removeOfferedMessage(txn, c, m.getId());
-				boolean seen = offered || c.equals(sender);
+				boolean seen = c.equals(sender);
 				addStatus(txn, m.getId(), c, m.getGroupId(), m.getTimestamp(),
 						m.getRawLength(), state, e.getValue(), shared, false,
 						seen);
@@ -848,37 +837,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			if (affected < 0) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void addOfferedMessage(Connection txn, ContactId c, MessageId m)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT NULL FROM offers"
-					+ " WHERE messageId = ? AND contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			rs = ps.executeQuery();
-			boolean found = rs.next();
-			if (rs.next()) throw new DbStateException();
-			rs.close();
-			ps.close();
-			if (found) return;
-			sql = "INSERT INTO offers (messageId, contactId) VALUES (?, ?)";
-			ps = txn.prepareStatement(sql);
-			ps.setBytes(1, m.getBytes());
-			ps.setInt(2, c.getInt());
-			int affected = ps.executeUpdate();
-			if (affected != 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
 			throw new DbException(e);
 		}
@@ -1278,30 +1236,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			rs.close();
 			ps.close();
 			return found;
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public int countOfferedMessages(Connection txn, ContactId c)
-			throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT COUNT (messageId) FROM offers "
-					+ " WHERE contactId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			rs = ps.executeQuery();
-			if (!rs.next()) throw new DbException();
-			int count = rs.getInt(1);
-			if (rs.next()) throw new DbException();
-			rs.close();
-			ps.close();
-			return count;
 		} catch (SQLException e) {
 			tryToClose(rs, LOG, WARNING);
 			tryToClose(ps, LOG, WARNING);
@@ -2178,31 +2112,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 	}
 
 	@Override
-	public Collection<MessageId> getMessagesToRequest(Connection txn,
-			ContactId c, int maxMessages) throws DbException {
-		PreparedStatement ps = null;
-		ResultSet rs = null;
-		try {
-			String sql = "SELECT messageId FROM offers"
-					+ " WHERE contactId = ?"
-					+ " LIMIT ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setInt(2, maxMessages);
-			rs = ps.executeQuery();
-			List<MessageId> ids = new ArrayList<>();
-			while (rs.next()) ids.add(new MessageId(rs.getBytes(1)));
-			rs.close();
-			ps.close();
-			return ids;
-		} catch (SQLException e) {
-			tryToClose(rs, LOG, WARNING);
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
 	public Collection<MessageId> getMessagesToSend(Connection txn, ContactId c,
 			int maxLength, int maxLatency) throws DbException {
 		long now = clock.currentTimeMillis();
@@ -2998,50 +2907,6 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, m.getBytes());
 			int affected = ps.executeUpdate();
 			if (affected != 1) throw new DbStateException();
-			ps.close();
-		} catch (SQLException e) {
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	private boolean removeOfferedMessage(Connection txn, ContactId c,
-			MessageId m) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "DELETE FROM offers"
-					+ " WHERE contactId = ? AND messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			ps.setBytes(2, m.getBytes());
-			int affected = ps.executeUpdate();
-			if (affected < 0 || affected > 1) throw new DbStateException();
-			ps.close();
-			return affected == 1;
-		} catch (SQLException e) {
-			tryToClose(ps, LOG, WARNING);
-			throw new DbException(e);
-		}
-	}
-
-	@Override
-	public void removeOfferedMessages(Connection txn, ContactId c,
-			Collection<MessageId> requested) throws DbException {
-		PreparedStatement ps = null;
-		try {
-			String sql = "DELETE FROM offers"
-					+ " WHERE contactId = ? AND messageId = ?";
-			ps = txn.prepareStatement(sql);
-			ps.setInt(1, c.getInt());
-			for (MessageId m : requested) {
-				ps.setBytes(2, m.getBytes());
-				ps.addBatch();
-			}
-			int[] batchAffected = ps.executeBatch();
-			if (batchAffected.length != requested.size())
-				throw new DbStateException();
-			for (int rows : batchAffected)
-				if (rows != 1) throw new DbStateException();
 			ps.close();
 		} catch (SQLException e) {
 			tryToClose(ps, LOG, WARNING);
