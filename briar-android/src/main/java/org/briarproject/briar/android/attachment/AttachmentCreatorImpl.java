@@ -47,6 +47,7 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	private final Executor ioExecutor;
 	private final MessagingManager messagingManager;
 	private final AttachmentRetriever retriever;
+	private final ImageSizeCalculator imageSizeCalculator;
 
 	private final CopyOnWriteArrayList<Uri> uris = new CopyOnWriteArrayList<>();
 	private final CopyOnWriteArrayList<AttachmentItemResult> itemResults =
@@ -60,11 +61,13 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 
 	@Inject
 	AttachmentCreatorImpl(Application app, @IoExecutor Executor ioExecutor,
-			MessagingManager messagingManager, AttachmentRetriever retriever) {
+			MessagingManager messagingManager, AttachmentRetriever retriever,
+			ImageSizeCalculator imageSizeCalculator) {
 		this.app = app;
 		this.ioExecutor = ioExecutor;
 		this.messagingManager = messagingManager;
 		this.retriever = retriever;
+		this.imageSizeCalculator = imageSizeCalculator;
 	}
 
 	@Override
@@ -78,7 +81,8 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 			if (id == null) throw new IllegalStateException();
 			boolean needsSize = uris.size() == 1;
 			task = new AttachmentCreationTask(messagingManager,
-					app.getContentResolver(), this, id, uris, needsSize);
+					app.getContentResolver(), this, imageSizeCalculator, id,
+					uris, needsSize);
 			ioExecutor.execute(() -> task.storeAttachments());
 		});
 		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
