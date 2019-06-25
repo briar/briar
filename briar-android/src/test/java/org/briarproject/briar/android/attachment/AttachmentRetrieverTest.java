@@ -27,7 +27,7 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 	private final MessagingManager messagingManager =
 			context.mock(MessagingManager.class);
 	private final ImageHelper imageHelper = context.mock(ImageHelper.class);
-	private final AttachmentRetriever retriever = new AttachmentRetriever(
+	private final AttachmentRetriever retriever = new AttachmentRetrieverImpl(
 			messagingManager,
 			dimensions,
 			imageHelper

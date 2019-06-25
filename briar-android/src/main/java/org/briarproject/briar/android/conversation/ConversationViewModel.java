@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
@@ -51,7 +50,6 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.android.attachment.AttachmentDimensions.getAttachmentDimensions;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
@@ -101,10 +99,13 @@ public class ConversationViewModel extends AndroidViewModel
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
-			@IoExecutor Executor ioExecutor, TransactionManager db,
-			MessagingManager messagingManager, ContactManager contactManager,
+			TransactionManager db,
+			MessagingManager messagingManager,
+			ContactManager contactManager,
 			SettingsManager settingsManager,
-			PrivateMessageFactory privateMessageFactory) {
+			PrivateMessageFactory privateMessageFactory,
+			AttachmentRetriever attachmentRetriever,
+			AttachmentCreator attachmentCreator) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.db = db;
@@ -112,10 +113,8 @@ public class ConversationViewModel extends AndroidViewModel
 		this.contactManager = contactManager;
 		this.settingsManager = settingsManager;
 		this.privateMessageFactory = privateMessageFactory;
-		this.attachmentRetriever = new AttachmentRetriever(messagingManager,
-				getAttachmentDimensions(application.getResources()));
-		this.attachmentCreator = new AttachmentCreator(getApplication(),
-				ioExecutor, messagingManager, attachmentRetriever);
+		this.attachmentRetriever = attachmentRetriever;
+		this.attachmentCreator = attachmentCreator;
 		messagingGroupId = Transformations
 				.map(contact, c -> messagingManager.getContactGroup(c).getId());
 		contactDeleted.setValue(false);

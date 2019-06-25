@@ -30,6 +30,7 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
 import org.briarproject.briar.android.reporting.BriarReportSender;
@@ -68,7 +69,8 @@ import dagger.Component;
 		BriarCoreModule.class,
 		BrambleAndroidModule.class,
 		BriarAccountModule.class,
-		AppModule.class
+		AppModule.class,
+		AttachmentModule.class
 })
 public interface AndroidComponent
 		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
