@@ -39,10 +39,11 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 
 	@Inject
 	AttachmentRetrieverImpl(MessagingManager messagingManager,
-			AttachmentDimensions dimensions, ImageHelper imageHelper) {
+			AttachmentDimensions dimensions, ImageHelper imageHelper,
+			ImageSizeCalculator imageSizeCalculator) {
 		this.messagingManager = messagingManager;
 		this.imageHelper = imageHelper;
-		imageSizeCalculator = new ImageSizeCalculator(imageHelper);
+		this.imageSizeCalculator = imageSizeCalculator;
 		defaultSize = dimensions.defaultSize;
 		minWidth = dimensions.minWidth;
 		maxWidth = dimensions.maxWidth;

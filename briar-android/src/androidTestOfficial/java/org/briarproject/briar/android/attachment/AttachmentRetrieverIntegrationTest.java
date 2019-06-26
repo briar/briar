@@ -47,9 +47,10 @@ public class AttachmentRetrieverIntegrationTest {
 	);
 	private final MessageId msgId = new MessageId(getRandomId());
 
+	private final ImageHelper imageHelper = new ImageHelperImpl();
 	private final AttachmentRetriever retriever =
-			new AttachmentRetrieverImpl(null, dimensions,
-					new ImageHelperImpl());
+			new AttachmentRetrieverImpl(null, dimensions, imageHelper,
+					new ImageSizeCalculator(imageHelper));
 
 	@Test
 	public void testSmallJpegImage() throws Exception {

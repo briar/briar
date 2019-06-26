@@ -2,11 +2,11 @@ package org.briarproject.briar.android.attachment;
 
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
-import org.briarproject.briar.android.attachment.ImageHelper.DecodeResult;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.jmock.Expectations;
+import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
@@ -24,14 +24,18 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 			100, 50, 200, 75, 300
 	);
 	private final MessageId msgId = new MessageId(getRandomId());
-	private final MessagingManager messagingManager =
-			context.mock(MessagingManager.class);
 	private final ImageHelper imageHelper = context.mock(ImageHelper.class);
-	private final AttachmentRetriever retriever = new AttachmentRetrieverImpl(
-			messagingManager,
-			dimensions,
-			imageHelper
-	);
+	private final ImageSizeCalculator imageSizeCalculator;
+	private final AttachmentRetriever retriever;
+
+	public AttachmentRetrieverTest() {
+		context.setImposteriser(ClassImposteriser.INSTANCE);
+		MessagingManager messagingManager =
+				context.mock(MessagingManager.class);
+		imageSizeCalculator = context.mock(ImageSizeCalculator.class);
+		retriever = new AttachmentRetrieverImpl(messagingManager, dimensions,
+				imageHelper, imageSizeCalculator);
+	}
 
 	@Test
 	public void testNoSize() {
@@ -69,8 +73,9 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 		Attachment attachment = getAttachment(mimeType);
 
 		context.checking(new Expectations() {{
-			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
-			will(returnValue(new DecodeResult(160, 240, mimeType)));
+			oneOf(imageSizeCalculator).getSize(with(any(InputStream.class)),
+					with(mimeType));
+			will(returnValue(new Size(160, 240, mimeType)));
 			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue("jpg"));
 		}});
@@ -92,8 +97,9 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 		Attachment attachment = getAttachment(mimeType);
 
 		context.checking(new Expectations() {{
-			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
-			will(returnValue(new DecodeResult(1728, 2592, mimeType)));
+			oneOf(imageSizeCalculator).getSize(with(any(InputStream.class)),
+					with(mimeType));
+			will(returnValue(new Size(1728, 2592, mimeType)));
 			oneOf(imageHelper).getExtensionFromMimeType(mimeType);
 			will(returnValue("jpg"));
 		}});
@@ -108,11 +114,13 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 
 	@Test
 	public void testMalformedError() {
-		Attachment attachment = getAttachment("image/jpeg");
+		String mimeType = "image/jpeg";
+		Attachment attachment = getAttachment(mimeType);
 
 		context.checking(new Expectations() {{
-			oneOf(imageHelper).decodeStream(with(any(InputStream.class)));
-			will(returnValue(new DecodeResult(0, 0, "")));
+			oneOf(imageSizeCalculator).getSize(with(any(InputStream.class)),
+					with(mimeType));
+			will(returnValue(new Size()));
 			oneOf(imageHelper).getExtensionFromMimeType("");
 			will(returnValue(null));
 		}});
