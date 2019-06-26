@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-public class AttachmentDimensions {
+class AttachmentDimensions {
 
 	final int defaultSize;
 	final int minWidth, maxWidth;
@@ -26,7 +26,7 @@ public class AttachmentDimensions {
 		this.maxHeight = maxHeight;
 	}
 
-	public static AttachmentDimensions getAttachmentDimensions(Resources res) {
+	static AttachmentDimensions getAttachmentDimensions(Resources res) {
 		int defaultSize =
 				res.getDimensionPixelSize(R.dimen.message_bubble_image_default);
 		int minWidth = res.getDimensionPixelSize(

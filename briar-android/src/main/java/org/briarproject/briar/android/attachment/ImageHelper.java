@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.io.InputStream;
 
 @NotNullByDefault
-interface ImageHelper {
+public interface ImageHelper {
 
 	DecodeResult decodeStream(InputStream is);
 
