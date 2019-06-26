@@ -160,15 +160,15 @@ class AttachmentCreationTask {
 		if (LOG.isLoggable(INFO))
 			LOG.info("Original image size: " + size.width + "x" + size.height);
 		int dimension = Math.max(size.width, size.height);
-		int scale = 1;
+		int inSampleSize = 1;
 		while (dimension > MAX_ATTACHMENT_DIMENSION) {
-			scale *= 2;
+			inSampleSize *= 2;
 			dimension /= 2;
 		}
 		if (LOG.isLoggable(INFO))
-			LOG.info("Scaling attachment by factor of " + scale);
+			LOG.info("Scaling attachment by factor of " + inSampleSize);
 		Options options = new Options();
-		options.inSampleSize = scale;
+		options.inSampleSize = inSampleSize;
 		Bitmap bitmap = decodeStream(is, null, options);
 		if (bitmap == null) throw new IOException();
 		return bitmap;
