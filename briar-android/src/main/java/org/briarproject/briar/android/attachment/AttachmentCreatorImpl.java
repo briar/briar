@@ -76,6 +76,8 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 			LiveData<GroupId> groupId, Collection<Uri> newUris) {
 		if (task != null || result != null || !uris.isEmpty())
 			throw new IllegalStateException();
+		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
+		this.result = result;
 		uris.addAll(newUris);
 		observeForeverOnce(groupId, id -> {
 			if (id == null) throw new IllegalStateException();
@@ -85,8 +87,6 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 					uris, needsSize);
 			ioExecutor.execute(() -> task.storeAttachments());
 		});
-		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
-		this.result = result;
 		return result;
 	}
 
