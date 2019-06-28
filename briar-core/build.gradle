@@ -10,7 +10,7 @@ apply from: '../dagger.gradle'
 
 dependencies {
 	implementation project(path: ':briar-api', configuration: 'default')
-	implementation 'com.rometools:rome:1.10.0'
+	implementation 'com.rometools:rome:1.12.1'
 	implementation 'org.jdom:jdom2:2.0.6'
 	implementation 'com.squareup.okhttp3:okhttp:3.12.2'
 	implementation 'org.jsoup:jsoup:1.11.3'
