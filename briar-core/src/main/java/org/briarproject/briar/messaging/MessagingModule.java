@@ -65,7 +65,7 @@ public class MessagingModule {
 		conversationManager.registerConversationClient(messagingManager);
 		// Advertise the current or previous minor version depending on the
 		// feature flag
-		int minorVersion = featureFlags.shouldEnableImageAttachments() ? 1 : 0;
+		int minorVersion = featureFlags.shouldEnableImageAttachments() ? 2 : 0;
 		clientVersioningManager.registerClient(CLIENT_ID, MAJOR_VERSION,
 				minorVersion, messagingManager);
 		return messagingManager;
