@@ -118,7 +118,9 @@
   <string name="message_hint">Idatzi mezua</string>
   <string name="image_caption_hint">Gehitu epigrafea (aukerakoa)</string>
   <string name="image_attach">Erantsi irudia</string>
-  <string name="image_attach_error">Ezin izan da irudia erantsi</string>
+  <string name="image_attach_error">Ezin izan dira irudiak erantsi</string>
+  <string name="image_attach_error_too_big">Irudia handiegia da. Muga %d MB da.</string>
+  <string name="image_attach_error_invalid_mime_type">Onartu gabeko irudi formatua: %s</string>
   <string name="set_contact_alias">Aldatu kontaktuaren izena</string>
   <string name="set_contact_alias_hint">Kontaktuaren izena</string>
   <string name="set_alias_button">Aldatu</string>
@@ -138,6 +140,7 @@
   <string name="dialog_title_image_support">Orain irudiak bidali ahal dizkiozu eranskin gisa kontaktu honei</string>
   <string name="dialog_message_image_support">Sakatu ikono hau irudiak eransteko.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Gehitu inguruko kontaktua</string>
   <string name="face_to_face">Kontaktu gisa gehitu nahi duzun pertsonarekin aurrez aurre egon behar duzu.\n\nHonek etorkizunean inork zure itxurak egitea edo zure mezuak irakurtzea eragotziko du.</string>
   <string name="continue_button">Jarraitu</string>
   <string name="try_again_button">Saiatu berriro</string>
@@ -155,14 +158,66 @@
   <string name="connection_error_explanation">Egiaztatu biak Wi-Fi sare berera konektatuta zaudetela.</string>
   <string name="connection_error_feedback">Arazoa  mantentzen bada, mesedez <a href="feedback">bidali iruzkin bat</a> aplikazioa hobetzen laguntzeko.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Gehitu urruneko kontaktua</string>
+  <string name="add_contact_nearby_title">Gehitu inguruko kontaktua</string>
+  <string name="add_contact_remotely_title">Gehitu urruneko kontaktua</string>
+  <string name="contact_name_hint">Eman ezizena kontaktuari</string>
+  <string name="contact_link_intro">Sartu zure kontaktuaren ezizena hemen</string>
+  <string name="contact_link_hint">Kontaktuaren esteka</string>
   <string name="paste_button">Itsatsi</string>
+  <string name="add_contact_button">Gehitu kontaktua</string>
   <string name="copy_button">Kopiatu</string>
   <string name="share_button">Elkarbanatu</string>
+  <string name="send_link_title">Partekatu estekak</string>
+  <string name="add_contact_choose_nickname">Aukeratu ezizena</string>
+  <string name="add_contact_choose_a_nickname">Sartu ezizen bat</string>
+  <string name="nickname_intro">Eman ezizena zure kontaktuari. Zuk ikusi dezakezu, beste inork ez</string>
+  <string name="your_link">Eman esteka hau gehitu nahi duzun kontaktuari</string>
+  <string name="link_clip_label">Briar esteka</string>
+  <string name="link_copied_toast">Esteka kopiatuta</string>
+  <string name="adding_contact_error">Errore bat gertatu da kontaktua gehitzean.</string>
+  <string name="pending_contact_requests_snackbar">Kontaktu eskaerak daude aztertzeke</string>
+  <string name="pending_contact_requests">Kontaktu eskaerak aztertzeke</string>
+  <string name="no_pending_contacts">Ez dago kontakturik aztertzeke</string>
   <string name="add_contact_remote_connecting">Elkartzen</string>
+  <string name="waiting_for_contact_to_come_online">Kontaktua konektatu bitartean zain...</string>
   <string name="connecting">Elkartzen</string>
+  <string name="adding_contact">Kontaktua gehitzen...</string>
+  <string name="adding_contact_failed">Kontaktua gehitzeak huts egin du</string>
+  <string name="dialog_title_remove_pending_contact">Berretsi kentzea</string>
+  <string name="dialog_message_remove_pending_contact">Kontaktu hau gehitzen ari da oraindik. orain kentzen baduzu, ez da gehituko.</string>
+  <string name="own_link_error">Sartu zure kontaktuaren esteka, ez zurea</string>
+  <string name="nickname_missing">Sartu ezizen bat</string>
+  <string name="invalid_link">Esteka baliogabea</string>
+  <string name="unsupported_link">Esteka hau Briar-en bertsio berriago batetik dator. Eguneratu azken bertsiora eta saiatu berriro.</string>
+  <string name="intent_own_link">Zure esteka ireki duzu. Erabili gehitu nahi duzun kontaktuarena!</string>
+  <string name="missing_link">Sartu esteka bat</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Kontaktu berria gehitu da</item>
+    <item quantity="other">%d kontaktu berri gehitu dira.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Kontaktu hau gehitzeak ohi baino denbora gehiago hartzen ari da</string>
+  <string name="adding_contact_slow_title">Ezin da kontaktuarekin kontaktatu</string>
+  <string name="adding_contact_slow_text">Kontaktu hau gehitzeak ohi baino denbora gehiago hartzen du.\n\nEgiaztatu kontaktua esteka jaso duela eta zu gehitu zaituela:</string>
+  <string name="offline_state">Internet konexiorik ez</string>
+  <string name="duplicate_link_dialog_title">Bikoiztutako esteka</string>
+  <string name="duplicate_link_dialog_text_1">Baduzu kontaktu bat aztertzeke esteka honekin: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Ziur %s eta %s pertsona bera direla?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Pertsona bera</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Pertsona desberdina</string>
+  <string name="duplicate_link_dialog_text_3">%s eta %s erabiltzaileek esteka bera bidali dizute.\n\nBietako batek agian zure kontaktuak zeintzuk diren asmatu nahi du.\n\nEz esan esteka bera jaso duzula beste norbaitengandik.</string>
+  <string name="pending_contact_updated_toast">Aztertzeke zegoen kontaktua eguneratu da</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Aurkeztu zure kontaktuak</string>
   <string name="introduction_onboarding_text">Zure kontaktuak elkarren artean aurkez ditzakezu, Briar bidez konektatzeko aurrez aurre egon behar izan ez dezaten.</string>

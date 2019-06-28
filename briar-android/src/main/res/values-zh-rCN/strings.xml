@@ -114,6 +114,8 @@
   <string name="image_caption_hint">添加一段描述（可选）</string>
   <string name="image_attach">附加图片</string>
   <string name="image_attach_error">无法附加图片</string>
+  <string name="image_attach_error_too_big">图片过大。上限为 %d MB。</string>
+  <string name="image_attach_error_invalid_mime_type">不支持的图片格式：%s</string>
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
   <string name="set_alias_button">更改</string>
@@ -133,6 +135,7 @@
   <string name="dialog_title_image_support">你现在可以向此联系人发送图片</string>
   <string name="dialog_message_image_support">轻按此图标即可附加图片。</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">添加附近的联系人</string>
   <string name="face_to_face">您必须面对面添加联系人。\n\n这样将防止未来他人冒充您的身份并查看您的信息。</string>
   <string name="continue_button">继续</string>
   <string name="try_again_button">重试</string>
@@ -150,8 +153,65 @@
   <string name="connection_error_explanation">请确保你们连接到了同一个无线局域网中。</string>
   <string name="connection_error_feedback">如果该问题仍存在，请 <a href="feedback">发送反馈</a> 帮助我们改善应用。</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">添加远处的联系人</string>
+  <string name="add_contact_nearby_title">添加附近的联系人</string>
+  <string name="add_contact_remotely_title">添加远处的联系人</string>
+  <string name="contact_name_hint">添加联系人昵称</string>
+  <string name="contact_link_intro">在此输入您联系人的链接</string>
+  <string name="contact_link_hint">联系人的链接</string>
+  <string name="paste_button">粘贴</string>
+  <string name="add_contact_button">添加联系人</string>
+  <string name="copy_button">复制</string>
+  <string name="share_button">分享</string>
+  <string name="send_link_title">交换链接</string>
+  <string name="add_contact_choose_nickname">选择昵称</string>
+  <string name="add_contact_choose_a_nickname">输入昵称</string>
+  <string name="nickname_intro">为联系人添加一个昵称。仅您可见。</string>
+  <string name="your_link">将此链接发送给您希望添加的联系人</string>
+  <string name="link_clip_label">Briar 链接</string>
+  <string name="link_copied_toast">链接已复制</string>
+  <string name="adding_contact_error">添加联系人时发生错误。</string>
+  <string name="pending_contact_requests_snackbar">有待处理的联系人请求</string>
+  <string name="pending_contact_requests">待处理的联系人请求</string>
+  <string name="no_pending_contacts">没有待处理的联系人</string>
+  <string name="add_contact_remote_connecting">连接中……</string>
+  <string name="waiting_for_contact_to_come_online">正在等待联系人上线……</string>
+  <string name="connecting">连接中……</string>
+  <string name="adding_contact">正在添加联系人……</string>
+  <string name="adding_contact_failed">添加联系人失败</string>
+  <string name="dialog_title_remove_pending_contact">确认移除</string>
+  <string name="dialog_message_remove_pending_contact">这个联系人还在添加中。如果您现在移除，则此联系人不会被添加。</string>
+  <string name="own_link_error">输入您联系人的链接，不要输入您自己的</string>
+  <string name="nickname_missing">请输入一个昵称</string>
+  <string name="invalid_link">无效的链接</string>
+  <string name="unsupported_link">这条链接来自更新版本的 Briar。请升级到最新版本后并重试。</string>
+  <string name="intent_own_link">您打开了自己的链接。请使用您希望添加的联系人的链接！</string>
+  <string name="missing_link">请输入一个链接</string>
   <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="other">%d 新联系人已添加。</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">添加此联系人比通常花费了更多时间</string>
+  <string name="adding_contact_slow_title">无法连接到联系人</string>
+  <string name="adding_contact_slow_text">添加此联系人比通常花费了更多时间。\n\n请检查您的联系人是否收到您的链接并已添加您：</string>
+  <string name="offline_state">无网络连接</string>
+  <string name="duplicate_link_dialog_title">重复的链接</string>
+  <string name="duplicate_link_dialog_text_1">您已经有此链接的待处理联系人：</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s 和 %s 是同一个人吗？</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">同一个人</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">不同的人</string>
+  <string name="duplicate_link_dialog_text_3">%s 和 %s 给你发送了相同的链接。\n\n其中一个人可能企图找出谁是你的联系人。\n\n不要告诉他们你从其他人那里收到了相同的链接。</string>
+  <string name="pending_contact_updated_toast">待处理联系人已更新</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">介绍您的联系人</string>
   <string name="introduction_onboarding_text">您可以互相介绍您的联系人，这样他们可以直接在 Briar 上建立联系而不必亲自见面。</string>

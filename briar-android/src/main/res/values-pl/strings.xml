@@ -125,6 +125,11 @@
   <string name="date_no_private_messages">Brak wiadomości.</string>
   <string name="no_private_messages">Brak wiadomości do pokazania</string>
   <string name="message_hint">Typ wiadomości</string>
+  <string name="image_caption_hint">Dodaj podpis (opcjonalne)</string>
+  <string name="image_attach">Załącz zdjęcie</string>
+  <string name="image_attach_error_too_big">Zdjęcie jest zbyt duże. Limit wynosi %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Format zdjęcia jest nieobsługiwany: %s</string>
+  <string name="set_contact_alias">Zmień imię kontaktu</string>
   <string name="set_contact_alias_hint">Nazwa kontaktu</string>
   <string name="set_alias_button">Zmień</string>
   <string name="delete_contact">Usuń kontakt</string>
@@ -134,6 +139,13 @@
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">You</string>
   <string name="save_image">Zapisz obrazek</string>
+  <string name="dialog_title_save_image">Zapisać Zdjęcie?</string>
+  <string name="dialog_message_save_image">Zapisanie tego zdjęcia pozwoli innym aplikacjom na dostęp do niego.\n\nJesteś pewien, że chcesz go zapisać?</string>
+  <string name="save_image_success">Zdjęcie zostało zapisane</string>
+  <string name="save_image_error">Nie udało się zapisać zdjęcia</string>
+  <string name="dialog_title_no_image_support">Zdjęcie Niedostępne</string>
+  <string name="dialog_message_no_image_support">Briar twojego kontaktu nie obsługuje jeszcze załączników zdjęć. Jak wykonają aktualizację, zobaczysz inną ikonę.</string>
+  <string name="dialog_title_image_support">Możesz teraz wysyłać zdjęcia do tego kontaktu</string>
   <!--Adding Contacts-->
   <string name="face_to_face">Musisz spotkać się z osobą którą chcesz dodać jako kontakt.\n\nTo uniemożliwi komukolwiek podszyć się pod Ciebie lub czytać wysyłane wiadomości.</string>
   <string name="continue_button">Kontynuuj</string>
@@ -153,11 +165,21 @@
   <string name="paste_button">Wklej</string>
   <string name="copy_button">Kopiuj</string>
   <string name="share_button">Udostępnij</string>
+  <string name="link_copied_toast">Link skopiowany</string>
   <string name="add_contact_remote_connecting">Trwa łączenie...</string>
   <string name="connecting">Trwa łączenie...</string>
+  <string name="missing_link">Proszę, wprowadź link</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="offline_state">Brak połączenia z Internetem</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Udostępnij swoje kontakty.</string>
   <string name="introduction_onboarding_text">Możesz udostępniać kontakty, tak aby osoby nie musiały spotykać się osobiście.</string>
@@ -361,10 +383,14 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automatycznie: %1$s (za %2$s)</string>
   <string name="tor_mobile_data_title">Używaj danych komórkowych</string>
+  <string name="tor_only_when_charging_title">Łącz przez Internet (Tor) tylko podczas ładowania</string>
+  <string name="tor_only_when_charging_summary">Wyłącza połączenie Internetowe, gdy urządzenie pracuje na baterii</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Bezpieczeństwo</string>
+  <string name="pref_lock_title">Blokada aplikacji</string>
   <string name="pref_lock_summary">Użyj blokady ekranu urządzenia by chronić Briar gdy zalogowany</string>
   <string name="pref_lock_disabled_summary">Aby użyć tej funkcji skonfiguruj blokadę ekranu na swoim urządzeniu</string>
+  <string name="pref_lock_timeout_title">Czas bezczynności aplikacji</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Gdy nie używam Briar, automatycznie zablokuj po %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -393,6 +419,7 @@
   <string name="panic_app_setting_none">Brak</string>
   <string name="dialog_title_connect_panic_app">Potwierdź Awaryjną Aplikację</string>
   <string name="dialog_message_connect_panic_app">Czy na pewno chcesz pozwolić %1$s aby działała jako przycisk wyjścia awaryjnego?</string>
+  <string name="panic_setting_destructive_action">Działania Destrukcyjne</string>
   <string name="panic_setting_signout_title">Wyloguj się</string>
   <string name="panic_setting_signout_summary">Wyloguj się z Briar jeśli przycisk zostanie wciśnięty</string>
   <string name="purge_setting_title">Skasuj Konto</string>
@@ -427,6 +454,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Uważaj na link</string>
   <string name="link_warning_intro">Otwierasz link w zewnętrznej aplikacji.</string>
+  <string name="link_warning_text">Może to posłużyć do twojej identyfikacji. Zastanów się czy ufasz osobie która wysłała Ci ten link i rozważ otwarcie go za pomocą Przeglądarki Tor.</string>
   <string name="link_warning_open_link">Otwórz Link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Zgłoś błąd w Briar</string>
@@ -454,6 +482,7 @@
   <string name="permission_camera_title">Dostęp do aparatu</string>
   <string name="permission_camera_request_body">Aby zeskanować kod QR, Briar potrzebuje mieć dostęp do aparatu.</string>
   <string name="permission_camera_location_title">Kamera i lokalizacja</string>
+  <string name="permission_camera_location_request_body">Aby zeskanować kod QR, Briar potrzebuje dostępu do kamery.\n\nAby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do Twojej lokalizacji.\n\nBriar nie przechowuje Twojej lokalizacji ani nie udostępnia jej nikomu.</string>
   <string name="permission_camera_denied_body">Odmówiłeś dostępu do kamery, lecz dodawanie kontaktów tego wymaga.\n\nProszę udzielić dostępu.</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Pokaż QR na pełnym ekranie</string>
@@ -466,9 +495,15 @@
   <string name="lock_tap_to_unlock">Dotknij by odblokować</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alicja</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Karol</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Hej Bob!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Hej Alicja! Dzięki za opowiedzenie mi o Briarze!</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Nie ma problemu, mam nadzieję, że ci się podoba 😀</string>
 </resources>

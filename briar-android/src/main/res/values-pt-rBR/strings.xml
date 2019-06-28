@@ -116,6 +116,12 @@
   <string name="date_no_private_messages">Sem Mensagens</string>
   <string name="no_private_messages">Nenhuma mensagem para ser exibida</string>
   <string name="message_hint">Digite a mensagem</string>
+  <string name="image_caption_hint">Adicione uma legenda (opcional)</string>
+  <string name="image_attach">Anexar imagem</string>
+  <string name="image_attach_error">Não foi possível anexar imagem(s)</string>
+  <string name="image_attach_error_too_big">Imagem muito grande. O limite é de %dMB. </string>
+  <string name="image_attach_error_invalid_mime_type">Formato da imagem não suportado: %s</string>
+  <string name="set_contact_alias">Alterar nome do contato</string>
   <string name="set_contact_alias_hint">Nome de contato</string>
   <string name="set_alias_button">Trocar</string>
   <string name="delete_contact">Apagar contato</string>
@@ -124,7 +130,17 @@
   <string name="contact_deleted_toast">Contato apagado</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Você</string>
+  <string name="save_image">Salvar imagem</string>
+  <string name="dialog_title_save_image">Salvar imagem?</string>
+  <string name="dialog_message_save_image">Salvando essa imagem irá permitir que outros aplicativos a acessem.\n\nVocê tem certeza que quer salvar? </string>
+  <string name="save_image_success">Imagem salva</string>
+  <string name="save_image_error">Não foi possível salvar imagem</string>
+  <string name="dialog_title_no_image_support">Imagens indisponíveis</string>
+  <string name="dialog_message_no_image_support">Seu contato do Briar ainda não suporta anexo de imagens. Quando ele atualizar  um você verá ícone diferente.</string>
+  <string name="dialog_title_image_support">Você agora pode enviar imagens para esse contato</string>
+  <string name="dialog_message_image_support">Toque nesse ícone para anexar imagens.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Adicionar contato que está próximo</string>
   <string name="face_to_face">Você deve estar frente-a-frente com a pessoa que deseja adicionar como contato.\n\nIsso evita que alguém se passe por você ou leia suas mensagens no futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Tente novamente</string>
@@ -142,15 +158,66 @@
   <string name="connection_error_explanation">Por favor. certifique se ambos estão conectados na mesma rede Wi-Fi.</string>
   <string name="connection_error_feedback">Se o problema persistir, for favor <a href="feedback">enviar feedback</a> para nós ajudar a melhor o app.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Adicionar contato à distância</string>
+  <string name="add_contact_nearby_title">Adicionar contato que está próximo</string>
+  <string name="add_contact_remotely_title">Adicionar contato à distância</string>
+  <string name="contact_name_hint">De um apelido ao contato</string>
+  <string name="contact_link_intro">Insira o link do seu contato aqui</string>
+  <string name="contact_link_hint">Link do contato</string>
   <string name="paste_button">Colar</string>
+  <string name="add_contact_button">Adicionar contato</string>
   <string name="copy_button">Copiar</string>
   <string name="share_button">Compartilhar</string>
+  <string name="send_link_title">Passem os links</string>
+  <string name="add_contact_choose_nickname">Escolha um apelido</string>
+  <string name="add_contact_choose_a_nickname">Insira um apelido</string>
+  <string name="nickname_intro">De um apelido ao contato. Somente você pode vê-lo. </string>
+  <string name="your_link">Passe esse link para o contato que você quer adicionar</string>
+  <string name="link_clip_label">Link Briar</string>
+  <string name="link_copied_toast">Link copiado</string>
+  <string name="adding_contact_error">Ocorreu um erro ao adicionar o contato.</string>
+  <string name="pending_contact_requests_snackbar">Existem solicitações de contato pendentes</string>
+  <string name="pending_contact_requests">Solicitações de contatos pendentes</string>
+  <string name="no_pending_contacts">Sem contatos pendentes</string>
   <string name="add_contact_remote_connecting">Conectando...</string>
+  <string name="waiting_for_contact_to_come_online">Esperando pelo usuário estar online ...</string>
   <string name="connecting">Conectando...</string>
+  <string name="adding_contact">Adicionando contato ...</string>
+  <string name="adding_contact_failed">Adicionar o contato falhou</string>
+  <string name="dialog_title_remove_pending_contact">Confirme a remoção </string>
+  <string name="dialog_message_remove_pending_contact">Esse contato ainda está sendo adicionado. Se você removê-lo agora, o mesmo não será adicionado</string>
+  <string name="own_link_error">Insira o link do seu contato, não seu próprio  </string>
+  <string name="nickname_missing">Por favor insira um apelido</string>
+  <string name="invalid_link">Link invalido</string>
+  <string name="unsupported_link">Esse link veio de uma versão mais recente do Briar. Por favor atualize para versão mais recente e tente novamente </string>
+  <string name="intent_own_link">Você abriu seu próprio link. Utilize o link do contato que quer adicionar!</string>
+  <string name="missing_link">Por favor insira um link</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Novo contato adicionado.</item>
+    <item quantity="other">%dnovos contados adicionados.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Adicionar este contato está demorando mais que o normal</string>
+  <string name="adding_contact_slow_title">Não foi possível conectar ao contato </string>
+  <string name="adding_contact_slow_text">Adicionar este contato está demorando mais que o normal.\n\nPor favor se certifique que o seu contato recebeu seu link e adicionou você: </string>
+  <string name="offline_state">Sem conexão à Internet</string>
+  <string name="duplicate_link_dialog_title">Link duplicado</string>
+  <string name="duplicate_link_dialog_text_1">Você já tem um contato pendente com esse link: %s </string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s e %s são a mesma pessoa?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Mesma pessoa</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Pessoa diferente</string>
+  <string name="duplicate_link_dialog_text_3">%s e %s te enviaram o mesmo link.\n\nUm deles talvez esteja tentando descobrir quem são seus contatos.\n\nNão conte pra eles que recebeu o mesmo link de outra pessoa.</string>
+  <string name="pending_contact_updated_toast">Contato pendente atualizado</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Apresente seus contatos</string>
   <string name="introduction_onboarding_text">Você pode apresentar seus contatos entre si, assim eles não precisam se encontrar pessoalmente para se comunicar no Briar.</string>
@@ -346,6 +413,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automático: %1$s (em %2$s) </string>
   <string name="tor_mobile_data_title">Usar dados moveis</string>
+  <string name="tor_only_when_charging_title">Conectar via Internet (Tor) apenas enquanto carregando</string>
+  <string name="tor_only_when_charging_summary">Desabilita conexão à Internet quando seu dispositivo estiver somente na bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurança</string>
   <string name="pref_lock_title">Bloqueio de app</string>
@@ -415,6 +484,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Aviso sobre Link</string>
   <string name="link_warning_intro">Você está prestes a abrir esse link em um Aplicativo Externo.</string>
+  <string name="link_warning_text">Isso pode ser usado para identificar você. Pense sobre se quer ou não confiar na pessoa que te enviou esse link e considere abrindo o no Tor Browser</string>
   <string name="link_warning_open_link">Abrir Link</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Relatório de falhas do Briar</string>

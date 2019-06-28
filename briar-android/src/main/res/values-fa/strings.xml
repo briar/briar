@@ -2,21 +2,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">به Briar (برایر) خوش آمدید</string>
-  <string name="setup_name_explanation">نام مستعارتان کنار هر مطلب شما قرار خواهد گرفت و بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
+  <string name="setup_name_explanation">نام مستعار شما کنار هر مطلبی که پست کنید قرار خواهد گرفت. بعد از ایجاد حساب کاربری امکان تغییر آن وجود ندارد.</string>
   <string name="setup_next">بعدی</string>
-  <string name="setup_password_intro">یک رمز عبور انتخاب کنید</string>
-  <string name="setup_password_explanation">حساب کاربری Briar (برایر) شما به صورت رمزگذاری شده روی دستگاه شما به جای حافظه ابری ذخیره شده است. اگر شما رمز عبور خود را فراموش کنید یا Briar (برایر) را پاک کنید، راهی برای بازیابی حساب کاربری شما وجود نخواهد داشت.
+  <string name="setup_password_intro">یک گذرواژه انتخاب کنید</string>
+  <string name="setup_password_explanation">حساب کاربری Briar (برایر) شما به صورت رمزگذاری شده روی دستگاه شما به جای حافظه ابری ذخیره شده است. اگر گذرواژه خود را فراموش کنید یا Briar (برایر) را پاک کنید، راهی برای بازیابی حساب کاربری شما وجود نخواهد داشت.
 
-یک رمز عبور طولانی انتخاب کنید که حدس آن سخت باشد، مثل چهار عبارت تصادفی یا ده لغت تصادفی با اعداد و نماد ها.</string>
+یک گذرواژه طولانی انتخاب کنید که حدس آن سخت باشد، مثل چهار عبارت تصادفی یا ده لغت تصادفی با اعداد و نماد ها.</string>
   <string name="setup_doze_title">اتصال های پس زمینه</string>
   <string name="setup_doze_intro">برای دریافت پیام، Briar (برایر) نیاز دارد تا در پس زمینه اتصال داشته باشد.</string>
   <string name="setup_doze_explanation">برای دریافت پیام، Briar (برایر) نیاز دارد تا در پس زمینه اتصال داشته باشد. لطفا بهینه سازی باتری را غیر فعال کنید تا Briar (برایر) بتواند به اتصال خود ادامه دهد.</string>
-  <string name="setup_doze_button">دادن اجازه به اتصالات</string>
+  <string name="setup_doze_button">دادن اجازه به ارتباطات</string>
   <string name="choose_nickname">نام مستعار خود را انتخاب کنید</string>
-  <string name="choose_password">رمز عبور خود را انتخاب کنید</string>
-  <string name="confirm_password">رمز عبور خود را تایید کنید</string>
+  <string name="choose_password">گذرواژه خود را انتخاب کنید</string>
+  <string name="confirm_password">گذرواژه خود را تایید کنید</string>
   <string name="name_too_long">نام بیش از حد طولانی می باشد</string>
-  <string name="password_too_weak">رمز عبور ضعیف می باشد</string>
+  <string name="password_too_weak">گذرواژه ضعیف می باشد</string>
   <string name="passwords_do_not_match">رمز های عبور مطابقت ندارند </string>
   <string name="create_account_button">ایجاد حساب کاربری</string>
   <string name="more_info">اطلاعات بیشتر</string>
@@ -26,21 +26,21 @@
   <string name="setup_huawei_help">اگر Briar (برایر) به فهرست برنامه های محافظت شده اضافه نشده، نمی تواند در پس زمینه مشغول به کار باشد.</string>
   <string name="warning_dozed">ناتوانی %s برای اجراء در پس زمینه</string>
   <!--Login-->
-  <string name="enter_password">رمز عبور</string>
-  <string name="try_again">رمز عبور اشتباه است، لطفا دوباره سعی کنید</string>
+  <string name="enter_password">گذرواژه</string>
+  <string name="try_again">گذرواژه اشتباه است، لطفا دوباره سعی کنید</string>
   <string name="sign_in_button">ورود</string>
-  <string name="forgotten_password">رمز عبور را فراموش کرده ام</string>
-  <string name="dialog_title_lost_password">رمز عبور گمشده</string>
-  <string name="dialog_message_lost_password">حساب کاربری Briar (برایر) شما به صورت رمزنگاری شده روی سیستم شما به جای حافظه ابری ذخیره شده است برای همین ما نمی توانیم رمز عبور شما را به صورت مجدد تنظیم کنیم. آیا مایل هستید تا حساب کاربری شما را پاک کنیم و دوباره از ابتدا شروع کنیم؟
+  <string name="forgotten_password">گذرواژه خود را فراموش کرده ام</string>
+  <string name="dialog_title_lost_password">گذرواژه گمشده</string>
+  <string name="dialog_message_lost_password">حساب کاربری Briar (برایر) شما به صورت رمزنگاری شده روی سیستم شما به جای حافظه ابری ذخیره شده است برای همین ما نمی توانیم گذرواژه شما را به صورت مجدد تنظیم کنیم. آیا مایل هستید تا حساب کاربری شما را پاک کنیم و دوباره از ابتدا شروع کنیم؟
 
 اخطار: هویت های شما، مخاطبان شما و پیام های شما برای همیشه از بین خواهند رفت.</string>
   <string name="startup_failed_notification_title">Briar (برایر) نمی تواند شروع به کار کند.</string>
   <string name="startup_failed_notification_text">برای اطلاعات بیشتر کلیک کنید</string>
   <string name="startup_failed_activity_title">خطا در شروع Briar (برایر)</string>
-  <string name="startup_failed_db_error">به دلایلی، دیتابیس Briar (برایر) شما خراب شده و قابل اصلاح نیست. حساب کاربری شما، داده های شما  و تمام مخاطبان شما از بین رفته اند. متاسفانه، شما یا باید Briar (برایر) را دوباره نصب کنید یا یک حساب کاربری جدید با انتخاب \'رمز عبور ام را فراموش کرده ام\' انتخاب کنید.</string>
-  <string name="startup_failed_data_too_old_error">حساب کاربری شما با یک نسخه قدیمی از این برنامه ایجاد شده است و به همین خاطربا این نسخه نمی تواند باز شود. شما باید نسخه قدیمی را دوباره نصب کنید یا یک حساب کاربری جدید با \"رمز عبور ام را فراموش کرده ام\" در صفحه ی رمز عبور ایجاد کنید.</string>
+  <string name="startup_failed_db_error">به دلایلی، پایگاه داده Briar (برایر) شما خراب شده و قابل اصلاح نیست. حساب کاربری شما، داده های شما و تمام مخاطبان شما از بین رفته اند. متاسفانه، شما یا باید Briar (برایر) را دوباره نصب کنید یا یک حساب کاربری جدید در هنگام خواست گذرواژه با انتخاب گذرواژه خود را فراموش کرده ام\' ایجاد کنید.</string>
+  <string name="startup_failed_data_too_old_error">حساب کاربری شما با یک نسخه قدیمی از این برنامه ایجاد شده است و به همین خاطر با این نسخه نمی تواند باز شود. شما باید نسخه قدیمی را دوباره نصب کنید یا یک حساب کاربری جدید با \"گذرواژه خود را فراموش کرده ام\" در صفحه ی گذرواژه ایجاد کنید.</string>
   <string name="startup_failed_data_too_new_error">این نسخه از برنامه قدیمی می باشد. لطفا به آخرین نسخه از برنامه ارتقاء داده و دوباره سعی کنید.</string>
-  <string name="startup_failed_service_error">Briar (برایر) نمی تواند یک پلاگین ضروری را اجراء کند. نصب دوباره Briar (برایر) معمولا این مشکل را حل میکند. هرچند، توجه داشته باشید که حساب کاربری و تمام داده های مرتبط با آن را از دست خواهید داد از آنجایی که Briar (برایر) از هیچ سرور مرکزی برای ذخیره داده های شما استفاده نمی کند.</string>
+  <string name="startup_failed_service_error">Briar (برایر) نمی تواند یک افزونه ضروری را اجراء کند. نصب دوباره Briar (برایر) معمولا این مشکل را حل میکند. هرچند، توجه داشته باشید که حساب کاربری و تمام داده های مرتبط با آن را از دست خواهید داد از آنجایی که Briar (برایر) از هیچ سرور مرکزی برای ذخیره داده های شما استفاده نمی کند.</string>
   <plurals name="expiry_warning">
     <item quantity="one">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
     <item quantity="other">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
@@ -50,15 +50,15 @@
 
 بابت تست از شما سپاسگزاریم.</string>
   <string name="download_briar">برای اینکه به استفاده خود از Briar (برایر) ادامه دهید، لطفا نسخه ۱.۰ را دانلود کنید.</string>
-  <string name="create_new_account">لازم است تا یک حساب کاربری جدید ایجاد کنید، می توانید از نام مستعار یکسان برای حساب های کاربری استفاده کنید.</string>
+  <string name="create_new_account">لازم است تا یک حساب کاربری جدید ایجاد کنید، ولی می توانید از همان نام مستعار استفاده کنید.</string>
   <string name="download_briar_button">دانلود Briar (برایر) 1.0</string>
-  <string name="startup_open_database">رمزگشایی سیستم ...</string>
-  <string name="startup_migrate_database">به روز رسانی سیستم ...</string>
-  <string name="startup_compact_database">درحال فشرده‌سازی پایگاه داده...</string>
+  <string name="startup_open_database">در حال رمزگشایی سیستم ...</string>
+  <string name="startup_migrate_database">در حال ارتقا سیستم ...</string>
+  <string name="startup_compact_database">درحال فشرده‌ سازی پایگاه داده...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">باز کردن منوی برنامه</string>
   <string name="nav_drawer_close_description">بستن منوی برنامه</string>
-  <string name="contact_list_button">مخاطبین</string>
+  <string name="contact_list_button">مخاطبان</string>
   <string name="groups_button">گروه های خصوصی</string>
   <string name="forums_button">تالار های گفتمان</string>
   <string name="blogs_button">بلاگ ها</string>
@@ -72,7 +72,7 @@
   <string name="transport_lan">وای فای</string>
   <!--Notifications-->
   <string name="reminder_notification_title">از Briar (برایر) خارج شد</string>
-  <string name="reminder_notification_text">برای وارد شدن دوباره کلیک کنید.</string>
+  <string name="reminder_notification_text">برای وارد شدن دوباره ضربه بزنید.</string>
   <string name="reminder_notification_channel_title">یادآور ورود Briar (برایر)</string>
   <string name="reminder_notification_dismiss">رد کردن</string>
   <string name="ongoing_notification_title">وارد Briar (برایر) شد</string>
@@ -115,16 +115,18 @@
   <string name="show_onboarding">نمایش پنجره راهنما</string>
   <string name="fix">اصلاح</string>
   <string name="help">راهنما</string>
-  <string name="sorry">متاسفم</string>
+  <string name="sorry">پوزش</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">هیچ مخاطبی برای نمایش وجود ندارد</string>
   <string name="no_contacts_action">برای افزودن مخاطب روی + کلیک کنید</string>
   <string name="date_no_private_messages">هیچ پیامی موجود نیست</string>
   <string name="no_private_messages">هیچ پیامی برای نشان دادن وجود ندارد</string>
   <string name="message_hint">نوشتن پیام</string>
-  <string name="image_caption_hint">یک عنوان اضافه کنید (اختیاری)</string>
-  <string name="image_attach">تصویر پیوست</string>
-  <string name="image_attach_error">تصویر پیوست نشد</string>
+  <string name="image_caption_hint">افزودن یک شرح (اختیاری)</string>
+  <string name="image_attach">پیوست کردن تصویر</string>
+  <string name="image_attach_error">پیوست کردن تصویر(ها) ممکن نمی باشد</string>
+  <string name="image_attach_error_too_big">تصویر بیش از اندازه بزرگ است. محدودیت %d مگابایت می باشد.</string>
+  <string name="image_attach_error_invalid_mime_type">فرمت تصویر پشتیبانی نمی‌شود: %s</string>
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
   <string name="set_alias_button">تغییر</string>
@@ -136,15 +138,19 @@
   <string name="you">شما</string>
   <string name="save_image">ذخیره تصویر</string>
   <string name="dialog_title_save_image">ذخیره تصویر؟</string>
-  <string name="dialog_message_save_image">ذخیره این تصویر به دیگر برنامه‌ها اجازه می‌دهد تا به آن دسترسی داشته باشند.\n\n آیا مطمئن هستید که می‌خواهید ذخیره کنید؟</string>
+  <string name="dialog_message_save_image">ذخیره این تصویر به دیگر برنامه‌ها اجازه می‌دهد تا به آن دسترسی داشته باشند.
+
+آیا از ذخیره کردن مطمئن می باشید؟</string>
   <string name="save_image_success">تصویر ذخیره شد</string>
   <string name="save_image_error">تصویر ذخیره نشد</string>
-  <string name="dialog_title_no_image_support">تصاویر در دسترس نیست</string>
-  <string name="dialog_message_no_image_support">مخاطب برایر شما هنوز از پیوست‌های تصویر پشتیبانی نمی‌کند. هنگامی که آن‌ها را ارتقا دهید یک آیکون دیگر خواهید دید.</string>
-  <string name="dialog_title_image_support">شما هم اکنون می‌توانید تصاویر را به این مخاطب ارسال کنید</string>
-  <string name="dialog_message_image_support">برای پیوست تصاویر به روی آیکون ضربه بزنید</string>
+  <string name="dialog_title_no_image_support">تصاویر در دسترس نمی باشند</string>
+  <string name="dialog_message_no_image_support">Briar (برایر) مخاطب شما هنوز از پیوست‌ های تصویری پشتیبانی نمی‌کند. هنگامی که آنها ارتقا دادند یک آیکون متفاوت خواهید دید.</string>
+  <string name="dialog_title_image_support">شما هم اکنون می‌توانید به این مخاطب تصاویر ارسال کنید</string>
+  <string name="dialog_message_image_support">برای پیوست کردن تصاویر به روی آیکون ضربه بزنید.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">افزودن مخاطب از نزدیک</string>
   <string name="face_to_face">برای اضافه کردن فرد به عنوان مخاطب باید با او به صورت حضوری ملاقات کنید.
+
 این از جعل هویت شما و یا از خوانده شدن پیام هایتان در آینده جلوگیری خواهد کرد.</string>
   <string name="continue_button">ادامه</string>
   <string name="try_again_button">دوباره سعی کنید</string>
@@ -152,29 +158,86 @@
   <string name="exchanging_contact_details">تبادیل جزییات مخاطبu2026\</string>
   <string name="contact_added_toast">مخاطب اضافه شد: %s</string>
   <string name="contact_already_exists">مخاطب %s از قبل وجود دارد</string>
-  <string name="qr_code_invalid">کد QR نامعتبر می باشد</string>
-  <string name="qr_code_too_old">کد QR اسکن شده متعلق به یک نسخه قدیمی از %s است.
+  <string name="qr_code_invalid">کد کیوآر نامعتبر می باشد</string>
+  <string name="qr_code_too_old">کد کیوآر اسکن شده متعلق به یک نسخه قدیمی از %s است.
 
-لطفا از مخاطب‌تان بخواهید تا به آخرین نسخه ارتقا داده و سپس دوباره تلاش کنید.</string>
-  <string name="qr_code_too_new">کد QR که شما اسکن کرده‌اید متعلق به یک نسخه جدیدتر  از %s است.
+لطفا از مخاطب‌ خود بخواهید تا به آخرین نسخه ارتقا داده و سپس دوباره تلاش کنید.</string>
+  <string name="qr_code_too_new">کد کیوآر اسکن شده توسط شما متعلق به یک نسخه جدیدتر  از %s است.
 
 لطفا به آخرین نسخه ارتقا داده و دوباره تلاش کنید.</string>
   <string name="camera_error">خطای دوربین</string>
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
   <string name="connection_error_title">اتصال به مخاطب شما برقرار نشد</string>
-  <string name="connection_error_explanation">لطفا مطمئن شوید که هردو شما به شبکه وای فای یکسان متصل هستید.</string>
-  <string name="connection_error_feedback">اگر این مشکل ادامه پیدا کرد، لطفا <a href="feedback">بازخورد ارسال کنید</a> تا به ما در ارتقاء برنامه کمک کنید.</string>
+  <string name="connection_error_explanation">لطفا مطمئن شوید که هر دو شما به شبکه وای فای یکسان متصل هستید.</string>
+  <string name="connection_error_feedback">اگر این مشکل ادامه پیدا کرد، لطفا <a href="feedback">بازخورد ارسال کنید</a> تا به ما در بهبود برنامه کمک کنید.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">افزودن مخاطب از دور</string>
+  <string name="add_contact_nearby_title">افزودن مخاطب از نزدیک</string>
+  <string name="add_contact_remotely_title">افزودن مخاطب از راه دور</string>
+  <string name="contact_name_hint">دادن یک نام مستعار به مخاطب</string>
+  <string name="contact_link_intro">پیوند آمده از مخاطب خود را اینجا وارد کنید</string>
+  <string name="contact_link_hint">پیوند مخاطب</string>
   <string name="paste_button">چسباندن</string>
-  <string name="copy_button">تکثیر</string>
-  <string name="share_button">هم‌رسانی</string>
+  <string name="add_contact_button">افزودن مخاطب</string>
+  <string name="copy_button">کپی</string>
+  <string name="share_button">اشتراک گذاری</string>
+  <string name="send_link_title">تبادل پیوندها</string>
+  <string name="add_contact_choose_nickname">انتخاب نام مستعار</string>
+  <string name="add_contact_choose_a_nickname">یک نام مستعار وارد کنید</string>
+  <string name="nickname_intro">به مخاطب خود یک نام مستعار بدهید. فقط شما قادر به دیدن آن می باشید.</string>
+  <string name="your_link">برای افزودن مخاطب این پیوند را به او بدهید</string>
+  <string name="link_clip_label">پیوند Briar (برایر)</string>
+  <string name="link_copied_toast">پیوند کپی شد</string>
+  <string name="adding_contact_error">یک خطا هنگام افزودن مخاطب رخ داد.</string>
+  <string name="pending_contact_requests_snackbar">درخواست های مخاطب معلق وجود دارند</string>
+  <string name="pending_contact_requests">درخواست های مخاطب معلق</string>
+  <string name="no_pending_contacts">هیچ مخاطب معلقی وجود ندارد</string>
   <string name="add_contact_remote_connecting">در حال اتصال…</string>
+  <string name="waiting_for_contact_to_come_online">انتظار برای آنلاین شدن مخاطب...</string>
   <string name="connecting">در حال اتصال…</string>
+  <string name="adding_contact">در حال افزودن مخاطب...</string>
+  <string name="adding_contact_failed">افزودن مخاطب ناموفق بود</string>
+  <string name="dialog_title_remove_pending_contact">تایید حذف</string>
+  <string name="dialog_message_remove_pending_contact">این مخاطب هنوز در حال اضافه شدن می باشد. اگر اکنون آن را حذف کنید، دیگر افزوده نخواهد شد.</string>
+  <string name="own_link_error">به جای پیوند خود، پیوند مخاطب را وارد کنید</string>
+  <string name="nickname_missing">لطفا یک نام مستعار وارد کنید</string>
+  <string name="invalid_link">پیوند نامعتبر</string>
+  <string name="unsupported_link">این پیوند از یک نسخه جدیدتر Briar (برایر) آمده است. لطفا به آخرین نسخه ارتقا دهید و دوباره امتحان کنید.</string>
+  <string name="intent_own_link">شما پیوند خود را باز کردید. پیوند مخاطبی که میخواهید اضافه کنید را استفاده کنید!</string>
+  <string name="missing_link">لطفا یک پیوند وارد کنید</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">۱</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">۲</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">مخاطب جدید افزوده شد.</item>
+    <item quantity="other">%d مخاطب جدید افزوده شد.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">افزودن این مخاطب بیشتر از حد معمول وقت گرفته است</string>
+  <string name="adding_contact_slow_title">عدم توانایی در اتصال به مخاطب</string>
+  <string name="adding_contact_slow_text">افزودن این مخاطب بیش تر از معمول وقت گرفته است.
+
+لطفا بررسی کنید که مخاطب شما پیوندتان را دریافت کرده و شما را افزوده است:</string>
+  <string name="offline_state">ارتباط با اینترنت برقرار نیست</string>
+  <string name="duplicate_link_dialog_title">پیوند تکراری</string>
+  <string name="duplicate_link_dialog_text_1">شما هم اکنون یک مخاطب معلق با این پیوند دارید: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">آیا %s و %s یک شخص می باشند؟</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">همان شخص</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">شخص متفاوت</string>
+  <string name="duplicate_link_dialog_text_3">%s و %s پیوند یکسانی را به شما ارسال کردند.
+
+یکی از آن ها ممکن است سعی در شناسایی مخاطبان شما داشته باشد.
+
+به آن ها نگویید که همان لینک را از یک شخص دیگر دریافت کرده اید.</string>
+  <string name="pending_contact_updated_toast">مخاطب معلق به روز رسانی شد</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">معرفی مخاطبان</string>
   <string name="introduction_onboarding_text">شما می توانید مخاطبان خود را به یکدیگر معرفی کنید، در این صورت دیگر نیازی به دیدار حضوری برای اتصال روی Briar (برایر) نمی باشد.</string>
@@ -367,11 +430,11 @@
   <string name="blogs_rss_feeds_manage_delete_error">خوراک نمی تواند پاک شود!</string>
   <string name="blogs_rss_feeds_manage_empty_state">هیچ خوراک RSS برای نمایش وجود ندارد
 
-برای وارد کردن خوراک روی آیکون + کلیک کنید</string>
+برای وارد کردن خوراک روی آیکون + ضربه بزنید</string>
   <string name="blogs_rss_feeds_manage_error">مشکلی با بارگذاری فیدهای شما وجود داشت. لطفا بعدا امتحان کنید.</string>
   <!--Settings Display-->
   <string name="pref_language_title">زبان و منطقه</string>
-  <string name="pref_language_changed">این تنظیمات زمانی که Briar (برایر) را ری استارت کنید تاثیر خود را می گذارند. لطفا خارج شوید و Briar (برایر) را ری استارت کنید.</string>
+  <string name="pref_language_changed">این تنظیمات زمانی که Briar (برایر) را ری استارت کنید تاثیر خود را می گذارند. لطفا خارج شوید و Briar (برایر) را دوباره راه اندازی کنید.</string>
   <string name="pref_language_default">پیش فرض سیستم</string>
   <string name="display_settings_title">نمایش</string>
   <string name="pref_theme_title">قالب</string>
@@ -385,15 +448,15 @@
   <string name="bluetooth_setting_enabled">هر زمانی که مخاطبان نزدیک هستند</string>
   <string name="bluetooth_setting_disabled">فقط در هنگام افزودن مخاطبان</string>
   <string name="tor_network_setting">اتصال از طریق اینترنت (تور)</string>
-  <string name="tor_network_setting_automatic">اتوماتیک مبتنی بر مکان</string>
-  <string name="tor_network_setting_without_bridges">استفاده از تور بدون بریج</string>
-  <string name="tor_network_setting_with_bridges">استفاده از تور با بریج</string>
+  <string name="tor_network_setting_automatic">خودکار مبتنی بر موقعیت</string>
+  <string name="tor_network_setting_without_bridges">استفاده از تور بدون پل ها</string>
+  <string name="tor_network_setting_with_bridges">استفاده از تور با پل ها</string>
   <string name="tor_network_setting_never">وصل نشو</string>
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">خودکار: %1$s(در %2$s)</string>
   <string name="tor_mobile_data_title">استفاده از داده موبایل</string>
   <string name="tor_only_when_charging_title">اتصال از طریق اینترنت (تور) فقط در هنگام شارژ</string>
-  <string name="tor_only_when_charging_summary">وقتی دستگاه با باتری در حال اجرا است، ارتباط به اینترنت را غیرفعال می‌کند</string>
+  <string name="tor_only_when_charging_summary">ارتباط اینترنت را هنگامی که دستگاه در حال استفاده از باتری خود می باشد را غیرفعال می کند</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
   <string name="pref_lock_title">قفل برنامه</string>
@@ -414,17 +477,17 @@
   <string name="pref_lock_timeout_60">۱ ساعت</string>
   <string name="pref_lock_timeout_never">هرگز</string>
   <string name="pref_lock_timeout_never_summary">هیچوقت Briar (برایر) را به صورت خودکار قفل نکن</string>
-  <string name="change_password">تغییر رمز عبور</string>
-  <string name="current_password">رمز عبور فعلی</string>
-  <string name="choose_new_password">رمز عبور جدید</string>
-  <string name="confirm_new_password">تائید رمز جدید</string>
-  <string name="password_changed">رمز عبور تغییر کرده است</string>
-  <string name="panic_setting">برپایی دکمه هراس</string>
+  <string name="change_password">تغییر گذرواژه</string>
+  <string name="current_password">گذرواژه فعلی</string>
+  <string name="choose_new_password">گذرواژه جدید</string>
+  <string name="confirm_new_password">تائید گذرواژه جدید</string>
+  <string name="password_changed">گذرواژه تغییر کرده است</string>
+  <string name="panic_setting">نصب دکمه هراس</string>
   <string name="panic_setting_title">دکمه هراس</string>
   <string name="panic_setting_hint">تنظیم نحوه واکنش Briar (برایر) هنگام فعال سازی دکمه هراس</string>
   <string name="panic_app_setting_title">برنامه دکمه هراس</string>
   <string name="unknown_app">یک برنامه ناشناخته</string>
-  <string name="panic_app_setting_summary">هیچ برنامه تنظیم نشده است</string>
+  <string name="panic_app_setting_summary">هیچ برنامه ای تنظیم نشده است</string>
   <string name="panic_app_setting_none">هیچکدام</string>
   <string name="dialog_title_connect_panic_app">تایید برنامه هراس</string>
   <string name="dialog_message_connect_panic_app">آیا مطمئن هستید که میخواهید به %1$s اجازه دهید تا باعث عملیات مخرب دکمه هراس بشود؟</string>
@@ -432,7 +495,7 @@
   <string name="panic_setting_signout_title">خروج</string>
   <string name="panic_setting_signout_summary">در صورت کلیک بر روی کلید هراس از Briar (برایر) خارج شو</string>
   <string name="purge_setting_title">حذف حساب کاربری</string>
-  <string name="purge_setting_summary">پاک کردن حساب کاربری Briar (برایر) شما در صورتی که دکمه هراس فشار داده شود. اخطار: این باعث پاک شدن دائمی تمام هویت ها، مخاطبان و پیام های شما خواهد شد</string>
+  <string name="purge_setting_summary">در صورت فشار دادن دکمه هراس حساب کاربری Briar (برایر) شما حذف خواهد شد. اخطار: این باعث حذف دائمی تمام هویت ها، مخاطبان و پیام های شما خواهد شد</string>
   <string name="uninstall_setting_title">پاک کردن Briar (برایر)</string>
   <string name="uninstall_setting_summary">این نیازمند تایید دستی در موعد هراس میباشد</string>
   <!--Settings Notifications-->
@@ -461,10 +524,10 @@
   <string name="feedback_settings_title">بازخورد</string>
   <string name="send_feedback">ارسال بازخورد</string>
   <!--Link Warning-->
-  <string name="link_warning_title">هشدار لینک</string>
+  <string name="link_warning_title">هشدار پیوند</string>
   <string name="link_warning_intro">با باز کردن لینک زیر شما یک برنامه بیرونی را باز خواهید کرد.</string>
-  <string name="link_warning_text">این می‌تواند برای شناسایی شما مورد استفاده قرار بگیرد. قبل از باز کردن آن به قابل اطمینان بودن شخصی که آن را برای شما ارسال کرده فکر کنید و بعد برای احتیاط آن را با مرورگر تور باز کنید.</string>
-  <string name="link_warning_open_link">باز کردن لینک</string>
+  <string name="link_warning_text">این می‌تواند برای شناسایی شما مورد استفاده قرار بگیرد. قبل از باز کردن این پیوند به قابل اطمینان بودن شخصی که آن را برای شما ارسال کرده فکر کنید و بعد برای احتیاط آن را با مرورگر تور باز کنید.</string>
+  <string name="link_warning_open_link">باز کردن پیوند</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">گزارش خطای Briar (برایر)</string>
   <string name="briar_crashed">متاسفیم، Briar (برایر) از کار افتاده است.</string>
@@ -493,21 +556,27 @@
   <string name="screen_filter_allow">به این برنامه ها اجازه بده تا روی Briar (برایر) قرار بگیرند</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">دسترسی به دوربین</string>
-  <string name="permission_camera_request_body">برای اسکن کردن کد QR دسترسی به دوربین لازم است.</string>
-  <string name="permission_location_title">مجوز موقعیت محل</string>
-  <string name="permission_location_request_body">برای پیدا کردن دستگاه‌های بلوتوث، برایر نیاز به اجازه دسترسی به موقعیت مکانی شما دارد.\n\n برایر موقعیت مکان شما را ذخیره نمی‌کند و آن را با کسی به اشتراک نمی‌گذارد.</string>
+  <string name="permission_camera_request_body">برای اسکن کردن کد کیوآر دسترسی به دوربین لازم است.</string>
+  <string name="permission_location_title">اجازه موقعیت</string>
+  <string name="permission_location_request_body">برای پیدا کردن دستگاه‌های بلوتوث، Briar (برایر) نیاز به اجازه دسترسی به موقعیت شما دارد.
+
+Briar  (برایر) موقعیت شما را ذخیره نمی‌کند و آن را با کسی به اشتراک نمی‌گذارد.</string>
   <string name="permission_camera_location_title">دوربین و موقعیت</string>
-  <string name="permission_camera_location_request_body">برای اسکن کد کیو‌آر، برایر نیاز به دسترسی به دوربین دارد.\n\n برای پیدا کردن دستگاه‌های بلوتوث، برایر نیاز به اجازه دسترسی به موقعیت مکانی شما دارد.\n\n برایر موقعیت مکان شما را ذخیره نمی‌کند و آن را با کسی به اشتراک نمی‌گذارد.</string>
+  <string name="permission_camera_location_request_body">برای اسکن کد کیوآر، Briar (برایر) نیاز به دسترسی به دوربین دارد.
+
+برای پیدا کردن دستگاه‌های بلوتوث، Briar (برایر) نیاز به اجازه دسترسی به موقعیت شما دارد.
+
+Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن را با کسی به اشتراک نمی‌گذارد.</string>
   <string name="permission_camera_denied_body">شما دسترسی به دوربین را رد کرده اید، اما افزودن مخاطب نیاز به دوربین دارد.
 
 لطفا اجازه دسترسی را بدهید.</string>
-  <string name="qr_code">کد QR</string>
-  <string name="show_qr_code_fullscreen">نمایش کد QR به صورت فول اسکرین</string>
+  <string name="qr_code">کد کیوآر</string>
+  <string name="show_qr_code_fullscreen">نمایش کد کیوآر به صورت فول اسکرین</string>
   <!--App Locking-->
-  <string name="lock_unlock">آنلاک کردن Briar (برایر)</string>
-  <string name="lock_unlock_verbose">PIN، الگو یا رمز عبور دستگاه خود را برای آنلاک کردن Briar (برایر) وارد کنید</string>
+  <string name="lock_unlock">باز کردن قفل Briar (برایر)</string>
+  <string name="lock_unlock_verbose">پین، الگو یا گذرواژه دستگاه خود را برای باز کردن قفل Briar (برایر) وارد کنید</string>
   <string name="lock_unlock_fingerprint_description">برای ادامه سنسور اثر انگشت را با انگشت ثبت شده تان لمس کنید</string>
-  <string name="lock_unlock_password">از رمز عبور استفاده کنید</string>
+  <string name="lock_unlock_password">استفاده از گذرواژه</string>
   <string name="lock_is_locked">Briar (برایر) قفل می باشد</string>
   <string name="lock_tap_to_unlock">برای آنلاک کردن کلیک کنید</string>
   <!--Screenshots-->
@@ -520,7 +589,7 @@
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
   <string name="screenshot_message_1">هی باب!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
-  <string name="screenshot_message_2">هی آلیس! ممنون از اینکه درباره Briar به من گفتی!</string>
+  <string name="screenshot_message_2">هی آلیس! ممنون از اینکه درباره Briar (برایر) به من گفتی!</string>
   <!--This is a message to be used in screenshots.-->
   <string name="screenshot_message_3">خواهش میکنم، امیدوارم ازش خوشت بیاد 😀</string>
 </resources>
