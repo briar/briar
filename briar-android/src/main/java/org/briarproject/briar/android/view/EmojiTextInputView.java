@@ -28,6 +28,7 @@ import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_SEND;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static java.lang.Character.isWhitespace;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 
@@ -125,17 +126,29 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 	@Override
 	public void onTextChanged(CharSequence s, int start, int before,
 			int count) {
-		// Need to start at position 0 to change empty
-		if (start != 0 || emptyTextAllowed || listener == null) return;
-		if (s.length() == 0) {
-			if (!isEmpty) {
+		if (emptyTextAllowed || listener == null) return;
+		// Work out whether the trimmed text has become empty or non-empty
+		if (isEmpty) {
+			// We only need to check the characters that were added
+			if (countLeadingWhitespace(s, start, count) < count) {
+				isEmpty = false;
+				listener.onTextIsEmptyChanged(false);
+			}
+		} else if (before > 0) {
+			// Characters have been removed or replaced - check from the start
+			int length = s.length();
+			if (countLeadingWhitespace(s, 0, length) == length) {
 				isEmpty = true;
 				listener.onTextIsEmptyChanged(true);
 			}
-		} else if (isEmpty) {
-			isEmpty = false;
-			listener.onTextIsEmptyChanged(false);
 		}
+	}
+
+	private int countLeadingWhitespace(CharSequence s, int off, int len) {
+		for (int i = 0; i < len; i++) {
+			if (!isWhitespace(s.charAt(off + i))) return i;
+		}
+		return len;
 	}
 
 	@Override
@@ -242,6 +255,7 @@ public class EmojiTextInputView extends KeyboardAwareLinearLayout implements
 
 	interface TextInputListener {
 		void onTextIsEmptyChanged(boolean isEmpty);
+
 		void onSendEvent();
 	}
 
