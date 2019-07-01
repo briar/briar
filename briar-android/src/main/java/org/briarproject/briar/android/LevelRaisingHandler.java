@@ -1,13 +1,19 @@
 package org.briarproject.briar.android;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
+
+import javax.annotation.concurrent.Immutable;
 
 /**
  * Log handler that raises all records at or above a given source level to a
  * given destination level. This affects the level seen by subsequent handlers.
  */
+@Immutable
+@NotNullByDefault
 class LevelRaisingHandler extends Handler {
 
 	private final Level dest;
