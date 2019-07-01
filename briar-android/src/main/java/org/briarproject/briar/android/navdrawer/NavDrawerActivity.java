@@ -45,7 +45,6 @@ import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.logout.SignOutFragment;
-import org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
@@ -66,8 +65,6 @@ import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleS
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
-import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
-import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 
 @MethodsNotNullByDefault
@@ -155,10 +152,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		super.onStart();
 		updateTransports();
 		lockManager.checkIfLockable();
-		controller.showExpiryWarning(new UiResultHandler<ExpiryWarning>(this) {
+		controller.showExpiryWarning(new UiResultHandler<Boolean>(this) {
 			@Override
-			public void onResultUi(ExpiryWarning expiry) {
-				if (expiry != NO) showExpiryWarning(expiry);
+			public void onResultUi(Boolean expiry) {
+				if (expiry) showExpiryWarning();
 			}
 		});
 	}
@@ -347,7 +344,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (item != null) item.setVisible(visible);
 	}
 
-	private void showExpiryWarning(ExpiryWarning expiry) {
+	private void showExpiryWarning() {
 		int daysUntilExpiry = getDaysUntilExpiry();
 		if (daysUntilExpiry < 0) signOut();
 
@@ -359,21 +356,9 @@ public class NavDrawerActivity extends BriarActivity implements
 		ImageView expiryWarningClose =
 				expiryWarning.findViewById(R.id.expiryWarningClose);
 
-		// show a different snackbar in green if this is an update
-		if (expiry == UPDATE) {
-			expiryWarning.setBackgroundColor(
-					ContextCompat.getColor(this, R.color.briar_green_light));
-			expiryWarningText.setText(
-					getString(R.string.expiry_update, daysUntilExpiry));
-			expiryWarningText.setTextColor(
-					ContextCompat.getColor(this, android.R.color.black));
-			expiryWarningClose.setColorFilter(
-					ContextCompat.getColor(this, android.R.color.black));
-		} else {
-			expiryWarningText.setText(getResources()
-					.getQuantityString(R.plurals.expiry_warning,
-							daysUntilExpiry, daysUntilExpiry));
-		}
+		expiryWarningText.setText(getResources()
+				.getQuantityString(R.plurals.expiry_warning,
+						daysUntilExpiry, daysUntilExpiry));
 
 		expiryWarningClose.setOnClickListener(v -> {
 			controller.expiryWarningDismissed();

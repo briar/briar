@@ -29,13 +29,11 @@ import javax.inject.Inject;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
-import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.NO;
-import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.SHOW;
-import static org.briarproject.briar.android.navdrawer.NavDrawerController.ExpiryWarning.UPDATE;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
@@ -45,9 +43,9 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 		implements NavDrawerController, EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(NavDrawerControllerImpl.class.getName());
+			getLogger(NavDrawerControllerImpl.class.getName());
+
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
-	private static final String EXPIRY_SHOW_UPDATE = "expiryShowUpdate";
 
 	private final PluginManager pluginManager;
 	private final SettingsManager settingsManager;
@@ -103,9 +101,9 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void showExpiryWarning(ResultHandler<ExpiryWarning> handler) {
+	public void showExpiryWarning(ResultHandler<Boolean> handler) {
 		if (!IS_DEBUG_BUILD) {
-			handler.onResult(NO);
+			handler.onResult(false);
 			return;
 		}
 		runOnDbThread(() -> {
@@ -113,12 +111,10 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
 				int warningInt = settings.getInt(EXPIRY_DATE_WARNING, 0);
-				boolean showUpdate =
-						settings.getBoolean(EXPIRY_SHOW_UPDATE, true);
 
 				if (warningInt == 0) {
 					// we have not warned before
-					handler.onResult(SHOW);
+					handler.onResult(true);
 				} else {
 					long warningLong = warningInt * 1000L;
 					long now = System.currentTimeMillis();
@@ -127,15 +123,13 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 					long daysBeforeExpiry =
 							(EXPIRY_DATE - now) / DAYS.toMillis(1);
 
-					if (showUpdate) {
-						handler.onResult(UPDATE);
-					} else if (daysSinceLastWarning >= 30) {
-						handler.onResult(SHOW);
+					if (daysSinceLastWarning >= 30) {
+						handler.onResult(true);
 					} else if (daysBeforeExpiry <= 3 &&
 							daysSinceLastWarning > 0) {
-						handler.onResult(SHOW);
+						handler.onResult(true);
 					} else {
-						handler.onResult(NO);
+						handler.onResult(false);
 					}
 				}
 			} catch (DbException e) {
@@ -151,7 +145,6 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 				Settings settings = new Settings();
 				int date = (int) (System.currentTimeMillis() / 1000L);
 				settings.putInt(EXPIRY_DATE_WARNING, date);
-				settings.putBoolean(EXPIRY_SHOW_UPDATE, false);
 				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);

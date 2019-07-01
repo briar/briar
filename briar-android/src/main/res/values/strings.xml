@@ -47,11 +47,10 @@
 		<item quantity="one">This is a test version of Briar. Your account will expire in %d day and cannot be renewed.</item>
 		<item quantity="other">This is a test version of Briar. Your account will expire in %d days and cannot be renewed.</item>
 	</plurals>
-	<string name="expiry_update">The testing expiry date has been extended. Your account will now expire in %d days.</string>
 	<string name="expiry_date_reached">This software has expired.\nThank you for testing!</string>
-	<string name="download_briar">To continue using Briar, please download version 1.0.</string>
+	<string name="download_briar">To continue using Briar, please download the latest release.</string>
 	<string name="create_new_account">You will need to create a new account, but you can use the same nickname.</string>
-	<string name="download_briar_button">Download Briar 1.0</string>
+	<string name="download_briar_button">Download Latest Release</string>
 	<string name="startup_open_database">Decrypting Database…</string>
 	<string name="startup_migrate_database">Upgrading Database…</string>
 	<string name="startup_compact_database">Compacting Database…</string>
