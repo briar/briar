@@ -37,6 +37,7 @@ import static android.app.ActivityManager.RunningAppProcessInfo.IMPORTANCE_FOREG
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.acra.ReportField.ANDROID_VERSION;
 import static org.acra.ReportField.APP_VERSION_CODE;
 import static org.acra.ReportField.APP_VERSION_NAME;
@@ -82,7 +83,7 @@ public class BriarApplicationImpl extends Application
 		implements BriarApplication {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarApplicationImpl.class.getName());
+			getLogger(BriarApplicationImpl.class.getName());
 
 	private final CachingLogHandler logHandler = new CachingLogHandler();
 	private final BackgroundMonitor backgroundMonitor = new BackgroundMonitor();
@@ -108,12 +109,16 @@ public class BriarApplicationImpl extends Application
 
 		if (IS_DEBUG_BUILD) enableStrictMode();
 
-		Logger rootLogger = Logger.getLogger("");
-		if (!IS_DEBUG_BUILD && !IS_BETA_BUILD) {
-			// Remove default log handlers so system log is not used
-			for (Handler handler : rootLogger.getHandlers()) {
-				rootLogger.removeHandler(handler);
-			}
+		Logger rootLogger = getLogger("");
+		Handler[] handlers = rootLogger.getHandlers();
+		// Disable the Android logger for release builds
+		for (Handler handler : handlers) rootLogger.removeHandler(handler);
+		if (IS_DEBUG_BUILD || IS_BETA_BUILD) {
+			// We can't set the level of the Android logger at runtime, so
+			// raise records to the logger's default level
+			rootLogger.addHandler(new LevelRaisingHandler(FINE, INFO));
+			// Restore the default handlers after the level raising handler
+			for (Handler handler : handlers) rootLogger.addHandler(handler);
 		}
 		rootLogger.addHandler(logHandler);
 		rootLogger.setLevel(IS_DEBUG_BUILD || IS_BETA_BUILD ? FINE : INFO);
