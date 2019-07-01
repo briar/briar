@@ -118,7 +118,9 @@
   <string name="message_hint">Esciba unha mensaxe</string>
   <string name="image_caption_hint">Engadir un comentario (optativo)</string>
   <string name="image_attach">Anexar imaxe</string>
-  <string name="image_attach_error">Non se anexou a imaxe</string>
+  <string name="image_attach_error">Non se anexaron imaxe(s)</string>
+  <string name="image_attach_error_too_big">Imaxe demasiado grande. Max %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Formato non admitido: %s</string>
   <string name="set_contact_alias">Cambiar o nome do contacto</string>
   <string name="set_contact_alias_hint">Nome do contacto</string>
   <string name="set_alias_button">Cambiar</string>
@@ -138,6 +140,7 @@
   <string name="dialog_title_image_support">Xa pode enviar imaxes a este contacto</string>
   <string name="dialog_message_image_support">Toque en esta icona para anexar imaxes.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Engadir contacto próximo</string>
   <string name="face_to_face">Debe atoparse coa persoa que quere engadir como contacto.\n\Isto evitará que calquera poida suplantala ou ler as súas mensaxes no futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Tenteo de novo</string>
@@ -155,13 +158,66 @@
   <string name="connection_error_explanation">Por favor, comprobe que ambas están conectadas a mesma rede Wi-Fi.</string>
   <string name="connection_error_feedback">Si persiste o problema,<a href="feedback">envíe un informe</a> para axudarnos a mellorar a app.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Engadir contacto a distancia</string>
+  <string name="add_contact_nearby_title">Engadir contacto próximo</string>
+  <string name="add_contact_remotely_title">Engadir contacto a distancia</string>
+  <string name="contact_name_hint">Darlle un alcume ao contacto</string>
+  <string name="contact_link_intro">Introducir aquí a ligazón do seu contacto</string>
+  <string name="contact_link_hint">Ligazón do contacto</string>
   <string name="paste_button">Pegar</string>
+  <string name="add_contact_button">Engadir contacto</string>
   <string name="copy_button">Copiar</string>
   <string name="share_button">Compartir</string>
+  <string name="send_link_title">Intercambiar ligazóns</string>
+  <string name="add_contact_choose_nickname">Escoller alcume</string>
+  <string name="add_contact_choose_a_nickname">Introducir alcume</string>
+  <string name="nickname_intro">Déalle un alcume ao contacto. Só vostede pode velo.</string>
+  <string name="your_link">Envíe esta ligazón ao contacto que quere engadir</string>
+  <string name="link_clip_label">Ligazón Briar</string>
+  <string name="link_copied_toast">Ligazón copiada</string>
+  <string name="adding_contact_error">Algo fallou ao engadir o contacto.</string>
+  <string name="pending_contact_requests_snackbar">Existen solicitudes de contactos pendentes</string>
+  <string name="pending_contact_requests">Solicitudes Pendentes de Contactos</string>
+  <string name="no_pending_contacts">Sen contactos pendentes</string>
   <string name="add_contact_remote_connecting">Conectando...</string>
+  <string name="waiting_for_contact_to_come_online">Agardando a que o contacto se conecte...</string>
   <string name="connecting">Conectando...</string>
+  <string name="adding_contact">Engadindo contacto...</string>
+  <string name="adding_contact_failed">Fallou engadir contacto</string>
+  <string name="dialog_title_remove_pending_contact">Confirme a eliminación</string>
+  <string name="dialog_message_remove_pending_contact">Este contacto aínda está a ser engadido. Se o elimina agora, non será engadido.</string>
+  <string name="own_link_error">Introduza a ligazón do contacto, non o propio</string>
+  <string name="nickname_missing">Por favor introduza un alcume</string>
+  <string name="invalid_link">Ligazón non válida</string>
+  <string name="unsupported_link">Esta ligazón chega desde unha versión nova de Briar. Por favor, actualice a nova versión e inténteo de novo.</string>
+  <string name="intent_own_link">Abreu a súa propia ligazón. Utilice a do contacto que quere engadir!</string>
+  <string name="missing_link">Por favor introduza ligazón</string>
   <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Novo contacto engadido.</item>
+    <item quantity="other">%d novos contactos engadidos.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Estanos a costar moito tempo engadir esta usuaria</string>
+  <string name="adding_contact_slow_title">Non puido conectar co Contacto</string>
+  <string name="adding_contact_slow_text">Estanos a costar engadir este contacto.\n\nPor favor, comprobe que o contacto recibeu a súa ligazón e engadeuna a vostede:</string>
+  <string name="offline_state">Sen conexión a internet</string>
+  <string name="duplicate_link_dialog_title">Duplicar Ligazón</string>
+  <string name="duplicate_link_dialog_text_1">Xa ten un contacto pendente con esta ligazón: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Son %s e %s a mesma persoa?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Mesma Persoa</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Diferente Persoa</string>
+  <string name="duplicate_link_dialog_text_3">%s e %s enviaronlle a mesma ligazón.\n\nUnha delas podería estar a intentar descubrir os seus contactos.\n\nNon lles diga que recibeu a mesma ligazón de alguén máis.</string>
+  <string name="pending_contact_updated_toast">Contacto pendente actualizado</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presente aos seus contactos</string>
   <string name="introduction_onboarding_text">Pode presentar aos seus contactos, así non precisan encontrarse en persoa para conectar a través de Briar.</string>

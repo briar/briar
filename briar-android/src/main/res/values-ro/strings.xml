@@ -123,7 +123,9 @@
   <string name="message_hint">Scrieți mesajul</string>
   <string name="image_caption_hint">Adaugă un subtitlu (opțional)</string>
   <string name="image_attach">Atașează imagine</string>
-  <string name="image_attach_error">Nu s-a putut atașa o imagine</string>
+  <string name="image_attach_error">Nu s-au putut atașa imaginile</string>
+  <string name="image_attach_error_too_big">Imaginea este prea mare. Limita este de %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Format de imagine incompatibil: %s</string>
   <string name="set_contact_alias">Schimbă nume contact</string>
   <string name="set_contact_alias_hint">Nume contact</string>
   <string name="set_alias_button">Modifică</string>
@@ -183,13 +185,16 @@
   <string name="pending_contact_requests">Solicitări de contact în așteptare</string>
   <string name="no_pending_contacts">Nici un contact în așteptare</string>
   <string name="add_contact_remote_connecting">Se conectează...</string>
-  <string name="waiting_for_contact_to_come_online">Așteptăm contactul să se conectexe…\n\nA introdus deja adresa dumneavoastră?</string>
+  <string name="waiting_for_contact_to_come_online">Așteptăm contactul să se conecteze…</string>
   <string name="connecting">Se conectează...</string>
   <string name="adding_contact">Se adaugă contactul…</string>
   <string name="adding_contact_failed">Adăugarea contactului a eșuat</string>
+  <string name="dialog_title_remove_pending_contact">Confirmați eliminarea</string>
+  <string name="dialog_message_remove_pending_contact">Acest contact este în curs de adăugare. Eliminănd acum, nu v-a mai fi adăugat.</string>
   <string name="own_link_error">Introduceți adresa contactului, nu cea personală</string>
   <string name="nickname_missing">Vă rugăm să introduceți un nume</string>
   <string name="invalid_link">Adresă invalidă</string>
+  <string name="unsupported_link">Adresa pe care ați scanat-o aparține unei versiuni mai noi de Briar. Vă rugăm să actualizați la cea mai recentă versiune și încercați din nou.</string>
   <string name="intent_own_link">Ați deschis adresa dumneavoastră. Folosiți-o pe cea a contactului pe care doriți să-l adăugați!</string>
   <string name="missing_link">Vă rugăm să introduceți o adresă</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -201,6 +206,24 @@
     <item quantity="few">%d contacte noi adăugate.</item>
     <item quantity="other">%d de contacte noi adăugate.</item>
   </plurals>
+  <string name="adding_contact_slow_warning">Se pare că durează mai mult să se adauge acest contact</string>
+  <string name="adding_contact_slow_title">Nu s-a putut face conectarea contactului</string>
+  <string name="adding_contact_slow_text">Se pare că durează mai mult să se adauge acest contact.\n\nVă rugăm să verificați dacă și contactul a primit adresa dumneavoastră și va adăugat:</string>
+  <string name="offline_state">Nu este disponibilă o conexiune la internet</string>
+  <string name="duplicate_link_dialog_title">Adresă duplicat</string>
+  <string name="duplicate_link_dialog_text_1">Deja aveți un contact în așteptare cu această adresă: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Sunt %s  și %s aceeași persoană?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Aceeași persoană</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Persoană diferită</string>
+  <string name="duplicate_link_dialog_text_3">%s și %s v-au trimis aceeași adresă.\n\nUnii dintre ei s-ar putea să încerce să descopere care vă sunt contactele.\n\nNu le spuneți că ați primit aceeași adresă și de la altcineva.</string>
+  <string name="pending_contact_updated_toast">Listă solicitări de contact în așteptare actualizată</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Recomandați-vă contactele</string>
   <string name="introduction_onboarding_text">Puteți să vă recomandați contactele unele altora, încât sa nu fie nevoie ca să se vadă față în față pentru a se putea conecta la Briar.</string>
@@ -321,7 +344,7 @@
   <string name="forum_invitation_response_declined_sent">Ați refuzat invitația la forum de la %s.</string>
   <string name="forum_invitation_response_accepted_received">%s a acceptat invitația la forum.</string>
   <string name="forum_invitation_response_declined_received">%s a refuzat invitația la forum.</string>
-  <string name="sharing_status">Partajare stare</string>
+  <string name="sharing_status">Stare partajare</string>
   <string name="sharing_status_forum">Orice membru al unui forum poate să-l împărtășească cu contactele lor. Partajați acest forum cu următoarele persoane de contact. Pot exista și alți membri pe care să nu îi puteți vedea.</string>
   <string name="shared_with">Partajat cu %1$d (%2$d conectați)</string>
   <plurals name="forums_shared">

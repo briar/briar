@@ -18,7 +18,7 @@
   <string name="passwords_do_not_match">Passwörter stimmen nicht überein</string>
   <string name="create_account_button">Konto anlegen</string>
   <string name="more_info">Weitere Informationen</string>
-  <string name="don_t_ask_again">Frage nicht noch einmal</string>
+  <string name="don_t_ask_again">Nicht erneut nachfragen</string>
   <string name="setup_huawei_text">Bitte tippe auf die Schaltfläche unten und stelle sicher, dass Briar unter \"Geschützte Apps\" angezeigt wird.</string>
   <string name="setup_huawei_button">Briar schützen</string>
   <string name="setup_huawei_help">Wenn Briar nicht zur Liste der geschützten Apps hinzugefügt wird, kann es nicht im Hintergrund ausgeführt werden.</string>
@@ -48,7 +48,7 @@
   <string name="download_briar_button">Lade Briar 1.0 herunter</string>
   <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
   <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
-  <string name="startup_compact_database">Datenbank komprimieren...</string>
+  <string name="startup_compact_database">Datenbank wird komprimiert ...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Navigationsleiste öffnen</string>
   <string name="nav_drawer_close_description">Navigationsleiste schliessen</string>
@@ -118,7 +118,9 @@
   <string name="message_hint">Nachricht eingeben</string>
   <string name="image_caption_hint">Überschrift hinzufügen (optional)</string>
   <string name="image_attach">Bild anhängen</string>
-  <string name="image_attach_error">Konnte kein Bild anhängen</string>
+  <string name="image_attach_error">Bild(er) konnte(n) nicht angehängt werden</string>
+  <string name="image_attach_error_too_big">Bild zu groß. Das Limit beträgt %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Nicht unterstütztes Bildformat: %s</string>
   <string name="set_contact_alias">Kontaktnamen ändern</string>
   <string name="set_contact_alias_hint">Name des Kontakts</string>
   <string name="set_alias_button">Ändern</string>
@@ -131,13 +133,14 @@
   <string name="save_image">Bild speichern</string>
   <string name="dialog_title_save_image">Bild speichern?</string>
   <string name="dialog_message_save_image">Gespeicherte Bilder können von vielen anderen Apps eingesehen werden.\n\nBist du sicher, dass du das Bild speichern möchtest?</string>
-  <string name="save_image_success">Bild wurde gespeichert.</string>
-  <string name="save_image_error">Konnte Bild nicht speichern.</string>
+  <string name="save_image_success">Bild wurde gespeichert</string>
+  <string name="save_image_error">Bild konnte nicht gespeichert werden</string>
   <string name="dialog_title_no_image_support">Bilder nicht verfügbar</string>
   <string name="dialog_message_no_image_support">Der Briar deines Kontakts unterstützt noch keine Bildanhänge. Sobald die Aktualisierung abgeschlossen ist, siehst du ein anderes Symbol.</string>
   <string name="dialog_title_image_support">Du kannst nun Bilder an diesen Kontakt senden</string>
   <string name="dialog_message_image_support">Tippe auf das Symbol, um Bilder anzuhängen.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Kontakt in der Nähe hinzufügen</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
   <string name="continue_button">Weiter</string>
   <string name="try_again_button">Noch einmal versuchen</string>
@@ -152,18 +155,24 @@
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
   <string name="connection_error_title">Keine Verbindung zum Kontakt</string>
-  <string name="connection_error_explanation">Überprüfe ob ihr beide mit dem selben Wi-Fi Netzwerk verbunden seit.</string>
+  <string name="connection_error_explanation">Überprüfe, ob ihr beide mit dem selben WLAN-Netzwerk verbunden seid.</string>
   <string name="connection_error_feedback">Wenn das Problem weiterbesteht, hilf uns die App zu verbessern und <a href="feedback">schicke Feedback</a>.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Kontakt aus der Ferne hinzufügen</string>
   <string name="add_contact_nearby_title">Kontakt in der Nähe hinzufügen</string>
+  <string name="add_contact_remotely_title">Kontakt aus der Ferne hinzufügen</string>
   <string name="contact_name_hint">Gib dem Kontakt einen Spitznamen</string>
+  <string name="contact_link_intro">Hier den Link deines Kontakts einfügen</string>
+  <string name="contact_link_hint">Kontakt Link</string>
   <string name="paste_button">Einfügen</string>
   <string name="add_contact_button">Kontakt hinzufügen</string>
   <string name="copy_button">Kopieren</string>
   <string name="share_button">Teilen</string>
+  <string name="send_link_title">Links austauschen</string>
   <string name="add_contact_choose_nickname">Wähle einen Spitznamen</string>
   <string name="add_contact_choose_a_nickname">Gib einen Spitznamen ein</string>
-  <string name="nickname_intro">Gib deinem Kontakt einen Spitznamen. Nur du kannst es sehen.</string>
+  <string name="nickname_intro">Gib deinem Kontakt einen Spitznamen. Nur du kannst ihn sehen.</string>
+  <string name="your_link">Gebe diesen Link zu dem Kontakt den du hinzufügen möchtest</string>
   <string name="link_clip_label">Briar Link</string>
   <string name="link_copied_toast">Link kopiert</string>
   <string name="adding_contact_error">Es gab einen Fehler beim Hinzufügen des Kontaktes.</string>
@@ -171,10 +180,18 @@
   <string name="pending_contact_requests">Ausstehende Kontaktanfragen</string>
   <string name="no_pending_contacts">Keine ausstehenden Kontakte</string>
   <string name="add_contact_remote_connecting">Verbindung wird aufgebaut …</string>
+  <string name="waiting_for_contact_to_come_online">Warte auf Online-Aktivität des Kontakts ...</string>
   <string name="connecting">Verbindung wird aufgebaut …</string>
   <string name="adding_contact">Kontakt hinzufügen...</string>
   <string name="adding_contact_failed">Hinzufügen von Kontakt ist fehlgeschlagen</string>
+  <string name="dialog_title_remove_pending_contact">Entfernung bestätigen</string>
+  <string name="dialog_message_remove_pending_contact">Dieser Kontakt befindet sich noch beim Hinzufügen. Wenn er jetzt Entfernt wird, wird das Hinzufügen abgebrochen.</string>
+  <string name="own_link_error">Gebe den Link deines Kontakts ein, nicht deinen Eigenen.</string>
   <string name="nickname_missing">Bitte gib einen Spitznamen an</string>
+  <string name="invalid_link">Ungültiger Link</string>
+  <string name="unsupported_link">Dieser Link kommt von einer neueren Version von Briar. Bitte führe eine Aktualisierung auf die aktuelle Version durch und versuche es dann nochmal. </string>
+  <string name="intent_own_link">Du hast deinen eigenen Link aufgerufen. Nutze einen Link von deinen Kontakten, die du hinzufügen möchtest!</string>
+  <string name="missing_link">Bitte gebe einen Link ein</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
@@ -183,6 +200,24 @@
     <item quantity="one">Neuer Kontakt hinzugefügt.</item>
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
+  <string name="adding_contact_slow_warning">Das Hinzufügen des Kontakts dauert länger den normal</string>
+  <string name="adding_contact_slow_title">Kann nicht zu Kontakt verbinden</string>
+  <string name="adding_contact_slow_text">Das Hinzufügen des Kontakts dauert länger den normal.\n\nBitte kontrolliere, dass dein Kontakt dein Link erhalten und eingegeben hat:</string>
+  <string name="offline_state">Keine Internetverbindung</string>
+  <string name="duplicate_link_dialog_title">Link duplizieren</string>
+  <string name="duplicate_link_dialog_text_1">Du hast bereits einen Kontakt mit diesem Link ausstehend: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Sind %s und %s dieselbe Person?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Selbe Person</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Andere Person</string>
+  <string name="duplicate_link_dialog_text_3">%s und %s haben Dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass Du diesen Link auch von jemand anderem erhalten hast,</string>
+  <string name="pending_contact_updated_toast">Ausstehender Kontakt aktualisiert</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
   <string name="introduction_onboarding_text">Du kannst deine Kontakte untereinander bekannt machen. So können sie sich über Briar verbinden, ohne sich persönlich treffen zu müssen.</string>
@@ -372,8 +407,8 @@
   <string name="bluetooth_setting_disabled">Nur beim Hinzufügen von Kontakten</string>
   <string name="tor_network_setting">Über Internet (Tor) verbinden</string>
   <string name="tor_network_setting_automatic">Automatisch (standortbasiert)</string>
-  <string name="tor_network_setting_without_bridges">Tor ohne Bridges benutzen</string>
-  <string name="tor_network_setting_with_bridges">Tor mit Bridges benutzen</string>
+  <string name="tor_network_setting_without_bridges">Tor ohne Bridges nutzen</string>
+  <string name="tor_network_setting_with_bridges">Tor mit Bridges nutzen</string>
   <string name="tor_network_setting_never">Nicht verbinden</string>
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automatisch: %1$s (in %2$s)</string>
@@ -479,7 +514,7 @@
   <string name="permission_location_title">Berechtigung Standort</string>
   <string name="permission_location_request_body">Um Bluetooth-Geräte zu  finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_location_title">Kamera und Standort</string>
-  <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, brauch Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
+  <string name="permission_camera_location_request_body">Um den QR-Code zu scannen, braucht Briar Zugriff auf die Kamera.\n\nUm Bluetooth-Geräte zu finden, braucht Briar Zugriff auf deinen Standort.\n\nBriar speichert weder deinen Standort noch gibt es ihn an andere weiter.</string>
   <string name="permission_camera_denied_body">Du hast den Zugriff auf die Kamera verweigert, aber das Hinzufügen von Kontakten erfordert die Verwendung der Kamera.\n\nBitte gewähre den Zugriff.</string>
   <string name="qr_code">QR-Code</string>
   <string name="show_qr_code_fullscreen">QR-Code im Vollbildmodus anzeigen</string>

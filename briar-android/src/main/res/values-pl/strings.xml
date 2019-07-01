@@ -50,6 +50,7 @@
   <string name="download_briar_button">Pobierz Briar 1.0</string>
   <string name="startup_open_database">Deszyfruję Bazę Danych...</string>
   <string name="startup_migrate_database">Aktualizuję Bazę Danych...</string>
+  <string name="startup_compact_database">Kompaktowanie Bazy Danych…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Otwórz panel nawigacji</string>
   <string name="nav_drawer_close_description">Zamknij panel nawigacji</string>
@@ -127,6 +128,7 @@
   <string name="message_hint">Typ wiadomości</string>
   <string name="image_caption_hint">Dodaj podpis (opcjonalne)</string>
   <string name="image_attach">Załącz zdjęcie</string>
+  <string name="image_attach_error">Nie udało się dołączyć zdjęcia/zdjęć</string>
   <string name="image_attach_error_too_big">Zdjęcie jest zbyt duże. Limit wynosi %d MB.</string>
   <string name="image_attach_error_invalid_mime_type">Format zdjęcia jest nieobsługiwany: %s</string>
   <string name="set_contact_alias">Zmień imię kontaktu</string>
@@ -146,7 +148,9 @@
   <string name="dialog_title_no_image_support">Zdjęcie Niedostępne</string>
   <string name="dialog_message_no_image_support">Briar twojego kontaktu nie obsługuje jeszcze załączników zdjęć. Jak wykonają aktualizację, zobaczysz inną ikonę.</string>
   <string name="dialog_title_image_support">Możesz teraz wysyłać zdjęcia do tego kontaktu</string>
+  <string name="dialog_message_image_support">Kliknij tą ikonę aby dołączyć zdjęcia.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Dodaj Kontakt w Pobliżu</string>
   <string name="face_to_face">Musisz spotkać się z osobą którą chcesz dodać jako kontakt.\n\nTo uniemożliwi komukolwiek podszyć się pod Ciebie lub czytać wysyłane wiadomości.</string>
   <string name="continue_button">Kontynuuj</string>
   <string name="try_again_button">Spróbuj ponownie</string>
@@ -155,6 +159,8 @@
   <string name="contact_added_toast">Kontakt dodany: %s</string>
   <string name="contact_already_exists">Kontakt %s już istnieje</string>
   <string name="qr_code_invalid">Kod QR jest nie prawidłowy</string>
+  <string name="qr_code_too_old">Kod QR, który zeskanowałeś pochodzi od starszej wersji %s.\n\nPoproś swój kontakt do aktualizacji do najnowszej wersji i spróbuj ponownie.</string>
+  <string name="qr_code_too_new">Kod QR, który zeskanowałeś pochodzi od nowszej wersji %s.\n\nZaktualizuj do najnowszej wersji i spróbuj ponownie.</string>
   <string name="camera_error">Błąd aparatu</string>
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
@@ -162,24 +168,68 @@
   <string name="connection_error_explanation">Sprawdź czy oboje jesteście połączeni z tą samą siecią Wi-Fi.</string>
   <string name="connection_error_feedback">Jeśli problem będzie występować, proszę <a href="feedback">wysłać zgłoszenie</a> aby pomóc nam ulepszyć aplikację.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Dodaj Kontakt na Odległość</string>
+  <string name="add_contact_nearby_title">Dodaj kontakt w pobliżu</string>
+  <string name="add_contact_remotely_title">Dodaj kontakt na odległość</string>
+  <string name="contact_name_hint">Daj pseudonim kontaktowi</string>
+  <string name="contact_link_intro">Wprowadź tutaj link od swojego kontaktu</string>
+  <string name="contact_link_hint">Link kontaktu</string>
   <string name="paste_button">Wklej</string>
+  <string name="add_contact_button">Dodaj kontakt</string>
   <string name="copy_button">Kopiuj</string>
   <string name="share_button">Udostępnij</string>
+  <string name="send_link_title">Wymień linki</string>
+  <string name="add_contact_choose_nickname">Wybierz Pseudonim</string>
+  <string name="add_contact_choose_a_nickname">Wprowadź pseudonim</string>
+  <string name="nickname_intro">Daj pseudonim swojemu kontaktowi. Tylko ty możesz go widzieć.</string>
+  <string name="your_link">Podaj ten link kontaktowi, którego chcesz dodać</string>
+  <string name="link_clip_label">Link Briar</string>
   <string name="link_copied_toast">Link skopiowany</string>
+  <string name="adding_contact_error">Wystąpił błąd podczas dodawaniu kontaktu</string>
+  <string name="pending_contact_requests_snackbar">Są prośby oczekujących kontaktów</string>
+  <string name="pending_contact_requests">Prośby Oczekujących Kontaktów</string>
+  <string name="no_pending_contacts">Brak oczekujących kontaktów</string>
   <string name="add_contact_remote_connecting">Trwa łączenie...</string>
+  <string name="waiting_for_contact_to_come_online">Czekam, aż kontakt pojawi się online…</string>
   <string name="connecting">Trwa łączenie...</string>
+  <string name="adding_contact">Dodawanie kontaktu…</string>
+  <string name="adding_contact_failed">Dodawanie kontaktu nie powiodło się</string>
+  <string name="dialog_title_remove_pending_contact">Potwierdź Usunięcie</string>
+  <string name="dialog_message_remove_pending_contact">Ten kontakt jest nadal dodawany. Jeżeli go teraz usuniesz, nie zostanie on dodany.</string>
+  <string name="own_link_error">Wprowadź link twojego kontaktu, nie swój</string>
+  <string name="nickname_missing">Proszę, wprowadź pseudonim</string>
+  <string name="invalid_link">Niepoprawny pseudonim</string>
+  <string name="unsupported_link">Ten link pochodzi od nowszej wersji Briara. Zaktualizuj do najnowszej wersji i spróbuj ponownie.</string>
+  <string name="intent_own_link">Otworzyłeś swój własny link. Użyj jednego z kontaktów, którego chcesz dodać!</string>
   <string name="missing_link">Proszę, wprowadź link</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Nowy kontakt dodany.</item>
+    <item quantity="few">Nowe kontakty dodane.</item>
+    <item quantity="many">Nowe kontakty dodane.</item>
+    <item quantity="other">Dodano %d nowych kontaktów.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Dodawanie tego kontaktu zajmuje więcej czasu niż zwykle</string>
+  <string name="adding_contact_slow_title">Nie Można Połączyć się z Kontaktem</string>
+  <string name="adding_contact_slow_text">Dodawanie tego kontaktu zajmuje więcej czasu niż zwykle.\n\nProsze sprawdź czy twój kontakt otrzymał twój link i ciebie dodał:</string>
   <string name="offline_state">Brak połączenia z Internetem</string>
+  <string name="duplicate_link_dialog_title">Link Duplikat</string>
+  <string name="duplicate_link_dialog_text_1">Masz już oczekujący kontakt z tym linkiem: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Czy %s i %s to te same osoby?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Ta Sama Osoba</string>
   <!--This is a button for answering that two nicknames refer to different people. This string
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Inna Osoba</string>
+  <string name="duplicate_link_dialog_text_3">%s i %s wysłał ci ten sam link.\n\nJeden z nich może próbować odkryć, kim są twoje kontakty.\n\nNie mów im, że otrzymałeś ten sam link od kogoś innego.</string>
+  <string name="pending_contact_updated_toast">Oczekujący kontakt zaktualizowany</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Udostępnij swoje kontakty.</string>
   <string name="introduction_onboarding_text">Możesz udostępniać kontakty, tak aby osoby nie musiały spotykać się osobiście.</string>
@@ -481,6 +531,8 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">Dostęp do aparatu</string>
   <string name="permission_camera_request_body">Aby zeskanować kod QR, Briar potrzebuje mieć dostęp do aparatu.</string>
+  <string name="permission_location_title">Dostęp do lokalizacji</string>
+  <string name="permission_location_request_body">Aby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do twojej lokalizacji.\n\nBriar nie przechowuje twojej lokalizacji ani nie udostępnia jej nikomu.</string>
   <string name="permission_camera_location_title">Kamera i lokalizacja</string>
   <string name="permission_camera_location_request_body">Aby zeskanować kod QR, Briar potrzebuje dostępu do kamery.\n\nAby odkryć urządzenia Bluetooth, Briar potrzebuje zezwolenia na dostęp do Twojej lokalizacji.\n\nBriar nie przechowuje Twojej lokalizacji ani nie udostępnia jej nikomu.</string>
   <string name="permission_camera_denied_body">Odmówiłeś dostępu do kamery, lecz dodawanie kontaktów tego wymaga.\n\nProszę udzielić dostępu.</string>

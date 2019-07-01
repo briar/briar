@@ -1,0 +1,531 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">歡迎來到 Briar</string>
+  <string name="setup_name_explanation">您的暱稱將顯示在您發佈的任何內容旁。暱稱在創建帳戶後將無法更改。</string>
+  <string name="setup_next">下一步</string>
+  <string name="setup_password_intro">設置密碼</string>
+  <string name="setup_password_explanation">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。卸載 Briar 或忘記密碼將導致帳戶無法恢復。請設置不易被猜出的長密碼，比如四個隨機英文單詞，或是由隨機字母、數字和符號組成的十位字符。</string>
+  <string name="setup_doze_title">背景網絡連接</string>
+  <string name="setup_doze_intro">爲了接收消息，Briar 需要在後臺保持連接。</string>
+  <string name="setup_doze_explanation">Briar 需要保持背景網絡連接去接收消息。爲此，請停用電量優化選項。</string>
+  <string name="setup_doze_button">允許連接</string>
+  <string name="choose_nickname">設置暱稱</string>
+  <string name="choose_password">設置密碼</string>
+  <string name="confirm_password">確認密碼</string>
+  <string name="name_too_long">暱稱過長</string>
+  <string name="password_too_weak">密碼不夠強</string>
+  <string name="passwords_do_not_match">兩個密碼並不相同</string>
+  <string name="create_account_button">創建帳戶</string>
+  <string name="more_info">更多信息</string>
+  <string name="don_t_ask_again">不再詢問</string>
+  <string name="setup_huawei_text">輕按下方的按鈕將 Briar 加入“受保護的程式”列表。</string>
+  <string name="setup_huawei_button">保護 Briar</string>
+  <string name="setup_huawei_help">如果 Briar 未被加入受保護程式列表，它將無法在背景運行。</string>
+  <string name="warning_dozed">%s 無法在背景運行。</string>
+  <!--Login-->
+  <string name="enter_password">密碼</string>
+  <string name="try_again">密碼錯誤，請重試</string>
+  <string name="sign_in_button">登錄</string>
+  <string name="forgotten_password">我忘記了密碼</string>
+  <string name="dialog_title_lost_password">忘記密碼</string>
+  <string name="dialog_message_lost_password">您的 Briar 帳戶被加密儲存在您的裝置上，而非在雲端。因此我們無法重置您的密碼。您是否希望刪除帳戶，重新開始？\n\n注意：刪除帳戶將永久失去您以前的身份、聯絡人和訊息。</string>
+  <string name="startup_failed_notification_title">Briar 無法啓動</string>
+  <string name="startup_failed_notification_text">輕按查看更多信息。</string>
+  <string name="startup_failed_activity_title">Briar 啓動失敗</string>
+  <string name="startup_failed_db_error">由於某些原因，Briar 數據庫已損壞並且無法修復。您的帳戶、數據和所有聯絡人已經丟失。很不幸，您需要重新安裝 Briar 或者在提示輸入密碼時選擇“我忘記了密碼”來重新創建一個 Briar 帳戶。</string>
+  <string name="startup_failed_data_too_old_error">由於您的帳戶在舊版本程式創建，無法在現在的版本打開。您需要重新安裝舊版本程式或在提示輸入密碼時選擇“我忘記了密碼”以創建新的帳戶。</string>
+  <string name="startup_failed_data_too_new_error">這程式的版本過舊。請升級至最新版本並重試。</string>
+  <string name="startup_failed_service_error">Briar 無法開啓一個必需的插件。於通常情況下，重新安裝 Briar 可以解決該問題。但是由於 Briar 不使用中央服務器來儲存您的數據，這項操作將導致您的帳戶及相關的一切數據丟失。</string>
+  <plurals name="expiry_warning">
+    <item quantity="other">這是 Briar 的測試版本。您的帳戶將在 %d 天後到期，且無法延期。</item>
+  </plurals>
+  <string name="expiry_update">測試到期時間延長，您的帳戶將在 %d 天後到期。</string>
+  <string name="expiry_date_reached">本軟件已過期。\n感謝您的測試！</string>
+  <string name="download_briar">爲了繼續使用 Briar，請下載 1.0 版。</string>
+  <string name="create_new_account">您要創建一個新帳戶，但可以續用現時的暱稱。</string>
+  <string name="download_briar_button">下載 Briar 1.0</string>
+  <string name="startup_open_database">正在解密數據庫……</string>
+  <string name="startup_migrate_database">正在更新數據庫……</string>
+  <string name="startup_compact_database">正在壓縮數據庫……</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">打開導航</string>
+  <string name="nav_drawer_close_description">關閉導航</string>
+  <string name="contact_list_button">聯絡人</string>
+  <string name="groups_button">私人群組</string>
+  <string name="forums_button">論壇</string>
+  <string name="blogs_button">博客</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">鎖定程式</string>
+  <string name="settings_button">設置</string>
+  <string name="sign_out_button">登出</string>
+  <!--Transports-->
+  <string name="transport_tor">互聯網</string>
+  <string name="transport_bt">藍牙</string>
+  <string name="transport_lan">Wi-Fi</string>
+  <!--Notifications-->
+  <string name="reminder_notification_title">已登出 Briar</string>
+  <string name="reminder_notification_text">輕按以重新登錄。</string>
+  <string name="reminder_notification_channel_title">Briar 登錄提醒</string>
+  <string name="reminder_notification_dismiss">忽略</string>
+  <string name="ongoing_notification_title">已登錄 Briar</string>
+  <string name="ongoing_notification_text">輕觸以打開 Briar</string>
+  <plurals name="private_message_notification_text">
+    <item quantity="other">%d 條新私信。</item>
+  </plurals>
+  <plurals name="group_message_notification_text">
+    <item quantity="other">%d 條新群組消息。</item>
+  </plurals>
+  <plurals name="forum_post_notification_text">
+    <item quantity="other">%d 條新論壇帖子。</item>
+  </plurals>
+  <plurals name="blog_post_notification_text">
+    <item quantity="other">%d 條新博文。</item>
+  </plurals>
+  <!--Misc-->
+  <string name="now">現在</string>
+  <string name="show">顯示</string>
+  <string name="hide">隱藏</string>
+  <string name="ok">確定</string>
+  <string name="cancel">取消</string>
+  <string name="got_it">知道了</string>
+  <string name="delete">刪除</string>
+  <string name="accept">接受</string>
+  <string name="decline">謝絕</string>
+  <string name="options">選項</string>
+  <string name="online">在線</string>
+  <string name="offline">離線</string>
+  <string name="send">發送</string>
+  <string name="allow">允許</string>
+  <string name="open">打開</string>
+  <string name="no_data">沒有數據</string>
+  <string name="ellipsis">……</string>
+  <string name="text_too_long">輸入的文本過長</string>
+  <string name="show_onboarding">顯示協助對話框</string>
+  <string name="fix">修復</string>
+  <string name="help">幫助</string>
+  <string name="sorry">抱歉</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">尚無聯絡人可供顯示</string>
+  <string name="no_contacts_action">輕按 + 號即可添加聯絡人</string>
+  <string name="date_no_private_messages">沒有消息。</string>
+  <string name="no_private_messages">尚無消息可供顯示</string>
+  <string name="message_hint">輸入信息</string>
+  <string name="image_caption_hint">添加圖片描述（可選）</string>
+  <string name="image_attach">附加圖片</string>
+  <string name="image_attach_error">無法附加圖片</string>
+  <string name="image_attach_error_too_big">圖片檔案過大，上限為%dMB.</string>
+  <string name="image_attach_error_invalid_mime_type">圖片格式不支援: %s</string>
+  <string name="set_contact_alias">更改聯絡人姓名</string>
+  <string name="set_contact_alias_hint">聯絡人姓名</string>
+  <string name="set_alias_button">更改</string>
+  <string name="delete_contact">刪除聯絡人</string>
+  <string name="dialog_title_delete_contact">確認刪除聯絡人</string>
+  <string name="dialog_message_delete_contact">確認要刪除該聯絡人和與其交流訊息嗎？</string>
+  <string name="contact_deleted_toast">已刪除聯絡人</string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">您</string>
+  <string name="save_image">保存圖片</string>
+  <string name="dialog_title_save_image">確定保存圖片嗎？</string>
+  <string name="dialog_message_save_image">保存這張圖片後，其他程式都可以開啟它。\n\n您確定要保存嗎？</string>
+  <string name="save_image_success">已保存圖片</string>
+  <string name="save_image_error">無法保存圖片</string>
+  <string name="dialog_title_no_image_support">無法開啟圖片</string>
+  <string name="dialog_message_no_image_support">您的聯絡人的 Briar 版本尚未支持圖片附件。一旦他們升級後您就會看到一個不同的圖標。</string>
+  <string name="dialog_title_image_support">您現在可以向此聯絡人發送圖片</string>
+  <string name="dialog_message_image_support">輕按此圖標即可附加圖片。</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">添加附近的聯絡人</string>
+  <string name="face_to_face">您必須面對面添加聯絡人。\n\n這樣將防止他人冒充您的身份並查看您的信息。</string>
+  <string name="continue_button">繼續</string>
+  <string name="try_again_button">重試</string>
+  <string name="waiting_for_contact_to_scan">等待聯絡人掃描並連接\u2026</string>
+  <string name="exchanging_contact_details">正在交換聯絡人詳細信息\u2026</string>
+  <string name="contact_added_toast">已添加聯絡人：%s</string>
+  <string name="contact_already_exists">聯絡人 %s 已存在</string>
+  <string name="qr_code_invalid">二維碼無效</string>
+  <string name="qr_code_too_old">您所掃描的二維碼來自舊版本 %s 。\n\n請讓您的聯絡人升級到最新版本並重試。</string>
+  <string name="qr_code_too_new">您所掃描的二維碼來自新版本 %s 。\n\n請升級到最新版本並重試。</string>
+  <string name="camera_error">相機出錯</string>
+  <string name="connecting_to_device">正在連接至裝置\u2026</string>
+  <string name="authenticating_with_device">正在驗證裝置\u2026</string>
+  <string name="connection_error_title">無法連接到您的聯絡人</string>
+  <string name="connection_error_explanation">請確保您們連接到了同一個 Wi-Fi中。</string>
+  <string name="connection_error_feedback">如果該問題仍存在，請 <a href="feedback">發送反饋</a> 幫助我們改善程式。</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">添加遠處的聯絡人</string>
+  <string name="add_contact_nearby_title">添加附近的聯絡人</string>
+  <string name="add_contact_remotely_title">添加遠處的聯絡人</string>
+  <string name="contact_name_hint">給聯絡人暱稱</string>
+  <string name="contact_link_intro">在此輸入您的聯絡人的鏈接</string>
+  <string name="contact_link_hint">聯絡人的鏈接</string>
+  <string name="paste_button">貼上</string>
+  <string name="add_contact_button">添加聯絡人</string>
+  <string name="copy_button">複製</string>
+  <string name="share_button">分享</string>
+  <string name="send_link_title">交換鏈接</string>
+  <string name="add_contact_choose_nickname">選擇暱稱</string>
+  <string name="add_contact_choose_a_nickname">輸入暱稱</string>
+  <string name="nickname_intro">爲聯絡人添加僅您可見的暱稱。</string>
+  <string name="your_link">將此鏈接發送給您希望添加的聯絡人</string>
+  <string name="link_clip_label">Briar鏈接</string>
+  <string name="link_copied_toast">已複製鏈接</string>
+  <string name="adding_contact_error">添加聯絡人時發生錯誤。</string>
+  <string name="pending_contact_requests_snackbar">有未處理的聯絡人請求</string>
+  <string name="pending_contact_requests">未處理的聯絡人請求</string>
+  <string name="no_pending_contacts">沒有未處理的聯絡人</string>
+  <string name="add_contact_remote_connecting">連接中……</string>
+  <string name="waiting_for_contact_to_come_online">正等待聯絡人上網…</string>
+  <string name="connecting">連接中……</string>
+  <string name="adding_contact">正在添加聯絡人……</string>
+  <string name="adding_contact_failed">添加聯絡人失敗</string>
+  <string name="dialog_title_remove_pending_contact">確認移除</string>
+  <string name="dialog_message_remove_pending_contact">還在添加這個聯絡人。如果您現在移除他/她，則不會添加此聯絡人。</string>
+  <string name="own_link_error">輸入您的聯絡人的鏈接，而不是您的</string>
+  <string name="nickname_missing">請輸入暱稱</string>
+  <string name="invalid_link">無效的鏈接</string>
+  <string name="unsupported_link">這條鏈接來自更新的 Briar 版本。請升級到最新版本後並重試。</string>
+  <string name="intent_own_link">您打開了自己的鏈接。請使用您希望添加的聯絡人的鏈接！</string>
+  <string name="missing_link">請輸入鏈接</string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="other">%d 新聯絡人已添加。</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">添加聯絡人需時過長</string>
+  <string name="adding_contact_slow_title">不能連接至聯絡人</string>
+  <string name="adding_contact_slow_text">添加聯絡人需時過長。\n\n請檢查聯絡人已收到您的鏈接並且已添加您：</string>
+  <string name="offline_state">無互聯網連接</string>
+  <string name="duplicate_link_dialog_title">重覆的鏈接</string>
+  <string name="duplicate_link_dialog_text_1">您已經有此鏈接的聯絡人，尚待處理：%s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s與%s是同一個人嗎？</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">同一個人</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">不同的人</string>
+  <string name="duplicate_link_dialog_text_3">%s和%s向您發送了相同的鏈接。\n\n 其中一個可能正試圖調查您的聯絡人是誰。\n\n請不要告訴他們您收到了來自其他人的相同鏈接。</string>
+  <string name="pending_contact_updated_toast">已更新尚待處理的聯絡人</string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">介紹您的聯絡人</string>
+  <string name="introduction_onboarding_text">您可以互相介紹您的聯絡人，這樣他們可以直接在 Briar 上建立聯繫而不必親自見面。</string>
+  <string name="introduction_menu_item">做介紹</string>
+  <string name="introduction_activity_title">選擇聯絡人</string>
+  <string name="introduction_not_possible">您已將這兩位聯絡人互相介紹過。請先等待該任務完成。如果您或您的聯絡人很少在線，這可能需要一些時間。</string>
+  <string name="introduction_message_title">介紹聯絡人</string>
+  <string name="introduction_message_hint">附加消息（選填）</string>
+  <string name="introduction_button">做介紹</string>
+  <string name="introduction_sent">您的介紹已發送。</string>
+  <string name="introduction_error">介紹時發生錯誤。</string>
+  <string name="introduction_response_error">回覆介紹時出錯</string>
+  <string name="introduction_request_sent">您已將 %1$s 介紹給 %2$s。</string>
+  <string name="introduction_request_received">%1$s 想要將您介紹給 %2$s。您希望將 %2$s 添加至您的聯絡人列表中嗎？</string>
+  <string name="introduction_request_exists_received">%1$s 想要將您介紹給 %2$s，但是 %2$s 已經在您的聯絡人列表中。%1$s 可能並不知情，但您仍可以做出回覆：</string>
+  <string name="introduction_request_answered_received">%1$s 想要將您介紹給 %2$s。</string>
+  <string name="introduction_response_accepted_sent">您已接受與 %1$s 建立聯繫。</string>
+  <string name="introduction_response_accepted_sent_info">在您添加 %1$s 爲聯絡人之前，他/她還需要接受你的介紹。這可能需要一些時間。</string>
+  <string name="introduction_response_declined_sent">您已謝絕與 %1$s 建立聯繫。</string>
+  <string name="introduction_response_accepted_received">%1$s 已接受與 %2$s 建立聯繫。</string>
+  <string name="introduction_response_declined_received">%1$s 已謝絕與 %2$s 建立聯繫。</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s 表示 %2$s 謝絕了介紹。</string>
+  <!--Private Groups-->
+  <string name="groups_list_empty">尚無群組可供展示</string>
+  <string name="groups_list_empty_action">輕按 + 號創建群組，或讓您的聯絡人分享群組給您</string>
+  <string name="groups_created_by">由 %s 創建</string>
+  <plurals name="messages">
+    <item quantity="other">%d 條消息</item>
+  </plurals>
+  <string name="groups_group_is_empty">這群組是空的</string>
+  <string name="groups_group_is_dissolved">已解散這群組</string>
+  <string name="groups_remove">刪除</string>
+  <string name="groups_create_group_title">創建私人群組</string>
+  <string name="groups_create_group_button">創建群組</string>
+  <string name="groups_create_group_invitation_button">發送邀請</string>
+  <string name="groups_create_group_hint">爲私人群組命名</string>
+  <string name="groups_invitation_sent">群組邀請已發送</string>
+  <string name="groups_member_list">成員列表</string>
+  <string name="groups_invite_members">邀請成員</string>
+  <string name="groups_member_created_you">您創建了群組</string>
+  <string name="groups_member_created">%s 創建了群組</string>
+  <string name="groups_member_joined_you">您加入了群組</string>
+  <string name="groups_member_joined">%s 加入了群組</string>
+  <string name="groups_leave">退出群組</string>
+  <string name="groups_leave_dialog_title">確認退出群組</string>
+  <string name="groups_leave_dialog_message">確認要退出該群組嗎？</string>
+  <string name="groups_dissolve">解散群組</string>
+  <string name="groups_dissolve_dialog_title">確認解散群組</string>
+  <string name="groups_dissolve_dialog_message">確認要解散該群組嗎？\n\n所有其他成員將無法繼續會話並可能無法接收最新的消息。</string>
+  <string name="groups_dissolve_button">解散</string>
+  <string name="groups_dissolved_dialog_title">已解散群組</string>
+  <string name="groups_dissolved_dialog_message">群組創建者已解散該群組。\n\n您將無法在群組中發送消息，並可能無法接收所有已發送的消息。</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">群組邀請</string>
+  <string name="groups_invitations_invitation_sent">您已邀請 %1$s 加入群組 “%2$s”。</string>
+  <string name="groups_invitations_invitation_received">%1$s 已邀請您加入群組 “%2$s”。</string>
+  <string name="groups_invitations_joined">已加入群組</string>
+  <string name="groups_invitations_declined">群組邀請已謝絕</string>
+  <plurals name="groups_invitations_open">
+    <item quantity="other">%d 打開了群組邀請</item>
+  </plurals>
+  <string name="groups_invitations_response_accepted_sent">您接受了來自 %s 的群組邀請。</string>
+  <string name="groups_invitations_response_declined_sent">您謝絕了來自 %s 的群組邀請。</string>
+  <string name="groups_invitations_response_accepted_received">%s 接受了群組邀請。</string>
+  <string name="groups_invitations_response_declined_received">%s 謝絕了群組邀請。</string>
+  <string name="sharing_status_groups">只有創建者可以邀請新成員加入群組。下面是目前的群組成員。</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">顯示聯絡人</string>
+  <string name="groups_reveal_dialog_message">您可以決定是否對所有當前和未來的群組成員展示該群組的聯絡人。\n\n這將使您連接群組更快速更可靠，因爲即使群組創建者離線，您也可以與已展示的聯絡人交流。</string>
+  <string name="groups_reveal_visible">群組可見聯絡人關係</string>
+  <string name="groups_reveal_visible_revealed_by_us">群組可見聯絡人關係（由您設定）</string>
+  <string name="groups_reveal_visible_revealed_by_contact">群組可見聯絡人關係（由 %s 設定）</string>
+  <string name="groups_reveal_invisible">群組不可見聯絡人關係</string>
+  <!--Forums-->
+  <string name="no_forums">尚無論壇可供展示</string>
+  <string name="no_forums_action">輕按 + 號創建論壇，或讓您的聯絡人分享論壇給您</string>
+  <string name="create_forum_title">創建論壇</string>
+  <string name="choose_forum_hint">爲論壇命名</string>
+  <string name="create_forum_button">創建論壇</string>
+  <string name="forum_created_toast">論壇已創建</string>
+  <string name="no_forum_posts">尚無帖子可供展示</string>
+  <string name="no_posts">沒有帖子</string>
+  <plurals name="posts">
+    <item quantity="other">%d 條帖子</item>
+  </plurals>
+  <string name="forum_new_message_hint">新帖子</string>
+  <string name="forum_message_reply_hint">新回覆</string>
+  <string name="btn_reply">回覆</string>
+  <string name="forum_leave">退出論壇</string>
+  <string name="dialog_title_leave_forum">確認退出論壇</string>
+  <string name="dialog_message_leave_forum">確認要退出該論壇嗎？那些經過您的分享而加入該論壇的聯絡人可能不會再收到更新。</string>
+  <string name="dialog_button_leave">退出</string>
+  <string name="forum_left_toast">已退出論壇</string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">分享論壇</string>
+  <string name="contacts_selected">已選擇聯絡人</string>
+  <string name="activity_share_toolbar_header">選擇聯絡人</string>
+  <string name="no_contacts_selector">尚無聯絡人可供顯示</string>
+  <string name="no_contacts_selector_action">請添加聯絡人後再來</string>
+  <string name="forum_shared_snackbar">論壇已分享給選中的聯絡人</string>
+  <string name="forum_share_message">附加消息（選填）</string>
+  <string name="forum_share_error">分享該論壇時發生錯誤。</string>
+  <string name="forum_invitation_received">%1$s 已將論壇 “%2$s” 分享給您。</string>
+  <string name="forum_invitation_sent">您已將論壇 “%1$s” 分享給 %2$s。</string>
+  <string name="forum_invitations_title">論壇邀請</string>
+  <string name="forum_invitation_exists">您接受了加入該論壇的一份邀請。\n\n接受更多邀請將會使您連接論壇更快速更可靠。</string>
+  <string name="forum_joined_toast">已加入論壇</string>
+  <string name="forum_declined_toast">邀請已謝絕</string>
+  <string name="shared_by_format">由 %s 分享</string>
+  <string name="forum_invitation_already_sharing">已在分享</string>
+  <string name="forum_invitation_response_accepted_sent">您接受了來自 %s的論壇邀請</string>
+  <string name="forum_invitation_response_declined_sent">您謝絕了來自 %s的論壇邀請</string>
+  <string name="forum_invitation_response_accepted_received">%s 接受了論壇邀請。</string>
+  <string name="forum_invitation_response_declined_received">%s 謝絕了論壇邀請。</string>
+  <string name="sharing_status">分享狀態</string>
+  <string name="sharing_status_forum">論壇的任何成員都可以將論壇分享給他們的聯絡人。您正在分享該論壇給下列聯絡人。可能有您所不可見的其他成員存在。</string>
+  <string name="shared_with">已與 %1$d 分享（%2$d 在線）</string>
+  <plurals name="forums_shared">
+    <item quantity="other">%d 個論壇由聯絡人分享</item>
+  </plurals>
+  <string name="nobody">沒有人</string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">尚無博文可供展示</string>
+  <string name="read_more">閱讀全文</string>
+  <string name="blogs_write_blog_post">寫博文</string>
+  <string name="blogs_write_blog_post_body_hint">輸入博文內容</string>
+  <string name="blogs_publish_blog_post">發佈</string>
+  <string name="blogs_blog_post_created">博文已創建</string>
+  <string name="blogs_blog_post_received">收到新博文</string>
+  <string name="blogs_blog_post_scroll_to">滑動至</string>
+  <string name="blogs_feed_empty_state">尚無博文可供展示</string>
+  <string name="blogs_feed_empty_state_action">此處將顯示您的聯絡人和您所訂閱博客的博文\n\n輕按鋼筆圖標來寫一篇博文</string>
+  <string name="blogs_remove_blog">刪除博客</string>
+  <string name="blogs_remove_blog_dialog_message">確認要刪除該博客嗎？\n\n博文將會從您的裝置刪除，但仍會存在於其他人的裝置上。\n\n那些經過您的分享而訂閱該博客的聯絡人可能不會再收到更新。</string>
+  <string name="blogs_remove_blog_ok">刪除</string>
+  <string name="blogs_blog_removed">博客已刪除</string>
+  <string name="blogs_reblog_comment_hint">添加評論（選填）</string>
+  <string name="blogs_reblog_button">轉載</string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">分享博客</string>
+  <string name="blogs_sharing_error">分享該博客時發生錯誤。</string>
+  <string name="blogs_sharing_button">分享博客</string>
+  <string name="blogs_sharing_snackbar">博客已分享給選中的聯絡人</string>
+  <string name="blogs_sharing_response_accepted_sent">您接受了來自 %s 的博客邀請。</string>
+  <string name="blogs_sharing_response_declined_sent">您謝絕了來自 %s 的博客邀請。</string>
+  <string name="blogs_sharing_response_accepted_received">%s 接受了博客邀請。</string>
+  <string name="blogs_sharing_response_declined_received">%s 謝絕了博客邀請。</string>
+  <string name="blogs_sharing_invitation_received">%1$s 向您分享博客 “%2$s”。</string>
+  <string name="blogs_sharing_invitation_sent">您已將博客 “%1$s” 分享給 %2$s 。</string>
+  <string name="blogs_sharing_invitations_title">博客邀請</string>
+  <string name="blogs_sharing_joined_toast">已訂閱博客</string>
+  <string name="blogs_sharing_declined_toast">邀請已謝絕</string>
+  <string name="sharing_status_blog">任何訂閱博客的人都可以將它分享給他的聯絡人。您正在將該博客分享給下列聯絡人。可能有您所不可見的其他訂閱者存在。</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">導入 RSS 訂閱源</string>
+  <string name="blogs_rss_feeds_import_button">導入</string>
+  <string name="blogs_rss_feeds_import_hint">輸入 RSS 訂閱源鏈接</string>
+  <string name="blogs_rss_feeds_import_error">抱歉！導入訂閱源時發生錯誤。</string>
+  <string name="blogs_rss_feeds_manage">管理 RSS 訂閱源</string>
+  <string name="blogs_rss_feeds_manage_imported">已導入：</string>
+  <string name="blogs_rss_feeds_manage_author">作者：</string>
+  <string name="blogs_rss_feeds_manage_updated">最後更新於：</string>
+  <string name="blogs_rss_remove_feed">刪除訂閱源</string>
+  <string name="blogs_rss_remove_feed_dialog_message">確認要刪除該訂閱源嗎？\n\n博文將從您的裝置上移除，但仍將存在於其他人的裝置。\n\n那些經過您的分享而訂閱該源的聯絡人可能不會再收到更新。</string>
+  <string name="blogs_rss_remove_feed_ok">刪除</string>
+  <string name="blogs_rss_feeds_manage_delete_error">無法刪除這訂閱源！</string>
+  <string name="blogs_rss_feeds_manage_empty_state">尚無訂閱源可供顯示\n\n輕按 + 號導入訂閱源</string>
+  <string name="blogs_rss_feeds_manage_error">加載訂閱源時出錯。請稍候再試。</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">語言 &amp; 區域</string>
+  <string name="pref_language_changed">該設置將會在 Briar 重啓後生效。請登出並重啓 Briar。</string>
+  <string name="pref_language_default">系統默認</string>
+  <string name="display_settings_title">顯示</string>
+  <string name="pref_theme_title">主題</string>
+  <string name="pref_theme_light">淺色</string>
+  <string name="pref_theme_dark">深色</string>
+  <string name="pref_theme_auto">自動（白天）</string>
+  <string name="pref_theme_system">系統默認</string>
+  <!--Settings Network-->
+  <string name="network_settings_title">網絡</string>
+  <string name="bluetooth_setting">通過藍牙連接</string>
+  <string name="bluetooth_setting_enabled">只要聯絡人在附近時</string>
+  <string name="bluetooth_setting_disabled">僅在添加聯絡人時</string>
+  <string name="tor_network_setting">通過互聯網連接（Tor）</string>
+  <string name="tor_network_setting_automatic">基於位置自動選擇</string>
+  <string name="tor_network_setting_without_bridges">不通過網橋連接到 Tor</string>
+  <string name="tor_network_setting_with_bridges">通過網橋連接到 Tor</string>
+  <string name="tor_network_setting_never">不要連接</string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">自動選擇：%1$s（在 %2$s）</string>
+  <string name="tor_mobile_data_title">使用移動數據</string>
+  <string name="tor_only_when_charging_title">只有在充電時通過網絡（Tor）連接</string>
+  <string name="tor_only_when_charging_summary">當裝置使用電池電量時關閉網絡連接</string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">安全</string>
+  <string name="pref_lock_title">程式鎖</string>
+  <string name="pref_lock_summary">登錄後，使用裝置的屏幕鎖定保護 Briar</string>
+  <string name="pref_lock_disabled_summary">爲了使用該功能，請爲裝置設置屏幕鎖定</string>
+  <string name="pref_lock_timeout_title">程式鎖所需的無操作時間</string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">當有 %s 不使用 Briar 後，自動將其鎖定</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">1 分鐘</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">5 分鐘</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">15 分鐘</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">30 分鐘</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">1 小時</string>
+  <string name="pref_lock_timeout_never">永不</string>
+  <string name="pref_lock_timeout_never_summary">永不自動鎖定 Briar</string>
+  <string name="change_password">更改密碼</string>
+  <string name="current_password">當前密碼</string>
+  <string name="choose_new_password">新密碼</string>
+  <string name="confirm_new_password">確認新密碼</string>
+  <string name="password_changed">密碼已更改。</string>
+  <string name="panic_setting">創建緊急開關</string>
+  <string name="panic_setting_title">緊急開關</string>
+  <string name="panic_setting_hint">設置觸發緊急開關時 Briar 將作出的響應</string>
+  <string name="panic_app_setting_title">緊急開關程式</string>
+  <string name="unknown_app">未知程式</string>
+  <string name="panic_app_setting_summary">尚未設置緊急程式</string>
+  <string name="panic_app_setting_none">無</string>
+  <string name="dialog_title_connect_panic_app">確認緊急程式</string>
+  <string name="dialog_message_connect_panic_app">確認要允許 %1$s 觸發破壞性緊急開關反應嗎？</string>
+  <string name="panic_setting_destructive_action">破壞性操作</string>
+  <string name="panic_setting_signout_title">登出</string>
+  <string name="panic_setting_signout_summary">觸發緊急開關時登出 Briar</string>
+  <string name="purge_setting_title">刪除帳戶</string>
+  <string name="purge_setting_summary">觸發緊急開關時刪除您的 Briar 帳戶。注意：這將導致您的身份、聯絡人和訊息永久丟失。</string>
+  <string name="uninstall_setting_title">卸載 Briar</string>
+  <string name="uninstall_setting_summary">需要確認緊急事件</string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">消息通知</string>
+  <string name="notify_sign_in_title">提醒我登錄</string>
+  <string name="notify_sign_in_summary">當手機開機或程式更新時，顯示提醒</string>
+  <string name="notify_private_messages_setting_title">私信</string>
+  <string name="notify_private_messages_setting_summary">顯示私信通知</string>
+  <string name="notify_private_messages_setting_summary_26">設置私信通知</string>
+  <string name="notify_group_messages_setting_title">羣消息</string>
+  <string name="notify_group_messages_setting_summary">顯示羣消息通知</string>
+  <string name="notify_group_messages_setting_summary_26">設置羣消息通知</string>
+  <string name="notify_forum_posts_setting_title">論壇帖子</string>
+  <string name="notify_forum_posts_setting_summary">顯示論壇帖子通知</string>
+  <string name="notify_forum_posts_setting_summary_26">設置論壇帖子通知</string>
+  <string name="notify_blog_posts_setting_title">博文</string>
+  <string name="notify_blog_posts_setting_summary">顯示博文通知</string>
+  <string name="notify_blog_posts_setting_summary_26">設置博文通知</string>
+  <string name="notify_vibration_setting">震動</string>
+  <string name="notify_sound_setting">聲音</string>
+  <string name="notify_sound_setting_default">默認鈴聲</string>
+  <string name="notify_sound_setting_disabled">無</string>
+  <string name="choose_ringtone_title">選擇鈴聲</string>
+  <string name="cannot_load_ringtone">無法加載鈴聲</string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">反饋</string>
+  <string name="send_feedback">提交反饋</string>
+  <!--Link Warning-->
+  <string name="link_warning_title">鏈接警告</string>
+  <string name="link_warning_intro">您將要在另一個程式中打開以下鏈接</string>
+  <string name="link_warning_text">這可能用來標識您的身份。請考慮一下您是否信任這個給您發送鏈接的人，並考慮用 Tor 瀏覽器打開它。</string>
+  <string name="link_warning_open_link">打開鏈接</string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Briar 崩潰報告</string>
+  <string name="briar_crashed">抱歉，Briar 已崩潰。</string>
+  <string name="not_your_fault">這並非您的錯誤所致。</string>
+  <string name="please_send_report">請發送崩潰報告，以幫助我們優化 Briar 。</string>
+  <string name="report_is_encrypted">我們保證會加密並安全地發送報告。</string>
+  <string name="feedback_title">反饋</string>
+  <string name="describe_crash">描述發生了什麼（選填）</string>
+  <string name="enter_feedback">輸入您的反饋</string>
+  <string name="optional_contact_email">您的郵箱地址（選填）</string>
+  <string name="include_debug_report_crash">包含關於本次崩潰的匿名數據</string>
+  <string name="include_debug_report_feedback">包含關於本裝置的匿名數據</string>
+  <string name="could_not_load_report_data">無法加載報告數據。</string>
+  <string name="send_report">發送報告</string>
+  <string name="close">關閉</string>
+  <string name="dev_report_saved">報告已保存，將於您下次登錄時發送。</string>
+  <!--Sign Out-->
+  <string name="progress_title_logout">正在登出 Briar……</string>
+  <!--Screen Filters & Tapjacking-->
+  <string name="screen_filter_title">檢測到屏幕覆蓋</string>
+  <string name="screen_filter_body">另一個程式覆蓋在 Briar 上。爲了保護您的安全，Briar 在有其他程式覆蓋的情況下不會處理對觸控應。\n\n以下程式可能覆蓋在上方：\n\n%1$s</string>
+  <string name="screen_filter_allow">允許這些程式覆蓋在上方</string>
+  <!--Permission Requests-->
+  <string name="permission_camera_title">相機權限</string>
+  <string name="permission_camera_request_body">Briar 需要獲得相機權限以掃描二維碼。</string>
+  <string name="permission_location_title">位置權限</string>
+  <string name="permission_location_request_body">Briar 需要位置信息權限以發現藍牙裝置。\n\nBriar 不會存儲您的位置或將它分享給任何人。</string>
+  <string name="permission_camera_location_title">相機和位置</string>
+  <string name="permission_camera_location_request_body"> Briar 需要相機權限以掃描二維碼。\n\nBriar 需要位置信息權限以發現藍牙裝置。\n\nBriar 不會存儲您的位置或將它分享給任何人。</string>
+  <string name="permission_camera_denied_body">您已拒絕相機權限，而添加聯絡人需要使用相機。\n\n請考慮授予相機權限。</string>
+  <string name="qr_code">二維碼</string>
+  <string name="show_qr_code_fullscreen">全熒幕顯示二維碼</string>
+  <!--App Locking-->
+  <string name="lock_unlock">解鎖 Briar</string>
+  <string name="lock_unlock_verbose">輸入您裝置的 PIN 碼，圖案或密碼以解鎖 Briar</string>
+  <string name="lock_unlock_fingerprint_description">用已註冊的手指輕觸指紋傳感器以繼續</string>
+  <string name="lock_unlock_password">使用密碼</string>
+  <string name="lock_is_locked">Briar 已鎖定</string>
+  <string name="lock_tap_to_unlock">輕按以解鎖</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">愛麗詩</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">波比</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">嘉露</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">嗨，波比！</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">嗨，愛麗詩！謝謝您告訴我關於 Briar 的事！</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">沒問題，希望您喜歡它 😀</string>
+</resources>

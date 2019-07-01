@@ -48,7 +48,7 @@
   <string name="download_briar_button">Descarrega Briar 1.0</string>
   <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
   <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
-  <string name="startup_compact_database">Compactant la base de dades...</string>
+  <string name="startup_compact_database">S\'està compactant la base de dades...</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">Obre el calaix de navegació</string>
   <string name="nav_drawer_close_description">Tanca el calaix de navegació</string>
@@ -116,9 +116,11 @@
   <string name="date_no_private_messages">Sense missatges.</string>
   <string name="no_private_messages">No hi ha cap missatge</string>
   <string name="message_hint">Escriviu un missatge</string>
-  <string name="image_caption_hint">Afegeix una captura (opcional)</string>
+  <string name="image_caption_hint">Afegiu una nota (opcional)</string>
   <string name="image_attach">Afegeix una imatge</string>
-  <string name="image_attach_error">La imatge no s\'ha pogut afegir </string>
+  <string name="image_attach_error">La imatge(s) no s\'ha pogut afegir </string>
+  <string name="image_attach_error_too_big">La imatge és massa gran. El límit és %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">El format de la imatge no s\'admet: %s</string>
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="set_alias_button">Canvia</string>
@@ -127,18 +129,19 @@
   <string name="dialog_message_delete_contact">Segur que voleu suprimir aquest contacte i tots els missatges que us heu intercanviat?</string>
   <string name="contact_deleted_toast">S\'ha suprimit el contacte</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
-  <string name="you">Vos</string>
-  <string name="save_image">Desa imatge</string>
+  <string name="you">Vós</string>
+  <string name="save_image">Desa la imatge</string>
   <string name="dialog_title_save_image">Voleu desar la imatge?</string>
-  <string name="dialog_message_save_image">Desant aquesta imatge es permetrà a altres aplicacions accedir-hi.\n\nConfirmeu que la voleu desar?</string>
+  <string name="dialog_message_save_image">Si deseu aquesta imatge la resta d\'aplicacions també hi podran accedir.\n\nSegur que voleu desar-la?</string>
   <string name="save_image_success">La imatge s\'ha desat</string>
   <string name="save_image_error">La imatge no s\'ha pogut desar </string>
-  <string name="dialog_title_no_image_support">Cap imatge disponible</string>
-  <string name="dialog_message_no_image_support">El vostre contacte de Briar encara no admet afegir imatges.
-Un cop s\'actualitzi ja li veureu una icona diferent </string>
-  <string name="dialog_title_image_support">Ara podeu enviar imatges a aquest contacte</string>
+  <string name="dialog_title_no_image_support">No hi ha cap imatge disponible</string>
+  <string name="dialog_message_no_image_support">La versió de Briar del vostre contacte no permet afegir imatges.
+Així que l\'actualitzi li veureu una icona diferent .</string>
+  <string name="dialog_title_image_support">Ara ja podeu enviar imatges a aquest contacte</string>
   <string name="dialog_message_image_support">Premeu aquesta icona per afegir imatges.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Afegeix un contacte proper</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
   <string name="continue_button">Continua</string>
   <string name="try_again_button">Torna-ho a provar</string>
@@ -147,8 +150,8 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="contact_added_toast">S\'ha afegit el contacte %s</string>
   <string name="contact_already_exists">El contacte %s ja existia</string>
   <string name="qr_code_invalid">El codi QR és invàlid</string>
-  <string name="qr_code_too_old">El codi QR que heu escanejat prové d\'una versió antiga de %s.\n\nDemaneu al vostre contacte que actualitzi a l\'última versió i torneu a provar-ho.</string>
-  <string name="qr_code_too_new">El codi QR que heu escanejat prové d\'una versió nova de %s.\n\nActualitzeu a l\'última versió i torneu a provar-ho.</string>
+  <string name="qr_code_too_old">El codi QR que heu escanejat prové d\'una versió antiga de %s.\n\nDemaneu al vostre contacte que l\'actualitzi i torneu a provar-ho.</string>
+  <string name="qr_code_too_new">El codi QR que heu escanejat prové d\'una versió de %s més nova que la vostra.\n\nActualitzeu la vostra aplicació i torneu a provar-ho.</string>
   <string name="camera_error">Error de la càmera</string>
   <string name="connecting_to_device">Connectant-se al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
@@ -156,14 +159,66 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="connection_error_explanation">Comproveu que esteu connectats a la mateixa xarxa Wi-Fi.</string>
   <string name="connection_error_feedback">Si aquest problema persisteix, <a href="feedback">envieu-nos un comentari</a> per ajudar-nos a millorar l\'aplicació.</string>
   <!--Adding Contacts Remotely-->
-  <string name="paste_button">Pegar</string>
+  <string name="add_contact_remotely_title_case">Afegeix un contacte llunyà</string>
+  <string name="add_contact_nearby_title">Afegeix un contacte proper</string>
+  <string name="add_contact_remotely_title">Afegeix un contacte llunyà</string>
+  <string name="contact_name_hint">Doneu un sobrenom al contacte</string>
+  <string name="contact_link_intro">Escriviu l\'enllaç del vostre contacte</string>
+  <string name="contact_link_hint">Enllaç del contacte</string>
+  <string name="paste_button">Enganxa</string>
+  <string name="add_contact_button">Afegiu un contacte</string>
   <string name="copy_button">Copia</string>
-  <string name="share_button">Compartir</string>
+  <string name="share_button">Comparteix</string>
+  <string name="send_link_title">Intercanvieu els enllaços</string>
+  <string name="add_contact_choose_nickname">Trieu un sobrenom</string>
+  <string name="add_contact_choose_a_nickname">Escriviu un sobrenom</string>
+  <string name="nickname_intro">Doneu un sobrenom al contacte. Només vós podreu veure\'l.</string>
+  <string name="your_link">Lliureu aquest enllaç al contacte que voleu afegir</string>
+  <string name="link_clip_label">Enllaç de Briar</string>
+  <string name="link_copied_toast">L\'enllaç s\'ha copiat</string>
+  <string name="adding_contact_error">Hi ha hagut un error en afegir el contacte</string>
+  <string name="pending_contact_requests_snackbar">Hi ha sol·licituds de contacte pendents</string>
+  <string name="pending_contact_requests">Sol·licituds de contacte pendents</string>
+  <string name="no_pending_contacts">No hi ha sol·licituds de contacte pendents</string>
   <string name="add_contact_remote_connecting">S\'està connectant...</string>
+  <string name="waiting_for_contact_to_come_online">S\'està esperant que el contacte estigui connectat…</string>
   <string name="connecting">S\'està connectant...</string>
+  <string name="adding_contact">S\'està afegint el contacte…</string>
+  <string name="adding_contact_failed">No s\'ha pogut afegir el contacte</string>
+  <string name="dialog_title_remove_pending_contact">Confirmació de la supressió</string>
+  <string name="dialog_message_remove_pending_contact">Aquest contacte encara està essent afegit. Si el suprimiu ara ja no s\'acabarà d\'afegir.</string>
+  <string name="own_link_error">Escriviu l\'enllaç del vostre contacte i no el vostre enllaç</string>
+  <string name="nickname_missing">Escriviu un sobrenom</string>
+  <string name="invalid_link">Enllaç erroni</string>
+  <string name="unsupported_link">Aquest enllaç prové d\'una versió de Biar més nova que la vostra.\n\nActualitzeu la vostra aplicació i torneu a provar-ho.</string>
+  <string name="intent_own_link">Heu accedit al vostre propi enllaç. Feu servir el del contacte que voleu afegir!</string>
+  <string name="missing_link">Escriviu un enllaç</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">S\'ha afegit el nou contacte </item>
+    <item quantity="other">S\'han afegit %d nous contactes.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Afegir aquest contacte està trigant més que de costum…</string>
+  <string name="adding_contact_slow_title">No pot connectar-se al contacte</string>
+  <string name="adding_contact_slow_text">Afegir aquest contacte està trigant més que de costum.\n\nComproveu que el contacte ha rebut el vostre enllaç i també us ha afegit.</string>
+  <string name="offline_state">No hi ha connexió a Internet</string>
+  <string name="duplicate_link_dialog_title">Enllaç duplicat</string>
+  <string name="duplicate_link_dialog_text_1">Teniu una sol·licitud de contacte pendent amb l\'enllaç %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s i %s són la mateixa persona?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Mateixa persona</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Persones diferents</string>
+  <string name="duplicate_link_dialog_text_3">%s i %s us han enviat el mateix enllaç.\n\nUn d\'ells pot estar provant de descobrir quins són els vostres contactes.\n\nNo els hi digueu que heu rebut el mateix enllaç d\'algú altre.</string>
+  <string name="pending_contact_updated_toast">S\'ha actualitzat la sol·licitud de contacte pendent</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenteu als vostres contactes</string>
   <string name="introduction_onboarding_text">Podeu presentar als vostres contactes entre si, de manera que no necessitin trobar-se en persona per a relacionar-se a través de Briar.</string>
@@ -352,12 +407,12 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="bluetooth_setting_enabled">Sempre que hi hagi contactes propers</string>
   <string name="bluetooth_setting_disabled">Només quan s\'afegeixen contactes</string>
   <string name="tor_network_setting">Connecta a través d\'Internet (Tor)</string>
-  <string name="tor_network_setting_automatic">Automàtic basat en la ubicació</string>
+  <string name="tor_network_setting_automatic">Automàtic, basat en la posició</string>
   <string name="tor_network_setting_without_bridges">Usa Tor sense ponts</string>
   <string name="tor_network_setting_with_bridges">Usa Tor amb ponts</string>
   <string name="tor_network_setting_never">No et connectis</string>
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
-  <string name="tor_network_setting_summary">Automàtic: %1$s (en %2$s)</string>
+  <string name="tor_network_setting_summary">Automàtic: %1$s (a %2$s)</string>
   <string name="tor_mobile_data_title">Usa dades mòbils</string>
   <string name="tor_only_when_charging_title">Connecta a través d\'Internet (Tor) només quan s\'estigui carregant</string>
   <string name="tor_only_when_charging_summary">Desactiva la connexió a Internet quan el dispositiu estigui funcionant amb la bateria</string>
@@ -366,7 +421,7 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="pref_lock_title">Bloqueig de l\'aplicació</string>
   <string name="pref_lock_summary">Usa el bloqueig de pantalla del dispositiu per protegir Briar mentre inicieu la sessió</string>
   <string name="pref_lock_disabled_summary">Per utilitzar aquesta funció, configureu el bloqueig de pantalla en el vostre dispositiu</string>
-  <string name="pref_lock_timeout_title">Temps d\'inactivitat per al bloqueig</string>
+  <string name="pref_lock_timeout_title">Temps d\'inactivitat abans de bloquejar-se</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briar es bloquejarà automàticament després de %s de no usar-se.</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -430,7 +485,7 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <!--Link Warning-->
   <string name="link_warning_title">Avís d\'enllaç</string>
   <string name="link_warning_intro">L\'enllaç s\'obrirà amb una aplicació externa.</string>
-  <string name="link_warning_text">Això es podria utilitzar-se per identificar-vos. Penseu si confieu en la persona que us ha enviat aquest enllaç i considereu obrir-lo amb el navegador Tor.</string>
+  <string name="link_warning_text">Això podria usar-se per a identificar-vos. Penseu si us en refieu prou de la persona que us ha enviat l\'enllaç. Avalueu si us convindria obrir-lo amb un navegador que faciliti l\'anonimat com Tor Browser.</string>
   <string name="link_warning_open_link">Obre l\'enllaç</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Informe de fallida de Briar</string>
@@ -457,10 +512,10 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permís de la càmera</string>
   <string name="permission_camera_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.</string>
-  <string name="permission_location_title">Permís d\'accés a l\'ubicació</string>
-  <string name="permission_location_request_body">Per trobar dispositius Bluetooth, Briar necessita la vostra ubicació.\n\nBriar no guarda la vostra ubicació ni la comparteix amb ningú.</string>
-  <string name="permission_camera_location_title">Permís d\'accés a la càmera i l\'ubicació</string>
-  <string name="permission_camera_location_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.\n\nPer trobar dispositius Bluetooth, Briar necessita la vostra ubicació.\n\nBriar no guarda la vostra ubicació ni la comparteix amb ningú.</string>
+  <string name="permission_location_title">Permís d\'accés a la posició</string>
+  <string name="permission_location_request_body">Per a descobrir dispositius Bluetooth, Briar necessita accedir a la vostra posició.\n\nBriar no guarda la vostra posició ni la comparteix amb ningú.</string>
+  <string name="permission_camera_location_title">Permís d\'accés a la càmera i a la posició</string>
+  <string name="permission_camera_location_request_body">Per escanejar el codi QR, Briar necessita accedir a la càmera.\n\nPer trobar dispositius Bluetooth, Briar necessita accedir a la vostra posició.\n\nBriar no guarda la vostra posició ni la comparteix amb ningú.</string>
   <string name="permission_camera_denied_body">Heu denegat l\'accés a la càmera però per afegir contactes cal utilitzar la càmera.\n\nRecomanem que permeteu l\'accés a la càmera.</string>
   <string name="qr_code">Codi QR</string>
   <string name="show_qr_code_fullscreen">Mostra el codi QR a pantalla completa</string>
@@ -473,15 +528,15 @@ Un cop s\'actualitzi ja li veureu una icona diferent </string>
   <string name="lock_tap_to_unlock">Toqueu per desbloquejar-lo</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
-  <string name="screenshot_alice">Alice</string>
+  <string name="screenshot_alice">Alba</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
-  <string name="screenshot_bob">Bob</string>
+  <string name="screenshot_bob">Pere</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
-  <string name="screenshot_carol">Carol</string>
+  <string name="screenshot_carol">Queralt</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
-  <string name="screenshot_message_1">Hola Bob!</string>
+  <string name="screenshot_message_1">Hola Pere!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
-  <string name="screenshot_message_2">Hola Alice! Gràcies per recomanar-me Briar!</string>
+  <string name="screenshot_message_2">Hola Alba! Gràcies per recomanar-me Briar!</string>
   <!--This is a message to be used in screenshots.-->
   <string name="screenshot_message_3">De res, espero que t\'agradi 😀</string>
 </resources>
