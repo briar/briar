@@ -2,6 +2,8 @@ package org.briarproject.briar.android;
 
 import org.briarproject.briar.BuildConfig;
 
+import static java.util.concurrent.TimeUnit.DAYS;
+
 public interface TestingConstants {
 
 	/**
@@ -22,6 +24,5 @@ public interface TestingConstants {
 	 * million years.
 	 */
 	long EXPIRY_DATE = IS_DEBUG_BUILD ?
-			BuildConfig.BuildTimestamp + 90 * 24 * 60 * 60 * 1000L :
-			Long.MAX_VALUE;
+			BuildConfig.BuildTimestamp + DAYS.toMillis(90) : Long.MAX_VALUE;
 }

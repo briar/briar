@@ -26,6 +26,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -122,9 +123,9 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 					long warningLong = warningInt * 1000L;
 					long now = System.currentTimeMillis();
 					long daysSinceLastWarning =
-							(now - warningLong) / 1000 / 60 / 60 / 24;
+							(now - warningLong) / DAYS.toMillis(1);
 					long daysBeforeExpiry =
-							(EXPIRY_DATE - now) / 1000 / 60 / 60 / 24;
+							(EXPIRY_DATE - now) / DAYS.toMillis(1);
 
 					if (showUpdate) {
 						handler.onResult(UPDATE);
