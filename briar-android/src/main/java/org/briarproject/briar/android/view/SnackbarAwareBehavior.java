@@ -2,44 +2,43 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.CoordinatorLayout.Behavior;
 import android.support.design.widget.CoordinatorLayout.LayoutParams;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.Snackbar.SnackbarLayout;
 import android.util.AttributeSet;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 @NotNullByDefault
-public class BriarRecyclerViewBehavior
-		extends CoordinatorLayout.Behavior<BriarRecyclerView> {
+public class SnackbarAwareBehavior<V extends View> extends Behavior<V> {
 
-	public BriarRecyclerViewBehavior(Context context, AttributeSet attrs) {
+	public SnackbarAwareBehavior(Context context, AttributeSet attrs) {
 		super(context, attrs);
 	}
 
 	@Override
 	public boolean onDependentViewChanged(CoordinatorLayout parent,
-			BriarRecyclerView child, View snackbar) {
+			V child, View snackbar) {
 		setMargin(child, snackbar.getHeight());
 		return true;
 	}
 
 	@Override
 	public void onDependentViewRemoved(CoordinatorLayout parent,
-			BriarRecyclerView child, View snackbar) {
+			V child, View snackbar) {
 		setMargin(child, 0);
 	}
 
 	@Override
 	public boolean layoutDependsOn(CoordinatorLayout parent,
-			BriarRecyclerView child, View dependency) {
-		return dependency instanceof Snackbar.SnackbarLayout;
+			V child, View dependency) {
+		return dependency instanceof SnackbarLayout;
 	}
 
-	private void setMargin(View child, int margin) {
+	private void setMargin(V child, int margin) {
 		LayoutParams params = (LayoutParams) child.getLayoutParams();
 		params.setMargins(0, 0, 0, margin);
 		child.setLayoutParams(params);
 	}
-
 }
