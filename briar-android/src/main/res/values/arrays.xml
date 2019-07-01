@@ -42,8 +42,11 @@
 		<item>he</item>
 		<item>hi</item>
 		<item>hu</item>
+		<item>is</item>
 		<item>it</item>
 		<item>ja</item>
+		<item>ko</item>
+		<item>lt</item>
 		<item>mk</item>
 		<item>ms</item>
 		<item>nb</item>
@@ -59,6 +62,7 @@
 		<item>tr</item>
 		<item>uk</item>
 		<item>zh-CN</item>
+		<item>zh-Hant</item>
 	</string-array>
 	<string-array name="pref_theme_entries">
 		<item>@string/pref_theme_light</item>
