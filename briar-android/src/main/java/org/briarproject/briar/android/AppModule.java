@@ -244,7 +244,7 @@ public class AppModule {
 
 			@Override
 			public boolean shouldEnableRemoteContacts() {
-				return IS_DEBUG_BUILD;
+				return true;
 			}
 		};
 	}
