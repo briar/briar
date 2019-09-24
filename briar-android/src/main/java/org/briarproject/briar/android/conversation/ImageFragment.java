@@ -24,6 +24,7 @@ import org.briarproject.briar.android.conversation.glide.GlideApp;
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -33,14 +34,19 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.ImageView.ScaleType.FIT_START;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
 import static org.briarproject.briar.android.conversation.ImageActivity.ITEM_ID;
 
 @MethodsNotNullByDefault
 @ParametersAreNonnullByDefault
-public class ImageFragment extends Fragment {
+public class ImageFragment extends Fragment
+		implements RequestListener<Drawable> {
 
 	private final static String IS_FIRST = "isFirst";
+	@DrawableRes
+	private static final int ERROR_RES = R.drawable.ic_image_broken;
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -89,55 +95,72 @@ public class ImageFragment extends Fragment {
 
 		viewModel = ViewModelProviders.of(requireNonNull(getActivity()),
 				viewModelFactory).get(ImageViewModel.class);
+		viewModel.getOnAttachmentLoaded()
+				.observeEvent(this, this::onAttachmentLoaded);
 
 		photoView = v.findViewById(R.id.photoView);
 		photoView.setScaleLevels(1, 2, 4);
 		photoView.setOnClickListener(view -> viewModel.clickImage());
 
-		// Request Listener
-		RequestListener<Drawable> listener = new RequestListener<Drawable>() {
+		if (attachment.getState() == AVAILABLE) {
+			loadImage();
+			// postponed transition will be started when Image was loaded
+		} else if (attachment.getState() == ERROR) {
+			photoView.setImageResource(ERROR_RES);
+			startPostponedTransition();
+		} else {
+			photoView.setImageResource(R.drawable.ic_image_missing);
+			startPostponedTransition();
+		}
 
-			@Override
-			public boolean onLoadFailed(@Nullable GlideException e,
-					Object model, Target<Drawable> target,
-					boolean isFirstResource) {
-				if (getActivity() != null && isFirst)
-					getActivity().supportStartPostponedEnterTransition();
-				return false;
-			}
+		return v;
+	}
 
-			@Override
-			public boolean onResourceReady(Drawable resource, Object model,
-					Target<Drawable> target, DataSource dataSource,
-					boolean isFirstResource) {
-				if (SDK_INT >= 21 && !(resource instanceof Animatable)) {
-					// set transition name only when not animatable,
-					// because the animation won't start otherwise
-					photoView.setTransitionName(
-							attachment.getTransitionName(conversationItemId));
-				}
-				// Move image to the top if overlapping toolbar
-				if (viewModel.isOverlappingToolbar(photoView, resource)) {
-					photoView.setScaleType(FIT_START);
-				}
-				if (getActivity() != null && isFirst) {
-					getActivity().supportStartPostponedEnterTransition();
-				}
-				return false;
-			}
-		};
-
-		// Load Image
+	private void loadImage() {
 		GlideApp.with(this)
 				.load(attachment)
 				// TODO allow if size < maxTextureSize ?
-//				.override(SIZE_ORIGINAL)
+//					.override(SIZE_ORIGINAL)
 				.diskCacheStrategy(NONE)
-				.error(R.drawable.ic_image_broken)
-				.addListener(listener)
+				.error(ERROR_RES)
+				.addListener(this)
 				.into(photoView);
+	}
 
-		return v;
+	private void onAttachmentLoaded(MessageId messageId) {
+		if (attachment.getMessageId().equals(messageId)) loadImage();
+	}
+
+	@Override
+	public boolean onLoadFailed(@Nullable GlideException e,
+			Object model, Target<Drawable> target,
+			boolean isFirstResource) {
+		startPostponedTransition();
+		return false;
+	}
+
+	@Override
+	public boolean onResourceReady(Drawable resource, Object model,
+			Target<Drawable> target, DataSource dataSource,
+			boolean isFirstResource) {
+		if (SDK_INT >= 21 && !(resource instanceof Animatable)) {
+			// set transition name only when not animatable,
+			// because the animation won't start otherwise
+			photoView.setTransitionName(
+					attachment.getTransitionName(conversationItemId));
+		}
+		// Move image to the top if overlapping toolbar
+		if (viewModel.isOverlappingToolbar(photoView, resource)) {
+			photoView.setScaleType(FIT_START);
+		}
+		startPostponedTransition();
+		return false;
+	}
+
+	private void startPostponedTransition() {
+		if (getActivity() != null && isFirst) {
+			getActivity().supportStartPostponedEnterTransition();
+		}
 	}
 
 }
