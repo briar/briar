@@ -7,13 +7,18 @@ import android.view.View;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -41,16 +46,19 @@ import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-public class ImageViewModel extends AndroidViewModel {
+public class ImageViewModel extends AndroidViewModel implements EventListener {
 
 	private static Logger LOG = getLogger(ImageViewModel.class.getName());
 
 	private final MessagingManager messagingManager;
+	private final EventBus eventBus;
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 	@IoExecutor
 	private final Executor ioExecutor;
 
+	private final MutableLiveEvent<MessageId> attachmentLoaded =
+			new MutableLiveEvent<>();
 	/**
 	 * true means there was an error saving the image, false if image was saved.
 	 */
@@ -62,13 +70,34 @@ public class ImageViewModel extends AndroidViewModel {
 
 	@Inject
 	ImageViewModel(Application application,
-			MessagingManager messagingManager,
+			MessagingManager messagingManager, EventBus eventBus,
 			@DatabaseExecutor Executor dbExecutor,
 			@IoExecutor Executor ioExecutor) {
 		super(application);
 		this.messagingManager = messagingManager;
+		this.eventBus = eventBus;
 		this.dbExecutor = dbExecutor;
 		this.ioExecutor = ioExecutor;
+
+		eventBus.addListener(this);
+	}
+
+	@Override
+	protected void onCleared() {
+		super.onCleared();
+		eventBus.removeListener(this);
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof AttachmentReceivedEvent) {
+			attachmentLoaded
+					.postEvent(((AttachmentReceivedEvent) e).getMessageId());
+		}
+	}
+
+	LiveEvent<MessageId> getOnAttachmentLoaded() {
+		return attachmentLoaded;
 	}
 
 	void clickImage() {

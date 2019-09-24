@@ -56,11 +56,11 @@ class ImageViewHolder extends ViewHolder {
 			imageView.setScaleType(FIT_CENTER);
 		} else {
 			loadImage(attachment, r);
-			if (SDK_INT >= 21) {
-				imageView.setTransitionName(
-						attachment.getTransitionName(conversationItemId));
-			}
 			imageView.setScaleType(CENTER_CROP);
+		}
+		if (SDK_INT >= 21) {
+			imageView.setTransitionName(
+					attachment.getTransitionName(conversationItemId));
 		}
 	}
 
