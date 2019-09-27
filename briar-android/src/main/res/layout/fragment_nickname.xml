@@ -26,7 +26,8 @@
 			app:layout_constraintEnd_toStartOf="@+id/guideline"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintVertical_bias="0.0"/>
+			app:layout_constraintVertical_bias="0.0"
+			app:layout_constraintVertical_chainStyle="packed"/>
 
 		<TextView
 			android:id="@+id/stepOneText"
@@ -74,12 +75,14 @@
 
 		<ImageView
 			android:id="@+id/imageView"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
 			android:layout_marginTop="32dp"
 			android:src="@drawable/ic_nickname"
 			app:layout_constraintBottom_toTopOf="@+id/nicknameIcon"
+			app:layout_constraintDimensionRatio="1:1"
 			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHeight_max="256dp"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/stepOneText"
 			tools:ignore="ContentDescription"/>
@@ -118,6 +121,7 @@
 			android:layout_marginTop="16dp"
 			app:errorEnabled="true"
 			app:hintEnabled="false"
+			app:layout_constraintBottom_toTopOf="@+id/space"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHorizontal_bias="0.5"
 			app:layout_constraintStart_toStartOf="parent"
@@ -132,6 +136,16 @@
 				android:inputType="text|textCapWords"/>
 
 		</android.support.design.widget.TextInputLayout>
+
+		<Space
+			android:id="@+id/space"
+			android:layout_width="0dp"
+			android:layout_height="0dp"
+			app:layout_constraintBottom_toTopOf="@+id/addButton"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintHeight_default="wrap"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"/>
 
 		<Button
 			android:id="@+id/addButton"
