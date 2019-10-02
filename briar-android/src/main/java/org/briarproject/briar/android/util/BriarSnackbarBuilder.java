@@ -4,13 +4,18 @@ import android.support.annotation.ColorRes;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.Snackbar.Callback;
 import android.view.View;
 import android.view.View.OnClickListener;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
 import static android.support.v4.content.ContextCompat.getColor;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 @NotNullByDefault
 public class BriarSnackbarBuilder {
@@ -29,6 +34,24 @@ public class BriarSnackbarBuilder {
 			s.setActionTextColor(getColor(view.getContext(),
 					R.color.briar_button_text_positive));
 			s.setAction(actionResId, onClickListener);
+		}
+		// Workaround for https://issuetracker.google.com/issues/64285517
+		if (duration == LENGTH_INDEFINITE && SDK_INT < 21) {
+			// Hide snackbar while it's opening to make bouncing less noticeable
+			s.getView().setVisibility(INVISIBLE);
+			s.addCallback(new Callback() {
+				@Override
+				public void onShown(Snackbar snackbar) {
+					snackbar.getView().setVisibility(VISIBLE);
+					// Request layout again in case snackbar is in wrong place
+					snackbar.getView().requestLayout();
+				}
+
+				@Override
+				public void onDismissed(Snackbar snackbar, int event) {
+					snackbar.getView().setVisibility(INVISIBLE);
+				}
+			});
 		}
 		return s;
 	}
