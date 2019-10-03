@@ -389,6 +389,9 @@ public class ConversationActivity extends BriarActivity
 				AliasDialogFragment.newInstance().show(
 						getSupportFragmentManager(), AliasDialogFragment.TAG);
 				return true;
+			case R.id.action_delete_all_messages:
+				askToDeleteAllMessages();
+				return true;
 			case R.id.action_social_remove_person:
 				askToRemoveContact();
 				return true;
@@ -725,6 +728,52 @@ public class ConversationActivity extends BriarActivity
 	private void onAddedPrivateMessage(@Nullable PrivateMessageHeader h) {
 		if (h == null) return;
 		addConversationItem(h.accept(visitor));
+	}
+
+	private void askToDeleteAllMessages() {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(getString(R.string.dialog_title_delete_all_messages));
+		builder.setMessage(
+				getString(R.string.dialog_message_delete_all_messages));
+		builder.setNegativeButton(R.string.delete,
+				(dialog, which) -> deleteAllMessages());
+		builder.setPositiveButton(R.string.cancel, null);
+		builder.show();
+	}
+
+	private void deleteAllMessages() {
+		list.showProgressBar();
+		runOnDbThread(() -> {
+			try {
+				boolean allDeleted =
+						conversationManager.deleteAllMessages(contactId);
+				reloadConversationAfterDeletingAllMessages(allDeleted);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				runOnUiThreadUnlessDestroyed(() -> list.showData());
+			}
+		});
+	}
+
+	private void reloadConversationAfterDeletingAllMessages(
+			boolean allDeleted) {
+		runOnUiThreadUnlessDestroyed(() -> {
+			adapter.clear();
+			loadMessages();
+			if (!allDeleted) showNotAllDeletedDialog();
+		});
+	}
+
+	private void showNotAllDeletedDialog() {
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(
+				getString(R.string.dialog_title_not_all_messages_deleted));
+		builder.setMessage(
+				getString(R.string.dialog_message_not_all_messages_deleted));
+		builder.setPositiveButton(R.string.ok, null);
+		builder.show();
 	}
 
 	private void askToRemoveContact() {

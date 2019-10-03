@@ -135,6 +135,11 @@
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
 	<string name="set_alias_button">Change</string>
+	<string name="delete_all_messages">Delete all messages</string>
+	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
+	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>
+	<string name="dialog_title_not_all_messages_deleted">Could not delete all messages</string>
+	<string name="dialog_message_not_all_messages_deleted">Messages related to introductions or invitations can not be deleted at the moment.</string>
 	<string name="delete_contact">Delete contact</string>
 	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
 	<string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>
