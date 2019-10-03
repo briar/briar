@@ -158,36 +158,41 @@ class LanTcpPlugin extends TcpPlugin {
 	// Package access for testing
 	boolean addressesAreOnSameLan(byte[] localIp, byte[] remoteIp) {
 		// 10.0.0.0/8
-		if (isPrefix10(localIp)) return isPrefix10(remoteIp);
+		if (isSlash8SiteLocal(localIp)) return isSlash8SiteLocal(remoteIp);
 		// 172.16.0.0/12
-		if (isPrefix172(localIp)) return isPrefix172(remoteIp);
+		if (isSlash12SiteLocal(localIp)) return isSlash12SiteLocal(remoteIp);
 		// 192.168.0.0/16
-		if (isPrefix192(localIp)) return isPrefix192(remoteIp);
-		// Unrecognised prefix - may be compatible
-		return true;
+		if (isSlash16SiteLocal(localIp)) return isSlash16SiteLocal(remoteIp);
+		// 169.254.0.0/16
+		if (isSlash16LinkLocal(localIp)) return isSlash16LinkLocal(remoteIp);
+		// Unrecognised prefix
+		return false;
 	}
 
-	private static boolean isPrefix10(byte[] ipv4) {
+	private static boolean isSlash8SiteLocal(byte[] ipv4) {
 		return ipv4[0] == 10;
 	}
 
-	private static boolean isPrefix172(byte[] ipv4) {
+	private static boolean isSlash12SiteLocal(byte[] ipv4) {
 		return ipv4[0] == (byte) 172 && (ipv4[1] & 0xF0) == 16;
 	}
 
-	private static boolean isPrefix192(byte[] ipv4) {
+	private static boolean isSlash16SiteLocal(byte[] ipv4) {
 		return ipv4[0] == (byte) 192 && ipv4[1] == (byte) 168;
 	}
 
-	// Returns the prefix length for an RFC 1918 address, or 0 for any other
-	// address
-	private static int getRfc1918PrefixLength(InetAddress addr) {
+	private static boolean isSlash16LinkLocal(byte[] ipv4) {
+		return ipv4[0] == (byte) 169 && ipv4[1] == (byte) 254;
+	}
+
+	// Returns the prefix length for a link-local or site-local address, or 0
+	// for any other address
+	private static int getPrefixLengthIfKnown(InetAddress addr) {
 		if (!(addr instanceof Inet4Address)) return 0;
-		if (!addr.isSiteLocalAddress()) return 0;
 		byte[] ipv4 = addr.getAddress();
-		if (isPrefix10(ipv4)) return 8;
-		if (isPrefix172(ipv4)) return 12;
-		if (isPrefix192(ipv4)) return 16;
+		if (isSlash8SiteLocal(ipv4)) return 8;
+		if (isSlash12SiteLocal(ipv4)) return 12;
+		if (isSlash16SiteLocal(ipv4) || isSlash16LinkLocal(ipv4)) return 16;
 		return 0;
 	}
 
@@ -308,9 +313,9 @@ class LanTcpPlugin extends TcpPlugin {
 			int aPort = a.getPort(), bPort = b.getPort();
 			if (aPort > 0 && bPort == 0) return -1;
 			if (aPort == 0 && bPort > 0) return 1;
-			// Prefer addresses with longer RFC 1918 prefixes
-			int aPrefix = getRfc1918PrefixLength(a.getAddress());
-			int bPrefix = getRfc1918PrefixLength(b.getAddress());
+			// Prefer addresses with longer prefixes
+			int aPrefix = getPrefixLengthIfKnown(a.getAddress());
+			int bPrefix = getPrefixLengthIfKnown(b.getAddress());
 			return bPrefix - aPrefix;
 		}
 	}
