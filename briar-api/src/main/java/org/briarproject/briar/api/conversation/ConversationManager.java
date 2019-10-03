@@ -24,7 +24,7 @@ public interface ConversationManager {
 
 	/**
 	 * Returns the headers of all messages in the given private conversation.
-	 *
+	 * <p>
 	 * Only {@link MessagingManager} returns only headers.
 	 * The others also return the message text.
 	 */
@@ -35,6 +35,13 @@ public interface ConversationManager {
 	 * Returns the unified group count for all private conversation messages.
 	 */
 	GroupCount getGroupCount(ContactId c) throws DbException;
+
+	/**
+	 * Deletes all messages exchanged with the given contact.
+	 *
+	 * @return true if all messages could be deleted, false otherwise
+	 */
+	boolean deleteAllMessages(ContactId c) throws DbException;
 
 	@NotNullByDefault
 	interface ConversationClient {
@@ -49,6 +56,14 @@ public interface ConversationManager {
 
 		void setReadFlag(GroupId g, MessageId m, boolean read)
 				throws DbException;
+
+		/**
+		 * Deletes all messages associated with the given contact.
+		 *
+		 * @return true if all messages could be deleted, false otherwise
+		 */
+		boolean deleteAllMessages(Transaction txn,
+				ContactId c) throws DbException;
 	}
 
 }

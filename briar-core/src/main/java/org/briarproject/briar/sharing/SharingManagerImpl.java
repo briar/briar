@@ -40,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -535,6 +536,26 @@ abstract class SharingManagerImpl<S extends Shareable>
 			m.put(s.getShareableId(), s.getState().getVisibility());
 		}
 		return m;
+	}
+
+	@Override
+	public boolean deleteAllMessages(Transaction txn, ContactId c)
+			throws DbException {
+		// TODO actually delete messages (#1627 and #1629)
+		return getMessageIds(txn, c).size() == 0;
+	}
+
+	private Set<MessageId> getMessageIds(Transaction txn, ContactId c)
+			throws DbException {
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
+		try {
+			Map<MessageId, BdfDictionary> results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+			return results.keySet();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	private static class StoredSession {
