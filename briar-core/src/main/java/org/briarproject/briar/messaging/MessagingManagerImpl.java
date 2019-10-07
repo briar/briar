@@ -404,4 +404,17 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		return minorVersion > 0;
 	}
 
+	@Override
+	public boolean deleteAllMessages(Transaction txn, ContactId c)
+			throws DbException {
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		// this indiscriminately deletes all raw messages in this group
+		// also attachments
+		for (MessageId messageId : db.getMessageIds(txn, g)) {
+			db.deleteMessage(txn, messageId);
+			db.deleteMessageMetadata(txn, messageId);
+		}
+		return true;
+	}
+
 }

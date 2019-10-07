@@ -73,4 +73,15 @@ class ConversationManagerImpl implements ConversationManager {
 		return new GroupCount(msgCount, unreadCount, latestTime);
 	}
 
+	@Override
+	public boolean deleteAllMessages(ContactId c) throws DbException {
+		return db.transactionWithResult(false, txn -> {
+			boolean allDeleted = true;
+			for (ConversationClient client : clients) {
+				allDeleted = client.deleteAllMessages(txn, c) && allDeleted;
+			}
+			return allDeleted;
+		});
+	}
+
 }
