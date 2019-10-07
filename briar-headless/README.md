@@ -77,7 +77,7 @@ The first step is to get your own link:
 
 `GET /v1/contacts/add/link`
 
-Returns a JSON object with a `briar://` link that needs to be sent to the contact you want to add
+This returns a JSON object with a `briar://` link that needs to be sent to the contact you want to add
 outside of Briar via an external channel.
 
 ```json
@@ -111,6 +111,14 @@ Until it is completed, a pending contact is returned as JSON:
 }
 ```
 
+Before users can send messages to contacts, they become pending contacts.
+In this state Briar still needs to do some work in the background (e.g.
+spinning up a dedicated hidden service and letting the contact connect to it).
+Pending contacts aren't shown in the Android's client contact list.
+Note that the `pendingContactId` differs from the `authorId` the contact will get later.
+The `pendingContactId` is the hash of their public handshake key, so it is the
+same if another device is trying to add the same contact.
+
 It is possible to get a list of all pending contacts:
 
 `GET /v1/contacts/add/pending`
@@ -130,11 +138,18 @@ This will return a JSON array of pending contacts and their states:
 
 The state can be one of these values:
 
-  * `waiting_for_connection`
-  * `offline`
-  * `connecting`
-  * `adding_contact`
-  * `failed`
+  * `waiting_for_connection`: Briar is still waiting to establish a connection
+  via the dedicated Tor hidden service(s). Each contact creates one and whoever
+  connects first wins. Making the hidden services available and establishing a
+  connection to them can take some time.
+  * `offline`: Briar went offline before the contact could be added.
+  * `connecting`: Briar made a connection and can now start the process of
+  adding the contact.
+  * `adding_contact`: The contact will be added. Once this is complete the
+  pending contact will be removed and replaced by a "real" contact.
+  * `failed`: Briar tried for two days to connect, but couldn't get a
+  connection, so it will stop trying. The pending contact will stick around as
+  failed until removed.
 
 If you want to be informed about state changes,
 you can use the Websocket API (below) to listen for events.
@@ -158,6 +173,10 @@ needs to be provided in the request body as follows:
     "pendingContactId": "jsTgWcsEQ2g9rnomeK1g/hmO8M1Ix6ZIGWAjgBtlS9U="
 }
 ```
+
+Note that it's also possible to add contacts nearby via Bluetooth/Wifi or
+introductions. In these cases contacts omit the `pendingContact` state and
+directly become `contact`s.
 
 ### Removing a contact
 
@@ -189,6 +208,12 @@ It returns a JSON array of private messages:
 ```
 
 If `local` is `true`, the message was sent by the Briar peer instead of its remote contact.
+
+A message is `read` when the local user has read it i.e. it was displayed on their screen.
+This only makes sense for incoming messages (which are not `local`).
+`sent` and `seen` are only useful for outgoing (`local`) messages.
+`sent` means that we offered the message to the contact (one tick) and `seen` (two ticks)
+means that they confirmed the delivery of the message.
 
 Attention: There can messages of other `type`s where the message `text` is `null`.
 
@@ -229,6 +254,18 @@ Returns a JSON array of blog posts:
     "type": "post"
 }
 ```
+
+`authorStatus` indicates what we know about the author of a blog post. Its possible values
+are:
+
+  * `none`: This is only used for RSS feed blog posts where Briar can't link
+  the author to one of its contacts.
+  * `unknown`: The author has broadcasted their identity but we don't know them.
+  * `unverified`: The author is one of our contacts but we didn't verify their
+  identity key. This happens for contacts added remotely or via introduction.
+  * `verified`: The author is one of our contacts and we verified their identity key.
+  * `ourselves`: The user is the author of the blog post.
+  * `anonymous`: This status is deprecated and no longer used. It will be removed in future versions.
 
 ### Writing a blog post
 
@@ -290,6 +327,9 @@ when listing private messages.
 
 ### A new contact was added
 
+This means that a new contact was either added directly or that it has left
+the pending state.
+
 ```json
 {
     "data": {
@@ -302,6 +342,9 @@ when listing private messages.
 ```
 
 ### A pending contact was added
+
+This means that a new `pendingContact` was added and Briar will try to add it
+as a real `contact`.
 
 ```json
 {
@@ -333,6 +376,9 @@ when listing private messages.
 For a list of valid states, please see the section on adding contacts above.
 
 ### A pending contact was removed
+
+This can happen when e.g. the user removed the pending contact manually. Briar
+will no longer work on making this `pendingContact` become `contact`.
 
 ```json
 {
