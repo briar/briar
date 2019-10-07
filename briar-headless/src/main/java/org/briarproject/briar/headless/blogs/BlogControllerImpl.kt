@@ -1,8 +1,8 @@
 package org.briarproject.briar.headless.blogs
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.javalin.BadRequestResponse
-import io.javalin.Context
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.Context
 import org.briarproject.bramble.api.identity.IdentityManager
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong

@@ -1,8 +1,8 @@
 package org.briarproject.briar.headless.forums
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.javalin.BadRequestResponse
-import io.javalin.Context
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.Context
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH
 import org.briarproject.briar.api.forum.ForumManager

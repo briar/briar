@@ -2,14 +2,12 @@ package org.briarproject.briar.headless
 
 import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.javalin.BadRequestResponse
-import io.javalin.Context
 import io.javalin.Javalin
-import io.javalin.JavalinEvent.SERVER_START_FAILED
-import io.javalin.JavalinEvent.SERVER_STOPPED
-import io.javalin.NotFoundResponse
 import io.javalin.apibuilder.ApiBuilder.*
 import io.javalin.core.util.Header.AUTHORIZATION
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.Context
+import io.javalin.http.NotFoundResponse
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.briar.headless.blogs.BlogController
 import org.briarproject.briar.headless.contact.ContactController
@@ -17,13 +15,13 @@ import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.forums.ForumController
 import org.briarproject.briar.headless.messaging.MessagingController
 import java.lang.Runtime.getRuntime
-import java.lang.System.exit
 import java.util.concurrent.atomic.AtomicBoolean
-import java.util.logging.Level
+import java.util.logging.Level.INFO
 import java.util.logging.Logger.getLogger
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.system.exitProcess
 
 @Immutable
 @Singleton
@@ -45,21 +43,21 @@ constructor(
         briarService.start()
         getRuntime().addShutdownHook(Thread(this::stop))
 
-        val app = Javalin.create()
-            .port(port)
-            .disableStartupBanner()
-            .enableCaseSensitiveUrls()
-            .event(SERVER_START_FAILED) {serverStopped() }
-            .event(SERVER_STOPPED) { serverStopped() }
-        if (debug) app.enableDebugLogging()
-
-        app.accessManager { handler, ctx, _ ->
-            if (ctx.header(AUTHORIZATION) == "Bearer $authToken") {
-                handler.handle(ctx)
-            } else {
-                ctx.status(401).result("Unauthorized")
+        val app = Javalin.create { config ->
+            config.showJavalinBanner = false
+            config.accessManager { handler, ctx, _ ->
+                if (ctx.header(AUTHORIZATION) == "Bearer $authToken") {
+                    handler.handle(ctx)
+                } else {
+                    ctx.status(401).result("Unauthorized")
+                }
             }
+            if (debug) config.enableDevLogging()
+        }.events {event ->
+            event.serverStartFailed { serverStopped() }
+            event.serverStopped { serverStopped() }
         }
+
         app.routes {
             path("/v1") {
                 path("/contacts") {
@@ -95,31 +93,32 @@ constructor(
             }
         }
         app.ws("/v1/ws") { ws ->
-            if (logger.isLoggable(Level.INFO)) ws.onConnect { session ->
-                logger.info("Received websocket connection from ${session.remoteAddress}")
+            if (logger.isLoggable(INFO)) ws.onConnect { ctx ->
+                logger.info("Received websocket connection from ${ctx.session.remoteAddress}")
                 logger.info("Waiting for authentication")
             }
-            ws.onMessage { session, msg ->
-                if (msg == authToken && !webSocketController.sessions.contains(session)) {
+            ws.onMessage { ctx ->
+                val session = ctx.session
+                if (ctx.message() == authToken && !webSocketController.sessions.contains(ctx)) {
                     logger.info("Authenticated websocket session with ${session.remoteAddress}")
-                    webSocketController.sessions.add(session)
+                    webSocketController.sessions.add(ctx)
                 } else {
-                    logger.info("Invalid message received: $msg")
+                    logger.info("Invalid message received: ${ctx.message()}")
                     logger.info("Closing websocket connection with ${session.remoteAddress}")
                     session.close(1008, "Invalid Authentication Token")
                 }
             }
-            ws.onClose { session, _, _ ->
-                logger.info("Removing websocket connection with ${session.remoteAddress}")
-                webSocketController.sessions.remove(session)
+            ws.onClose { ctx ->
+                logger.info("Removing websocket connection with ${ctx.session.remoteAddress}")
+                webSocketController.sessions.remove(ctx)
             }
         }
-        return app.start()
+        return app.start(port)
     }
 
     private fun serverStopped() {
         stop()
-        exit(1)
+        exitProcess(1)
     }
 
     internal fun stop() {

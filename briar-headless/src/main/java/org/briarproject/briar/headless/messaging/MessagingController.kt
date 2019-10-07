@@ -1,6 +1,6 @@
 package org.briarproject.briar.headless.messaging
 
-import io.javalin.Context
+import io.javalin.http.Context
 
 interface MessagingController {
 

@@ -1,8 +1,8 @@
 package org.briarproject.briar.headless
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.javalin.Context
-import io.javalin.core.util.ContextUtil
+import io.javalin.http.Context
+import io.javalin.http.util.ContextUtil
 import io.mockk.mockk
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactManager

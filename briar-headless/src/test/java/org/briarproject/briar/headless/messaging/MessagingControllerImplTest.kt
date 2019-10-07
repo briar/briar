@@ -1,9 +1,9 @@
 package org.briarproject.briar.headless.messaging
 
-import io.javalin.BadRequestResponse
-import io.javalin.Context
-import io.javalin.NotFoundResponse
-import io.javalin.json.JavalinJson.toJson
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.Context
+import io.javalin.http.NotFoundResponse
+import io.javalin.plugin.json.JavalinJson.toJson
 import io.mockk.*
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.db.NoSuchContactException

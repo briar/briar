@@ -8,10 +8,10 @@ import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK
 import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
 import org.briarproject.bramble.api.lifecycle.LifecycleManager
-import java.lang.System.exit
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.system.exitProcess
 
 interface BriarService {
     fun start()
@@ -36,7 +36,7 @@ constructor(
                 ?: throw UsageError("Could not get password. Is STDIN connected?")
             if (!accountManager.signIn(password)) {
                 echo("Error: Password invalid")
-                exit(1)
+                exitProcess(1)
             }
         }
         val dbKey = accountManager.databaseKey ?: throw AssertionError()

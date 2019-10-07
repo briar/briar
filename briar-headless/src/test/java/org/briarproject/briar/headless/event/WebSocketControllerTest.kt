@@ -1,8 +1,11 @@
 package org.briarproject.briar.headless.event
 
-import io.javalin.json.JavalinJson.toJson
-import io.javalin.websocket.WsSession
-import io.mockk.*
+import io.javalin.plugin.json.JavalinJson.toJson
+import io.javalin.websocket.WsContext
+import io.mockk.CapturingSlot
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.briarproject.bramble.api.identity.AuthorInfo
 import org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.bramble.test.ImmediateExecutor
@@ -16,14 +19,15 @@ import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.messaging.EVENT_CONVERSATION_MESSAGE
 import org.briarproject.briar.headless.messaging.output
 import org.eclipse.jetty.websocket.api.WebSocketException
+import org.eclipse.jetty.websocket.common.io.FutureWriteCallback
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import java.io.IOException
 
 internal class WebSocketControllerTest : ControllerTest() {
 
-    private val session1 = mockk<WsSession>()
-    private val session2 = mockk<WsSession>()
+    private val session1 = mockk<WsContext>()
+    private val session2 = mockk<WsContext>()
 
     private val controller = WebSocketControllerImpl(ImmediateExecutor())
 
@@ -46,7 +50,7 @@ internal class WebSocketControllerTest : ControllerTest() {
     fun testSendEvent() {
         val slot = CapturingSlot<String>()
 
-        every { session1.send(capture(slot)) } just Runs
+        every { session1.send(capture(slot)) } returns FutureWriteCallback()
 
         controller.sessions.add(session1)
         controller.sendEvent(EVENT_CONVERSATION_MESSAGE, event.output(text))
@@ -68,7 +72,7 @@ internal class WebSocketControllerTest : ControllerTest() {
         val slot = CapturingSlot<String>()
 
         every { session1.send(capture(slot)) } throws throwable
-        every { session2.send(capture(slot)) } just Runs
+        every { session2.send(capture(slot)) } returns FutureWriteCallback()
 
         controller.sessions.add(session1)
         controller.sessions.add(session2)
@@ -99,7 +103,7 @@ internal class WebSocketControllerTest : ControllerTest() {
             OutputEvent(EVENT_CONVERSATION_MESSAGE, introductionRequestEvent.output())
         val slot = CapturingSlot<String>()
 
-        every { session1.send(capture(slot)) } just Runs
+        every { session1.send(capture(slot)) } returns FutureWriteCallback()
 
         controller.sessions.add(session1)
         controller.sendEvent(EVENT_CONVERSATION_MESSAGE, introductionRequestEvent.output())

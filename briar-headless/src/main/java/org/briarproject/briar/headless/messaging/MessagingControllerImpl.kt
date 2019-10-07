@@ -1,9 +1,9 @@
 package org.briarproject.briar.headless.messaging
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.javalin.BadRequestResponse
-import io.javalin.Context
-import io.javalin.NotFoundResponse
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.Context
+import io.javalin.http.NotFoundResponse
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.contact.ContactManager

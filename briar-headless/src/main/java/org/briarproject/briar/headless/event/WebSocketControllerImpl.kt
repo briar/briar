@@ -1,7 +1,7 @@
 package org.briarproject.briar.headless.event
 
-import io.javalin.json.JavalinJson.toJson
-import io.javalin.websocket.WsSession
+import io.javalin.plugin.json.JavalinJson.toJson
+import io.javalin.websocket.WsContext
 import org.briarproject.bramble.api.lifecycle.IoExecutor
 import org.briarproject.bramble.util.LogUtils.logException
 import org.briarproject.briar.headless.json.JsonDict
@@ -23,7 +23,7 @@ constructor(@IoExecutor private val ioExecutor: Executor) : WebSocketController 
 
     private val logger = getLogger(WebSocketControllerImpl::javaClass.name)
 
-    override val sessions: MutableSet<WsSession> = ConcurrentHashMap.newKeySet<WsSession>()
+    override val sessions: MutableSet<WsContext> = ConcurrentHashMap.newKeySet<WsContext>()
 
     override fun sendEvent(name: String, obj: JsonDict) {
         val event = toJson(OutputEvent(name, obj))

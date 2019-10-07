@@ -1,6 +1,6 @@
 package org.briarproject.briar.headless.forums
 
-import io.javalin.Context
+import io.javalin.http.Context
 
 interface ForumController {
 
