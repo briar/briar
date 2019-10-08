@@ -40,6 +40,11 @@ class SessionParserImpl implements SessionParser {
 	}
 
 	@Override
+	public boolean isSession(BdfDictionary d) {
+		return d.getBoolean(SESSION_KEY_IS_SESSION, false);
+	}
+
+	@Override
 	public Session parseSession(GroupId contactGroupId,
 			BdfDictionary d) throws FormatException {
 		return new Session(State.fromValue(getState(d)), contactGroupId,
