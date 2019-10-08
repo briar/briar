@@ -42,6 +42,7 @@ import org.briarproject.briar.introduction.IntroducerSession.Introducee;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -319,7 +320,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		if (ss == null) return true;
 		IntroducerSession session =
 				sessionParser.parseIntroducerSession(ss.bdfSession);
-		return session.getState() == START;
+		return session.getState().isComplete();
 	}
 
 	@Override
@@ -561,8 +562,98 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	@Override
 	public boolean deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		// TODO actually delete messages (#1627 and #1629)
-		return getMessageIds(txn, c).size() == 0;
+		// get ID of the contact group
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+
+		// get metadata for all messages in the group
+		Map<MessageId, BdfDictionary> messages;
+		try {
+			messages = clientHelper.getMessageMetadataAsDictionary(txn, g);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+
+		// assign protocol messages to their sessions
+		Map<SessionId, DeletableSession> sessions = new HashMap<>();
+		for (Entry<MessageId, BdfDictionary> entry : messages.entrySet()) {
+			MessageMetadata m;
+			try {
+				m = messageParser.parseMetadata(entry.getValue());
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			if (m.getSessionId() == null) {
+				// this can only be an unhandled REQUEST message
+				// that does not yet have a SessionId assigned
+				continue;
+			}
+			// get session from map or database
+			DeletableSession session = sessions.get(m.getSessionId());
+			if (session == null) {
+				session = getDeletableSession(txn, g, m.getSessionId());
+				sessions.put(m.getSessionId(), session);
+			}
+			session.messages.add(entry.getKey());
+		}
+
+		// get a set of all messages which were not ACKed by the contact
+		Set<MessageId> notAcked = new HashSet<>();
+		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
+			if (!status.isSeen()) notAcked.add(status.getMessageId());
+		}
+		return deleteCompletedSessions(txn, sessions, notAcked);
+	}
+
+	private DeletableSession getDeletableSession(Transaction txn,
+			GroupId introducerGroupId, SessionId sessionId) throws DbException {
+		try {
+			StoredSession ss = getSession(txn, sessionId);
+			if (ss == null) throw new AssertionError();
+			Session s;
+			Role role = sessionParser.getRole(ss.bdfSession);
+			if (role == INTRODUCER) {
+				s = sessionParser.parseIntroducerSession(ss.bdfSession);
+			} else if (role == INTRODUCEE) {
+				s = sessionParser.parseIntroduceeSession(introducerGroupId,
+						ss.bdfSession);
+			} else throw new AssertionError();
+			return new DeletableSession(s.getState());
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private boolean deleteCompletedSessions(Transaction txn,
+			Map<SessionId, DeletableSession> sessions, Set<MessageId> notAcked)
+			throws DbException {
+		// find completed sessions to delete
+		boolean allDeleted = true;
+		for (DeletableSession session : sessions.values()) {
+			if (!session.state.isComplete()) {
+				allDeleted = false;
+				continue;
+			}
+			// we can only delete sessions
+			// where delivery of all messages was confirmed (aka ACKed)
+			boolean allAcked = true;
+			for (MessageId m : session.messages) {
+				if (notAcked.contains(m)) {
+					allAcked = false;
+					allDeleted = false;
+					break;
+				}
+			}
+			// delete messages of session, if all were ACKed
+			if (allAcked) {
+				for (MessageId m : session.messages) {
+					db.deleteMessage(txn, m);
+					db.deleteMessageMetadata(txn, m);
+				}
+				// we can not delete the session as it might get restarted
+				// and then needs the previous MessageIds
+			}
+		}
+		return allDeleted;
 	}
 
 	private Set<MessageId> getMessageIds(Transaction txn, ContactId c)
@@ -586,6 +677,16 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		private StoredSession(MessageId storageId, BdfDictionary bdfSession) {
 			this.storageId = storageId;
 			this.bdfSession = bdfSession;
+		}
+	}
+
+	private static class DeletableSession {
+
+		private final State state;
+		private final List<MessageId> messages = new ArrayList<>();
+
+		private DeletableSession(State state) {
+			this.state = state;
 		}
 	}
 

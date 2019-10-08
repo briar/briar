@@ -29,6 +29,11 @@ enum IntroducerState implements State {
 		return value;
 	}
 
+	@Override
+	public boolean isComplete() {
+		return this == START;
+	}
+
 	static IntroducerState fromValue(int value) throws FormatException {
 		for (IntroducerState s : values()) if (s.value == value) return s;
 		throw new FormatException();
