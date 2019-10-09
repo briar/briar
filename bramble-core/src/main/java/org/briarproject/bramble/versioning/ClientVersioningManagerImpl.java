@@ -28,6 +28,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientMajorVersion;
 import org.briarproject.bramble.api.versioning.ClientVersion;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.bramble.api.versioning.event.ClientVersionUpdatedEvent;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -228,9 +229,21 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 			Map<ClientMajorVersion, Visibility> after =
 					getVisibilities(newLocalStates, newRemoteStates);
 			// Call hooks for any visibilities that have changed
+			ContactId c = getContactId(txn, m.getGroupId());
 			if (!before.equals(after)) {
-				Contact c = getContact(txn, m.getGroupId());
-				callVisibilityHooks(txn, c, before, after);
+				Contact contact = db.getContact(txn, c);
+				callVisibilityHooks(txn, contact, before, after);
+			}
+			// Broadcast events for any new client versions
+			Set<ClientVersion> oldRemoteVersions = new HashSet<>();
+			for (ClientState cs : oldRemoteStates) {
+				oldRemoteVersions.add(cs.clientVersion);
+			}
+			for (ClientState cs : newRemoteStates) {
+				if (!oldRemoteVersions.contains(cs.clientVersion)) {
+					txn.attach(new ClientVersionUpdatedEvent(c,
+							cs.clientVersion));
+				}
 			}
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
@@ -508,12 +521,12 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 		storeUpdate(txn, g, states, 1);
 	}
 
-	private Contact getContact(Transaction txn, GroupId g) throws DbException {
+	private ContactId getContactId(Transaction txn, GroupId g)
+			throws DbException {
 		try {
 			BdfDictionary meta =
 					clientHelper.getGroupMetadataAsDictionary(txn, g);
-			int id = meta.getLong(GROUP_KEY_CONTACT_ID).intValue();
-			return db.getContact(txn, new ContactId(id));
+			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
