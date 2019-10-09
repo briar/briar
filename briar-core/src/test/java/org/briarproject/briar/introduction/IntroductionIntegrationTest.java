@@ -1349,11 +1349,6 @@ public class IntroductionIntegrationTest
 		assertFalse(deleteAllMessages0From2());
 	}
 
-	/**
-	 * This test is testing that a session's deletable flag gets reset
-	 * when the session is used again,
-	 * so that it can not cause a session to get deleted prematurely.
-	 */
 	@Test
 	public void testDeletingOneSideOfSession() throws Exception {
 		addListeners(false, false);

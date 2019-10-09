@@ -583,9 +583,11 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				throw new DbException(e);
 			}
 			if (m.getSessionId() == null) {
-				// this can only be an unhandled REQUEST message
-				// that does not yet have a SessionId assigned
-				continue;
+				// This can only be an unhandled REQUEST message.
+				// Its session is created and stored in incomingMessage(),
+				// and getMessageMetadata() only returns delivered messages,
+				// so the session ID should have been assigned.
+				throw new AssertionError("missing session ID");
 			}
 			// get session from map or database
 			DeletableSession session = sessions.get(m.getSessionId());
