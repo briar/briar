@@ -593,7 +593,10 @@ abstract class SharingManagerImpl<S extends Shareable>
 		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
 			if (!status.isSeen()) notAcked.add(status.getMessageId());
 		}
-		return deleteCompletedSessions(txn, sessions.values(), notAcked);
+		boolean allDeleted =
+				deleteCompletedSessions(txn, sessions.values(), notAcked);
+		recalculateGroupCount(txn, g);
+		return allDeleted;
 	}
 
 	private boolean deleteCompletedSessions(Transaction txn,
@@ -637,6 +640,31 @@ abstract class SharingManagerImpl<S extends Shareable>
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private void recalculateGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
+		Map<MessageId, BdfDictionary> results;
+		try {
+			results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		int msgCount = 0;
+		int unreadCount = 0;
+		for (Entry<MessageId, BdfDictionary> entry : results.entrySet()) {
+			MessageMetadata meta;
+			try {
+				meta = messageParser.parseMetadata(entry.getValue());
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			msgCount++;
+			if (!meta.isRead()) unreadCount++;
+		}
+		messageTracker.resetGroupCount(txn, g, msgCount, unreadCount);
 	}
 
 	private static class StoredSession {

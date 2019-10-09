@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
@@ -41,6 +42,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.forum.ForumSharingManager.MAJOR_VERSION;
+import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -829,12 +831,22 @@ public class ForumSharingIntegrationTest
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
+		// check that messages are tracked properly
+		GroupId g1From0 =
+				forumSharingManager0.getContactGroup(contact1From0).getId();
+		GroupId g0From1 =
+				forumSharingManager1.getContactGroup(contact0From1).getId();
+		assertGroupCount(messageTracker0, g1From0, 2, 1);
+		assertGroupCount(messageTracker1, g0From1, 2, 1);
+
 		// 0 deletes all messages
 		assertTrue(deleteAllMessages1From0());
 		assertEquals(0, getMessages1From0().size());
+		assertGroupCount(messageTracker0, g1From0, 0, 0);
 
 		// 1 can not delete all messages, as last one has not been ACKed
 		assertFalse(deleteAllMessages0From1());
+		assertGroupCount(messageTracker1, g0From1, 2, 1);
 
 		// 0 sends an ACK to their last message
 		sendAcks(c0, c1, contactId1From0, 1);
@@ -842,6 +854,7 @@ public class ForumSharingIntegrationTest
 		// 1 can now delete all messages, as last one has been ACKed
 		assertTrue(deleteAllMessages0From1());
 		assertEquals(0, getMessages0From1().size());
+		assertGroupCount(messageTracker1, g0From1, 0, 0);
 
 		// both leave forum and send LEAVE message
 		forumManager0.removeForum(forum);
@@ -856,8 +869,10 @@ public class ForumSharingIntegrationTest
 		// messages can not be deleted anymore
 		assertFalse(deleteAllMessages1From0());
 		assertEquals(1, getMessages1From0().size());
+		assertGroupCount(messageTracker0, g1From0, 1, 1);
 		assertFalse(deleteAllMessages0From1());
 		assertEquals(1, getMessages0From1().size());
+		assertGroupCount(messageTracker1, g0From1, 1, 0);
 
 		// 0 accepts re-share
 		forumSharingManager0.respondToInvitation(forum, contact1From0, true);
@@ -869,8 +884,10 @@ public class ForumSharingIntegrationTest
 		// messages can now get deleted again
 		assertTrue(deleteAllMessages1From0());
 		assertEquals(0, getMessages1From0().size());
+		assertGroupCount(messageTracker0, g1From0, 0, 0);
 		assertTrue(deleteAllMessages0From1());
 		assertEquals(0, getMessages0From1().size());
+		assertGroupCount(messageTracker1, g0From1, 0, 0);
 	}
 
 	@Test
