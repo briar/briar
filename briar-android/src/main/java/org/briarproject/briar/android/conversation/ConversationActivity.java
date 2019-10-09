@@ -356,6 +356,11 @@ public class ConversationActivity extends BriarActivity
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.conversation_actions, menu);
 
+		// Hide private message deletion action if feature is not enabled
+		if (!featureFlags.shouldEnablePrivateMessageDeletion()) {
+			menu.removeItem(R.id.action_delete_all_messages);
+		}
+
 		// enable introduction action if available
 		observeOnce(viewModel.showIntroductionAction(), this, enable -> {
 			if (enable != null && enable) {

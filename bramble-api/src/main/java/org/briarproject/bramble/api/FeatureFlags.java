@@ -8,4 +8,6 @@ public interface FeatureFlags {
 	boolean shouldEnableImageAttachments();
 
 	boolean shouldEnableRemoteContacts();
+
+	boolean shouldEnablePrivateMessageDeletion();
 }
