@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessageStateChangedEvent;
+import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.TestTransportConnectionReader;
 import org.briarproject.bramble.test.TestTransportConnectionWriter;
@@ -123,11 +124,14 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	// objects accessed from background threads need to be volatile
 	private volatile Waiter validationWaiter;
 	private volatile Waiter deliveryWaiter;
+	private volatile Waiter ackWaiter;
+	private volatile boolean expectAck = false;
 
 	protected C c0, c1, c2;
 
 	private final Semaphore messageSemaphore = new Semaphore(0);
 	private final AtomicInteger messageCounter = new AtomicInteger(0);
+	private final AtomicInteger ackCounter = new AtomicInteger(0);
 	private final File testDir = TestUtils.getTestDirectory();
 	private final String AUTHOR0 = "Author 0";
 	private final String AUTHOR1 = "Author 1";
@@ -158,6 +162,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		// initialize waiters fresh for each test
 		validationWaiter = new Waiter();
 		deliveryWaiter = new Waiter();
+		ackWaiter = new Waiter();
 
 		createAndRegisterIdentities();
 		startLifecycles();
@@ -218,6 +223,13 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 						loadAndLogMessage(event.getMessageId());
 						validationWaiter.resume();
 					}
+				}
+			} else if (e instanceof MessagesAckedEvent && expectAck) {
+				MessagesAckedEvent event = (MessagesAckedEvent) e;
+				ackCounter.addAndGet(event.getMessageIds().size());
+				for (MessageId m : event.getMessageIds()) {
+					loadAndLogMessage(m);
+					ackWaiter.resume();
 				}
 			}
 		}
@@ -378,6 +390,46 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 			LOG.info("Interrupted while waiting for messages");
 			Thread.currentThread().interrupt();
 			fail();
+		}
+	}
+
+	protected void sendAcks(BriarIntegrationTestComponent fromComponent,
+			BriarIntegrationTestComponent toComponent, ContactId toId, int num)
+			throws Exception {
+		// Debug output
+		String from =
+				fromComponent.getIdentityManager().getLocalAuthor().getName();
+		String to = toComponent.getIdentityManager().getLocalAuthor().getName();
+		LOG.info("TEST: Sending " + num + " ACKs from " + from + " to " + to);
+
+		expectAck = true;
+
+		// start outgoing connection
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+		TestTransportConnectionWriter writer =
+				new TestTransportConnectionWriter(out);
+		fromComponent.getConnectionManager().manageOutgoingConnection(toId,
+				SIMPLEX_TRANSPORT_ID, writer);
+		writer.getDisposedLatch().await(TIMEOUT, MILLISECONDS);
+
+		// handle incoming connection
+		ByteArrayInputStream in = new ByteArrayInputStream(out.toByteArray());
+		TestTransportConnectionReader reader =
+				new TestTransportConnectionReader(in);
+		toComponent.getConnectionManager().manageIncomingConnection(
+				SIMPLEX_TRANSPORT_ID, reader);
+
+		ackWaiter.await(TIMEOUT, num);
+		assertEquals("ACKs delivered", num, ackCounter.getAndSet(0));
+		assertEquals("No messages delivered", 0, messageCounter.get());
+		try {
+			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
+		} catch (InterruptedException e) {
+			LOG.info("Interrupted while waiting for messages");
+			Thread.currentThread().interrupt();
+			fail();
+		} finally {
+			expectAck = false;
 		}
 	}
 
