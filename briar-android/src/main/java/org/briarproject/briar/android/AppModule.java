@@ -246,6 +246,11 @@ public class AppModule {
 			public boolean shouldEnableRemoteContacts() {
 				return IS_DEBUG_BUILD;
 			}
+
+			@Override
+			public boolean shouldEnablePrivateMessageDeletion() {
+				return IS_DEBUG_BUILD;
+			}
 		};
 	}
 }
