@@ -603,7 +603,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
 			if (!status.isSeen()) notAcked.add(status.getMessageId());
 		}
-		return deleteCompletedSessions(txn, sessions, notAcked);
+		boolean allDeleted = deleteCompletedSessions(txn, sessions, notAcked);
+		recalculateGroupCount(txn, g);
+		return allDeleted;
 	}
 
 	private DeletableSession getDeletableSession(Transaction txn,
@@ -669,6 +671,31 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private void recalculateGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
+		Map<MessageId, BdfDictionary> results;
+		try {
+			results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		int msgCount = 0;
+		int unreadCount = 0;
+		for (Entry<MessageId, BdfDictionary> entry : results.entrySet()) {
+			MessageMetadata meta;
+			try {
+				meta = messageParser.parseMetadata(entry.getValue());
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			msgCount++;
+			if (!meta.isRead()) unreadCount++;
+		}
+		messageTracker.resetGroupCount(txn, g, msgCount, unreadCount);
 	}
 
 	private static class StoredSession {
