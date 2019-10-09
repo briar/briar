@@ -15,6 +15,8 @@ interface SessionParser {
 
 	Role getRole(BdfDictionary d) throws FormatException;
 
+	boolean isSession(BdfDictionary d);
+
 	CreatorSession parseCreatorSession(GroupId contactGroupId, BdfDictionary d)
 			throws FormatException;
 

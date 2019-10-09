@@ -7,4 +7,6 @@ interface State {
 	int getValue();
 
 	Visibility getVisibility();
+
+	boolean isAwaitingResponse();
 }

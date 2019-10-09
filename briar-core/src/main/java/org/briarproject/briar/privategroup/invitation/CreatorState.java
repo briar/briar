@@ -38,6 +38,11 @@ enum CreatorState implements State {
 		return visibility;
 	}
 
+	@Override
+	public boolean isAwaitingResponse() {
+		return this == INVITED;
+	}
+
 	static CreatorState fromValue(int value) throws FormatException {
 		for (CreatorState s : values()) if (s.value == value) return s;
 		throw new FormatException();
