@@ -414,6 +414,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			db.deleteMessage(txn, messageId);
 			db.deleteMessageMetadata(txn, messageId);
 		}
+		messageTracker.initializeGroupCount(txn, g);
 		return true;
 	}
 

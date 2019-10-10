@@ -1209,14 +1209,23 @@ public class IntroductionIntegrationTest
 		assertTrue(listener1.succeeded);
 		assertTrue(listener2.succeeded);
 
+		// check that introducer messages are tracked properly
+		Group g1 = introductionManager0.getContactGroup(contact1From0);
+		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
+
 		// introducer can now remove messages
 		assertTrue(deleteAllMessages1From0());
 		assertEquals(0, getMessages1From0().size());
 		assertTrue(deleteAllMessages1From0());  // a second time returns true
+		assertGroupCount(messageTracker0, g1.getId(), 0, 0);
 
 		// introducee1 can not yet remove messages, because last not ACKed
 		assertFalse(deleteAllMessages0From1());
 		assertEquals(2, getMessages0From1().size());
+
+		// check that introducee1 messages are tracked properly
+		Group g0 = introductionManager1.getContactGroup(contact0From1);
+		assertGroupCount(messageTracker1, g0.getId(), 2, 1);
 
 		// ACK last message
 		sendAcks(c0, c1, contactId1From0, 1);
@@ -1225,11 +1234,17 @@ public class IntroductionIntegrationTest
 		assertTrue(deleteAllMessages0From1());
 		assertEquals(0, getMessages0From1().size());
 		assertTrue(deleteAllMessages0From1());  // a second time returns true
+		assertGroupCount(messageTracker1, g0.getId(), 0, 0);
+
+		// check that introducee2 messages are tracked properly
+		Group g0From2 = introductionManager2.getContactGroup(contact0From2);
+		assertGroupCount(messageTracker2, g0From2.getId(), 2, 1);
 
 		// introducee2 can remove messages (last message was incoming)
 		assertTrue(deleteAllMessages0From2());
 		assertEquals(0, getMessages0From2().size());
 		assertTrue(deleteAllMessages0From2());  // a second time returns true
+		assertGroupCount(messageTracker2, g0From2.getId(), 0, 0);
 
 		// a new introduction is still possible
 		assertTrue(introductionManager0
@@ -1255,6 +1270,11 @@ public class IntroductionIntegrationTest
 		assertFalse(deleteAllMessages2From0());
 		assertFalse(deleteAllMessages0From1());
 		assertFalse(deleteAllMessages0From2());
+
+		// group counts get counted up again correctly
+		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
+		assertGroupCount(messageTracker1, g0.getId(), 2, 1);
+		assertGroupCount(messageTracker2, g0From2.getId(), 2, 1);
 	}
 
 	@Test

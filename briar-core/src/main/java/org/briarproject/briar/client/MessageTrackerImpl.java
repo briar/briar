@@ -169,4 +169,12 @@ class MessageTrackerImpl implements MessageTracker {
 		}
 	}
 
+	@Override
+	public void resetGroupCount(Transaction txn, GroupId g, int msgCount,
+			int unreadCount) throws DbException {
+		long now = clock.currentTimeMillis();
+		GroupCount groupCount = new GroupCount(msgCount, unreadCount, now);
+		storeGroupCount(txn, g, groupCount);
+	}
+
 }

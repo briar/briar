@@ -47,8 +47,8 @@ public interface MessageTracker {
 			throws DbException;
 
 	/**
-	 *  Loads the stored message id for the respective group id or returns null
-	 *  if none is available.
+	 * Loads the stored message id for the respective group id or returns null
+	 * if none is available.
 	 */
 	@Nullable
 	MessageId loadStoredMessageId(GroupId g) throws DbException;
@@ -63,6 +63,16 @@ public interface MessageTracker {
 	 * Marks a message as read or unread and updates the group count.
 	 */
 	void setReadFlag(GroupId g, MessageId m, boolean read) throws DbException;
+
+	/**
+	 * Resets the {@link GroupCount} to the given msgCount and unreadCount.
+	 * The latestMsgTime will be set to the current time.
+	 * <p>
+	 * Such reset is needed when recalculating the counts
+	 * after deleting messages from a group.
+	 */
+	void resetGroupCount(Transaction txn, GroupId g, int msgCount,
+			int unreadCount) throws DbException;
 
 	class GroupCount {
 
