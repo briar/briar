@@ -171,11 +171,7 @@ public class ImageActivity extends BriarActivity
 		viewModel.setToolbarPosition(
 				appBarLayout.getTop(), appBarLayout.getBottom()
 		);
-		if (SDK_INT >= 16) {
-			layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-		} else {
-			layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-		}
+		layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 	}
 
 	@Override
