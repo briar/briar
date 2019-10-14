@@ -1,0 +1,490 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+  <!--Setup-->
+  <string name="setup_title">Karibu kwenye Briar</string>
+  <string name="setup_name_explanation">lakabu lako litaonekana kwenye kila chapisho lako . Na hutaweza badilisha baada ya kuteneneza akaunti yako .</string>
+  <string name="setup_next">Ifuatayo</string>
+  <string name="setup_password_intro">Chagua neno  siri </string>
+  <string name="setup_password_explanation">Akaunti yako ya Briar imeifaziwa katika msimbo fiche kwenye kifaa chako ,nasio kwenye mawingu. kama utasahau nywila yako au kuondoa Briar, hamana namna unaweza kuokua akaunti yako . \n\nchagua nywila ndefu ambayo ni ngumu kubuniwa , kama maneno mannne ya nasibu, au kumi ya barua za nasibu, namba na herufi.</string>
+  <string name="setup_doze_title">uhusiano wa nyuma</string>
+  <string name="setup_doze_intro">kupokea ujumbe kwenye Briar unaitajika uwe umeunganishwa kwenye mkondo </string>
+  <string name="setup_doze_explanation">ili kupokea ujumbe , Briar unatakiwa uwe umeunganishwa kwenye mkongo kwa nyuma . Tafathali tengua oboreshaji wa betri ili Briar iendele kuunganishwa.</string>
+  <string name="setup_doze_button">ruhusa kuunganishwa </string>
+  <string name="choose_nickname">chagua lakabu yako</string>
+  <string name="choose_password">chagua Nywila yako 
+chagua nenosiri lako </string>
+  <string name="confirm_password">hakikisha Nywila yako 
+hakikisha nenosiri lako </string>
+  <string name="name_too_long">jina ni refu sana </string>
+  <string name="password_too_weak">Nywila yako ni thahifu
+nenosiri lako ni thahifu</string>
+  <string name="passwords_do_not_match">nywila zako haziendani 
+nenosiri zako haziendani </string>
+  <string name="create_account_button">tengeneza akauntu</string>
+  <string name="more_info">habari za ziada </string>
+  <string name="don_t_ask_again">usiulize tena </string>
+  <string name="setup_huawei_text">tafathali bonyeza alama hapo chini ili kuhakikisha Briar imelindwa na \"programu Ulizi\" kwenye kioo chako </string>
+  <string name="setup_huawei_button">Linda Briar </string>
+  <string name="setup_huawei_help">kama Briar haija wekwa kwenye orotha programu Ulizi, haitaweza kufanya kazi kwenye nyuma ya mkongo</string>
+  <string name="warning_dozed">%shaijawezekana kujiendesha kwa nyuma ya mkongo</string>
+  <!--Login-->
+  <string name="enter_password">Nywila
+nenosiri</string>
+  <string name="try_again">umekosea nywila , jaribu tena 
+umekosea nenosiri, jaribu tena</string>
+  <string name="sign_in_button">ingia</string>
+  <string name="forgotten_password">nimesahau Nywila yangu
+nimesahau nenosiri yangu</string>
+  <string name="dialog_title_lost_password">umepoteza nywila 
+umepoteza nenosiri</string>
+  <string name="startup_failed_notification_title">Briar imeshidwa Anza</string>
+  <string name="startup_failed_notification_text">bonyeza kwa taarifa zaidi </string>
+  <string name="startup_failed_activity_title">Briar kuaza kumeshidwa</string>
+  <string name="startup_failed_db_error">Kutokana na sababu mbali mbali Briar yako imevurugika kwenye kifadhidata. Na akaunti yako data na mawasiliano yako yote yamepotea. Itabidi upakue tena Briar au Tengeneza Akaunti nyingine ila chagua umesahau Nenosiri lako\' pale kwenye uwanja nenosiri .</string>
+  <string name="startup_failed_data_too_old_error">Akaunti yako imetengenezwa na tolea la zamani la programu hii na Haiwezekani kufungua hili toleo . Nilazima ubadili hili toleo la zamani au utengeneze Akaunti mpaya kwa kuchagua umesahau nenosiri Katika uwanja wa nenosiri </string>
+  <string name="startup_failed_data_too_new_error">Hili toleo la programu ulilo tumia nila zamani . Tafathi boresha kuwa toleo jipya na ujaribu tena .</string>
+  <string name="startup_failed_service_error">Briar imeshindikan kuanza Unabidi uunganishwe . Hianzishe Briar kama kwawaida kuondoka hilo tatizo . Japo kuwa utapoteza Akaunti yako na data zako zote kutokana na Briar haifathi data zako kwenye seva kuu.</string>
+  <string name="expiry_update">Muda wa majaribio umeongezwa mbele . Akaunti yako itafikia muda wake kuisha %d siku .</string>
+  <string name="expiry_date_reached">Hii programu imemaliza muda wake.\nAsante kwa kujaribu </string>
+  <string name="download_briar">kuendelea kutumia Briar, Tafathali pakua toleo 1.0.</string>
+  <string name="create_new_account">Unahitajika  kutenege Akaunti Mpaya , ila unaweza endelea kutumia lakabu yako .</string>
+  <string name="download_briar_button">Pakua Briar 1.0</string>
+  <string name="startup_open_database">Kupunguka Hifadhidata</string>
+  <string name="startup_migrate_database">Boresha Hifadhidata</string>
+  <string name="startup_compact_database">Kuingiliana Hifadhidata</string>
+  <!--Navigation Drawer-->
+  <string name="nav_drawer_open_description">Fungua njia ya Usambazaji </string>
+  <string name="nav_drawer_close_description">Funga njia ya Usambazaji </string>
+  <string name="contact_list_button">Mawasiliano </string>
+  <string name="groups_button">Vikundi vya kibinafsi</string>
+  <string name="forums_button">Ukumbi</string>
+  <string name="blogs_button">blogi</string>
+  <!--This is part of the main menu. The app will be locked when this is tapped.-->
+  <string name="lock_button">Funga programu</string>
+  <string name="settings_button">vipimo</string>
+  <string name="sign_out_button">Kutoka</string>
+  <!--Transports-->
+  <string name="transport_tor">Mtandao </string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="transport_lan">WI-FI</string>
+  <!--Notifications-->
+  <string name="reminder_notification_title">Toka Briar</string>
+  <string name="reminder_notification_text">bonyeza Kuingia tena .</string>
+  <string name="reminder_notification_channel_title">Briar ingia kwenye kumbukumbu </string>
+  <string name="reminder_notification_dismiss">tokaa </string>
+  <string name="ongoing_notification_title">Ingia kwenye Briar </string>
+  <string name="ongoing_notification_text">bonyeza kufungua Briar.</string>
+  <!--Misc-->
+  <string name="now">sasa</string>
+  <string name="show">onyesha</string>
+  <string name="hide">ficha</string>
+  <string name="ok">sawa</string>
+  <string name="cancel">ghairi</string>
+  <string name="got_it">nimeelewa </string>
+  <string name="delete">futa</string>
+  <string name="accept">kukubali</string>
+  <string name="decline">kukata</string>
+  <string name="options">chaguo</string>
+  <string name="online">mkondoni</string>
+  <string name="offline">nje ya mkondo</string>
+  <string name="send">tuma</string>
+  <string name="allow">ruhusu</string>
+  <string name="open">fungua</string>
+  <string name="no_data">hakuna data</string>
+  <string name="ellipsis">...</string>
+  <string name="text_too_long">Maneno ulio yainguza nimarefu sana </string>
+  <string name="show_onboarding">Kisanduku cha Msahada </string>
+  <string name="fix">kurekebisha</string>
+  <string name="help">Msahada</string>
+  <string name="sorry">Samahani</string>
+  <!--Contacts and Private Conversations-->
+  <string name="no_contacts">hakuna mawasiliano yakuonyesha </string>
+  <string name="no_contacts_action">bonyeza ikoni + kuongeza mawasiliano </string>
+  <string name="date_no_private_messages">hakuna ujumbe </string>
+  <string name="no_private_messages">hakuna ujumbe wakuonyesha </string>
+  <string name="message_hint">andika ujumbe </string>
+  <string name="image_caption_hint">ongeza maelezo mafupi (sio ya hiari)</string>
+  <string name="image_attach">Ambatanisha na taswira</string>
+  <string name="image_attach_error">imeshidikana kuambatanisha taswira(s)</string>
+  <string name="image_attach_error_too_big">Taswira nikubwa sana . kiwango ni %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Mfumo wa taswira hauendani: %s</string>
+  <string name="set_contact_alias">badilisha jina lako la mawasiliano </string>
+  <string name="set_contact_alias_hint">jina la mawasiliano </string>
+  <string name="set_alias_button">badili</string>
+  <string name="delete_contact">futaa mawasiliano </string>
+  <string name="dialog_title_delete_contact">thibitisha kufuta mawasiliano </string>
+  <string name="dialog_message_delete_contact">unauwakika unataka kuondoa mawasiliano na ujumbe wote kati yenu .</string>
+  <string name="contact_deleted_toast">mawasiliano yame ondolewa </string>
+  <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
+  <string name="you">wewe</string>
+  <string name="save_image">Hifathi taswira</string>
+  <string name="dialog_title_save_image">Unaitaji kuhifathi Taswira?</string>
+  <string name="dialog_message_save_image">Hifathi hii taswira ila itaruhusu programu nyengine kuziona . Una uwakika unaitaji kuhifathi ?</string>
+  <string name="save_image_success">Taswira imehifathiwa </string>
+  <string name="save_image_error">Haiwezekani kuhifathi Taswira.</string>
+  <string name="dialog_title_no_image_support">Taswira haipatikani </string>
+  <string name="dialog_message_no_image_support">Mfumo wako wa Briar hausaidi Uambatanishaji wa taswira . Utakapo boresha Briar utaona ikoni tofauti.</string>
+  <string name="dialog_title_image_support">Sasa unaweza tuma taswira kwa mawasiliano yako.</string>
+  <string name="dialog_message_image_support">Bonyeza ikoni hii kuambatanisha Taswira.</string>
+  <!--Adding Contacts-->
+  <string name="add_contact_title">Ongeza mawasaliano ya walio karibu </string>
+  <string name="face_to_face">Ni lazima ukutane na mtu unaye taka kumuongeza kwenye mawasiliano.\n\nHii ita kuepusha na mtu mwengine kuweza kusoma ujembo wako huko mbeleni.</string>
+  <string name="continue_button">Endelea</string>
+  <string name="try_again_button">jaribu tena</string>
+  <string name="waiting_for_contact_to_scan">Usubi kwa mawasiliano ku skana na kuunganishwa\u2026</string>
+  <string name="exchanging_contact_details">Kubadilishana mawasiliano taharifa\u2026</string>
+  <string name="contact_added_toast">mawasiliano wameongezwa:%s</string>
+  <string name="contact_already_exists">Wasiliano%s tayari lipo.</string>
+  <string name="qr_code_invalid">The QR nambari sio sahihi </string>
+  <string name="qr_code_too_old">Nambari ya QR ulio skana inatokea kwenye toleo la zamani %s.\n\nTafathali wasiliana na mwenzio au boreshe kwenye toleo jipya na ujaribu tena .</string>
+  <string name="qr_code_too_new">Nambari ya QR ulio skana Inatoka kwenye toleo jipya %s.\n\nTafathali boresha kuwa kwenye toleo jipya na ujaribu tena .</string>
+  <string name="camera_error">kamera Hitilafu</string>
+  <string name="connecting_to_device">kunganishwa kwenye kifaa\u2026</string>
+  <string name="authenticating_with_device">Uhalisishaji wa kifaa\u2026</string>
+  <string name="connection_error_title">imeshidwa unganishwa kwenye mawasiliano </string>
+  <string name="connection_error_explanation">Tafathali Angalia kama wote Mmeunganishwa kwenye Mtandao wa WI-FI mmoja .</string>
+  <string name="connection_error_feedback">Kama hilo tatizo linaendela , Tafathali <a href="feedback"> tutumie maoni</a>ilituboreshe Programu .</string>
+  <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Ongeza mawasiliano kwambali </string>
+  <string name="add_contact_nearby_title">ongeza mawasiliano kwa karibu </string>
+  <string name="add_contact_remotely_title">Ongeza Mawasilina kwa wambali </string>
+  <string name="contact_name_hint">Ipe lakabu wasilinao hili </string>
+  <string name="contact_link_intro">Ingiza kiungo cha mawasiliano hapa. </string>
+  <string name="contact_link_hint">unganisha mawasiliano </string>
+  <string name="paste_button">bandika </string>
+  <string name="add_contact_button">ongeza mawasiliano </string>
+  <string name="copy_button">nakala</string>
+  <string name="share_button">kushiriki </string>
+  <string name="send_link_title">Badilisha Kiungo. </string>
+  <string name="add_contact_choose_nickname">Chagua lakabu </string>
+  <string name="add_contact_choose_a_nickname">Ingiza lakabu </string>
+  <string name="nickname_intro">Ipe namba hii lakabu . Na niwewe tu utaiona .</string>
+  <string name="your_link">Mpe kiungo hichi unaye taka kuwasiliana nae </string>
+  <string name="link_clip_label">Briar kiunga</string>
+  <string name="link_copied_toast">Kiungo nakili </string>
+  <string name="adding_contact_error">kulikuwa na Hitilafu wakati wa kuongeza mawasiliano </string>
+  <string name="pending_contact_requests_snackbar">Maombi ya mawasiliano yalio subirishwa </string>
+  <string name="pending_contact_requests">Maombi yalio subirishwa </string>
+  <string name="no_pending_contacts">Hakuna maombi yalio subirishwa </string>
+  <string name="add_contact_remote_connecting">kuunganishwa...</string>
+  <string name="waiting_for_contact_to_come_online">Subiri kwaulie wasiliana nae aje Mkondoni .</string>
+  <string name="connecting">kuunganishwa...</string>
+  <string name="adding_contact">Ongeza Mawasiliano....</string>
+  <string name="adding_contact_failed">Imeshidikana kuongeza Mawasiliano </string>
+  <string name="dialog_title_remove_pending_contact">Hakiki Kufuta </string>
+  <string name="dialog_message_remove_pending_contact">Mawawasilano haya bado yanaendea kuhifathiwa , kama uta ondoa sasa , hayata kuwa yameifathiwa .</string>
+  <string name="own_link_error">Ingiza kiunga cha mawasiliano, Ambacho sio cha kwako </string>
+  <string name="nickname_missing">Tafathali andika lakabu</string>
+  <string name="invalid_link">kiunga batili </string>
+  <string name="unsupported_link">Hichi kiunga kimetoka kwenye tolea jipya  Bria. Tafathali boresha kuwa kwenye Tolea jipya na ujaribu tena .</string>
+  <string name="intent_own_link">Umefungua kiunga cha kwako mwenyewe. Tumia kingine unachotaka kuongeza!</string>
+  <string name="missing_link">Tafathali ingiza Kiungo </string>
+  <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
+  <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">mawasiliano mapya yameongezeka </item>
+    <item quantity="other">%dmawawasiliano mapya yameongezeka</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">kuongeza mawawasiliano haya yatachukua muda kuliko</string>
+  <string name="adding_contact_slow_title">inashidikana kuungana na mawasiliano </string>
+  <string name="adding_contact_slow_text">kuongeza mawasiliano haya yatachukua muda kuliko.\n\nTafathali angalia Kama unaye wasiliana nae kakuunganisha na wewe.</string>
+  <string name="offline_state">Hakuna mtandao</string>
+  <string name="duplicate_link_dialog_title">Kiunga cha kurudia.</string>
+  <string name="duplicate_link_dialog_text_1">Tayari unayo mawasiliano yenye kiunga hiki:%s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">yani%sna%sni mtu mmoja?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Mtu Mmoja</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Mtu Tofauti</string>
+  <string name="duplicate_link_dialog_text_3">%sna%swamekutumia kiunga sawa.\n\nMmoja wapo anajaribu kujuha ninani umewasiliana nae.\n\nUsi waambie umepokea kiunga hicho kwa mtu mwengine .</string>
+  <string name="pending_contact_updated_toast">mawasiano yalio subirishwa yamesasishwa </string>
+  <!--Introductions-->
+  <string name="introduction_onboarding_title">Tambulisha mawasiliano yako </string>
+  <string name="introduction_onboarding_text">Unaweza yatambulisha mawasiliano yako kwenu wote,Ili isiwe lazima mpaka wakutane ndio waungane kwenye Briar.</string>
+  <string name="introduction_menu_item">Anza Utambulisho </string>
+  <string name="introduction_activity_title">chagua mawasiliano </string>
+  <string name="introduction_not_possible">Tayari ulisha kuwa na utambulisho wa mawasilino yanaendelea. Tafathali ruhusa kwanza haya yaishe. Ila kama wewe au unaye wasiliananae wanapatikana muda mchache mtandaoni, itachukua muda kuisha .</string>
+  <string name="introduction_message_title">Tambulisha Mawasiliano </string>
+  <string name="introduction_message_hint">Ungeza Ujumbe (hiari)</string>
+  <string name="introduction_button">Anza Utambulisho </string>
+  <string name="introduction_sent">Utambulisho wako Umetumwa.</string>
+  <string name="introduction_error">Kulikuwa na hitilafu wakati wa utambulisho .</string>
+  <string name="introduction_response_error">Hitilafu wakati wa kujibu Utambulisho.</string>
+  <string name="introduction_request_sent">Umeombwa umtambulishe %1$skwa%2$s.</string>
+  <string name="introduction_request_received">%1$sameombwa akutambulishe Wewe kwa %2$s. Unataka kumuongeza %2$skwenye orodha ya mawasiliano ? </string>
+  <string name="introduction_request_exists_received">%1$sAmeombwa akutambulishe wewe kwa %2$s,ila%2$sYupo tayari kwenye orodha ya mawasiliano yako . Tangu%1$shafahamu hilo, unaweza ukamjibu tu .</string>
+  <string name="introduction_request_answered_received">%1$sAmeombwa Akutambulishe kwa %2$s.</string>
+  <string name="introduction_response_accepted_sent">Umekubali utambulisho kwa%1$s.</string>
+  <string name="introduction_response_accepted_sent_info">Kabla%1$sAja ongezwa kwenye mawasilino yako, Wanatakiwa wakubali utambulisho vyema . Pia inaweza chukua mudaa </string>
+  <string name="introduction_response_declined_sent">Une kataa utambulisho kwa%1$s.</string>
+  <string name="introduction_response_accepted_received">%1$samekubali utabulisho kwa %2$s</string>
+  <string name="introduction_response_declined_received">%1$sKakataa Utambulisho kwa %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$skasema kwamba %2$s kakataa utambulisho.</string>
+  <!--Private Groups-->
+  <string name="groups_list_empty">Hakuna kikundi cha kuonyesha </string>
+  <string name="groups_list_empty_action">Bonyeza +ikoni kutenege kikundi, au uliza mawasiliano yako wakuunge kwenye kikundi </string>
+  <string name="groups_created_by">Imetengenezwa na %s</string>
+  <string name="groups_group_is_empty">Hichi kikundi hakina watu </string>
+  <string name="groups_group_is_dissolved">Hichi kikundi kilisha futwaa</string>
+  <string name="groups_remove">Ondoa</string>
+  <string name="groups_create_group_title">Tengeneza Kikundi Binafsi</string>
+  <string name="groups_create_group_button">Tengeneza Kikundi </string>
+  <string name="groups_create_group_invitation_button">Tuma mwaliko</string>
+  <string name="groups_create_group_hint">Chagua jina la Kikundi binafsi </string>
+  <string name="groups_invitation_sent">Mwaliko wa kikundi umetumwa</string>
+  <string name="groups_member_list">Orodha ya wanachama </string>
+  <string name="groups_invite_members">Wahalike Wanachama </string>
+  <string name="groups_member_created_you">Umetengeneza Kikundi </string>
+  <string name="groups_member_created">%s katengeneza Kikundi </string>
+  <string name="groups_member_joined_you">Umejiunga kwenye kikundi </string>
+  <string name="groups_member_joined">%sAmejiunga kwenye kikundi</string>
+  <string name="groups_leave">Toka kwenye kikundi</string>
+  <string name="groups_leave_dialog_title">Thibitisha kutoka kwenye Kikundi </string>
+  <string name="groups_leave_dialog_message">Unauwakika unataka kutoka kwenye hichi kikundi ?</string>
+  <string name="groups_dissolve">Ondoka Kwenye Kikundi </string>
+  <string name="groups_dissolve_dialog_title">Hakiki Kufota kikundi </string>
+  <string name="groups_dissolve_dialog_message">Unauwakika unataka kufuta kikundi hiki?\n\nWote wanakikundi hawata weza endelea kujadiliana na Hawataweza pata ujumbe mpaya.</string>
+  <string name="groups_dissolve_button">kufuta</string>
+  <string name="groups_dissolved_dialog_title">Kikundi kime futwa </string>
+  <string name="groups_dissolved_dialog_message">Alie tengeneza kikundi kakifuta .\n\nWewe hautaweza kuandika ujumbe kwenye hili kundi na hutaweza pata chapisho ambalo lilisha wahi andikwa .</string>
+  <!--Private Group Invitations-->
+  <string name="groups_invitations_title">Mwaliko wa Kikundi </string>
+  <string name="groups_invitations_invitation_sent">Umemwalika %1$skujiunga kwenye kikundi \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$samekualika kujiunga kwenye kikundi\"%2$s\".</string>
+  <string name="groups_invitations_joined">jiunge kwenye Kikundi </string>
+  <string name="groups_invitations_declined">mwaliko wa kikundi umekata</string>
+  <string name="groups_invitations_response_accepted_sent">Umekubali mwaliko wa kikundi kutoka kwa %s.</string>
+  <string name="groups_invitations_response_declined_sent">Umekata mwaliko wa kikundi kutoka kwa %s.</string>
+  <string name="groups_invitations_response_accepted_received">%sKakubali mwaliko wa Kikundi .</string>
+  <string name="groups_invitations_response_declined_received">%sWamekata mwaliko wa kikundi.</string>
+  <string name="sharing_status_groups">Ni alie tengeneza tu kikundi ndio anaweza mwalika mtu tu. Hapo chini ni wanakikundi waliopo.</string>
+  <!--Private Groups Revealing Contacts-->
+  <string name="groups_reveal_contacts">Onyesha Mawasiliano </string>
+  <string name="groups_reveal_dialog_message">Unaweza chagua kuonyesha mawasiliano yote sasa au hapo mbeleni ya wanakikundi.\n\nKuonyesha mawasiliano inafanya kikundi chako kuwa hai na kinapatikana marakwamara , kwasababu unawasiliana na mawasiliano yanayo tambulika hata kama unaye wasiliana nae hayupo mtandaoni </string>
+  <string name="groups_reveal_visible">Mahusiano ya mawasiliano yanaonekana kwenye kikundi</string>
+  <string name="groups_reveal_visible_revealed_by_us">Mahusiano ya kikundi yanaonekana ( Yameonyeshwa na wewe)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">Mahusiano ya mawasiliano yanaonekana kwenye kikundi (Yanaonyeshwa na %s)</string>
+  <string name="groups_reveal_invisible">Mawaliano yanaonekana kwenye hichi kikundi </string>
+  <!--Forums-->
+  <string name="no_forums">Hakuna Mikutano yaku onyesha </string>
+  <string name="no_forums_action">Bonyeza + ikoni kutenege ukumbi , au uliza mawasiliano yako wakuunge kwenye ukumbi</string>
+  <string name="create_forum_title">Tengeneza Ukimbi </string>
+  <string name="choose_forum_hint">Chagua jina la mkutano wako</string>
+  <string name="create_forum_button">Tengeneza Ukimbi</string>
+  <string name="forum_created_toast">Ukumbi Umetengenezwa</string>
+  <string name="no_forum_posts">Hakuna chapisho lakuonyesha </string>
+  <string name="no_posts">Hakuna Chapisho </string>
+  <string name="forum_new_message_hint">Chapisho jipaya</string>
+  <string name="forum_message_reply_hint">Jibu jipya</string>
+  <string name="btn_reply">Jibu</string>
+  <string name="forum_leave">Toka kwenye ukumbi</string>
+  <string name="dialog_title_leave_forum">Thibitisha kutoka kwenye Ukumbi</string>
+  <string name="dialog_message_leave_forum">unauwakika unataka toka kwenye ukumbi?\n\nNa mawasiliano ambayo uliyaweka kwenye hichi kikundi hawataweza endelea pata taharifa . </string>
+  <string name="dialog_button_leave">Toka</string>
+  <string name="forum_left_toast">ondoka kwenye Ukumbi </string>
+  <!--Forum Sharing-->
+  <string name="forum_share_button">Sambaza Ukumbi</string>
+  <string name="contacts_selected">Mawasiliano yalio chaguliwa </string>
+  <string name="activity_share_toolbar_header">Chagua Mawasiliano </string>
+  <string name="no_contacts_selector">hakuna mawasiliano yakuonyesha </string>
+  <string name="no_contacts_selector_action">Tafathali rudi tena hapa baada ya kuongeza mawasiliano </string>
+  <string name="forum_shared_snackbar">Umetawanya kumbi na mawasiliano ulio chagua </string>
+  <string name="forum_share_message">Ungeza Ujumbe (hiari)</string>
+  <string name="forum_share_error">kulikuwa na hitilafu wakati changia huu ukumbi </string>
+  <string name="forum_invitation_received">%1$skamwaharifu juu ukumbi \"%2$s\" na wewe.</string>
+  <string name="forum_invitation_sent">Ume taharifiwa juu ya ukumbi \"%1$s\" na %2$s.</string>
+  <string name="forum_invitations_title">Mwaliko wa ukumbi</string>
+  <string name="forum_invitation_exists">Umekubali mwaliko wa ukumbi huu tayari.\n\nNa kukubali mialiko mbali mbali itakufanya uwe na kikundi hai.</string>
+  <string name="forum_joined_toast">umekiunga kwenye Ukumbi </string>
+  <string name="forum_declined_toast">Mwaliko umekataliwa</string>
+  <string name="shared_by_format">Umetumwa na %s</string>
+  <string name="forum_invitation_already_sharing">Tayari imesha sabanzwa</string>
+  <string name="forum_invitation_response_accepted_sent">Umekubali mwaliko wa ukumbi kutoka kwa %s.</string>
+  <string name="forum_invitation_response_declined_sent">Umekata mwaliko wa ukumbi kutoka kwa %s.</string>
+  <string name="forum_invitation_response_accepted_received">%sKakubali mwaliko wa ukumbi.</string>
+  <string name="forum_invitation_response_declined_received">%skakata mwaliko wa ukumbi.</string>
+  <string name="sharing_status">Tawanya hali </string>
+  <string name="sharing_status_forum">Mwana kikundi yoyote naweza taharifu watu wengine. Una tumia ukumbi huu na marafiki zako . Nakuna watu wengine wanweza kutoona pia .</string>
+  <string name="shared_with">Umesabazwa na %1$d(%2$dmkondoni)</string>
+  <string name="nobody">Hakuna mtu </string>
+  <!--Blogs-->
+  <string name="blogs_other_blog_empty_state">Hakuna chapisho lakuonyesha </string>
+  <string name="read_more">Soma zaidi </string>
+  <string name="blogs_write_blog_post">Andika chapisho la Blogi </string>
+  <string name="blogs_write_blog_post_body_hint">Andika chapisho lako la blogi </string>
+  <string name="blogs_publish_blog_post">kuchapisha </string>
+  <string name="blogs_blog_post_created">Chapisho la blogi limesha tengenezwa </string>
+  <string name="blogs_blog_post_received">Chapisho jipya la blogi limepokelewa </string>
+  <string name="blogs_blog_post_scroll_to">Tembeza kwa</string>
+  <string name="blogs_feed_empty_state">Hakuna chapisho lakuonyesha </string>
+  <string name="blogs_feed_empty_state_action">Taharifa zote kutoka kwenye Mawasaliano yako na blogi unazo zifwatilia zitatokea hapa\n\nBonyeza kalamu ikoni kuandika Taharifa </string>
+  <string name="blogs_remove_blog">Ondoa blogi </string>
+  <string name="blogs_remove_blog_ok">Ondoa</string>
+  <string name="blogs_blog_removed">Blogi imeondolewa </string>
+  <string name="blogs_reblog_comment_hint">Weka maoni(hiari)</string>
+  <string name="blogs_reblog_button">Chapisha tena </string>
+  <!--Blog Sharing-->
+  <string name="blogs_sharing_share">tuma kwa wengine Blogi</string>
+  <string name="blogs_sharing_error">kulikuwa na hitilafu wakati wakuchangia blogi.</string>
+  <string name="blogs_sharing_button">tuma kwa wengine Blogi</string>
+  <string name="blogs_sharing_snackbar">Tuma blogi kwa bahathi ya mawasiliano </string>
+  <string name="blogs_sharing_response_accepted_sent">Umekubali mwaliko wa Blogi kutoka %s.</string>
+  <string name="blogs_sharing_response_declined_sent">Umekata mwaliko wa blogi kutoka kwa %s.</string>
+  <string name="blogs_sharing_response_accepted_received">%skakubali mwaliko wa blogi.</string>
+  <string name="blogs_sharing_response_declined_received">%skakata mwaliko wa blogi.</string>
+  <string name="blogs_sharing_invitation_received">%1$s kamwalika kwenye blogi\"%2$s\" na wewe.</string>
+  <string name="blogs_sharing_invitation_sent">Umemwalika kwenye blogi \"%1$s\" pia%2$s.</string>
+  <string name="blogs_sharing_invitations_title">Mwaliko wa Blogi</string>
+  <string name="blogs_sharing_joined_toast">Jisajili kwenye Blogi</string>
+  <string name="blogs_sharing_declined_toast">mwaliko umekataliwa</string>
+  <!--RSS Feeds-->
+  <string name="blogs_rss_feeds_import">Leta RSS taharifa</string>
+  <string name="blogs_rss_feeds_import_button">Leta</string>
+  <string name="blogs_rss_feeds_import_hint">Ingiza URL za RSS taharifa</string>
+  <string name="blogs_rss_feeds_import_error">Tafathi Samahani! Kulikuwa na Hitilafu wakati wakuingiza Taharifa </string>
+  <string name="blogs_rss_feeds_manage">Simamia RSS taharifa </string>
+  <string name="blogs_rss_feeds_manage_imported">Zilizoingizwa</string>
+  <string name="blogs_rss_feeds_manage_author">Mwandishi:</string>
+  <string name="blogs_rss_feeds_manage_updated">Yamwisho imesasishwa: </string>
+  <string name="blogs_rss_remove_feed">Ondoa taharifa</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Unauwakika unataka kutoa hii taharifa?\n\nChapisho lako litaondolewa kwenye kifaa chako ila sio kwenye vifaa vya watu wengine.\n\nMawasiliano yoyote utakayo ambayo uliyaunganisha wataendelea kupata taharifa. </string>
+  <string name="blogs_rss_remove_feed_ok">Ondoa</string>
+  <string name="blogs_rss_feeds_manage_delete_error">Taharifa haziwezekani kuzifuta! </string>
+  <string name="blogs_rss_feeds_manage_empty_state">Hakuna RSS taharifa zaku onyesha\n\nBonyeza + ikoni kuleta taharifa </string>
+  <string name="blogs_rss_feeds_manage_error">Kulikuwa na tatizo la kufungua taharifa . Tafathali jaribu baadae kidogo.</string>
+  <!--Settings Display-->
+  <string name="pref_language_title">Lugha &amp;mkoa</string>
+  <string name="pref_language_changed">Huu mpango utafanya kazi baada yaku kuaza upaya Briar.Tafathali toka na kuanza upaya Briar.</string>
+  <string name="pref_language_default">Mfumo msingi </string>
+  <string name="display_settings_title">Onyesha</string>
+  <string name="pref_theme_title">Mada</string>
+  <string name="pref_theme_light">mwanga</string>
+  <string name="pref_theme_dark">Giza</string>
+  <string name="pref_theme_auto">kiotomatiki (Mchana)</string>
+  <string name="pref_theme_system">Mfumo Msingi </string>
+  <!--Settings Network-->
+  <string name="network_settings_title">Mtandao</string>
+  <string name="bluetooth_setting">Unganisha kwa Bluetooth</string>
+  <string name="bluetooth_setting_enabled">wakati wowote mawasiliano yakiwa karibu </string>
+  <string name="bluetooth_setting_disabled">Wakati waku ongeza mawasiliano tu.</string>
+  <string name="tor_network_setting">Unganisha kwa Mtandao (Tor)</string>
+  <string name="tor_network_setting_automatic">kiotomatiki  inatengemeana na mahali </string>
+  <string name="tor_network_setting_without_bridges">tumia Tor bila madaraja </string>
+  <string name="tor_network_setting_with_bridges">Tumia Tor na madaraja </string>
+  <string name="tor_network_setting_never">usi unganishe </string>
+  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_summary">kiotomatiki:%1$s (ndani%2$s)</string>
+  <string name="tor_mobile_data_title">Tumia Data ya simu</string>
+  <string name="tor_only_when_charging_title">Unganishwa kwenye mkongo (Tor) kwenye wakati wa kucharge tu</string>
+  <string name="tor_only_when_charging_summary">Zima mtandao wakati betri ipo chini </string>
+  <!--Settings Security and Panic-->
+  <string name="security_settings_title">Ulizi</string>
+  <string name="pref_lock_title">Funga programu</string>
+  <string name="pref_lock_summary">Tumia nenosiri la simu kulinda Briar wakati wa kuingia</string>
+  <string name="pref_lock_disabled_summary">Ili kutumia huu mfumo , weka ulizi kwenye kifaa chako </string>
+  <string name="pref_lock_timeout_title">Kifungo cha Programu kimefika mwisho wake </string>
+  <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Usipo kuwa unatumia Briar , kiotomatiki itajifunga baada ya %s</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_1">Dakika 1</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_5">dakika 5</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_15">Dakika 15</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_30">Dakika 30</string>
+  <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
+  <string name="pref_lock_timeout_60">lisaa 1</string>
+  <string name="pref_lock_timeout_never">Kamwe</string>
+  <string name="pref_lock_timeout_never_summary">isijeikaji funga Briar kiotomatiki</string>
+  <string name="change_password">Badili nenosiri</string>
+  <string name="current_password">Nenosiri Lasasa</string>
+  <string name="choose_new_password">Nenosiri jipya</string>
+  <string name="confirm_new_password">Hakiki Nenosiri jipya</string>
+  <string name="password_changed">Nenosiri limebadilika </string>
+  <string name="panic_setting">Bonyeza ukiwa na hofu </string>
+  <string name="panic_setting_title">kitufe cha hofu </string>
+  <string name="panic_setting_hint">hakiki jinsi Briar ita kuwa endapo utabonyeza kitufe cha hofu kwenye programu </string>
+  <string name="panic_app_setting_title">Kitufe cha hofu kwenye programu </string>
+  <string name="unknown_app">programu isio tambulika</string>
+  <string name="panic_app_setting_summary">hakuna programu ilio tegeshwa </string>
+  <string name="panic_app_setting_none">Hakuna</string>
+  <string name="dialog_title_connect_panic_app">Hakiki programu Hofu</string>
+  <string name="dialog_message_connect_panic_app">Unauwakika unataka kumruhusu %1$skujibu taharifa za hofu ? </string>
+  <string name="panic_setting_destructive_action">Kitendo cha kuharibu </string>
+  <string name="panic_setting_signout_title">Kutoka</string>
+  <string name="panic_setting_signout_summary">Toka kwenye Briar endapo kitufe cha Hofu kitabo nyezwa </string>
+  <string name="purge_setting_title">futa akaunti</string>
+  <string name="purge_setting_summary">Futa Briar akaunti endapo kitufe cha Hofu kitakuwa kimebonyezwa kwa mstuko . Hii itafuta kabisa mawasiliano na ujumbe wako </string>
+  <string name="uninstall_setting_title">ondoa Briar</string>
+  <string name="uninstall_setting_summary">Hii itaitaji mwongozo wa tukio la hofu  </string>
+  <!--Settings Notifications-->
+  <string name="notification_settings_title">Arifu</string>
+  <string name="notify_sign_in_title">Nikumbushe ku ingia</string>
+  <string name="notify_sign_in_summary">onyesha kumbusho wakati simu imewaka au programu imesasisha</string>
+  <string name="notify_private_messages_setting_title">ujumbe wa kibinafsi</string>
+  <string name="notify_private_messages_setting_summary">onyesha arifu kwa ujumbe wa kibinafsi</string>
+  <string name="notify_private_messages_setting_summary_26">sanidi arifu kwa ujembe wa kibinafsi</string>
+  <string name="notify_group_messages_setting_title">ujumbe wakikundi</string>
+  <string name="notify_group_messages_setting_summary">Onyesha Taharifa za kikundi </string>
+  <string name="notify_group_messages_setting_summary_26">Hakiki ujumbe wa kikundi </string>
+  <string name="notify_forum_posts_setting_title">chapisho Ukumbi </string>
+  <string name="notify_forum_posts_setting_summary">Onyesha taharifa za chapisho kwenye Ukumbi </string>
+  <string name="notify_forum_posts_setting_summary_26">Hakiki taharifa za chapisho kwenye ukumbi </string>
+  <string name="notify_blog_posts_setting_title">chapisho blogi</string>
+  <string name="notify_blog_posts_setting_summary">Onyesha chapisho kutoka kwenye blogi </string>
+  <string name="notify_blog_posts_setting_summary_26">Hakiki taharifa za chapisho kwenye blogi </string>
+  <string name="notify_vibration_setting">vibrate </string>
+  <string name="notify_sound_setting">Sauti</string>
+  <string name="notify_sound_setting_default">Mwiito mkuu </string>
+  <string name="notify_sound_setting_disabled">Hakuna</string>
+  <string name="choose_ringtone_title">Chagua mwiito </string>
+  <string name="cannot_load_ringtone">Ina shindikana kufungua mwiito </string>
+  <!--Settings Feedback-->
+  <string name="feedback_settings_title">Maoni</string>
+  <string name="send_feedback">Tuma Maoni </string>
+  <!--Link Warning-->
+  <string name="link_warning_title">kiungo cha onyo</string>
+  <string name="link_warning_open_link">Fungua kiungo </string>
+  <!--Crash Reporter-->
+  <string name="crash_report_title">Briar taharia imearibika</string>
+  <string name="briar_crashed">Samahani, Briar imeharibika.</string>
+  <string name="feedback_title">Maoni</string>
+  <string name="describe_crash">Eleza kilicho tokea (hiari)</string>
+  <string name="enter_feedback">Weka Maoni yako </string>
+  <string name="optional_contact_email">Barua pepe yako (hiari)</string>
+  <string name="send_report">Tuma repoti </string>
+  <string name="close">Funga</string>
+  <!--Sign Out-->
+  <!--Screen Filters & Tapjacking-->
+  <!--Permission Requests-->
+  <string name="permission_camera_title">kamera iruhusu</string>
+  <string name="permission_location_title">Ruhusa ya eneo</string>
+  <string name="permission_camera_location_title">Kamera na Eneo</string>
+  <!--App Locking-->
+  <string name="lock_unlock">Fungua Briar</string>
+  <string name="lock_unlock_verbose">Ingiza Nenosiri la kifaa chako,PIN au fumbo kufungua Briar </string>
+  <string name="lock_unlock_password">Tumia nenosiri</string>
+  <string name="lock_is_locked">Briar imefungwa </string>
+  <string name="lock_tap_to_unlock">Bonyeza kufunga</string>
+  <!--Screenshots-->
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_alice">Alice</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_bob">Bob</string>
+  <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
+  <string name="screenshot_carol">Carol</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">Hi Bob!</string>
+  <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">Hi Alice! Asante kwa kuniambia juu ya Briar!</string>
+  <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">Hakuna tatizo, natumaini utaipenda 😀</string>
+</resources>
