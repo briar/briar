@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
@@ -41,6 +42,7 @@ import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.forum.ForumSharingManager.MAJOR_VERSION;
+import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
@@ -124,9 +126,7 @@ public class ForumSharingIntegrationTest
 						clock.currentTimeMillis());
 
 		// check that request message state is correct
-		Collection<ConversationMessageHeader> messages =
-				db0.transactionWithResult(true, txn -> forumSharingManager0
-						.getMessageHeaders(txn, contactId1From0));
+		Collection<ConversationMessageHeader> messages = getMessages1From0();
 		assertEquals(1, messages.size());
 		assertMessageState(messages.iterator().next(), true, false, false);
 
@@ -139,8 +139,7 @@ public class ForumSharingIntegrationTest
 		respondToRequest(contactId0From1, true);
 
 		// check that accept message state is correct
-		messages = db1.transactionWithResult(true, txn -> forumSharingManager1
-				.getMessageHeaders(txn, contactId0From1));
+		messages = getMessages0From1();
 		assertEquals(2, messages.size());
 		for (ConversationMessageHeader h : messages) {
 			if (h instanceof ConversationResponse) {
@@ -158,9 +157,7 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 
 		// invitee has one invitation message from sharer
-		Collection<ConversationMessageHeader> list =
-				db1.transactionWithResult(true, txn -> forumSharingManager1
-						.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> list = getMessages0From1();
 		assertEquals(2, list.size());
 		// check other things are alright with the forum message
 		for (ConversationMessageHeader m : list) {
@@ -179,9 +176,7 @@ public class ForumSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, db0.transactionWithResult(true, txn ->
-				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
-				.size());
+		assertEquals(2, getMessages1From0().size());
 		// forum can not be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertFalse(forumSharingManager0.canBeShared(forum.getId(), c1));
@@ -216,9 +211,7 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, forumSharingManager1.getInvitations().size());
 
 		// invitee has one invitation message from sharer and one response
-		Collection<ConversationMessageHeader> list =
-				db1.transactionWithResult(true, txn -> forumSharingManager1
-						.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> list = getMessages0From1();
 		assertEquals(2, list.size());
 		// check things are alright with the forum message
 		for (ConversationMessageHeader m : list) {
@@ -237,9 +230,7 @@ public class ForumSharingIntegrationTest
 			}
 		}
 		// sharer has own invitation message and response
-		assertEquals(2, db0.transactionWithResult(true, txn ->
-				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
-				.size());
+		assertEquals(2, getMessages1From0().size());
 		// forum can be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertTrue(forumSharingManager0.canBeShared(forum.getId(), c1));
@@ -507,12 +498,8 @@ public class ForumSharingIntegrationTest
 				.contains(contact0From1));
 
 		// and both have each other's invitations (and no response)
-		assertEquals(2, db0.transactionWithResult(true, txn ->
-				forumSharingManager0.getMessageHeaders(txn, contactId1From0))
-				.size());
-		assertEquals(2, db1.transactionWithResult(true, txn ->
-				forumSharingManager1.getMessageHeaders(txn, contactId0From1))
-				.size());
+		assertEquals(2, getMessages1From0().size());
+		assertEquals(2, getMessages0From1().size());
 
 		// there are no more open invitations
 		assertTrue(forumSharingManager0.getInvitations().isEmpty());
@@ -768,10 +755,7 @@ public class ForumSharingIntegrationTest
 
 		// get invitation MessageId for later
 		MessageId invitationId = null;
-		Collection<ConversationMessageHeader> list =
-				db1.transactionWithResult(true, txn -> forumSharingManager1
-						.getMessageHeaders(txn, contactId0From1));
-		for (ConversationMessageHeader m : list) {
+		for (ConversationMessageHeader m : getMessages0From1()) {
 			if (m instanceof ForumInvitationRequest) {
 				invitationId = m.getId();
 			}
@@ -829,6 +813,146 @@ public class ForumSharingIntegrationTest
 				.contains(contact0From1));
 	}
 
+	@Test
+	public void testDeletingAllMessagesWhenCompletingSession()
+			throws Exception {
+		// send invitation
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// messages can not be deleted
+		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages0From1());
+
+		// accept invitation
+		respondToRequest(contactId0From1, true);
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// check that messages are tracked properly
+		GroupId g1From0 =
+				forumSharingManager0.getContactGroup(contact1From0).getId();
+		GroupId g0From1 =
+				forumSharingManager1.getContactGroup(contact0From1).getId();
+		assertGroupCount(messageTracker0, g1From0, 2, 1);
+		assertGroupCount(messageTracker1, g0From1, 2, 1);
+
+		// 0 deletes all messages
+		assertTrue(deleteAllMessages1From0());
+		assertEquals(0, getMessages1From0().size());
+		assertGroupCount(messageTracker0, g1From0, 0, 0);
+
+		// 1 can not delete all messages, as last one has not been ACKed
+		assertFalse(deleteAllMessages0From1());
+		assertGroupCount(messageTracker1, g0From1, 2, 1);
+
+		// 0 sends an ACK to their last message
+		sendAcks(c0, c1, contactId1From0, 1);
+
+		// 1 can now delete all messages, as last one has been ACKed
+		assertTrue(deleteAllMessages0From1());
+		assertEquals(0, getMessages0From1().size());
+		assertGroupCount(messageTracker1, g0From1, 0, 0);
+
+		// both leave forum and send LEAVE message
+		forumManager0.removeForum(forum);
+		sync0To1(1, true);
+
+		// sending invitation is possible again
+		forumSharingManager1.sendInvitation(forum.getId(), contactId0From1,
+				null, clock.currentTimeMillis());
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// messages can not be deleted anymore
+		assertFalse(deleteAllMessages1From0());
+		assertEquals(1, getMessages1From0().size());
+		assertGroupCount(messageTracker0, g1From0, 1, 1);
+		assertFalse(deleteAllMessages0From1());
+		assertEquals(1, getMessages0From1().size());
+		assertGroupCount(messageTracker1, g0From1, 1, 0);
+
+		// 0 accepts re-share
+		forumSharingManager0.respondToInvitation(forum, contact1From0, true);
+		sync0To1(1, true);
+
+		// 1 sends an ACK to their last message
+		sendAcks(c1, c0, contactId0From1, 1);
+
+		// messages can now get deleted again
+		assertTrue(deleteAllMessages1From0());
+		assertEquals(0, getMessages1From0().size());
+		assertGroupCount(messageTracker0, g1From0, 0, 0);
+		assertTrue(deleteAllMessages0From1());
+		assertEquals(0, getMessages0From1().size());
+		assertGroupCount(messageTracker1, g0From1, 0, 0);
+	}
+
+	@Test
+	public void testDeletingAllMessagesAfterDecline()
+			throws Exception {
+		// send invitation
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// decline invitation
+		respondToRequest(contactId0From1, false);
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// 0 deletes all messages
+		assertTrue(deleteAllMessages1From0());
+		assertEquals(0, getMessages1From0().size());
+
+		// 1 can not delete all messages, as last one has not been ACKed
+		assertFalse(deleteAllMessages0From1());
+
+		// 0 sends an ACK to their last message
+		sendAcks(c0, c1, contactId1From0, 1);
+
+		// 1 can now delete all messages, as last one has been ACKed
+		assertTrue(deleteAllMessages0From1());
+		assertEquals(0, getMessages0From1().size());
+
+		// re-sending invitation is possible
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// messages can not be deleted anymore
+		assertFalse(deleteAllMessages1From0());
+		assertEquals(1, getMessages1From0().size());
+		assertFalse(deleteAllMessages0From1());
+		assertEquals(1, getMessages0From1().size());
+	}
+
+	private Collection<ConversationMessageHeader> getMessages1From0()
+			throws DbException {
+		return db0.transactionWithResult(true, txn -> forumSharingManager0
+				.getMessageHeaders(txn, contactId1From0));
+	}
+
+	private Collection<ConversationMessageHeader> getMessages0From1()
+			throws DbException {
+		return db1.transactionWithResult(true, txn -> forumSharingManager1
+				.getMessageHeaders(txn, contactId0From1));
+	}
+
+	private boolean deleteAllMessages1From0() throws DbException {
+		return db0.transactionWithResult(false, txn -> forumSharingManager0
+				.deleteAllMessages(txn, contactId1From0));
+	}
+
+	private boolean deleteAllMessages0From1() throws DbException {
+		return db1.transactionWithResult(false, txn -> forumSharingManager1
+				.deleteAllMessages(txn, contactId0From1));
+	}
+
 	private void respondToRequest(ContactId contactId, boolean accept)
 			throws DbException {
 		assertEquals(1, forumSharingManager1.getInvitations().size());
@@ -883,7 +1007,7 @@ public class ForumSharingIntegrationTest
 			}
 		}
 
-		void reset() {
+		private void reset() {
 			requestReceived = responseReceived = responseAccepted = false;
 			requestContactId = responseContactId = null;
 		}

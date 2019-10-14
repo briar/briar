@@ -13,6 +13,8 @@ interface SessionParser {
 
 	BdfDictionary getAllSessionsQuery();
 
+	boolean isSession(BdfDictionary d);
+
 	Session parseSession(GroupId contactGroupId, BdfDictionary d)
 			throws FormatException;
 

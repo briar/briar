@@ -491,9 +491,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			return abortWithMessage(txn, s);
 		// Broadcast event informing that contact left
 		ContactId contactId = getContactId(txn, s.getContactGroupId());
-		ContactLeftShareableEvent e =
-				new ContactLeftShareableEvent(s.getShareableId(),
-						contactId);
+		ContactLeftShareableEvent e = new ContactLeftShareableEvent(
+				s.getShareableId(), contactId);
 		txn.attach(e);
 		// Stop sharing the shareable with the contact
 		setShareableVisibility(txn, s, INVISIBLE);
