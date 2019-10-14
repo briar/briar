@@ -59,6 +59,8 @@ task unpackTorBinaries {
 		copy {
 			from configurations.tor.collect { zipTree(it) }
 			into torBinariesDir
+			// TODO: Remove after next Tor upgrade, which won't include non-PIE binaries
+			include 'geoip.zip', '*_pie.zip'
 		}
 	}
 	dependsOn cleanTorBinaries
