@@ -13,7 +13,6 @@ import android.widget.ProgressBar;
 import org.briarproject.briar.R;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Objects.requireNonNull;
 
 public class CompositeSendButton extends FrameLayout {
@@ -75,33 +74,24 @@ public class CompositeSendButton extends FrameLayout {
 		if (showImageButton) {
 			imageButton.setVisibility(VISIBLE);
 			sendButton.setEnabled(false);
-			if (SDK_INT <= 15) {
+			sendButton.clearAnimation();
+			sendButton.animate().alpha(0f).withEndAction(() -> {
 				sendButton.setVisibility(INVISIBLE);
 				imageButton.setEnabled(true);
-			} else {
-				sendButton.clearAnimation();
-				sendButton.animate().alpha(0f).withEndAction(() -> {
-					sendButton.setVisibility(INVISIBLE);
-					imageButton.setEnabled(true);
-				}).start();
-				imageButton.clearAnimation();
-				imageButton.animate().alpha(1f).start();
-			}
+			}).start();
+			imageButton.clearAnimation();
+			imageButton.animate().alpha(1f).start();
 		} else {
 			sendButton.setVisibility(VISIBLE);
 			// enable/disable buttons right away to allow fast sending
 			sendButton.setEnabled(sendEnabled);
 			imageButton.setEnabled(false);
-			if (SDK_INT <= 15) {
-				imageButton.setVisibility(INVISIBLE);
-			} else {
-				sendButton.clearAnimation();
-				sendButton.animate().alpha(1f).start();
-				imageButton.clearAnimation();
-				imageButton.animate().alpha(0f).withEndAction(() ->
-						imageButton.setVisibility(INVISIBLE)
-				).start();
-			}
+			sendButton.clearAnimation();
+			sendButton.animate().alpha(1f).start();
+			imageButton.clearAnimation();
+			imageButton.animate().alpha(0f).withEndAction(() ->
+					imageButton.setVisibility(INVISIBLE)
+			).start();
 		}
 	}
 

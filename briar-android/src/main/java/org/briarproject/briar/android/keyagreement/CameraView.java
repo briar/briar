@@ -340,7 +340,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void setVideoStabilisation(Parameters params) {
-		if (SDK_INT >= 15 && params.isVideoStabilizationSupported()) {
+		if (params.isVideoStabilizationSupported()) {
 			params.setVideoStabilization(true);
 		}
 	}

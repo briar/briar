@@ -1,7 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
 import android.content.Context;
-import android.os.Build;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
@@ -102,7 +101,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			return null;
 		}
 		// Use position-independent executable for SDK >= 16
-		if (Build.VERSION.SDK_INT >= 16) architecture += "_pie";
+		architecture += "_pie";
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);

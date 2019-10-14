@@ -150,7 +150,7 @@ class ScreenFilterMonitorImpl implements ScreenFilterMonitor, Service {
 		// Get permissions
 		String[] requestedPermissions = packageInfo.requestedPermissions;
 		if (requestedPermissions == null) return false;
-		if (SDK_INT >= 16 && SDK_INT < 23) {
+		if (SDK_INT < 23) {
 			// Check whether the permission has been requested and granted
 			int[] flags = packageInfo.requestedPermissionsFlags;
 			for (int i = 0; i < requestedPermissions.length; i++) {
