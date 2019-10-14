@@ -482,8 +482,9 @@ public class GroupInvitationIntegrationTest
 		assertFalse(deleteAllMessages0From1());
 		assertEquals(2, getMessages0From1().size());
 
-		// creator sends JOIN message and ACK for response
-		sync0To1(1, true);
+		// creator sends two JOIN messages (one sharing + one in private group)
+		// this includes the ACK for response
+		sync0To1(2, true);
 
 		// now invitee can also delete messages
 		assertTrue(deleteAllMessages0From1());
