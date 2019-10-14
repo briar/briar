@@ -49,6 +49,11 @@ class SessionParserImpl implements SessionParser {
 	}
 
 	@Override
+	public boolean isSession(BdfDictionary d) {
+		return d.getBoolean(SESSION_KEY_IS_SESSION, false);
+	}
+
+	@Override
 	public CreatorSession parseCreatorSession(GroupId contactGroupId,
 			BdfDictionary d) throws FormatException {
 		if (getRole(d) != CREATOR) throw new IllegalArgumentException();

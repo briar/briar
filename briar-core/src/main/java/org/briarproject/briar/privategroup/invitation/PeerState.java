@@ -40,6 +40,11 @@ enum PeerState implements State {
 		return visibility;
 	}
 
+	@Override
+	public boolean isAwaitingResponse() {
+		return false;
+	}
+
 	static PeerState fromValue(int value) throws FormatException {
 		for (PeerState s : values()) if (s.value == value) return s;
 		throw new FormatException();

@@ -40,6 +40,7 @@ import org.briarproject.briar.client.ConversationClientImpl;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -369,7 +370,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn,
+	public Collection<ConversationMessageHeader> getMessageHeaders(
+			Transaction txn,
 			ContactId c) throws DbException {
 		try {
 			Contact contact = db.getContact(txn, c);
@@ -633,8 +635,98 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public boolean deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		// TODO actually delete messages (#1627 and #1629)
-		return getMessageIds(txn, c).size() == 0;
+		// get ID of the contact group
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+
+		// get metadata for all messages in the
+		// (these are sessions *and* protocol messages)
+		Map<MessageId, BdfDictionary> metadata;
+		try {
+			metadata = clientHelper.getMessageMetadataAsDictionary(txn, g);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+
+		// get all sessions and their states
+		Map<GroupId, DeletableSession> sessions = new HashMap<>();
+		for (BdfDictionary d : metadata.values()) {
+			if (!sessionParser.isSession(d)) continue;
+			Session session;
+			try {
+				Role role = sessionParser.getRole(d);
+				if (role == CREATOR) {
+					session = sessionParser.parseCreatorSession(g, d);
+				} else if (role == INVITEE) {
+					session = sessionParser.parseInviteeSession(g, d);
+				} else if (role == PEER) {
+					session = sessionParser.parsePeerSession(g, d);
+				} else throw new AssertionError("unknown role");
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			sessions.put(session.getPrivateGroupId(),
+					new DeletableSession(session.getState()));
+		}
+
+		// assign protocol messages to their sessions
+		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
+			// skip all sessions, we are only interested in messages
+			BdfDictionary d = entry.getValue();
+			if (sessionParser.isSession(d)) continue;
+
+			// parse message metadata and skip messages not visible in UI
+			MessageMetadata m;
+			try {
+				m = messageParser.parseMetadata(d);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			if (!m.isVisibleInConversation()) continue;
+
+			// add visible messages to session
+			DeletableSession session = sessions.get(m.getPrivateGroupId());
+			session.messages.add(entry.getKey());
+		}
+
+		// get a set of all messages which were not ACKed by the contact
+		Set<MessageId> notAcked = new HashSet<>();
+		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
+			if (!status.isSeen()) notAcked.add(status.getMessageId());
+		}
+		boolean allDeleted =
+				deleteCompletedSessions(txn, sessions.values(), notAcked);
+		recalculateGroupCount(txn, g);
+		return allDeleted;
+	}
+
+	private boolean deleteCompletedSessions(Transaction txn,
+			Collection<DeletableSession> sessions, Set<MessageId> notAcked)
+			throws DbException {
+		// find completed sessions to delete
+		boolean allDeleted = true;
+		for (DeletableSession session : sessions) {
+			if (session.state.isAwaitingResponse()) {
+				allDeleted = false;
+				continue;
+			}
+			// we can only delete sessions
+			// where delivery of all messages was confirmed (aka ACKed)
+			boolean allAcked = true;
+			for (MessageId m : session.messages) {
+				if (notAcked.contains(m)) {
+					allAcked = false;
+					allDeleted = false;
+					break;
+				}
+			}
+			if (allAcked) {
+				for (MessageId m : session.messages) {
+					db.deleteMessage(txn, m);
+					db.deleteMessageMetadata(txn, m);
+				}
+			}
+		}
+		return allDeleted;
 	}
 
 	private Set<MessageId> getMessageIds(Transaction txn, ContactId c)
@@ -650,6 +742,31 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
+	private void recalculateGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
+		Map<MessageId, BdfDictionary> results;
+		try {
+			results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		int msgCount = 0;
+		int unreadCount = 0;
+		for (Entry<MessageId, BdfDictionary> entry : results.entrySet()) {
+			MessageMetadata meta;
+			try {
+				meta = messageParser.parseMetadata(entry.getValue());
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			msgCount++;
+			if (!meta.isRead()) unreadCount++;
+		}
+		messageTracker.resetGroupCount(txn, g, msgCount, unreadCount);
+	}
+
 	private static class StoredSession {
 
 		private final MessageId storageId;
@@ -658,6 +775,16 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		private StoredSession(MessageId storageId, BdfDictionary bdfSession) {
 			this.storageId = storageId;
 			this.bdfSession = bdfSession;
+		}
+	}
+
+	private static class DeletableSession {
+
+		private final State state;
+		private final List<MessageId> messages = new ArrayList<>();
+
+		private DeletableSession(State state) {
+			this.state = state;
 		}
 	}
 }

@@ -40,6 +40,11 @@ enum InviteeState implements State {
 		return visibility;
 	}
 
+	@Override
+	public boolean isAwaitingResponse() {
+		return this == INVITED;
+	}
+
 	static InviteeState fromValue(int value) throws FormatException {
 		for (InviteeState s : values()) if (s.value == value) return s;
 		throw new FormatException();

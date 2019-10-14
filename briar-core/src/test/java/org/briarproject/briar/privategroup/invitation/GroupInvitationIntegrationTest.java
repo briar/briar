@@ -31,7 +31,7 @@ import static org.junit.Assert.fail;
 public class GroupInvitationIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
-	private PrivateGroup privateGroup0;
+	private PrivateGroup privateGroup;
 	private PrivateGroupManager groupManager0, groupManager1;
 	private GroupInvitationManager groupInvitationManager0,
 			groupInvitationManager1;
@@ -46,12 +46,12 @@ public class GroupInvitationIntegrationTest
 		groupInvitationManager0 = c0.getGroupInvitationManager();
 		groupInvitationManager1 = c1.getGroupInvitationManager();
 
-		privateGroup0 =
+		privateGroup =
 				privateGroupFactory.createPrivateGroup("Testgroup", author0);
 		long joinTime = clock.currentTimeMillis();
 		GroupMessage joinMsg0 = groupMessageFactory
-				.createJoinMessage(privateGroup0.getId(), joinTime, author0);
-		groupManager0.addPrivateGroup(privateGroup0, joinMsg0, true);
+				.createJoinMessage(privateGroup.getId(), joinTime, author0);
+		groupManager0.addPrivateGroup(privateGroup, joinMsg0, true);
 	}
 
 	@Override
@@ -90,21 +90,19 @@ public class GroupInvitationIntegrationTest
 		assertEquals(1, invitations.size());
 		GroupInvitationItem item = invitations.iterator().next();
 		assertEquals(contact0From1, item.getCreator());
-		assertEquals(privateGroup0, item.getShareable());
-		assertEquals(privateGroup0.getId(), item.getId());
-		assertEquals(privateGroup0.getName(), item.getName());
+		assertEquals(privateGroup, item.getShareable());
+		assertEquals(privateGroup.getId(), item.getId());
+		assertEquals(privateGroup.getName(), item.getName());
 		assertFalse(item.isSubscribed());
 
-		Collection<ConversationMessageHeader> messages =
-				db1.transactionWithResult(true, txn -> groupInvitationManager1
-						.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> messages = getMessages0From1();
 		assertEquals(1, messages.size());
 		GroupInvitationRequest request =
 				(GroupInvitationRequest) messages.iterator().next();
 		assertEquals(text, request.getText());
 		assertEquals(author0, request.getNameable().getCreator());
 		assertEquals(timestamp, request.getTimestamp());
-		assertEquals(privateGroup0.getName(), request.getNameable().getName());
+		assertEquals(privateGroup.getName(), request.getNameable().getName());
 		assertFalse(request.isLocal());
 		assertFalse(request.isRead());
 		assertFalse(request.canBeOpened());
@@ -120,18 +118,16 @@ public class GroupInvitationIntegrationTest
 		assertFalse(groupInvitationManager1.getInvitations().isEmpty());
 
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, false);
+				.respondToInvitation(contactId0From1, privateGroup, false);
 
-		Collection<ConversationMessageHeader> messages =
-				db1.transactionWithResult(true, txn -> groupInvitationManager1
-						.getMessageHeaders(txn, contactId0From1));
+		Collection<ConversationMessageHeader> messages = getMessages0From1();
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(privateGroup0.getId(), response.getShareableId());
+				assertEquals(privateGroup.getId(), response.getShareableId());
 				assertTrue(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -140,16 +136,14 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = db0.transactionWithResult(true, txn ->
-				groupInvitationManager0
-						.getMessageHeaders(txn, contactId1From0));
+		messages = getMessages1From0();
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(privateGroup0.getId(), response.getShareableId());
+				assertEquals(privateGroup.getId(), response.getShareableId());
 				assertFalse(response.isLocal());
 				assertFalse(response.wasAccepted());
 			}
@@ -168,9 +162,7 @@ public class GroupInvitationIntegrationTest
 		sendInvitation(timestamp, null);
 
 		// check that invitation message state is correct
-		Collection<ConversationMessageHeader> messages =
-				db0.transactionWithResult(true, txn -> groupInvitationManager0
-						.getMessageHeaders(txn, contactId1From0));
+		Collection<ConversationMessageHeader> messages = getMessages1From0();
 		assertEquals(1, messages.size());
 		assertMessageState(messages.iterator().next(), true, false, false);
 
@@ -178,11 +170,9 @@ public class GroupInvitationIntegrationTest
 		assertFalse(groupInvitationManager1.getInvitations().isEmpty());
 
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, true);
+				.respondToInvitation(contactId0From1, privateGroup, true);
 
-		messages = db1.transactionWithResult(true,
-				txn -> groupInvitationManager1
-						.getMessageHeaders(txn, contactId0From1));
+		messages = getMessages0From1();
 		assertEquals(2, messages.size());
 		boolean foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
@@ -190,11 +180,11 @@ public class GroupInvitationIntegrationTest
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
 				assertMessageState(response, true, false, false);
-				assertEquals(privateGroup0.getId(), response.getShareableId());
+				assertEquals(privateGroup.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 			} else {
 				GroupInvitationRequest request = (GroupInvitationRequest) m;
-				assertEquals(privateGroup0, request.getNameable());
+				assertEquals(privateGroup, request.getNameable());
 				assertTrue(request.wasAnswered());
 				assertTrue(request.canBeOpened());
 			}
@@ -203,16 +193,14 @@ public class GroupInvitationIntegrationTest
 
 		sync1To0(1, true);
 
-		messages = db1.transactionWithResult(true, txn ->
-				groupInvitationManager0
-						.getMessageHeaders(txn, contactId1From0));
+		messages = getMessages1From0();
 		assertEquals(2, messages.size());
 		foundResponse = false;
 		for (ConversationMessageHeader m : messages) {
 			if (m instanceof GroupInvitationResponse) {
 				foundResponse = true;
 				GroupInvitationResponse response = (GroupInvitationResponse) m;
-				assertEquals(privateGroup0.getId(), response.getShareableId());
+				assertEquals(privateGroup.getId(), response.getShareableId());
 				assertTrue(response.wasAccepted());
 			}
 		}
@@ -223,7 +211,7 @@ public class GroupInvitationIntegrationTest
 		// group was added
 		Collection<PrivateGroup> groups = groupManager1.getPrivateGroups();
 		assertEquals(1, groups.size());
-		assertEquals(privateGroup0, groups.iterator().next());
+		assertEquals(privateGroup, groups.iterator().next());
 	}
 
 	@Test
@@ -240,12 +228,10 @@ public class GroupInvitationIntegrationTest
 		// 1 has one unread message
 		Group g0 = groupInvitationManager1.getContactGroup(contact0From1);
 		assertGroupCount(messageTracker1, g0.getId(), 1, 1, timestamp);
-		ConversationMessageHeader m = db1.transactionWithResult(true, txn ->
-				groupInvitationManager1.getMessageHeaders(txn, contactId0From1)
-						.iterator().next());
+		ConversationMessageHeader m = getMessages0From1().iterator().next();
 
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, true);
+				.respondToInvitation(contactId0From1, privateGroup, true);
 
 		// 1 has two messages, one still unread
 		assertGroupCount(messageTracker1, g0.getId(), 2, 1);
@@ -266,28 +252,28 @@ public class GroupInvitationIntegrationTest
 
 		// invitation is not allowed before the first hasn't been answered
 		assertFalse(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup0.getId()));
+				.isInvitationAllowed(contact1From0, privateGroup.getId()));
 
 		// deliver invitation and response
 		sync0To1(1, true);
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, false);
+				.respondToInvitation(contactId0From1, privateGroup, false);
 		sync1To0(1, true);
 
 		// after invitation was declined, inviting again is possible
 		assertTrue(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup0.getId()));
+				.isInvitationAllowed(contact1From0, privateGroup.getId()));
 
 		// send and accept the second invitation
 		sendInvitation(clock.currentTimeMillis(), "Second Invitation");
 		sync0To1(1, true);
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, true);
+				.respondToInvitation(contactId0From1, privateGroup, true);
 		sync1To0(1, true);
 
 		// invitation is not allowed since the member joined the group now
 		assertFalse(groupInvitationManager0
-				.isInvitationAllowed(contact1From0, privateGroup0.getId()));
+				.isInvitationAllowed(contact1From0, privateGroup.getId()));
 
 		// don't allow another invitation request
 		try {
@@ -305,14 +291,14 @@ public class GroupInvitationIntegrationTest
 		sync0To1(1, true);
 
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, false);
+				.respondToInvitation(contactId0From1, privateGroup, false);
 		sync1To0(1, true);
 
 		sendInvitation(timestamp, "Second Invitation");
 		sync0To1(1, true);
 
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, true);
+				.respondToInvitation(contactId0From1, privateGroup, true);
 	}
 
 	@Test(expected = ProtocolStateException.class)
@@ -325,7 +311,7 @@ public class GroupInvitationIntegrationTest
 
 		// Creator leaves group
 		assertEquals(1, groupManager0.getPrivateGroups().size());
-		groupManager0.removePrivateGroup(privateGroup0.getId());
+		groupManager0.removePrivateGroup(privateGroup.getId());
 		assertEquals(0, groupManager0.getPrivateGroups().size());
 
 		// Creator's leave message is delivered to invitee
@@ -335,7 +321,7 @@ public class GroupInvitationIntegrationTest
 		// thrown as the action has failed
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, true);
+				.respondToInvitation(contactId0From1, privateGroup, true);
 	}
 
 	@Test
@@ -348,7 +334,7 @@ public class GroupInvitationIntegrationTest
 
 		// Creator leaves group
 		assertEquals(1, groupManager0.getPrivateGroups().size());
-		groupManager0.removePrivateGroup(privateGroup0.getId());
+		groupManager0.removePrivateGroup(privateGroup.getId());
 		assertEquals(0, groupManager0.getPrivateGroups().size());
 
 		// Creator's leave message is delivered to invitee
@@ -361,7 +347,7 @@ public class GroupInvitationIntegrationTest
 		// as the action has succeeded
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, false);
+				.respondToInvitation(contactId0From1, privateGroup, false);
 	}
 
 	@Test
@@ -375,15 +361,15 @@ public class GroupInvitationIntegrationTest
 
 		// Creator leaves group
 		assertEquals(1, groupManager0.getPrivateGroups().size());
-		groupManager0.removePrivateGroup(privateGroup0.getId());
+		groupManager0.removePrivateGroup(privateGroup.getId());
 		assertEquals(0, groupManager0.getPrivateGroups().size());
 
 		// Invitee accepts invitation
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, true);
+				.respondToInvitation(contactId0From1, privateGroup, true);
 		assertEquals(1, groupManager1.getPrivateGroups().size());
-		assertFalse(groupManager1.isDissolved(privateGroup0.getId()));
+		assertFalse(groupManager1.isDissolved(privateGroup.getId()));
 
 		// Invitee's join message is delivered to creator
 		sync1To0(1, true);
@@ -392,7 +378,7 @@ public class GroupInvitationIntegrationTest
 		sync0To1(1, true);
 
 		// Group is marked as dissolved
-		assertTrue(groupManager1.isDissolved(privateGroup0.getId()));
+		assertTrue(groupManager1.isDissolved(privateGroup.getId()));
 	}
 
 	@Test
@@ -406,13 +392,13 @@ public class GroupInvitationIntegrationTest
 
 		// Creator leaves group
 		assertEquals(1, groupManager0.getPrivateGroups().size());
-		groupManager0.removePrivateGroup(privateGroup0.getId());
+		groupManager0.removePrivateGroup(privateGroup.getId());
 		assertEquals(0, groupManager0.getPrivateGroups().size());
 
 		// Invitee declines invitation
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, false);
+				.respondToInvitation(contactId0From1, privateGroup, false);
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 
 		// Invitee's leave message is delivered to creator
@@ -434,7 +420,7 @@ public class GroupInvitationIntegrationTest
 		// Invitee responds to invitation
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 		groupInvitationManager1
-				.respondToInvitation(contactId0From1, privateGroup0, true);
+				.respondToInvitation(contactId0From1, privateGroup, true);
 		assertEquals(1, groupManager1.getPrivateGroups().size());
 
 		// Invitee's (sharing) join message is delivered to creator
@@ -448,11 +434,11 @@ public class GroupInvitationIntegrationTest
 
 		// Creator leaves group
 		assertEquals(1, groupManager0.getPrivateGroups().size());
-		groupManager0.removePrivateGroup(privateGroup0.getId());
+		groupManager0.removePrivateGroup(privateGroup.getId());
 		assertEquals(0, groupManager0.getPrivateGroups().size());
 
 		// Invitee leaves group
-		groupManager1.removePrivateGroup(privateGroup0.getId());
+		groupManager1.removePrivateGroup(privateGroup.getId());
 		assertEquals(0, groupManager1.getPrivateGroups().size());
 
 		// Creator's leave message is delivered to invitee
@@ -462,13 +448,148 @@ public class GroupInvitationIntegrationTest
 		sync1To0(1, true);
 	}
 
+	@Test
+	public void testDeletingAllMessagesWhenCompletingSession()
+			throws Exception {
+		// send invitation
+		sendInvitation(clock.currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// messages can not be deleted
+		assertFalse(deleteAllMessages1From0());
+		assertEquals(1, getMessages1From0().size());
+		assertFalse(deleteAllMessages0From1());
+		assertEquals(1, getMessages0From1().size());
+
+		// respond
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, true);
+		sync1To0(1, true);
+
+		// check group count
+		Group g1From0 = groupInvitationManager0.getContactGroup(contact1From0);
+		Group g0From1 = groupInvitationManager1.getContactGroup(contact0From1);
+		assertGroupCount(messageTracker0, g1From0.getId(), 2, 1);
+		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
+
+		// messages can be deleted now by creator, invitee needs to wait for ACK
+		assertTrue(deleteAllMessages1From0());
+		assertEquals(0, getMessages1From0().size());
+		assertTrue(deleteAllMessages1From0());  // a second time nothing happens
+		assertGroupCount(messageTracker0, g1From0.getId(), 0, 0);
+
+		// trying to delete fails for invitee
+		assertFalse(deleteAllMessages0From1());
+		assertEquals(2, getMessages0From1().size());
+
+		// creator sends JOIN message and ACK for response
+		sync0To1(1, true);
+
+		// now invitee can also delete messages
+		assertTrue(deleteAllMessages0From1());
+		assertEquals(0, getMessages0From1().size());
+		assertTrue(deleteAllMessages0From1());  // a second time nothing happens
+		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
+
+		// invitee now leaves
+		groupManager1.removePrivateGroup(privateGroup.getId());
+		sync1To0(1, true);
+
+		// no new messages to delete
+		assertEquals(0, getMessages1From0().size());
+		assertEquals(0, getMessages0From1().size());
+	}
+
+	@Test
+	public void testDeletingAllMessagesWhenDeclining() throws Exception {
+		// send invitation
+		sendInvitation(clock.currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// respond
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, false);
+		sync1To0(1, true);
+
+		// check group count
+		Group g1From0 = groupInvitationManager0.getContactGroup(contact1From0);
+		Group g0From1 = groupInvitationManager1.getContactGroup(contact0From1);
+		assertGroupCount(messageTracker0, g1From0.getId(), 2, 1);
+		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
+
+		// messages can be deleted now by creator, invitee needs to wait for ACK
+		assertTrue(deleteAllMessages1From0());
+		assertEquals(0, getMessages1From0().size());
+		assertTrue(deleteAllMessages1From0());  // a second time nothing happens
+
+		// trying to delete fails for invitee
+		assertFalse(deleteAllMessages0From1());
+		assertEquals(2, getMessages0From1().size());
+
+		// creator sends ACK
+		sendAcks(c0, c1, contactId1From0, 1);
+
+		// now invitee can also delete messages
+		assertTrue(deleteAllMessages0From1());
+		assertEquals(0, getMessages0From1().size());
+		assertTrue(deleteAllMessages0From1());  // a second time nothing happens
+		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
+
+		// creator can re-invite
+		sendInvitation(clock.currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// now new messages can not be deleted anymore
+		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages0From1());
+
+		// responding again
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, false);
+		sync1To0(1, true);
+
+		// creator sends ACK
+		sendAcks(c0, c1, contactId1From0, 1);
+
+		// asserting group counts
+		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
+		assertGroupCount(messageTracker0, g1From0.getId(), 2, 1);
+
+		// deleting is possible again
+		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages0From1());
+		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
+		assertGroupCount(messageTracker0, g1From0.getId(), 0, 0);
+	}
+
+	private Collection<ConversationMessageHeader> getMessages1From0()
+			throws DbException {
+		return db0.transactionWithResult(true, txn -> groupInvitationManager0
+				.getMessageHeaders(txn, contactId1From0));
+	}
+
+	private Collection<ConversationMessageHeader> getMessages0From1()
+			throws DbException {
+		return db1.transactionWithResult(true, txn -> groupInvitationManager1
+				.getMessageHeaders(txn, contactId0From1));
+	}
+
+	private boolean deleteAllMessages1From0() throws DbException {
+		return db0.transactionWithResult(false, txn -> groupInvitationManager0
+				.deleteAllMessages(txn, contactId1From0));
+	}
+
+	private boolean deleteAllMessages0From1() throws DbException {
+		return db1.transactionWithResult(false, txn -> groupInvitationManager1
+				.deleteAllMessages(txn, contactId0From1));
+	}
+
 	private void sendInvitation(long timestamp, @Nullable String text)
 			throws DbException {
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
-				privateGroup0.getId(), timestamp, author0.getPrivateKey());
-		groupInvitationManager0
-				.sendInvitation(privateGroup0.getId(), contactId1From0, text,
-						timestamp, signature);
+				privateGroup.getId(), timestamp, author0.getPrivateKey());
+		groupInvitationManager0.sendInvitation(privateGroup.getId(),
+				contactId1From0, text, timestamp, signature);
 	}
 
 }
