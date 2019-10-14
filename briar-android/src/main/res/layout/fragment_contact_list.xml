@@ -9,7 +9,7 @@
 		android:id="@+id/list"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		app:layout_dodgeInsetEdges="bottom"
+		app:layout_behavior="org.briarproject.briar.android.view.SnackbarAwareBehavior"
 		app:scrollToEnd="false"/>
 
 	<io.github.kobakei.materialfabspeeddial.FabSpeedDial
@@ -22,7 +22,6 @@
 		app:fab_miniFabTextBackground="@color/briar_accent"
 		app:fab_miniFabTextColor="@android:color/white"
 		app:layout_anchorGravity="bottom|right|end"
-		app:layout_behavior="org.briarproject.briar.android.view.DefaultBehavior"
-		app:layout_dodgeInsetEdges="bottom"/>
+		app:layout_behavior="org.briarproject.briar.android.view.SnackbarAwareBehavior"/>
 
 </android.support.design.widget.CoordinatorLayout>
