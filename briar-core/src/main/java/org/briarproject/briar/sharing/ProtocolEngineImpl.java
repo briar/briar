@@ -496,9 +496,11 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		txn.attach(e);
 		// Stop sharing the shareable with the contact
 		setShareableVisibility(txn, s, INVISIBLE);
+		// Send a LEAVE message, so the other party doesn't hang in LOCAL_LEFT
+		Message sent = sendLeaveMessage(txn, s);
 		// Move to the next state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
-				s.getLastLocalMessageId(), m.getId(), s.getLocalTimestamp(),
+				sent.getId(), m.getId(), sent.getTimestamp(),
 				s.getInviteTimestamp());
 	}
 

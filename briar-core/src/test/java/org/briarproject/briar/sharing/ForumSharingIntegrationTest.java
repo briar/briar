@@ -234,6 +234,23 @@ public class ForumSharingIntegrationTest
 		// forum can be shared again
 		Contact c1 = contactManager0.getContact(contactId1From0);
 		assertTrue(forumSharingManager0.canBeShared(forum.getId(), c1));
+
+		// sharer un-subscribes from forum
+		forumManager0.removeForum(forum);
+
+		// send a new invitation again after re-adding the forum
+		db0.transaction(false, txn -> forumManager0.addForum(txn, forum));
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
+
+		// reset listener state for new request
+		listener1.requestReceived = false;
+		listener1.requestContactId = null;
+
+		// sync only 1 request message to make sure there wasn't an abort
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertRequestReceived(listener1, contactId0From1);
 	}
 
 	@Test
@@ -288,8 +305,15 @@ public class ForumSharingIntegrationTest
 		// forum can be shared again by sharer
 		assertTrue(forumSharingManager0
 				.canBeShared(forum.getId(), contact1From0));
-		// invitee that left can not share again
+		// invitee that left can not yet share again
 		assertFalse(forumSharingManager1
+				.canBeShared(forum.getId(), contact0From1));
+
+		// sharer responds with leave message
+		sync0To1(1, true);
+
+		// invitee that left can now share again
+		assertTrue(forumSharingManager1
 				.canBeShared(forum.getId(), contact0From1));
 	}
 
@@ -344,8 +368,31 @@ public class ForumSharingIntegrationTest
 		// sharer no longer gets forum shared by invitee
 		assertFalse(forumSharingManager1.getSharedWith(forum.getId())
 				.contains(contact0));
-		// forum can be shared again
+		// forum can be re-shared by invitee now
 		assertTrue(forumSharingManager1.canBeShared(forum.getId(), c0));
+
+		// invitee responds with LEAVE message
+		sync1To0(1, true);
+
+		// sharer can share forum again as well now
+		assertTrue(forumSharingManager0.canBeShared(forum.getId(), c1));
+
+		// invitee also un-subscribes forum without effect
+		forumManager1.removeForum(forum);
+
+		// send a new invitation again after re-adding the forum
+		db0.transaction(false, txn -> forumManager0.addForum(txn, forum));
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
+
+		// reset listener state for new request
+		listener1.requestReceived = false;
+		listener1.requestContactId = null;
+
+		// sync request message
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertRequestReceived(listener1, contactId0From1);
 	}
 
 	@Test
@@ -856,9 +903,12 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, getMessages0From1().size());
 		assertGroupCount(messageTracker1, g0From1, 0, 0);
 
-		// both leave forum and send LEAVE message
+		// sharer leaves forum and sends LEAVE message
 		forumManager0.removeForum(forum);
 		sync0To1(1, true);
+
+		// invitee responds with LEAVE message
+		sync1To0(1, true);
 
 		// sending invitation is possible again
 		forumSharingManager1.sendInvitation(forum.getId(), contactId0From1,
