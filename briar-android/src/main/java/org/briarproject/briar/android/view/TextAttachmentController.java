@@ -28,7 +28,6 @@ import java.util.Collection;
 import java.util.List;
 
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
 import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
 import static android.content.Intent.ACTION_GET_CONTENT;
@@ -44,8 +43,6 @@ import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
-import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
-import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
 @UiThread
 @NotNullByDefault
@@ -269,13 +266,7 @@ public class TextAttachmentController extends TextSendController
 		reset();
 	}
 
-	public void showImageOnboarding(Activity activity,
-			Runnable onOnboardingSeen) {
-		PromptStateChangeListener listener = (prompt, state) -> {
-			if (state == STATE_DISMISSED || state == STATE_FINISHED) {
-				onOnboardingSeen.run();
-			}
-		};
+	public void showImageOnboarding(Activity activity) {
 		int color = resolveColorAttribute(activity, R.attr.colorControlNormal);
 		new MaterialTapTargetPrompt.Builder(activity,
 				R.style.OnboardingDialogTheme).setTarget(sendButton)
@@ -284,7 +275,6 @@ public class TextAttachmentController extends TextSendController
 				.setBackgroundColour(getColor(activity, R.color.briar_primary))
 				.setIcon(R.drawable.ic_image)
 				.setIconDrawableColourFilter(color)
-				.setPromptStateChangeListener(listener)
 				.show();
 	}
 

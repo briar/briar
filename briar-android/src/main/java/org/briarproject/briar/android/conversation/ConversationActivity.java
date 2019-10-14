@@ -46,9 +46,11 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent;
+import org.briarproject.bramble.api.versioning.event.ClientVersionUpdatedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -99,7 +101,6 @@ import javax.inject.Inject;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
-import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
 import static android.arch.lifecycle.Lifecycle.State.STARTED;
 import static android.os.Build.VERSION.SDK_INT;
@@ -130,8 +131,6 @@ import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
-import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_DISMISSED;
-import static uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.STATE_FINISHED;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -263,11 +262,15 @@ public class ConversationActivity extends BriarActivity
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
 					imagePreview, this, viewModel);
-			observeOnce(viewModel.hasImageSupport(), this, hasSupport -> {
-				if (hasSupport != null && hasSupport) {
-					// TODO: remove cast when removing feature flag
-					((TextAttachmentController) sendController)
-							.setImagesSupported();
+			viewModel.hasImageSupport().observe(this, new Observer<Boolean>() {
+				@Override
+				public void onChanged(@Nullable Boolean hasSupport) {
+					if (hasSupport != null && hasSupport) {
+						// TODO: remove cast when removing feature flag
+						((TextAttachmentController) sendController)
+								.setImagesSupported();
+						viewModel.hasImageSupport().removeObserver(this);
+					}
 				}
 			});
 		} else {
@@ -649,6 +652,15 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Contact disconnected");
 				displayContactOnlineStatus();
 			}
+		} else if (e instanceof ClientVersionUpdatedEvent) {
+			ClientVersionUpdatedEvent c = (ClientVersionUpdatedEvent) e;
+			if (c.getContactId().equals(contactId)) {
+				ClientId clientId = c.getClientVersion().getClientId();
+				if (clientId.equals(MessagingManager.CLIENT_ID)) {
+					LOG.info("Contact's messaging client was updated");
+					viewModel.recheckFeaturesAndOnboarding(contactId);
+				}
+			}
 		}
 	}
 
@@ -829,9 +841,7 @@ public class ConversationActivity extends BriarActivity
 
 	private void showImageOnboarding() {
 		// TODO: remove cast when removing feature flag
-		((TextAttachmentController) sendController)
-				.showImageOnboarding(this, () ->
-						viewModel.onImageOnboardingSeen());
+		((TextAttachmentController) sendController).showImageOnboarding(this);
 	}
 
 	private void showIntroductionOnboarding(@Nullable Boolean show) {
@@ -865,11 +875,6 @@ public class ConversationActivity extends BriarActivity
 			return;
 		}
 
-		PromptStateChangeListener listener = (prompt, state) -> {
-			if (state == STATE_DISMISSED || state == STATE_FINISHED) {
-				viewModel.onIntroductionOnboardingSeen();
-			}
-		};
 		new MaterialTapTargetPrompt.Builder(ConversationActivity.this,
 				R.style.OnboardingDialogTheme).setTarget(target)
 				.setPrimaryText(R.string.introduction_onboarding_title)
@@ -877,7 +882,6 @@ public class ConversationActivity extends BriarActivity
 				.setIcon(R.drawable.ic_more_vert_accent)
 				.setBackgroundColour(
 						ContextCompat.getColor(this, R.color.briar_primary))
-				.setPromptStateChangeListener(listener)
 				.show();
 	}
 

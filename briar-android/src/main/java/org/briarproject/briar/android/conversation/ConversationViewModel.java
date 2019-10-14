@@ -231,47 +231,24 @@ public class ConversationViewModel extends AndroidViewModel
 		boolean introductionSupported = contacts.size() > 1;
 		showIntroductionAction.postValue(introductionSupported);
 
+		// we only show one onboarding dialog at a time
 		Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 		if (imagesSupported &&
 				settings.getBoolean(SHOW_ONBOARDING_IMAGE, true)) {
-			// check if we should show onboarding, only if images are supported
+			onOnboardingShown(SHOW_ONBOARDING_IMAGE);
 			showImageOnboarding.postEvent(true);
-			// allow observer to stop listening for changes
-			showIntroductionOnboarding.postEvent(false);
-		} else {
-			// allow observer to stop listening for changes
-			showImageOnboarding.postEvent(false);
-			// we only show one onboarding dialog at a time
-			if (introductionSupported &&
-					settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION, true)) {
-				showIntroductionOnboarding.postEvent(true);
-			} else {
-				// allow observer to stop listening for changes
-				showIntroductionOnboarding.postEvent(false);
-			}
+		} else if (introductionSupported &&
+				settings.getBoolean(SHOW_ONBOARDING_INTRODUCTION, true)) {
+			onOnboardingShown(SHOW_ONBOARDING_INTRODUCTION);
+			showIntroductionOnboarding.postEvent(true);
 		}
 	}
 
-	@UiThread
-	void onImageOnboardingSeen() {
-		onOnboardingSeen(SHOW_ONBOARDING_IMAGE);
-	}
-
-	@UiThread
-	void onIntroductionOnboardingSeen() {
-		onOnboardingSeen(SHOW_ONBOARDING_INTRODUCTION);
-	}
-
-	private void onOnboardingSeen(String key) {
-		dbExecutor.execute(() -> {
-			try {
-				Settings settings = new Settings();
-				settings.putBoolean(key, false);
-				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+	@DatabaseExecutor
+	private void onOnboardingShown(String key) throws DbException {
+		Settings settings = new Settings();
+		settings.putBoolean(key, false);
+		settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 	}
 
 	private void createMessage(GroupId groupId, @Nullable String text,
@@ -352,4 +329,14 @@ public class ConversationViewModel extends AndroidViewModel
 		return addedHeader;
 	}
 
+	@UiThread
+	void recheckFeaturesAndOnboarding(ContactId contactId) {
+		dbExecutor.execute(() -> {
+			try {
+				checkFeaturesAndOnboarding(contactId);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
 }
