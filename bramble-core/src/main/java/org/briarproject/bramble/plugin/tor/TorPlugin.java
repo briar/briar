@@ -195,8 +195,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!assetsAreUpToDate()) installAssets();
 		if (cookieFile.exists() && !cookieFile.delete())
 			LOG.warning("Old auth cookie not deleted");
-		// Migrate old settings before having a chance to stop
-		migrateSettings();
 		// Start a new Tor process
 		LOG.info("Starting Tor");
 		String torPath = torFile.getAbsolutePath();
@@ -814,21 +812,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void enableConnectionPadding(boolean enable) throws IOException {
 		if (!running) return;
 		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
-	}
-
-	// TODO remove when sufficient time has passed. Added 2018-08-15
-	private void migrateSettings() {
-		Settings sOld = callback.getSettings();
-		int oldNetwork = sOld.getInt("network", -1);
-		if (oldNetwork == -1) return;
-		Settings s = new Settings();
-		if (oldNetwork == 0) {
-			s.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_NEVER);
-		} else if (oldNetwork == 1) {
-			s.putBoolean(PREF_TOR_MOBILE, false);
-		}
-		s.putInt("network", -1);
-		callback.mergeSettings(s);
 	}
 
 	private static class ConnectionStatus {
