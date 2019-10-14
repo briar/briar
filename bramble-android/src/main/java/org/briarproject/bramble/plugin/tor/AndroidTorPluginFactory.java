@@ -100,7 +100,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			LOG.info("Tor is not supported on this architecture");
 			return null;
 		}
-		// Use position-independent executable for SDK >= 16
+		// Use position-independent executable
 		architecture += "_pie";
 
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
