@@ -88,8 +88,14 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		// Check that we have a Tor binary for this architecture
 		String architecture = null;
 		for (String abi : AndroidUtils.getSupportedArchitectures()) {
-			if (abi.startsWith("x86")) {
+			if (abi.startsWith("x86_64")) {
+				architecture = "x86_64";
+				break;
+			} else if (abi.startsWith("x86")) {
 				architecture = "x86";
+				break;
+			} else if (abi.startsWith("arm64")) {
+				architecture = "arm64";
 				break;
 			} else if (abi.startsWith("armeabi")) {
 				architecture = "arm";
