@@ -142,11 +142,8 @@ public class ImageActivity extends BriarActivity
 		viewPager.setAdapter(pagerAdapter);
 		viewPager.setCurrentItem(position);
 
-		if (SDK_INT >= 16) {
-			viewModel.getOnImageClicked()
-					.observeEvent(this, this::onImageClicked);
-			window.getDecorView().setSystemUiVisibility(UI_FLAGS_DEFAULT);
-		}
+		viewModel.getOnImageClicked().observeEvent(this, this::onImageClicked);
+		window.getDecorView().setSystemUiVisibility(UI_FLAGS_DEFAULT);
 	}
 
 	@Override
@@ -174,11 +171,7 @@ public class ImageActivity extends BriarActivity
 		viewModel.setToolbarPosition(
 				appBarLayout.getTop(), appBarLayout.getBottom()
 		);
-		if (SDK_INT >= 16) {
-			layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-		} else {
-			layout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-		}
+		layout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 	}
 
 	@Override
@@ -265,7 +258,7 @@ public class ImageActivity extends BriarActivity
 	 * when the previous activity (with visible status bar) is shown.
 	 */
 	private void showStatusBarBeforeFinishing() {
-		if (SDK_INT >= 16 && appBarLayout.getVisibility() == GONE) {
+		if (appBarLayout.getVisibility() == GONE) {
 			View decorView = getWindow().getDecorView();
 			decorView.setSystemUiVisibility(UI_FLAGS_DEFAULT);
 		}

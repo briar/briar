@@ -23,6 +23,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static android.content.Context.WIFI_SERVICE;
+import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.Secure.ANDROID_ID;
 
 @Immutable
@@ -74,8 +75,7 @@ class AndroidSecureRandomProvider extends UnixSecureRandomProvider {
 		// Silence strict mode
 		StrictMode.ThreadPolicy tp = StrictMode.allowThreadDiskWrites();
 		super.writeSeed();
-		if (Build.VERSION.SDK_INT >= 16 && Build.VERSION.SDK_INT <= 18)
-			applyOpenSslFix();
+		if (SDK_INT <= 18) applyOpenSslFix();
 		StrictMode.setThreadPolicy(tp);
 	}
 

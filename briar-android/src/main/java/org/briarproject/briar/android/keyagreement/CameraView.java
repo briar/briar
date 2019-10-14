@@ -35,7 +35,6 @@ import static android.hardware.Camera.Parameters.FOCUS_MODE_FIXED;
 import static android.hardware.Camera.Parameters.FOCUS_MODE_MACRO;
 import static android.hardware.Camera.Parameters.SCENE_MODE_AUTO;
 import static android.hardware.Camera.Parameters.SCENE_MODE_BARCODE;
-import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -340,7 +339,7 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 
 	@UiThread
 	private void setVideoStabilisation(Parameters params) {
-		if (SDK_INT >= 15 && params.isVideoStabilizationSupported()) {
+		if (params.isVideoStabilizationSupported()) {
 			params.setVideoStabilization(true);
 		}
 	}
@@ -415,10 +414,8 @@ public class CameraView extends SurfaceView implements SurfaceHolder.Callback,
 			} catch (RuntimeException e) {
 				throw new CameraException(e);
 			}
-			if (SDK_INT >= 15) {
-				LOG.info("Video stabilisation enabled: "
-						+ params.getVideoStabilization());
-			}
+			LOG.info("Video stabilisation enabled: "
+					+ params.getVideoStabilization());
 			LOG.info("Scene mode: " + params.getSceneMode());
 			LOG.info("Focus mode: " + params.getFocusMode());
 			LOG.info("Flash mode: " + params.getFlashMode());

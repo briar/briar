@@ -90,14 +90,9 @@ public class BriarReportPrimer implements ReportPrimer {
 			ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 			am.getMemoryInfo(mem);
 			String systemMemory;
-			if (Build.VERSION.SDK_INT >= 16) {
-				systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
-						+ (mem.availMem / 1024 / 1204) + " MiB free, "
-						+ (mem.threshold / 1024 / 1024) + " MiB threshold";
-			} else {
-				systemMemory = (mem.availMem / 1024 / 1204) + " MiB free, "
-						+ (mem.threshold / 1024 / 1024) + " MiB threshold";
-			}
+			systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
+					+ (mem.availMem / 1024 / 1204) + " MiB free, "
+					+ (mem.threshold / 1024 / 1024) + " MiB threshold";
 			customData.put("System memory", systemMemory);
 
 			// Virtual machine memory

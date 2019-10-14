@@ -238,8 +238,6 @@ public class BriarService extends Service {
 		} else if (level == TRIM_MEMORY_RUNNING_LOW) {
 			LOG.info("Trim memory: running low");
 		} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
-			// This level may be received if SDK_INT < 16, although the
-			// constant isn't declared until API level 16
 			LOG.warning("Trim memory: running critically low");
 			// If we're not in the foreground, clear the UI to save memory
 			if (app.isRunningInBackground()) hideUi();
