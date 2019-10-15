@@ -156,7 +156,7 @@
 			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:theme="@style/BriarTheme.NoActionBar"
-			android:windowSoftInputMode="adjustResize|stateUnchanged">
+			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
@@ -232,7 +232,7 @@
 			android:label="@string/app_name"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
 			android:theme="@style/BriarTheme.NoActionBar"
-			android:windowSoftInputMode="adjustResize|stateUnchanged">
+			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
