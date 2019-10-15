@@ -78,7 +78,6 @@ public class RssFeedImportActivity extends BriarActivity {
 			if (actionId == IME_ACTION_DONE && importButton.isEnabled() &&
 					importButton.getVisibility() == VISIBLE) {
 				publish();
-				hideSoftKeyboard(urlInput);
 				return true;
 			}
 			return false;
@@ -130,6 +129,7 @@ public class RssFeedImportActivity extends BriarActivity {
 		// hide import button, show progress bar
 		importButton.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
+		hideSoftKeyboard(urlInput);
 
 		String url = validateAndNormaliseUrl(urlInput.getText().toString());
 		if (url == null) throw new AssertionError();
