@@ -43,6 +43,7 @@ import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -184,7 +185,7 @@ public class IntroductionMessageFragment extends BaseFragment
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:
-				introductionActivity.hideSoftKeyboard(ui.message);
+				hideSoftKeyboard(ui.message);
 				introductionActivity.onBackPressed();
 				return true;
 			default:
@@ -201,7 +202,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		makeIntroduction(contact1, contact2, text);
 
 		// don't wait for the introduction to be made before finishing activity
-		introductionActivity.hideSoftKeyboard(ui.message);
+		hideSoftKeyboard(ui.message);
 		introductionActivity.setResult(RESULT_OK);
 		introductionActivity.supportFinishAfterTransition();
 	}

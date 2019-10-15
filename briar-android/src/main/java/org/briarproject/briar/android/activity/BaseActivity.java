@@ -45,6 +45,7 @@ import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 
 /**
  * Warning: Some activities don't extend {@link BaseActivity}.
@@ -212,14 +213,6 @@ public abstract class BaseActivity extends AppCompatActivity
 		runOnUiThread(() -> {
 			if (!destroyed && !isFinishing()) r.run();
 		});
-	}
-
-	public void showSoftKeyboard(View view) {
-		UiUtils.showSoftKeyboard(view);
-	}
-
-	public void hideSoftKeyboard(View view) {
-		UiUtils.hideSoftKeyboard(view);
 	}
 
 	@UiThread

@@ -32,6 +32,7 @@ import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 
 public class RssFeedImportActivity extends BriarActivity {
 
