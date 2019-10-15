@@ -142,6 +142,11 @@ public interface ContactManager {
 			throws DbException;
 
 	/**
+	 * Returns the state of the given {@link PendingContact}.
+	 */
+	PendingContactState getPendingContactState(PendingContactId p);
+
+	/**
 	 * Removes a {@link PendingContact}.
 	 */
 	void removePendingContact(PendingContactId p) throws DbException;
