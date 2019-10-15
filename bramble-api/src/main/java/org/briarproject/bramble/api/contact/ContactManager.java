@@ -4,8 +4,10 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.crypto.SecretKey;
+import org.briarproject.bramble.api.db.ContactExistsException;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.PendingContactExistsException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
@@ -117,9 +119,14 @@ public interface ContactManager {
 	 * @throws FormatException If the link is invalid
 	 * @throws GeneralSecurityException If the pending contact's handshake
 	 * public key is invalid
+	 * @throws ContactExistsException If a contact with the same handshake
+	 * public key already exists
+	 * @throws PendingContactExistsException If a pending contact with the same
+	 * handshake public key already exists
 	 */
 	PendingContact addPendingContact(String link, String alias)
-			throws DbException, FormatException, GeneralSecurityException;
+			throws DbException, FormatException, GeneralSecurityException,
+			ContactExistsException, PendingContactExistsException;
 
 	/**
 	 * Returns the pending contact with the given ID.

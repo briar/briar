@@ -291,12 +291,17 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public void addPendingContact(Transaction transaction, PendingContact p)
-			throws DbException {
+	public void addPendingContact(Transaction transaction, PendingContact p,
+			AuthorId local) throws DbException {
 		if (transaction.isReadOnly()) throw new IllegalArgumentException();
 		T txn = unbox(transaction);
-		if (db.containsPendingContact(txn, p.getId()))
-			throw new PendingContactExistsException();
+		Contact contact = db.getContact(txn, p.getPublicKey(), local);
+		if (contact != null)
+			throw new ContactExistsException(local, contact.getAuthor());
+		if (db.containsPendingContact(txn, p.getId())) {
+			PendingContact existing = db.getPendingContact(txn, p.getId());
+			throw new PendingContactExistsException(existing);
+		}
 		db.addPendingContact(txn, p);
 		transaction.attach(new PendingContactAddedEvent(p));
 	}
