@@ -327,7 +327,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	private void updateTextInput() {
 		if (replyId != null) {
 			textInput.setHint(R.string.forum_message_reply_hint);
-			textInput.requestFocus();
 			textInput.showSoftKeyboard();
 		} else {
 			textInput.setHint(R.string.forum_new_message_hint);

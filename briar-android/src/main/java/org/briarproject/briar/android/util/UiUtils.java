@@ -92,9 +92,11 @@ public class UiUtils {
 	public static final float GREY_OUT = 0.5f;
 
 	public static void showSoftKeyboard(View view) {
-		InputMethodManager imm = requireNonNull(
-				getSystemService(view.getContext(), InputMethodManager.class));
-		imm.showSoftInput(view, SHOW_IMPLICIT);
+		if (view.requestFocus()) {
+			InputMethodManager imm = requireNonNull(getSystemService(
+					view.getContext(), InputMethodManager.class));
+			imm.showSoftInput(view, SHOW_IMPLICIT);
+		}
 	}
 
 	public static void hideSoftKeyboard(View view) {

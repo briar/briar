@@ -74,6 +74,7 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		aliasEditText.setText(alias);
 		if (alias != null) aliasEditText.setSelection(alias.length());
 
+		// TODO: Close keyboard on accept or cancel
 		Button setButton = v.findViewById(R.id.setButton);
 		setButton.setOnClickListener(v1 -> onSetButtonClicked());
 
@@ -96,11 +97,9 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 	@Override
 	public void onStart() {
 		super.onStart();
-		if (aliasEditText.requestFocus()) {
-			requireNonNull(getDialog().getWindow())
-					.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_VISIBLE);
-			showSoftKeyboard(aliasEditText);
-		}
+		requireNonNull(getDialog().getWindow())
+				.setSoftInputMode(SOFT_INPUT_STATE_ALWAYS_VISIBLE);
+		showSoftKeyboard(aliasEditText);
 	}
 
 }

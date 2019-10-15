@@ -258,7 +258,7 @@ public class EmojiTextInputView extends LinearLayout implements
 	}
 
 	void showSoftKeyboard() {
-		imm.showSoftInput(editText, SHOW_IMPLICIT);
+		if (editText.requestFocus()) imm.showSoftInput(editText, SHOW_IMPLICIT);
 	}
 
 	void hideSoftKeyboard() {
