@@ -268,6 +268,16 @@ interface Database<T> {
 	Collection<ContactId> getContacts(T txn, AuthorId local) throws DbException;
 
 	/**
+	 * Returns the contact with the given {@code handshakePublicKey}
+	 * for the given local pseudonym or {@code null} if none exists.
+	 * <p/>
+	 * Read-only.
+	 */
+	@Nullable
+	Contact getContact(T txn, PublicKey handshakePublicKey, AuthorId local)
+			throws DbException;
+
+	/**
 	 * Returns the group with the given ID.
 	 * <p/>
 	 * Read-only.

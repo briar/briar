@@ -1465,6 +1465,43 @@ abstract class JdbcDatabase implements Database<Connection> {
 		}
 	}
 
+	@Nullable
+	@Override
+	public Contact getContact(Connection txn, PublicKey handshakePublicKey,
+			AuthorId localAuthorId) throws DbException {
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		try {
+			String sql = "SELECT contactId, authorId, formatVersion, name,"
+					+ " alias, publicKey, verified"
+					+ " FROM contacts"
+					+ " WHERE handshakePublicKey = ? AND localAuthorId = ?";
+			ps = txn.prepareStatement(sql);
+			ps.setBytes(1, handshakePublicKey.getEncoded());
+			ps.setBytes(2, localAuthorId.getBytes());
+			rs = ps.executeQuery();
+			if (!rs.next()) return null;
+			ContactId contactId = new ContactId(rs.getInt(1));
+			AuthorId authorId = new AuthorId(rs.getBytes(2));
+			int formatVersion = rs.getInt(3);
+			String name = rs.getString(4);
+			String alias = rs.getString(5);
+			PublicKey publicKey = new SignaturePublicKey(rs.getBytes(6));
+			boolean verified = rs.getBoolean(7);
+			if (rs.next()) throw new DbException();
+			rs.close();
+			ps.close();
+			Author author =
+					new Author(authorId, formatVersion, name, publicKey);
+			return new Contact(contactId, author, localAuthorId, alias,
+					handshakePublicKey, verified);
+		} catch (SQLException e) {
+			tryToClose(rs, LOG, WARNING);
+			tryToClose(ps, LOG, WARNING);
+			throw new DbException(e);
+		}
+	}
+
 	@Override
 	public Group getGroup(Connection txn, GroupId g) throws DbException {
 		PreparedStatement ps = null;

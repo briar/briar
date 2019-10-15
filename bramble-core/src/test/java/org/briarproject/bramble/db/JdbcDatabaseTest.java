@@ -34,6 +34,7 @@ import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.SettableClock;
 import org.briarproject.bramble.test.TestDatabaseConfig;
 import org.briarproject.bramble.test.TestMessageFactory;
+import org.briarproject.bramble.test.TestUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -1144,6 +1145,43 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		contacts = db.getContacts(txn, localAuthor.getId());
 		assertEquals(emptyList(), contacts);
 		assertFalse(db.containsContact(txn, contactId));
+
+		db.commitTransaction(txn);
+		db.close();
+	}
+
+	@Test
+	public void testGetContactsByHandshakePublicKey() throws Exception {
+		Database<Connection> db = open(false);
+		Connection txn = db.startTransaction();
+
+		// Add an identity for a local author - no contacts should be
+		// associated
+		db.addIdentity(txn, identity);
+		PublicKey handshakePublicKey = TestUtils.getSignaturePublicKey();
+		Contact contact =
+				db.getContact(txn, handshakePublicKey, localAuthor.getId());
+		assertNull(contact);
+
+		// Add a contact associated with the local author
+		assertEquals(contactId, db.addContact(txn, author, localAuthor.getId(),
+				handshakePublicKey, true));
+		contact = db.getContact(txn, handshakePublicKey, localAuthor.getId());
+		assertNotNull(contact);
+		assertEquals(contactId, contact.getId());
+		assertEquals(author, contact.getAuthor());
+		assertNull(contact.getAlias());
+		assertEquals(handshakePublicKey, contact.getHandshakePublicKey());
+		assertTrue(contact.isVerified());
+		assertEquals(author.getName(), contact.getAuthor().getName());
+		assertEquals(author.getPublicKey(), contact.getAuthor().getPublicKey());
+		assertEquals(author.getFormatVersion(),
+				contact.getAuthor().getFormatVersion());
+
+		// Ensure no contacts are returned after contact was deleted
+		db.removeContact(txn, contactId);
+		contact = db.getContact(txn, handshakePublicKey, localAuthor.getId());
+		assertNull(contact);
 
 		db.commitTransaction(txn);
 		db.close();
