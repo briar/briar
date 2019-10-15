@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -25,6 +26,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
+import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -116,6 +118,20 @@ public class AddContactViewModel extends AndroidViewModel {
 
 	LiveData<LiveResult<Boolean>> getAddContactResult() {
 		return addContactResult;
+	}
+
+	public void updatePendingContact(String name, PendingContact p) {
+		dbExecutor.execute(() -> {
+			if (contactManager.getPendingContactState(p.getId()) == FAILED) {
+				try {
+					contactManager.removePendingContact(p.getId());
+				} catch (DbException e) {
+					logException(LOG, WARNING, e);
+					addContactResult.postValue(new LiveResult<>(e));
+				}
+				addContact(name);
+			}
+		});
 	}
 
 }

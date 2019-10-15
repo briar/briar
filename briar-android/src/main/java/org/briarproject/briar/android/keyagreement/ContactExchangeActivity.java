@@ -62,8 +62,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity {
 	@UiThread
 	private void contactExchangeSucceeded(Author remoteAuthor) {
 		String contactName = remoteAuthor.getName();
-		String format = getString(R.string.contact_added_toast);
-		String text = String.format(format, contactName);
+		String text = getString(R.string.contact_added_toast, contactName);
 		Toast.makeText(this, text, LENGTH_LONG).show();
 		supportFinishAfterTransition();
 	}

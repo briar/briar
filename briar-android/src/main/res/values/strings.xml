@@ -227,6 +227,7 @@
 	<string name="offline_state">No Internet connection</string>
 	<string name="duplicate_link_dialog_title">Duplicate Link</string>
 	<string name="duplicate_link_dialog_text_1">You already have a pending contact with this link: %s</string>
+	<string name="duplicate_link_dialog_text_1_contact">You already have a contact with this link: %s</string>
 	<!-- This is a question asking whether two nicknames refer to the same person -->
 	<string name="duplicate_link_dialog_text_2">Are %s and %s the same person?</string>
 	<!-- This is a button for answering that two nicknames do indeed refer to the same person. This
