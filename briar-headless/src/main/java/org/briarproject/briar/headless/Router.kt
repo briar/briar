@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonParseException
 import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.Javalin
 import io.javalin.apibuilder.ApiBuilder.*
+import io.javalin.core.security.AccessManager
 import io.javalin.core.util.Header.AUTHORIZATION
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
@@ -23,6 +24,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.system.exitProcess
 
+private const val VERSION = "v1"
+private const val WS = "/$VERSION/ws"
+
 @Immutable
 @Singleton
 internal class Router
@@ -39,27 +43,29 @@ constructor(
     private val logger = getLogger(Router::javaClass.name)
     private val stopped = AtomicBoolean(false)
 
-    internal fun start(authToken: String, port: Int, debug: Boolean) : Javalin {
+    internal fun start(authToken: String, port: Int, debug: Boolean): Javalin {
         briarService.start()
         getRuntime().addShutdownHook(Thread(this::stop))
 
+        val accessManager = AccessManager { handler, ctx, _ ->
+            when {
+                ctx.header(AUTHORIZATION) == "Bearer $authToken" -> handler.handle(ctx)
+                ctx.matchedPath() == WS -> handler.handle(ctx) // websockets use their own auth
+                else -> ctx.status(401).result("Unauthorized")
+            }
+        }
+
         val app = Javalin.create { config ->
             config.showJavalinBanner = false
-            config.accessManager { handler, ctx, _ ->
-                if (ctx.header(AUTHORIZATION) == "Bearer $authToken") {
-                    handler.handle(ctx)
-                } else {
-                    ctx.status(401).result("Unauthorized")
-                }
-            }
+            config.accessManager(accessManager)
             if (debug) config.enableDevLogging()
-        }.events {event ->
+        }.events { event ->
             event.serverStartFailed { serverStopped() }
             event.serverStopped { serverStopped() }
         }
 
         app.routes {
-            path("/v1") {
+            path("/$VERSION") {
                 path("/contacts") {
                     get { ctx -> contactController.list(ctx) }
                     path("add") {
@@ -92,7 +98,7 @@ constructor(
                 }
             }
         }
-        app.ws("/v1/ws") { ws ->
+        app.ws(WS) { ws ->
             if (logger.isLoggable(INFO)) ws.onConnect { ctx ->
                 logger.info("Received websocket connection from ${ctx.session.remoteAddress}")
                 logger.info("Waiting for authentication")
@@ -147,7 +153,7 @@ fun Context.getContactIdFromPathParam(): ContactId {
 /**
  * Returns a String from the JSON field or throws [BadRequestResponse] if null or empty.
  */
-fun Context.getFromJson(objectMapper: ObjectMapper, field: String) : String {
+fun Context.getFromJson(objectMapper: ObjectMapper, field: String): String {
     try {
         val jsonNode = objectMapper.readTree(body())
         if (!jsonNode.hasNonNull(field)) throw BadRequestResponse("'$field' missing in JSON")
