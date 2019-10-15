@@ -66,12 +66,6 @@ public class AuthorNameFragment extends SetupFragment {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		showSoftKeyboard(authorNameInput);
-	}
-
-	@Override
 	protected String getHelpText() {
 		return getString(R.string.setup_name_explanation);
 	}

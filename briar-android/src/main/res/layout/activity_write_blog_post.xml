@@ -14,7 +14,11 @@
 		android:gravity="bottom"
 		app:buttonText="@string/blogs_publish_blog_post"
 		app:fillHeight="true"
-		app:hint="@string/blogs_write_blog_post_body_hint"/>
+		app:hint="@string/blogs_write_blog_post_body_hint">
+
+		<requestFocus/>
+
+	</org.briarproject.briar.android.view.LargeTextInputView>
 
 	<ProgressBar
 		android:id="@+id/progressBar"

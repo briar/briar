@@ -65,12 +65,6 @@ public abstract class BaseMessageFragment extends BaseFragment
 	protected abstract int getHintText();
 
 	@Override
-	public void onStart() {
-		super.onStart();
-		message.showSoftKeyboard();
-	}
-
-	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		switch (item.getItemId()) {
 			case android.R.id.home:

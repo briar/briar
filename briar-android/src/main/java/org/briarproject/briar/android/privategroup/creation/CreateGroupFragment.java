@@ -25,7 +25,6 @@ import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
-import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 
 @MethodsNotNullByDefault
@@ -91,12 +90,6 @@ public class CreateGroupFragment extends BaseFragment {
 		progress = v.findViewById(R.id.progressBar);
 
 		return v;
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		showSoftKeyboard(nameEntry);
 	}
 
 	@Override

@@ -24,6 +24,8 @@
 			android:inputType="text|textCapSentences"
 			android:maxLines="1"/>
 
+		<requestFocus/>
+
 	</android.support.design.widget.TextInputLayout>
 
 	<Button

@@ -84,12 +84,6 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		showSoftKeyboard(password);
-	}
-
-	@Override
 	public void beforeTextChanged(CharSequence s, int start, int count,
 			int after) {
 	}

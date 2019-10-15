@@ -90,12 +90,6 @@ public class RssFeedImportActivity extends BriarActivity {
 	}
 
 	@Override
-	public void onStart() {
-		super.onStart();
-		if (urlInput.requestFocus()) showSoftKeyboard(urlInput);
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		return super.onCreateOptionsMenu(menu);
 	}
