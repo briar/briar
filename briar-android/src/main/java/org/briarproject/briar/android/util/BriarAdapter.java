@@ -79,6 +79,10 @@ public abstract class BriarAdapter<T, V extends ViewHolder>
 		this.items.addAll(items);
 	}
 
+	public void replaceAll(Collection<T> items) {
+		this.items.replaceAll(items);
+	}
+
 	public void setItems(Collection<T> items) {
 		this.items.beginBatchedUpdates();
 		this.items.clear();
