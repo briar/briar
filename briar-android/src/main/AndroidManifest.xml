@@ -89,7 +89,7 @@
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
 			android:label="@string/setup_title"
-			android:windowSoftInputMode="stateVisible|adjustResize">
+			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
 		</activity>
 
 		<activity
@@ -145,7 +145,7 @@
 			android:name="org.briarproject.briar.android.privategroup.creation.CreateGroupActivity"
 			android:label="@string/groups_create_group_title"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:windowSoftInputMode="stateVisible|adjustResize">
+			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
@@ -221,7 +221,7 @@
 			android:name="org.briarproject.briar.android.forum.CreateForumActivity"
 			android:label="@string/create_forum_title"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:windowSoftInputMode="stateVisible|adjustResize">
+			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
@@ -290,7 +290,7 @@
 			android:name="org.briarproject.briar.android.blog.WriteBlogPostActivity"
 			android:label="@string/blogs_write_blog_post"
 			android:parentActivityName="org.briarproject.briar.android.blog.BlogActivity"
-			android:windowSoftInputMode="adjustResize">
+			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.blog.BlogActivity"/>
@@ -300,7 +300,7 @@
 			android:name="org.briarproject.briar.android.blog.ReblogActivity"
 			android:label="@string/blogs_reblog_button"
 			android:parentActivityName="org.briarproject.briar.android.blog.BlogActivity"
-			android:windowSoftInputMode="adjustResize|stateUnchanged">
+			android:windowSoftInputMode="adjustResize|stateHidden">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.blog.BlogActivity"/>
@@ -310,7 +310,7 @@
 			android:name="org.briarproject.briar.android.blog.RssFeedImportActivity"
 			android:label="@string/blogs_rss_feeds_import"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity"
-			android:windowSoftInputMode="adjustResize">
+			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.navdrawer.NavDrawerActivity"/>
@@ -368,7 +368,7 @@
 			android:name="org.briarproject.briar.android.login.ChangePasswordActivity"
 			android:label="@string/change_password"
 			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity"
-			android:windowSoftInputMode="adjustResize">
+			android:windowSoftInputMode="adjustResize|stateAlwaysVisible">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
 				android:value="org.briarproject.briar.android.settings.SettingsActivity"/>
