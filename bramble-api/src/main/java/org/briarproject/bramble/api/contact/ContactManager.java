@@ -144,6 +144,7 @@ public interface ContactManager {
 	/**
 	 * Returns the state of the given {@link PendingContact}.
 	 */
+	@Nullable
 	PendingContactState getPendingContactState(PendingContactId p);
 
 	/**

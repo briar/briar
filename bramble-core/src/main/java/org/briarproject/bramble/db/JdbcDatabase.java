@@ -1480,7 +1480,11 @@ abstract class JdbcDatabase implements Database<Connection> {
 			ps.setBytes(1, handshakePublicKey.getEncoded());
 			ps.setBytes(2, localAuthorId.getBytes());
 			rs = ps.executeQuery();
-			if (!rs.next()) return null;
+			if (!rs.next()) {
+				rs.close();
+				ps.close();
+				return null;
+			}
 			ContactId contactId = new ContactId(rs.getInt(1));
 			AuthorId authorId = new AuthorId(rs.getBytes(2));
 			int formatVersion = rs.getInt(3);
@@ -1488,7 +1492,7 @@ abstract class JdbcDatabase implements Database<Connection> {
 			String alias = rs.getString(5);
 			PublicKey publicKey = new SignaturePublicKey(rs.getBytes(6));
 			boolean verified = rs.getBoolean(7);
-			if (rs.next()) throw new DbException();
+			if (rs.next()) throw new DbStateException();
 			rs.close();
 			ps.close();
 			Author author =

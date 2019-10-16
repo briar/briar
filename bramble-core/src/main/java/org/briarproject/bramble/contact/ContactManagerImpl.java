@@ -173,6 +173,7 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	}
 
 	@Override
+	@Nullable
 	public PendingContactState getPendingContactState(PendingContactId p) {
 		return states.get(p);
 	}

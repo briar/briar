@@ -120,8 +120,10 @@ public class NicknameFragment extends BaseFragment {
 
 		viewModel.getAddContactResult().observe(this, result -> {
 			if (result == null) return;
-			if (result.hasError()) handleException(name, result.getException());
-			else showPendingContactListActivity();
+			if (result.hasError())
+				handleException(name, requireNonNull(result.getException()));
+			else
+				showPendingContactListActivity();
 		});
 		viewModel.addContact(name);
 	}
@@ -133,7 +135,7 @@ public class NicknameFragment extends BaseFragment {
 		finish();
 	}
 
-	private void handleException(String name, @Nullable Exception e) {
+	private void handleException(String name, Exception e) {
 		if (e instanceof ContactExistsException) {
 			ContactExistsException ce = (ContactExistsException) e;
 			handleExistingContact(name, ce.getRemoteAuthor());
