@@ -139,7 +139,8 @@ class ContactManagerImpl implements ContactManager, EventListener {
 				pendingContactFactory.createPendingContact(link, alias);
 		Transaction txn = db.startTransaction(false);
 		try {
-			db.addPendingContact(txn, p);
+			AuthorId local = identityManager.getLocalAuthor(txn).getId();
+			db.addPendingContact(txn, p, local);
 			KeyPair ourKeyPair = identityManager.getHandshakeKeys(txn);
 			keyManager.addPendingContact(txn, p.getId(), p.getPublicKey(),
 					ourKeyPair);

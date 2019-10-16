@@ -9,8 +9,10 @@ import android.support.annotation.Nullable;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.UnsupportedVersionException;
 import org.briarproject.bramble.api.contact.ContactManager;
+import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.LiveResult;
@@ -116,6 +118,21 @@ public class AddContactViewModel extends AndroidViewModel {
 
 	LiveData<LiveResult<Boolean>> getAddContactResult() {
 		return addContactResult;
+	}
+
+	public void updatePendingContact(String name, PendingContact p) {
+		dbExecutor.execute(() -> {
+			try {
+				contactManager.removePendingContact(p.getId());
+				addContact(name);
+			} catch(NoSuchPendingContactException e) {
+				logException(LOG, WARNING, e);
+				// no error in UI as pending contact was converted into contact
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				addContactResult.postValue(new LiveResult<>(e));
+			}
+		});
 	}
 
 }

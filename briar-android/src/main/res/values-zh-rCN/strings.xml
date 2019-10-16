@@ -199,7 +199,7 @@
   <string name="adding_contact_slow_text">添加此联系人比通常花费了更多时间。\n\n请检查您的联系人是否收到您的链接并已添加您：</string>
   <string name="offline_state">无网络连接</string>
   <string name="duplicate_link_dialog_title">重复的链接</string>
-  <string name="duplicate_link_dialog_text_1">您已经有此链接的待处理联系人：</string>
+  <string name="duplicate_link_dialog_text_1">您已经有此链接的待处理联系人：%s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">%s 和 %s 是同一个人吗？</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

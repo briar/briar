@@ -83,7 +83,7 @@ public interface DatabaseComponent extends TransactionManager {
 	/**
 	 * Stores a pending contact.
 	 */
-	void addPendingContact(Transaction txn, PendingContact p)
+	void addPendingContact(Transaction txn, PendingContact p, AuthorId local)
 			throws DbException;
 
 	/**
