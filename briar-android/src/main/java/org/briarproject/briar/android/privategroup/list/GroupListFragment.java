@@ -194,7 +194,7 @@ public class GroupListFragment extends BaseFragment implements
 						if (revision == adapter.getRevision()) {
 							adapter.incrementRevision();
 							if (groups.isEmpty()) list.showData();
-							else adapter.addAll(groups);
+							else adapter.replaceAll(groups);
 						} else {
 							LOG.info("Concurrent update, reloading");
 							loadGroups();

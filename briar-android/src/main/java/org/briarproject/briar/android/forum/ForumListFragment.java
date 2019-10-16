@@ -182,7 +182,7 @@ public class ForumListFragment extends BaseEventFragment implements
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
 				if (forums.isEmpty()) list.showData();
-				else adapter.addAll(forums);
+				else adapter.replaceAll(forums);
 			} else {
 				LOG.info("Concurrent update, reloading");
 				loadForums();

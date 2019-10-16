@@ -267,7 +267,7 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 			if (revision == adapter.getRevision()) {
 				adapter.incrementRevision();
 				if (contacts.isEmpty()) list.showData();
-				else adapter.addAll(contacts);
+				else adapter.replaceAll(contacts);
 			} else {
 				LOG.info("Concurrent update, reloading");
 				loadContacts();
