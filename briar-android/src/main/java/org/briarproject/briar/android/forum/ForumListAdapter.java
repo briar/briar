@@ -2,7 +2,7 @@ package org.briarproject.briar.android.forum;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +15,7 @@ import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.view.TextAvatarView;
 import org.briarproject.briar.api.forum.Forum;
 
-import static android.support.v7.util.SortedList.INVALID_POSITION;
+import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;

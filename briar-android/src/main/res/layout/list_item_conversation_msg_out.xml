@@ -7,7 +7,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content">
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
@@ -21,13 +21,13 @@
 		android:background="@drawable/msg_out"
 		android:elevation="@dimen/message_bubble_elevation">
 
-		<android.support.v7.widget.RecyclerView
+		<androidx.recyclerview.widget.RecyclerView
 			android:id="@+id/imageList"
 			android:layout_width="@dimen/message_bubble_image_default"
 			android:layout_height="@dimen/message_bubble_image_default"
 			android:orientation="vertical"
 			android:visibility="gone"
-			app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
+			app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
 			app:layout_constraintBottom_toTopOf="@+id/text"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -88,6 +88,6 @@
 
 		</LinearLayout>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
 </FrameLayout>

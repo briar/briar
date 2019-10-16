@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.privategroup.list;
 
-import android.support.annotation.CallSuper;
+import androidx.annotation.CallSuper;
 
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;

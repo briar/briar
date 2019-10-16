@@ -1,9 +1,9 @@
 package org.briarproject.briar.android.keyagreement;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.identity.Author;

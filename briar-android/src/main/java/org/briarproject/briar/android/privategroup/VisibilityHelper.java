@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.privategroup;
 
 import android.content.Context;
-import android.support.annotation.DrawableRes;
+import androidx.annotation.DrawableRes;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.api.privategroup.Visibility;

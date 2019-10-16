@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.forum;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

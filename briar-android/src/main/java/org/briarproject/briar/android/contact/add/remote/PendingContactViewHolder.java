@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.contact.add.remote;
 
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageButton;
-import android.support.v7.widget.RecyclerView.ViewHolder;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.widget.TextView;
 

@@ -1,11 +1,10 @@
 package org.briarproject.briar.android.account;
 
-import android.support.design.widget.TextInputLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import android.widget.EditText;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;
-import org.briarproject.briar.android.account.SetupActivity;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

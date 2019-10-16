@@ -11,7 +11,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

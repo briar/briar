@@ -1,6 +1,6 @@
 package org.briarproject.briar.api.android;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 

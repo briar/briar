@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.panic;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
+import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 
 import org.briarproject.briar.R;

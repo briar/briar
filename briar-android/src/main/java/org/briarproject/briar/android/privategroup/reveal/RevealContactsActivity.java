@@ -2,8 +2,8 @@ package org.briarproject.briar.android.privategroup.reveal;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;

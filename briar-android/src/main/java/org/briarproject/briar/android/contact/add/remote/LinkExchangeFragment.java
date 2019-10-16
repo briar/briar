@@ -1,14 +1,14 @@
 package org.briarproject.briar.android.contact.add.remote;
 
 import android.animation.ObjectAnimator;
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.ShareCompat.IntentBuilder;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.core.app.ShareCompat.IntentBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

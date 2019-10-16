@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.TextView;
 

@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.account;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;

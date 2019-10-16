@@ -8,7 +8,7 @@
 	android:baselineAligned="false"
 	android:orientation="horizontal">
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="wrap_content"
 		android:layout_height="match_parent"
 		android:background="@drawable/list_item_thread_background">
@@ -62,9 +62,9 @@
 			tools:text="42"
 			tools:visibility="visible"/>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
@@ -121,6 +121,6 @@
 			app:layout_constraintTop_toBottomOf="@id/author"
 			tools:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."/>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

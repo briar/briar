@@ -1,15 +1,12 @@
 package org.briarproject.briar.android.account;
 
-import android.support.design.widget.TextInputLayout;
+import com.google.android.material.textfield.TextInputLayout;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;
-import org.briarproject.briar.android.account.SetPasswordFragment;
-import org.briarproject.briar.android.account.SetupActivity;
-import org.briarproject.briar.android.account.SetupController;
 import org.briarproject.briar.android.login.StrengthMeter;
 import org.junit.Before;
 import org.junit.Test;

@@ -12,7 +12,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;

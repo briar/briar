@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.view.BriarRecyclerViewScrollListener;
@@ -8,7 +8,7 @@ import org.briarproject.briar.android.view.UnreadMessageButton;
 
 import java.util.logging.Logger;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;

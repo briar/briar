@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

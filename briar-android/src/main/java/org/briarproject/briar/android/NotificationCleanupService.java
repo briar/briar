@@ -3,7 +3,7 @@ package org.briarproject.briar.android;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 

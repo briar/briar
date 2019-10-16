@@ -9,7 +9,7 @@
 	tools:parentTag="org.briarproject.briar.android.view.CompositeSendButton"
 	tools:showIn="@layout/text_input_view">
 
-	<android.support.v7.widget.AppCompatImageButton
+	<androidx.appcompat.widget.AppCompatImageButton
 		android:id="@+id/imageButton"
 		android:layout_width="@dimen/text_input_height"
 		android:layout_height="@dimen/text_input_height"
@@ -24,7 +24,7 @@
 		android:visibility="invisible"
 		app:tint="?attr/colorControlNormal"/>
 
-	<android.support.v7.widget.AppCompatImageButton
+	<androidx.appcompat.widget.AppCompatImageButton
 		android:id="@+id/sendButton"
 		android:layout_width="@dimen/text_input_height"
 		android:layout_height="@dimen/text_input_height"

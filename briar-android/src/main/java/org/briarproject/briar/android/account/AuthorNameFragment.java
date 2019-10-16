@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.account;
 
 import android.os.Bundle;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;

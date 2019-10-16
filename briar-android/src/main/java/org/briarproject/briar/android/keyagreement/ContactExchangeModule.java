@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.keyagreement;
 
-import android.arch.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModel;
 
 import org.briarproject.briar.android.viewmodel.ViewModelKey;
 

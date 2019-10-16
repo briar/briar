@@ -1,19 +1,19 @@
 package org.briarproject.briar.android.view;
 
 import android.app.Activity;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 import android.content.ClipData;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.v4.view.AbsSavedState;
-import android.support.v7.app.AlertDialog.Builder;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.customview.view.AbsSavedState;
+import androidx.appcompat.app.AlertDialog.Builder;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -30,15 +30,15 @@ import java.util.List;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
-import static android.arch.lifecycle.Lifecycle.State.DESTROYED;
+import static androidx.lifecycle.Lifecycle.State.DESTROYED;
 import static android.content.Intent.ACTION_GET_CONTENT;
 import static android.content.Intent.ACTION_OPEN_DOCUMENT;
 import static android.content.Intent.CATEGORY_OPENABLE;
 import static android.content.Intent.EXTRA_ALLOW_MULTIPLE;
 import static android.content.Intent.EXTRA_MIME_TYPES;
 import static android.os.Build.VERSION.SDK_INT;
-import static android.support.v4.content.ContextCompat.getColor;
-import static android.support.v4.view.AbsSavedState.EMPTY_STATE;
+import static androidx.core.content.ContextCompat.getColor;
+import static androidx.customview.view.AbsSavedState.EMPTY_STATE;
 import static android.view.View.GONE;
 import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;

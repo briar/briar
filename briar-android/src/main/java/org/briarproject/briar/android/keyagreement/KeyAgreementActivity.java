@@ -6,12 +6,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
-import android.support.annotation.UiThread;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog.Builder;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.appcompat.app.AlertDialog.Builder;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.event.EventBus;

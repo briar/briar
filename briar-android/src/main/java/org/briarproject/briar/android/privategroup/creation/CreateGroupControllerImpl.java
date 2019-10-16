@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.privategroup.creation;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;

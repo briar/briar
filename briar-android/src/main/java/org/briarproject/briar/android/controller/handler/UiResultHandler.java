@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.controller.handler;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.briar.android.DestroyableContext;
 

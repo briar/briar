@@ -2,8 +2,8 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.annotation.StringRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.db.DbException;

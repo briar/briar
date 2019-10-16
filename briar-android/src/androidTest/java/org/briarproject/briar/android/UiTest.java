@@ -2,7 +2,7 @@ package org.briarproject.briar.android;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.espresso.intent.rule.IntentsTestRule;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;

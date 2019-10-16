@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.navdrawer;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.plugin.TransportId;
 

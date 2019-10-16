@@ -1,10 +1,10 @@
 package org.briarproject.briar.android.conversation;
 
-import android.support.annotation.CallSuper;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.constraint.ConstraintLayout;
-import android.support.v7.widget.RecyclerView.ViewHolder;
+import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.widget.TextView;
 

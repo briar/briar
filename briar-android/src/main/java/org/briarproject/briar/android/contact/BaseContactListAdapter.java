@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.contact;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.view.View;
 
 import org.briarproject.bramble.api.contact.ContactId;
@@ -9,7 +9,7 @@ import org.briarproject.briar.android.util.BriarAdapter;
 
 import javax.annotation.Nullable;
 
-import static android.support.v7.util.SortedList.INVALID_POSITION;
+import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 public abstract class BaseContactListAdapter<I extends ContactItem, VH extends ContactItemViewHolder<I>>

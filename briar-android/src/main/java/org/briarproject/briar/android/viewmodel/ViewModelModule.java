@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.viewmodel;
 
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 import org.briarproject.briar.android.contact.add.remote.AddContactViewModel;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListViewModel;

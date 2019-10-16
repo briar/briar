@@ -1,9 +1,9 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import android.support.annotation.UiThread;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.AppCompatImageView;
+import androidx.annotation.UiThread;
+import androidx.core.content.ContextCompat;
+import androidx.appcompat.widget.AppCompatImageView;
 import android.util.AttributeSet;
 
 import org.briarproject.bramble.api.identity.AuthorInfo.Status;

@@ -18,14 +18,14 @@
 		android:textSize="@dimen/text_size_large"
 		android:textStyle="bold"/>
 
-	<android.support.design.widget.TextInputLayout
+	<com.google.android.material.textfield.TextInputLayout
 		android:id="@+id/aliasEditLayout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		app:errorEnabled="true"
 		app:hintEnabled="false">
 
-		<android.support.design.widget.TextInputEditText
+		<com.google.android.material.textfield.TextInputEditText
 			android:id="@+id/aliasEditText"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
 			android:textColor="?android:attr/textColorPrimary"
 			android:textSize="@dimen/text_size_medium"/>
 
-	</android.support.design.widget.TextInputLayout>
+	</com.google.android.material.textfield.TextInputLayout>
 
 	<LinearLayout
 		android:layout_width="match_parent"

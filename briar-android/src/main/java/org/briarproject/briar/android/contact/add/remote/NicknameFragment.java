@@ -1,16 +1,16 @@
 package org.briarproject.briar.android.contact.add.remote;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
-import android.support.design.widget.TextInputEditText;
-import android.support.design.widget.TextInputLayout;
-import android.support.v7.app.AlertDialog.Builder;
+import androidx.annotation.StringRes;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
+import androidx.appcompat.app.AlertDialog.Builder;
 import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -33,9 +33,9 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.support.v4.content.ContextCompat.getColor;
-import static android.support.v4.content.ContextCompat.getDrawable;
-import static android.support.v4.graphics.drawable.DrawableCompat.setTint;
+import static androidx.core.content.ContextCompat.getColor;
+import static androidx.core.content.ContextCompat.getDrawable;
+import static androidx.core.graphics.drawable.DrawableCompat.setTint;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;

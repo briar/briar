@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.sharing;
 
 import android.app.Activity;
-import android.support.annotation.CallSuper;
+import androidx.annotation.CallSuper;
 
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;

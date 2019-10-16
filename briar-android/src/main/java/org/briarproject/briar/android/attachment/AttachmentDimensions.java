@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.attachment;
 
 import android.content.res.Resources;
-import android.support.annotation.VisibleForTesting;
+import androidx.annotation.VisibleForTesting;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;

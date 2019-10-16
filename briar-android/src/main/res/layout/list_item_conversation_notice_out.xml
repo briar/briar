@@ -22,7 +22,7 @@
 		android:textColor="@color/briar_text_primary_inverse"
 		tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."/>
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -67,6 +67,6 @@
 			tools:ignore="ContentDescription"
 			tools:src="@drawable/message_delivered"/>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

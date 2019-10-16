@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.conversation;
 
-import android.support.annotation.CallSuper;
-import android.support.annotation.UiThread;
+import androidx.annotation.CallSuper;
+import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.TextView;
 

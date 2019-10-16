@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.blog;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

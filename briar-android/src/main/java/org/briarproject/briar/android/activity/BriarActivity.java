@@ -1,10 +1,10 @@
 package org.briarproject.briar.android.activity;
 
 import android.content.Intent;
-import android.support.annotation.RequiresApi;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import android.transition.Transition;
 import android.view.Window;
 import android.widget.CheckBox;

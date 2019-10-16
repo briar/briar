@@ -2,7 +2,7 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;

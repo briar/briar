@@ -2,8 +2,8 @@ package org.briarproject.briar.android.contactselection;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.annotation.CallSuper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;

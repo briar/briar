@@ -1,9 +1,9 @@
 package org.briarproject.briar.android.threaded;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +17,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 @UiThread
 public class ThreadItemAdapter<I extends ThreadItem>

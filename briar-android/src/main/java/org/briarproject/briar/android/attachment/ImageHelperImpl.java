@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.attachment;
 
 import android.graphics.BitmapFactory;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.webkit.MimeTypeMap;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

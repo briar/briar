@@ -2,9 +2,9 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.annotation.StringRes;
-import android.support.v7.widget.LinearLayoutManager;
+import androidx.annotation.CallSuper;
+import androidx.annotation.StringRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.widget.TextView;
 

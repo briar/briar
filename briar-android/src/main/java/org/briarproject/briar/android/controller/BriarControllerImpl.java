@@ -3,7 +3,7 @@ package org.briarproject.briar.android.controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.CallSuper;
+import androidx.annotation.CallSuper;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;

@@ -5,7 +5,7 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.AsyncTask;
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;

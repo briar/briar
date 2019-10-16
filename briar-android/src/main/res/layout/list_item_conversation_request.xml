@@ -22,7 +22,7 @@
 		android:textColor="?android:attr/textColorPrimary"
 		tools:text="Short message"/>
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
@@ -71,6 +71,6 @@
 			app:layout_constraintTop_toBottomOf="@+id/acceptButton"
 			tools:text="Dec 24, 13:37"/>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
 </LinearLayout>

@@ -1,14 +1,14 @@
 package org.briarproject.briar.android.util;
 
 import android.content.Context;
-import android.support.annotation.ColorRes;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.ColorRes;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 
 import org.briarproject.briar.R;
 
 import static android.os.Build.VERSION.SDK_INT;
-import static android.support.v4.app.NotificationCompat.VISIBILITY_PRIVATE;
+import static androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE;
 
 
 public class BriarNotificationBuilder extends NotificationCompat.Builder {

@@ -1,11 +1,11 @@
 package org.briarproject.briar.android.conversation;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
+import androidx.lifecycle.AndroidViewModel;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 import android.view.View;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;

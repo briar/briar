@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.privategroup.reveal;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.ImageView;
 

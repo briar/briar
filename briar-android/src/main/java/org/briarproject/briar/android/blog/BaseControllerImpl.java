@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.blog;
 
-import android.support.annotation.CallSuper;
+import androidx.annotation.CallSuper;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;

@@ -7,7 +7,7 @@
 	android:layout_height="match_parent"
 	android:orientation="vertical">
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
@@ -39,7 +39,7 @@
 			app:layout_constraintTop_toBottomOf="@+id/avatarContact1"
 			tools:text="Contact 1"/>
 
-		<android.support.v7.widget.AppCompatImageView
+		<androidx.appcompat.widget.AppCompatImageView
 			android:id="@+id/introductionIcon"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -80,7 +80,7 @@
 			app:layout_constraintTop_toBottomOf="@+id/avatarContact2"
 			tools:text="Contact 2 can have quite a long name"/>
 
-		<android.support.constraint.Barrier
+		<androidx.constraintlayout.widget.Barrier
 			android:id="@+id/barrier"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -128,5 +128,5 @@
 			app:maxLines="5"
 			tools:visibility="visible"/>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

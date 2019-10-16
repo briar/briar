@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
-import android.support.annotation.LayoutRes;
+import androidx.annotation.LayoutRes;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.conversation.ConversationRequest;

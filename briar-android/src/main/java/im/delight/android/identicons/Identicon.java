@@ -19,8 +19,8 @@ package im.delight.android.identicons;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
-import android.support.annotation.NonNull;
-import android.support.annotation.UiThread;
+import androidx.annotation.NonNull;
+import androidx.annotation.UiThread;
 
 import static android.graphics.Paint.Style.FILL;
 

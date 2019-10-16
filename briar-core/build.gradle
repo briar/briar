@@ -12,10 +12,10 @@ dependencies {
 	implementation project(path: ':briar-api', configuration: 'default')
 	implementation 'com.rometools:rome:1.12.1'
 	implementation 'org.jdom:jdom2:2.0.6'
-	implementation 'com.squareup.okhttp3:okhttp:3.12.2'
+	implementation 'com.squareup.okhttp3:okhttp:3.14.4'
 	implementation 'org.jsoup:jsoup:1.11.3'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
 	testImplementation project(path: ':bramble-core', configuration: 'default')
 	testImplementation project(path: ':bramble-core', configuration: 'testOutput')
@@ -26,7 +26,7 @@ dependencies {
 	testImplementation "org.jmock:jmock-junit4:2.8.2"
 	testImplementation "org.jmock:jmock-legacy:2.8.2"
 
-	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
+	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }

@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.view;
 
-import android.support.annotation.LayoutRes;
-import android.support.v7.widget.RecyclerView.Adapter;
+import androidx.annotation.LayoutRes;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static java.util.Objects.requireNonNull;
 
 @NotNullByDefault

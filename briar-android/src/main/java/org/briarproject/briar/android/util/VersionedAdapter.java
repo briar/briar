@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.util;
 
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 public interface VersionedAdapter {
 

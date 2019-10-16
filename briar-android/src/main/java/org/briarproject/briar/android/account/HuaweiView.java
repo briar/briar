@@ -5,8 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.support.annotation.StringRes;
-import android.support.annotation.UiThread;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 import android.util.AttributeSet;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

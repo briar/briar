@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.privategroup.creation;
 
-import android.support.annotation.StringRes;
+import androidx.annotation.StringRes;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;

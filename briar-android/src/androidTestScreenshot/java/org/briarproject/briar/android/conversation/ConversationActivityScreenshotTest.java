@@ -2,8 +2,8 @@ package org.briarproject.briar.android.contact;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.test.rule.ActivityTestRule;
-import android.support.test.runner.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarUiTestComponent;
@@ -13,10 +13,10 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
 import static org.hamcrest.Matchers.allOf;

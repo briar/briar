@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<androidx.constraintlayout.widget.ConstraintLayout
 	android:id="@+id/layout"
 	xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -15,12 +15,12 @@
 	android:background="@drawable/msg_in"
 	android:elevation="@dimen/message_bubble_elevation">
 
-	<android.support.v7.widget.RecyclerView
+	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/imageList"
 		android:layout_width="@dimen/message_bubble_image_default"
 		android:layout_height="@dimen/message_bubble_image_default"
 		android:orientation="vertical"
-		app:layoutManager="android.support.v7.widget.StaggeredGridLayoutManager"
+		app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
 		app:layout_constraintBottom_toTopOf="@+id/text"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
@@ -71,4 +71,4 @@
 
 	</LinearLayout>
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

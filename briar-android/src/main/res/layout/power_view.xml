@@ -5,7 +5,7 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	tools:parentTag="android.support.constraint.ConstraintLayout">
+	tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout">
 
 	<TextView
 		android:id="@+id/textView"
@@ -22,7 +22,7 @@
 		app:layout_constraintTop_toTopOf="parent"
 		tools:text="@string/setup_huawei_text"/>
 
-	<android.support.v7.widget.AppCompatImageView
+	<androidx.appcompat.widget.AppCompatImageView
 		android:id="@+id/checkImage"
 		android:layout_width="24dp"
 		android:layout_height="24dp"

@@ -8,8 +8,8 @@ import android.hardware.biometrics.BiometricPrompt.AuthenticationResult;
 import android.hardware.biometrics.BiometricPrompt.Builder;
 import android.os.Bundle;
 import android.os.CancellationSignal;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;

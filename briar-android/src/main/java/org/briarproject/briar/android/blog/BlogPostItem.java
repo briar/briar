@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.blog;
 
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;

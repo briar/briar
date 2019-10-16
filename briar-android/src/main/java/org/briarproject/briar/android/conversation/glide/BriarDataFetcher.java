@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.conversation.glide;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;

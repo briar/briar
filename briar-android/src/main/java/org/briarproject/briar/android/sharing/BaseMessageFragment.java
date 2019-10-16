@@ -2,9 +2,9 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.annotation.UiThread;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;

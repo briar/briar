@@ -7,12 +7,12 @@
 	android:layout_height="match_parent"
 	android:fillViewport="true">
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
 		android:padding="@dimen/margin_large">
 
-		<android.support.constraint.Guideline
+		<androidx.constraintlayout.widget.Guideline
 			android:id="@+id/guideline"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -75,7 +75,7 @@
 			app:layout_constraintStart_toEndOf="@+id/guideline"
 			app:layout_constraintTop_toBottomOf="@+id/stepTwo"/>
 
-		<android.support.v7.widget.AppCompatImageView
+		<androidx.appcompat.widget.AppCompatImageView
 			android:id="@+id/yourLinkIcon"
 			android:layout_width="38dp"
 			android:layout_height="38dp"
@@ -151,7 +151,7 @@
 			app:layout_constraintStart_toEndOf="@id/copyButton"
 			app:layout_constraintTop_toTopOf="@id/copyButton"/>
 
-		<android.support.v7.widget.AppCompatImageView
+		<androidx.appcompat.widget.AppCompatImageView
 			android:id="@+id/linkInputIcon"
 			android:layout_width="38dp"
 			android:layout_height="38dp"
@@ -177,7 +177,7 @@
 			app:layout_constraintStart_toEndOf="@+id/linkInputIcon"
 			app:layout_constraintTop_toTopOf="@+id/linkInputIcon"/>
 
-		<android.support.design.widget.TextInputLayout
+		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/linkInputLayout"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -188,7 +188,7 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/linkInputIcon">
 
-			<android.support.design.widget.TextInputEditText
+			<com.google.android.material.textfield.TextInputEditText
 				android:id="@+id/linkInput"
 				android:layout_width="match_parent"
 				android:layout_height="match_parent"
@@ -196,7 +196,7 @@
 				android:importantForAutofill="no"
 				android:inputType="textUri"/>
 
-		</android.support.design.widget.TextInputLayout>
+		</com.google.android.material.textfield.TextInputLayout>
 
 		<Button
 			android:id="@+id/pasteButton"
@@ -230,5 +230,5 @@
 			tools:enabled="true"/>
 
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

@@ -17,7 +17,7 @@ dependencies {
 	implementation 'org.whispersystems:curve25519-java:0.5.0'
 	implementation 'org.briarproject:jtorctl:0.3'
 
-	annotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
+	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	testImplementation 'org.hsqldb:hsqldb:2.3.5' // The last version that supports Java 1.6
@@ -26,7 +26,7 @@ dependencies {
 	testImplementation "org.jmock:jmock-junit4:2.8.2"
 	testImplementation "org.jmock:jmock-legacy:2.8.2"
 
-	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.22.1'
+	testAnnotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 
 	signature 'org.codehaus.mojo.signature:java16:1.1@signature'
 }

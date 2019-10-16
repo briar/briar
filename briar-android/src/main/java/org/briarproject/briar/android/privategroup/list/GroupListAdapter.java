@@ -12,7 +12,7 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.briar.android.util.BriarAdapter;
 
-import static android.support.v7.util.SortedList.INVALID_POSITION;
+import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

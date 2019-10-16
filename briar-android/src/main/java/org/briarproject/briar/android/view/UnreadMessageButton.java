@@ -2,8 +2,8 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.UiThread;
-import android.support.design.widget.FloatingActionButton;
+import androidx.annotation.UiThread;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;

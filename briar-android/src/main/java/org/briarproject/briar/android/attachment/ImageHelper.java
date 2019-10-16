@@ -1,6 +1,6 @@
 package org.briarproject.briar.android.attachment;
 
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 

@@ -7,11 +7,11 @@
 	android:layout_height="match_parent"
 	android:fillViewport="true">
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content">
 
-		<android.support.design.widget.TextInputLayout
+		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/user_comment_layout"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent">
 
-			<android.support.design.widget.TextInputEditText
+			<com.google.android.material.textfield.TextInputEditText
 				android:id="@+id/user_comment"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -33,9 +33,9 @@
 				android:maxLines="5"
 				tools:hint="@string/describe_crash"/>
 
-		</android.support.design.widget.TextInputLayout>
+		</com.google.android.material.textfield.TextInputLayout>
 
-		<android.support.design.widget.TextInputLayout
+		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/user_email_layout"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
@@ -48,7 +48,7 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/user_comment_layout">
 
-			<android.support.design.widget.TextInputEditText
+			<com.google.android.material.textfield.TextInputEditText
 				android:id="@+id/user_email"
 				android:layout_width="match_parent"
 				android:layout_height="wrap_content"
@@ -56,7 +56,7 @@
 				android:inputType="textEmailAddress"
 				android:maxLines="1"/>
 
-		</android.support.design.widget.TextInputLayout>
+		</com.google.android.material.textfield.TextInputLayout>
 
 		<CheckBox
 			android:id="@+id/include_debug_report"
@@ -108,6 +108,6 @@
 			app:layout_constraintTop_toBottomOf="@+id/include_debug_report"
 			tools:visibility="visible"/>
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

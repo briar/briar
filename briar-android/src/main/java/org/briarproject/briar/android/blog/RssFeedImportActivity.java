@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.blog;
 
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;

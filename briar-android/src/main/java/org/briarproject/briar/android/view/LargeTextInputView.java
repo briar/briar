@@ -2,7 +2,7 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 import android.util.AttributeSet;
 import android.view.ViewGroup;
 import android.widget.Button;

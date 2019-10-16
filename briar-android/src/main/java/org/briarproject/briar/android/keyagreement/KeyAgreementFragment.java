@@ -3,7 +3,7 @@ package org.briarproject.briar.android.keyagreement;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;

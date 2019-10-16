@@ -3,10 +3,10 @@ package org.briarproject.briar.android.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.annotation.UiThread;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import androidx.annotation.CallSuper;
+import androidx.annotation.UiThread;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.db.DbException;

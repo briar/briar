@@ -1,7 +1,7 @@
 package org.briarproject.briar.android.keyagreement;
 
 import android.hardware.Camera;
-import android.support.annotation.UiThread;
+import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
