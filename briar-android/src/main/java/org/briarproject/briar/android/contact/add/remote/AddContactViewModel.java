@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.LiveResult;
@@ -26,7 +27,6 @@ import javax.inject.Inject;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
-import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -122,14 +122,15 @@ public class AddContactViewModel extends AndroidViewModel {
 
 	public void updatePendingContact(String name, PendingContact p) {
 		dbExecutor.execute(() -> {
-			if (contactManager.getPendingContactState(p.getId()) == FAILED) {
-				try {
-					contactManager.removePendingContact(p.getId());
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-					addContactResult.postValue(new LiveResult<>(e));
-				}
+			try {
+				contactManager.removePendingContact(p.getId());
 				addContact(name);
+			} catch(NoSuchPendingContactException e) {
+				logException(LOG, WARNING, e);
+				// no error in UI as pending contact was converted into contact
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				addContactResult.postValue(new LiveResult<>(e));
 			}
 		});
 	}

@@ -173,12 +173,6 @@ class ContactManagerImpl implements ContactManager, EventListener {
 	}
 
 	@Override
-	@Nullable
-	public PendingContactState getPendingContactState(PendingContactId p) {
-		return states.get(p);
-	}
-
-	@Override
 	public void removePendingContact(PendingContactId p) throws DbException {
 		db.transaction(false, txn -> db.removePendingContact(txn, p));
 		states.remove(p);
