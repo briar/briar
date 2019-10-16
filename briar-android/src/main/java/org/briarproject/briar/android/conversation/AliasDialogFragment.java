@@ -25,6 +25,7 @@ import static android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VI
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 @MethodsNotNullByDefault
@@ -74,17 +75,17 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 		aliasEditText.setText(alias);
 		if (alias != null) aliasEditText.setSelection(alias.length());
 
-		// TODO: Close keyboard on accept or cancel
 		Button setButton = v.findViewById(R.id.setButton);
 		setButton.setOnClickListener(v1 -> onSetButtonClicked());
 
 		Button cancelButton = v.findViewById(R.id.cancelButton);
-		cancelButton.setOnClickListener(v1 -> getDialog().cancel());
+		cancelButton.setOnClickListener(v1 -> onCancelButtonClicked());
 
 		return v;
 	}
 
 	private void onSetButtonClicked() {
+		hideSoftKeyboard(aliasEditText);
 		String alias = aliasEditText.getText().toString().trim();
 		if (toUtf8(alias).length > MAX_AUTHOR_NAME_LENGTH) {
 			aliasEditLayout.setError(getString(R.string.name_too_long));
@@ -92,6 +93,11 @@ public class AliasDialogFragment extends AppCompatDialogFragment {
 			viewModel.setContactAlias(alias);
 			getDialog().dismiss();
 		}
+	}
+
+	private void onCancelButtonClicked() {
+		hideSoftKeyboard(aliasEditText);
+		getDialog().cancel();
 	}
 
 	@Override
