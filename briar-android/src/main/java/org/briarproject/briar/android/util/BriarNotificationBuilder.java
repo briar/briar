@@ -1,11 +1,12 @@
 package org.briarproject.briar.android.util;
 
 import android.content.Context;
+
+import org.briarproject.briar.R;
+
 import androidx.annotation.ColorRes;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
-
-import org.briarproject.briar.R;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.NotificationCompat.VISIBILITY_PRIVATE;

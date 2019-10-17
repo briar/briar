@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.keyagreement;
 
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import androidx.annotation.UiThread;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.identity.Author;
@@ -15,6 +12,10 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.annotation.UiThread;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;

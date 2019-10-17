@@ -1,10 +1,6 @@
 package org.briarproject.briar.android.login;
 
 import android.app.Application;
-import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.event.Event;
@@ -22,6 +18,11 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
+
+import androidx.annotation.UiThread;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;

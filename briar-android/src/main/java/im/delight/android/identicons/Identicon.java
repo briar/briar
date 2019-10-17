@@ -19,6 +19,7 @@ package im.delight.android.identicons;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.UiThread;
 

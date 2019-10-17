@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.blog;
 
-import androidx.annotation.NonNull;
-
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -10,6 +8,8 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+
+import androidx.annotation.NonNull;
 
 @NotThreadSafe
 public class BlogPostItem implements Comparable<BlogPostItem> {

@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.graphics.drawable.Drawable;
-import androidx.annotation.DrawableRes;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -16,6 +13,10 @@ import com.bumptech.glide.request.target.Target;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
+
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;

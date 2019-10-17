@@ -1,8 +1,5 @@
 package org.briarproject.briar.android.contact.add.remote;
 
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.widget.AppCompatImageButton;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 import android.view.View;
 import android.widget.TextView;
 
@@ -10,6 +7,10 @@ import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.TextAvatarView;
+
+import androidx.appcompat.widget.AppCompatImageButton;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 

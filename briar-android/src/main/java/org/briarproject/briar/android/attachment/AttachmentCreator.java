@@ -1,8 +1,6 @@
 package org.briarproject.briar.android.attachment;
 
-import androidx.lifecycle.LiveData;
 import android.net.Uri;
-import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -12,6 +10,9 @@ import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.Collection;
 import java.util.List;
+
+import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
 
 @NotNullByDefault
 public interface AttachmentCreator {

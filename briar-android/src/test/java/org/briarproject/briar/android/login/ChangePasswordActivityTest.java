@@ -1,8 +1,9 @@
 package org.briarproject.briar.android.login;
 
-import com.google.android.material.textfield.TextInputLayout;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.google.android.material.textfield.TextInputLayout;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.TestBriarApplication;

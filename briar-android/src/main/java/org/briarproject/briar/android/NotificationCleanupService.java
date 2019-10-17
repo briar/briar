@@ -3,11 +3,12 @@ package org.briarproject.briar.android;
 import android.app.IntentService;
 import android.content.Intent;
 import android.net.Uri;
-import androidx.annotation.Nullable;
 
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.BLOG_URI;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.CONTACT_ADDED_URI;

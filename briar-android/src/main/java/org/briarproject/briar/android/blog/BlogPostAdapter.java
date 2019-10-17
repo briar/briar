@@ -1,8 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.FragmentManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +9,9 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentManager;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

@@ -11,7 +11,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.Signature;
-import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -35,6 +34,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.annotation.UiThread;
 
 import static android.Manifest.permission.SYSTEM_ALERT_WINDOW;
 import static android.content.Intent.ACTION_PACKAGE_ADDED;

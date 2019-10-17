@@ -1,13 +1,13 @@
 package org.briarproject.briar.android.viewmodel;
 
-import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
-import androidx.annotation.Nullable;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import javax.annotation.concurrent.Immutable;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 @NotNullByDefault
 public class LiveEvent<T> extends LiveData<LiveEvent.ConsumableEvent<T>> {

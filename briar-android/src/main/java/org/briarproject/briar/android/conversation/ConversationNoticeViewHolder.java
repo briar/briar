@@ -1,12 +1,13 @@
 package org.briarproject.briar.android.conversation;
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.UiThread;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

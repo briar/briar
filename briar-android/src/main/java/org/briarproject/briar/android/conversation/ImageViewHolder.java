@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
 import android.graphics.Bitmap;
-import androidx.annotation.DrawableRes;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
-import androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -15,6 +12,10 @@ import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.conversation.glide.BriarImageTransformation;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.conversation.glide.Radii;
+
+import androidx.annotation.DrawableRes;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.StaggeredGridLayoutManager.LayoutParams;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static com.bumptech.glide.load.engine.DiskCacheStrategy.NONE;

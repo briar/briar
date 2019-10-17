@@ -2,8 +2,6 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
-import androidx.annotation.StringRes;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.db.DbException;
@@ -21,6 +19,9 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.StringRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.sharing.InvitationAdapter.InvitationClickListener;

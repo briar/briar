@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.threaded;
 
-import androidx.annotation.UiThread;
-
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -15,6 +13,8 @@ import org.briarproject.briar.api.client.NamedGroup;
 import java.util.Collection;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
 
 @NotNullByDefault
 public interface ThreadListController<G extends NamedGroup, I extends ThreadItem>

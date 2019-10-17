@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.attachment;
 
-import androidx.annotation.Nullable;
-
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -10,6 +8,8 @@ import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.io.InputStream;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 @NotNullByDefault
 public interface AttachmentRetriever {

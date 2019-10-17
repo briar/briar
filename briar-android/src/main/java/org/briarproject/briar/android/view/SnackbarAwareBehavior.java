@@ -1,14 +1,16 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
-import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior;
-import androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams;
-import com.google.android.material.snackbar.Snackbar.SnackbarLayout;
 import android.util.AttributeSet;
 import android.view.View;
 
+import com.google.android.material.snackbar.Snackbar.SnackbarLayout;
+
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import androidx.coordinatorlayout.widget.CoordinatorLayout;
+import androidx.coordinatorlayout.widget.CoordinatorLayout.Behavior;
+import androidx.coordinatorlayout.widget.CoordinatorLayout.LayoutParams;
 
 /**
  * This behavior makes room for a snackbar at the bottom of the screen. The

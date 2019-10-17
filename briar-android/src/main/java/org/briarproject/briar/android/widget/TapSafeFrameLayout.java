@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.widget;
 
 import android.content.Context;
-import androidx.annotation.AttrRes;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.widget.FrameLayout;
@@ -10,6 +9,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.AttrRes;
 
 import static android.view.MotionEvent.FLAG_WINDOW_IS_OBSCURED;
 

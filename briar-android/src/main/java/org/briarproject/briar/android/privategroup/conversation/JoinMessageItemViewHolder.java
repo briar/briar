@@ -1,13 +1,14 @@
 package org.briarproject.briar.android.privategroup.conversation;
 
 import android.content.Context;
-import androidx.annotation.UiThread;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.BaseThreadItemViewHolder;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
+
+import androidx.annotation.UiThread;
 
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 

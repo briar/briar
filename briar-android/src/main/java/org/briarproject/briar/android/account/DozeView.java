@@ -2,12 +2,13 @@ package org.briarproject.briar.android.account;
 
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
 import android.util.AttributeSet;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 

@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.privategroup.creation;
 
-import androidx.annotation.Nullable;
-
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -33,6 +31,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;

@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.threaded;
 
-import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.TextView;
 
@@ -9,6 +8,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 
 import java.util.Locale;
+
+import androidx.annotation.UiThread;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

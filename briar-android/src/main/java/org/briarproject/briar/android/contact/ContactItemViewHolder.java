@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.contact;
 
-import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -14,6 +12,8 @@ import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactCl
 
 import javax.annotation.Nullable;
 
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.RecyclerView;
 import im.delight.android.identicons.IdenticonDrawable;
 
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;

@@ -3,8 +3,6 @@ package org.briarproject.briar.android.view;
 import android.content.Context;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
-import androidx.annotation.UiThread;
-import androidx.appcompat.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
@@ -16,6 +14,8 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
+import androidx.annotation.UiThread;
+import androidx.appcompat.widget.AppCompatTextView;
 import de.hdodenhof.circleimageview.CircleImageView;
 
 @UiThread

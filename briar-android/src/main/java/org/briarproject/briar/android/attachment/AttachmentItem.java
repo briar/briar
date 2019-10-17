@@ -2,7 +2,6 @@ package org.briarproject.briar.android.attachment;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -11,6 +10,8 @@ import org.briarproject.briar.api.messaging.AttachmentHeader;
 import java.util.concurrent.atomic.AtomicLong;
 
 import javax.annotation.concurrent.Immutable;
+
+import androidx.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 

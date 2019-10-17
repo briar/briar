@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.controller.handler;
 
-import androidx.annotation.UiThread;
-
 import org.briarproject.briar.android.DestroyableContext;
+
+import androidx.annotation.UiThread;
 
 public abstract class UiResultHandler<R> implements ResultHandler<R> {
 

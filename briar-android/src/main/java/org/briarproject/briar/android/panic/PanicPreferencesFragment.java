@@ -8,10 +8,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.preference.SwitchPreference;
-import androidx.appcompat.app.AlertDialog;
-import androidx.preference.ListPreference;
-import androidx.preference.PreferenceFragmentCompat;
 import android.text.TextUtils;
 
 import org.briarproject.briar.R;
@@ -21,6 +17,10 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.preference.ListPreference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.SwitchPreference;
 import info.guardianproject.panic.PanicResponder;
 
 import static android.app.Activity.RESULT_CANCELED;

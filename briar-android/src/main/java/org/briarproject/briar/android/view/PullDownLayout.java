@@ -25,9 +25,6 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
-import androidx.customview.widget.ViewDragHelper;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
@@ -35,6 +32,10 @@ import android.view.ViewConfiguration;
 import android.widget.FrameLayout;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
+import androidx.customview.widget.ViewDragHelper;
 
 @NotNullByDefault
 public class PullDownLayout extends FrameLayout {

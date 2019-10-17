@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +8,10 @@ import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 
 import org.briarproject.briar.R;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatImageButton;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static java.util.Objects.requireNonNull;

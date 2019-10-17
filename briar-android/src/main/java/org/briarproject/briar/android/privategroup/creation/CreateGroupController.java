@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.privategroup.creation;
 
-import androidx.annotation.Nullable;
-
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -11,6 +9,8 @@ import org.briarproject.briar.android.contactselection.SelectableContactItem;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 
 import java.util.Collection;
+
+import androidx.annotation.Nullable;
 
 @NotNullByDefault
 public interface CreateGroupController

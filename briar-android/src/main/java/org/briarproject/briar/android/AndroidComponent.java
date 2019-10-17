@@ -1,7 +1,5 @@
 package org.briarproject.briar.android;
 
-import androidx.lifecycle.ViewModelProvider;
-
 import org.briarproject.bramble.BrambleAndroidEagerSingletons;
 import org.briarproject.bramble.BrambleAndroidModule;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
@@ -61,6 +59,7 @@ import java.util.concurrent.Executor;
 
 import javax.inject.Singleton;
 
+import androidx.lifecycle.ViewModelProvider;
 import dagger.Component;
 
 @Singleton

@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.privategroup.reveal;
 
-import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -10,6 +9,8 @@ import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactCl
 import org.briarproject.briar.android.contactselection.BaseSelectableContactHolder;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
 
 import static org.briarproject.briar.android.privategroup.VisibilityHelper.getVisibilityIcon;
 import static org.briarproject.briar.android.privategroup.VisibilityHelper.getVisibilityString;

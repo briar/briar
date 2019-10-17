@@ -1,8 +1,5 @@
 package org.briarproject.briar.android.privategroup.conversation;
 
-import androidx.annotation.LayoutRes;
-import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +11,10 @@ import org.briarproject.briar.android.threaded.BaseThreadItemViewHolder;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.briarproject.briar.android.threaded.ThreadPostViewHolder;
 import org.briarproject.briar.api.privategroup.Visibility;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 

@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.conversation;
 
-import androidx.annotation.LayoutRes;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.client.SessionId;
@@ -11,6 +9,8 @@ import org.briarproject.briar.api.sharing.Shareable;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+
+import androidx.annotation.LayoutRes;
 
 @NotThreadSafe
 @NotNullByDefault

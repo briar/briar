@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.privategroup.list;
 
-import androidx.annotation.UiThread;
-
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -11,6 +9,8 @@ import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 
 import java.util.Collection;
+
+import androidx.annotation.UiThread;
 
 @NotNullByDefault
 interface GroupListController extends DbController {

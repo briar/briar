@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.content.Context;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.recyclerview.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 
@@ -13,10 +10,14 @@ import org.briarproject.briar.android.attachment.AttachmentItemResult;
 
 import java.util.Collection;
 
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.recyclerview.widget.RecyclerView;
+
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
+import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static androidx.core.content.ContextCompat.getColor;
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
-import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static java.util.Objects.requireNonNull;
 
 @NotNullByDefault

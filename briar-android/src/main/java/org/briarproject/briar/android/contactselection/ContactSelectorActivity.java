@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.contactselection;
 
 import android.os.Bundle;
-import androidx.annotation.CallSuper;
-import androidx.annotation.LayoutRes;
-import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -18,6 +15,10 @@ import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.UiThread;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

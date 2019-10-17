@@ -3,13 +3,14 @@ package org.briarproject.briar.android.view;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.ItemDecoration;
-import androidx.recyclerview.widget.RecyclerView.State;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration;
+import androidx.recyclerview.widget.RecyclerView.State;
 
 @NotNullByDefault
 class ImagePreviewDecoration extends ItemDecoration {

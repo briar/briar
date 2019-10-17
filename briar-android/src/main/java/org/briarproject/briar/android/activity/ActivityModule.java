@@ -2,14 +2,14 @@ package org.briarproject.briar.android.activity;
 
 import android.app.Activity;
 
+import org.briarproject.briar.android.account.SetupController;
+import org.briarproject.briar.android.account.SetupControllerImpl;
 import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.BriarControllerImpl;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.login.ChangePasswordController;
 import org.briarproject.briar.android.login.ChangePasswordControllerImpl;
-import org.briarproject.briar.android.account.SetupController;
-import org.briarproject.briar.android.account.SetupControllerImpl;
 import org.briarproject.briar.android.navdrawer.NavDrawerController;
 import org.briarproject.briar.android.navdrawer.NavDrawerControllerImpl;
 

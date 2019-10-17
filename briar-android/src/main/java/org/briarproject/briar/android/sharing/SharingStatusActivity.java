@@ -2,9 +2,6 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.CallSuper;
-import androidx.annotation.StringRes;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -32,6 +29,10 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.StringRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;

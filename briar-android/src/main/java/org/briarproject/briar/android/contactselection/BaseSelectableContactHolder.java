@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.contactselection;
 
-import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.TextView;
@@ -11,6 +10,8 @@ import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactCl
 import org.briarproject.briar.android.contact.ContactItemViewHolder;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
 
 import static org.briarproject.briar.android.util.UiUtils.GREY_OUT;
 

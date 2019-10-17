@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.view;
 
-import androidx.annotation.LayoutRes;
-import androidx.recyclerview.widget.RecyclerView.Adapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,6 +11,9 @@ import org.briarproject.briar.android.attachment.AttachmentItemResult;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import androidx.annotation.LayoutRes;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static java.util.Objects.requireNonNull;

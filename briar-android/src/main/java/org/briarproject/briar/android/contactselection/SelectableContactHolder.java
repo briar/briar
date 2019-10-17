@@ -1,12 +1,13 @@
 package org.briarproject.briar.android.contactselection;
 
-import androidx.annotation.UiThread;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

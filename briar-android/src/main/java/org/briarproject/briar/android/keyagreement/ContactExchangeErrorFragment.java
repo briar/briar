@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.keyagreement;
 
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,8 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 

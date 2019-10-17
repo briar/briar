@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.attachment;
 
-import androidx.exifinterface.media.ExifInterface;
-
 import com.bumptech.glide.util.MarkEnforcingInputStream;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -10,6 +8,8 @@ import org.briarproject.briar.android.attachment.ImageHelper.DecodeResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
+
+import androidx.exifinterface.media.ExifInterface;
 
 import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270;
 import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90;

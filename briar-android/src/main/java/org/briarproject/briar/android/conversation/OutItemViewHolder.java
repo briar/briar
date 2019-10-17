@@ -1,11 +1,12 @@
 package org.briarproject.briar.android.conversation;
 
-import androidx.annotation.UiThread;
 import android.view.View;
 import android.widget.ImageView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.annotation.UiThread;
 
 @UiThread
 @NotNullByDefault

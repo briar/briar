@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
-import androidx.annotation.LayoutRes;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +14,10 @@ import org.briarproject.briar.android.util.BriarAdapter;
 import org.briarproject.briar.android.util.ItemReturningAdapter;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.LayoutRes;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
 
 @NotNullByDefault
 class ConversationAdapter

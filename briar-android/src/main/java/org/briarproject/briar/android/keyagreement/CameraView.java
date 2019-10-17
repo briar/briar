@@ -6,8 +6,6 @@ import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.Parameters;
 import android.hardware.Camera.Size;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
 import android.util.AttributeSet;
 import android.view.Display;
 import android.view.Surface;
@@ -22,6 +20,9 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Logger;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
 
 import static android.content.Context.WINDOW_SERVICE;
 import static android.hardware.Camera.CameraInfo.CAMERA_FACING_BACK;

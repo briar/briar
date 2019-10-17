@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.viewmodel;
 
-import androidx.annotation.Nullable;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import androidx.annotation.Nullable;
 
 @NotNullByDefault
 public class LiveResult<T> {

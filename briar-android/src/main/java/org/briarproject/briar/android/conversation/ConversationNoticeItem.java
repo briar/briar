@@ -1,13 +1,13 @@
 package org.briarproject.briar.android.conversation;
 
-import androidx.annotation.LayoutRes;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.conversation.ConversationResponse;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+
+import androidx.annotation.LayoutRes;
 
 @NotThreadSafe
 @NotNullByDefault

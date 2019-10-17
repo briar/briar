@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.privategroup.memberlist;
 
-import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -9,6 +7,9 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.AuthorView;
+
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

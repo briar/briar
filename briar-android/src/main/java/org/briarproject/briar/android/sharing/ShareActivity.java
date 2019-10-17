@@ -2,7 +2,6 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -14,6 +13,8 @@ import org.briarproject.briar.android.sharing.BaseMessageFragment.MessageFragmen
 import java.util.Collection;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

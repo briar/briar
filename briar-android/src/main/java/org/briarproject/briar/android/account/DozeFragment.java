@@ -3,7 +3,6 @@ package org.briarproject.briar.android.account;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.account.PowerView.OnCheckedChangedListener;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.util.UiUtils;
+
+import androidx.annotation.Nullable;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;

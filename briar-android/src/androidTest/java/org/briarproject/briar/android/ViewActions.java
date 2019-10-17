@@ -1,17 +1,18 @@
 package org.briarproject.briar.android;
 
 import android.app.Activity;
+import android.view.View;
+
+import org.hamcrest.Matcher;
+
+import java.util.concurrent.TimeoutException;
+
 import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitor;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
-import android.view.View;
-
-import org.hamcrest.Matcher;
-
-import java.util.concurrent.TimeoutException;
 
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.util.HumanReadables.describe;

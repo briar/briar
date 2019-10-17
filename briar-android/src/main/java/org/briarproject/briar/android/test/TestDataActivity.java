@@ -2,7 +2,6 @@ package org.briarproject.briar.android.test;
 
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.appcompat.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.SeekBar;
 import android.widget.SeekBar.OnSeekBarChangeListener;
@@ -14,6 +13,8 @@ import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.api.test.TestDataCreator;
 
 import javax.inject.Inject;
+
+import androidx.appcompat.app.ActionBar;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;

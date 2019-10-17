@@ -1,15 +1,16 @@
 package org.briarproject.briar.android.conversation;
 
-import androidx.annotation.UiThread;
-import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItem;
+
+import androidx.annotation.UiThread;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
 
 import static androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT;
 import static androidx.core.content.ContextCompat.getColor;

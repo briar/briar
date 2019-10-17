@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.sharing;
 
 import android.app.Activity;
-import androidx.annotation.CallSuper;
 
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -23,6 +22,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+
+import androidx.annotation.CallSuper;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;

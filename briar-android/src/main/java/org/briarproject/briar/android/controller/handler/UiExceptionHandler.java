@@ -1,11 +1,11 @@
 package org.briarproject.briar.android.controller.handler;
 
-import androidx.annotation.UiThread;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.DestroyableContext;
 
 import javax.annotation.concurrent.Immutable;
+
+import androidx.annotation.UiThread;
 
 @Immutable
 @NotNullByDefault

@@ -1,23 +1,10 @@
 package org.briarproject.briar.android.conversation;
 
 import android.annotation.SuppressLint;
-import androidx.lifecycle.Observer;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.content.ContextCompat;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.widget.ActionMenuView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.appcompat.widget.Toolbar;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.util.SparseArray;
@@ -28,6 +15,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.Pair;
@@ -96,18 +85,30 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.ActionMenuView;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.app.ActivityOptionsCompat;
+import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt.PromptStateChangeListener;
 
-import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static android.os.Build.VERSION.SDK_INT;
-import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
-import static androidx.core.view.ViewCompat.setTransitionName;
-import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 import static android.view.Gravity.RIGHT;
 import static android.widget.Toast.LENGTH_SHORT;
+import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
+import static androidx.core.view.ViewCompat.setTransitionName;
+import static androidx.lifecycle.Lifecycle.State.STARTED;
+import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;

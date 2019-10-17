@@ -1,12 +1,13 @@
 package org.briarproject.briar.android.attachment;
 
 import android.content.res.Resources;
-import androidx.annotation.VisibleForTesting;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
 import javax.annotation.concurrent.Immutable;
+
+import androidx.annotation.VisibleForTesting;
 
 @Immutable
 @NotNullByDefault

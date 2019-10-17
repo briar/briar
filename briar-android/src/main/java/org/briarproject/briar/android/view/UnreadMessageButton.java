@@ -2,12 +2,12 @@ package org.briarproject.briar.android.view;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import androidx.annotation.UiThread;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
@@ -15,6 +15,8 @@ import org.briarproject.briar.R;
 import java.util.Locale;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
 
 @UiThread
 @NotNullByDefault

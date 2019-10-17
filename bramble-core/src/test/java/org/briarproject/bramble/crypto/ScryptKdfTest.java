@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.system.SystemClock;
+import org.briarproject.bramble.test.ArrayClock;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
@@ -11,8 +12,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static junit.framework.TestCase.assertTrue;
-
-import org.briarproject.bramble.test.ArrayClock;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.junit.Assert.assertEquals;

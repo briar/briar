@@ -1,14 +1,15 @@
 package org.briarproject.briar.android.util;
 
 import android.content.Context;
-import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.SortedList;
-import androidx.recyclerview.widget.RecyclerView.Adapter;
-import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
 import java.util.Collection;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.SortedList;
 
 import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 

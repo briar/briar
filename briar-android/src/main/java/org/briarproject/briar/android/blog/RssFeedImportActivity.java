@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.os.Bundle;
-import androidx.appcompat.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Patterns;
@@ -26,6 +25,8 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.appcompat.app.AlertDialog;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

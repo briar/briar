@@ -3,8 +3,6 @@ package org.briarproject.briar.android;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -13,6 +11,9 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BaseActivity;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.fragment.ErrorFragment;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;

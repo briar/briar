@@ -1,12 +1,12 @@
 package org.briarproject.briar.android.view;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.android.util.ItemReturningAdapter;
+
 import androidx.annotation.CallSuper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener;
-
-import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.util.ItemReturningAdapter;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static java.util.Objects.requireNonNull;

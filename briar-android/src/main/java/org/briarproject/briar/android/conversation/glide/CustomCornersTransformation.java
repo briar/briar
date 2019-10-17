@@ -5,7 +5,6 @@ import android.graphics.BitmapShader;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import androidx.annotation.NonNull;
 
 import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
 import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
@@ -15,6 +14,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import java.security.MessageDigest;
 
 import javax.annotation.concurrent.Immutable;
+
+import androidx.annotation.NonNull;
 
 import static android.graphics.Bitmap.Config.ARGB_8888;
 import static android.graphics.Shader.TileMode.CLAMP;

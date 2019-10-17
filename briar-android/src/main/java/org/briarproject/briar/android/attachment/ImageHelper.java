@@ -1,10 +1,10 @@
 package org.briarproject.briar.android.attachment;
 
-import androidx.annotation.Nullable;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.InputStream;
+
+import androidx.annotation.Nullable;
 
 @NotNullByDefault
 public interface ImageHelper {

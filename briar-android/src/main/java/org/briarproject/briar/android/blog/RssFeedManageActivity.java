@@ -3,12 +3,11 @@ package org.briarproject.briar.android.blog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import com.google.android.material.snackbar.Snackbar;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
@@ -23,6 +22,9 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;

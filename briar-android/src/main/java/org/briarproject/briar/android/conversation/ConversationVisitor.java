@@ -1,8 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
-import androidx.lifecycle.LiveData;
 import android.content.Context;
-import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -22,6 +20,9 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRespons
 import java.util.List;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
 
 import static java.util.Collections.emptyList;
 import static org.briarproject.briar.android.conversation.ConversationRequestItem.RequestType.BLOG;

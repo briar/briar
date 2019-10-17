@@ -3,11 +3,8 @@ package org.briarproject.briar.android.account;
 import android.app.AlarmManager;
 import android.app.Application;
 import android.app.PendingIntent;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 import android.content.Context;
 import android.content.Intent;
-import androidx.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -29,6 +26,10 @@ import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
+
+import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static android.app.AlarmManager.ELAPSED_REALTIME;
 import static android.app.PendingIntent.getService;

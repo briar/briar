@@ -1,8 +1,5 @@
 package org.briarproject.briar.android.privategroup.conversation;
 
-import androidx.annotation.LayoutRes;
-import androidx.annotation.UiThread;
-
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -13,6 +10,9 @@ import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.UiThread;
 
 @UiThread
 @NotThreadSafe
