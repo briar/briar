@@ -12,6 +12,9 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import java.io.InputStream;
 import java.util.List;
 
+import androidx.annotation.Nullable;
+
+
 @NotNullByDefault
 public interface AttachmentRetriever {
 
@@ -33,6 +36,14 @@ public interface AttachmentRetriever {
 	 */
 	AttachmentItem createAttachmentItem(Attachment a, boolean needsSize);
 
+	/**
+	 * Load an {@link AttachmentItem} from the database.
+	 *
+	 * @return a pair of the {@link MessageId} of the conversation message
+	 * and the {@link AttachmentItem}
+	 * or {@code null} when the conversation message did not yet arrive.
+	 */
+	@Nullable
 	@DatabaseExecutor
 	Pair<MessageId, AttachmentItem> loadAttachmentItem(MessageId attachmentId)
 			throws DbException;
