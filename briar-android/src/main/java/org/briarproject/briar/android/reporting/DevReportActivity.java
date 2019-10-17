@@ -15,6 +15,7 @@ import org.briarproject.briar.android.util.UserFeedback;
 
 import java.io.File;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.Toolbar;
@@ -47,17 +48,16 @@ public class DevReportActivity extends BaseCrashReportDialog {
 		super.preInit(savedInstanceState);
 		getDelegate().installViewFactory();
 		getDelegate().onCreate(savedInstanceState);
-		if (getDelegate().applyDayNight()) {
-			// If DayNight has been applied, we need to re-apply the theme for
-			// the changes to take effect. On API 23+, we should bypass
-			// setTheme(), which will no-op if the theme ID is identical to the
-			// current theme ID.
-			int theme = R.style.BriarTheme_NoActionBar;
-			if (SDK_INT >= 23) {
-				onApplyThemeResource(getTheme(), theme, false);
-			} else {
-				setTheme(theme);
-			}
+		getDelegate().applyDayNight();
+		// We always need to re-apply the theme
+		// for day/night the changes to take effect.
+		// On API 23+, we should bypass setTheme(), which will no-op
+		// if the theme ID is identical to the current theme ID.
+		int theme = R.style.BriarTheme_NoActionBar;
+		if (SDK_INT >= 23) {
+			onApplyThemeResource(getTheme(), theme, false);
+		} else {
+			setTheme(theme);
 		}
 	}
 
@@ -92,6 +92,12 @@ public class DevReportActivity extends BaseCrashReportDialog {
 	}
 
 	@Override
+	protected void onStart() {
+		super.onStart();
+		getDelegate().onStart();
+	}
+
+	@Override
 	protected void onPostResume() {
 		super.onPostResume();
 		getDelegate().onPostResume();
@@ -107,6 +113,12 @@ public class DevReportActivity extends BaseCrashReportDialog {
 	public void onConfigurationChanged(Configuration newConfig) {
 		super.onConfigurationChanged(newConfig);
 		getDelegate().onConfigurationChanged(newConfig);
+	}
+
+	@Override
+	protected void onSaveInstanceState(@NonNull Bundle outState) {
+		super.onSaveInstanceState(outState);
+		getDelegate().onSaveInstanceState(outState);
 	}
 
 	@Override
