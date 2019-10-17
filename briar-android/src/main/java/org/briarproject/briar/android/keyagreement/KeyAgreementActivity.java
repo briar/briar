@@ -213,7 +213,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 				if (bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE)
 					setBluetoothState(BluetoothState.DISCOVERABLE);
 			}
-		}
+		} else super.onActivityResult(request, result, data);
 	}
 
 	private void showQrCodeFragment() {

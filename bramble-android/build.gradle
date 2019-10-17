@@ -22,6 +22,14 @@ android {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
+
+	lintOptions {
+		// FIXME
+		warning "LintError"
+		warning "InvalidPackage"
+		warning "MissingPermission"
+		warning "InlinedApi", "ObsoleteSdkInt", "Override", "NewApi", "UnusedAttribute"
+	}
 }
 
 configurations {
