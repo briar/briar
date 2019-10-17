@@ -643,16 +643,21 @@ public class ConversationActivity extends BriarActivity
 		runOnDbThread(() -> {
 			for (AttachmentItem item : items) {
 				if (item.getState() == LOADING)
-					loadMessageAttachment(item.getMessageId());
+					loadMessageAttachment(item.getMessageId(), false);
 			}
 		});
 	}
 
 	@DatabaseExecutor
-	private void loadMessageAttachment(MessageId attachmentId) {
+	private void loadMessageAttachment(MessageId attachmentId,
+			boolean allowedToFail) {
 		try {
-			Pair<MessageId, AttachmentItem> pair =
-					attachmentRetriever.loadAttachmentItem(attachmentId);
+			Pair<MessageId, AttachmentItem> pair = attachmentRetriever
+					.loadAttachmentItem(attachmentId);
+			if (pair == null && allowedToFail) {
+				LOG.warning("Attachment arrived before message");
+				return;
+			} else if (pair == null) throw new AssertionError();
 			MessageId conversationMessageId = pair.getFirst();
 			AttachmentItem item = pair.getSecond();
 			updateMessageAttachment(conversationMessageId, item);
@@ -743,7 +748,9 @@ public class ConversationActivity extends BriarActivity
 
 	@UiThread
 	private void onAttachmentReceived(MessageId attachmentId) {
-		runOnDbThread(() -> loadMessageAttachment(attachmentId));
+		// This is allowed to fail, because the conversation message
+		// might arrive *after* the attachment.
+		runOnDbThread(() -> loadMessageAttachment(attachmentId, true));
 	}
 
 	@UiThread

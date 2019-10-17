@@ -22,6 +22,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
@@ -103,11 +105,12 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	}
 
 	@Override
+	@Nullable
 	@DatabaseExecutor
 	public Pair<MessageId, AttachmentItem> loadAttachmentItem(
 			MessageId attachmentId) throws DbException {
 		UnavailableItem unavailableItem = unavailableItems.get(attachmentId);
-		if (unavailableItem == null) throw new AssertionError();
+		if (unavailableItem == null) return null;
 
 		MessageId conversationMessageId =
 				unavailableItem.getConversationMessageId();
