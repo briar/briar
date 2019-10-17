@@ -30,7 +30,8 @@ public abstract class ScreenshotTest extends UiTest {
 		try {
 			Screengrab.screenshot(name, new FalconScreenshotStrategy(activity));
 		} catch (RuntimeException e) {
-			if (!e.getMessage().equals("Unable to capture screenshot."))
+			if (e.getMessage() == null ||
+					!e.getMessage().equals("Unable to capture screenshot."))
 				throw e;
 			// The tests should still pass when run from AndroidStudio
 			// without manually granting permissions like fastlane does.

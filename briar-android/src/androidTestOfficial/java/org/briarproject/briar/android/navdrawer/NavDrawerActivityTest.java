@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.navdrawer;
 
-import androidx.test.espresso.contrib.DrawerActions;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 import android.view.Gravity;
 
 import org.briarproject.briar.R;
@@ -11,6 +9,9 @@ import org.briarproject.briar.android.settings.SettingsActivity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import androidx.test.espresso.contrib.DrawerActions;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

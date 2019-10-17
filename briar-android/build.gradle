@@ -104,12 +104,12 @@ dependencies {
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:3.0.0'
 	implementation 'com.vanniktech:emoji-google:0.6.0'
 	implementation 'com.github.kobakei:MaterialFabSpeedDial:1.2.1'
+	implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 	def glideVersion = '4.10.0'
 	implementation("com.github.bumptech.glide:glide:$glideVersion") {
 		exclude group: 'com.android.support'
 		exclude module: 'disklrucache' // when there's no disk cache, we can't accidentally use it
 	}
-	implementation 'com.github.chrisbanes:PhotoView:2.3.0'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
 	annotationProcessor "com.github.bumptech.glide:compiler:$glideVersion"
@@ -131,13 +131,17 @@ dependencies {
 	testImplementation "org.jmock:jmock-junit4:$jmockVersion"
 	testImplementation "org.jmock:jmock-legacy:$jmockVersion"
 
+	androidTestImplementation 'androidx.test.ext:junit:1.1.1'
 	androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 	androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
 	androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
 	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.24"
 	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
 	androidTestImplementation 'junit:junit:4.12'
-	androidTestScreenshotImplementation "tools.fastlane:screengrab:1.2.0"
+	androidTestScreenshotImplementation('tools.fastlane:screengrab:1.2.0') {
+		// workaround for jetifier issue https://issuetracker.google.com/issues/123060356
+		exclude group: 'com.android.support.test.uiautomator'
+	}
 	androidTestScreenshotImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 }
 

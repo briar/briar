@@ -1,10 +1,6 @@
 package org.briarproject.briar.android.settings;
 
 import android.content.Intent;
-import androidx.test.espresso.contrib.DrawerActions;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.recyclerview.widget.RecyclerView;
 import android.view.Gravity;
 
 import org.briarproject.briar.R;
@@ -14,6 +10,11 @@ import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.test.espresso.contrib.DrawerActions;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;

@@ -62,7 +62,6 @@ dependencyVerification {
         'ch.acra:acra:4.11:acra-4.11.aar:21ca06be074749c9aaf3f7df67fcbe3695e633b92e691f025af55cabde22e551',
         'classworlds:classworlds:1.1-alpha-2:classworlds-1.1-alpha-2.jar:2bf4e59f3acd106fea6145a9a88fe8956509f8b9c0fdd11eb96fee757269e3f3',
         'com.almworks.sqlite4java:sqlite4java:0.282:sqlite4java-0.282.jar:9e1d8dd83ca6003f841e3af878ce2dc7c22497493a7bb6d1b62ec1b0d0a83c05',
-        'com.android.support.test.uiautomator:uiautomator-v18:2.1.2:uiautomator-v18-2.1.2.aar:ebedea0ff22ad4a31bb59c58b3fc3f047f235c1e9650468df6da47e02487719d',
         'com.android.tools.analytics-library:protos:26.5.1:protos-26.5.1.jar:8dde1130725461fe827f2a343d353f2b51e8870661fc860d7d5ebddb097ead4e',
         'com.android.tools.analytics-library:shared:26.5.1:shared-26.5.1.jar:ccc2f3b00ec17b11401610ba68553544fc8fc517120e84439ac6eb86b875e18d',
         'com.android.tools.analytics-library:tracker:26.5.1:tracker-26.5.1.jar:3a76984c0fe2e847ca7a8b35b4780ef0447a9d1666946cb8e60466318e0ab5ae',

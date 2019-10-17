@@ -2,7 +2,6 @@ package org.briarproject.briar.android;
 
 import android.app.Activity;
 import android.content.Intent;
-import androidx.test.espresso.intent.rule.IntentsTestRule;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -12,13 +11,16 @@ import org.briarproject.briar.R;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.support.test.InstrumentationRegistry.getTargetContext;
+import androidx.test.espresso.intent.rule.IntentsTestRule;
+
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+
 
 @SuppressWarnings("WeakerAccess")
 public abstract class UiTest {
 
 	protected final String USERNAME =
-			getTargetContext().getString(R.string.screenshot_alice);
+			getApplicationContext().getString(R.string.screenshot_alice);
 	protected static final String PASSWORD = "123456";
 
 	@Inject
@@ -27,9 +29,7 @@ public abstract class UiTest {
 	protected LifecycleManager lifecycleManager;
 
 	public UiTest() {
-		BriarTestComponentApplication app =
-				(BriarTestComponentApplication) getTargetContext()
-						.getApplicationContext();
+		BriarTestComponentApplication app = getApplicationContext();
 		inject((BriarUiTestComponent) app.getApplicationComponent());
 	}
 
@@ -64,8 +64,8 @@ public abstract class UiTest {
 			accountManager.createAccount(USERNAME, PASSWORD);
 			if (runnable != null) {
 				Intent serviceIntent =
-						new Intent(getTargetContext(), BriarService.class);
-				getTargetContext().startService(serviceIntent);
+						new Intent(getApplicationContext(), BriarService.class);
+				getApplicationContext().startService(serviceIntent);
 				try {
 					lifecycleManager.waitForStartup();
 				} catch (InterruptedException e) {

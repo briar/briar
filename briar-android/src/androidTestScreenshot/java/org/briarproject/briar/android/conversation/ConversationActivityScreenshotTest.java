@@ -1,25 +1,19 @@
-package org.briarproject.briar.android.contact;
+package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.content.Intent;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarUiTestComponent;
 import org.briarproject.briar.android.ScreenshotTest;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static androidx.test.espresso.Espresso.onView;
-import static androidx.test.espresso.matcher.ViewMatchers.isCompletelyDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
-import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
-import static org.briarproject.briar.android.contact.ConversationActivity.CONTACT_ID;
-import static org.hamcrest.Matchers.allOf;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
+
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
 @RunWith(AndroidJUnit4.class)
 public class ConversationActivityScreenshotTest extends ScreenshotTest {
@@ -34,17 +28,13 @@ public class ConversationActivityScreenshotTest extends ScreenshotTest {
 	}
 
 	@Test
-	public void messaging() throws Exception {
-		Context targetContext = getInstrumentation().getTargetContext();
+	public void messaging() {
+		Context targetContext = getApplicationContext();
 		Intent intent = new Intent(targetContext, ConversationActivity.class);
 		intent.putExtra(CONTACT_ID, 1);
 		testRule.launchActivity(intent);
 
-		onView(withId(R.id.conversationView))
-				.perform(waitUntilMatches(allOf(
-						withText(R.string.screenshot_message_3),
-						isCompletelyDisplayed())
-				));
+		// TODO add test data and wait for it do appear
 
 		screenshot("manual_messaging", testRule.getActivity());
 	}

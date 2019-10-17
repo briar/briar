@@ -2,18 +2,19 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.content.Intent;
-import androidx.test.rule.ActivityTestRule;
-import androidx.test.ext.junit.runners.AndroidJUnit4;
 
 import org.briarproject.briar.R;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.rule.ActivityTestRule;
+
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
