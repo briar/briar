@@ -36,6 +36,7 @@ dependencyVerification {
         'androidx.localbroadcastmanager:localbroadcastmanager:1.0.0:localbroadcastmanager-1.0.0.aar:e71c328ceef5c4a7d76f2d86df1b65d65fe2acf868b1a4efd84a3f34336186d8',
         'androidx.preference:preference:1.1.0:preference-1.1.0.aar:6cf1a099b03b3254041b04701841865b2708c0b546b9036c8b0dada0aa59de57',
         'androidx.print:print:1.0.0:print-1.0.0.aar:1d5c7f3135a1bba661fc373fd72e11eb0a4adbb3396787826dd8e4190d5d9edd',
+        'androidx.recyclerview:recyclerview-selection:1.0.0:recyclerview-selection-1.0.0.aar:db3db72af8cfcd701ab6ed7a080327a2e993e3a429f5efb8f0c108bff38c4922',
         'androidx.recyclerview:recyclerview:1.1.0-beta04:recyclerview-1.1.0-beta04.aar:c3c8310eb058a660a845cf814a54f56e6f448b7855f9ccea2a5ad18189f57f69',
         'androidx.savedstate:savedstate:1.0.0:savedstate-1.0.0.aar:2510a5619c37579c9ce1a04574faaf323cd0ffe2fc4e20fa8f8f01e5bb402e83',
         'androidx.test.espresso:espresso-contrib:3.2.0:espresso-contrib-3.2.0.aar:9e43811e5845e84f2964f0032fd50cd11dca3dc8d3b0703626dd12d50433bb35',

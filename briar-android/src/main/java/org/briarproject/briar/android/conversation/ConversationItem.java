@@ -10,6 +10,8 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import androidx.annotation.LayoutRes;
 
+import static org.briarproject.bramble.util.StringUtils.toHexString;
+
 @NotThreadSafe
 @NotNullByDefault
 abstract class ConversationItem {
@@ -43,6 +45,10 @@ abstract class ConversationItem {
 
 	MessageId getId() {
 		return id;
+	}
+
+	String getKey() {
+		return toHexString(id.getBytes());
 	}
 
 	GroupId getGroupId() {

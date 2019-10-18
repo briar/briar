@@ -61,8 +61,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 	}
 
 	@Override
-	void bind(ConversationItem conversationItem) {
-		super.bind(conversationItem);
+	void bind(ConversationItem conversationItem, boolean selected) {
+		super.bind(conversationItem, selected);
 		ConversationMessageItem item =
 				(ConversationMessageItem) conversationItem;
 		if (item.getAttachments().isEmpty()) {

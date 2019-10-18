@@ -13,11 +13,13 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 import org.briarproject.briar.android.util.ItemReturningAdapter;
 
-import javax.annotation.Nullable;
-
 import androidx.annotation.LayoutRes;
+import androidx.annotation.Nullable;
+import androidx.recyclerview.selection.SelectionTracker;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
+
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
 @NotNullByDefault
 class ConversationAdapter
@@ -27,6 +29,8 @@ class ConversationAdapter
 	private ConversationListener listener;
 	private final RecycledViewPool imageViewPool;
 	private final ImageItemDecoration imageItemDecoration;
+	@Nullable
+	private SelectionTracker<String> tracker = null;
 
 	ConversationAdapter(Context ctx,
 			ConversationListener conversationListener) {
@@ -43,6 +47,17 @@ class ConversationAdapter
 	public int getItemViewType(int position) {
 		ConversationItem item = items.get(position);
 		return item.getLayout();
+	}
+
+	String getItemKey(int position) {
+		return items.get(position).getKey();
+	}
+
+	int getPositionOfKey(String key) {
+		for (int i = 0; i < items.size(); i++) {
+			if (key.equals(items.get(i).getKey())) return i;
+		}
+		return NO_POSITION;
 	}
 
 	@Override
@@ -71,7 +86,8 @@ class ConversationAdapter
 	@Override
 	public void onBindViewHolder(ConversationItemViewHolder ui, int position) {
 		ConversationItem item = items.get(position);
-		ui.bind(item);
+		boolean selected = tracker != null && tracker.isSelected(item.getKey());
+		ui.bind(item, selected);
 	}
 
 	@Override
@@ -89,6 +105,10 @@ class ConversationAdapter
 	public boolean areContentsTheSame(ConversationItem c1,
 			ConversationItem c2) {
 		return c1.equals(c2);
+	}
+
+	void setSelectionTracker(SelectionTracker<String> tracker) {
+		this.tracker = tracker;
 	}
 
 	@Nullable

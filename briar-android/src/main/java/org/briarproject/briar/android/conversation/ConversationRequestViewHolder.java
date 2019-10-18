@@ -26,9 +26,9 @@ class ConversationRequestViewHolder extends ConversationNoticeViewHolder {
 	}
 
 	@Override
-	void bind(ConversationItem item) {
+	void bind(ConversationItem item, boolean selected) {
 		ConversationRequestItem request = (ConversationRequestItem) item;
-		super.bind(request);
+		super.bind(request, selected);
 
 		if (request.wasAnswered() && request.canBeOpened()) {
 			acceptButton.setVisibility(VISIBLE);

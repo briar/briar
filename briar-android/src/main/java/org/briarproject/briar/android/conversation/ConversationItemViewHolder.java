@@ -25,6 +25,8 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	private final OutItemViewHolder outViewHolder;
 	private final TextView text;
 	protected final TextView time;
+	@Nullable
+	private String itemKey = null;
 
 	ConversationItemViewHolder(View v, ConversationListener listener,
 			boolean isIncoming) {
@@ -37,7 +39,9 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	}
 
 	@CallSuper
-	void bind(ConversationItem item) {
+	void bind(ConversationItem item, boolean selected) {
+		itemKey = item.getKey();
+
 		if (item.getText() != null) {
 			text.setText(trim(item.getText()));
 		}
@@ -50,6 +54,11 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 
 	boolean isIncoming() {
 		return outViewHolder == null;
+	}
+
+	@Nullable
+	String getItemKey() {
+		return itemKey;
 	}
 
 }

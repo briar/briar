@@ -8,6 +8,7 @@
 		<item name="android:textColorLink">@color/briar_text_link</item>
 		<item name="android:windowBackground">@color/window_background</item>
 		<item name="android:windowAnimationStyle">@style/ActivityAnimation</item>
+		<item name="windowActionModeOverlay">true</item>
 		<item name="alertDialogTheme">@style/BriarDialogTheme.Neutral</item>
 		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
 	</style>
