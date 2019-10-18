@@ -4,8 +4,9 @@
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:layout_marginTop="@dimen/message_bubble_margin"
-	android:orientation="vertical">
+	android:background="@drawable/list_item_background_selectable"
+	android:orientation="vertical"
+	android:paddingTop="@dimen/message_bubble_margin">
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/msgText"
