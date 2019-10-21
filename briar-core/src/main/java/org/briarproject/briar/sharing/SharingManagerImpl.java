@@ -539,13 +539,80 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return m;
 	}
 
+	@FunctionalInterface
+	private interface DeletableSessionRetriever {
+		Map<GroupId, DeletableSession> getDeletableSessions(
+				GroupId contactGroup, Map<MessageId, BdfDictionary> metadata)
+				throws DbException;
+	}
+
+	@FunctionalInterface
+	private interface MessageDeletionChecker {
+		/**
+		 * This is called for all messages belonging to a session.
+		 * It returns true if the given {@link MessageId} causes a problem
+		 * so that the session can not be deleted.
+		 */
+		boolean causesProblem(MessageId messageId) throws DbException;
+	}
+
 	@Override
 	public boolean deleteAllMessages(Transaction txn, ContactId c)
+			throws DbException {
+		return deleteMessages(txn, c, (contactGroup, metadata) -> {
+			// get all sessions and their states
+			Map<GroupId, DeletableSession> sessions = new HashMap<>();
+			for (BdfDictionary d : metadata.values()) {
+				if (!sessionParser.isSession(d)) continue;
+				Session session;
+				try {
+					session = sessionParser.parseSession(contactGroup, d);
+				} catch (FormatException e) {
+					throw new DbException(e);
+				}
+				sessions.put(session.getShareableId(),
+						new DeletableSession(session.getState()));
+			}
+			return sessions;
+		}, messageId -> false);
+	}
+
+	@Override
+	public boolean deleteMessages(Transaction txn, ContactId c,
+			Set<MessageId> messageIds) throws DbException {
+		return deleteMessages(txn, c, (g, metadata) -> {
+			// get only sessions from given messageIds
+			Map<GroupId, DeletableSession> sessions = new HashMap<>();
+			for (MessageId messageId : messageIds) {
+				BdfDictionary d = metadata.get(messageId);
+				if (d == null) continue;  // throw new NoSuchMessageException()
+				try {
+					MessageMetadata messageMetadata =
+							messageParser.parseMetadata(d);
+					SessionId sessionId =
+							getSessionId(messageMetadata.getShareableId());
+					StoredSession ss = getSession(txn, g, sessionId);
+					if (ss == null) throw new DbException();
+					Session session = sessionParser
+							.parseSession(g, metadata.get(ss.storageId));
+					sessions.put(session.getShareableId(),
+							new DeletableSession(session.getState()));
+				} catch (FormatException e) {
+					throw new DbException(e);
+				}
+			}
+			return sessions;
+			// don't delete sessions if a message is not part of messageIds
+		}, messageId -> !messageIds.contains(messageId));
+	}
+
+	private boolean deleteMessages(Transaction txn, ContactId c,
+			DeletableSessionRetriever retriever, MessageDeletionChecker checker)
 			throws DbException {
 		// get ID of the contact group
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 
-		// get metadata for all messages in the
+		// get metadata for all messages in the group
 		// (these are sessions *and* protocol messages)
 		Map<MessageId, BdfDictionary> metadata;
 		try {
@@ -555,18 +622,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		}
 
 		// get all sessions and their states
-		Map<GroupId, DeletableSession> sessions = new HashMap<>();
-		for (BdfDictionary d : metadata.values()) {
-			if (!sessionParser.isSession(d)) continue;
-			Session session;
-			try {
-				session = sessionParser.parseSession(g, d);
-			} catch (FormatException e) {
-				throw new DbException(e);
-			}
-			sessions.put(session.getShareableId(),
-					new DeletableSession(session.getState()));
-		}
+		Map<GroupId, DeletableSession> sessions =
+				retriever.getDeletableSessions(g, metadata);
 
 		// assign protocol messages to their sessions
 		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
@@ -585,7 +642,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 
 			// add visible messages to session
 			DeletableSession session = sessions.get(m.getShareableId());
-			session.messages.add(entry.getKey());
+			if (session != null) session.messages.add(entry.getKey());
 		}
 
 		// get a set of all messages which were not ACKed by the contact
@@ -593,15 +650,15 @@ abstract class SharingManagerImpl<S extends Shareable>
 		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
 			if (!status.isSeen()) notAcked.add(status.getMessageId());
 		}
-		boolean allDeleted =
-				deleteCompletedSessions(txn, sessions.values(), notAcked);
+		boolean allDeleted = deleteCompletedSessions(txn, sessions.values(),
+				notAcked, checker);
 		recalculateGroupCount(txn, g);
 		return allDeleted;
 	}
 
 	private boolean deleteCompletedSessions(Transaction txn,
-			Collection<DeletableSession> sessions, Set<MessageId> notAcked)
-			throws DbException {
+			Collection<DeletableSession> sessions, Set<MessageId> notAcked,
+			MessageDeletionChecker checker) throws DbException {
 		// find completed sessions to delete
 		boolean allDeleted = true;
 		for (DeletableSession session : sessions) {
@@ -613,7 +670,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 			// where delivery of all messages was confirmed (aka ACKed)
 			boolean allAcked = true;
 			for (MessageId m : session.messages) {
-				if (notAcked.contains(m)) {
+				if (notAcked.contains(m) || checker.causesProblem(m)) {
 					allAcked = false;
 					allDeleted = false;
 					break;
@@ -627,12 +684,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 			}
 		}
 		return allDeleted;
-	}
-
-	@Override
-	public boolean deleteMessages(Transaction txn, ContactId c,
-			Set<MessageId> messageIds) throws DbException {
-		return false;
 	}
 
 	@Override
