@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
@@ -47,6 +48,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -361,6 +363,21 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			}
 		}
 		return headers;
+	}
+
+	@Override
+	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
+			throws DbException {
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE));
+		try {
+			Map<MessageId, BdfDictionary> results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+			return results.keySet();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	@Override

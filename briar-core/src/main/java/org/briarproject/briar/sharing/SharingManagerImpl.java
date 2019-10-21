@@ -629,7 +629,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return allDeleted;
 	}
 
-	private Set<MessageId> getMessageIds(Transaction txn, ContactId c)
+	@Override
+	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
 			throws DbException {
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();

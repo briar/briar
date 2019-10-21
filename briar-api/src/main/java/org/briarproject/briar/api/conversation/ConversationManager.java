@@ -12,6 +12,7 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.util.Collection;
+import java.util.Set;
 
 @NotNullByDefault
 public interface ConversationManager {
@@ -50,6 +51,13 @@ public interface ConversationManager {
 
 		Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn,
 				ContactId contactId) throws DbException;
+
+		/**
+		 * Returns all conversation {@link MessageId}s for the given contact
+		 * this client is responsible for.
+		 */
+		Set<MessageId> getMessageIds(Transaction txn, ContactId contactId)
+				throws DbException;
 
 		GroupCount getGroupCount(Transaction txn, ContactId c)
 				throws DbException;
