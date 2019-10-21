@@ -661,6 +661,12 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
+	public boolean deleteMessages(Transaction txn, ContactId c,
+			Set<MessageId> messageIds) throws DbException {
+		return false;
+	}
+
+	@Override
 	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
 			throws DbException {
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();

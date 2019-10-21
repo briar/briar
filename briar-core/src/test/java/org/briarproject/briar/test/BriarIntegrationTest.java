@@ -354,7 +354,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		syncMessage(c1, c2, contactId2From1, num, valid);
 	}
 
-	private void syncMessage(BriarIntegrationTestComponent fromComponent,
+	protected void syncMessage(BriarIntegrationTestComponent fromComponent,
 			BriarIntegrationTestComponent toComponent, ContactId toId, int num,
 			boolean valid) throws Exception {
 

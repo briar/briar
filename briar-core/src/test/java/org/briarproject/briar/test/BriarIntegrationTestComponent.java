@@ -19,6 +19,8 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
+import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.blog.BlogModule;
@@ -103,7 +105,11 @@ public interface BriarIntegrationTestComponent
 
 	MessageTracker getMessageTracker();
 
+	MessagingManager getMessagingManager();
+
 	PrivateGroupManager getPrivateGroupManager();
+
+	PrivateMessageFactory getPrivateMessageFactory();
 
 	TransportPropertyManager getTransportPropertyManager();
 

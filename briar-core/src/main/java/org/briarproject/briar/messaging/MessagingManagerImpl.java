@@ -435,4 +435,42 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		return true;
 	}
 
+	@Override
+	public boolean deleteMessages(Transaction txn, ContactId c,
+			Set<MessageId> messageIds) throws DbException {
+		for (MessageId messageId : messageIds) {
+			db.deleteMessage(txn, messageId);
+			db.deleteMessageMetadata(txn, messageId);
+		}
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		recalculateGroupCount(txn, g);
+		return true;
+	}
+
+	private void recalculateGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE));
+		Map<MessageId, BdfDictionary> results;
+		try {
+			results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		int msgCount = results.size();
+		int unreadCount = 0;
+		for (Map.Entry<MessageId, BdfDictionary> entry : results.entrySet()) {
+			BdfDictionary meta = entry.getValue();
+			boolean read;
+			try {
+				read = meta.getBoolean(MSG_KEY_READ);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			if (!read) unreadCount++;
+		}
+		messageTracker.resetGroupCount(txn, g, msgCount, unreadCount);
+	}
+
 }

@@ -72,6 +72,17 @@ public interface ConversationManager {
 		 */
 		boolean deleteAllMessages(Transaction txn,
 				ContactId c) throws DbException;
+
+		/**
+		 * Deletes the given set of messages associated with the given contact.
+		 * <p>
+		 * The set of message IDs must only include message IDs returned by
+		 * {@link #getMessageIds}.
+		 *
+		 * @return true if all messages could be deleted, false otherwise
+		 */
+		boolean deleteMessages(Transaction txn, ContactId c,
+				Set<MessageId> messageIds) throws DbException;
 	}
 
 }
