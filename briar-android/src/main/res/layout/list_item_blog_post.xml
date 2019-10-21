@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
-	android:id="@+id/postLayout"
-	style="@style/BriarCard"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/postLayout"
+	style="@style/BriarCard"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:foreground="?attr/selectableItemBackground">
@@ -17,30 +16,30 @@
 			android:id="@+id/rebloggerView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/listitem_horizontal_margin"
-			android:layout_marginEnd="@dimen/listitem_vertical_margin"
-			android:layout_marginLeft="@dimen/listitem_vertical_margin"
-			android:layout_marginRight="@dimen/listitem_vertical_margin"
 			android:layout_marginStart="@dimen/listitem_vertical_margin"
+			android:layout_marginLeft="@dimen/listitem_vertical_margin"
 			android:layout_marginTop="@dimen/listitem_vertical_margin"
+			android:layout_marginEnd="@dimen/listitem_vertical_margin"
+			android:layout_marginRight="@dimen/listitem_vertical_margin"
+			android:layout_marginBottom="@dimen/listitem_horizontal_margin"
 			app:layout_constraintEnd_toStartOf="@+id/commentView"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:persona="reblogger"/>
+			app:persona="reblogger" />
 
 		<org.briarproject.briar.android.view.AuthorView
 			android:id="@+id/authorView"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="@dimen/listitem_horizontal_margin"
-			android:layout_marginEnd="@dimen/listitem_vertical_margin"
-			android:layout_marginLeft="@dimen/listitem_vertical_margin"
-			android:layout_marginRight="@dimen/listitem_vertical_margin"
 			android:layout_marginStart="@dimen/listitem_vertical_margin"
+			android:layout_marginLeft="@dimen/listitem_vertical_margin"
 			android:layout_marginTop="@dimen/listitem_vertical_margin"
+			android:layout_marginEnd="@dimen/listitem_vertical_margin"
+			android:layout_marginRight="@dimen/listitem_vertical_margin"
+			android:layout_marginBottom="@dimen/listitem_horizontal_margin"
 			app:layout_constraintEnd_toStartOf="@+id/commentView"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/rebloggerView"/>
+			app:layout_constraintTop_toBottomOf="@+id/rebloggerView" />
 
 		<androidx.appcompat.widget.AppCompatImageButton
 			android:id="@+id/commentView"
@@ -51,7 +50,7 @@
 			android:src="@drawable/ic_repeat"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:tint="?attr/colorControlNormal"/>
+			app:tint="?attr/colorControlNormal" />
 
 		<com.vanniktech.emoji.EmojiTextView
 			android:id="@+id/textView"
@@ -63,7 +62,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/authorView"
-			tools:text="This is a body text that shows the content of a blog post.\n\nThis one is not short, but it is also not too long."/>
+			tools:text="This is a body text that shows the content of a blog post.\n\nThis one is not short, but it is also not too long." />
 
 		<!-- TODO replace with RecyclerView -->
 		<LinearLayout
@@ -77,7 +76,7 @@
 			<include
 				layout="@layout/list_item_blog_comment"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content" />
 
 		</LinearLayout>
 

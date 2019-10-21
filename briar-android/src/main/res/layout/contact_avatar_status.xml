@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="32dp"
@@ -13,7 +12,7 @@
 		android:layout_width="30dp"
 		android:layout_height="30dp"
 		app:civ_border_color="@color/action_bar_text"
-		tools:src="@mipmap/ic_launcher_round"/>
+		tools:src="@mipmap/ic_launcher_round" />
 
 	<ImageView
 		android:id="@+id/contactStatus"
@@ -22,6 +21,6 @@
 		android:layout_gravity="bottom|end|right"
 		android:scaleType="fitCenter"
 		tools:ignore="ContentDescription"
-		tools:src="@drawable/contact_online"/>
+		tools:src="@drawable/contact_online" />
 
 </FrameLayout>

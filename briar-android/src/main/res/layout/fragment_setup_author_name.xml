@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -10,12 +9,12 @@
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:paddingBottom="@dimen/margin_activity_vertical"
-		android:paddingEnd="@dimen/margin_activity_horizontal"
-		android:paddingLeft="@dimen/margin_activity_horizontal"
-		android:paddingRight="@dimen/margin_activity_horizontal"
 		android:paddingStart="@dimen/margin_activity_horizontal"
-		android:paddingTop="@dimen/margin_activity_vertical">
+		android:paddingLeft="@dimen/margin_activity_horizontal"
+		android:paddingTop="@dimen/margin_activity_vertical"
+		android:paddingEnd="@dimen/margin_activity_horizontal"
+		android:paddingRight="@dimen/margin_activity_horizontal"
+		android:paddingBottom="@dimen/margin_activity_vertical">
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/nickname_entry_wrapper"
@@ -35,9 +34,9 @@
 				android:hint="@string/choose_nickname"
 				android:imeOptions="actionNext"
 				android:inputType="text|textCapWords"
-				android:maxLines="1"/>
+				android:maxLines="1" />
 
-			<requestFocus/>
+			<requestFocus />
 
 		</com.google.android.material.textfield.TextInputLayout>
 
@@ -54,7 +53,7 @@
 			app:layout_constraintRight_toRightOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/nickname_entry_wrapper"
 			app:layout_constraintVertical_bias="1.0"
-			tools:enabled="true"/>
+			tools:enabled="true" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

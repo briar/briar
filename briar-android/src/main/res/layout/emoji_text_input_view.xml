@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -18,7 +17,7 @@
 		android:padding="@dimen/margin_small"
 		android:scaleType="center"
 		android:src="@drawable/ic_emoji_toggle"
-		app:tint="?attr/colorControlNormal"/>
+		app:tint="?attr/colorControlNormal" />
 
 	<com.vanniktech.emoji.EmojiEditText
 		android:id="@+id/input_text"
@@ -30,6 +29,6 @@
 		android:inputType="textMultiLine|textCapSentences|textAutoCorrect"
 		android:minHeight="@dimen/text_input_height"
 		android:textColor="?android:attr/textColorPrimary"
-		tools:text="Line 1\nLine 2\nLine 3"/>
+		tools:text="Line 1\nLine 2\nLine 3" />
 
 </merge>

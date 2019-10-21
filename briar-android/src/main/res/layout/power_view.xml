@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -11,16 +10,16 @@
 		android:id="@+id/textView"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/margin_large"
-		android:layout_marginLeft="@dimen/margin_large"
-		android:layout_marginRight="@dimen/margin_large"
 		android:layout_marginStart="@dimen/margin_large"
+		android:layout_marginLeft="@dimen/margin_large"
 		android:layout_marginTop="@dimen/margin_medium"
+		android:layout_marginEnd="@dimen/margin_large"
+		android:layout_marginRight="@dimen/margin_large"
 		android:textSize="@dimen/text_size_medium"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:text="@string/setup_huawei_text"/>
+		tools:text="@string/setup_huawei_text" />
 
 	<androidx.appcompat.widget.AppCompatImageView
 		android:id="@+id/checkImage"
@@ -33,7 +32,7 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/button"
 		app:tint="?attr/colorControlNormal"
-		tools:ignore="ContentDescription"/>
+		tools:ignore="ContentDescription" />
 
 	<Button
 		android:id="@+id/button"
@@ -44,7 +43,7 @@
 		app:layout_constraintEnd_toStartOf="@+id/helpButton"
 		app:layout_constraintStart_toEndOf="@+id/checkImage"
 		app:layout_constraintTop_toBottomOf="@+id/textView"
-		tools:text="@string/setup_huawei_button"/>
+		tools:text="@string/setup_huawei_button" />
 
 	<ImageButton
 		android:id="@+id/helpButton"
@@ -57,6 +56,6 @@
 		android:tint="@color/briar_button_text_positive"
 		app:layout_constraintBottom_toBottomOf="@+id/button"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintTop_toTopOf="@+id/button"/>
+		app:layout_constraintTop_toTopOf="@+id/button" />
 
 </merge>

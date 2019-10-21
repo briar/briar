@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -13,23 +12,23 @@
 		style="@style/TextMessage"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/message_bubble_margin_non_tail"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:layout_marginStart="@dimen/message_bubble_margin_tail"
+		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
+		android:layout_marginEnd="@dimen/message_bubble_margin_non_tail"
+		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:background="@drawable/msg_in_top"
 		android:elevation="@dimen/message_bubble_elevation"
-		tools:text="Short message"/>
+		tools:text="Short message" />
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="@dimen/message_bubble_margin"
-		android:layout_marginEnd="@dimen/message_bubble_margin_non_tail"
-		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
-		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:layout_marginStart="@dimen/message_bubble_margin_tail"
+		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
+		android:layout_marginEnd="@dimen/message_bubble_margin_non_tail"
+		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
+		android:layout_marginBottom="@dimen/message_bubble_margin"
 		android:background="@drawable/notice_in_bottom"
 		android:elevation="@dimen/message_bubble_elevation">
 
@@ -40,7 +39,7 @@
 			android:layout_height="wrap_content"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			tools:text="@string/forum_invitation_received"/>
+			tools:text="@string/forum_invitation_received" />
 
 		<TextView
 			android:id="@+id/time"
@@ -50,7 +49,7 @@
 			android:layout_marginTop="@dimen/message_bubble_timestamp_margin"
 			app:layout_constraintEnd_toEndOf="@+id/text"
 			app:layout_constraintTop_toBottomOf="@+id/text"
-			tools:text="Dec 24, 13:37"/>
+			tools:text="Dec 24, 13:37" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

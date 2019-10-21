@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.briarproject.briar.android.view.PullDownLayout
-	android:id="@+id/layout"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<org.briarproject.briar.android.view.PullDownLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/layout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:background="@color/briar_black"
@@ -12,7 +11,7 @@
 		android:id="@+id/viewPager"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
-		tools:background="@color/briar_green_light"/>
+		tools:background="@color/briar_green_light" />
 
 	<com.google.android.material.appbar.AppBarLayout
 		android:id="@+id/appBarLayout"
@@ -41,14 +40,14 @@
 					android:ellipsize="end"
 					android:maxLines="1"
 					android:textColor="@color/action_bar_text"
-					tools:text="Contact Name of someone who chose a long name"/>
+					tools:text="Contact Name of someone who chose a long name" />
 
 				<TextView
 					android:id="@+id/dateView"
 					android:layout_width="wrap_content"
 					android:layout_height="wrap_content"
 					android:textColor="@color/action_bar_text"
-					tools:text="date"/>
+					tools:text="date" />
 
 			</LinearLayout>
 

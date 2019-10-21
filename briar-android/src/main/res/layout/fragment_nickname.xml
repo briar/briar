@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -17,7 +16,7 @@
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			android:orientation="vertical"
-			app:layout_constraintGuide_percent="0.5"/>
+			app:layout_constraintGuide_percent="0.5" />
 
 		<androidx.appcompat.widget.AppCompatImageView
 			android:id="@+id/stepOne"
@@ -27,7 +26,7 @@
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
 			app:layout_constraintVertical_bias="0.0"
-			app:layout_constraintVertical_chainStyle="packed"/>
+			app:layout_constraintVertical_chainStyle="packed" />
 
 		<TextView
 			android:id="@+id/stepOneText"
@@ -38,7 +37,7 @@
 			app:layout_constraintBottom_toTopOf="@+id/imageView"
 			app:layout_constraintEnd_toStartOf="@+id/guideline"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/stepOne"/>
+			app:layout_constraintTop_toBottomOf="@+id/stepOne" />
 
 		<View
 			android:id="@+id/stepConnector"
@@ -49,7 +48,7 @@
 			app:layout_constraintBottom_toBottomOf="@+id/stepOne"
 			app:layout_constraintEnd_toStartOf="@+id/stepTwo"
 			app:layout_constraintStart_toEndOf="@+id/stepOne"
-			app:layout_constraintTop_toTopOf="@+id/stepOne"/>
+			app:layout_constraintTop_toTopOf="@+id/stepOne" />
 
 		<TextView
 			android:id="@+id/stepTwo"
@@ -60,7 +59,7 @@
 			app:layout_constraintStart_toStartOf="@+id/guideline"
 			app:layout_constraintTop_toTopOf="@+id/stepOne"
 			app:layout_constraintVertical_bias="0.0"
-			app:layout_constraintVertical_chainStyle="packed"/>
+			app:layout_constraintVertical_chainStyle="packed" />
 
 		<TextView
 			android:id="@+id/stepTwoText"
@@ -71,7 +70,7 @@
 			app:layout_constraintBottom_toTopOf="@+id/imageView"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@+id/guideline"
-			app:layout_constraintTop_toBottomOf="@+id/stepTwo"/>
+			app:layout_constraintTop_toBottomOf="@+id/stepTwo" />
 
 		<ImageView
 			android:id="@+id/imageView"
@@ -85,7 +84,7 @@
 			app:layout_constraintHeight_max="256dp"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/stepOneText"
-			tools:ignore="ContentDescription"/>
+			tools:ignore="ContentDescription" />
 
 		<androidx.appcompat.widget.AppCompatImageView
 			android:id="@+id/nicknameIcon"
@@ -98,21 +97,21 @@
 			app:layout_constraintBottom_toTopOf="@+id/contactNameLayout"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/imageView"
-			app:tint="@color/briar_white"/>
+			app:tint="@color/briar_white" />
 
 		<TextView
 			android:id="@+id/nicknameIntro"
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
-			android:layout_marginLeft="8dp"
 			android:layout_marginStart="8dp"
+			android:layout_marginLeft="8dp"
 			android:gravity="left|start"
 			android:text="@string/nickname_intro"
 			android:textSize="16sp"
 			app:layout_constraintBottom_toBottomOf="@+id/nicknameIcon"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@+id/nicknameIcon"
-			app:layout_constraintTop_toTopOf="@+id/nicknameIcon"/>
+			app:layout_constraintTop_toTopOf="@+id/nicknameIcon" />
 
 		<com.google.android.material.textfield.TextInputLayout
 			android:id="@+id/contactNameLayout"
@@ -133,7 +132,7 @@
 				android:layout_height="match_parent"
 				android:hint="@string/add_contact_choose_a_nickname"
 				android:importantForAutofill="no"
-				android:inputType="text|textCapWords"/>
+				android:inputType="text|textCapWords" />
 
 		</com.google.android.material.textfield.TextInputLayout>
 
@@ -145,7 +144,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintHeight_default="wrap"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"/>
+			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout" />
 
 		<Button
 			android:id="@+id/addButton"
@@ -157,7 +156,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"
-			app:layout_constraintVertical_bias="1.0"/>
+			app:layout_constraintVertical_bias="1.0" />
 
 		<ProgressBar
 			android:id="@+id/progressBar"
@@ -170,7 +169,7 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/contactNameLayout"
-			app:layout_constraintVertical_bias="1.0"/>
+			app:layout_constraintVertical_bias="1.0" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 

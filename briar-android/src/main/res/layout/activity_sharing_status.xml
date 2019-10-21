@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-	android:id="@+id/linearLayout"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/linearLayout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent">
 
@@ -11,14 +10,14 @@
 		android:id="@+id/infoView"
 		android:layout_width="wrap_content"
 		android:layout_height="0dp"
-		android:layout_marginLeft="8dp"
 		android:layout_marginStart="8dp"
+		android:layout_marginLeft="8dp"
 		android:elevation="@dimen/margin_tiny"
 		android:src="@drawable/ic_info_white"
 		app:layout_constraintBottom_toTopOf="@+id/divider"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		app:tint="?attr/colorControlNormal"/>
+		app:tint="?attr/colorControlNormal" />
 
 	<TextView
 		android:id="@+id/info"
@@ -32,7 +31,7 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/infoView"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:text="@string/sharing_status_forum"/>
+		tools:text="@string/sharing_status_forum" />
 
 	<View
 		android:id="@+id/divider"
@@ -40,7 +39,7 @@
 		android:elevation="@dimen/margin_tiny"
 		app:layout_constraintBottom_toTopOf="@+id/list"
 		app:layout_constraintStart_toStartOf="@+id/info"
-		app:layout_constraintTop_toBottomOf="@+id/info"/>
+		app:layout_constraintTop_toBottomOf="@+id/info" />
 
 	<org.briarproject.briar.android.view.BriarRecyclerView
 		android:id="@+id/list"
@@ -51,6 +50,6 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/divider"
 		app:scrollToEnd="false"
-		tools:listitem="@layout/list_item_contact_small"/>
+		tools:listitem="@layout/list_item_contact_small" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

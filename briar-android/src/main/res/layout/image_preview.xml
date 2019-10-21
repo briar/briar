@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -16,7 +15,7 @@
 		app:layout_constraintBottom_toTopOf="@+id/imageList"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent"/>
+		app:layout_constraintTop_toTopOf="parent" />
 
 	<androidx.recyclerview.widget.RecyclerView
 		android:id="@+id/imageList"
@@ -29,16 +28,16 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/divider"
 		tools:ignore="ContentDescription"
-		tools:listitem="@layout/list_item_image"/>
+		tools:listitem="@layout/list_item_image" />
 
 	<com.google.android.material.floatingactionbutton.FloatingActionButton
 		android:id="@+id/imageCancelButton"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_marginBottom="8dp"
+		android:layout_marginTop="8dp"
 		android:layout_marginEnd="8dp"
 		android:layout_marginRight="8dp"
-		android:layout_marginTop="8dp"
+		android:layout_marginBottom="8dp"
 		android:src="@drawable/ic_close"
 		app:backgroundTint="@color/briar_red"
 		app:fabCustomSize="26dp"
@@ -46,6 +45,6 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0"
-		app:maxImageSize="18dp"/>
+		app:maxImageSize="18dp" />
 
 </merge>
