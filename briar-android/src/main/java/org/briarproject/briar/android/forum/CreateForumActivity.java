@@ -34,6 +34,8 @@ import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 
 @MethodsNotNullByDefault
@@ -89,12 +91,6 @@ public class CreateForumActivity extends BriarActivity {
 		createForumButton.setOnClickListener(v -> createForum());
 
 		progress = findViewById(R.id.createForumProgressBar);
-	}
-
-	@Override
-	public void onStart() {
-		super.onStart();
-		showSoftKeyboard(nameEntry);
 	}
 
 	@Override

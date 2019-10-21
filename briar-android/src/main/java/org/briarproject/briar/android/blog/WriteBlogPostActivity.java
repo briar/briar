@@ -3,11 +3,8 @@ package org.briarproject.briar.android.blog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.TextView.OnEditorActionListener;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.db.DbException;
@@ -44,7 +41,7 @@ import static org.briarproject.briar.api.blog.BlogConstants.MAX_BLOG_POST_TEXT_L
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class WriteBlogPostActivity extends BriarActivity
-		implements OnEditorActionListener, SendListener {
+		implements SendListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(WriteBlogPostActivity.class.getName());
@@ -111,12 +108,6 @@ public class WriteBlogPostActivity extends BriarActivity
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
-	}
-
-	@Override
-	public boolean onEditorAction(TextView textView, int actionId, KeyEvent e) {
-		input.requestFocus();
-		return true;
 	}
 
 	@Override

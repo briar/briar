@@ -21,7 +21,7 @@ android {
 
 	defaultConfig {
 		minSdkVersion 16
-		targetSdkVersion 26
+		targetSdkVersion 28
 		versionCode 10109
 		versionName "1.1.9"
 		applicationId "org.briarproject.briar.android"
@@ -117,7 +117,7 @@ dependencies {
 	implementation 'de.hdodenhof:circleimageview:2.2.0'
 	implementation 'com.google.zxing:core:3.3.3'
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:2.14.0'
-	implementation 'com.vanniktech:emoji-google:0.5.1'
+	implementation 'com.vanniktech:emoji-google:0.6.0' // later versions already use androidx
 	implementation 'com.github.kobakei:MaterialFabSpeedDial:1.2.1' // later versions already use androidx
 	def glideVersion = '4.9.0'
 	implementation("com.github.bumptech.glide:glide:$glideVersion") {

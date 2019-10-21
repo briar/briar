@@ -6,7 +6,7 @@
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
 	android:orientation="horizontal"
-	tools:parentTag="org.briarproject.briar.android.view.KeyboardAwareLinearLayout"
+	tools:parentTag="android.widget.LinearLayout"
 	tools:showIn="@layout/fragment_reblog">
 
 	<android.support.v7.widget.AppCompatImageButton

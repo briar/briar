@@ -16,13 +16,10 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 
 import javax.annotation.Nullable;
 
-import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;
-import static android.view.inputmethod.EditorInfo.IME_ACTION_NONE;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.toUtf8;
 import static org.briarproject.briar.android.util.UiUtils.setError;
-import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -66,12 +63,6 @@ public class AuthorNameFragment extends SetupFragment {
 	}
 
 	@Override
-	public void onResume() {
-		super.onResume();
-		showSoftKeyboard(authorNameInput);
-	}
-
-	@Override
 	protected String getHelpText() {
 		return getString(R.string.setup_name_explanation);
 	}
@@ -82,8 +73,6 @@ public class AuthorNameFragment extends SetupFragment {
 		boolean error = authorNameLength > MAX_AUTHOR_NAME_LENGTH;
 		setError(authorNameWrapper, getString(R.string.name_too_long), error);
 		boolean enabled = authorNameLength > 0 && !error;
-		authorNameInput
-				.setImeOptions(enabled ? IME_ACTION_NEXT : IME_ACTION_NONE);
 		authorNameInput.setOnEditorActionListener(enabled ? this : null);
 		nextButton.setEnabled(enabled);
 	}

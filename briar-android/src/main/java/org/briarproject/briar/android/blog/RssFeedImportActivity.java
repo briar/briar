@@ -32,6 +32,7 @@ import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 
 public class RssFeedImportActivity extends BriarActivity {
 
@@ -77,7 +78,6 @@ public class RssFeedImportActivity extends BriarActivity {
 			if (actionId == IME_ACTION_DONE && importButton.isEnabled() &&
 					importButton.getVisibility() == VISIBLE) {
 				publish();
-				hideSoftKeyboard(urlInput);
 				return true;
 			}
 			return false;
@@ -123,6 +123,7 @@ public class RssFeedImportActivity extends BriarActivity {
 		// hide import button, show progress bar
 		importButton.setVisibility(GONE);
 		progressBar.setVisibility(VISIBLE);
+		hideSoftKeyboard(urlInput);
 
 		String url = validateAndNormaliseUrl(urlInput.getText().toString());
 		if (url == null) throw new AssertionError();

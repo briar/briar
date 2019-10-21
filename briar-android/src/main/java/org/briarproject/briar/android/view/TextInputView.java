@@ -16,7 +16,7 @@ import android.widget.LinearLayout;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.view.KeyboardAwareLinearLayout.OnKeyboardShownListener;
+import org.briarproject.briar.android.view.EmojiTextInputView.OnKeyboardShownListener;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static java.util.Objects.requireNonNull;
@@ -139,13 +139,9 @@ public class TextInputView extends LinearLayout {
 		textInput.hideSoftKeyboard();
 	}
 
-	public void addOnKeyboardShownListener(OnKeyboardShownListener listener) {
-		textInput.addOnKeyboardShownListener(listener);
-	}
-
-	public void removeOnKeyboardShownListener(
-			OnKeyboardShownListener listener) {
-		textInput.removeOnKeyboardShownListener(listener);
+	public void setOnKeyboardShownListener(
+			@Nullable OnKeyboardShownListener listener) {
+		textInput.setOnKeyboardShownListener(listener);
 	}
 
 }

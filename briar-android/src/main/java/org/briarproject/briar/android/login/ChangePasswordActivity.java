@@ -26,6 +26,8 @@ import javax.inject.Inject;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 public class ChangePasswordActivity extends BriarActivity
 		implements OnClickListener, OnEditorActionListener {

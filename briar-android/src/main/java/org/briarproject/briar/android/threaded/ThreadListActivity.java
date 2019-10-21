@@ -27,7 +27,6 @@ import org.briarproject.briar.android.threaded.ThreadListController.ThreadListDa
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
-import org.briarproject.briar.android.view.KeyboardAwareLinearLayout;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
@@ -284,14 +283,10 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 			scrollToItemAtTop(item);
 		} else {
 			// wait with scrolling until keyboard opened
-			textInput.addOnKeyboardShownListener(
-					new KeyboardAwareLinearLayout.OnKeyboardShownListener() {
-						@Override
-						public void onKeyboardShown() {
-							scrollToItemAtTop(item);
-							textInput.removeOnKeyboardShownListener(this);
-						}
-					});
+			textInput.setOnKeyboardShownListener(() -> {
+				scrollToItemAtTop(item);
+				textInput.setOnKeyboardShownListener(null);
+			});
 		}
 	}
 
@@ -332,7 +327,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	private void updateTextInput() {
 		if (replyId != null) {
 			textInput.setHint(R.string.forum_message_reply_hint);
-			textInput.requestFocus();
 			textInput.showSoftKeyboard();
 		} else {
 			textInput.setHint(R.string.forum_new_message_hint);
