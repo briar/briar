@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.transition.Slide;
 import android.transition.Transition;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -113,7 +112,6 @@ import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.view.Gravity.RIGHT;
-import static android.widget.Toast.LENGTH_LONG;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static androidx.core.view.ViewCompat.setTransitionName;
@@ -442,8 +440,7 @@ public class ConversationActivity extends BriarActivity
 	@Override
 	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
 		if (item.getItemId() == R.id.action_delete) {
-			Log.e("TEST", "selected: " + getSelection());
-			Toast.makeText(this, "Not yet implemented", LENGTH_LONG).show();
+			deleteSelectedMessages();
 			return true;
 		}
 		return false;
@@ -862,7 +859,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				boolean allDeleted =
 						conversationManager.deleteAllMessages(contactId);
-				reloadConversationAfterDeletingAllMessages(allDeleted);
+				reloadConversationAfterDeletingMessages(allDeleted);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				runOnUiThreadUnlessDestroyed(() -> list.showData());
@@ -870,7 +867,24 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void reloadConversationAfterDeletingAllMessages(
+	private void deleteSelectedMessages() {
+		list.showProgressBar();
+		Collection<MessageId> selected = getSelection();
+		// close action mode only after getting the selection
+		if (actionMode != null) actionMode.finish();
+		runOnDbThread(() -> {
+			try {
+				boolean allDeleted =
+						conversationManager.deleteMessages(contactId, selected);
+				reloadConversationAfterDeletingMessages(allDeleted);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				runOnUiThreadUnlessDestroyed(() -> list.showData());
+			}
+		});
+	}
+
+	private void reloadConversationAfterDeletingMessages(
 			boolean allDeleted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.clear();
