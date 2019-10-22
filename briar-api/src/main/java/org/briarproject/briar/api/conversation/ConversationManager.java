@@ -44,6 +44,14 @@ public interface ConversationManager {
 	 */
 	boolean deleteAllMessages(ContactId c) throws DbException;
 
+	/**
+	 * Deletes the given set of messages associated with the given contact.
+	 *
+	 * @return true if all given messages could be deleted, false otherwise
+	 */
+	boolean deleteMessages(ContactId c, Collection<MessageId> messageIds)
+			throws DbException;
+
 	@NotNullByDefault
 	interface ConversationClient {
 

@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -79,6 +80,20 @@ class ConversationManagerImpl implements ConversationManager {
 			boolean allDeleted = true;
 			for (ConversationClient client : clients) {
 				allDeleted = client.deleteAllMessages(txn, c) && allDeleted;
+			}
+			return allDeleted;
+		});
+	}
+
+	@Override
+	public boolean deleteMessages(ContactId c, Collection<MessageId> toDelete)
+			throws DbException {
+		return db.transactionWithResult(false, txn -> {
+			boolean allDeleted = true;
+			for (ConversationClient client : clients) {
+				Set<MessageId> idSet = client.getMessageIds(txn, c);
+				idSet.retainAll(toDelete);
+				allDeleted = client.deleteMessages(txn, c, idSet) && allDeleted;
 			}
 			return allDeleted;
 		});
