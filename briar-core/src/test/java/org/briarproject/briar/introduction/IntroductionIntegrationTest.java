@@ -39,8 +39,11 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import static java.util.Collections.emptySet;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
@@ -82,6 +85,8 @@ public class IntroductionIntegrationTest
 	private IntroduceeListener listener1;
 	private IntroduceeListener listener2;
 
+	private Group g1, g2;
+
 	interface StateVisitor {
 		AcceptMessage visit(AcceptMessage response);
 	}
@@ -94,6 +99,9 @@ public class IntroductionIntegrationTest
 		introductionManager0 = c0.getIntroductionManager();
 		introductionManager1 = c1.getIntroductionManager();
 		introductionManager2 = c2.getIntroductionManager();
+
+		g1 = introductionManager0.getContactGroup(contact1From0);
+		g2 = introductionManager0.getContactGroup(contact2From0);
 
 		// initialize waiter fresh for each test
 		eventWaiter = new Waiter();
@@ -1210,7 +1218,6 @@ public class IntroductionIntegrationTest
 		assertTrue(listener2.succeeded);
 
 		// check that introducer messages are tracked properly
-		Group g1 = introductionManager0.getContactGroup(contact1From0);
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 
 		// introducer can now remove messages
@@ -1224,8 +1231,7 @@ public class IntroductionIntegrationTest
 		assertEquals(2, getMessages0From1().size());
 
 		// check that introducee1 messages are tracked properly
-		Group g0 = introductionManager1.getContactGroup(contact0From1);
-		assertGroupCount(messageTracker1, g0.getId(), 2, 1);
+		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 
 		// ACK last message
 		sendAcks(c0, c1, contactId1From0, 1);
@@ -1234,17 +1240,16 @@ public class IntroductionIntegrationTest
 		assertTrue(deleteAllMessages0From1());
 		assertEquals(0, getMessages0From1().size());
 		assertTrue(deleteAllMessages0From1());  // a second time returns true
-		assertGroupCount(messageTracker1, g0.getId(), 0, 0);
+		assertGroupCount(messageTracker1, g1.getId(), 0, 0);
 
 		// check that introducee2 messages are tracked properly
-		Group g0From2 = introductionManager2.getContactGroup(contact0From2);
-		assertGroupCount(messageTracker2, g0From2.getId(), 2, 1);
+		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
 		// introducee2 can remove messages (last message was incoming)
 		assertTrue(deleteAllMessages0From2());
 		assertEquals(0, getMessages0From2().size());
 		assertTrue(deleteAllMessages0From2());  // a second time returns true
-		assertGroupCount(messageTracker2, g0From2.getId(), 0, 0);
+		assertGroupCount(messageTracker2, g2.getId(), 0, 0);
 
 		// a new introduction is still possible
 		assertTrue(introductionManager0
@@ -1273,8 +1278,8 @@ public class IntroductionIntegrationTest
 
 		// group counts get counted up again correctly
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
-		assertGroupCount(messageTracker1, g0.getId(), 2, 1);
-		assertGroupCount(messageTracker2, g0From2.getId(), 2, 1);
+		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
+		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 	}
 
 	@Test
@@ -1434,6 +1439,106 @@ public class IntroductionIntegrationTest
 		assertFalse(listener2.aborted);
 	}
 
+	@Test
+	public void testDeletingSomeMessages() throws Exception {
+		addListeners(false, false);
+
+		// make introduction
+		long time = clock.currentTimeMillis();
+		introductionManager0.makeIntroduction(contact1From0, contact2From0,
+				"Hi!", time);
+
+		// deleting the introduction for introducee1 will fail
+		Collection<ConversationMessageHeader> m1From0 = getMessages1From0();
+		assertEquals(1, m1From0.size());
+		MessageId messageId1 = m1From0.iterator().next().getId();
+		Set<MessageId> toDelete1 = new HashSet<>();
+		toDelete1.add(messageId1);
+		assertFalse(deleteMessages1From0(toDelete1));
+
+		// deleting the introduction for introducee2 will fail as well
+		Collection<ConversationMessageHeader> m2From0 = getMessages2From0();
+		assertEquals(1, m2From0.size());
+		MessageId messageId2 = m2From0.iterator().next().getId();
+		Set<MessageId> toDelete2 = new HashSet<>();
+		toDelete2.add(messageId2);
+		assertFalse(deleteMessages2From0(toDelete2));
+
+		// sync REQUEST messages
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		sync0To2(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// deleting introduction also fails for introducees
+		assertFalse(deleteMessages0From1(toDelete1));
+		assertFalse(deleteMessages0From2(toDelete2));
+
+		// add response of introducee1 for deletion
+		Collection<ConversationMessageHeader> m0From1 = getMessages0From1();
+		assertEquals(2, m0From1.size());
+		for (ConversationMessageHeader h : m0From1) {
+			if (!h.getId().equals(messageId1)) toDelete1.add(h.getId());
+		}
+
+		// add response of introducee2 for deletion
+		Collection<ConversationMessageHeader> m0From2 = getMessages0From2();
+		assertEquals(2, m0From2.size());
+		for (ConversationMessageHeader h : m0From2) {
+			if (!h.getId().equals(messageId2)) toDelete2.add(h.getId());
+		}
+
+		// sync first DECLINE message
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// introducer can not yet remove messages
+		assertFalse(deleteMessages1From0(toDelete1));
+		// introducee1 can not yet remove messages
+		assertFalse(deleteMessages0From1(toDelete1));
+
+		// sync second DECLINE message
+		sync2To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// check group counts
+		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
+		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
+		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
+		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
+
+		// introducer can now remove messages with both introducees
+		assertTrue(deleteMessages1From0(toDelete1));
+		assertTrue(deleteMessages2From0(toDelete2));
+		assertGroupCount(messageTracker0, g1.getId(), 0, 0);
+		assertGroupCount(messageTracker0, g2.getId(), 0, 0);
+		// introducee2 can not yet remove messages, missing the other response
+		assertFalse(deleteMessages0From1(toDelete1));
+
+		// forward first DECLINE message
+		sync0To2(1, true);
+
+		// introducee2 can now remove messages
+		assertTrue(deleteMessages0From2(toDelete2));
+		assertEquals(0, getMessages0From2().size());
+		assertTrue(deleteMessages0From2(toDelete2));  // a second time nothing happens
+		assertGroupCount(messageTracker2, g2.getId(), 0, 0);
+
+		// forward second DECLINE message
+		sync0To1(1, true);
+
+		// introducee1 can now also remove messages
+		assertTrue(deleteMessages0From1(toDelete1));
+		assertEquals(0, getMessages0From1().size());
+		assertTrue(deleteMessages0From1(toDelete1));  // a second time nothing happens
+		assertGroupCount(messageTracker1, g1.getId(), 0, 0);
+	}
+
+	@Test
+	public void testDeletingEmptySet() throws Exception {
+		assertTrue(deleteMessages0From1(emptySet()));
+	}
+
 	private boolean deleteAllMessages1From0() throws DbException {
 		return db0.transactionWithResult(false, txn -> introductionManager0
 				.deleteAllMessages(txn, contactId1From0));
@@ -1452,6 +1557,30 @@ public class IntroductionIntegrationTest
 	private boolean deleteAllMessages0From2() throws DbException {
 		return db2.transactionWithResult(false, txn -> introductionManager2
 				.deleteAllMessages(txn, contactId0From2));
+	}
+
+	private boolean deleteMessages1From0(Set<MessageId> toDelete)
+			throws DbException {
+		return db0.transactionWithResult(false, txn -> introductionManager0
+				.deleteMessages(txn, contactId1From0, toDelete));
+	}
+
+	private boolean deleteMessages2From0(Set<MessageId> toDelete)
+			throws DbException {
+		return db0.transactionWithResult(false, txn -> introductionManager0
+				.deleteMessages(txn, contactId2From0, toDelete));
+	}
+
+	private boolean deleteMessages0From1(Set<MessageId> toDelete)
+			throws DbException {
+		return db1.transactionWithResult(false, txn -> introductionManager1
+				.deleteMessages(txn, contactId0From1, toDelete));
+	}
+
+	private boolean deleteMessages0From2(Set<MessageId> toDelete)
+			throws DbException {
+		return db2.transactionWithResult(false, txn -> introductionManager2
+				.deleteMessages(txn, contactId0From2, toDelete));
 	}
 
 	private void addTransportProperties() throws Exception {
