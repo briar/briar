@@ -172,6 +172,8 @@ class AttachmentCreationTask {
 			LOG.info("Scaling attachment by factor of " + inSampleSize);
 		Options options = new Options();
 		options.inSampleSize = inSampleSize;
+		if (contentType.equals("image/png"))
+			options.inPreferredConfig = Bitmap.Config.RGB_565;
 		Bitmap bitmap = decodeStream(is, null, options);
 		if (bitmap == null) throw new IOException();
 		return bitmap;
