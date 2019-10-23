@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.BitmapFactory.decodeStream;
@@ -130,7 +131,8 @@ class AttachmentCreationTask {
 		return false;
 	}
 
-	private InputStream compressImage(InputStream is, String contentType)
+	@VisibleForTesting
+	InputStream compressImage(InputStream is, String contentType)
 			throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
