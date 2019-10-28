@@ -10,6 +10,8 @@ import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 
 import java.util.Collection;
 
+import javax.annotation.Nullable;
+
 import androidx.annotation.UiThread;
 
 @NotNullByDefault
@@ -19,7 +21,7 @@ interface GroupListController extends DbController {
 	 * The listener must be set right after the controller was injected
 	 */
 	@UiThread
-	void setGroupListListener(GroupListListener listener);
+	void setGroupListListener(@Nullable GroupListListener listener);
 
 	@UiThread
 	void onStart();

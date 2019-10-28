@@ -33,9 +33,9 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import java.util.Collection;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
@@ -136,6 +136,12 @@ public class BlogFragment extends BaseFragment
 		super.onStop();
 		sharingController.onStop();
 		list.stopPeriodicUpdate();
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		blogController.setBlogSharingListener(null);
 	}
 
 	@Override

@@ -43,7 +43,6 @@ public class BlogPostFragment extends BasePostFragment implements BlogListener {
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		blogController.setBlogListener(this);
 	}
 
 	@Override

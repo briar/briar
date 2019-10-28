@@ -39,6 +39,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.CallSuper;
+import androidx.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -61,6 +62,7 @@ class GroupListControllerImpl extends DbControllerImpl
 	private final EventBus eventBus;
 
 	// UI thread
+	@Nullable
 	private GroupListListener listener;
 
 	@Inject
@@ -78,7 +80,7 @@ class GroupListControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void setGroupListListener(GroupListListener listener) {
+	public void setGroupListListener(@Nullable GroupListListener listener) {
 		this.listener = listener;
 	}
 
@@ -99,6 +101,7 @@ class GroupListControllerImpl extends DbControllerImpl
 	@Override
 	@CallSuper
 	public void eventOccurred(Event e) {
+		if (listener == null) throw new IllegalStateException();
 		if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			LOG.info("Private group message added");

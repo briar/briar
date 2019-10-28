@@ -7,6 +7,7 @@ import org.briarproject.briar.api.blog.Blog;
 
 import java.util.Collection;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 @NotNullByDefault
@@ -18,7 +19,7 @@ public interface FeedController extends BaseController {
 	void loadPersonalBlog(ResultExceptionHandler<Blog, DbException> handler);
 
 	@UiThread
-	void setFeedListener(FeedListener listener);
+	void setFeedListener(@Nullable FeedListener listener);
 
 	@NotNullByDefault
 	interface FeedListener extends BlogListener {

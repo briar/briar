@@ -110,6 +110,12 @@ public class GroupListFragment extends BaseFragment implements
 	}
 
 	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		controller.setGroupListListener(null);
+	}
+
+	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		inflater.inflate(R.menu.groups_list_actions, menu);
 		super.onCreateOptionsMenu(menu, inflater);

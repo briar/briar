@@ -35,6 +35,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -51,6 +53,7 @@ class BlogControllerImpl extends BaseControllerImpl
 	private final BlogSharingManager blogSharingManager;
 
 	// UI thread
+	@Nullable
 	private BlogSharingListener listener;
 
 	private volatile GroupId groupId = null;
@@ -93,14 +96,14 @@ class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
-	public void setBlogSharingListener(BlogSharingListener listener) {
-		super.setBlogListener(listener);
+	public void setBlogSharingListener(@Nullable BlogSharingListener listener) {
 		this.listener = listener;
 	}
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (groupId == null) throw new IllegalStateException();
+		if (groupId == null || listener == null)
+			throw new IllegalStateException();
 		if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			if (b.getGroupId().equals(groupId)) {
