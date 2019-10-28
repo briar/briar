@@ -7,11 +7,13 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -47,12 +49,14 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
@@ -364,6 +368,21 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
+	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
+			throws DbException {
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE));
+		try {
+			Map<MessageId, BdfDictionary> results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+			return results.keySet();
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public String getMessageText(MessageId m) throws DbException {
 		try {
 			BdfList body = clientHelper.getMessageAsList(m);
@@ -416,6 +435,76 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		}
 		messageTracker.initializeGroupCount(txn, g);
 		return true;
+	}
+
+	@Override
+	public boolean deleteMessages(Transaction txn, ContactId c,
+			Set<MessageId> messageIds) throws DbException {
+		boolean allDeleted = true;
+		for (MessageId m : messageIds) {
+			// get attachment headers
+			List<AttachmentHeader> headers;
+			try {
+				BdfDictionary meta =
+						clientHelper.getMessageMetadataAsDictionary(txn, m);
+				Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+				if (messageType != null && messageType != PRIVATE_MESSAGE)
+					throw new AssertionError("not supported");
+				headers = parseAttachmentHeaders(meta);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			// check if all attachments have been delivered
+			boolean allAttachmentsDelivered = true;
+			try {
+				for (AttachmentHeader h : headers) {
+					if (db.getMessageState(txn, h.getMessageId()) != DELIVERED)
+						throw new NoSuchMessageException();
+				}
+			} catch (NoSuchMessageException e) {
+				allAttachmentsDelivered = false;
+			}
+			// delete messages, if all attachments were delivered
+			if (allAttachmentsDelivered) {
+				for (AttachmentHeader h : headers) {
+					db.deleteMessage(txn, h.getMessageId());
+					db.deleteMessageMetadata(txn, h.getMessageId());
+				}
+				db.deleteMessage(txn, m);
+				db.deleteMessageMetadata(txn, m);
+			} else {
+				allDeleted = false;
+			}
+		}
+		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
+		recalculateGroupCount(txn, g);
+		return allDeleted;
+	}
+
+	private void recalculateGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		BdfDictionary query = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE));
+		Map<MessageId, BdfDictionary> results;
+		try {
+			results =
+					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		int msgCount = results.size();
+		int unreadCount = 0;
+		for (Map.Entry<MessageId, BdfDictionary> entry : results.entrySet()) {
+			BdfDictionary meta = entry.getValue();
+			boolean read;
+			try {
+				read = meta.getBoolean(MSG_KEY_READ);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			if (!read) unreadCount++;
+		}
+		messageTracker.resetGroupCount(txn, g, msgCount, unreadCount);
 	}
 
 }

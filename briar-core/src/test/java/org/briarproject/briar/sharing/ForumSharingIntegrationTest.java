@@ -35,9 +35,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.annotation.Nullable;
 
+import static java.util.Collections.emptySet;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
@@ -187,9 +190,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testDeclinedSharing() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, null,
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
 
 		// sync request message
 		sync0To1(1, true);
@@ -256,9 +258,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testInviteeLeavesAfterFinished() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				"Hi!", clock.currentTimeMillis());
 
 		// sync request message
 		sync0To1(1, true);
@@ -320,9 +321,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSharerLeavesAfterFinished() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, null,
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
 
 		// sync request message
 		sync0To1(1, true);
@@ -398,9 +398,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSharerLeavesBeforeResponse() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, null,
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
 
 		// sharer un-subscribes from forum
 		forumManager0.removeForum(forum);
@@ -445,9 +444,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSharingSameForumWithEachOther() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				"Hi!", clock.currentTimeMillis());
 
 		// sync request message
 		sync0To1(1, true);
@@ -486,9 +484,8 @@ public class ForumSharingIntegrationTest
 	public void testSharingSameForumWithEachOtherBeforeAccept()
 			throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				"Hi!", clock.currentTimeMillis());
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertRequestReceived(listener1, contactId0From1);
@@ -556,9 +553,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testContactRemoved() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				"Hi!", clock.currentTimeMillis());
 
 		// sync request message
 		sync0To1(1, true);
@@ -683,9 +679,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSyncAfterReSharing() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				"Hi!", clock.currentTimeMillis());
 
 		// sync request message
 		sync0To1(1, true);
@@ -791,9 +786,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSessionResetAfterAbort() throws Exception {
 		// send invitation
-		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				"Hi!", clock.currentTimeMillis());
 
 		// sync request message
 		sync0To1(1, true);
@@ -981,6 +975,61 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, getMessages0From1().size());
 	}
 
+	@Test
+	public void testDeletingSomeMessages() throws Exception {
+		// send invitation
+		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
+				null, clock.currentTimeMillis());
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// deleting the invitation will fail
+		Collection<ConversationMessageHeader> m0 = getMessages1From0();
+		assertEquals(1, m0.size());
+		MessageId messageId = m0.iterator().next().getId();
+		Set<MessageId> toDelete = new HashSet<>();
+		toDelete.add(messageId);
+		assertFalse(deleteMessages1From0(toDelete));
+
+		// decline invitation
+		respondToRequest(contactId0From1, true);
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// both can still not delete the invitation,
+		// because the response was not selected for deletion as well
+		assertFalse(deleteMessages1From0(toDelete));
+		assertFalse(deleteMessages0From1(toDelete));
+
+		// after selecting response, both messages can be deleted
+		m0 = getMessages1From0();
+		assertEquals(2, m0.size());
+		for (ConversationMessageHeader h : m0) {
+			if (!h.getId().equals(messageId)) toDelete.add(h.getId());
+		}
+		assertTrue(deleteMessages1From0(toDelete));
+		assertEquals(0, getMessages1From0().size());
+		// a second time nothing happens
+		assertTrue(deleteMessages1From0(toDelete));
+
+		// 1 can still not delete the messages, as last one has not been ACKed
+		assertFalse(deleteMessages0From1(toDelete));
+
+		// 0 sends an ACK to their last message
+		sendAcks(c0, c1, contactId1From0, 1);
+
+		// 1 can now delete all messages, as last one has been ACKed
+		assertTrue(deleteMessages0From1(toDelete));
+		assertEquals(0, getMessages0From1().size());
+		// a second time nothing happens
+		assertTrue(deleteMessages0From1(toDelete));
+	}
+
+	@Test
+	public void testDeletingEmptySet() throws Exception {
+		assertTrue(deleteMessages0From1(emptySet()));
+	}
+
 	private Collection<ConversationMessageHeader> getMessages1From0()
 			throws DbException {
 		return db0.transactionWithResult(true, txn -> forumSharingManager0
@@ -1001,6 +1050,18 @@ public class ForumSharingIntegrationTest
 	private boolean deleteAllMessages0From1() throws DbException {
 		return db1.transactionWithResult(false, txn -> forumSharingManager1
 				.deleteAllMessages(txn, contactId0From1));
+	}
+
+	private boolean deleteMessages1From0(Set<MessageId> toDelete)
+			throws DbException {
+		return db0.transactionWithResult(false, txn -> forumSharingManager0
+				.deleteMessages(txn, contactId1From0, toDelete));
+	}
+
+	private boolean deleteMessages0From1(Set<MessageId> toDelete)
+			throws DbException {
+		return db1.transactionWithResult(false, txn -> forumSharingManager1
+				.deleteMessages(txn, contactId0From1, toDelete));
 	}
 
 	private void respondToRequest(ContactId contactId, boolean accept)

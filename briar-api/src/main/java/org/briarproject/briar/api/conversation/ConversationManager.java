@@ -12,6 +12,7 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.util.Collection;
+import java.util.Set;
 
 @NotNullByDefault
 public interface ConversationManager {
@@ -43,6 +44,14 @@ public interface ConversationManager {
 	 */
 	boolean deleteAllMessages(ContactId c) throws DbException;
 
+	/**
+	 * Deletes the given set of messages associated with the given contact.
+	 *
+	 * @return true if all given messages could be deleted, false otherwise
+	 */
+	boolean deleteMessages(ContactId c, Collection<MessageId> messageIds)
+			throws DbException;
+
 	@NotNullByDefault
 	interface ConversationClient {
 
@@ -50,6 +59,13 @@ public interface ConversationManager {
 
 		Collection<ConversationMessageHeader> getMessageHeaders(Transaction txn,
 				ContactId contactId) throws DbException;
+
+		/**
+		 * Returns all conversation {@link MessageId}s for the given contact
+		 * this client is responsible for.
+		 */
+		Set<MessageId> getMessageIds(Transaction txn, ContactId contactId)
+				throws DbException;
 
 		GroupCount getGroupCount(Transaction txn, ContactId c)
 				throws DbException;
@@ -64,6 +80,17 @@ public interface ConversationManager {
 		 */
 		boolean deleteAllMessages(Transaction txn,
 				ContactId c) throws DbException;
+
+		/**
+		 * Deletes the given set of messages associated with the given contact.
+		 * <p>
+		 * The set of message IDs must only include message IDs returned by
+		 * {@link #getMessageIds}.
+		 *
+		 * @return true if all messages could be deleted, false otherwise
+		 */
+		boolean deleteMessages(Transaction txn, ContactId c,
+				Set<MessageId> messageIds) throws DbException;
 	}
 
 }

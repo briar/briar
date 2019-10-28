@@ -54,6 +54,21 @@ class SessionParserImpl implements SessionParser {
 	}
 
 	@Override
+	public Session parseSession(GroupId contactGroupId, BdfDictionary d)
+			throws FormatException {
+		Session session;
+		Role role = getRole(d);
+		if (role == CREATOR) {
+			session = parseCreatorSession(contactGroupId, d);
+		} else if (role == INVITEE) {
+			session = parseInviteeSession(contactGroupId, d);
+		} else if (role == PEER) {
+			session = parsePeerSession(contactGroupId, d);
+		} else throw new AssertionError("unknown role");
+		return session;
+	}
+
+	@Override
 	public CreatorSession parseCreatorSession(GroupId contactGroupId,
 			BdfDictionary d) throws FormatException {
 		if (getRole(d) != CREATOR) throw new IllegalArgumentException();

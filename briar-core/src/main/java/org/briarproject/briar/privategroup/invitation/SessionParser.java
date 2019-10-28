@@ -17,6 +17,9 @@ interface SessionParser {
 
 	boolean isSession(BdfDictionary d);
 
+	Session parseSession(GroupId contactGroupId, BdfDictionary d)
+			throws FormatException;
+
 	CreatorSession parseCreatorSession(GroupId contactGroupId, BdfDictionary d)
 			throws FormatException;
 

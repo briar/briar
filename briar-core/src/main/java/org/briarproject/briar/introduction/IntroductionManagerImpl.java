@@ -559,19 +559,68 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		}
 	}
 
+	@FunctionalInterface
+	private interface MessageRetriever {
+		Map<MessageId, BdfDictionary> getMessages(Transaction txn,
+				GroupId contactGroup) throws DbException;
+	}
+
+	@FunctionalInterface
+	private interface MessageDeletionChecker {
+		/**
+		 * This is called for all messages belonging to a session.
+		 * It returns true if the given {@link MessageId} causes a problem
+		 * so that the session can not be deleted.
+		 */
+		boolean causesProblem(MessageId messageId);
+	}
+
 	@Override
 	public boolean deleteAllMessages(Transaction txn, ContactId c)
+			throws DbException {
+		return deleteMessages(txn, c, (txn1, g) -> {
+			// get metadata for all messages in the group
+			Map<MessageId, BdfDictionary> messages;
+			try {
+				messages = clientHelper.getMessageMetadataAsDictionary(txn1, g);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			return messages;
+		}, messageId -> false);
+	}
+
+	@Override
+	public boolean deleteMessages(Transaction txn, ContactId c,
+			Set<MessageId> messageIds) throws DbException {
+		return deleteMessages(txn, c, (txn1, g) -> {
+			// get metadata for messages that shall be deleted
+			Map<MessageId, BdfDictionary> messages =
+					new HashMap<>(messageIds.size());
+			for (MessageId m : messageIds) {
+				BdfDictionary d;
+				try {
+					d = clientHelper.getMessageMetadataAsDictionary(txn1, m);
+				} catch (FormatException e) {
+					throw new DbException(e);
+				}
+				// If message metadata does not exist,
+				// getMessageMetadataAsDictionary(txn, m) returns empty Metadata
+				if (!d.isEmpty()) messages.put(m, d);
+			}
+			return messages;
+			// don't delete sessions if a message is not part of messageIds
+		}, messageId -> !messageIds.contains(messageId));
+	}
+
+	private boolean deleteMessages(Transaction txn, ContactId c,
+			MessageRetriever retriever, MessageDeletionChecker checker)
 			throws DbException {
 		// get ID of the contact group
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 
-		// get metadata for all messages in the group
-		Map<MessageId, BdfDictionary> messages;
-		try {
-			messages = clientHelper.getMessageMetadataAsDictionary(txn, g);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
+		// get messages to be deleted
+		Map<MessageId, BdfDictionary> messages = retriever.getMessages(txn, g);
 
 		// assign protocol messages to their sessions
 		Map<SessionId, DeletableSession> sessions = new HashMap<>();
@@ -603,7 +652,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
 			if (!status.isSeen()) notAcked.add(status.getMessageId());
 		}
-		boolean allDeleted = deleteCompletedSessions(txn, sessions, notAcked);
+		boolean allDeleted =
+				deleteCompletedSessions(txn, sessions, notAcked, checker);
 		recalculateGroupCount(txn, g);
 		return allDeleted;
 	}
@@ -628,8 +678,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	private boolean deleteCompletedSessions(Transaction txn,
-			Map<SessionId, DeletableSession> sessions, Set<MessageId> notAcked)
-			throws DbException {
+			Map<SessionId, DeletableSession> sessions, Set<MessageId> notAcked,
+			MessageDeletionChecker checker) throws DbException {
 		// find completed sessions to delete
 		boolean allDeleted = true;
 		for (DeletableSession session : sessions.values()) {
@@ -641,7 +691,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			// where delivery of all messages was confirmed (aka ACKed)
 			boolean allAcked = true;
 			for (MessageId m : session.messages) {
-				if (notAcked.contains(m)) {
+				if (notAcked.contains(m) || checker.causesProblem(m)) {
 					allAcked = false;
 					allDeleted = false;
 					break;
@@ -660,7 +710,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		return allDeleted;
 	}
 
-	private Set<MessageId> getMessageIds(Transaction txn, ContactId c)
+	@Override
+	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
 			throws DbException {
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		BdfDictionary query = messageParser.getMessagesVisibleInUiQuery();
