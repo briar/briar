@@ -85,7 +85,6 @@ public class EmojiTextInputView extends LinearLayout implements
 		editText = findViewById(R.id.input_text);
 		editText.setPadding(0, 0, paddingEnd, paddingBottom);
 		if (maxLines > 0) editText.setMaxLines(maxLines);
-		editText.setOnClickListener(v -> showSoftKeyboard());
 		editText.addTextChangedListener(this);
 		editText.setOnEditorActionListener((v, actionId, event) -> {
 			if (actionId == IME_ACTION_SEND) {
@@ -130,6 +129,9 @@ public class EmojiTextInputView extends LinearLayout implements
 						R.attr.colorControlNormal))
 				.build(editText);
 		emojiToggle.setOnClickListener(v -> emojiPopup.toggle());
+		editText.setOnClickListener(v -> {
+			if (emojiPopup.isShowing()) emojiPopup.dismiss();
+		});
 	}
 
 	@Override
