@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Metadata;
+import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -55,6 +56,7 @@ import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
+import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
@@ -438,13 +440,45 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	@Override
 	public boolean deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
-		for (MessageId messageId : messageIds) {
-			db.deleteMessage(txn, messageId);
-			db.deleteMessageMetadata(txn, messageId);
+		boolean allDeleted = true;
+		for (MessageId m : messageIds) {
+			// get attachment headers
+			List<AttachmentHeader> headers;
+			try {
+				BdfDictionary meta =
+						clientHelper.getMessageMetadataAsDictionary(txn, m);
+				Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
+				if (messageType != null && messageType != PRIVATE_MESSAGE)
+					throw new AssertionError("not supported");
+				headers = parseAttachmentHeaders(meta);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			// check if all attachments have been delivered
+			boolean allAttachmentsDelivered = true;
+			try {
+				for (AttachmentHeader h : headers) {
+					if (db.getMessageState(txn, h.getMessageId()) != DELIVERED)
+						throw new NoSuchMessageException();
+				}
+			} catch (NoSuchMessageException e) {
+				allAttachmentsDelivered = false;
+			}
+			// delete messages, if all attachments were delivered
+			if (allAttachmentsDelivered) {
+				for (AttachmentHeader h : headers) {
+					db.deleteMessage(txn, h.getMessageId());
+					db.deleteMessageMetadata(txn, h.getMessageId());
+				}
+				db.deleteMessage(txn, m);
+				db.deleteMessageMetadata(txn, m);
+			} else {
+				allDeleted = false;
+			}
 		}
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		recalculateGroupCount(txn, g);
-		return true;
+		return allDeleted;
 	}
 
 	private void recalculateGroupCount(Transaction txn, GroupId g)
