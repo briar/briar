@@ -56,7 +56,7 @@ public class MessagingManagerIntegrationTest
 		messagingManager0 = c0.getMessagingManager();
 		messagingManager1 = c1.getMessagingManager();
 		messageFactory = c0.getPrivateMessageFactory();
-		assertEquals(contact0From1, contact1From0);
+		assertEquals(contactId0From1, contactId1From0);
 		contactId = contactId0From1;
 	}
 

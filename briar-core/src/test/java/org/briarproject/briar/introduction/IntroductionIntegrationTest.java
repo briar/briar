@@ -1470,7 +1470,8 @@ public class IntroductionIntegrationTest
 		sync0To2(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
-		// deleting introduction also fails for introducees
+		// deleting introduction fails for introducees,
+		// because response is not yet selected for deletion
 		assertFalse(deleteMessages0From1(toDelete1));
 		assertFalse(deleteMessages0From2(toDelete2));
 

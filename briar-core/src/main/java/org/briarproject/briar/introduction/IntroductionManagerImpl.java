@@ -561,8 +561,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@FunctionalInterface
 	private interface MessageRetriever {
-		Map<MessageId, BdfDictionary> getMessages(GroupId contactGroup)
-				throws DbException;
+		Map<MessageId, BdfDictionary> getMessages(Transaction txn,
+				GroupId contactGroup) throws DbException;
 	}
 
 	@FunctionalInterface
@@ -572,17 +572,17 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		 * It returns true if the given {@link MessageId} causes a problem
 		 * so that the session can not be deleted.
 		 */
-		boolean causesProblem(MessageId messageId) throws DbException;
+		boolean causesProblem(MessageId messageId);
 	}
 
 	@Override
 	public boolean deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		return deleteMessages(txn, c, g -> {
+		return deleteMessages(txn, c, (txn1, g) -> {
 			// get metadata for all messages in the group
 			Map<MessageId, BdfDictionary> messages;
 			try {
-				messages = clientHelper.getMessageMetadataAsDictionary(txn, g);
+				messages = clientHelper.getMessageMetadataAsDictionary(txn1, g);
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -593,14 +593,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	@Override
 	public boolean deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
-		return deleteMessages(txn, c, g -> {
+		return deleteMessages(txn, c, (txn1, g) -> {
 			// get metadata for messages that shall be deleted
 			Map<MessageId, BdfDictionary> messages =
 					new HashMap<>(messageIds.size());
 			for (MessageId m : messageIds) {
 				BdfDictionary d;
 				try {
-					d = clientHelper.getMessageMetadataAsDictionary(txn, m);
+					d = clientHelper.getMessageMetadataAsDictionary(txn1, m);
 				} catch (FormatException e) {
 					throw new DbException(e);
 				}
@@ -620,16 +620,14 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 
 		// get messages to be deleted
-		Map<MessageId, BdfDictionary> messages = retriever.getMessages(g);
+		Map<MessageId, BdfDictionary> messages = retriever.getMessages(txn, g);
 
 		// assign protocol messages to their sessions
 		Map<SessionId, DeletableSession> sessions = new HashMap<>();
 		for (Entry<MessageId, BdfDictionary> entry : messages.entrySet()) {
-			BdfDictionary d = entry.getValue();
-			if (d == null) continue; // throw new NoSuchMessageException()
 			MessageMetadata m;
 			try {
-				m = messageParser.parseMetadata(d);
+				m = messageParser.parseMetadata(entry.getValue());
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}

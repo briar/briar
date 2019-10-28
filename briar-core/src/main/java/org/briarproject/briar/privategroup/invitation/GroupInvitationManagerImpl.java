@@ -620,7 +620,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@FunctionalInterface
 	private interface DeletableSessionRetriever {
-		Map<GroupId, DeletableSession> getDeletableSessions(
+		Map<GroupId, DeletableSession> getDeletableSessions(Transaction txn,
 				GroupId contactGroup, Map<MessageId, BdfDictionary> metadata)
 				throws DbException;
 	}
@@ -632,13 +632,13 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		 * It returns true if the given {@link MessageId} causes a problem
 		 * so that the session can not be deleted.
 		 */
-		boolean causesProblem(MessageId messageId) throws DbException;
+		boolean causesProblem(MessageId messageId);
 	}
 
 	@Override
 	public boolean deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		return deleteMessages(txn, c, (g, metadata) -> {
+		return deleteMessages(txn, c, (txn1, g, metadata) -> {
 			// get all sessions and their states
 			Map<GroupId, DeletableSession> sessions = new HashMap<>();
 			for (BdfDictionary d : metadata.values()) {
@@ -659,7 +659,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	@Override
 	public boolean deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
-		return deleteMessages(txn, c, (g, metadata) -> {
+		return deleteMessages(txn, c, (txn1, g, metadata) -> {
 			// get only sessions from given messageIds
 			Map<GroupId, DeletableSession> sessions = new HashMap<>();
 			for (MessageId messageId : messageIds) {
@@ -670,7 +670,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 							messageParser.parseMetadata(d);
 					SessionId sessionId =
 							getSessionId(messageMetadata.getPrivateGroupId());
-					StoredSession ss = getSession(txn, g, sessionId);
+					StoredSession ss = getSession(txn1, g, sessionId);
 					if (ss == null) throw new DbException();
 					Session session = sessionParser
 							.parseSession(g, metadata.get(ss.storageId));
@@ -700,9 +700,9 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			throw new DbException(e);
 		}
 
-		// get all sessions and their states
+		// get sessions and their states from retriever
 		Map<GroupId, DeletableSession> sessions =
-				retriever.getDeletableSessions(g, metadata);
+				retriever.getDeletableSessions(txn, g, metadata);
 
 		// assign protocol messages to their sessions
 		for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
