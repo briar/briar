@@ -14,7 +14,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -57,7 +56,6 @@ import javax.inject.Inject;
 
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial.OnMenuItemClickListener;
-import io.github.kobakei.materialfabspeeddial.FabSpeedDialMenu;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
@@ -85,8 +83,6 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	EventBus eventBus;
 	@Inject
 	AndroidNotificationManager notificationManager;
-	@Inject
-	FeatureFlags featureFlags;
 
 	private ContactListAdapter adapter;
 	private BriarRecyclerView list;
@@ -126,19 +122,7 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 				container, false);
 
 		FabSpeedDial speedDial = contentView.findViewById(R.id.speedDial);
-		if (featureFlags.shouldEnableRemoteContacts()) {
-			speedDial.addOnMenuItemClickListener(this);
-		} else {
-			speedDial.setMenu(new FabSpeedDialMenu(contentView.getContext()));
-			speedDial.addOnStateChangeListener(open -> {
-				if (open) {
-					Intent intent = new Intent(getContext(),
-							ContactExchangeActivity.class);
-					startActivity(intent);
-					speedDial.closeMenu();
-				}
-			});
-		}
+		speedDial.addOnMenuItemClickListener(this);
 
 		OnContactClickListener<ContactListItem> onContactClickListener =
 				(view, item) -> {
@@ -169,9 +153,10 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 						startActivity(i);
 					}
 				};
-		adapter = new ContactListAdapter(getContext(), onContactClickListener);
+		adapter = new ContactListAdapter(requireContext(),
+				onContactClickListener);
 		list = contentView.findViewById(R.id.list);
-		list.setLayoutManager(new LinearLayoutManager(getContext()));
+		list.setLayoutManager(new LinearLayoutManager(requireContext()));
 		list.setAdapter(adapter);
 		list.setEmptyImage(R.drawable.ic_empty_state_contact_list);
 		list.setEmptyText(getString(R.string.no_contacts));

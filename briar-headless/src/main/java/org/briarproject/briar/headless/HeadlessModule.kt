@@ -98,7 +98,6 @@ internal class HeadlessModule(private val appDir: File) {
     @Provides
     internal fun provideFeatureFlags() = object : FeatureFlags {
         override fun shouldEnableImageAttachments() = false
-        override fun shouldEnableRemoteContacts() = true
         override fun shouldEnablePrivateMessageDeletion() = true
     }
 }

@@ -26,11 +26,6 @@ public class BrambleCoreIntegrationTestModule {
 			}
 
 			@Override
-			public boolean shouldEnableRemoteContacts() {
-				return true;
-			}
-
-			@Override
 			public boolean shouldEnablePrivateMessageDeletion() {
 				return true;
 			}
