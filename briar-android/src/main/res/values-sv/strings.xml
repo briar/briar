@@ -63,7 +63,7 @@
   <!--Transports-->
   <string name="transport_tor">Internet</string>
   <string name="transport_bt">Bluetooth</string>
-  <string name="transport_lan">wifi</string>
+  <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Utloggad från Briar</string>
   <string name="reminder_notification_text">Tryck för att logga in igen.</string>
@@ -118,7 +118,9 @@
   <string name="message_hint">Skriv ett meddelande</string>
   <string name="image_caption_hint">Lägg till bildtext (valfritt)</string>
   <string name="image_attach">Bifoga bild</string>
-  <string name="image_attach_error">Kunde ej bifoga bild</string>
+  <string name="image_attach_error">Kunde inte bifoga en eller flera bilder</string>
+  <string name="image_attach_error_too_big">Bilden är för stor.  Gränsen är %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Bildformatet stöds ej: %s</string>
   <string name="set_contact_alias">Ändra namn på kontakt</string>
   <string name="set_contact_alias_hint">Kontaktnamn</string>
   <string name="set_alias_button">Ändra</string>
@@ -138,6 +140,7 @@
   <string name="dialog_title_image_support">Du kan nu skicka bilder till den här kontakten</string>
   <string name="dialog_message_image_support">Tryck på denna ikon för att bifoga bilder.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Lägg till en närvarande kontakt</string>
   <string name="face_to_face">Du måste personligen träffa den som du vill lägga till som kontakt.\n\nDetta för att undvika att någon senare låtsas vara du eller läser dina meddelanden.</string>
   <string name="continue_button">Fortsätt</string>
   <string name="try_again_button">Försök igen</string>
@@ -152,17 +155,69 @@
   <string name="connecting_to_device">Ansluter till enhet\u2026</string>
   <string name="authenticating_with_device">Autentiserar med enhet\u2026</string>
   <string name="connection_error_title">Kunde ej ansluta till din kontakt</string>
-  <string name="connection_error_explanation">Kontrollera att ni båda är anslutna på samma wifi-nätverk.</string>
-  <string name="connection_error_feedback">Om det här problemet kvarstår, vänligen<a href="feedback">ge feedback</a> så vi kan förbättra appan.</string>
+  <string name="connection_error_explanation">Kontrollera att ni båda är anslutna på samma Wi-Fi-nätverk.</string>
+  <string name="connection_error_feedback">Om det här problemet kvarstår, vänligen<a href="feedback">ge återkoppling</a> så vi kan förbättra appan.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Lägg till en kontakt på avstånd</string>
+  <string name="add_contact_nearby_title">Lägg till en närvarande kontakt</string>
+  <string name="add_contact_remotely_title">Lägg till en kontakt på avstånd</string>
+  <string name="contact_name_hint">Ge kontakten ett smeknamn</string>
+  <string name="contact_link_intro">Skriv in länken från din kontakt här</string>
+  <string name="contact_link_hint">Kontaktens länk</string>
   <string name="paste_button">Klistra in</string>
+  <string name="add_contact_button">Lägg till kontakt</string>
   <string name="copy_button">Kopiera</string>
   <string name="share_button">Dela</string>
+  <string name="send_link_title">Utbyt länkar</string>
+  <string name="add_contact_choose_nickname">Välj smeknamn</string>
+  <string name="add_contact_choose_a_nickname">Skriv ett smeknamn</string>
+  <string name="nickname_intro">Ge din kontakt ett smeknamn. Bara du kan se detta.</string>
+  <string name="your_link">Ge den här länken till kontakten du vill lägga till</string>
+  <string name="link_clip_label">Briar-länk</string>
+  <string name="link_copied_toast">Länken kopierades</string>
+  <string name="adding_contact_error">Något gick fel när kontakten skulle läggas till.</string>
+  <string name="pending_contact_requests_snackbar">Det finns väntande kontaktförfrågningar</string>
+  <string name="pending_contact_requests">Väntande kontaktförfrågningar</string>
+  <string name="no_pending_contacts">Inga väntande kontakter</string>
   <string name="add_contact_remote_connecting">Ansluter...</string>
+  <string name="waiting_for_contact_to_come_online">Väntar på att kontakten ska koppla upp sig...</string>
   <string name="connecting">Ansluter...</string>
+  <string name="adding_contact">Lägger till kontakt...</string>
+  <string name="adding_contact_failed">Kontakten kunde ej läggas till</string>
+  <string name="dialog_title_remove_pending_contact">Bekräfta borttagning</string>
+  <string name="dialog_message_remove_pending_contact">Denna kontakt håller på att läggas till. Om du tar bort den nu kommer den ej läggas till.</string>
+  <string name="own_link_error">Skriv in länken du fick från din kontakt, inte din egna länk</string>
+  <string name="nickname_missing">Skriv in ett smeknamn</string>
+  <string name="invalid_link">Felakting länk</string>
+  <string name="unsupported_link">Denna länk kommer från en nyare version av Briar. Var snäll och uppgradera till den senaste versionen och försök igen.</string>
+  <string name="intent_own_link">Du har öppnat din egna länk. Använd länken du fick från kontakten du vill lägga till!</string>
+  <string name="missing_link">Skriv in en länk</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">Ett</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">%d nya kontakter lades till.</item>
+    <item quantity="other">%d nya kontakter lades till.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Det tar längre tid än vanligt att lägga till den här kontakten.</string>
+  <string name="adding_contact_slow_title">Kan ej ansluta till kontakten</string>
+  <string name="adding_contact_slow_text">Det tar längre tid än vanligt att lägga till den här kontakten.\n\nVänligen kontrollera att din kontakt har tagit emot din länk och lagt till dig:</string>
+  <string name="offline_state">Ingen Internetanslutning</string>
+  <string name="duplicate_link_dialog_title">Kopiera länk</string>
+  <string name="duplicate_link_dialog_text_1">Du har redan en väntande kontakt med den här länken: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Är %s och %s samma person?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Samma person</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Olika personer</string>
+  <string name="duplicate_link_dialog_text_3">%s och %s har skickat samma länk till dig.\n\nEn av dem kanske försöker ta reda på vilka kontakter du har.\n\nSäg inte till någon av dem att du tagit emot samma länk från någon annan.</string>
+  <string name="pending_contact_updated_toast">Väntande kontakt har uppdaterats</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentera dina kontakter</string>
   <string name="introduction_onboarding_text">Du kan presentera dina kontakter för varandra, på så sätt behöver de inte träffas personligen för att lägga till varandra på Briar.</string>
@@ -279,7 +334,7 @@
   <string name="forum_invitation_response_accepted_sent">Du godkände foruminbjudan från %s.</string>
   <string name="forum_invitation_response_declined_sent">Du avvisade foruminbjudan från %s.</string>
   <string name="forum_invitation_response_accepted_received">%s godkände foruminbjudan.</string>
-  <string name="forum_invitation_response_declined_received">%savvisade foruminbjudan.</string>
+  <string name="forum_invitation_response_declined_received">%s avvisade foruminbjudan.</string>
   <string name="sharing_status">Delningsstatus</string>
   <string name="sharing_status_forum">Alla medlemmar i ett forum kan bjuda in sina kontakter. Du har bjudit in följande kontakter till detta forum. Det kan finnas fler forummedlemmar som du inte kan se.</string>
   <string name="shared_with">Delas med %1$d (%2$d uppkopplade)</string>
@@ -424,8 +479,8 @@
   <string name="choose_ringtone_title">Välj ringsignal</string>
   <string name="cannot_load_ringtone">Kan ej ladda ringsignal</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Feedback</string>
-  <string name="send_feedback">Ge feedback</string>
+  <string name="feedback_settings_title">Återkoppling</string>
+  <string name="send_feedback">Ge återkoppling</string>
   <!--Link Warning-->
   <string name="link_warning_title">Länkvarning</string>
   <string name="link_warning_intro">Följande länk är på väg att öppnas i en extern app.</string>
@@ -437,10 +492,10 @@
   <string name="not_your_fault">Detta är inte ditt fel.</string>
   <string name="please_send_report">Hjälp oss att förbättra Briar genom att skicka en felrapport.</string>
   <string name="report_is_encrypted">Vi lovar att felrapporten är krypterad och skickas säkert.</string>
-  <string name="feedback_title">Feedback</string>
+  <string name="feedback_title">Återkoppling</string>
   <string name="describe_crash">Beskriv vad som hänt (valfritt)</string>
-  <string name="enter_feedback">Ge din feedback</string>
-  <string name="optional_contact_email">Din epostadress (valfritt)</string>
+  <string name="enter_feedback">Ge din återkoppling</string>
+  <string name="optional_contact_email">Din e-postadress (valfritt)</string>
   <string name="include_debug_report_crash">Inkludera anonym data om krashen.</string>
   <string name="include_debug_report_feedback">Inkludera anonym data om den här enheten</string>
   <string name="could_not_load_report_data">Kunde ej ladda rapportdata.</string>

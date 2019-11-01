@@ -118,10 +118,17 @@
   <string name="message_hint">Scrivi un messaggio</string>
   <string name="image_caption_hint">Aggiungi una didascalia (facoltativo)</string>
   <string name="image_attach">Allega immagine</string>
-  <string name="image_attach_error">Non è stato possibile allegare l\'immagine</string>
+  <string name="image_attach_error">Impossibile allegare l\'immagine/i</string>
+  <string name="image_attach_error_too_big">Immagine troppo grande. Il limite è di %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Formato immagine non supportato: %s</string>
   <string name="set_contact_alias">Cambia il nome del contatto</string>
   <string name="set_contact_alias_hint">Nome contatto</string>
   <string name="set_alias_button">Cambia</string>
+  <string name="delete_all_messages">Elimina tutti i messaggi</string>
+  <string name="dialog_title_delete_all_messages">Conferma l\'eliminazione dei messaggi</string>
+  <string name="dialog_message_delete_all_messages">Sei sicuro di voler eliminare tutti i messaggi?</string>
+  <string name="dialog_title_not_all_messages_deleted">Impossibile eliminare i messaggi</string>
+  <string name="dialog_message_not_all_messages_deleted">I messaggi relativi a presentazioni o inviti in corso non posssono essere eliminati fino alla loro conclusione.</string>
   <string name="delete_contact">Elimina contatto</string>
   <string name="dialog_title_delete_contact">Conferma cancellazione contatto</string>
   <string name="dialog_message_delete_contact">Sei sicuro di voler rimuovere questo contatto e tutti i messaggi scambiati con esso?</string>
@@ -137,8 +144,9 @@
   <string name="dialog_message_no_image_support">Il Briar del tuo contatto non supporta ancora le immagini in allegato. Quando avrà aggiornato vedrai un\'icona diversa.</string>
   <string name="dialog_title_image_support">Ora puoi inviare immagini a questo contatto</string>
   <string name="dialog_message_image_support">Tocca questa icona per allegare immagini.</string>
+  <string name="messaging_too_many_attachments_toast">Verranno inviate solo le prime %d immagini</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Aggiungi contatto vicino</string>
+  <string name="add_contact_title">Aggiungi contatti vicino</string>
   <string name="face_to_face">Devi incontrarti con la persona che vuoi aggiungere come contatto.\n\nQuesto evita che qualcuno ti impersoni o legga i tuoi messaggi in futuro.</string>
   <string name="continue_button">Continua</string>
   <string name="try_again_button">Riprova</string>
@@ -160,7 +168,7 @@
   <string name="add_contact_nearby_title">Aggiungi contatto vicino</string>
   <string name="add_contact_remotely_title">Aggiungi contatto distante</string>
   <string name="contact_name_hint">Dai un nickname al contatto</string>
-  <string name="contact_link_intro">Inserisci il link dal tuo contatto qui</string>
+  <string name="contact_link_intro">Inserisci qui il link dal tuo contatto</string>
   <string name="contact_link_hint">Link del contatto</string>
   <string name="paste_button">Incolla</string>
   <string name="add_contact_button">Aggiungi contatto</string>
@@ -178,13 +186,16 @@
   <string name="pending_contact_requests">Richieste di contatto in attesa</string>
   <string name="no_pending_contacts">Nessun contatto in attesa</string>
   <string name="add_contact_remote_connecting">Connessione in corso...</string>
-  <string name="waiting_for_contact_to_come_online">In attesa che il contatto sia in linea…\n\nHa già inserito il tuo link?</string>
+  <string name="waiting_for_contact_to_come_online">In attesa che il contatto sia in linea...</string>
   <string name="connecting">Connessione in corso...</string>
   <string name="adding_contact">Aggiunta contatto…</string>
   <string name="adding_contact_failed">Aggiunta del contatto fallita</string>
+  <string name="dialog_title_remove_pending_contact">Conferma la rimozione</string>
+  <string name="dialog_message_remove_pending_contact">Questo contatto sta ancora per essere aggiunto. Se lo rimuovi ora, non verrà aggiunto.</string>
   <string name="own_link_error">Inserisci il link del contatto, non il tuo</string>
   <string name="nickname_missing">Inserisci un nickname</string>
   <string name="invalid_link">Link non valido</string>
+  <string name="unsupported_link">Questo collegamento viene da una versione più recente di Briar. Aggiorna all\'ultima versione e riprova.</string>
   <string name="intent_own_link">Hai aperto il tuo stesso link. Usa quello del contatto che vuoi aggiungere!</string>
   <string name="missing_link">Inserisci un link</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -195,6 +206,25 @@
     <item quantity="one">Nuovo contatto aggiunto.</item>
     <item quantity="other">%d nuovi contatti aggiunti.</item>
   </plurals>
+  <string name="adding_contact_slow_warning">L\'aggiunta di questo contatto sta impiegando più tempo del solito</string>
+  <string name="adding_contact_slow_title">Impossibile connettersi al contatto</string>
+  <string name="adding_contact_slow_text">L\'aggiunta di questo contatto sta impiegando più tempo del solito.\n\nControlla che il tuo contatto abbia ricevuto il tuo link e ti abbia aggiunto:</string>
+  <string name="offline_state">Nessuna connessione internet</string>
+  <string name="duplicate_link_dialog_title">Duplica il link</string>
+  <string name="duplicate_link_dialog_text_1">Hai già un contatto in attesa con questo link: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Hai già un contatto con questo link: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s e %s sono la stessa persona?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Stessa persona</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Persone diverse</string>
+  <string name="duplicate_link_dialog_text_3">%s e %s ti hanno inviato lo stesso link.\n\nUno dei due potrebbe tentare di scoprire chi sono i tuoi contatti.\n\nNon dirgli che hai ricevuto lo stesso link da qualcun altro.</string>
+  <string name="pending_contact_updated_toast">Contatto in attesa aggiornato</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduzione tuoi contatti</string>
   <string name="introduction_onboarding_text">Puoi presentare i tuoi contatti fra di loro, così non hanno bisogno di incontrarsi di persona per connettersi a Briar.</string>

@@ -131,10 +131,17 @@
   <string name="message_hint">הקלד הודעה</string>
   <string name="image_caption_hint">הוסף כיתוב (רשותי)</string>
   <string name="image_attach">צרף תמונה</string>
-  <string name="image_attach_error">לא היה ניתן לצרף תמונה</string>
+  <string name="image_attach_error">לא היה ניתן לצרף תמונה (או תמונות)</string>
+  <string name="image_attach_error_too_big">התמונה גדולה מדי. המגבלה היא %d מ\"ב.</string>
+  <string name="image_attach_error_invalid_mime_type">תסדיר תמונה בלתי נתמך: %s</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
   <string name="set_alias_button">שַׁנֵּה</string>
+  <string name="delete_all_messages">מחק את כל ההודעות</string>
+  <string name="dialog_title_delete_all_messages">אשר מחיקת הודעה</string>
+  <string name="dialog_message_delete_all_messages">האם אתה בטוח שאתה רוצה למחוק את כל ההודעות?</string>
+  <string name="dialog_title_not_all_messages_deleted">לא היה ניתן למחוק את כל ההודעות</string>
+  <string name="dialog_message_not_all_messages_deleted">הודעות שקשורות אל היכרויות מתמשכות או הזמנות אינן יכולות להימחק עד שההיכרויות או ההזמנות יסוימו.</string>
   <string name="delete_contact">מחק איש קשר</string>
   <string name="dialog_title_delete_contact">אשר מחיקת איש קשר</string>
   <string name="dialog_message_delete_contact">האם אתה בטוח שאתה רוצה למחוק איש קשר זה ואת כל ההודעות שהוחלפו עם איש קשר זה?</string>
@@ -150,6 +157,7 @@
   <string name="dialog_message_no_image_support">Briar של איש הקשר שלך אינו תומך בצרופות תמונה. ברגע שהוא ישדרג, תראה צלמית שונה.</string>
   <string name="dialog_title_image_support">אתה יכול כעת לשלוח תמונות אל איש קשר זה</string>
   <string name="dialog_message_image_support">הקש על צלמית זו כדי לצרף תמונות.</string>
+  <string name="messaging_too_many_attachments_toast">רק %d התמונות הראשונות יישלחו</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">הוסף איש קשר בקרבה</string>
   <string name="face_to_face">אתם חייבים להפגש עם האדם שאותו תרצו להוסיף כאיש קשר.
@@ -193,13 +201,16 @@
   <string name="pending_contact_requests">בקשות ממתינות של אנשי קשר</string>
   <string name="no_pending_contacts">אין בקשות ממתינות של אנשי קשר</string>
   <string name="add_contact_remote_connecting">מתחבר...</string>
-  <string name="waiting_for_contact_to_come_online">ממתין אל איש הקשר שיהיה מקוון...\n\nהאם הוא הכניס כבר את הקישור?</string>
+  <string name="waiting_for_contact_to_come_online">ממתין אל איש הקשר שיהיה מקוון...</string>
   <string name="connecting">מתחבר...</string>
   <string name="adding_contact">מוסיף איש קשר...</string>
   <string name="adding_contact_failed">הוספת איש קשר נכשלה</string>
+  <string name="dialog_title_remove_pending_contact">אשר הסרה</string>
+  <string name="dialog_message_remove_pending_contact">איש קשר זה מתווסף. אם תסיר אותו כעת, הוא לא יתווסף.</string>
   <string name="own_link_error">הכנס את הקישור של איש הקשר שלך, לא את שלך</string>
   <string name="nickname_missing">אנא הכנס כינוי</string>
   <string name="invalid_link">קישור בלתי תקף</string>
+  <string name="unsupported_link">קישור זה מגיע מגרסה חדשה יותר של Briar. אנא שדרג אל הגרסה האחרונה ונסה שוב.</string>
   <string name="intent_own_link">פתחת את הקישור של עצמך. השתמש באחד של איש הקשר שאתה רוצה להוסיף!</string>
   <string name="missing_link">אנא הכנס קישור</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -212,6 +223,25 @@
     <item quantity="many">%dאנשי קשר חדשים התווספו. </item>
     <item quantity="other">%d אנשי קשר חדשים התווספו.</item>
   </plurals>
+  <string name="adding_contact_slow_warning">הוספת איש קשר זה לוקחת מעבר לזמן הרגיל</string>
+  <string name="adding_contact_slow_title">לא ניתן להתחבר אל איש קשר</string>
+  <string name="adding_contact_slow_text">הוספת איש קשר זה לוקחת מעבר לזמן הרגיל.\n\nאנא בדוק שאיש הקשר שלך קיבל את הקישור שלך ושהוא הוסיף אותך:</string>
+  <string name="offline_state">אין חיבור אינטרנט</string>
+  <string name="duplicate_link_dialog_title">קישור כפול</string>
+  <string name="duplicate_link_dialog_text_1">יש לך כבר איש קשר ממתין עם קישור זה: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">יש לך כבר איש קשר עם קישור זה: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">האם %s ו־%s הם אותו איש?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">אותו איש</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">איש שונה</string>
+  <string name="duplicate_link_dialog_text_3">%s ו־%s שלחו לך את אותו הקישור.\n\nייתכן שאחד מהם מנסה לגלות מי הם אנשי הקשר שלך.\n\nאל תגיד לו שקיבלת את אותו הקישור ממישהו אחר.</string>
+  <string name="pending_contact_updated_toast">איש קשר ממתין עודכן</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">הציגו את אנשי קשר שלכם</string>
   <string name="introduction_onboarding_text">אתם יכולים להציג את אנשי הקשר שלכם אחד לשני, כך שהם לא צריכים להפגש פנים-מול-פנים על מנת להתחבר בבריאר.</string>

@@ -35,7 +35,7 @@
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
   <string name="startup_failed_db_error">Pour quelque raison, votre base de données Briar est corrompue sans espoir de réparation. Votre compte, vos données et tous vos contacts sont perdus. Malheureusement, vous devez réinstaller Briar et créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » dans l’invite de mot de passe.</string>
   <string name="startup_failed_data_too_old_error">Votre compte a été créé avec une ancienne version de cette appli et ne peut pas être ouvert avec cette version. Vous devez soit réinstaller l’ancienne version, soit créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » dans l’invite de mot de passe.</string>
-  <string name="startup_failed_data_too_new_error">Cette version de l’appli est trop ancienne. Veuillez la mettre à niveau vers la dernière version et ressayer.</string>
+  <string name="startup_failed_data_too_new_error">Cette version de l’appli est trop ancienne. Veuillez passer à la version la plus récente et ressayer.</string>
   <string name="startup_failed_service_error">Briar n’a pas pu démarrer un greffon exigé. Réinstaller Briar résout généralement ce problème. Veuillez cependant noter que vous perdrez votre compte et toutes données relatives puisque Briar n’utilise pas de serveurs centralisés sur lesquels enregistrer vos données.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
@@ -118,10 +118,17 @@
   <string name="message_hint">Rédiger le message</string>
   <string name="image_caption_hint">Ajouter une légende (facultatif)</string>
   <string name="image_attach">Joindre une image</string>
-  <string name="image_attach_error">Impossible d’attacher une image</string>
+  <string name="image_attach_error">Impossible de joindre une ou des images</string>
+  <string name="image_attach_error_too_big">L’image est trop volumineuse. La limite est %d Mo</string>
+  <string name="image_attach_error_invalid_mime_type">Format d’image non pris en charge : %s</string>
   <string name="set_contact_alias">Changer le nom du contact</string>
   <string name="set_contact_alias_hint">Nom du contact</string>
   <string name="set_alias_button">Modifier</string>
+  <string name="delete_all_messages">Supprimer tous les messages</string>
+  <string name="dialog_title_delete_all_messages">Confirmer la suppression des messages</string>
+  <string name="dialog_message_delete_all_messages">Voulez-vous vraiment supprimer tous les messages ?</string>
+  <string name="dialog_title_not_all_messages_deleted">Impossible de supprimer tous les messages</string>
+  <string name="dialog_message_not_all_messages_deleted">Les messages relatifs aux présentations ou invitations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
   <string name="delete_contact">Supprimer le contact</string>
   <string name="dialog_title_delete_contact">Confirmer la suppression du contact</string>
   <string name="dialog_message_delete_contact">Voulez-vous vraiment supprimer ce contact et tous les messages associés ?</string>
@@ -137,18 +144,19 @@
   <string name="dialog_message_no_image_support">Le Briar de votre contact ne prend pas encore en charge les images jointes. Une fois que son appli aura été mise à niveau, vous verrez une icône différente.</string>
   <string name="dialog_title_image_support">Vous pouvez désormais envoyer des images à ce contact</string>
   <string name="dialog_message_image_support">Touchez cette icône pour joindre des images.</string>
+  <string name="messaging_too_many_attachments_toast">Seules les %d premières images seront envoyées</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajouter un contact à proximité</string>
   <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>
   <string name="continue_button">Continuer</string>
   <string name="try_again_button">Ressayer</string>
-  <string name="waiting_for_contact_to_scan">En attente de lecture du code QR par le contact et de sa connexion\u2026</string>
+  <string name="waiting_for_contact_to_scan">En attente de balayage du code QR par le contact et de sa connexion\u2026</string>
   <string name="exchanging_contact_details">Échange des renseignements de contact\u2026</string>
   <string name="contact_added_toast">Contact ajouté : %s</string>
   <string name="contact_already_exists">Le contact %s existe déjà</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
-  <string name="qr_code_too_old">Le code QR que vous avez lu provient d’une version plus ancienne de %s.\n\nVeuillez demander à votre contact de passer à la version la plus récente, puis ressayez.</string>
-  <string name="qr_code_too_new">Le code QR que vous avez lu provient d’une version plus récente de %s.\n\nVeuillez passer à la version la plus récente, puis ressayez.</string>
+  <string name="qr_code_too_old">Le code QR que vous avez balayé provient d’une version plus ancienne de %s.\n\nVeuillez demander à votre contact de passer à la version la plus récente et ressayer.</string>
+  <string name="qr_code_too_new">Le code QR que vous avez balayé provient d’une version plus récente de %s.\n\nVeuillez passer à la version la plus récente et ressayer.</string>
   <string name="camera_error">Erreur de l’appareil photo</string>
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
@@ -178,13 +186,16 @@
   <string name="pending_contact_requests">Demandes de contact en attente</string>
   <string name="no_pending_contacts">Il n’y a aucun contact en attente</string>
   <string name="add_contact_remote_connecting">Connexion…</string>
-  <string name="waiting_for_contact_to_come_online">En attente de l’arrivée en ligne du contact…\n\nA-t-il déjà saisi votre lien ?</string>
+  <string name="waiting_for_contact_to_come_online">En attente de l’arrivée en ligne du contact…</string>
   <string name="connecting">Connexion…</string>
   <string name="adding_contact">Ajout du contact…</string>
   <string name="adding_contact_failed">Échec d’ajout du contact</string>
+  <string name="dialog_title_remove_pending_contact">Confirmer la suppression</string>
+  <string name="dialog_message_remove_pending_contact">Le contact est encore en cours d’ajout. Si vous le supprimez maintenant, il ne sera pas ajouté.</string>
   <string name="own_link_error">Saisissez le lien de votre contact, pas le vôtre</string>
   <string name="nickname_missing">Veuillez saisir un pseudonyme</string>
   <string name="invalid_link">Le lien est invalide</string>
+  <string name="unsupported_link">Ce lien provient d’une version plus récente de Briar. Veuillez passer à la version la plus récente et ressayer.</string>
   <string name="intent_own_link">Vous avez ouvert votre propre lien. Utilisez celui du contact que vous souhaitez ajouter.</string>
   <string name="missing_link">Veuillez saisir un lien</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -195,6 +206,25 @@
     <item quantity="one">Un nouveau contact a été ajouté</item>
     <item quantity="other">%d nouveaux contacts ont été ajoutés.</item>
   </plurals>
+  <string name="adding_contact_slow_warning">L’ajout de ce contact prend plus longtemps que d’habitude</string>
+  <string name="adding_contact_slow_title">Impossible de se connecter au contact</string>
+  <string name="adding_contact_slow_text">L’ajout de ce contact prend plus longtemps que d’habitude.\n\nVeuillez vérifier si votre contact a reçu votre lien et vous a ajouté :</string>
+  <string name="offline_state">Aucune connexion à Internet</string>
+  <string name="duplicate_link_dialog_title">Lien en double</string>
+  <string name="duplicate_link_dialog_text_1">Vous avez déjà un contact en attente avec ce lien : %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Vous avez déjà un contact avec ce lien : %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s et %s sont-elles la même personne ?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">La même personne</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Une personne différente</string>
+  <string name="duplicate_link_dialog_text_3">%s et %s vous ont envoyé le même lien.\n\nL\'une d’elle pourrait tenter de découvrir qui sont vos contacts.\n\nNe lui dites pas que vous avez reçu le même lien de quelqu’un d’autre.</string>
+  <string name="pending_contact_updated_toast">Le contact en attente a été mis à jour</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Présenter vos contacts</string>
   <string name="introduction_onboarding_text">Vous pouvez présenter vos contacts mutuellement, afin qu’ils n’aient pas à se rencontrer en personne pour se connecter les uns aux autres avec Briar.</string>
@@ -487,11 +517,11 @@
   <string name="screen_filter_allow">Permettre à ces applis de s’afficher par-dessus</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Autorisation d’accès à l’appareil photo</string>
-  <string name="permission_camera_request_body">Afin de lire le code QR, Briar doit accéder à l’appareil photo.</string>
+  <string name="permission_camera_request_body">Afin de balayer le code QR, Briar doit accéder à l’appareil photo.</string>
   <string name="permission_location_title">Autorisation d’accès à la position</string>
   <string name="permission_location_request_body">Afin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
   <string name="permission_camera_location_title">Appareil photo et position</string>
-  <string name="permission_camera_location_request_body">Afin de lire le code QR, Briar doit accéder à l’appareil photo.\n\nAfin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
+  <string name="permission_camera_location_request_body">Afin de balayer le code QR, Briar doit accéder à l’appareil photo.\n\nAfin de découvrir des périphériques Bluetooth, Briar doit accéder à votre position.\n\nBriar n’enregistre pas votre position et ne la partage avec personne.</string>
   <string name="permission_camera_denied_body">Vous avez refusé l’accès à la caméra, mais l’ajout de contacts exige l’utilisation de celle-ci.\n\nVeuillez envisager d’y accorder l’accès.</string>
   <string name="qr_code">Code QR</string>
   <string name="show_qr_code_fullscreen">Afficher le code QR en plein écran</string>

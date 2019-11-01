@@ -118,7 +118,9 @@
   <string name="message_hint">Schrijf een bericht</string>
   <string name="image_caption_hint">Voeg een titel toe (optioneel)</string>
   <string name="image_attach">Voeg een afbeelding toe</string>
-  <string name="image_attach_error">Kon afbeelding niet toevoegen</string>
+  <string name="image_attach_error">Kon afbeelding(en) niet toevoegen</string>
+  <string name="image_attach_error_too_big">Afbeelding is te groot. Grens is %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Bestandsformaat wordt niet ondersteund: %s</string>
   <string name="set_contact_alias">Verander naam van contact</string>
   <string name="set_contact_alias_hint">Contactnaam</string>
   <string name="set_alias_button">Wijzigen</string>
@@ -138,6 +140,7 @@
   <string name="dialog_title_image_support">Je kan nu afbeeldingen naar dit contact sturen</string>
   <string name="dialog_message_image_support">Tik op dit icoon om afbeelding bij te sluiten.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Voeg contact in de buurt toe</string>
   <string name="face_to_face">Je moet een persoon in levenden lijve ontmoeten om die als contact toe te voegen.\n\nDit voortkomt dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
   <string name="continue_button">Ga verder</string>
   <string name="try_again_button">Probeer nog een keer</string>
@@ -155,15 +158,66 @@
   <string name="connection_error_explanation">Controleer alsjeblieft dat jullie beiden met hetzelfde wifinetwerk zijn verbonden.</string>
   <string name="connection_error_feedback">Als dit probleem aanhoudt, <a href="feedback">stuur feedback</a> alsjeblieft om ons te helpen de app te verbeteren.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Voeg een contact ver weg toe</string>
+  <string name="add_contact_nearby_title">Voeg contact dat in de buurt is toe</string>
+  <string name="add_contact_remotely_title">Voeg een contact dat niet in de buurt is toe</string>
+  <string name="contact_name_hint">Geef contact een bijnaam</string>
+  <string name="contact_link_intro">Voer de link van je contact hier in</string>
+  <string name="contact_link_hint">Link van contact</string>
   <string name="paste_button">Plakken</string>
+  <string name="add_contact_button">Voeg contact toe</string>
   <string name="copy_button">Kopiëren</string>
   <string name="share_button">Delen</string>
+  <string name="send_link_title">Wissel links uit</string>
+  <string name="add_contact_choose_nickname">Kies bijnaam</string>
+  <string name="add_contact_choose_a_nickname">Voer bijnaam in</string>
+  <string name="nickname_intro">Geef je contact een bijnaam. Alleen jij dat dit zien.</string>
+  <string name="your_link">Geef deze link aan de contact die je toe wil voegen</string>
+  <string name="link_clip_label">Briar-link</string>
+  <string name="link_copied_toast">Link is gekopieerd</string>
+  <string name="adding_contact_error">Er was een probleem met toevoegen van het contact.</string>
+  <string name="pending_contact_requests_snackbar">Er zijn geen wachtende contactverzoeken</string>
+  <string name="pending_contact_requests">Wachtende contactverzoeken</string>
+  <string name="no_pending_contacts">Geen wachtende contactverzoeken</string>
   <string name="add_contact_remote_connecting">Bezig met verbinden...</string>
+  <string name="waiting_for_contact_to_come_online">Aan het wachten tot contact online komt...</string>
   <string name="connecting">Bezig met verbinden...</string>
+  <string name="adding_contact">Contact aan het toevoegen...</string>
+  <string name="adding_contact_failed">Toevoegen van contact is gefaald</string>
+  <string name="dialog_title_remove_pending_contact">Bevestig verwijderen</string>
+  <string name="dialog_message_remove_pending_contact">Dit contact wordt nog toegevoegd. Als je het nu verwijderd, zal het niet worden toegevoegd.</string>
+  <string name="own_link_error">Voer de link van je contact in, niet je eigenste</string>
+  <string name="nickname_missing">Voer a.u.b. een bijnaam in</string>
+  <string name="invalid_link">Ongeldige link</string>
+  <string name="unsupported_link">Deze link komt van een nieuwe versie van Briar. Upgrade alsjeblieft naar de laatste versie en probeer het nog eens.</string>
+  <string name="intent_own_link">Je hebt je eigen link geopend. Gebruik de link van jouw contact die je wil toevoegen!</string>
+  <string name="missing_link">Voeg a.u.b. link in</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Nieuw contact toegevoegd</item>
+    <item quantity="other">%d nieuwe contacten zijn toegevoegd.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Toevoegen van dit contact duurt langer dan gebruikelijk</string>
+  <string name="adding_contact_slow_title">Kan niet verbinden met contact</string>
+  <string name="adding_contact_slow_text">Het toeveogen van dit contact duurt langer dan gebruikelijk.\n\nGa alsjeblieft na of je contact jouw link heeft ontvangen en je heeft toegevoegd.</string>
+  <string name="offline_state">Geen internetverbinding</string>
+  <string name="duplicate_link_dialog_title">Duplicate link</string>
+  <string name="duplicate_link_dialog_text_1">Je hebt al en wachtend contact met deze link: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Zijn %s en %s dezelfde persoon?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Zelfde persoon</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Ander persoon</string>
+  <string name="duplicate_link_dialog_text_3">%s en %s hebben je dezelfde link gestuurd.\n\nEen van hen kan proberen te ontdekken wie jouw contacten zijn.\n\nVertel ze niet dat je dezelfde link al van een ander persoon hebt ontvangen.</string>
+  <string name="pending_contact_updated_toast">Wachtend contact is bijgewerkt</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Introduceer je contacten</string>
   <string name="introduction_onboarding_text">Je kan je contacten aan elkaar introduceren zodat ze niet in levenden lijve elkaar te hoeven ontmoeten om op Briar in contact te komen.</string>

@@ -125,7 +125,6 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="message_hint">Ukucajte poruku</string>
   <string name="image_caption_hint">Dodaj naslov (opciono)</string>
   <string name="image_attach">Zakaci sliku</string>
-  <string name="image_attach_error">Nisam mogao da zakacim sliku</string>
   <string name="set_contact_alias">Promijeni ime kontakta</string>
   <string name="set_contact_alias_hint">Ime kontakta</string>
   <string name="set_alias_button">Promijeni</string>
@@ -163,6 +162,13 @@ Jeste li sigurno da zelite da je sacuvate?</string>
   <string name="step_1">1 </string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">Upoznajte vaše kontakte</string>
   <string name="introduction_onboarding_text">Vi možete da upoznate vaše kontakte međusobno, da nebi morali da srijeću lice u liceda bi se povezali na Briar.</string>

@@ -128,10 +128,13 @@
   <string name="message_hint">Введіть повідомлення</string>
   <string name="image_caption_hint">Додати заголовок (за бажанням)</string>
   <string name="image_attach">Прикріпити зображення</string>
-  <string name="image_attach_error">Не вдалося прикріпити зображення</string>
+  <string name="image_attach_error">Неможливо приєднати зображення</string>
+  <string name="image_attach_error_too_big">Зображення надто велике. Обмеження становить %d МБ.</string>
+  <string name="image_attach_error_invalid_mime_type">Формат зображення непідтримуваний: %s</string>
   <string name="set_contact_alias">Змінити ім\'я контакту</string>
   <string name="set_contact_alias_hint">Назва контакту</string>
   <string name="set_alias_button">Змінити</string>
+  <string name="dialog_title_not_all_messages_deleted">Не вдалося видалити всі повідомлення</string>
   <string name="delete_contact">Вилучити контакт</string>
   <string name="dialog_title_delete_contact">Підтвердити вилучення контакту</string>
   <string name="dialog_message_delete_contact">Ви впевнені, що хочете видалити цей контакт і всю історію листування з ним?</string>
@@ -148,6 +151,7 @@
   <string name="dialog_title_image_support">Тепер ви можете надсилати зображення цьому контакту</string>
   <string name="dialog_message_image_support">Натисніть на цю піктограму, щоб прикріпити зображення.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Додати контакт поблизу</string>
   <string name="face_to_face">Ви маєте зустрітися з особою, яку ви бажаєте додати до списку контактів.\n\nЦе виключить можливість у майбутньому будь-кому видавати себе за вас або читати ваші повідомлення.</string>
   <string name="continue_button">Продовжити</string>
   <string name="try_again_button">Спробувати ще раз</string>
@@ -165,15 +169,68 @@
   <string name="connection_error_explanation">Будь ласка, впевніться, що ви обоє під\'єднані до однієї Wi-Fi-мережі.</string>
   <string name="connection_error_feedback">Якщо ця проблема збережеться, будь ласка, <a href="feedback">надішліть відгук</a>, щоб допомогти нам вдосконалити цей додаток.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Додати контакт віддалено</string>
+  <string name="add_contact_nearby_title">Додати контакт поблизу</string>
+  <string name="add_contact_remotely_title">Додати контакт віддалено</string>
+  <string name="contact_name_hint">Дайте прізвисько контакту</string>
+  <string name="contact_link_intro">Введіть посилання від вашого контакту тут</string>
+  <string name="contact_link_hint">Посилання контакту</string>
   <string name="paste_button">Вставити</string>
+  <string name="add_contact_button">Додати контакт</string>
   <string name="copy_button">Копіювати</string>
   <string name="share_button">Поділитися</string>
+  <string name="send_link_title">Обміняти посилання</string>
+  <string name="add_contact_choose_nickname">Вибрати прізвисько</string>
+  <string name="add_contact_choose_a_nickname">Введіть прізвисько</string>
+  <string name="nickname_intro">Дайте вашому контакту прізвисько. Тільки ви зможете його бачити.</string>
+  <string name="your_link">Дайте це посилання контактові, який ви хочете додати</string>
+  <string name="link_clip_label">Посилання Briar</string>
+  <string name="link_copied_toast">Посилання скопійовано</string>
+  <string name="adding_contact_error">Трапилася помилка під час додавання контакту.</string>
+  <string name="pending_contact_requests_snackbar">Наявні нерозглянуті запити на контакт</string>
+  <string name="pending_contact_requests">Нерозглянуті запити на контакт</string>
+  <string name="no_pending_contacts">Відсутні нерозглянуті запити на контакт</string>
   <string name="add_contact_remote_connecting">Під\'єднання...</string>
+  <string name="waiting_for_contact_to_come_online">Очікування появи контакту в мережі...</string>
   <string name="connecting">Під\'єднання...</string>
+  <string name="adding_contact">Додавання контакту...</string>
+  <string name="adding_contact_failed">Додавання контакту провалилося</string>
+  <string name="dialog_title_remove_pending_contact">Підтвердження вилучення</string>
+  <string name="dialog_message_remove_pending_contact">Цей контакт досі додається. Якщо ви видалите його зараз, він не буде доданий.</string>
+  <string name="own_link_error">Введіть посилання на ваш контакт, не ваше власне</string>
+  <string name="nickname_missing">Будь ласка, введіть прізвисько</string>
+  <string name="invalid_link">Недійсне посилання</string>
+  <string name="unsupported_link">Це посилання надійшло від новішої версії Briar. Будь ласка, оновіться до останньої версії та спробуйте знову.</string>
+  <string name="intent_own_link">Ви відкрили своє власне посилання. Використовуйте одне з того контакту, який ви хочете додати!</string>
+  <string name="missing_link">Будь ласка, введіть посилання</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Новий контакт додано.</item>
+    <item quantity="few">%d нові контакти додано.</item>
+    <item quantity="many">%d нових контактів додано.</item>
+    <item quantity="other">%d нового контакту додано.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Додавання цього контакту триває довше, ніж зазвичай.</string>
+  <string name="adding_contact_slow_title">Не можна з\'єднатися з контактом</string>
+  <string name="adding_contact_slow_text">Додавання цього контакту триває довше, ніж зазвичай.\n\nБудь ласка, перевірте, чи ваш контакт отримав посилання і додав вас:</string>
+  <string name="offline_state">Відсутнє з\'єднання з інтернетом</string>
+  <string name="duplicate_link_dialog_title">Дублювати посилання</string>
+  <string name="duplicate_link_dialog_text_1">У вас наявний нерозглянутий запит на контакт з цим посиланням: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s та %s одна й та ж особа?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Одна й та ж особа</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Різні особи</string>
+  <string name="duplicate_link_dialog_text_3">%s та %s надіслали вам однакове посилання.\n\nОдин з них може намагатися виявити, які у вас є контакти.\n\nНе розповідайте їм, що ви отримали те саме посилання від ще когось.</string>
+  <string name="pending_contact_updated_toast">Оновлено нерозглянутий контакт</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Поділитися своїми контактами</string>
   <string name="introduction_onboarding_text">Ви можете познайомити свої контакти один з одним, таким чином їм не доведеться зустрічатися особисто, щоб під\'єднатися до Briar.</string>

@@ -118,10 +118,17 @@
   <string name="message_hint">Escribe un mensaje</string>
   <string name="image_caption_hint">Añade una breve descripción (opcional)</string>
   <string name="image_attach">Adjuntar imagen</string>
-  <string name="image_attach_error">No se pudo adjuntar imagen</string>
+  <string name="image_attach_error">No se pudieron adjuntar las imágenes</string>
+  <string name="image_attach_error_too_big">Imagen demasiado grande. El límite es de %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Formato de imagen no admitido: %s</string>
   <string name="set_contact_alias">Cambiar nombre del contacto</string>
   <string name="set_contact_alias_hint">Nombre del contacto</string>
   <string name="set_alias_button">Cambiar</string>
+  <string name="delete_all_messages">Eliminar todos los mensajes</string>
+  <string name="dialog_title_delete_all_messages">Confirmar la eliminación del mensaje</string>
+  <string name="dialog_message_delete_all_messages">¿Estás seguro de que deseas eliminar todos los mensajes?</string>
+  <string name="dialog_title_not_all_messages_deleted">No se pudieron eliminar todos los mensajes.</string>
+  <string name="dialog_message_not_all_messages_deleted">Los mensajes relacionados con presentaciones o invitaciones en curso no se pueden eliminar hasta que finalicen.</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirmar eliminación de contacto</string>
   <string name="dialog_message_delete_contact">¿Seguro que quieres eliminar este contacto y todos los mensajes intercambiados entre vosotros?</string>
@@ -137,7 +144,9 @@
   <string name="dialog_message_no_image_support">El Briar de tu contacto todavía no soporta imágenes. Una vez que lo actualice verás un ícono diferente.</string>
   <string name="dialog_title_image_support">Ahora puedes enviar imágenes a este contacto.</string>
   <string name="dialog_message_image_support">Pulsa este ícono para adjuntar imágenes.</string>
+  <string name="messaging_too_many_attachments_toast">Solo se enviarán las primeras %d  imágenes</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Agregar Contacto Cercano</string>
   <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Prueba de nuevo</string>
@@ -155,15 +164,67 @@
   <string name="connection_error_explanation">Por favor comprobar que ambos estén conectados a la misma red Wi-Fi.</string>
   <string name="connection_error_feedback">Si este problema persiste, por favor <a href="feedback">envía tus comentarios</a> para ayudarnos a mejorar la aplicación.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Añadir un Contacto a Distancia</string>
+  <string name="add_contact_nearby_title">Agregar un contacto cercano</string>
+  <string name="add_contact_remotely_title">Añadir un contacto a distancia</string>
+  <string name="contact_name_hint">Ponerle un sobrenombre al contacto</string>
+  <string name="contact_link_intro">Introduzca el enlace de su contacto aquí</string>
+  <string name="contact_link_hint">Enlace de contacto</string>
   <string name="paste_button">Pegar</string>
+  <string name="add_contact_button">Agregar contacto</string>
   <string name="copy_button">Copiar</string>
   <string name="share_button">Compartir</string>
+  <string name="send_link_title">Intercambiar enlaces</string>
+  <string name="add_contact_choose_nickname">Elija un sobrenombre</string>
+  <string name="add_contact_choose_a_nickname">Ingrese un sobrenombre</string>
+  <string name="nickname_intro">Dele a su contacto un sobrenombre. Sólo usted puede verlo.</string>
+  <string name="your_link">Déle este enlace al contacto que desea añadir</string>
+  <string name="link_clip_label">Enlace Briar</string>
+  <string name="link_copied_toast">Enlace copiado</string>
+  <string name="adding_contact_error">Se ha producido un error al añadir el contacto.</string>
+  <string name="pending_contact_requests_snackbar">Hay solicitudes de contacto pendientes</string>
+  <string name="pending_contact_requests">Solicitudes de contacto pendientes</string>
+  <string name="no_pending_contacts">No hay contactos pendientes</string>
   <string name="add_contact_remote_connecting">Conectando...</string>
+  <string name="waiting_for_contact_to_come_online">Esperando que el contacto se ponga en línea....</string>
   <string name="connecting">Conectando...</string>
+  <string name="adding_contact">Añadir contacto....</string>
+  <string name="adding_contact_failed">La adición de un contacto ha fallado</string>
+  <string name="dialog_title_remove_pending_contact">Confirmar la eliminación</string>
+  <string name="dialog_message_remove_pending_contact">Este contacto todavía está siendo añadido. Si lo quita ahora, no se añadirá.</string>
+  <string name="own_link_error">Introduzca el enlace de su contacto, no el suyo propio</string>
+  <string name="nickname_missing">Por favor, introduzca un sobrenombre</string>
+  <string name="invalid_link">Enlace inválido</string>
+  <string name="unsupported_link">Este enlace proviene de una nueva versión de Briar. Por favor, actualice a la última versión e inténtelo de nuevo.</string>
+  <string name="intent_own_link">Abrió su propio enlace. ¡Utilice el del contacto que quiere añadir!</string>
+  <string name="missing_link">Por favor, introduzca un enlace</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Nuevo contacto añadido.</item>
+    <item quantity="other">%d nuevos contactos añadidos.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Añadir este contacto tarda más de lo habitual</string>
+  <string name="adding_contact_slow_title">No se puede conectar con el contacto</string>
+  <string name="adding_contact_slow_text">Agregar este contacto está tomando más tiempo de lo normal.\n\nPor favor, compruebe que su contacto ha recibido su enlace y lo ha agregado:</string>
+  <string name="offline_state">No hay conexión a Internet</string>
+  <string name="duplicate_link_dialog_title">Duplicar enlace</string>
+  <string name="duplicate_link_dialog_text_1">Ya tiene un contacto pendiente con este enlace: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Ya tienes un contacto con este enlace: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">¿Son %s y %s la misma persona?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Misma persona</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Diferente Persona</string>
+  <string name="duplicate_link_dialog_text_3">%s y %s le envió el mismo enlace.\n\nUno de ellos puede estar tratando de descubrir quiénes son sus contactos.\n\nNo les diga que recibió el mismo enlace de otra persona.</string>
+  <string name="pending_contact_updated_toast">Contacto pendiente actualizado</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presenta a tus contactos</string>
   <string name="introduction_onboarding_text">Presenta a tus contactos entre sí para ahorrarles encontrarse en persona para poder conectar mediante Briar.</string>

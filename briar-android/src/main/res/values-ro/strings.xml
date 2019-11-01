@@ -129,6 +129,11 @@
   <string name="set_contact_alias">Schimbă nume contact</string>
   <string name="set_contact_alias_hint">Nume contact</string>
   <string name="set_alias_button">Modifică</string>
+  <string name="delete_all_messages">Șterge toate mesajele</string>
+  <string name="dialog_title_delete_all_messages">Confirmare ștergere mesaj</string>
+  <string name="dialog_message_delete_all_messages">Sigur doriți să ștergeți toate mesajele?</string>
+  <string name="dialog_title_not_all_messages_deleted">Nu s-au putut șterge toate mesajele</string>
+  <string name="dialog_message_not_all_messages_deleted">Mesajele referitoare la recomandări sau invitații în curs nu pot fi șterse înainte de a se încheia.</string>
   <string name="delete_contact">Șterge contactul</string>
   <string name="dialog_title_delete_contact">Confirmare ștergere contact</string>
   <string name="dialog_message_delete_contact">Sigur doriți să ștergeți acest contact și toate mesajele schimbate?</string>
@@ -144,6 +149,7 @@
   <string name="dialog_message_no_image_support">Versiunea aplicației Briar a contactului dumneavoastră nu suportă încă atașamente imagini. Odată ce au actualizat veți vedea o iconiță diferită.</string>
   <string name="dialog_title_image_support">Acum puteți trimite imagini către acest contact</string>
   <string name="dialog_message_image_support">Atingeți această iconiță pentru a atașa imagini</string>
+  <string name="messaging_too_many_attachments_toast">Doar primele %d imagini vor fi trimise</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Adaugă un contact din apropiere</string>
   <string name="face_to_face">Trebuie să vă întâlniți cu persoana pe care doriți să o adăugați la contacte.\n\nAcest pas împiedică alte persoane să vă fure identitatea sau să vă citească mesajele în viitor.</string>
@@ -212,6 +218,7 @@
   <string name="offline_state">Nu este disponibilă o conexiune la internet</string>
   <string name="duplicate_link_dialog_title">Adresă duplicat</string>
   <string name="duplicate_link_dialog_text_1">Deja aveți un contact în așteptare cu această adresă: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Deja aveți un contact cu această adresă: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">Sunt %s  și %s aceeași persoană?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

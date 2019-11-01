@@ -120,7 +120,9 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="message_hint">Picatz lo messatge</string>
   <string name="image_caption_hint">Ajustar una legenda (optionala)</string>
   <string name="image_attach">Juntar un imatge</string>
-  <string name="image_attach_error">Fracàs de l’apondon de l’imatge</string>
+  <string name="image_attach_error">Impossible de juntar d’imatges</string>
+  <string name="image_attach_error_too_big">Imatge tròp pesuc. Limit de %d Mo. </string>
+  <string name="image_attach_error_invalid_mime_type">Format d’imatge pas compatible : %s</string>
   <string name="set_contact_alias">Cambiar lo nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="set_alias_button">Cambiar</string>
@@ -140,6 +142,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="dialog_title_image_support">Ara podètz enviar d’imatges a aqueste contacte</string>
   <string name="dialog_message_image_support">Tocatz aquesta icòna per juntar d’imatges.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Ajustar un contacte a proximitat</string>
   <string name="face_to_face">Vos cal vos amassar amb la persona que volètz apondre als contactes.\n\n Aquò es fach per evitar qu’òm vos raube l’identitat e que vòstres messatges sián legits per d’autres.</string>
   <string name="continue_button">Contunhar</string>
   <string name="try_again_button">Tornar ensajar</string>
@@ -157,10 +160,66 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="connection_error_explanation">Verificatz que sètz los dos connectats al meteis ret wifi.</string>
   <string name="connection_error_feedback">S’aqueste problèma dura, mercés <a href="feedback"> d’enviar un comentari</a> per nos ajudar a melhorar l’aplicacion.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Ajustar un contacte a distància</string>
+  <string name="add_contact_nearby_title">Ajustatz un contacte a proximitat</string>
+  <string name="add_contact_remotely_title">Ajustatz un contacte a distància</string>
+  <string name="contact_name_hint">Donar un escais-nom a un contacte</string>
+  <string name="contact_link_intro">Picatz lo ligam del contacte aquí</string>
+  <string name="contact_link_hint">Ligam del contacte</string>
+  <string name="paste_button">Pegar</string>
+  <string name="add_contact_button">Ajustar un contacte</string>
   <string name="copy_button">Copiar</string>
   <string name="share_button">Partejar</string>
+  <string name="send_link_title">Escambiar de ligams</string>
+  <string name="add_contact_choose_nickname">Causir l’escais-nom</string>
+  <string name="add_contact_choose_a_nickname">Picatz l’escais-nom</string>
+  <string name="nickname_intro">Donatz un escais-nom a vòstre contacte. Pas que vosautres poiretz lo veire.</string>
+  <string name="your_link">Donatz aqueste ligam al contacte que volètz ajustar</string>
+  <string name="link_clip_label">Ligam Briar</string>
+  <string name="link_copied_toast">Ligam copiat</string>
+  <string name="adding_contact_error">I a agut una error en ajustar lo contacte.</string>
+  <string name="pending_contact_requests_snackbar">I a de demandas d’apondon en espèra</string>
+  <string name="pending_contact_requests">Demandas d’apondon en espèra</string>
+  <string name="no_pending_contacts">Cap de demanda en espèra</string>
+  <string name="add_contact_remote_connecting">Connexion…</string>
+  <string name="waiting_for_contact_to_come_online">En espèra que lo contacte passe en linha…</string>
+  <string name="connecting">Connexion…</string>
+  <string name="adding_contact">Apondon del contacte…</string>
+  <string name="adding_contact_failed">L’apondon a pas foncionat</string>
+  <string name="dialog_title_remove_pending_contact">Confirmar la supression</string>
+  <string name="dialog_message_remove_pending_contact">Aqueste contacte es a èsser ajustat. Se lo levatz ara, serà pas ajustat.</string>
+  <string name="own_link_error">Picatz lo ligam del contacte, non pas lo vòstre</string>
+  <string name="nickname_missing">Mercés de picar un escais-nom</string>
+  <string name="invalid_link">Ligam invalid</string>
+  <string name="unsupported_link">Aqueste ligam ven d’una version de Briar mai recenta. Passatz a la darrièra version e tornatz ensajar.</string>
+  <string name="intent_own_link">Avètz dubèrt vòstre pròpi ligam. Utilizatz çò d’un contacte que volètz ajustar !</string>
+  <string name="missing_link">Mercés de picar un ligam</string>
   <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Nòu contacte ajustat.</item>
+    <item quantity="other">%d nòus contactes ajustats.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">L’apondon del contacte tarda mai que de costuma</string>
+  <string name="adding_contact_slow_title">Connexion impossibla al contacte</string>
+  <string name="adding_contact_slow_text">.L’apondon del contacte tarda mai que de costuma\n\nVerificatz que vòstre contacte aja ben recebut vòstre ligam e vos aja ajustat :</string>
+  <string name="offline_state">Cap de connexion Internet</string>
+  <string name="duplicate_link_dialog_title">Duplicar lo ligam</string>
+  <string name="duplicate_link_dialog_text_1">Avètz ja una demanda en espèra amb aqueste ligam : %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Son %s e %s la meteissa persona ?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Meteissa persona</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Persona diferenta</string>
+  <string name="duplicate_link_dialog_text_3">%s e %s vos envia lo meteis ligam.\n\nUn d’eles poiriá ensajar de descobrir quines son vòstres contactes.\n\n Digatz-los pas qu’avètz recebut lo meteis ligam de qualqu’un mai.</string>
+  <string name="pending_contact_updated_toast">Contact en espèra actualizat</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Presentatz vòstres contactes</string>
   <string name="introduction_onboarding_text">Podètz presentar vòstres contactes, lor caldrà pas se veire per s’apondre e se connectar a Briar.</string>
