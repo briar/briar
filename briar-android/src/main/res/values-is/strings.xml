@@ -118,9 +118,11 @@
   <string name="message_hint">Skrifaðu skilaboð</string>
   <string name="image_caption_hint">Bæta við fyrirsögn (valfrjálst)</string>
   <string name="image_attach">Hengja við mynd</string>
+  <string name="image_attach_error">Gat ekki hengt við mynd(ir)</string>
   <string name="set_contact_alias">Breyta nafni tengiliðar</string>
   <string name="set_contact_alias_hint">Nafn tengiliðar</string>
   <string name="set_alias_button">Breyta</string>
+  <string name="dialog_title_not_all_messages_deleted">Gat ekki eytt öllum skilaboðum</string>
   <string name="delete_contact">Eyða tengilið</string>
   <string name="dialog_title_delete_contact">Staðfesta eyðingu tengiliðar</string>
   <string name="dialog_message_delete_contact">Ertu viss að þú viljir fjarlægja þennan tengilið ásamt öllum þeim skilaboðum sem ykkur hafa farið á milli?</string>

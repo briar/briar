@@ -118,10 +118,17 @@
   <string name="message_hint">Напиши порака</string>
   <string name="image_caption_hint">Додај наслов (опционално)</string>
   <string name="image_attach">Прикачи слика</string>
-  <string name="image_attach_error">Сликата не може да се прикачи</string>
+  <string name="image_attach_error">Сликата/те не може да се прикачи(ат)</string>
+  <string name="image_attach_error_too_big">Сликата е преголема. Лимитот е %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Форматот на сликата не е поддржан: %s</string>
   <string name="set_contact_alias">Промена на име на контакт</string>
   <string name="set_contact_alias_hint">Име на контакт</string>
   <string name="set_alias_button">Промени</string>
+  <string name="delete_all_messages">Избриши ги сите пораки</string>
+  <string name="dialog_title_delete_all_messages">Потврди бришење на порака</string>
+  <string name="dialog_message_delete_all_messages">Дали сте сигурни дека сакате да ги избришете сите пораки?</string>
+  <string name="dialog_title_not_all_messages_deleted">Не можат да бидат избришани сите пораки</string>
+  <string name="dialog_message_not_all_messages_deleted">Порактите поврзани со претставувањата или поканите кои се во тек не можат да бидат избришани додека не бидат завршени.</string>
   <string name="delete_contact">Избриши контакт</string>
   <string name="dialog_title_delete_contact">Потврди бришење на контакт</string>
   <string name="dialog_message_delete_contact">Дали сте сигурни дека сакате да го избришете овој контакт и сите пораки поврзани со него?</string>
@@ -137,6 +144,7 @@
   <string name="dialog_message_no_image_support">Верзијата на Briar на контактот се уште не поддржува прикачувања на слики. Во моментот кога тој ќе го ажурира Briar, ќе видите различна икона.</string>
   <string name="dialog_title_image_support">Сега можете да му испраќате слики на овој контакт</string>
   <string name="dialog_message_image_support">Допрете ја оваа икона за да прикачите слики.</string>
+  <string name="messaging_too_many_attachments_toast">Само првите %d слики ќе бидат испратени</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Додај контакт ВО БЛИЗИНА</string>
   <string name="face_to_face">Морате да се сретнете со лицето кое сакате да го додадете за контакт.\n\nОва спречува во иднина било кој да се преставува како вас или да ги чита вашите пораки во иднина.</string>
@@ -178,13 +186,16 @@
   <string name="pending_contact_requests">Барања за контакт на чекање</string>
   <string name="no_pending_contacts">Нема контакти на чекање</string>
   <string name="add_contact_remote_connecting">Се поврзува...</string>
-  <string name="waiting_for_contact_to_come_online">Чекање контактот да се вклучи...\n\nДали веќе го внел твојот линк?</string>
+  <string name="waiting_for_contact_to_come_online">Чекање на контакт да се вклучи...</string>
   <string name="connecting">Се поврзува...</string>
   <string name="adding_contact">Додавање контакт...</string>
   <string name="adding_contact_failed">Додавањето на контакт беше неуспешно</string>
+  <string name="dialog_title_remove_pending_contact">Потврди отстранување</string>
+  <string name="dialog_message_remove_pending_contact">Овој контакт е сеуште додаден. Ако го отстраните сега, нема да биде додаден.</string>
   <string name="own_link_error">Внеси го линкот на твојот контакт, а не својот линк</string>
   <string name="nickname_missing">Ве молиме внесете прекар</string>
   <string name="invalid_link">Неважечки линк</string>
+  <string name="unsupported_link">Овој линк доаѓа од понова верзија на Briar. Ве молиме надградете во последна верзија и обидете се повторно.</string>
   <string name="intent_own_link">Го отвори твојот линк. Користи го линкот на контактот што сакаш да го додадеш!</string>
   <string name="missing_link">Ве молиме внесете линк</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -195,6 +206,25 @@
     <item quantity="one">Нов контакт е додаден.</item>
     <item quantity="other">%dнови контакти се додадени.</item>
   </plurals>
+  <string name="adding_contact_slow_warning">Додавањето на овој контакт е подолго од вообичаено</string>
+  <string name="adding_contact_slow_title">Не може да се поврзе со контакт</string>
+  <string name="adding_contact_slow_text">Додавањето на овој контакт е подолго од вообичаеното.\n\nВе молиме проверете дека вашиот контакт го добил вашиот линк и дека ве додал: </string>
+  <string name="offline_state">Нема Интернет врска</string>
+  <string name="duplicate_link_dialog_title">Дуплицирање на линк</string>
+  <string name="duplicate_link_dialog_text_1">Веќе имате контакт на чекање со овој линк: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Веќе имате контакт со овој линк: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Дали %s и %s е истата личност?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Истата личност</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Различна личност</string>
+  <string name="duplicate_link_dialog_text_3">%sи %s ти го испратија истиот линк.\n\nЕден од нив можеби се обидува да открие кои се твоите контакти.\n\nНе им кажувајте дека сте добиле ист линк од некој друг.</string>
+  <string name="pending_contact_updated_toast">Контактот на чекање е ажуриран</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Запознај ги твоите контакти</string>
   <string name="introduction_onboarding_text">Можете да ги запознаете вашите контакти меѓусебно, па тие нема да имаат потреба да се запознаваат лично за да се поврзат на Briar.</string>

@@ -119,6 +119,8 @@
   <string name="image_caption_hint">एक कैप्शन जोड़ें (वैकल्पिक)</string>
   <string name="image_attach">छवि संलग्न करें</string>
   <string name="image_attach_error">छवि संलग्न नहीं कर सका</string>
+  <string name="image_attach_error_too_big">छवि बहुत बड़ी है। सीमा %d एमबी है।</string>
+  <string name="image_attach_error_invalid_mime_type">छवि प्रारूप असमर्थित: %s</string>
   <string name="set_contact_alias">संपर्क नाम बदलें</string>
   <string name="set_contact_alias_hint">संपर्क नाम</string>
   <string name="set_alias_button">परिवर्तन</string>
@@ -138,6 +140,7 @@
   <string name="dialog_title_image_support">अब आप इस संपर्क को चित्र भेज सकते हैं</string>
   <string name="dialog_message_image_support">छवियों को संलग्न करने के लिए इस प्रतिकृति को दबायें।</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">आस-पास वाले संपर्क जोड़ें</string>
   <string name="face_to_face">आपको उस व्यक्ति के साथ मिलना चाहिए जिसे आप संपर्क के रूप में जोड़ना चाहते हैं। \ N \ n यह किसी को भविष्य में आपके प्रतिरूपण या पढ़ने के बाद से किसी को भी रोकेगा।</string>
   <string name="continue_button">जारी रहना</string>
   <string name="try_again_button">पुनः प्रयास करें</string>
@@ -155,11 +158,66 @@
   <string name="connection_error_explanation">कृपया जांचें कि आप दोनों एक ही वाई-फाई नेटवर्क से जुड़े हुए हैं।</string>
   <string name="connection_error_feedback">यदि यह समस्या बनी रहती है, तो कृपया ऐप को बेहतर बनाने में हमारी सहायता के लिए <a href="feedback">फ़ीडबैक भेजें</a>।</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">दूरी वाले संपर्क जोड़ें</string>
+  <string name="add_contact_nearby_title">आस-पास वाले संपर्क जोड़ें</string>
+  <string name="add_contact_remotely_title">दूरी वाले संपर्क जोड़ें</string>
+  <string name="contact_name_hint">संपर्क को एक उपनाम दें</string>
+  <string name="contact_link_intro">यहां अपने संपर्क से लिंक दर्ज करें</string>
+  <string name="contact_link_hint">संपर्क का लिंक</string>
+  <string name="paste_button">चिपकाएं</string>
+  <string name="add_contact_button">संपर्क जोड़ें</string>
+  <string name="copy_button">प्रतिलिपि बनाएं</string>
   <string name="share_button">शेयर</string>
+  <string name="send_link_title">लिंक अदला बदली करें</string>
+  <string name="add_contact_choose_nickname">उपनाम चुने</string>
+  <string name="add_contact_choose_a_nickname">एक उपनाम दर्ज करें</string>
+  <string name="nickname_intro">अपने संपर्क को एक उपनाम दें। केवल आप इसे देख सकते हैं।</string>
+  <string name="your_link">आप जिस संपर्क को जोड़ना चाहते हैं, उसे यह लिंक दें</string>
+  <string name="link_clip_label">Briar लिंक</string>
+  <string name="link_copied_toast">लिंक कॉपी किया गया</string>
+  <string name="adding_contact_error">संपर्क जोड़ने में त्रुटि हुई।</string>
+  <string name="pending_contact_requests_snackbar">संपर्क अनुरोध लंबित हैं</string>
+  <string name="pending_contact_requests">लंबित संपर्क अनुरोध</string>
+  <string name="no_pending_contacts">कोई लंबित संपर्क नहीं</string>
   <string name="add_contact_remote_connecting">कनेक्ट हो रहा है ...</string>
+  <string name="waiting_for_contact_to_come_online">संपर्क की ऑनलाइन आने की प्रतीक्षा की जा रही है...</string>
   <string name="connecting">कनेक्ट हो रहा है ...</string>
+  <string name="adding_contact">संपर्क जोड़ रहा है ...</string>
+  <string name="adding_contact_failed">संपर्क जोड़ना विफल रहा</string>
+  <string name="dialog_title_remove_pending_contact">हटाने की पुष्टि करें</string>
+  <string name="dialog_message_remove_pending_contact">यह संपर्क अभी भी जोड़ा जा रहा है। यदि आप इसे अभी हटाते हैं, तो इसे जोड़ा नहीं जाएगा।</string>
+  <string name="own_link_error">अपना संपर्क का लिंक दर्ज करें, अपना नहीं</string>
+  <string name="nickname_missing">कृपया एक उपनाम दर्ज करें</string>
+  <string name="invalid_link">अमान्य लिंक</string>
+  <string name="unsupported_link">यह लिंक Briar के नए संस्करण से आया है। कृपया नवीनतम संस्करण में अद्यतन करें और पुनः प्रयास करें।</string>
+  <string name="intent_own_link">आपने अपना लिंक खोला। उस संपर्क का उपयोग करें जिसे आप जोड़ना चाहते हैं!</string>
+  <string name="missing_link">कृपया एक लिंक डालें।</string>
   <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">नया संपर्क जोड़ा गया|</item>
+    <item quantity="other">%d नए संपर्क जोड़े गए</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">इस संपर्क को जोड़ने में सामान्य से अधिक समय लग रहा है</string>
+  <string name="adding_contact_slow_title">संपर्क से जुड़ नहीं कर सकता</string>
+  <string name="adding_contact_slow_text">इस संपर्क को जोड़ने में सामान्य से अधिक समय लग रहा है। \n\n कृपया जांचें कि आपके संपर्क ने आपका लिंक प्राप्त कर लिया है और आपको जोड़ दिया है:</string>
+  <string name="offline_state">कोई इंटरनेट कनेक्शन नहीं</string>
+  <string name="duplicate_link_dialog_title">प्रतिलिपि लिंक</string>
+  <string name="duplicate_link_dialog_text_1">आपके पास इस लिंक के साथ पहले से ही एक लंबित संपर्क है: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">क्या %s और %s एक ही व्यक्ति हैं?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">वही आदमी</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">अलग व्यक्ति</string>
+  <string name="duplicate_link_dialog_text_3">%s और %s ने एक ही लिंक भेजा है। \n\n और उनमें से कोई भी यह जानने की कोशिश कर सकता है कि आपके संपर्क कौन हैं। \n\n उन्हें यह न बताएं कि आपको वही लिंक किसी और से मिला है।</string>
+  <string name="pending_contact_updated_toast">लंबित संपर्क अपडेट किया गया</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">अपने संपर्कों का परिचय दें</string>
   <string name="introduction_onboarding_text">आप अपने संपर्कों को एक दूसरे से जोड़ सकते हैं, इसलिए उन्हें Briar  से जुड़ने के लिए व्यक्तिगत रूप से मिलने की जरूरत नहीं है।</string>

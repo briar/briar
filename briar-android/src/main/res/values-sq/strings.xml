@@ -118,10 +118,17 @@
   <string name="message_hint">Shtypni mesazhin</string>
   <string name="image_caption_hint">Shtoni një titull (na daçi)</string>
   <string name="image_attach">Bashkëngjitni figurë</string>
-  <string name="image_attach_error">S’u bashkëngjit dot figurë</string>
+  <string name="image_attach_error">S’u bashkëngjit dot figurë(a)</string>
+  <string name="image_attach_error_too_big">Figurë shumë e madhe. Kufiri është %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Format i pambuluar figure: %s</string>
   <string name="set_contact_alias">Ndryshoni emër kontakti</string>
   <string name="set_contact_alias_hint">Emër kontakti</string>
   <string name="set_alias_button">Ndryshoje</string>
+  <string name="delete_all_messages">Fshiji krejt mesazhet</string>
+  <string name="dialog_title_delete_all_messages">Ripohoni Fshirje Mesazhesh</string>
+  <string name="dialog_message_delete_all_messages">Jeni i sigurt se doni të fshihen krejt mesazhet?</string>
+  <string name="dialog_title_not_all_messages_deleted">S’u fshinë dot krejt mesazhet</string>
+  <string name="dialog_message_not_all_messages_deleted">Mesazhet që lidhen me hyrje në zhvillim e sipër, ose me ftesa, s’mund të fshihen pa përfunduar.</string>
   <string name="delete_contact">Fshije kontaktin</string>
   <string name="dialog_title_delete_contact">Ripohoni Fshirje Kontakti</string>
   <string name="dialog_message_delete_contact">Jeni i sigurt se doni të hiqet ky kontakt dhe krejt mesazhet e shkëmbyer me këtë kontakt?</string>
@@ -137,6 +144,7 @@
   <string name="dialog_message_no_image_support">Briar-i i kontaktit tuaj nuk i mbulon ende bashkëngjitjet figura. Sapo ta përditësojë, do të shihni tjetër ikonë.</string>
   <string name="dialog_title_image_support">Tani mund t’i dërgoni figura këtij kontakti</string>
   <string name="dialog_message_image_support">Prekeni këtë ikonë që të bashkëngjitni figura.</string>
+  <string name="messaging_too_many_attachments_toast">Do të dërgohen vetëm %d figurat e para</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Shtoni Kontakt Atypari  </string>
   <string name="face_to_face">Duhet të takoheni me personin që doni ta shtoni si kontakt.\n\nKjo do të pengojë cilindo të hiqet si ju ose të lexojë në të ardhmen mesazhet tuaj.</string>
@@ -178,13 +186,16 @@
   <string name="pending_contact_requests">Kërkesa Kontakti Pezull</string>
   <string name="no_pending_contacts">S’ka kontakte pezull</string>
   <string name="add_contact_remote_connecting">Duke u kyqur...</string>
-  <string name="waiting_for_contact_to_come_online">Po pritet që kontakti të jetë në linjë…\n\nE kanë përdorur tashmë lidhjen tuaj?</string>
+  <string name="waiting_for_contact_to_come_online">Po pritet që kontakti të jetë në linjë…</string>
   <string name="connecting">Duke u kyqur...</string>
   <string name="adding_contact">Po shtohet kontakti…</string>
   <string name="adding_contact_failed">Shtimi i kontaktit dështoi</string>
+  <string name="dialog_title_remove_pending_contact">Ripohoni Heqjen</string>
+  <string name="dialog_message_remove_pending_contact">Ky kontakt ende po shtohet. Nëse e hiqni tani, s’do të shtohet.</string>
   <string name="own_link_error">Jepni lidhjen e kontaktit tuaj, jo tuajën</string>
   <string name="nickname_missing">Ju lutemi, jepni një nofkë</string>
   <string name="invalid_link">Lidhje e pavlefshme</string>
+  <string name="unsupported_link">Kjo lidhje vjen prej një versioni më të ri të Briar-it. Ju lutemi, përmirësojeni me versionin më të ri dhe riprovoni.</string>
   <string name="intent_own_link">Hapët lidhjen tuaj. Përdorni atë të kontaktit që doni të shtoni!</string>
   <string name="missing_link">Ju lutemi, jepni një lidhje</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -195,6 +206,25 @@
     <item quantity="one">U shtua kontakt i ri.</item>
     <item quantity="other">U shtuan %d kontakte të reja.</item>
   </plurals>
+  <string name="adding_contact_slow_warning">Shtimi i këtij kontakti po zgjat më shumë se zakonisht</string>
+  <string name="adding_contact_slow_title">S’lidhet Dot Me Kontaktin</string>
+  <string name="adding_contact_slow_text">Shtimi i këtij kontakti po zgjat më shumë se zakonisht.\n\nJu lutemi, kontrolloni nëse kontakti juaj e ka marrë lidhjen tuaj dhe ju ka shtuar:</string>
+  <string name="offline_state">S’ka lidhje internet</string>
+  <string name="duplicate_link_dialog_title">Lidhje e Përsëdytur</string>
+  <string name="duplicate_link_dialog_text_1">Keni tashmë një kontakt pezull me këtë lidhje: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Keni tashmë një kontakt me këtë lidhje: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">A janë %s dhe %s i njëjti person?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">I njëjti Person</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Person i Ndryshëm</string>
+  <string name="duplicate_link_dialog_text_3">%s dhe %s ju dërguan të njëjtën lidhje.\n\nNjëri prej tyre mund të jetë duke u rrekur të zbulojë se cilët janë kontaktet tuaj.\n\nMos u tregoni se morët të njëjtën lidhje nga dikush tjetër.</string>
+  <string name="pending_contact_updated_toast">Kontakti pezull u përditësua</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Prezantoni kontaktet tuaja</string>
   <string name="introduction_onboarding_text">Kontaktet tuaja mund t\’ia prezantoni njëri-tjetrit, që kështu të mos u duhet të takohen realisht për të mundur të lidhen në Briar.</string>

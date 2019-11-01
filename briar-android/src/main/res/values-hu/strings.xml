@@ -116,14 +116,37 @@
   <string name="date_no_private_messages">Nincs üzenet.</string>
   <string name="no_private_messages">Nincs megjeleníthető üzenet</string>
   <string name="message_hint">Üzenet írása</string>
+  <string name="image_caption_hint">Felirat hozzáadása (opcionális)</string>
+  <string name="image_attach">Kép csatolása</string>
+  <string name="image_attach_error">Nem sikerült a kép(ek) csatolása</string>
+  <string name="image_attach_error_too_big">A kép túl nagy. A korlát: %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Képformátum nem támogatott: %s</string>
+  <string name="set_contact_alias">Kapcsolat nevének megváltoztatása</string>
+  <string name="set_contact_alias_hint">Kapcsolat neve</string>
   <string name="set_alias_button">Módosítás</string>
+  <string name="delete_all_messages">Minden üzenet törlése</string>
+  <string name="dialog_title_delete_all_messages">Üzenet törlés megerősítése</string>
+  <string name="dialog_message_delete_all_messages">Biztos, hogy szeretné törölni összes üzenetét?</string>
+  <string name="dialog_title_not_all_messages_deleted">Nem törölhető minden üzenet</string>
+  <string name="dialog_message_not_all_messages_deleted">Azok az üzenetek amik kimenő bemutatkozások vagy meghívások nem törölhetők, míg be nem fejeződnek.</string>
   <string name="delete_contact">Kapcsolat törlése</string>
   <string name="dialog_title_delete_contact">Kapcsolat törlésének megerősítése</string>
   <string name="dialog_message_delete_contact">Biztosan eltávolítja ezt a kapcsolatot és minden vele történt üzenetváltását?</string>
   <string name="contact_deleted_toast">Kapcsolat törölve</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
-  <string name="you">Te</string>
+  <string name="you">Ön</string>
+  <string name="save_image">Kép mentése</string>
+  <string name="dialog_title_save_image">Kép mentése?</string>
+  <string name="dialog_message_save_image">A kép mentése lehetővé teszi, hogy más alkalmazások is elérjék.\n\nBiztosan szeretné menteni?</string>
+  <string name="save_image_success">Kép mentve</string>
+  <string name="save_image_error">Sikertelen kép mentés</string>
+  <string name="dialog_title_no_image_support">Képek nem elérhetők</string>
+  <string name="dialog_message_no_image_support">A Briar kapcsolata nem támogatja a kép csatolmányokat. Ha frissített, akkor más ikont fog látni.</string>
+  <string name="dialog_title_image_support">Most már küldhet képeket a kapcsolatainak</string>
+  <string name="dialog_message_image_support">Érintse meg az ikont képek csatolásához.</string>
+  <string name="messaging_too_many_attachments_toast">Csak az első %d kép kerül küldésre</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Közeli kontakt hozzáadása</string>
   <string name="face_to_face">Találkoznia kell a személlyel akit, hozzá szeretne adni a kapcsolatokhoz.\n\nEz megelőzi azt, hogy valaki megszemélyesítse Önt, vagy elolvassa későbbi üzeneteit.</string>
   <string name="continue_button">Folytatás</string>
   <string name="try_again_button">Újrapróbálkozás</string>
@@ -141,15 +164,68 @@
   <string name="connection_error_explanation">Ellenőrizzék, hogy mindketten ugyanahhoz a Wi-Fi hálózathoz vannak-e csatlakozva.</string>
   <string name="connection_error_feedback">Ha ez a probléma tartósan fennáll, kérjük <a href="feedback"> küldjön visszajelzést </a> nekünk, hogy segítsen fejleszteni az appot.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Távoli kapcsolat hozzá adása</string>
+  <string name="add_contact_nearby_title">Közeli kapcsolat hozzáadása</string>
+  <string name="add_contact_remotely_title">Távoli kapcsolat hozzá adása</string>
+  <string name="contact_name_hint">Adjon a kapcsolatnak becenevet</string>
+  <string name="contact_link_intro">Írj a be a linket a kapcsolatától ide</string>
+  <string name="contact_link_hint">Kapcsolat linkje</string>
   <string name="paste_button">Beilleszt</string>
+  <string name="add_contact_button">Kapcsolat hozzáadása</string>
   <string name="copy_button">Másol</string>
   <string name="share_button">Megoszt</string>
+  <string name="send_link_title">Linkek cseréje</string>
+  <string name="add_contact_choose_nickname">Becenév választása</string>
+  <string name="add_contact_choose_a_nickname">Becenév megadása</string>
+  <string name="nickname_intro">Adja meg a kontakt becenevét. Csak ön láthatja.</string>
+  <string name="your_link">Adja oda ezt a linket annak a kapcsolatának, akit hozzá szeretne adni</string>
+  <string name="link_clip_label">Briar link</string>
+  <string name="link_copied_toast">Link másolva</string>
+  <string name="adding_contact_error">Hiba történt a kapcsolat hozzáadásakor.</string>
+  <string name="pending_contact_requests_snackbar">Vannak még folyamatban lévő kérelmek</string>
+  <string name="pending_contact_requests">Folyamatban lévő kapcsolati kérelmek</string>
+  <string name="no_pending_contacts">Nincs várakozó kapcsolat</string>
   <string name="add_contact_remote_connecting">Csatlakozás...</string>
+  <string name="waiting_for_contact_to_come_online">Várakozás a kapcsolatra, hogy online legyen...</string>
   <string name="connecting">Csatlakozás...</string>
+  <string name="adding_contact">Kapcsolat hozzáadása...</string>
+  <string name="adding_contact_failed">Kapcsolat hozzáadása sikertelen</string>
+  <string name="dialog_title_remove_pending_contact">Eltávolítás megerősítése</string>
+  <string name="dialog_message_remove_pending_contact">A kapcsolat még hozzáadás alatt. Ha törli, akkor nem kerül hozzá adásra.</string>
+  <string name="own_link_error">A kapcsolata linkjét adja meg, ne a sajátját</string>
+  <string name="nickname_missing">Kérjük adjon meg becenevet</string>
+  <string name="invalid_link">Érvénytelen link</string>
+  <string name="unsupported_link">Ez a link a Briar újabb verziójából származik.
+Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
+  <string name="intent_own_link">A saját linkjét nyitotta meg. Használja a kapcsolatától kapottat a hozzáadáshoz!</string>
+  <string name="missing_link">Kérjük adja meg a linket</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Új kapcsolat hozzáadva.</item>
+    <item quantity="other">%d új kapcsolat hozzáadva</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Ennek a kapcsolatnak a hozzáadása a szokásosnál tovább tart</string>
+  <string name="adding_contact_slow_title">Sikertelen csatlakozás a kapcsolathoz</string>
+  <string name="adding_contact_slow_text">Ennek a kapcsolatnak a hozzáadása tovább tart, mint általában.\n\nKérjük ellenőrizze, hogy a kapcsolata megkapta-e a linket és hozzáadta-e Önt:</string>
+  <string name="offline_state">Nincs internet kapcsolat</string>
+  <string name="duplicate_link_dialog_title">Duplikált link</string>
+  <string name="duplicate_link_dialog_text_1">Önnek már van várakozó kapcsolata ezzel a linkkel: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Önnek már van kapcsolata ezzel a linkkel: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s és %s ugyanaz a személy?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Ugyanaz a személy</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Másik személy</string>
+  <string name="duplicate_link_dialog_text_3">%s és %s ugyanazt a linket küldte.\n\nEgyikük lehet, hogy megpróbálja kikutatni, hogy kik a kapcsolatai.\n\nNe árulja el nekik, hogy ugyanazt a linket már megkapta mástól.</string>
+  <string name="pending_contact_updated_toast">Várakozó kapcsolat frissítve</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kapcsolatai bemutatása</string>
   <string name="introduction_onboarding_text">Bemutathatja kapcsolatait egymásnak, így nem szükséges, hogy találkozzanak személyesen, hogy kapcsolódhassanak a Briar-on.</string>
@@ -347,6 +423,8 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">Automatikus: %1$s ( %2$s)</string>
   <string name="tor_mobile_data_title">Mobil adat használata</string>
+  <string name="tor_only_when_charging_title">Csatlakozás az internethez Tor-ral, töltés alatt</string>
+  <string name="tor_only_when_charging_summary">Letiltja az internet kapcsolatot, amikor elemről fut az eszköz</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Biztonság</string>
   <string name="pref_lock_title">App zár</string>
@@ -417,6 +495,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <!--Link Warning-->
   <string name="link_warning_title">Link figyelmeztetés</string>
   <string name="link_warning_intro">Épp megnyit egy linket egy külső alkalmazással.</string>
+  <string name="link_warning_text">Ez tudja azonosítani Önt. Gondolkodjon el arról, hogy megbízik-e a személyben, aki a linket küldte és nyissa meg azt a Tor böngészőben.</string>
   <string name="link_warning_open_link">Link megnyitása</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Briar összeomlási jelentés</string>

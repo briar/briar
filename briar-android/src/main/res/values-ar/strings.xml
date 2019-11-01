@@ -175,6 +175,13 @@
   <string name="step_1">‮واحدة</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <!--Introductions-->
   <string name="introduction_onboarding_title">قم بتقديم جهات إتصالك</string>
   <string name="introduction_onboarding_text">يمكنك أن تقدم جهات إتصالك لبعضها البعض، فلا يحتاجون للمقابلة الشخصية ليتواصلوا عبر Briar (براير).</string>

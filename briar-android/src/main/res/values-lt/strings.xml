@@ -134,6 +134,11 @@
   <string name="set_contact_alias">Pakeisti adresato vardą</string>
   <string name="set_contact_alias_hint">Adresato vardas</string>
   <string name="set_alias_button">Pakeisti</string>
+  <string name="delete_all_messages">Ištrinti visas žinutes</string>
+  <string name="dialog_title_delete_all_messages">Patvirtinkite žinutės ištrynimą</string>
+  <string name="dialog_message_delete_all_messages">Ar tikrai norite ištrinti visas žinutes?</string>
+  <string name="dialog_title_not_all_messages_deleted">Nepavyko ištrinti visų žinučių</string>
+  <string name="dialog_message_not_all_messages_deleted">Žinutės, susijusios su vykstančiais supažindinimais ar pakvietimais negali būti ištrintos, kol nebus išspręstos.</string>
   <string name="delete_contact">Ištrinti adresatą</string>
   <string name="dialog_title_delete_contact">Patvirtinkite adresato ištrynimą</string>
   <string name="dialog_message_delete_contact">Ar tikrai norite pašalinti šį adresatą ir visas žinutes, kuriomis apsikeitėte su šiuo adresatu ?</string>
@@ -149,6 +154,7 @@
   <string name="dialog_message_no_image_support">Jūsų adresato Briar kol kas nepalaiko paveikslo priedų. Jam atnaujinus programėlę, jūs matysite kitokią piktogramą.</string>
   <string name="dialog_title_image_support">Dabar šiam adresatui galite siųsti paveikslus</string>
   <string name="dialog_message_image_support">Bakstelėkite šią piktogramą, norėdami pridėti paveikslus.</string>
+  <string name="messaging_too_many_attachments_toast">Bus išsiųsti tik %d pirmi paveikslai</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Pridėti šalia esantį adresatą</string>
   <string name="face_to_face">Jūs privalote susitikti gyvai su asmeniu, kurį norite pridėti kaip adresatą.\n\nTai neleis bet kam apsimetinėti jumis ar ateityje skaityti jūsų žinutes.</string>
@@ -218,6 +224,7 @@
   <string name="offline_state">Nėra interneto ryšio</string>
   <string name="duplicate_link_dialog_title">Identiška nuoroda</string>
   <string name="duplicate_link_dialog_text_1">Jūs jau turite laukiančią adresato užklausą su šia nuoroda: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Jau turite adresatą su šia nuoroda: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">Ar %s ir %s yra tas pats asmuo?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

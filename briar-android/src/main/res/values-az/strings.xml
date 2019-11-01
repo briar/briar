@@ -118,7 +118,9 @@
   <string name="message_hint">Mesaj yazın</string>
   <string name="image_caption_hint">Mövzu əlavə edin (isteyə bağlı)</string>
   <string name="image_attach">Şəkil əlavə edin</string>
-  <string name="image_attach_error">Şəkil əlavə edilmədi</string>
+  <string name="image_attach_error">Şəkil (lər) əlavə etmək alınmadı</string>
+  <string name="image_attach_error_too_big">Şəkilin həcmi böyükdür. Limit %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Şəkil formatı dəstəklənmir: %s</string>
   <string name="set_contact_alias">Kontakt adı dəyişdirin</string>
   <string name="set_contact_alias_hint">Əlaqə adı</string>
   <string name="set_alias_button">Dəyiş</string>
@@ -138,6 +140,7 @@
   <string name="dialog_title_image_support">İndi bu kontakta şəkilləri göndərə bilərsiniz</string>
   <string name="dialog_message_image_support">Şəkilləri əlavə etmək üçün bu simvola toxunun.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Yaxında kontakt əlavə etmək</string>
   <string name="face_to_face">Kontakta əlavə etmək istədiyiniz şəxslə tanış olmalısınız. Bu, hər kəsin kimliyinizi və ya mesajlarınızı gələcəkdə oxumasını maneə törədir.</string>
   <string name="continue_button">Davam et</string>
   <string name="try_again_button">Yenidən cəhd elə</string>
@@ -155,12 +158,56 @@
   <string name="connection_error_explanation">Həmin Wi-Fi şəbəkəsinə qoşulduğunuzu yoxlayın.</string>
   <string name="connection_error_feedback">Bu problem davam edərsə, tətbiqin təkmilləşdirilməsinə kömək etmək üçün rəy göndərin.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Məsafədə kontakt əlavə etmək </string>
+  <string name="add_contact_nearby_title">Yaxında kontakt əlavə etmək </string>
+  <string name="add_contact_remotely_title">Məsafədə kontakt əlavə etmək </string>
+  <string name="contact_name_hint">Niklə kontakt saxlayın</string>
+  <string name="contact_link_intro">Kontaktın linkini buraya daxil edin</string>
+  <string name="contact_link_hint">Kontaktın linki</string>
+  <string name="paste_button">Yapışdır</string>
+  <string name="add_contact_button">Kontankt əlavə et</string>
   <string name="copy_button">Kopyala</string>
   <string name="share_button">Paylaş</string>
+  <string name="send_link_title">Link mübadiləsi</string>
+  <string name="add_contact_choose_nickname">Ad seç</string>
+  <string name="add_contact_choose_a_nickname">Ad daxil et</string>
+  <string name="nickname_intro">Niklə kontakt saxlayın. Bunu ancaq siz görəcəksiniz. </string>
+  <string name="your_link">Əlavə etmək istədiyiniz kontakt üçün bu linki verin</string>
+  <string name="link_clip_label">Briar link</string>
+  <string name="link_copied_toast">Link kopyalandı</string>
+  <string name="adding_contact_error">Kontaktı əlavə edərkən səhv baş verdi.</string>
+  <string name="pending_contact_requests_snackbar">Gözləyən kontakt sorğuları var. </string>
+  <string name="pending_contact_requests">Kənara qoyulmuş kontak sorğuları</string>
+  <string name="no_pending_contacts">Gözləyən kontakt yoxdur</string>
   <string name="add_contact_remote_connecting">Qoşulur...</string>
+  <string name="waiting_for_contact_to_come_online">Kontaktı xəttdə gözləyin ...</string>
   <string name="connecting">Qoşulur...</string>
+  <string name="adding_contact">Kontaktın əlavə etməsi... </string>
+  <string name="adding_contact_failed">Kontakt əlavə etməsi alınmadı</string>
+  <string name="dialog_title_remove_pending_contact">Silməyi təstiqlə</string>
+  <string name="dialog_message_remove_pending_contact">Bu kontakt hələ də əlavə olunur. İndi onu çıxararsanız, əlavə olunmayacaq.</string>
+  <string name="own_link_error">Kontaktınızın linkini daxil edin, özünüzü deyil</string>
+  <string name="nickname_missing">Zəhmət olmasa adı daxil edin</string>
+  <string name="invalid_link">Səhv link</string>
+  <string name="unsupported_link">Bu link Briar-ın daha yeni versiyasından gəlir. Ən son versiyaya keçin və yenidən cəhd edin.</string>
+  <string name="intent_own_link">Öz linkini açdın. Əlavə etmək istədiyiniz kontaktlardan birini istifadə edin!</string>
+  <string name="missing_link">Zəhmət olmasa linki daxil edin</string>
   <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <string name="offline_state">İnternet bağlantısı yoxdur</string>
+  <string name="duplicate_link_dialog_title">Dublikat Link</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Eyni şəxs</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Fərqli şəxs</string>
+  <string name="pending_contact_updated_toast">Gözləyən kontakt yeniləndi</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kontaktınızı tanıtın</string>
   <string name="introduction_onboarding_text">Kontaktlarınızı bir-birinizə təqdim edə bilərsiniz, lakin Briar-a qoşulmaq üçün şəxsən görüşmək lazım deyil.</string>

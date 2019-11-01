@@ -9,7 +9,7 @@
   <string name="setup_doze_title">Фоновые подключения</string>
   <string name="setup_doze_intro">Для получения сообщений Briar должен работать в фоновом режиме.</string>
   <string name="setup_doze_explanation">Для получения сообщений Briar должен работать в фоновом режиме. Отключите оптимизацию электропитания для Briar.</string>
-  <string name="setup_doze_button">Разрешить подключения</string>
+  <string name="setup_doze_button">Разрешить соединения</string>
   <string name="choose_nickname">Придумайте псевдоним</string>
   <string name="choose_password">Придумайте пароль</string>
   <string name="confirm_password">Подтвердите пароль</string>
@@ -69,12 +69,12 @@
   <string name="transport_bt">Bluetooth</string>
   <string name="transport_lan">Wi-Fi</string>
   <!--Notifications-->
-  <string name="reminder_notification_title">Выполнен выход из Briar</string>
+  <string name="reminder_notification_title">Вы не авторизованы в Briar</string>
   <string name="reminder_notification_text">Нажмите для входа</string>
   <string name="reminder_notification_channel_title">Briar Напоминание о входе</string>
   <string name="reminder_notification_dismiss">Закрыть</string>
-  <string name="ongoing_notification_title">Выполнен вход в Briar</string>
-  <string name="ongoing_notification_text">Нажмите для открытия Briar</string>
+  <string name="ongoing_notification_title">Вы авторизованы в Briar</string>
+  <string name="ongoing_notification_text">Нажмите для открытия</string>
   <plurals name="private_message_notification_text">
     <item quantity="one">Новое личное сообщение.</item>
     <item quantity="few">%d новых личных сообщения.</item>
@@ -127,13 +127,20 @@
   <string name="no_contacts_action">Для добавления контакта нажмите значок +</string>
   <string name="date_no_private_messages">Нет сообщений.</string>
   <string name="no_private_messages">Нет сообщений для отображения</string>
-  <string name="message_hint">Печатает сообщение</string>
+  <string name="message_hint">Введите сообщение</string>
   <string name="image_caption_hint">Добавить подпись (необязательно)</string>
   <string name="image_attach">Прикрепить изображение</string>
-  <string name="image_attach_error">Не удалось прикрепить изображение</string>
+  <string name="image_attach_error">Не удалось прикрепить изображение(я)</string>
+  <string name="image_attach_error_too_big">Изображение слишком большое. Лимит %d МБ.</string>
+  <string name="image_attach_error_invalid_mime_type">Формат изображения не поддерживается: %s</string>
   <string name="set_contact_alias">Изменить имя контакта</string>
   <string name="set_contact_alias_hint">Имя контакта</string>
   <string name="set_alias_button">Изменить</string>
+  <string name="delete_all_messages">Удалить все сообщения</string>
+  <string name="dialog_title_delete_all_messages">Подтверждение удаления сообщений</string>
+  <string name="dialog_message_delete_all_messages">Вы уверены, что хотите удалить все сообщения?</string>
+  <string name="dialog_title_not_all_messages_deleted">Не удалось удалить все сообщения</string>
+  <string name="dialog_message_not_all_messages_deleted">Сообщения, связанные с текущими представлениями или приглашениями, не могут быть удалены до их завершения.</string>
   <string name="delete_contact">Удалить контакт</string>
   <string name="dialog_title_delete_contact">Подтвердите удаление контакта</string>
   <string name="dialog_message_delete_contact">Вы действительно хотите удалить этот контакт и все связанные с ним сообщения?</string>
@@ -149,7 +156,9 @@
   <string name="dialog_message_no_image_support">Briar вашего собеседника не поддерживает вложение изображений. Как только он обновится, вы увидите другую иконку.</string>
   <string name="dialog_title_image_support">Теперь вы можете отправлять изображения этому контакту</string>
   <string name="dialog_message_image_support">Нажмите на этот значок, чтобы прикрепить изображения.</string>
+  <string name="messaging_too_many_attachments_toast">Будут отправлены только %d первых изображений</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Добавление контакта поблизости</string>
   <string name="face_to_face">Вы должны встретиться с человеком, которого хотите добавить в контакты.\n\nЭто не позволит кому-либо выдать себя за вас или читать ваши сообщения.</string>
   <string name="continue_button">Продолжить</string>
   <string name="try_again_button">Попробовать снова</string>
@@ -167,15 +176,69 @@
   <string name="connection_error_explanation">Убедитесь, что вы оба подключены к той же сети Wi-Fi.</string>
   <string name="connection_error_feedback">Если эта проблема сохраняется, пожалуйста <a href="feedback">отправьте отзыв</a>,  чтобы помочь нам улучшить приложение.</string>
   <!--Adding Contacts Remotely-->
-  <string name="paste_button">Вставка</string>
+  <string name="add_contact_remotely_title_case">Добавление контакта на расстоянии</string>
+  <string name="add_contact_nearby_title">Добавить контакт поблизости</string>
+  <string name="add_contact_remotely_title">Добавить контакт на расстоянии</string>
+  <string name="contact_name_hint">Дать контакту ник</string>
+  <string name="contact_link_intro">Введите ссылку от вашего контакта здесь</string>
+  <string name="contact_link_hint">Ссылка контакта</string>
+  <string name="paste_button">Вставить</string>
+  <string name="add_contact_button">Добавить контакт</string>
   <string name="copy_button">Копировать</string>
   <string name="share_button">Поделиться</string>
-  <string name="add_contact_remote_connecting">Идёт подключение...</string>
-  <string name="connecting">Идёт подключение...</string>
+  <string name="send_link_title">Обмен ссылками</string>
+  <string name="add_contact_choose_nickname">Выберите ник</string>
+  <string name="add_contact_choose_a_nickname">Введите ник</string>
+  <string name="nickname_intro">Дайте вашему контакту ник. Увидеть его сможете только вы.</string>
+  <string name="your_link">Передайте эту ссылку контакту, которого вы хотите добавить.</string>
+  <string name="link_clip_label">Ссылка Briar</string>
+  <string name="link_copied_toast">Ссылка скопирована</string>
+  <string name="adding_contact_error">При добавлении контакта произошла ошибка.</string>
+  <string name="pending_contact_requests_snackbar">Есть ожидающие запросы на контакт</string>
+  <string name="pending_contact_requests">Ожидающие запросы на контакт</string>
+  <string name="no_pending_contacts">Нет запросов на контакт</string>
+  <string name="add_contact_remote_connecting">Подключение...</string>
+  <string name="waiting_for_contact_to_come_online">Ожидание появления контакта онлайн...</string>
+  <string name="connecting">Подключение...</string>
+  <string name="adding_contact">Добавление контакта…</string>
+  <string name="adding_contact_failed">Не удалось добавить контакт</string>
+  <string name="dialog_title_remove_pending_contact">Подтвердите удаление</string>
+  <string name="dialog_message_remove_pending_contact">Этот контакт находится в процессе добавления. Если вы удалите его сейчас, он не будет добавлен.</string>
+  <string name="own_link_error">Введите ссылку вашего контакта, а не свою</string>
+  <string name="nickname_missing">Пожалуйста, введите ник</string>
+  <string name="invalid_link">Неправильная ссылка</string>
+  <string name="unsupported_link">Эта ссылка из более новой версии Briar. Пожалуйста, обновитесь до последней версии и попробуйте снова.</string>
+  <string name="intent_own_link">Вы открыли свою собственную ссылку. Используйте контакт, который вы хотите добавить!</string>
+  <string name="missing_link">Пожалуйста, введите ссылку</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Добавлен новый контакт.</item>
+    <item quantity="few">Добавлено %d новых контакта.</item>
+    <item quantity="many">Добавлено %d новых контактов.</item>
+    <item quantity="other">Добавлено %d новых контактов.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Добавление этого контакта занимает больше времени, чем обычно</string>
+  <string name="adding_contact_slow_title">Не удается подключиться к контакту</string>
+  <string name="adding_contact_slow_text">Добавление этого контакта занимает больше времени, чем обычно.\n\nПожалуйста, проверьте, что ваш контакт получил вашу ссылку и добавил вас:</string>
+  <string name="offline_state">Подключение к интернету отсутствует</string>
+  <string name="duplicate_link_dialog_title">Дублировать ссылку</string>
+  <string name="duplicate_link_dialog_text_1">У вас уже есть ожидающий контакт с этой ссылкой: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact"> У вас уже есть контакт с этой ссылкой: %s</string>
+  <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s и %s тот же человек?</string>
+  <!--This is a button for answering that two nicknames do indeed refer to the same person. This
+	string will be used in a dialog button, so if the translation of this string is longer than 20
+	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Тот же человек</string>
+  <!--This is a button for answering that two nicknames refer to different people. This string
+	will be used in a dialog button, so if the translation of this string longer than 20 characters,
+	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Другой человек</string>
+  <string name="duplicate_link_dialog_text_3">%s и %s отправили вам ту же ссылку.\n\nОдин из них, возможно, пытается выяснить, кто ваши контакты.\n\nНе говорите им, что вы получили такую ​​же ссылку от кого-то еще.</string>
+  <string name="pending_contact_updated_toast">Ожидающий контакт обновлен</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Представление ваших контактов</string>
   <string name="introduction_onboarding_text">Вы можете представить ваши контакты друг другу. Это позволит исключить личную встречу, чтобы связаться через Briar. </string>
@@ -195,7 +258,7 @@
   <string name="introduction_response_accepted_sent">Вы приняли представление %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Прежде чем добавить %1$s в свои контакты, необходимо чтобы он принял представление. Это может занять некоторое время.</string>
   <string name="introduction_response_declined_sent">Вы отказались от представления %1$s.</string>
-  <string name="introduction_response_accepted_received">%1$s принял представление %2$s.</string>
+  <string name="introduction_response_accepted_received">%1$s принял(-а) представление %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказался от представления %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s сообщает, что %2$s отказался от представления.</string>
   <!--Private Groups-->
@@ -245,8 +308,8 @@
   </plurals>
   <string name="groups_invitations_response_accepted_sent">Вы приняли приглашение в группу от %s.</string>
   <string name="groups_invitations_response_declined_sent">Вы отклонили приглашение в группу от %s.</string>
-  <string name="groups_invitations_response_accepted_received">%s принял приглашение в группу.</string>
-  <string name="groups_invitations_response_declined_received">%s отклонил приглашение в группу.</string>
+  <string name="groups_invitations_response_accepted_received">%s принял(-а) приглашение в группу.</string>
+  <string name="groups_invitations_response_declined_received">%s отклонил(-а) приглашение в группу.</string>
   <string name="sharing_status_groups">Только создатель может пригласить новых участников в группу. Ниже перечислены все текущие участники группы.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">Показать контакты</string>
@@ -297,8 +360,8 @@
   <string name="forum_invitation_already_sharing">Уже поделился</string>
   <string name="forum_invitation_response_accepted_sent">Вы приняли приглашение на форум от %s.</string>
   <string name="forum_invitation_response_declined_sent">Вы отклонили приглашение на форум от %s.</string>
-  <string name="forum_invitation_response_accepted_received">%sпринял приглашение на форум.</string>
-  <string name="forum_invitation_response_declined_received">%s отклонил приглашение на форум.</string>
+  <string name="forum_invitation_response_accepted_received">%s принял(-а) приглашение на форум.</string>
+  <string name="forum_invitation_response_declined_received">%s отклонил(-а) приглашение на форум.</string>
   <string name="sharing_status">Статус общего доступа</string>
   <string name="sharing_status_forum">Любой участник форума может поделиться им со своими контактами. Вы делитесь этим форумом со следующими контактами. Могут быть и другие участники, которых вы не видите.</string>
   <string name="shared_with">Совместно с %1$d (%2$d в сети)</string>
@@ -333,8 +396,8 @@
   <string name="blogs_sharing_snackbar">Поделиться блогом совместно с выбранными контактами</string>
   <string name="blogs_sharing_response_accepted_sent">Вы приняли приглашение в блог от %s.</string>
   <string name="blogs_sharing_response_declined_sent">Вы отклонили приглашение в блог от %s.</string>
-  <string name="blogs_sharing_response_accepted_received">%s принял приглашение в блог.</string>
-  <string name="blogs_sharing_response_declined_received">%s отклонил приглашение в блог.</string>
+  <string name="blogs_sharing_response_accepted_received">%s принял(-а) приглашение в блог.</string>
+  <string name="blogs_sharing_response_declined_received">%s отклонил(-а) приглашение в блог.</string>
   <string name="blogs_sharing_invitation_received">%1$s поделился блогом \"%2$s\" с вами.</string>
   <string name="blogs_sharing_invitation_sent">Вы поделились блогом \"%1$s\" с %2$s.</string>
   <string name="blogs_sharing_invitations_title">Приглашения в блог</string>
@@ -357,7 +420,7 @@
   <string name="blogs_rss_feeds_manage_empty_state">Нет RSS-лент для отображения\n\nКоснитесь значка + для импорта ленты</string>
   <string name="blogs_rss_feeds_manage_error">Ошибка при загрузке вашей ленты. Повторите попытку позже.</string>
   <!--Settings Display-->
-  <string name="pref_language_title">Язык &amp; регион</string>
+  <string name="pref_language_title">Язык и регион</string>
   <string name="pref_language_changed">Этот параметр вступит в силу после перезапуска Briar. Пожалуйста, выйдите и перезапустите Briar.</string>
   <string name="pref_language_default">По умолчанию</string>
   <string name="display_settings_title">Отображение</string>
@@ -450,7 +513,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Предупреждение о ссылке</string>
   <string name="link_warning_intro">Вы собираетесь открыть следующую ссылку в стороннем приложении.</string>
-  <string name="link_warning_text">Это может быть использовано для вашей идентификации. Подумайте, доверяете ли вы тому, кто отправил вам эту ссылку и рассмотрите возможность ее открытия в Tor Browser.</string>
+  <string name="link_warning_text">Это может быть использовано для вашей идентификации. Подумайте, доверяете ли вы тому, кто отправил вам эту ссылку и рассмотрите возможность ее открытия в браузере Tor.</string>
   <string name="link_warning_open_link">Открыть ссылку</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Отчет о сбое Briar</string>

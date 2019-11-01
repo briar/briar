@@ -124,6 +124,7 @@
   <string name="set_contact_alias">Alterar nome do contato</string>
   <string name="set_contact_alias_hint">Nome de contato</string>
   <string name="set_alias_button">Trocar</string>
+  <string name="dialog_title_not_all_messages_deleted">Não foi possível apagar todas as mensagens</string>
   <string name="delete_contact">Apagar contato</string>
   <string name="dialog_title_delete_contact">Confirmar remoção do contato</string>
   <string name="dialog_message_delete_contact">Você tem certeza que quer remover este contato e todas mensagens trocadas com ele?</string>

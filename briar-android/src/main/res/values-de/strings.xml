@@ -44,7 +44,7 @@
   <string name="expiry_update">Das Ablaufdatum des Tests wurde verlängert. Dein Konto läuft nun in %d Tagen ab.</string>
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke, dass du Briar getestet hast!</string>
   <string name="download_briar">Lade bitte Version 1.0 herunter, um Briar weiterhin zu nutzen.</string>
-  <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder den selben Benutzernamen verwenden kannst.</string>
+  <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder denselben Benutzernamen verwenden kannst.</string>
   <string name="download_briar_button">Lade Briar 1.0 herunter</string>
   <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
   <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
@@ -124,6 +124,11 @@
   <string name="set_contact_alias">Kontaktnamen ändern</string>
   <string name="set_contact_alias_hint">Name des Kontakts</string>
   <string name="set_alias_button">Ändern</string>
+  <string name="delete_all_messages">Alle Nachrichten löschen</string>
+  <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
+  <string name="dialog_message_delete_all_messages">Bist Du sicher, dass Du alle Nachrichten löschen willst?</string>
+  <string name="dialog_title_not_all_messages_deleted">Konnte nicht alle Nachrichten löschen</string>
+  <string name="dialog_message_not_all_messages_deleted">Nachrichten mit Bezug auf offene Kontaktempfehlungen oder Einladungen können erst nach Abschluss dieser gelöscht werden.</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>
@@ -139,6 +144,7 @@
   <string name="dialog_message_no_image_support">Der Briar deines Kontakts unterstützt noch keine Bildanhänge. Sobald die Aktualisierung abgeschlossen ist, siehst du ein anderes Symbol.</string>
   <string name="dialog_title_image_support">Du kannst nun Bilder an diesen Kontakt senden</string>
   <string name="dialog_message_image_support">Tippe auf das Symbol, um Bilder anzuhängen.</string>
+  <string name="messaging_too_many_attachments_toast">Nur die ersten %d Bilder werden übertragen werden</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Kontakt in der Nähe hinzufügen</string>
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
@@ -150,7 +156,7 @@
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
   <string name="qr_code_invalid">Der QR-Code ist ungültig</string>
   <string name="qr_code_too_old">Der QR-Code, den du eingescannt hast, kommt von einer älteren Version von %s.\n\nBitte deinen Kontakt, zur neuesten Version upzudaten, und probiere es erneut.</string>
-  <string name="qr_code_too_new">Der QR-Code, den du gescannt hast, kommt von einer neueren Version von .\n\nBitte update %s auf die neueste Version und versuche es erneut.</string>
+  <string name="qr_code_too_new">Der QR-Code, den du gescannt hast, kommt von einer neueren Version.\n\nBitte aktualisiere %s auf die neueste Version und versuche es erneut.</string>
   <string name="camera_error">Kamerafehler</string>
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
@@ -185,8 +191,8 @@
   <string name="adding_contact">Kontakt hinzufügen...</string>
   <string name="adding_contact_failed">Hinzufügen von Kontakt ist fehlgeschlagen</string>
   <string name="dialog_title_remove_pending_contact">Entfernung bestätigen</string>
-  <string name="dialog_message_remove_pending_contact">Dieser Kontakt befindet sich noch beim Hinzufügen. Wenn er jetzt Entfernt wird, wird das Hinzufügen abgebrochen.</string>
-  <string name="own_link_error">Gebe den Link deines Kontakts ein, nicht deinen Eigenen.</string>
+  <string name="dialog_message_remove_pending_contact">Dieser Kontakt befindet sich noch beim Hinzufügen. Wenn er jetzt entfernt wird, wird das Hinzufügen abgebrochen.</string>
+  <string name="own_link_error">Gebe den Link deines Kontakts ein, nicht deinen eigenen.</string>
   <string name="nickname_missing">Bitte gib einen Spitznamen an</string>
   <string name="invalid_link">Ungültiger Link</string>
   <string name="unsupported_link">Dieser Link kommt von einer neueren Version von Briar. Bitte führe eine Aktualisierung auf die aktuelle Version durch und versuche es dann nochmal. </string>
@@ -200,12 +206,13 @@
     <item quantity="one">Neuer Kontakt hinzugefügt.</item>
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Das Hinzufügen des Kontakts dauert länger den normal</string>
+  <string name="adding_contact_slow_warning">Das Hinzufügen des Kontakts dauert länger als normal</string>
   <string name="adding_contact_slow_title">Kann nicht zu Kontakt verbinden</string>
-  <string name="adding_contact_slow_text">Das Hinzufügen des Kontakts dauert länger den normal.\n\nBitte kontrolliere, dass dein Kontakt dein Link erhalten und eingegeben hat:</string>
+  <string name="adding_contact_slow_text">Das Hinzufügen des Kontakts dauert länger als normal.\n\nBitte kontrolliere, dass dein Kontakt deinen Link erhalten und eingegeben hat:</string>
   <string name="offline_state">Keine Internetverbindung</string>
   <string name="duplicate_link_dialog_title">Link duplizieren</string>
   <string name="duplicate_link_dialog_text_1">Du hast bereits einen Kontakt mit diesem Link ausstehend: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Du hast bereits einen Kontakt mit diesem Link: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">Sind %s und %s dieselbe Person?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
@@ -216,7 +223,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Andere Person</string>
-  <string name="duplicate_link_dialog_text_3">%s und %s haben Dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass Du diesen Link auch von jemand anderem erhalten hast,</string>
+  <string name="duplicate_link_dialog_text_3">%s und %s haben Dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass Du diesen Link auch von jemand anderem erhalten hast.</string>
   <string name="pending_contact_updated_toast">Ausstehender Kontakt aktualisiert</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
@@ -326,7 +333,7 @@
   <string name="forum_invitation_received">%1$s hat das Forum \"%2$s\" mit dir geteilt.</string>
   <string name="forum_invitation_sent">Du hast das Forum \"%1$s\" mit %2$s geteilt.</string>
   <string name="forum_invitations_title">Foreneinladungen</string>
-  <string name="forum_invitation_exists">Du hast bereits eine Einladung zu diesem Forum angenommen.\n\nMehrere Einladungen anzunehmen, wird deine Verbindung zu diesem Forum schneller und zuverlässiger machen.</string>
+  <string name="forum_invitation_exists">Du hast bereits eine Einladung zu diesem Forum angenommen.\n\nMehrere Einladungen anzunehmen wird deine Verbindung zu diesem Forum schneller und zuverlässiger machen.</string>
   <string name="forum_joined_toast">Dem Forum beigetreten</string>
   <string name="forum_declined_toast">Einladung abgelehnt</string>
   <string name="shared_by_format">Geteilt durch %s</string>
@@ -418,11 +425,11 @@
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
   <string name="pref_lock_title">App-Sperre</string>
-  <string name="pref_lock_summary">Systemsperrbildschirm benutzen um Briar zu schützen, während angemeldet</string>
+  <string name="pref_lock_summary">Systemsperrbildschirm benutzen um ein angemeldetes Briar zu schützen</string>
   <string name="pref_lock_disabled_summary">Um dieses Feature zu benutzen, aktiviere den Systemsperrbildschirm</string>
   <string name="pref_lock_timeout_title">Zeitlimit der Inaktivität für die App-Sperr-Funktion</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">Briar automatisch nach %s sperren, wenn unbenutzt.</string>
+  <string name="pref_lock_timeout_summary">Bei Nichtnutzung Briar automatisch nach %s sperren</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 Minute</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->

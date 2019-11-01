@@ -27,13 +27,13 @@
   <string name="enter_password">パスワード</string>
   <string name="try_again">パスワードが間違っています。もう一度入力してください。</string>
   <string name="sign_in_button">サインイン</string>
-  <string name="forgotten_password">パスワードを紛失しました。</string>
+  <string name="forgotten_password">パスワードを忘れました。</string>
   <string name="dialog_title_lost_password">パスワードを紛失</string>
   <string name="dialog_message_lost_password">あなたのBriarアカウントはクラウド上ではなく、暗号化さた上であなたのデバイスに保存さています。したがってBriarはパスワードをリセットできません。アカウントを削除しはじめからやりなおしますか？\n\n注意：あなたのID、連絡先、メッセージは永久に復元できません。</string>
   <string name="startup_failed_notification_title">Briarを起動できません。</string>
   <string name="startup_failed_notification_text">「詳細情報」をタップしてください。</string>
-  <string name="startup_failed_activity_title">起動に失敗</string>
-  <string name="startup_failed_db_error">何らかの理由で、Briarデータベースが修復できないほど破損しています。 アカウント、データ、およびすべての連絡先が失われています。 残念ながら、パスワードプロンプトで「パスワードを紛失しました。」を選択して、Briarを再インストールするか、新しいアカウントを設定する必要があります。</string>
+  <string name="startup_failed_activity_title">起動に失敗しました</string>
+  <string name="startup_failed_db_error">何らかの理由で、Briarデータベースが修復できないほど破損しています。 アカウント、データ、およびすべての連絡先が失われています。 残念ながら、パスワードプロンプトで「パスワードを忘れましました。」を選択して、Briarを再インストールするか、新しいアカウントを設定する必要があります。</string>
   <string name="startup_failed_data_too_old_error">アカウントはこのアプリの古いバージョンで作成されたため、このバージョンで開くことはできません。 パスワードプロンプトで「パスワードを紛失しました。」を選択して、古いバージョンを再インストールするか、新しいアカウントを設定する必要があります。</string>
   <string name="startup_failed_data_too_new_error">このバージョンのアプリは古すぎます。 最新バージョンにアップグレードして、もう一度試してみてください。</string>
   <string name="startup_failed_service_error">プラグインの起動に失敗しました。Briarを再インストールすることで通常は直ります。Briarは中央サーバにデータを保存していないため、アカウントとそれに関連する情報は全て失われることに注意してください。</string>
@@ -83,9 +83,9 @@
     <item quantity="other">%d件の新規ブログ投稿</item>
   </plurals>
   <!--Misc-->
-  <string name="now">現在</string>
+  <string name="now">たった今</string>
   <string name="show">表示</string>
-  <string name="hide">非表示</string>
+  <string name="hide">隠す</string>
   <string name="ok">OK</string>
   <string name="cancel">キャンセル</string>
   <string name="got_it">了解</string>
@@ -111,7 +111,7 @@
   <string name="date_no_private_messages">メッセージがありません。</string>
   <string name="no_private_messages">表示するメッセージがありません</string>
   <string name="message_hint">メッセージ入力</string>
-  <string name="image_caption_hint">キャプションを追加する（任意）</string>
+  <string name="image_caption_hint">説明文を追加する（任意）</string>
   <string name="image_attach">画像を添付</string>
   <string name="image_attach_error">画像を添付できませんでした</string>
   <string name="image_attach_error_too_big">画像が大きすぎます。 %dMBが制限です。</string>
@@ -119,19 +119,19 @@
   <string name="set_contact_alias">連絡先を変更</string>
   <string name="set_contact_alias_hint">連絡先名</string>
   <string name="set_alias_button">変更</string>
-  <string name="delete_contact">連絡先を削除</string>
+  <string name="delete_contact">この連絡先を削除</string>
   <string name="dialog_title_delete_contact">連絡先の削除時に確認</string>
   <string name="dialog_message_delete_contact">この連絡先と、この連絡先とのすべてのメッセージを削除してもよろしいですか？</string>
-  <string name="contact_deleted_toast">連絡先の削除完了</string>
+  <string name="contact_deleted_toast">連絡先を削除しました</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">あなた</string>
   <string name="save_image">画像を保存</string>
   <string name="dialog_title_save_image">画像を保存しますか？</string>
   <string name="dialog_message_save_image">画像を保存すると、他のアプリがその画像にアクセスできるようになります。\n\n保存してもよろしいですか？</string>
-  <string name="save_image_success">画像が保存されました</string>
+  <string name="save_image_success">画像を保存しました</string>
   <string name="save_image_error">画像を保存できませんでした</string>
   <string name="dialog_title_no_image_support">利用できない画像です</string>
-  <string name="dialog_message_no_image_support">連絡相手のBriarは画像の添付ファイルをまだサポートしていません。連絡先がアップグレードすると、別のアイコンが表示されます。</string>
+  <string name="dialog_message_no_image_support">あなたのこの連絡先のBriarは画像の添付ファイルをまだサポートしていません。連絡先がアップグレードすると、別のアイコンが表示されます。</string>
   <string name="dialog_title_image_support">この連絡先に画像を送信できるようになりました</string>
   <string name="dialog_message_image_support">このアイコンをタップして画像を添付します。</string>
   <!--Adding Contacts-->
@@ -144,7 +144,7 @@
   <string name="contact_added_toast">追加された連絡先：%s</string>
   <string name="contact_already_exists">連絡先%sは既に存在しています </string>
   <string name="qr_code_invalid">QRコードが無効です</string>
-  <string name="qr_code_too_old">スキャンしたQRコードは%sの古いバージョンから取得されました。\n\n連絡相手に最新バージョンへアップグレードしてもらい、もう一度お試しください。</string>
+  <string name="qr_code_too_old">スキャンしたQRコードは%sの古いバージョンから取得されました。\n\n最新バージョンへアップグレードしてもらって、もう一度お試しください。</string>
   <string name="qr_code_too_new">スキャンしたQRコードは、新しいバージョンの%sから取得されました。\n\n最新バージョンにアップグレードしてから、もう一度お試しください。</string>
   <string name="camera_error">カメラエラー</string>
   <string name="connecting_to_device">デバイスに接続中\u2026</string>
@@ -157,20 +157,20 @@
   <string name="add_contact_nearby_title">近くにいる相手を連絡先に追加</string>
   <string name="add_contact_remotely_title">離れた場所にいる相手を連絡先に追加</string>
   <string name="contact_name_hint">連絡先にニックネームを付ける</string>
-  <string name="contact_link_intro">連絡先のリンクをここに入力してください</string>
-  <string name="contact_link_hint">連絡先のリンク</string>
+  <string name="contact_link_intro">連絡相手のリンクをここに入力してください</string>
+  <string name="contact_link_hint">連絡相手のリンク</string>
   <string name="paste_button">貼り付け</string>
-  <string name="add_contact_button">連絡先を追加</string>
+  <string name="add_contact_button">連絡相手を追加</string>
   <string name="copy_button">コピー</string>
   <string name="share_button">共有</string>
   <string name="send_link_title">リンクの交換</string>
   <string name="add_contact_choose_nickname">ニックネームを選んでください</string>
   <string name="add_contact_choose_a_nickname">ニックネームを入力してください</string>
-  <string name="nickname_intro">連絡先にニックネームを付けます。 あなただけがそれを見ることができます。</string>
-  <string name="your_link">追加する連絡先にこのリンクを提供します</string>
+  <string name="nickname_intro">この連絡相手にニックネームを付けます。 あなただけがそれを見ることができます。</string>
+  <string name="your_link">リンクを共有する連絡相手を追加する</string>
   <string name="link_clip_label">Briarリンク</string>
   <string name="link_copied_toast">リンクをコピーしました</string>
-  <string name="adding_contact_error">連絡先の追加中にエラーが発生しました。</string>
+  <string name="adding_contact_error">連絡先への追加中にエラーが発生しました。</string>
   <string name="pending_contact_requests_snackbar">保留中の連絡先への追加リクエストがあります</string>
   <string name="pending_contact_requests">連絡先追加リクエスト</string>
   <string name="no_pending_contacts">保留中の連絡先追加リクエストはありません</string>
@@ -179,9 +179,9 @@
   <string name="connecting">接続中…</string>
   <string name="adding_contact">連絡先を追加しています…</string>
   <string name="adding_contact_failed">連絡先の追加に失敗しました</string>
-  <string name="dialog_title_remove_pending_contact">連絡先の追加に失敗しました</string>
+  <string name="dialog_title_remove_pending_contact">削除の確認</string>
   <string name="dialog_message_remove_pending_contact">この連絡先はまだ追加中です。 今削除すると、追加されません。</string>
-  <string name="own_link_error">自分ではなく連絡先のリンクを入力してください</string>
+  <string name="own_link_error">あなたのリンクではなく連絡先のリンクを入力してください</string>
   <string name="nickname_missing">ニックネームを入力してください</string>
   <string name="invalid_link">無効なリンク</string>
   <string name="unsupported_link">このリンクは、Briarの新しいバージョンからのものです。 最新バージョンにアップグレードしてから、もう一度試してください。</string>
@@ -217,13 +217,13 @@
   <string name="introduction_onboarding_text">連絡先をお互いに紹介できるので、Briarを使用して連絡するために直接会う必要はありません。</string>
   <string name="introduction_menu_item">はじめに</string>
   <string name="introduction_activity_title">連絡先を選択</string>
-  <string name="introduction_not_possible">これらの連絡先については、すでに1つの紹介が進行中です。 これが最初に完了するようにしてください。 あなたやあなたの連絡先がめったにオンラインにならない場合、これには時間がかかることがあります。</string>
-  <string name="introduction_message_title">連絡先を紹介する</string>
+  <string name="introduction_not_possible">これらの連絡先については、すでに1つの紹介が進行中です。 これが最初に完了するようにしてください。 あなたやあなたの連絡相手がめったにオンラインにならない場合、これには時間がかかることがあります。</string>
+  <string name="introduction_message_title">連絡相手を紹介する</string>
   <string name="introduction_message_hint">メッセージを追加する（任意）</string>
   <string name="introduction_button">はじめに</string>
   <string name="introduction_sent">こちらの構成情報を送信しました。</string>
   <string name="introduction_error">構成情報の作成中にエラーが発生しました。</string>
-  <string name="introduction_response_error">相手からの構成情報に返信する際のエラー</string>
+  <string name="introduction_response_error">連絡相手からの構成情報に返信する際のエラー</string>
   <string name="introduction_request_sent">%1$sを%2$sに追加するように要求しました。</string>
   <string name="introduction_request_received">%1$sから%2$sへの紹介を求められました。 連絡先リストに%2$sを追加しますか？</string>
   <string name="introduction_request_exists_received">%1$sから%2$sの紹介を求められましたが、%2$sは既に連絡先リストにあります。%1$sはそれを知らない可能性があるため、引き続き応じれます：</string>
@@ -239,7 +239,7 @@
   <string name="groups_list_empty_action">「＋」アイコンをタップしてグループを作成するか、連絡先に登録している誰かにグループを共有してもらう</string>
   <string name="groups_created_by">%sによって作成されました。</string>
   <plurals name="messages">
-    <item quantity="other">メッセージ%d通</item>
+    <item quantity="other">%d通のメッセージ</item>
   </plurals>
   <string name="groups_group_is_empty">このグループは空です</string>
   <string name="groups_group_is_dissolved">このグループは解散しました</string>
@@ -255,9 +255,9 @@
   <string name="groups_member_created">%sがグループを作成しました</string>
   <string name="groups_member_joined_you">グループに参加しました</string>
   <string name="groups_member_joined">%sがグループに参加しました</string>
-  <string name="groups_leave">グループから脱退する</string>
-  <string name="groups_leave_dialog_title">グループからの脱退の確認</string>
-  <string name="groups_leave_dialog_message">このグループから脱退してもよろしいですか？</string>
+  <string name="groups_leave">グループをやめる</string>
+  <string name="groups_leave_dialog_title">グループをやめる確認</string>
+  <string name="groups_leave_dialog_message">このグループをやめてもよろしいですか？</string>
   <string name="groups_dissolve">グループを削除</string>
   <string name="groups_dissolve_dialog_title">グループの削除の確認</string>
   <string name="groups_dissolve_dialog_message">このグループを削除してもよろしいですか？\n\nグループを削除すると、他のすべてのメンバーは会話を続けることができなくなり、最新のメッセージは受信できなくなります。</string>
@@ -300,11 +300,11 @@
   <string name="forum_new_message_hint">新しい投稿</string>
   <string name="forum_message_reply_hint">新しい返信</string>
   <string name="btn_reply">返信</string>
-  <string name="forum_leave">フォーラムを脱退する</string>
-  <string name="dialog_title_leave_forum">フォーラムの脱退の確認</string>
-  <string name="dialog_message_leave_forum">このフォーラムから脱退してもよろしいですか？\n\nこのフォーラムで共有した連絡先は更新の受信を停止します。</string>
+  <string name="forum_leave">フォーラムをやめる</string>
+  <string name="dialog_title_leave_forum">フォーラムをやめる確認</string>
+  <string name="dialog_message_leave_forum">このフォーラムをやめてもよろしいですか？\n\nこのフォーラムで共有した連絡先は更新の受信を停止します。</string>
   <string name="dialog_button_leave">脱退する</string>
-  <string name="forum_left_toast">フォーラムから脱退しました</string>
+  <string name="forum_left_toast">フォーラムをやめました</string>
   <!--Forum Sharing-->
   <string name="forum_share_button">フォーラムを共有</string>
   <string name="contacts_selected">選択した連絡先</string>
@@ -410,7 +410,7 @@
   <string name="pref_lock_title">アプリロック</string>
   <string name="pref_lock_summary">ログイン中にデバイスの画面ロックを使用して、Briarを保護します</string>
   <string name="pref_lock_disabled_summary">この機能を使用するには、デバイスの画面ロックを設定します</string>
-  <string name="pref_lock_timeout_title">\"Inactivity timeout\"の場合、アプリロックをロックする</string>
+  <string name="pref_lock_timeout_title">\"Inactivity timeout\"された場合、アプリロックをロックする</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">Briarを使用しない場合、%s後に自動的にロックします</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -497,7 +497,7 @@
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">スクリーンオーバーレイが検出されました</string>
   <string name="screen_filter_body">別のアプリがBriarの画面上に描画しています。 セキュリティを保護するために、Briarは、別のアプリがBriarの画面上に描画している場合、タッチに応答しません。\n\n次のアプリが上に描画されている可能性があります：\n\n%1$s</string>
-  <string name="screen_filter_allow">これらのアプリがBriarの画面上に描画できるようにします</string>
+  <string name="screen_filter_allow">これらのアプリがBriarの画面上に描画できるようにする</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">カメラへのアクセス許可</string>
   <string name="permission_camera_request_body">QRコードをスキャンするには、Briarはカメラにアクセスする必要があります。</string>
