@@ -209,6 +209,32 @@ public class MessagingManagerIntegrationTest
 	}
 
 	@Test
+	public void testDeleteLegacySubset() throws Exception {
+		// send legacy message
+		GroupId g = c0.getMessagingManager().getConversationId(contactId);
+		PrivateMessage m0 = messageFactory.createLegacyPrivateMessage(g,
+				clock.currentTimeMillis(), getRandomString(42));
+		c0.getMessagingManager().addLocalMessage(m0);
+		syncMessage(c0, c1, contactId, 1, true);
+
+		// message arrived on both sides
+		assertEquals(1, getMessages(c0).size());
+		assertEquals(1, getMessages(c1).size());
+
+		// delete message on both sides (deletes all, because returns true)
+		Set<MessageId> toDelete = new HashSet<>();
+		toDelete.add(m0.getMessage().getId());
+		assertTrue(c0.getConversationManager()
+				.deleteMessages(contactId, toDelete));
+		assertTrue(c1.getConversationManager()
+				.deleteMessages(contactId, toDelete));
+
+		// message was deleted
+		assertEquals(0, getMessages(c0).size());
+		assertEquals(0, getMessages(c1).size());
+	}
+
+	@Test
 	public void testDeleteAttachment() throws Exception {
 		// send one message with attachment
 		AttachmentHeader h = addAttachment(c0);
