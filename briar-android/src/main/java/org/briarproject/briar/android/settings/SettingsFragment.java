@@ -489,7 +489,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			Intent intent = new Intent(ACTION_CHANNEL_NOTIFICATION_SETTINGS)
 					.putExtra(EXTRA_APP_PACKAGE, packageName)
 					.putExtra(EXTRA_CHANNEL_ID, channelId);
-			startActivity(intent);
+			Context ctx = requireContext();
+			if (intent.resolveActivity(ctx.getPackageManager()) != null) {
+				startActivity(intent);
+			} else {
+				Toast.makeText(ctx, R.string.error_start_activity, LENGTH_SHORT)
+						.show();
+			}
 			return true;
 		});
 	}
