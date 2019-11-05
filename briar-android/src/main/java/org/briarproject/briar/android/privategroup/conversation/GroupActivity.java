@@ -47,7 +47,9 @@ public class GroupActivity extends
 	@Inject
 	GroupController controller;
 
-	private boolean isCreator, isDissolved = false;
+	@Nullable
+	private Boolean isCreator = null;
+	private boolean isDissolved = false;
 	private MenuItem revealMenuItem, inviteMenuItem, leaveMenuItem,
 			dissolveMenuItem;
 
@@ -137,6 +139,14 @@ public class GroupActivity extends
 		inviteMenuItem = menu.findItem(R.id.action_group_invite);
 		leaveMenuItem = menu.findItem(R.id.action_group_leave);
 		dissolveMenuItem = menu.findItem(R.id.action_group_dissolve);
+
+		// all role-dependent items are invisible until we know our role
+		revealMenuItem.setVisible(false);
+		inviteMenuItem.setVisible(false);
+		leaveMenuItem.setVisible(false);
+		dissolveMenuItem.setVisible(false);
+
+		// show items based on role
 		showMenuItems();
 
 		return super.onCreateOptionsMenu(menu);
@@ -151,19 +161,27 @@ public class GroupActivity extends
 				startActivity(i1);
 				return true;
 			case R.id.action_group_reveal:
+				if (isCreator == null || isCreator)
+					throw new IllegalStateException();
 				Intent i2 = new Intent(this, RevealContactsActivity.class);
 				i2.putExtra(GROUP_ID, groupId.getBytes());
 				startActivity(i2);
 				return true;
 			case R.id.action_group_invite:
+				if (isCreator == null || !isCreator)
+					throw new IllegalStateException();
 				Intent i3 = new Intent(this, GroupInviteActivity.class);
 				i3.putExtra(GROUP_ID, groupId.getBytes());
 				startActivityForResult(i3, REQUEST_GROUP_INVITE);
 				return true;
 			case R.id.action_group_leave:
+				if (isCreator == null || isCreator)
+					throw new IllegalStateException();
 				showLeaveGroupDialog();
 				return true;
 			case R.id.action_group_dissolve:
+				if (isCreator == null || !isCreator)
+					throw new IllegalStateException();
 				showDissolveGroupDialog();
 			default:
 				return super.onOptionsItemSelected(item);
@@ -209,18 +227,12 @@ public class GroupActivity extends
 	}
 
 	private void showMenuItems() {
-		if (leaveMenuItem == null || dissolveMenuItem == null) return;
-		if (isCreator) {
-			revealMenuItem.setVisible(false);
-			inviteMenuItem.setVisible(true);
-			leaveMenuItem.setVisible(false);
-			dissolveMenuItem.setVisible(true);
-		} else {
-			revealMenuItem.setVisible(true);
-			inviteMenuItem.setVisible(false);
-			leaveMenuItem.setVisible(true);
-			dissolveMenuItem.setVisible(false);
-		}
+		// we need to have the menu items and know if we are the creator
+		if (leaveMenuItem == null || isCreator == null) return;
+		revealMenuItem.setVisible(!isCreator);
+		inviteMenuItem.setVisible(isCreator);
+		leaveMenuItem.setVisible(!isCreator);
+		dissolveMenuItem.setVisible(isCreator);
 	}
 
 	private void showLeaveGroupDialog() {
