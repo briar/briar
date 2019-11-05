@@ -511,7 +511,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			else uri = Uri.parse(ringtoneUri);
 			i.putExtra(EXTRA_RINGTONE_EXISTING_URI, uri);
 		}
-		startActivityForResult(i, REQUEST_RINGTONE);
+		if (i.resolveActivity(requireActivity().getPackageManager()) != null) {
+			startActivityForResult(i, REQUEST_RINGTONE);
+		} else {
+			Toast.makeText(getContext(), R.string.cannot_load_ringtone,
+					LENGTH_SHORT).show();
+		}
 		return true;
 	}
 
@@ -646,7 +651,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			} else {
 				// The user chose a ringtone other than the default
 				Ringtone r = RingtoneManager.getRingtone(getContext(), uri);
-				if (r == null) {
+				if (r == null || "file".equals(uri.getScheme())) {
 					Toast.makeText(getContext(), R.string.cannot_load_ringtone,
 							LENGTH_SHORT).show();
 				} else {
