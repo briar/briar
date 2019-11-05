@@ -76,8 +76,12 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	@UiThread
 	public LiveData<AttachmentResult> storeAttachments(
 			LiveData<GroupId> groupId, Collection<Uri> newUris) {
-		if (task != null || result != null || !uris.isEmpty())
+		if (task != null || result != null || !uris.isEmpty()) {
+			if (task != null) LOG.warning("Task already exists!");
+			if (result != null) LOG.warning("Result already exists!");
+			if (!uris.isEmpty()) LOG.warning("Uris available: " + uris);
 			throw new IllegalStateException();
+		}
 		MutableLiveData<AttachmentResult> result = new MutableLiveData<>();
 		this.result = result;
 		uris.addAll(newUris);
@@ -96,8 +100,12 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	@UiThread
 	public LiveData<AttachmentResult> getLiveAttachments() {
 		MutableLiveData<AttachmentResult> result = this.result;
-		if (task == null || result == null || uris.isEmpty())
+		if (task == null || result == null || uris.isEmpty()) {
+			if (task == null) LOG.warning("No Task!");
+			if (result == null) LOG.warning("No Result!");
+			if (uris.isEmpty()) LOG.warning("Uris empty!");
 			throw new IllegalStateException();
+		}
 		// A task is already running. It will update the result LiveData.
 		// So nothing more to do here.
 		return result;
@@ -174,8 +182,7 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	@Override
 	@UiThread
 	public void cancel() {
-		if (task == null) throw new AssertionError();
-		task.cancel();
+		if (task != null) task.cancel();
 		deleteUnsentAttachments();
 		resetState();
 	}

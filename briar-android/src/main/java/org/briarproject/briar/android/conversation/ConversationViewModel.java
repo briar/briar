@@ -133,7 +133,7 @@ public class ConversationViewModel extends AndroidViewModel
 	@Override
 	protected void onCleared() {
 		super.onCleared();
-		attachmentCreator.deleteUnsentAttachments();
+		attachmentCreator.cancel();  // also deletes unsent attachments
 		eventBus.removeListener(this);
 	}
 
@@ -274,6 +274,7 @@ public class ConversationViewModel extends AndroidViewModel
 		settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 	}
 
+	@UiThread
 	private void createMessage(GroupId groupId, @Nullable String text,
 			List<AttachmentHeader> headers, long timestamp,
 			boolean hasImageSupport) {
@@ -292,6 +293,7 @@ public class ConversationViewModel extends AndroidViewModel
 		}
 	}
 
+	@UiThread
 	private void storeMessage(PrivateMessage m) {
 		attachmentCreator.onAttachmentsSent(m.getMessage().getId());
 		dbExecutor.execute(() -> {
