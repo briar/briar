@@ -60,6 +60,8 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	private final ClientId clientId = getClientId();
 	private final long now = System.currentTimeMillis();
 	private final Transaction txn = new Transaction(null, false);
+	private final BdfDictionary groupMeta = BdfDictionary.of(
+			new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt()));
 
 	private ClientVersioningManagerImpl createInstance() {
 		context.checking(new Expectations() {{
@@ -107,8 +109,6 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectAddingContact() throws Exception {
-		BdfDictionary groupMeta = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt()));
 		long now = System.currentTimeMillis();
 		BdfList localUpdateBody = BdfList.of(new BdfList(), 1L);
 		Message localUpdate = getMessage(contactGroup.getId());
@@ -459,6 +459,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			// Delete the old remote update
 			oneOf(db).deleteMessage(txn, oldRemoteUpdateId);
 			oneOf(db).deleteMessageMetadata(txn, oldRemoteUpdateId);
+			// Get contact ID
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(groupMeta));
 			// No states or visibilities have changed
 		}});
 
@@ -488,6 +492,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			// Load the latest local update
 			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
+			// Get client ID
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(groupMeta));
 			// No states or visibilities have changed
 		}});
 
