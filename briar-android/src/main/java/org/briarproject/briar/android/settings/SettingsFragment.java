@@ -218,11 +218,17 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				});
 
 		if (SDK_INT < 27) {
-			// remove System Default Theme option
+			// remove System Default Theme option from preference entries
+			// as it is not functional on this API anyway
 			List<CharSequence> entries =
 					new ArrayList<>(Arrays.asList(theme.getEntries()));
 			entries.remove(getString(R.string.pref_theme_system));
 			theme.setEntries(entries.toArray(new CharSequence[0]));
+			// also remove corresponding value
+			List<CharSequence> values =
+					new ArrayList<>(Arrays.asList(theme.getEntryValues()));
+			values.remove(getString(R.string.pref_theme_system_value));
+			theme.setEntryValues(values.toArray(new CharSequence[0]));
 		}
 		if (IS_DEBUG_BUILD) {
 			findPreference("pref_key_explode").setOnPreferenceClickListener(
