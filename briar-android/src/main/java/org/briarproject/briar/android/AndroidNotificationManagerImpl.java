@@ -347,8 +347,10 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		if (currentTime - lastSound > SOUND_DELAY) {
 			boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
 			String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri))
-				b.setSound(Uri.parse(ringtoneUri));
+			if (sound && !StringUtils.isNullOrEmpty(ringtoneUri)) {
+				Uri uri = Uri.parse(ringtoneUri);
+				if (!"file".equals(uri.getScheme())) b.setSound(uri);
+			}
 			b.setDefaults(getDefaults());
 			lastSound = currentTime;
 		}
@@ -359,7 +361,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		int defaults = DEFAULT_LIGHTS;
 		boolean sound = settings.getBoolean(PREF_NOTIFY_SOUND, true);
 		String ringtoneUri = settings.get(PREF_NOTIFY_RINGTONE_URI);
-		if (sound && StringUtils.isNullOrEmpty(ringtoneUri))
+		if (sound && (StringUtils.isNullOrEmpty(ringtoneUri) ||
+				"file".equals(Uri.parse(ringtoneUri).getScheme())))
 			defaults |= DEFAULT_SOUND;
 		if (settings.getBoolean(PREF_NOTIFY_VIBRATION, true))
 			defaults |= DEFAULT_VIBRATE;
