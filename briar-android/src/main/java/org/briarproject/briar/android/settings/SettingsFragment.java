@@ -137,6 +137,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	// Fields that are accessed from background threads must be volatile
 	private volatile Settings settings, btSettings, torSettings;
+	private volatile boolean settingsLoaded = false;
 
 	@Inject
 	volatile SettingsManager settingsManager;
@@ -351,6 +352,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
 				btSettings = settingsManager.getSettings(BT_NAMESPACE);
 				torSettings = settingsManager.getSettings(TOR_NAMESPACE);
+				settingsLoaded = true;
 				logDuration(LOG, "Loading settings", start);
 				displaySettings();
 			} catch (DbException e) {
@@ -361,6 +363,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void displaySettings() {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
+			// due to events, we might try to display before a load completed
+			if (!settingsLoaded) return;
+
 			boolean btEnabledSetting =
 					btSettings.getBoolean(PREF_BT_ENABLE, false);
 			enableBluetooth.setValue(Boolean.toString(btEnabledSetting));
