@@ -54,7 +54,6 @@ import static org.acra.ReportField.REPORT_ID;
 import static org.acra.ReportField.STACK_TRACE;
 import static org.acra.ReportField.USER_APP_START_DATE;
 import static org.acra.ReportField.USER_CRASH_DATE;
-import static org.briarproject.briar.android.TestingConstants.IS_BETA_BUILD;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 
 @ReportsCrashes(
@@ -111,7 +110,7 @@ public class BriarApplicationImpl extends Application
 		Handler[] handlers = rootLogger.getHandlers();
 		// Disable the Android logger for release builds
 		for (Handler handler : handlers) rootLogger.removeHandler(handler);
-		if (IS_DEBUG_BUILD || IS_BETA_BUILD) {
+		if (IS_DEBUG_BUILD) {
 			// We can't set the level of the Android logger at runtime, so
 			// raise records to the logger's default level
 			rootLogger.addHandler(new LevelRaisingHandler(FINE, INFO));
@@ -119,7 +118,7 @@ public class BriarApplicationImpl extends Application
 			for (Handler handler : handlers) rootLogger.addHandler(handler);
 		}
 		rootLogger.addHandler(logHandler);
-		rootLogger.setLevel(IS_DEBUG_BUILD || IS_BETA_BUILD ? FINE : INFO);
+		rootLogger.setLevel(IS_DEBUG_BUILD ? FINE : INFO);
 
 		LOG.info("Created");
 

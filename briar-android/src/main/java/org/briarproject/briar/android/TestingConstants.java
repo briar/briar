@@ -2,18 +2,14 @@ package org.briarproject.briar.android;
 
 import org.briarproject.briar.BuildConfig;
 
+import static java.util.concurrent.TimeUnit.DAYS;
+
 public interface TestingConstants {
 
 	/**
 	 * Whether this is a debug build.
 	 */
 	boolean IS_DEBUG_BUILD = BuildConfig.DEBUG;
-
-	/**
-	 * Whether this is a beta build. This should be set to false for final
-	 * release builds.
-	 */
-	boolean IS_BETA_BUILD = false;
 
 	/**
 	 * Whether to prevent screenshots from being taken. Setting this to true
@@ -24,10 +20,9 @@ public interface TestingConstants {
 	boolean PREVENT_SCREENSHOTS = !IS_DEBUG_BUILD;
 
 	/**
-	 * Debug and beta builds expire after 90 days. Final release builds expire
-	 * after 292 million years.
+	 * Debug builds expire after 90 days. Release builds expire after 292
+	 * million years.
 	 */
-	long EXPIRY_DATE = IS_DEBUG_BUILD || IS_BETA_BUILD ?
-			BuildConfig.BuildTimestamp + 90 * 24 * 60 * 60 * 1000L :
-			Long.MAX_VALUE;
+	long EXPIRY_DATE = IS_DEBUG_BUILD ?
+			BuildConfig.BuildTimestamp + DAYS.toMillis(90) : Long.MAX_VALUE;
 }

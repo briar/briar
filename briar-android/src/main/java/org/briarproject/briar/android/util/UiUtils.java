@@ -80,6 +80,7 @@ import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 
@@ -151,7 +152,7 @@ public class UiUtils {
 
 	public static int getDaysUntilExpiry() {
 		long now = System.currentTimeMillis();
-		long daysBeforeExpiry = (EXPIRY_DATE - now) / 1000 / 60 / 60 / 24;
+		long daysBeforeExpiry = (EXPIRY_DATE - now) / DAYS.toMillis(1);
 		return (int) daysBeforeExpiry;
 	}
 
