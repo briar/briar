@@ -183,10 +183,14 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		if (bt == null) {
 			setBluetoothState(BluetoothState.NO_ADAPTER);
 		} else {
-			setBluetoothState(BluetoothState.WAITING);
-			wasAdapterEnabled = bt.isEnabled();
 			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
-			startActivityForResult(i, REQUEST_BLUETOOTH_DISCOVERABLE);
+			if (i.resolveActivity(getPackageManager()) != null) {
+				setBluetoothState(BluetoothState.WAITING);
+				wasAdapterEnabled = bt.isEnabled();
+				startActivityForResult(i, REQUEST_BLUETOOTH_DISCOVERABLE);
+			} else {
+				setBluetoothState(BluetoothState.NO_ADAPTER);
+			}
 		}
 	}
 
