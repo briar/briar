@@ -888,6 +888,7 @@ public class ConversationActivity extends BriarActivity
 			boolean allDeleted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.clear();
+			list.showProgressBar();  // otherwise clearing shows empty state
 			loadMessages();
 			if (!allDeleted) showNotAllDeletedDialog();
 		});
