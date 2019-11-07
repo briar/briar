@@ -55,8 +55,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	private final Map<MessageId, BlogPostHeader> headerCache =
 			new ConcurrentHashMap<>();
 
-	private volatile BlogListener listener;
-
 	BaseControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, EventBus eventBus,
 			AndroidNotificationManager notificationManager,
@@ -71,7 +69,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	@Override
 	@CallSuper
 	public void onStart() {
-		if (listener == null) throw new IllegalStateException();
 		eventBus.addListener(this);
 	}
 
@@ -79,11 +76,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 	@CallSuper
 	public void onStop() {
 		eventBus.removeListener(this);
-	}
-
-	@Override
-	public void setBlogListener(BlogListener listener) {
-		this.listener = listener;
 	}
 
 	@Override
@@ -211,7 +203,6 @@ abstract class BaseControllerImpl extends DbControllerImpl
 			text = HtmlUtils.clean(blogManager.getPostText(m), ARTICLE);
 			textCache.put(m, text);
 		}
-		//noinspection ConstantConditions
 		return text;
 	}
 

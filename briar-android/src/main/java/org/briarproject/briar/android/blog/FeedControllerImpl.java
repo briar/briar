@@ -26,6 +26,8 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
+
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -40,6 +42,7 @@ class FeedControllerImpl extends BaseControllerImpl implements FeedController {
 			Logger.getLogger(FeedControllerImpl.class.getName());
 
 	// UI thread
+	@Nullable
 	private FeedListener listener;
 
 	@Inject
@@ -66,13 +69,13 @@ class FeedControllerImpl extends BaseControllerImpl implements FeedController {
 	}
 
 	@Override
-	public void setFeedListener(FeedListener listener) {
-		super.setBlogListener(listener);
+	public void setFeedListener(@Nullable FeedListener listener) {
 		this.listener = listener;
 	}
 
 	@Override
 	public void eventOccurred(Event e) {
+		if (listener == null) throw new IllegalStateException();
 		if (e instanceof BlogPostAddedEvent) {
 			BlogPostAddedEvent b = (BlogPostAddedEvent) e;
 			LOG.info("Blog post added");

@@ -35,9 +35,6 @@ interface BaseController {
 	void repeatPost(BlogPostItem item, @Nullable String comment,
 			ExceptionHandler<DbException> handler);
 
-	@UiThread
-	void setBlogListener(BlogListener listener);
-
 	@NotNullByDefault
 	interface BlogListener {
 

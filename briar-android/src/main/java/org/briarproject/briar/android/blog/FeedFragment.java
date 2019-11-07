@@ -26,9 +26,9 @@ import org.briarproject.briar.api.blog.BlogPostHeader;
 import java.util.Collection;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
@@ -129,6 +129,12 @@ public class FeedFragment extends BaseFragment implements
 		list.showProgressBar();
 		list.stopPeriodicUpdate();
 		// TODO save list position in database/preferences?
+	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		feedController.setFeedListener(null);
 	}
 
 	@Override
