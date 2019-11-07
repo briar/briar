@@ -558,7 +558,7 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Eagerly loading image size for latest message");
 				AttachmentHeader header = headers.get(0);
 				// get the item to retrieve its size
-				attachmentRetriever.cacheAttachmentItem(h.getId(), header);
+				attachmentRetriever.cacheAttachmentItemWithSize(h.getId(), header);
 			}
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);

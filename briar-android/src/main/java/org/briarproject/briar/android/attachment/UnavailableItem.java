@@ -1,11 +1,13 @@
 package org.briarproject.briar.android.attachment;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import javax.annotation.concurrent.Immutable;
 
 @Immutable
+@NotNullByDefault
 class UnavailableItem {
 
 	private final MessageId conversationMessageId;
