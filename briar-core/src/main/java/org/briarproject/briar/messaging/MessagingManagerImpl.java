@@ -372,9 +372,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
 			throws DbException {
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
-		// Date: 2019-11-01
-		// When we remove support for old messages without MSG_KEY_MSG_TYPE,
-		// we can use a query here for (MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE)
 		Set<MessageId> result = new HashSet<>();
 		try {
 			Map<MessageId, BdfDictionary> messages =
