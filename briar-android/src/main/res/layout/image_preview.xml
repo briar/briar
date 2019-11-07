@@ -39,7 +39,7 @@
 		android:layout_marginRight="8dp"
 		android:layout_marginBottom="8dp"
 		android:src="@drawable/ic_close"
-		app:backgroundTint="@color/briar_red"
+		app:backgroundTint="@color/briar_accent"
 		app:fabCustomSize="26dp"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
