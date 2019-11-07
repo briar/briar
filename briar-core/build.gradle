@@ -12,7 +12,8 @@ dependencies {
 	implementation project(path: ':briar-api', configuration: 'default')
 	implementation 'com.rometools:rome:1.12.1'
 	implementation 'org.jdom:jdom2:2.0.6'
-	implementation 'com.squareup.okhttp3:okhttp:3.14.4'
+	// okhttp 3.12.x is supported until end of 2020, newer versions need minSdk 21
+	implementation 'com.squareup.okhttp3:okhttp:3.12.6'
 	implementation 'org.jsoup:jsoup:1.11.3'
 
 	annotationProcessor 'com.google.dagger:dagger-compiler:2.24'
