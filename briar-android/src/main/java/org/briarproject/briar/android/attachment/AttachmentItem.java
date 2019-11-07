@@ -55,7 +55,7 @@ public class AttachmentItem implements Parcelable {
 	}
 
 	/**
-	 * Use only for {@link MISSING} or {@link LOADING} items.
+	 * Use only for {@link State MISSING} or {@link State LOADING} items.
 	 */
 	AttachmentItem(AttachmentHeader header, int width, int height,
 			State state) {

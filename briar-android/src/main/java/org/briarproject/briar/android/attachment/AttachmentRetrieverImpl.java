@@ -26,6 +26,7 @@ import androidx.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.LOADING;
@@ -93,7 +94,7 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 
 	@Override
 	@DatabaseExecutor
-	public void cacheAttachmentItem(MessageId conversationMessageId,
+	public void cacheAttachmentItemWithSize(MessageId conversationMessageId,
 			AttachmentHeader h) throws DbException {
 		try {
 			Attachment a = messagingManager.getAttachment(h);
@@ -135,11 +136,12 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 			boolean needsSize) {
 		AttachmentHeader h = a.getHeader();
 		AttachmentItem item = itemCache.get(h.getMessageId());
-		if (item != null && (needsSize && item.hasSize())) return item;
+		if (item != null && (needsSize == item.hasSize())) return item;
 
 		if (needsSize) {
 			InputStream is = new BufferedInputStream(a.getStream());
 			Size size = imageSizeCalculator.getSize(is, h.getContentType());
+			tryToClose(is, LOG, WARNING);
 			item = createAttachmentItem(h, size);
 		} else {
 			String extension =

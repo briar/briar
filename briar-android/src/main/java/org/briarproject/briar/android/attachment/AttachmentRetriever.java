@@ -27,7 +27,7 @@ public interface AttachmentRetriever {
 	 * Retrieves item size and adds the item to the cache, if available.
 	 */
 	@DatabaseExecutor
-	void cacheAttachmentItem(MessageId conversationMessageId,
+	void cacheAttachmentItemWithSize(MessageId conversationMessageId,
 			AttachmentHeader h) throws DbException;
 
 	/**
@@ -41,7 +41,7 @@ public interface AttachmentRetriever {
 	 *
 	 * @return a pair of the {@link MessageId} of the conversation message
 	 * and the {@link AttachmentItem}
-	 * or {@code null} when the conversation message did not yet arrive.
+	 * or {@code null} when the private message did not yet arrive.
 	 */
 	@Nullable
 	@DatabaseExecutor
