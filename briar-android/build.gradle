@@ -102,7 +102,7 @@ dependencies {
 	implementation 'info.guardianproject.panic:panic:1.0'
 	implementation 'info.guardianproject.trustedintents:trustedintents:0.2'
 	implementation 'de.hdodenhof:circleimageview:3.0.1'
-	implementation 'com.google.zxing:core:3.4.0'
+	implementation 'com.google.zxing:core:3.3.3'  // newer version need minSdk 24
 	implementation 'uk.co.samuelwall:material-tap-target-prompt:3.0.0'
 	implementation 'com.vanniktech:emoji-google:0.6.0'
 	implementation 'com.github.kobakei:MaterialFabSpeedDial:1.2.1'
