@@ -3,10 +3,6 @@ package org.briarproject.briar.android.account;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.annotation.UiThread;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +13,11 @@ import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;

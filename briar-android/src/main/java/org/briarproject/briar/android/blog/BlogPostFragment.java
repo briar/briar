@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.os.Bundle;
-import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -13,6 +12,8 @@ import org.briarproject.briar.android.controller.handler.UiResultExceptionHandle
 import org.briarproject.briar.api.blog.BlogPostHeader;
 
 import javax.inject.Inject;
+
+import androidx.annotation.UiThread;
 
 @UiThread
 @MethodsNotNullByDefault

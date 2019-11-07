@@ -2,12 +2,6 @@ package org.briarproject.briar.android.activity;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.annotation.UiThread;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
@@ -39,9 +33,16 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.arch.lifecycle.Lifecycle.State.STARTED;
+import androidx.annotation.LayoutRes;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
+import static androidx.lifecycle.Lifecycle.State.STARTED;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;

@@ -2,8 +2,6 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.content.res.Resources;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.RecyclerView.Adapter;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,6 +15,9 @@ import org.briarproject.briar.android.conversation.glide.Radii;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
 
 import static android.content.Context.WINDOW_SERVICE;
 import static java.util.Objects.requireNonNull;

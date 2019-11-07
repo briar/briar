@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.content.Context;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.feed.Feed;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

@@ -7,9 +7,10 @@ import android.graphics.drawable.ClipDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
-import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.widget.ProgressBar;
+
+import androidx.annotation.Nullable;
 
 import static android.graphics.Color.BLACK;
 import static android.graphics.Paint.Style.FILL;

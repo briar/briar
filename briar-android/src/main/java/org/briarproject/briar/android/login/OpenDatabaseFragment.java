@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.login;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +14,10 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import static org.briarproject.briar.android.login.StartupViewModel.State;
 import static org.briarproject.briar.android.login.StartupViewModel.State.COMPACTING;

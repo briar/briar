@@ -4,9 +4,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Rect;
 import android.os.IBinder;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.v7.widget.AppCompatImageButton;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -22,6 +19,10 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarApplication;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.appcompat.widget.AppCompatImageButton;
 
 import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;

@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.contact;
 
-import android.support.annotation.UiThread;
 import android.view.View;
 import android.widget.TextView;
 
@@ -14,7 +13,9 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
-import static android.support.v4.view.ViewCompat.setTransitionName;
+import androidx.annotation.UiThread;
+
+import static androidx.core.view.ViewCompat.setTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
 
 @UiThread

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
@@ -9,7 +8,7 @@
 	<org.briarproject.briar.android.keyagreement.CameraView
 		android:id="@+id/camera_view"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"/>
+		android:layout_height="match_parent" />
 
 	<LinearLayout
 		android:id="@+id/camera_overlay"
@@ -32,7 +31,7 @@
 			<ProgressBar
 				style="?android:attr/progressBarStyleLarge"
 				android:layout_width="wrap_content"
-				android:layout_height="wrap_content"/>
+				android:layout_height="wrap_content" />
 
 			<TextView
 				android:id="@+id/connect_status"
@@ -40,7 +39,7 @@
 				android:layout_height="wrap_content"
 				android:gravity="center"
 				android:paddingTop="@dimen/margin_large"
-				tools:text="@string/waiting_for_contact_to_scan"/>
+				tools:text="@string/waiting_for_contact_to_scan" />
 		</LinearLayout>
 
 		<org.briarproject.briar.android.view.QrCodeView
@@ -49,7 +48,7 @@
 			android:layout_height="0dp"
 			android:layout_weight="1"
 			android:background="@android:color/white"
-			tools:visibility="visible"/>
+			tools:visibility="visible" />
 
 	</LinearLayout>
 

@@ -1,13 +1,13 @@
 package org.briarproject.briar.android.blog;
 
-import android.support.annotation.UiThread;
-
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.blog.Blog;
 
 import java.util.Collection;
+
+import androidx.annotation.UiThread;
 
 @NotNullByDefault
 public interface FeedController extends BaseController {

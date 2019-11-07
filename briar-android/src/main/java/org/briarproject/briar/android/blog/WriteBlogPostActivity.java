@@ -2,7 +2,6 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.MenuItem;
 import android.widget.ProgressBar;
 
@@ -30,6 +29,8 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

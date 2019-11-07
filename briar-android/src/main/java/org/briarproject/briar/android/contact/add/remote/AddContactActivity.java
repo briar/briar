@@ -1,10 +1,7 @@
 package org.briarproject.briar.android.contact.add.remote;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
@@ -17,6 +14,10 @@ import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import static android.content.Intent.ACTION_SEND;
 import static android.content.Intent.ACTION_VIEW;

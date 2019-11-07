@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.fragment;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +9,8 @@ import android.widget.TextView;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.annotation.Nullable;
 
 
 @MethodsNotNullByDefault

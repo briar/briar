@@ -1,16 +1,17 @@
 package org.briarproject.briar.android.util;
 
 import android.content.Context;
-import android.support.annotation.UiThread;
-import android.support.v7.util.SortedList;
-import android.support.v7.widget.RecyclerView.Adapter;
-import android.support.v7.widget.RecyclerView.ViewHolder;
 
 import java.util.Collection;
 
 import javax.annotation.Nullable;
 
-import static android.support.v7.util.SortedList.INVALID_POSITION;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.RecyclerView.Adapter;
+import androidx.recyclerview.widget.RecyclerView.ViewHolder;
+import androidx.recyclerview.widget.SortedList;
+
+import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
 
 public abstract class BriarAdapter<T, V extends ViewHolder>
 		extends Adapter<V> implements VersionedAdapter {

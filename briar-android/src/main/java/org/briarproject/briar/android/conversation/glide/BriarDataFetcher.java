@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.conversation.glide;
 
-import android.support.annotation.Nullable;
-
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.data.DataFetcher;
@@ -18,6 +16,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static com.bumptech.glide.load.DataSource.LOCAL;
 import static java.util.logging.Level.WARNING;

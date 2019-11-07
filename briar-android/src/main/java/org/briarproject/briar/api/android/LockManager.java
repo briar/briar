@@ -1,8 +1,9 @@
 package org.briarproject.briar.api.android;
 
 import android.app.Activity;
-import android.arch.lifecycle.LiveData;
-import android.support.annotation.UiThread;
+
+import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
 
 public interface LockManager {
 

@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.introduction;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +27,10 @@ import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;

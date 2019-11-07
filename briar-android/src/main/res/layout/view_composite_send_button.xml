@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="@dimen/text_input_height"
@@ -9,7 +8,7 @@
 	tools:parentTag="org.briarproject.briar.android.view.CompositeSendButton"
 	tools:showIn="@layout/text_input_view">
 
-	<android.support.v7.widget.AppCompatImageButton
+	<androidx.appcompat.widget.AppCompatImageButton
 		android:id="@+id/imageButton"
 		android:layout_width="@dimen/text_input_height"
 		android:layout_height="@dimen/text_input_height"
@@ -22,9 +21,9 @@
 		android:scaleType="center"
 		android:src="@drawable/ic_image_off"
 		android:visibility="invisible"
-		app:tint="?attr/colorControlNormal"/>
+		app:tint="?attr/colorControlNormal" />
 
-	<android.support.v7.widget.AppCompatImageButton
+	<androidx.appcompat.widget.AppCompatImageButton
 		android:id="@+id/sendButton"
 		android:layout_width="@dimen/text_input_height"
 		android:layout_height="@dimen/text_input_height"
@@ -36,12 +35,12 @@
 		android:padding="4dp"
 		android:scaleType="center"
 		android:src="@drawable/social_send_now_white"
-		app:tint="@color/briar_accent"/>
+		app:tint="@color/briar_accent" />
 
 	<ProgressBar
 		android:id="@+id/progressBar"
 		android:layout_width="@dimen/text_input_height"
 		android:layout_height="@dimen/text_input_height"
-		android:visibility="invisible"/>
+		android:visibility="invisible" />
 
 </merge>

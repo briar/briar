@@ -1,8 +1,6 @@
 package org.briarproject.briar.android.attachment;
 
 import android.content.res.AssetManager;
-import android.support.test.InstrumentationRegistry;
-import android.support.test.runner.AndroidJUnit4;
 
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -16,6 +14,9 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Random;
 
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -264,7 +265,7 @@ public class AttachmentRetrieverIntegrationTest {
 	}
 
 	private InputStream getAssetInputStream(String name) throws IOException {
-		AssetManager assets = InstrumentationRegistry.getContext().getAssets();
+		AssetManager assets = getApplicationContext().getAssets();
 		return assets.open(name);
 	}
 

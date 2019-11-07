@@ -12,7 +12,7 @@ public class BriarTestComponentApplication extends BriarApplicationImpl {
 				.appModule(new AppModule(this)).build();
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
-		BrambleCoreModule.initEagerSingletons(component);
+		BrambleCoreModule.initEagerSingletons(component);  // FIXME AbstractMethodError
 		BrambleAndroidModule.initEagerSingletons(component);
 		BriarCoreModule.initEagerSingletons(component);
 		AndroidEagerSingletons.initEagerSingletons(component);

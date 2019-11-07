@@ -2,8 +2,6 @@ package org.briarproject.briar.android.reporting;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -34,6 +32,9 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.logging.Logger;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 
 import static android.view.MenuItem.SHOW_AS_ACTION_ALWAYS;
 import static android.view.View.GONE;

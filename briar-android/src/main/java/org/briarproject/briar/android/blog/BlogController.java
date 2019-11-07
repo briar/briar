@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.blog;
 
-import android.support.annotation.UiThread;
-
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -10,6 +8,8 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 
 import java.util.Collection;
+
+import androidx.annotation.UiThread;
 
 @NotNullByDefault
 public interface BlogController extends BaseController {

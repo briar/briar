@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="wrap_content"
@@ -9,11 +8,11 @@
 	android:fillViewport="true"
 	android:orientation="vertical">
 
-	<android.support.constraint.ConstraintLayout
+	<androidx.constraintlayout.widget.ConstraintLayout
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content">
 
-		<android.support.design.widget.NavigationView
+		<com.google.android.material.navigation.NavigationView
 			android:id="@+id/navigation"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
@@ -25,7 +24,7 @@
 			app:itemTextColor="?android:textColorPrimary"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			app:menu="@menu/navigation_drawer"/>
+			app:menu="@menu/navigation_drawer" />
 
 		<View
 			android:id="@+id/divider1"
@@ -33,7 +32,7 @@
 			android:layout_width="0dp"
 			app:layout_constraintEnd_toEndOf="@+id/navigation"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/navigation"/>
+			app:layout_constraintTop_toBottomOf="@+id/navigation" />
 
 		<View
 			android:id="@+id/spacer"
@@ -42,7 +41,7 @@
 			app:layout_constraintBottom_toTopOf="@+id/transports"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/divider1"
-			app:layout_constraintVertical_weight="1"/>
+			app:layout_constraintVertical_weight="1" />
 
 		<include
 			android:id="@+id/transports"
@@ -53,8 +52,8 @@
 			app:layout_constraintEnd_toEndOf="@+id/navigation"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/spacer"
-			tools:layout_height="75dp"/>
+			tools:layout_height="75dp" />
 
-	</android.support.constraint.ConstraintLayout>
+	</androidx.constraintlayout.widget.ConstraintLayout>
 
 </ScrollView>

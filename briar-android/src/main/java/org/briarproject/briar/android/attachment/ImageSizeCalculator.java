@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.attachment;
 
-import android.support.media.ExifInterface;
-
 import com.bumptech.glide.util.MarkEnforcingInputStream;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -11,13 +9,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
 
-import static android.support.media.ExifInterface.ORIENTATION_ROTATE_270;
-import static android.support.media.ExifInterface.ORIENTATION_ROTATE_90;
-import static android.support.media.ExifInterface.ORIENTATION_TRANSPOSE;
-import static android.support.media.ExifInterface.ORIENTATION_TRANSVERSE;
-import static android.support.media.ExifInterface.TAG_IMAGE_LENGTH;
-import static android.support.media.ExifInterface.TAG_IMAGE_WIDTH;
-import static android.support.media.ExifInterface.TAG_ORIENTATION;
+import androidx.exifinterface.media.ExifInterface;
+
+import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_270;
+import static androidx.exifinterface.media.ExifInterface.ORIENTATION_ROTATE_90;
+import static androidx.exifinterface.media.ExifInterface.ORIENTATION_TRANSPOSE;
+import static androidx.exifinterface.media.ExifInterface.ORIENTATION_TRANSVERSE;
+import static androidx.exifinterface.media.ExifInterface.TAG_IMAGE_LENGTH;
+import static androidx.exifinterface.media.ExifInterface.TAG_IMAGE_WIDTH;
+import static androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;

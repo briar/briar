@@ -3,11 +3,12 @@ package org.briarproject.briar.android.splash;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.View.OnClickListener;
 
 import org.briarproject.briar.R;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 import static android.content.Intent.ACTION_VIEW;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;

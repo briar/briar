@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -8,7 +7,7 @@
 	android:orientation="vertical"
 	tools:context=".android.account.UnlockActivity">
 
-	<android.support.v7.widget.AppCompatImageView
+	<androidx.appcompat.widget.AppCompatImageView
 		android:id="@+id/image"
 		android:layout_width="150dp"
 		android:layout_height="150dp"
@@ -19,6 +18,6 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		app:layout_constraintVertical_bias="0.1"
-		app:tint="?attr/colorControlNormal"/>
+		app:tint="?attr/colorControlNormal" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

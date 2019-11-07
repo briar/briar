@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.account;
 
-import android.support.annotation.Nullable;
-
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -13,6 +11,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 @NotNullByDefault
 public class SetupControllerImpl implements SetupController {

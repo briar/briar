@@ -1,8 +1,8 @@
 package org.briarproject.briar.android.conversation.glide;
 
-import android.support.annotation.Nullable;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+
+import androidx.annotation.Nullable;
 
 @NotNullByDefault
 public class Radii {

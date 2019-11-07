@@ -1,12 +1,13 @@
 package org.briarproject.briar.android.panic;
 
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
 
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+
+import androidx.appcompat.app.ActionBar;
 
 public class PanicPreferencesActivity extends BriarActivity {
 

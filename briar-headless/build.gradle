@@ -20,7 +20,7 @@ dependencies {
 	implementation 'com.fasterxml.jackson.core:jackson-databind:2.9.8'
 	implementation 'com.github.ajalt:clikt:2.0.0'
 
-	def daggerVersion = '2.22.1'
+	def daggerVersion = '2.24'
 	kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
 	testImplementation project(path: ':bramble-api', configuration: 'testOutput')

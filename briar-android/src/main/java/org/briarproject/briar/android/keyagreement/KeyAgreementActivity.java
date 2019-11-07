@@ -6,12 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
-import android.support.annotation.UiThread;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v7.app.AlertDialog.Builder;
-import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.event.EventBus;
@@ -31,6 +25,13 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog.Builder;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.FragmentManager;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.CAMERA;
@@ -217,7 +218,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 				if (bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE)
 					setBluetoothState(BluetoothState.DISCOVERABLE);
 			}
-		}
+		} else super.onActivityResult(request, result, data);
 	}
 
 	private void showQrCodeFragment() {

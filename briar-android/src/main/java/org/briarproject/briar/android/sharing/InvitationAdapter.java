@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +8,8 @@ import android.view.ViewGroup;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.BriarAdapter;
 import org.briarproject.briar.api.sharing.InvitationItem;
+
+import androidx.annotation.NonNull;
 
 public abstract class InvitationAdapter<I extends InvitationItem, VH extends InvitationViewHolder<I>>
 		extends BriarAdapter<I, VH> {

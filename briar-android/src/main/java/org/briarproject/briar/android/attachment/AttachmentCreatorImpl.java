@@ -2,11 +2,7 @@ package org.briarproject.briar.android.attachment;
 
 
 import android.app.Application;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -29,6 +25,11 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;

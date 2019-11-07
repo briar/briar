@@ -2,8 +2,6 @@ package org.briarproject.briar.android.privategroup.reveal;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.LayoutRes;
-import android.support.v7.app.AlertDialog;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -26,6 +24,9 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.app.AlertDialog;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

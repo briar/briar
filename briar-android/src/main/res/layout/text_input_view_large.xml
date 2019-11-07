@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	tools:showIn="@layout/fragment_reblog">
 
-	<android.support.v7.widget.CardView
+	<androidx.cardview.widget.CardView
 		android:id="@+id/input_layout"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
-		android:layout_marginEnd="@dimen/margin_medium"
-		android:layout_marginLeft="@dimen/margin_medium"
-		android:layout_marginRight="@dimen/margin_medium"
 		android:layout_marginStart="@dimen/margin_medium"
+		android:layout_marginLeft="@dimen/margin_medium"
 		android:layout_marginTop="@dimen/margin_medium"
+		android:layout_marginEnd="@dimen/margin_medium"
+		android:layout_marginRight="@dimen/margin_medium"
 		android:elevation="@dimen/cardview_default_elevation"
 		android:minHeight="@dimen/text_input_height"
 		app:cardBackgroundColor="@color/card_background"
@@ -27,17 +26,17 @@
 			android:layout_width="match_parent"
 			android:layout_height="match_parent"
 			app:textPaddingBottom="10dp"
-			app:textPaddingEnd="@dimen/margin_medium"/>
+			app:textPaddingEnd="@dimen/margin_medium" />
 
-	</android.support.v7.widget.CardView>
+	</androidx.cardview.widget.CardView>
 
 	<Button
 		android:id="@+id/compositeSendButton"
 		style="@style/BriarButton"
-		android:layout_marginEnd="@dimen/margin_small"
-		android:layout_marginLeft="@dimen/margin_small"
-		android:layout_marginRight="@dimen/margin_small"
 		android:layout_marginStart="@dimen/margin_small"
-		tools:text="@string/send"/>
+		android:layout_marginLeft="@dimen/margin_small"
+		android:layout_marginEnd="@dimen/margin_small"
+		android:layout_marginRight="@dimen/margin_small"
+		tools:text="@string/send" />
 
 </merge>

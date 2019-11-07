@@ -1,13 +1,9 @@
 package org.briarproject.briar.android.conversation;
 
-import android.arch.lifecycle.ViewModelProvider;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,6 +22,11 @@ import org.briarproject.briar.android.conversation.glide.GlideApp;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.widget.ImageView.ScaleType.FIT_START;

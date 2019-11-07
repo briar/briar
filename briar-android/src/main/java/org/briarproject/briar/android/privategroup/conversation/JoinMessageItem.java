@@ -1,13 +1,13 @@
 package org.briarproject.briar.android.privategroup.conversation;
 
-import android.support.annotation.LayoutRes;
-import android.support.annotation.UiThread;
-
 import org.briarproject.briar.R;
 import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.Visibility;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import androidx.annotation.LayoutRes;
+import androidx.annotation.UiThread;
 
 @UiThread
 @NotThreadSafe

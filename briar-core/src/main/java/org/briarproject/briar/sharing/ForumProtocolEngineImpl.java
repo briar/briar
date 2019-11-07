@@ -13,12 +13,12 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.conversation.ConversationRequest;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;

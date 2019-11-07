@@ -1,8 +1,6 @@
 package org.briarproject.briar.android.sharing;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +8,9 @@ import android.view.ViewGroup;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

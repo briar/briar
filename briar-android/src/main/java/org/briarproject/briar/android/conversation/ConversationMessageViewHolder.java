@@ -1,9 +1,5 @@
 package org.briarproject.briar.android.conversation;
 
-import android.support.annotation.UiThread;
-import android.support.constraint.ConstraintSet;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.RecycledViewPool;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -11,8 +7,13 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 
-import static android.support.constraint.ConstraintSet.WRAP_CONTENT;
-import static android.support.v4.content.ContextCompat.getColor;
+import androidx.annotation.UiThread;
+import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.RecycledViewPool;
+
+import static androidx.constraintlayout.widget.ConstraintSet.WRAP_CONTENT;
+import static androidx.core.content.ContextCompat.getColor;
 
 @UiThread
 @NotNullByDefault

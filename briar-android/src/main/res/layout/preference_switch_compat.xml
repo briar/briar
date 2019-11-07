@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Needed for SwitchPreference on Android 4 (API < 21)-->
-<android.support.v7.widget.SwitchCompat
-	android:id="@android:id/switch_widget"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><!-- Needed for SwitchPreference on Android 4 (API < 21)-->
+<androidx.appcompat.widget.SwitchCompat xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@android:id/switch_widget"
 	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
 	android:background="@null"
 	android:clickable="false"
 	android:focusable="false"
 	android:focusableInTouchMode="false"
-	tools:targetApi="n"/>
+	tools:targetApi="n" />

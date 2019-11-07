@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.privategroup.creation;
 
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -13,6 +12,8 @@ import org.briarproject.briar.android.contactselection.ContactSelectorFragment;
 import org.briarproject.briar.android.contactselection.SelectableContactItem;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;

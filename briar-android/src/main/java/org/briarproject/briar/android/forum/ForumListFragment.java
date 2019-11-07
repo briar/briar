@@ -2,9 +2,6 @@ package org.briarproject.briar.android.forum;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -12,6 +9,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
 import org.briarproject.bramble.api.db.DbException;
@@ -44,7 +43,10 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;

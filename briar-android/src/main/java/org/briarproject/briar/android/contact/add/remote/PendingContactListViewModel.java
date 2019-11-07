@@ -1,9 +1,6 @@
 package org.briarproject.briar.android.contact.add.remote;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.MutableLiveData;
 
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -28,6 +25,10 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;

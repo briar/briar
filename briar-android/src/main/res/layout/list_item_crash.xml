@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -10,14 +9,14 @@
 		android:id="@+id/include_in_report"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		android:layout_marginLeft="@dimen/margin_medium"
 		android:layout_marginStart="@dimen/margin_medium"
+		android:layout_marginLeft="@dimen/margin_medium"
 		android:textColor="?android:attr/textColorPrimary"
 		android:textSize="@dimen/text_size_large"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
-		tools:text="Crash log entry title"/>
+		tools:text="Crash log entry title" />
 
 	<TextView
 		android:id="@+id/content"
@@ -28,6 +27,6 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/include_in_report"
-		tools:text="Crash log entry value"/>
+		tools:text="Crash log entry value" />
 
-</android.support.constraint.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

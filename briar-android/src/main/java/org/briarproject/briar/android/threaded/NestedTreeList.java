@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.threaded;
 
-import android.support.annotation.UiThread;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTree;
@@ -12,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+
+import androidx.annotation.UiThread;
 
 @UiThread
 @NotNullByDefault

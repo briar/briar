@@ -3,9 +3,6 @@ package org.briarproject.briar.android.view;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
-import android.support.annotation.DimenRes;
-import android.support.annotation.UiThread;
-import android.support.constraint.ConstraintLayout;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.widget.ImageView;
@@ -18,6 +15,9 @@ import org.briarproject.briar.android.util.UiUtils;
 
 import javax.annotation.Nullable;
 
+import androidx.annotation.DimenRes;
+import androidx.annotation.UiThread;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 

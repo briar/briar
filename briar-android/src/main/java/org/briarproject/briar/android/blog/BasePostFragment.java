@@ -4,8 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.CallSuper;
-import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +18,9 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.CallSuper;
+import androidx.annotation.UiThread;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.view.View.INVISIBLE;

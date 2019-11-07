@@ -3,7 +3,6 @@ package org.briarproject.briar.android.controller;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.IBinder;
-import android.support.annotation.CallSuper;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -20,6 +19,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.CallSuper;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;

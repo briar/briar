@@ -1,21 +1,22 @@
 package org.briarproject.briar.android;
 
 import android.app.Activity;
-import android.support.test.espresso.PerformException;
-import android.support.test.espresso.UiController;
-import android.support.test.espresso.ViewAction;
-import android.support.test.runner.lifecycle.ActivityLifecycleMonitor;
-import android.support.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
-import android.support.test.runner.lifecycle.Stage;
 import android.view.View;
 
 import org.hamcrest.Matcher;
 
 import java.util.concurrent.TimeoutException;
 
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.util.HumanReadables.describe;
-import static android.support.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
+import androidx.test.espresso.PerformException;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitor;
+import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
+import androidx.test.runner.lifecycle.Stage;
+
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.util.HumanReadables.describe;
+import static androidx.test.espresso.util.TreeIterables.breadthFirstViewTraversal;
 import static java.lang.System.currentTimeMillis;
 import static java.util.concurrent.TimeUnit.SECONDS;
 

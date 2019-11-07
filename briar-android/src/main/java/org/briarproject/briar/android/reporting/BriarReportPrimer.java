@@ -12,7 +12,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.provider.Settings;
-import android.support.annotation.NonNull;
 
 import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
@@ -32,6 +31,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+
+import androidx.annotation.NonNull;
 
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;

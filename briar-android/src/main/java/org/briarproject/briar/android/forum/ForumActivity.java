@@ -3,10 +3,6 @@ package org.briarproject.briar.android.forum;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -29,6 +25,10 @@ import org.briarproject.briar.api.forum.Forum;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_SHORT;

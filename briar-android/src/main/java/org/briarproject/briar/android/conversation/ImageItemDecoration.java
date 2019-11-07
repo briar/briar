@@ -3,13 +3,14 @@ package org.briarproject.briar.android.conversation;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Rect;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.RecyclerView.ItemDecoration;
-import android.support.v7.widget.RecyclerView.State;
 import android.view.View;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView.ItemDecoration;
+import androidx.recyclerview.widget.RecyclerView.State;
 
 import static org.briarproject.briar.android.conversation.ImageAdapter.isBottomRow;
 import static org.briarproject.briar.android.conversation.ImageAdapter.isLeft;

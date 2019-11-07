@@ -1,36 +1,31 @@
 package org.briarproject.briar.android;
 
-import android.support.test.espresso.intent.rule.IntentsTestRule;
-import android.support.test.runner.AndroidJUnit4;
-import android.support.test.uiautomator.UiDevice;
-import android.support.test.uiautomator.UiObject;
-import android.support.test.uiautomator.UiSelector;
+import android.content.Context;
 
-import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.login.OpenDatabaseActivity;
-import org.briarproject.briar.android.login.SetupActivity;
+import org.briarproject.briar.android.account.SetupActivity;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import static android.support.test.InstrumentationRegistry.getInstrumentation;
-import static android.support.test.InstrumentationRegistry.getTargetContext;
-import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.intent.Intents.intended;
-import static android.support.test.espresso.intent.matcher.IntentMatchers.hasComponent;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static android.support.test.espresso.matcher.ViewMatchers.isRoot;
-import static android.support.test.espresso.matcher.ViewMatchers.withId;
-import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static android.support.test.runner.lifecycle.Stage.PAUSED;
+import androidx.test.espresso.intent.rule.IntentsTestRule;
+import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.uiautomator.UiDevice;
+import androidx.test.uiautomator.UiObject;
+import androidx.test.uiautomator.UiSelector;
+
+import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.test.espresso.Espresso.onView;
+import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.typeText;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
-import static org.briarproject.briar.android.ViewActions.waitForActivity;
 import static org.briarproject.briar.android.ViewActions.waitUntilMatches;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 import static org.junit.Assert.assertTrue;
@@ -82,7 +77,7 @@ public class SetupDataTest extends ScreenshotTest {
 				.perform(click());
 
 		// White-list Doze if needed
-		if (needsDozeWhitelisting(getTargetContext())) {
+		if (needsDozeWhitelisting(getApplicationContext())) {
 			onView(withText(R.string.setup_doze_button))
 					.check(matches(isDisplayed()))
 					.perform(click());
@@ -96,14 +91,8 @@ public class SetupDataTest extends ScreenshotTest {
 					.perform(click());
 		}
 
-		// wait for OpenDatabaseActivity to show up
-		onView(isRoot())
-				.perform(waitForActivity(testRule.getActivity(), PAUSED));
-		intended(hasComponent(OpenDatabaseActivity.class.getName()));
-
-		assertTrue(accountManager.hasDatabaseKey());
-
 		lifecycleManager.waitForStartup();
+		assertTrue(accountManager.hasDatabaseKey());
 		createTestData();
 
 		// close expiry warning
@@ -118,31 +107,18 @@ public class SetupDataTest extends ScreenshotTest {
 	private void createTestData() {
 		try {
 			createTestDataExceptions();
-		} catch (DbException | FormatException e) {
+		} catch (DbException e) {
 			throw new AssertionError(e);
 		}
 	}
 
 	private void createTestDataExceptions()
-			throws DbException, FormatException {
-		String bobName =
-				getTargetContext().getString(R.string.screenshot_bob);
+			throws DbException {
+		Context ctx = getApplicationContext();
+		String bobName = ctx.getString(R.string.screenshot_bob);
 		Contact bob = testDataCreator.addContact(bobName);
 
-		String bobHi = getTargetContext()
-				.getString(R.string.screenshot_message_1);
-		long bobTime = getMinutesAgo(2);
-		testDataCreator.addPrivateMessage(bob, bobHi, bobTime, true);
-
-		String aliceHi = getTargetContext()
-				.getString(R.string.screenshot_message_2);
-		long aliceTime = getMinutesAgo(1);
-		testDataCreator.addPrivateMessage(bob, aliceHi, aliceTime, false);
-
-		String bobHi2 = getTargetContext()
-				.getString(R.string.screenshot_message_3);
-		long bobTime2 = getMinutesAgo(0);
-		testDataCreator.addPrivateMessage(bob, bobHi2, bobTime2, true);
+		// TODO add messages
 
 		connectionRegistry.registerConnection(bob.getId(), ID, true);
 	}

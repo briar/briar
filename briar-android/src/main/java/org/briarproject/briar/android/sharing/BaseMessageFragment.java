@@ -2,9 +2,6 @@ package org.briarproject.briar.android.sharing;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +18,10 @@ import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

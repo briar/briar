@@ -3,13 +3,9 @@ package org.briarproject.briar.android.threaded;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.CallSuper;
-import android.support.annotation.StringRes;
-import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
@@ -41,7 +37,13 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static android.support.v7.widget.RecyclerView.NO_POSITION;
+import androidx.annotation.CallSuper;
+import androidx.annotation.StringRes;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.ActionBar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+
+import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault

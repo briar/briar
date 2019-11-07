@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.sharing;
 
-import android.support.annotation.CallSuper;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -12,6 +10,9 @@ import org.briarproject.briar.android.view.TextAvatarView;
 import org.briarproject.briar.api.sharing.InvitationItem;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.CallSuper;
+import androidx.recyclerview.widget.RecyclerView;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;

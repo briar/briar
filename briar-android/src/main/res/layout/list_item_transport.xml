@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
@@ -15,7 +14,7 @@
 		android:layout_height="wrap_content"
 		android:padding="@dimen/margin_small"
 		tools:ignore="ContentDescription"
-		tools:src="@drawable/transport_tor"/>
+		tools:src="@drawable/transport_tor" />
 
 	<TextView
 		android:id="@+id/textView"
@@ -23,6 +22,6 @@
 		android:layout_height="match_parent"
 		android:padding="@dimen/margin_small"
 		android:textColor="?android:attr/textColorSecondary"
-		tools:text="@string/transport_tor"/>
+		tools:text="@string/transport_tor" />
 
 </LinearLayout>

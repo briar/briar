@@ -1,8 +1,6 @@
 package org.briarproject.briar.android.login;
 
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TextInputLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -15,6 +13,8 @@ import android.widget.TextView;
 import android.widget.TextView.OnEditorActionListener;
 import android.widget.Toast;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -22,6 +22,8 @@ import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
+
+import androidx.annotation.NonNull;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;

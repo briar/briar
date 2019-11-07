@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<merge
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	tools:showIn="@layout/fragment_keyagreement_qr">
 
@@ -8,14 +7,14 @@
 		style="?android:attr/progressBarStyleLarge"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:layout_gravity="center"/>
+		android:layout_gravity="center" />
 
 	<ImageView
 		android:id="@+id/qr_code"
 		android:layout_width="match_parent"
 		android:layout_height="match_parent"
 		android:contentDescription="@string/qr_code"
-		android:scaleType="fitCenter"/>
+		android:scaleType="fitCenter" />
 
 	<ImageView
 		android:id="@+id/fullscreen_button"
@@ -26,6 +25,6 @@
 		android:alpha="0.54"
 		android:background="?attr/selectableItemBackground"
 		android:contentDescription="@string/show_qr_code_fullscreen"
-		android:src="@drawable/ic_fullscreen_black_48dp"/>
+		android:src="@drawable/ic_fullscreen_black_48dp" />
 
 </merge>

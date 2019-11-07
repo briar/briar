@@ -1,12 +1,13 @@
 package org.briarproject.briar.android.reporting;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import org.acra.config.ACRAConfiguration;
 import org.acra.sender.ReportSender;
 import org.acra.sender.ReportSenderFactory;
 import org.briarproject.briar.android.BriarApplication;
+
+import androidx.annotation.NonNull;
 
 public class BriarReportSenderFactory implements ReportSenderFactory {
 

@@ -2,7 +2,6 @@ package org.briarproject.briar.android.blog;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -15,6 +14,8 @@ import org.briarproject.briar.android.sharing.BlogSharingStatusActivity;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.appcompat.widget.Toolbar;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

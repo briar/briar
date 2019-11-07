@@ -1,10 +1,9 @@
 package org.briarproject.briar.android.view;
 
 import android.os.Parcelable;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
-import android.support.design.widget.Snackbar;
 import android.view.View;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
@@ -13,7 +12,10 @@ import org.briarproject.briar.api.messaging.AttachmentHeader;
 
 import java.util.List;
 
-import static android.support.design.widget.Snackbar.LENGTH_SHORT;
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+
+import static com.google.android.material.snackbar.Snackbar.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
 
 @UiThread

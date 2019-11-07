@@ -3,7 +3,6 @@ package org.briarproject.briar.android.keyagreement;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.os.Bundle;
-import android.support.annotation.UiThread;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,6 +45,8 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.inject.Provider;
+
+import androidx.annotation.UiThread;
 
 import static android.content.pm.ActivityInfo.SCREEN_ORIENTATION_NOSENSOR;
 import static android.view.View.INVISIBLE;

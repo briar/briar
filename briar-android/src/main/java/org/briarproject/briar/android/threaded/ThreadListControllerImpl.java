@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.threaded;
 
 import android.app.Activity;
-import android.support.annotation.CallSuper;
 
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -33,6 +32,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
+
+import androidx.annotation.CallSuper;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;

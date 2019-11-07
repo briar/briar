@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.account;
 
-import android.support.annotation.Nullable;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -17,6 +16,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_NEXT;

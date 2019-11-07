@@ -3,25 +3,11 @@ package org.briarproject.briar.android.util;
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.KeyguardManager;
-import android.arch.lifecycle.LifecycleOwner;
-import android.arch.lifecycle.LiveData;
-import android.arch.lifecycle.Observer;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.PowerManager;
-import android.support.annotation.AttrRes;
-import android.support.annotation.ColorInt;
-import android.support.annotation.ColorRes;
-import android.support.annotation.Nullable;
-import android.support.annotation.RequiresApi;
-import android.support.annotation.UiThread;
-import android.support.design.widget.TextInputLayout;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.hardware.fingerprint.FingerprintManagerCompat;
-import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -39,6 +25,8 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
+import com.google.android.material.textfield.TextInputLayout;
+
 import org.acra.ACRA;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -50,6 +38,20 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 
+import androidx.annotation.AttrRes;
+import androidx.annotation.ColorInt;
+import androidx.annotation.ColorRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
+import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
+import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
+
 import static android.content.Context.KEYGUARD_SERVICE;
 import static android.content.Context.POWER_SERVICE;
 import static android.content.Intent.CATEGORY_DEFAULT;
@@ -57,13 +59,6 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.os.Build.MANUFACTURER;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS;
-import static android.support.v4.content.ContextCompat.getSystemService;
-import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_RTL;
-import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_AUTO;
-import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
-import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_NO;
-import static android.support.v7.app.AppCompatDelegate.MODE_NIGHT_YES;
-import static android.support.v7.app.AppCompatDelegate.setDefaultNightMode;
 import static android.text.format.DateUtils.DAY_IN_MILLIS;
 import static android.text.format.DateUtils.FORMAT_ABBREV_ALL;
 import static android.text.format.DateUtils.FORMAT_ABBREV_MONTH;
@@ -79,6 +74,13 @@ import static android.view.KeyEvent.ACTION_DOWN;
 import static android.view.KeyEvent.KEYCODE_ENTER;
 import static android.view.inputmethod.EditorInfo.IME_NULL;
 import static android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT;
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_AUTO_TIME;
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
+import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
+import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
+import static androidx.core.content.ContextCompat.getSystemService;
+import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
@@ -297,7 +299,8 @@ public class UiUtils {
 			setDefaultNightMode(MODE_NIGHT_YES);
 		} else if (theme
 				.equals(ctx.getString(R.string.pref_theme_auto_value))) {
-			setDefaultNightMode(MODE_NIGHT_AUTO);
+			// TODO remove AUTO-setting as it is deprecated
+			setDefaultNightMode(MODE_NIGHT_AUTO_TIME);
 		} else if (theme
 				.equals(ctx.getString(R.string.pref_theme_system_value))) {
 			setDefaultNightMode(MODE_NIGHT_FOLLOW_SYSTEM);

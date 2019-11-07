@@ -1,11 +1,8 @@
 package org.briarproject.briar.android.conversation;
 
 import android.app.Application;
-import android.arch.lifecycle.AndroidViewModel;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
-import android.support.annotation.Nullable;
-import android.support.annotation.UiThread;
 import android.view.View;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -30,6 +27,10 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.AndroidViewModel;
 
 import static android.media.MediaScannerConnection.scanFile;
 import static android.os.Environment.DIRECTORY_PICTURES;

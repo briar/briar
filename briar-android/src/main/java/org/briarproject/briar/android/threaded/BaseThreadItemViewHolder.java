@@ -4,9 +4,6 @@ import android.animation.Animator;
 import android.animation.ArgbEvaluator;
 import android.animation.ValueAnimator;
 import android.content.Context;
-import android.support.annotation.CallSuper;
-import android.support.annotation.UiThread;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.AccelerateInterpolator;
@@ -18,7 +15,11 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
 import org.briarproject.briar.android.view.AuthorView;
 
-import static android.support.v4.content.ContextCompat.getColor;
+import androidx.annotation.CallSuper;
+import androidx.annotation.UiThread;
+import androidx.recyclerview.widget.RecyclerView;
+
+import static androidx.core.content.ContextCompat.getColor;
 
 @UiThread
 @NotNullByDefault

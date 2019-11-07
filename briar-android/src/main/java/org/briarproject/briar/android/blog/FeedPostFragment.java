@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.blog;
 
 import android.os.Bundle;
-import android.support.annotation.UiThread;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +15,8 @@ import org.briarproject.briar.android.controller.handler.UiResultExceptionHandle
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.annotation.UiThread;
 
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;

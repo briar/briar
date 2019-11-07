@@ -2,7 +2,6 @@ package org.briarproject.briar.android.privategroup.memberlist;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.MenuItem;
 import android.widget.TextView;
 
@@ -26,6 +25,8 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
+
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

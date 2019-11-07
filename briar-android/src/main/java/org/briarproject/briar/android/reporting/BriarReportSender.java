@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.reporting;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import org.acra.collector.CrashReportData;
 import org.acra.sender.ReportSender;
@@ -14,6 +13,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 import javax.inject.Inject;
+
+import androidx.annotation.NonNull;
 
 import static org.acra.ReportField.REPORT_ID;
 

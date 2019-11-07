@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.attachment;
 
 import android.graphics.BitmapFactory;
-import android.support.annotation.Nullable;
 import android.webkit.MimeTypeMap;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -10,6 +9,8 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 @Immutable
 @NotNullByDefault

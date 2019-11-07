@@ -15,9 +15,6 @@
  */
 package org.briarproject.briar.android.viewmodel;
 
-import android.arch.lifecycle.ViewModel;
-import android.arch.lifecycle.ViewModelProvider;
-
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.Map;
@@ -26,6 +23,9 @@ import java.util.Map.Entry;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
 
 @Singleton
 @NotNullByDefault

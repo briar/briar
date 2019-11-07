@@ -1,21 +1,23 @@
 package org.briarproject.briar.android.util;
 
-import android.support.annotation.ColorRes;
-import android.support.annotation.Nullable;
-import android.support.annotation.StringRes;
-import android.support.design.widget.Snackbar;
-import android.support.design.widget.Snackbar.Callback;
 import android.view.View;
 import android.view.View.OnClickListener;
+
+import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.snackbar.Snackbar.Callback;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
+
 import static android.os.Build.VERSION.SDK_INT;
-import static android.support.design.widget.Snackbar.LENGTH_INDEFINITE;
-import static android.support.v4.content.ContextCompat.getColor;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static androidx.core.content.ContextCompat.getColor;
+import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
 
 @NotNullByDefault
 public class BriarSnackbarBuilder {

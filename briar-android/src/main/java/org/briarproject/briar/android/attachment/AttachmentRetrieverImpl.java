@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.attachment;
 
-import android.support.annotation.Nullable;
-
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
@@ -17,6 +15,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;

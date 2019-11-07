@@ -2,8 +2,6 @@ package org.briarproject.briar.android.contactselection;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.CallSuper;
-import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +22,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.CallSuper;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;

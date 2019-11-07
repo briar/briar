@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.blog;
 
-import android.support.annotation.CallSuper;
-
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.EventBus;
@@ -31,6 +29,8 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+
+import androidx.annotation.CallSuper;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;

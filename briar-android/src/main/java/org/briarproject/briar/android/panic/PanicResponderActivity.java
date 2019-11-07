@@ -3,7 +3,6 @@ package org.briarproject.briar.android.panic;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v7.preference.PreferenceManager;
 
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
@@ -17,6 +16,7 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import androidx.preference.PreferenceManager;
 import info.guardianproject.GuardianProjectRSA4096;
 import info.guardianproject.panic.Panic;
 import info.guardianproject.panic.PanicResponder;

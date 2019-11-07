@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.view;
 
 import android.net.Uri;
-import android.support.annotation.Nullable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.attachment.AttachmentItem;
@@ -9,6 +8,8 @@ import org.briarproject.briar.android.attachment.AttachmentItem;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import androidx.annotation.Nullable;
 
 @NotNullByDefault
 class ImagePreviewItem {

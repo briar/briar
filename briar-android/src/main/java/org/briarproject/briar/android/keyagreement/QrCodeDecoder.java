@@ -5,7 +5,6 @@ import android.hardware.Camera.CameraInfo;
 import android.hardware.Camera.PreviewCallback;
 import android.hardware.Camera.Size;
 import android.os.AsyncTask;
-import android.support.annotation.UiThread;
 
 import com.google.zxing.BinaryBitmap;
 import com.google.zxing.LuminanceSource;
@@ -21,6 +20,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 
 import java.util.logging.Logger;
+
+import androidx.annotation.UiThread;
 
 import static com.google.zxing.DecodeHintType.CHARACTER_SET;
 import static java.util.Collections.singletonMap;
