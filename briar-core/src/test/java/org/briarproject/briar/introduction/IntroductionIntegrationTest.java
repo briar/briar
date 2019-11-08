@@ -28,6 +28,7 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -1152,61 +1153,77 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasIntroduction());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
 		// introducee1 can not yet remove messages
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasIntroduction());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 
 		// sync second REQUEST message
 		sync0To2(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages2From0());
+		assertFalse(deleteAllMessages2From0().allDeleted());
+		assertTrue(deleteAllMessages2From0().hasSessionInProgress());
 		// introducee2 can not yet remove messages
-		assertFalse(deleteAllMessages0From2());
+		assertFalse(deleteAllMessages0From2().allDeleted());
+		assertTrue(deleteAllMessages0From2().hasSessionInProgress());
 
 		// sync first ACCEPT message
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
 
 		// sync second ACCEPT message
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages2From0());
+		assertFalse(deleteAllMessages2From0().allDeleted());
+		assertTrue(deleteAllMessages2From0().hasSessionInProgress());
 
 		// sync forwarded ACCEPT messages to introducees
 		sync0To1(1, true);
 		sync0To2(1, true);
 
 		// introducee1 can not yet remove messages
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 		// introducee2 can not yet remove messages
-		assertFalse(deleteAllMessages0From2());
+		assertFalse(deleteAllMessages0From2().allDeleted());
+		assertTrue(deleteAllMessages0From2().hasSessionInProgress());
 
 		// sync first AUTH and its forward
 		sync1To0(1, true);
 		sync0To2(1, true);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages1From0());
-		assertFalse(deleteAllMessages2From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
+		assertFalse(deleteAllMessages2From0().allDeleted());
+		assertTrue(deleteAllMessages2From0().hasSessionInProgress());
 		// introducee2 can not yet remove messages
-		assertFalse(deleteAllMessages0From2());
+		assertFalse(deleteAllMessages0From2().allDeleted());
+		assertTrue(deleteAllMessages0From2().hasSessionInProgress());
 
 		// sync second AUTH and its forward as well as the following ACTIVATE
 		sync2To0(2, true);
 		sync0To1(2, true);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages1From0());
-		assertFalse(deleteAllMessages2From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
+		assertFalse(deleteAllMessages2From0().allDeleted());
+		assertTrue(deleteAllMessages2From0().hasSessionInProgress());
 		// introducee1 can not yet remove messages
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 
 		// sync second ACTIVATE and its forward
 		sync1To0(1, true);
@@ -1221,13 +1238,15 @@ public class IntroductionIntegrationTest
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
 
 		// introducer can now remove messages
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
-		assertTrue(deleteAllMessages1From0());  // a second time returns true
+		// a second time returns true
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertGroupCount(messageTracker0, g1.getId(), 0, 0);
 
 		// introducee1 can not yet remove messages, because last not ACKed
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 		assertEquals(2, getMessages0From1().size());
 
 		// check that introducee1 messages are tracked properly
@@ -1237,18 +1256,20 @@ public class IntroductionIntegrationTest
 		sendAcks(c0, c1, contactId1From0, 1);
 
 		// introducee1 can now remove messages
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertEquals(0, getMessages0From1().size());
-		assertTrue(deleteAllMessages0From1());  // a second time returns true
+		// a second time returns true
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertGroupCount(messageTracker1, g1.getId(), 0, 0);
 
 		// check that introducee2 messages are tracked properly
 		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
 		// introducee2 can remove messages (last message was incoming)
-		assertTrue(deleteAllMessages0From2());
+		assertTrue(deleteAllMessages0From2().allDeleted());
 		assertEquals(0, getMessages0From2().size());
-		assertTrue(deleteAllMessages0From2());  // a second time returns true
+		// a second time returns true
+		assertTrue(deleteAllMessages0From2().allDeleted());
 		assertGroupCount(messageTracker2, g2.getId(), 0, 0);
 
 		// a new introduction is still possible
@@ -1271,10 +1292,14 @@ public class IntroductionIntegrationTest
 		assertFalse(listener2.aborted);
 
 		// nobody can delete anything again
-		assertFalse(deleteAllMessages1From0());
-		assertFalse(deleteAllMessages2From0());
-		assertFalse(deleteAllMessages0From1());
-		assertFalse(deleteAllMessages0From2());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
+		assertFalse(deleteAllMessages2From0().allDeleted());
+		assertTrue(deleteAllMessages2From0().hasSessionInProgress());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
+		assertFalse(deleteAllMessages0From2().allDeleted());
+		assertTrue(deleteAllMessages0From2().hasSessionInProgress());
 
 		// group counts get counted up again correctly
 		assertGroupCount(messageTracker0, g1.getId(), 2, 1);
@@ -1302,50 +1327,54 @@ public class IntroductionIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
 		// introducee1 can not yet remove messages
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
 
 		// sync second DECLINE message
 		sync2To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages2From0());
+		assertFalse(deleteAllMessages2From0().allDeleted());
 		// introducee2 can not yet remove messages
-		assertFalse(deleteAllMessages0From2());
+		assertFalse(deleteAllMessages0From2().allDeleted());
 
 		// forward first DECLINE message
 		sync0To2(1, true);
 
 		// introducee2 can now remove messages
-		assertTrue(deleteAllMessages0From2());
+		assertTrue(deleteAllMessages0From2().allDeleted());
 		assertEquals(0, getMessages0From2().size());
-		assertTrue(deleteAllMessages0From2());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages0From2().allDeleted());
 
 		// forward second DECLINE message
 		sync0To1(1, true);
 
 		// introducee1 can now remove messages
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertEquals(0, getMessages0From1().size());
-		assertTrue(deleteAllMessages0From1());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages0From1().allDeleted());
 
 		// introducer can not yet remove messages
-		assertFalse(deleteAllMessages1From0());
-		assertFalse(deleteAllMessages2From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertFalse(deleteAllMessages2From0().allDeleted());
 
 		// introducer can remove messages after getting ACK from introducee1
 		sendAcks(c1, c0, contactId0From1, 1);
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
-		assertTrue(deleteAllMessages1From0());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages1From0().allDeleted());
 
 		// introducer can remove messages after getting ACK from introducee2
 		sendAcks(c2, c0, contactId0From2, 1);
-		assertTrue(deleteAllMessages2From0());
+		assertTrue(deleteAllMessages2From0().allDeleted());
 		assertEquals(0, getMessages2From0().size());
-		assertTrue(deleteAllMessages2From0());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages2From0().allDeleted());
 
 		// a new introduction is still possible
 		assertTrue(introductionManager0
@@ -1368,10 +1397,10 @@ public class IntroductionIntegrationTest
 		assertFalse(listener2.aborted);
 
 		// nobody can delete anything again
-		assertFalse(deleteAllMessages1From0());
-		assertFalse(deleteAllMessages2From0());
-		assertFalse(deleteAllMessages0From1());
-		assertFalse(deleteAllMessages0From2());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertFalse(deleteAllMessages2From0().allDeleted());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertFalse(deleteAllMessages0From2().allDeleted());
 	}
 
 	@Test
@@ -1401,9 +1430,10 @@ public class IntroductionIntegrationTest
 
 		// introducer can remove messages after getting ACK from introducee1
 		sendAcks(c1, c0, contactId0From1, 1);
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
-		assertTrue(deleteAllMessages1From0());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages1From0().allDeleted());
 
 		// a new introduction is still possible
 		assertTrue(introductionManager0
@@ -1422,16 +1452,16 @@ public class IntroductionIntegrationTest
 
 		// introducer can remove messages after getting ACK from introducee1
 		sendAcks(c1, c0, contactId0From1, 1);
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
-		assertTrue(deleteAllMessages1From0());  // a second time nothing happens
+		assertTrue(deleteAllMessages1From0().allDeleted());  // a second time nothing happens
 
 		// introducer can remove messages after getting ACK from introducee2
 		// if this succeeds, we still had the session object after delete above
 		sendAcks(c2, c0, contactId0From2, 1);
-		assertTrue(deleteAllMessages2From0());
+		assertTrue(deleteAllMessages2From0().allDeleted());
 		assertEquals(0, getMessages2From0().size());
-		assertTrue(deleteAllMessages2From0());  // a second time nothing happens
+		assertTrue(deleteAllMessages2From0().allDeleted());  // a second time nothing happens
 
 		// no one should have aborted
 		assertFalse(listener0.aborted);
@@ -1454,7 +1484,9 @@ public class IntroductionIntegrationTest
 		MessageId messageId1 = m1From0.iterator().next().getId();
 		Set<MessageId> toDelete1 = new HashSet<>();
 		toDelete1.add(messageId1);
-		assertFalse(deleteMessages1From0(toDelete1));
+		assertFalse(deleteMessages1From0(toDelete1).allDeleted());
+		assertTrue(deleteMessages1From0(toDelete1).hasIntroduction());
+		assertTrue(deleteMessages1From0(toDelete1).hasSessionInProgress());
 
 		// deleting the introduction for introducee2 will fail as well
 		Collection<ConversationMessageHeader> m2From0 = getMessages2From0();
@@ -1462,7 +1494,9 @@ public class IntroductionIntegrationTest
 		MessageId messageId2 = m2From0.iterator().next().getId();
 		Set<MessageId> toDelete2 = new HashSet<>();
 		toDelete2.add(messageId2);
-		assertFalse(deleteMessages2From0(toDelete2));
+		assertFalse(deleteMessages2From0(toDelete2).allDeleted());
+		assertTrue(deleteMessages2From0(toDelete2).hasIntroduction());
+		assertTrue(deleteMessages2From0(toDelete2).hasSessionInProgress());
 
 		// sync REQUEST messages
 		sync0To1(1, true);
@@ -1470,33 +1504,38 @@ public class IntroductionIntegrationTest
 		sync0To2(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
-		// deleting introduction fails for introducees,
-		// because response is not yet selected for deletion
-		assertFalse(deleteMessages0From1(toDelete1));
-		assertFalse(deleteMessages0From2(toDelete2));
+		// deleting introduction fails, because responses did not arrive
+		assertFalse(deleteMessages0From1(toDelete1).allDeleted());
+		assertTrue(deleteMessages0From1(toDelete1).hasSessionInProgress());
+		assertFalse(deleteMessages0From2(toDelete2).allDeleted());
+		assertTrue(deleteMessages0From2(toDelete2).hasSessionInProgress());
 
-		// add response of introducee1 for deletion
+		// remember response of introducee1 for future deletion
 		Collection<ConversationMessageHeader> m0From1 = getMessages0From1();
 		assertEquals(2, m0From1.size());
+		MessageId response1 = null;
 		for (ConversationMessageHeader h : m0From1) {
-			if (!h.getId().equals(messageId1)) toDelete1.add(h.getId());
+			if (!h.getId().equals(messageId1)) response1 = h.getId();
 		}
+		assertNotNull(response1);
 
-		// add response of introducee2 for deletion
+		// remember response of introducee2 for future deletion
 		Collection<ConversationMessageHeader> m0From2 = getMessages0From2();
 		assertEquals(2, m0From2.size());
+		MessageId response2 = null;
 		for (ConversationMessageHeader h : m0From2) {
-			if (!h.getId().equals(messageId2)) toDelete2.add(h.getId());
+			if (!h.getId().equals(messageId2)) response2 = h.getId();
 		}
+		assertNotNull(response2);
 
 		// sync first DECLINE message
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
 		// introducer can not yet remove messages
-		assertFalse(deleteMessages1From0(toDelete1));
+		assertFalse(deleteMessages1From0(toDelete1).allDeleted());
 		// introducee1 can not yet remove messages
-		assertFalse(deleteMessages0From1(toDelete1));
+		assertFalse(deleteMessages0From1(toDelete1).allDeleted());
 
 		// sync second DECLINE message
 		sync2To0(1, true);
@@ -1508,77 +1547,104 @@ public class IntroductionIntegrationTest
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
 
-		// introducer can now remove messages with both introducees
-		assertTrue(deleteMessages1From0(toDelete1));
-		assertTrue(deleteMessages2From0(toDelete2));
+		// introducer can now remove messages with both introducees,
+		// if the responses are also selected
+		Set<MessageId> toDelete1From0 = new HashSet<>(toDelete1);
+		toDelete1From0.add(response1);
+		DeletionResult result = deleteMessages1From0(toDelete1From0);
+		assertTrue(result.allDeleted());
+		Set<MessageId> toDelete2From0 = new HashSet<>(toDelete2);
+		toDelete2From0.add(response2);
+		assertTrue(deleteMessages2From0(toDelete2From0).allDeleted());
 		assertGroupCount(messageTracker0, g1.getId(), 0, 0);
 		assertGroupCount(messageTracker0, g2.getId(), 0, 0);
+
 		// introducee2 can not yet remove messages, missing the other response
-		assertFalse(deleteMessages0From1(toDelete1));
+		assertFalse(deleteMessages0From1(toDelete1).allDeleted());
 
 		// forward first DECLINE message
 		sync0To2(1, true);
 
+		// deleting introduction fails for introducee 2,
+		// because response is not yet selected for deletion
+		assertFalse(deleteMessages0From2(toDelete2).allDeleted());
+		assertTrue(deleteMessages0From2(toDelete2).hasIntroduction());
+		assertTrue(deleteMessages0From2(toDelete2).hasNotAllSelected());
+
+		// add response to be deleted as well
+		toDelete2.add(response2);
+
 		// introducee2 can now remove messages
-		assertTrue(deleteMessages0From2(toDelete2));
+		assertTrue(deleteMessages0From2(toDelete2).allDeleted());
 		assertEquals(0, getMessages0From2().size());
-		assertTrue(deleteMessages0From2(toDelete2));  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteMessages0From2(toDelete2).allDeleted());
 		assertGroupCount(messageTracker2, g2.getId(), 0, 0);
 
 		// forward second DECLINE message
 		sync0To1(1, true);
 
+		// deleting introduction fails for introducee 1,
+		// because response is not yet selected for deletion
+		assertFalse(deleteMessages0From1(toDelete1).allDeleted());
+		assertTrue(deleteMessages0From1(toDelete1).hasIntroduction());
+		assertTrue(deleteMessages0From1(toDelete1).hasNotAllSelected());
+
+		// add response to be deleted as well
+		toDelete1.add(response1);
+
 		// introducee1 can now also remove messages
-		assertTrue(deleteMessages0From1(toDelete1));
+		assertTrue(deleteMessages0From1(toDelete1).allDeleted());
 		assertEquals(0, getMessages0From1().size());
-		assertTrue(deleteMessages0From1(toDelete1));  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteMessages0From1(toDelete1).allDeleted());
 		assertGroupCount(messageTracker1, g1.getId(), 0, 0);
 	}
 
 	@Test
 	public void testDeletingEmptySet() throws Exception {
-		assertTrue(deleteMessages0From1(emptySet()));
+		assertTrue(deleteMessages0From1(emptySet()).allDeleted());
 	}
 
-	private boolean deleteAllMessages1From0() throws DbException {
+	private DeletionResult deleteAllMessages1From0() throws DbException {
 		return db0.transactionWithResult(false, txn -> introductionManager0
 				.deleteAllMessages(txn, contactId1From0));
 	}
 
-	private boolean deleteAllMessages2From0() throws DbException {
+	private DeletionResult deleteAllMessages2From0() throws DbException {
 		return db0.transactionWithResult(false, txn -> introductionManager0
 				.deleteAllMessages(txn, contactId2From0));
 	}
 
-	private boolean deleteAllMessages0From1() throws DbException {
+	private DeletionResult deleteAllMessages0From1() throws DbException {
 		return db1.transactionWithResult(false, txn -> introductionManager1
 				.deleteAllMessages(txn, contactId0From1));
 	}
 
-	private boolean deleteAllMessages0From2() throws DbException {
+	private DeletionResult deleteAllMessages0From2() throws DbException {
 		return db2.transactionWithResult(false, txn -> introductionManager2
 				.deleteAllMessages(txn, contactId0From2));
 	}
 
-	private boolean deleteMessages1From0(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages1From0(Set<MessageId> toDelete)
 			throws DbException {
 		return db0.transactionWithResult(false, txn -> introductionManager0
 				.deleteMessages(txn, contactId1From0, toDelete));
 	}
 
-	private boolean deleteMessages2From0(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages2From0(Set<MessageId> toDelete)
 			throws DbException {
 		return db0.transactionWithResult(false, txn -> introductionManager0
 				.deleteMessages(txn, contactId2From0, toDelete));
 	}
 
-	private boolean deleteMessages0From1(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages0From1(Set<MessageId> toDelete)
 			throws DbException {
 		return db1.transactionWithResult(false, txn -> introductionManager1
 				.deleteMessages(txn, contactId0From1, toDelete));
 	}
 
-	private boolean deleteMessages0From2(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages0From2(Set<MessageId> toDelete)
 			throws DbException {
 		return db2.transactionWithResult(false, txn -> introductionManager2
 				.deleteMessages(txn, contactId0From2, toDelete));

@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationRequest;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
@@ -864,8 +865,12 @@ public class ForumSharingIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// messages can not be deleted
-		assertFalse(deleteAllMessages1From0());
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasInvitation());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasInvitation());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 
 		// accept invitation
 		respondToRequest(contactId0From1, true);
@@ -881,19 +886,20 @@ public class ForumSharingIntegrationTest
 		assertGroupCount(messageTracker1, g0From1, 2, 1);
 
 		// 0 deletes all messages
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
 		assertGroupCount(messageTracker0, g1From0, 0, 0);
 
 		// 1 can not delete all messages, as last one has not been ACKed
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 		assertGroupCount(messageTracker1, g0From1, 2, 1);
 
 		// 0 sends an ACK to their last message
 		sendAcks(c0, c1, contactId1From0, 1);
 
 		// 1 can now delete all messages, as last one has been ACKed
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertEquals(0, getMessages0From1().size());
 		assertGroupCount(messageTracker1, g0From1, 0, 0);
 
@@ -911,10 +917,12 @@ public class ForumSharingIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// messages can not be deleted anymore
-		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
 		assertEquals(1, getMessages1From0().size());
 		assertGroupCount(messageTracker0, g1From0, 1, 1);
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 		assertEquals(1, getMessages0From1().size());
 		assertGroupCount(messageTracker1, g0From1, 1, 0);
 
@@ -926,10 +934,10 @@ public class ForumSharingIntegrationTest
 		sendAcks(c1, c0, contactId0From1, 1);
 
 		// messages can now get deleted again
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
 		assertGroupCount(messageTracker0, g1From0, 0, 0);
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertEquals(0, getMessages0From1().size());
 		assertGroupCount(messageTracker1, g0From1, 0, 0);
 	}
@@ -949,17 +957,17 @@ public class ForumSharingIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// 0 deletes all messages
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
 
 		// 1 can not delete all messages, as last one has not been ACKed
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
 
 		// 0 sends an ACK to their last message
 		sendAcks(c0, c1, contactId1From0, 1);
 
 		// 1 can now delete all messages, as last one has been ACKed
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertEquals(0, getMessages0From1().size());
 
 		// re-sending invitation is possible
@@ -969,9 +977,9 @@ public class ForumSharingIntegrationTest
 		eventWaiter.await(TIMEOUT, 1);
 
 		// messages can not be deleted anymore
-		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
 		assertEquals(1, getMessages1From0().size());
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
 		assertEquals(1, getMessages0From1().size());
 	}
 
@@ -989,7 +997,9 @@ public class ForumSharingIntegrationTest
 		MessageId messageId = m0.iterator().next().getId();
 		Set<MessageId> toDelete = new HashSet<>();
 		toDelete.add(messageId);
-		assertFalse(deleteMessages1From0(toDelete));
+		assertFalse(deleteMessages1From0(toDelete).allDeleted());
+		assertTrue(deleteMessages1From0(toDelete).hasInvitation());
+		assertTrue(deleteMessages1From0(toDelete).hasSessionInProgress());
 
 		// decline invitation
 		respondToRequest(contactId0From1, true);
@@ -998,8 +1008,12 @@ public class ForumSharingIntegrationTest
 
 		// both can still not delete the invitation,
 		// because the response was not selected for deletion as well
-		assertFalse(deleteMessages1From0(toDelete));
-		assertFalse(deleteMessages0From1(toDelete));
+		assertFalse(deleteMessages1From0(toDelete).allDeleted());
+		assertTrue(deleteMessages1From0(toDelete).hasInvitation());
+		assertTrue(deleteMessages1From0(toDelete).hasNotAllSelected());
+		assertFalse(deleteMessages0From1(toDelete).allDeleted());
+		assertTrue(deleteMessages0From1(toDelete).hasInvitation());
+		assertTrue(deleteMessages0From1(toDelete).hasNotAllSelected());
 
 		// after selecting response, both messages can be deleted
 		m0 = getMessages1From0();
@@ -1007,27 +1021,30 @@ public class ForumSharingIntegrationTest
 		for (ConversationMessageHeader h : m0) {
 			if (!h.getId().equals(messageId)) toDelete.add(h.getId());
 		}
-		assertTrue(deleteMessages1From0(toDelete));
+		assertTrue(deleteMessages1From0(toDelete).allDeleted());
 		assertEquals(0, getMessages1From0().size());
 		// a second time nothing happens
-		assertTrue(deleteMessages1From0(toDelete));
+		assertTrue(deleteMessages1From0(toDelete).allDeleted());
 
 		// 1 can still not delete the messages, as last one has not been ACKed
-		assertFalse(deleteMessages0From1(toDelete));
+		assertFalse(deleteMessages0From1(toDelete).allDeleted());
+		assertFalse(deleteMessages0From1(toDelete).hasNotAllSelected());
+		assertTrue(deleteMessages0From1(toDelete).hasInvitation());
+		assertTrue(deleteMessages0From1(toDelete).hasSessionInProgress());
 
 		// 0 sends an ACK to their last message
 		sendAcks(c0, c1, contactId1From0, 1);
 
 		// 1 can now delete all messages, as last one has been ACKed
-		assertTrue(deleteMessages0From1(toDelete));
+		assertTrue(deleteMessages0From1(toDelete).allDeleted());
 		assertEquals(0, getMessages0From1().size());
 		// a second time nothing happens
-		assertTrue(deleteMessages0From1(toDelete));
+		assertTrue(deleteMessages0From1(toDelete).allDeleted());
 	}
 
 	@Test
 	public void testDeletingEmptySet() throws Exception {
-		assertTrue(deleteMessages0From1(emptySet()));
+		assertTrue(deleteMessages0From1(emptySet()).allDeleted());
 	}
 
 	private Collection<ConversationMessageHeader> getMessages1From0()
@@ -1042,23 +1059,23 @@ public class ForumSharingIntegrationTest
 				.getMessageHeaders(txn, contactId0From1));
 	}
 
-	private boolean deleteAllMessages1From0() throws DbException {
+	private DeletionResult deleteAllMessages1From0() throws DbException {
 		return db0.transactionWithResult(false, txn -> forumSharingManager0
 				.deleteAllMessages(txn, contactId1From0));
 	}
 
-	private boolean deleteAllMessages0From1() throws DbException {
+	private DeletionResult deleteAllMessages0From1() throws DbException {
 		return db1.transactionWithResult(false, txn -> forumSharingManager1
 				.deleteAllMessages(txn, contactId0From1));
 	}
 
-	private boolean deleteMessages1From0(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages1From0(Set<MessageId> toDelete)
 			throws DbException {
 		return db0.transactionWithResult(false, txn -> forumSharingManager0
 				.deleteMessages(txn, contactId1From0, toDelete));
 	}
 
-	private boolean deleteMessages0From1(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages0From1(Set<MessageId> toDelete)
 			throws DbException {
 		return db1.transactionWithResult(false, txn -> forumSharingManager1
 				.deleteMessages(txn, contactId0From1, toDelete));

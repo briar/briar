@@ -17,6 +17,12 @@ import java.util.Set;
 @NotNullByDefault
 public interface ConversationManager {
 
+	int DELETE_SESSION_IS_INTRODUCTION = 1;
+	int DELETE_SESSION_IS_INVITATION = 1 << 1;
+	int DELETE_SESSION_INCOMPLETE = 1 << 2;
+	int DELETE_SESSION_IN_PROGRESS = 1 << 3;
+	int DELETE_NOT_DOWNLOADED = 1 << 4;
+
 	/**
 	 * Clients that present messages in a private conversation need to
 	 * register themselves here.
@@ -39,17 +45,13 @@ public interface ConversationManager {
 
 	/**
 	 * Deletes all messages exchanged with the given contact.
-	 *
-	 * @return true if all messages could be deleted, false otherwise
 	 */
-	boolean deleteAllMessages(ContactId c) throws DbException;
+	DeletionResult deleteAllMessages(ContactId c) throws DbException;
 
 	/**
 	 * Deletes the given set of messages associated with the given contact.
-	 *
-	 * @return true if all given messages could be deleted, false otherwise
 	 */
-	boolean deleteMessages(ContactId c, Collection<MessageId> messageIds)
+	DeletionResult deleteMessages(ContactId c, Collection<MessageId> messageIds)
 			throws DbException;
 
 	@NotNullByDefault
@@ -75,10 +77,8 @@ public interface ConversationManager {
 
 		/**
 		 * Deletes all messages associated with the given contact.
-		 *
-		 * @return true if all messages could be deleted, false otherwise
 		 */
-		boolean deleteAllMessages(Transaction txn,
+		DeletionResult deleteAllMessages(Transaction txn,
 				ContactId c) throws DbException;
 
 		/**
@@ -86,10 +86,8 @@ public interface ConversationManager {
 		 * <p>
 		 * The set of message IDs must only include message IDs returned by
 		 * {@link #getMessageIds}.
-		 *
-		 * @return true if all messages could be deleted, false otherwise
 		 */
-		boolean deleteMessages(Transaction txn, ContactId c,
+		DeletionResult deleteMessages(Transaction txn, ContactId c,
 				Set<MessageId> messageIds) throws DbException;
 	}
 

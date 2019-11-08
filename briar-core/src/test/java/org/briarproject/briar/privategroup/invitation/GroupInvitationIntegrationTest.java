@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -463,9 +464,13 @@ public class GroupInvitationIntegrationTest
 		sync0To1(1, true);
 
 		// messages can not be deleted
-		assertFalse(deleteAllMessages1From0());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasInvitation());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
 		assertEquals(1, getMessages1From0().size());
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasInvitation());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 		assertEquals(1, getMessages0From1().size());
 
 		// respond
@@ -478,13 +483,15 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
 
 		// messages can be deleted now by creator, invitee needs to wait for ACK
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
-		assertTrue(deleteAllMessages1From0());  // a second time nothing happens
+		assertTrue(deleteAllMessages1From0().allDeleted());  // a second time nothing happens
 		assertGroupCount(messageTracker0, g1From0.getId(), 0, 0);
 
 		// trying to delete fails for invitee
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasInvitation());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 		assertEquals(2, getMessages0From1().size());
 
 		// creator sends two JOIN messages (one sharing + one in private group)
@@ -492,9 +499,10 @@ public class GroupInvitationIntegrationTest
 		sync0To1(2, true);
 
 		// now invitee can also delete messages
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertEquals(0, getMessages0From1().size());
-		assertTrue(deleteAllMessages0From1());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
 
 		// invitee now leaves
@@ -524,21 +532,25 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
 
 		// messages can be deleted now by creator, invitee needs to wait for ACK
-		assertTrue(deleteAllMessages1From0());
+		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
-		assertTrue(deleteAllMessages1From0());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages1From0().allDeleted());
 
 		// trying to delete fails for invitee
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasInvitation());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 		assertEquals(2, getMessages0From1().size());
 
 		// creator sends ACK
 		sendAcks(c0, c1, contactId1From0, 1);
 
 		// now invitee can also delete messages
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertEquals(0, getMessages0From1().size());
-		assertTrue(deleteAllMessages0From1());  // a second time nothing happens
+		// a second time nothing happens
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
 
 		// creator can re-invite
@@ -546,8 +558,10 @@ public class GroupInvitationIntegrationTest
 		sync0To1(1, true);
 
 		// now new messages can not be deleted anymore
-		assertFalse(deleteAllMessages1From0());
-		assertFalse(deleteAllMessages0From1());
+		assertFalse(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
+		assertFalse(deleteAllMessages0From1().allDeleted());
+		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
 
 		// responding again
 		groupInvitationManager1
@@ -562,8 +576,8 @@ public class GroupInvitationIntegrationTest
 		assertGroupCount(messageTracker0, g1From0.getId(), 2, 1);
 
 		// deleting is possible again
-		assertTrue(deleteAllMessages1From0());
-		assertTrue(deleteAllMessages0From1());
+		assertTrue(deleteAllMessages1From0().allDeleted());
+		assertTrue(deleteAllMessages0From1().allDeleted());
 		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
 		assertGroupCount(messageTracker0, g1From0.getId(), 0, 0);
 	}
@@ -580,8 +594,10 @@ public class GroupInvitationIntegrationTest
 		MessageId messageId = m0.iterator().next().getId();
 		Set<MessageId> toDelete = new HashSet<>();
 		toDelete.add(messageId);
-		assertFalse(deleteMessages1From0(toDelete));
-		assertFalse(deleteMessages0From1(toDelete));
+		assertFalse(deleteMessages1From0(toDelete).allDeleted());
+		assertTrue(deleteMessages1From0(toDelete).hasSessionInProgress());
+		assertFalse(deleteMessages0From1(toDelete).allDeleted());
+		assertTrue(deleteMessages0From1(toDelete).hasSessionInProgress());
 
 		// respond
 		groupInvitationManager1
@@ -590,8 +606,10 @@ public class GroupInvitationIntegrationTest
 
 		// both can still not delete the invitation,
 		// because the response was not selected for deletion as well
-		assertFalse(deleteMessages1From0(toDelete));
-		assertFalse(deleteMessages0From1(toDelete));
+		assertFalse(deleteMessages1From0(toDelete).allDeleted());
+		assertTrue(deleteMessages1From0(toDelete).hasNotAllSelected());
+		assertFalse(deleteMessages0From1(toDelete).allDeleted());
+		assertTrue(deleteMessages0From1(toDelete).hasNotAllSelected());
 
 		// after selecting response, both messages can be deleted by creator
 		m0 = getMessages1From0();
@@ -600,14 +618,15 @@ public class GroupInvitationIntegrationTest
 			if (!h.getId().equals(messageId)) toDelete.add(h.getId());
 		}
 		assertGroupCount(messageTracker0, g1From0.getId(), 2, 1);
-		assertTrue(deleteMessages1From0(toDelete));
+		assertTrue(deleteMessages1From0(toDelete).allDeleted());
 		assertEquals(0, getMessages1From0().size());
 		// a second time nothing happens
-		assertTrue(deleteMessages1From0(toDelete));
+		assertTrue(deleteMessages1From0(toDelete).allDeleted());
 		assertGroupCount(messageTracker0, g1From0.getId(), 0, 0);
 
 		// 1 can still not delete the messages, as last one has not been ACKed
-		assertFalse(deleteMessages0From1(toDelete));
+		assertFalse(deleteMessages0From1(toDelete).allDeleted());
+		assertTrue(deleteMessages0From1(toDelete).hasSessionInProgress());
 		assertEquals(2, getMessages0From1().size());
 		assertGroupCount(messageTracker1, g0From1.getId(), 2, 1);
 
@@ -615,16 +634,16 @@ public class GroupInvitationIntegrationTest
 		sendAcks(c0, c1, contactId1From0, 1);
 
 		// 1 can now delete all messages, as last one has been ACKed
-		assertTrue(deleteMessages0From1(toDelete));
+		assertTrue(deleteMessages0From1(toDelete).allDeleted());
 		assertEquals(0, getMessages0From1().size());
 		assertGroupCount(messageTracker1, g0From1.getId(), 0, 0);
 		// a second time nothing happens
-		assertTrue(deleteMessages0From1(toDelete));
+		assertTrue(deleteMessages0From1(toDelete).allDeleted());
 	}
 
 	@Test
 	public void testDeletingEmptySet() throws Exception {
-		assertTrue(deleteMessages0From1(emptySet()));
+		assertTrue(deleteMessages0From1(emptySet()).allDeleted());
 	}
 
 	private Collection<ConversationMessageHeader> getMessages1From0()
@@ -639,23 +658,23 @@ public class GroupInvitationIntegrationTest
 				.getMessageHeaders(txn, contactId0From1));
 	}
 
-	private boolean deleteAllMessages1From0() throws DbException {
+	private DeletionResult deleteAllMessages1From0() throws DbException {
 		return db0.transactionWithResult(false, txn -> groupInvitationManager0
 				.deleteAllMessages(txn, contactId1From0));
 	}
 
-	private boolean deleteAllMessages0From1() throws DbException {
+	private DeletionResult deleteAllMessages0From1() throws DbException {
 		return db1.transactionWithResult(false, txn -> groupInvitationManager1
 				.deleteAllMessages(txn, contactId0From1));
 	}
 
-	private boolean deleteMessages1From0(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages1From0(Set<MessageId> toDelete)
 			throws DbException {
 		return db0.transactionWithResult(false, txn -> groupInvitationManager0
 				.deleteMessages(txn, contactId1From0, toDelete));
 	}
 
-	private boolean deleteMessages0From1(Set<MessageId> toDelete)
+	private DeletionResult deleteMessages0From1(Set<MessageId> toDelete)
 			throws DbException {
 		return db1.transactionWithResult(false, txn -> groupInvitationManager1
 				.deleteMessages(txn, contactId0From1, toDelete));

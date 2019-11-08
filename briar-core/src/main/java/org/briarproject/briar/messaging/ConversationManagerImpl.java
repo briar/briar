@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.DeletionResult;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,27 +76,27 @@ class ConversationManagerImpl implements ConversationManager {
 	}
 
 	@Override
-	public boolean deleteAllMessages(ContactId c) throws DbException {
+	public DeletionResult deleteAllMessages(ContactId c) throws DbException {
 		return db.transactionWithResult(false, txn -> {
-			boolean allDeleted = true;
+			DeletionResult result = new DeletionResult();
 			for (ConversationClient client : clients) {
-				allDeleted = client.deleteAllMessages(txn, c) && allDeleted;
+				result.addDeletionResult(client.deleteAllMessages(txn, c));
 			}
-			return allDeleted;
+			return result;
 		});
 	}
 
 	@Override
-	public boolean deleteMessages(ContactId c, Collection<MessageId> toDelete)
+	public DeletionResult deleteMessages(ContactId c, Collection<MessageId> toDelete)
 			throws DbException {
 		return db.transactionWithResult(false, txn -> {
-			boolean allDeleted = true;
+			DeletionResult result = new DeletionResult();
 			for (ConversationClient client : clients) {
 				Set<MessageId> idSet = client.getMessageIds(txn, c);
 				idSet.retainAll(toDelete);
-				allDeleted = client.deleteMessages(txn, c, idSet) && allDeleted;
+				result.addDeletionResult(client.deleteMessages(txn, c, idSet));
 			}
-			return allDeleted;
+			return result;
 		});
 	}
 

@@ -31,6 +31,7 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.FileTooBigException;
@@ -430,7 +431,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public boolean deleteAllMessages(Transaction txn, ContactId c)
+	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		// this indiscriminately deletes all raw messages in this group
@@ -440,13 +441,13 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			db.deleteMessageMetadata(txn, messageId);
 		}
 		messageTracker.initializeGroupCount(txn, g);
-		return true;
+		return new DeletionResult();
 	}
 
 	@Override
-	public boolean deleteMessages(Transaction txn, ContactId c,
+	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
-		boolean allDeleted = true;
+		DeletionResult result = new DeletionResult();
 		for (MessageId m : messageIds) {
 			// get attachment headers
 			List<AttachmentHeader> headers;
@@ -480,12 +481,12 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				db.deleteMessage(txn, m);
 				db.deleteMessageMetadata(txn, m);
 			} else {
-				allDeleted = false;
+				result.addNotFullyDownloaded();
 			}
 		}
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 		recalculateGroupCount(txn, g);
-		return allDeleted;
+		return result;
 	}
 
 	private void recalculateGroupCount(Transaction txn, GroupId g)
