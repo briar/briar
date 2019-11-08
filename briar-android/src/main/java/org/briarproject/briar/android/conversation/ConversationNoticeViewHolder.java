@@ -28,9 +28,9 @@ class ConversationNoticeViewHolder extends ConversationItemViewHolder {
 
 	@Override
 	@CallSuper
-	void bind(ConversationItem item) {
+	void bind(ConversationItem item, boolean selected) {
 		ConversationNoticeItem notice = (ConversationNoticeItem) item;
-		super.bind(notice);
+		super.bind(notice, selected);
 
 		String text = notice.getMsgText();
 		if (isNullOrEmpty(text)) {

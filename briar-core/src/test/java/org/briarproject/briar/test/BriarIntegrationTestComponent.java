@@ -16,6 +16,7 @@ import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
@@ -88,6 +89,8 @@ public interface BriarIntegrationTestComponent
 	ClientHelper getClientHelper();
 
 	ContactManager getContactManager();
+
+	ConversationManager getConversationManager();
 
 	DatabaseComponent getDatabaseComponent();
 

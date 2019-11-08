@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -371,15 +372,20 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public Set<MessageId> getMessageIds(Transaction txn, ContactId c)
 			throws DbException {
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
-		BdfDictionary query = BdfDictionary.of(
-				new BdfEntry(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE));
+		Set<MessageId> result = new HashSet<>();
 		try {
-			Map<MessageId, BdfDictionary> results =
-					clientHelper.getMessageMetadataAsDictionary(txn, g, query);
-			return results.keySet();
+			Map<MessageId, BdfDictionary> messages =
+					clientHelper.getMessageMetadataAsDictionary(txn, g);
+			for (Map.Entry<MessageId, BdfDictionary> entry : messages
+					.entrySet()) {
+				Long type = entry.getValue().getOptionalLong(MSG_KEY_MSG_TYPE);
+				if (type == null || type == PRIVATE_MESSAGE)
+					result.add(entry.getKey());
+			}
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+		return result;
 	}
 
 	@Override
@@ -450,7 +456,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
 				if (messageType != null && messageType != PRIVATE_MESSAGE)
 					throw new AssertionError("not supported");
-				headers = parseAttachmentHeaders(meta);
+				headers = messageType == null ? emptyList() :
+						parseAttachmentHeaders(meta);
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}

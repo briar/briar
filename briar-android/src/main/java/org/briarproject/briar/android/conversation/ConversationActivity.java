@@ -8,6 +8,7 @@ import android.os.Parcelable;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.util.SparseArray;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -98,7 +99,13 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.selection.Selection;
+import androidx.recyclerview.selection.SelectionPredicates;
+import androidx.recyclerview.selection.SelectionTracker;
+import androidx.recyclerview.selection.SelectionTracker.SelectionObserver;
+import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
 import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
@@ -120,6 +127,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
@@ -137,7 +145,7 @@ import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVAT
 @ParametersNotNullByDefault
 public class ConversationActivity extends BriarActivity
 		implements EventListener, ConversationListener, TextCache,
-		AttachmentCache, AttachmentListener {
+		AttachmentCache, AttachmentListener, ActionMode.Callback {
 
 	public static final String CONTACT_ID = "briar.CONTACT_ID";
 
@@ -194,8 +202,11 @@ public class ConversationActivity extends BriarActivity
 	private LinearLayoutManager layoutManager;
 	private TextInputView textInputView;
 	private TextSendController sendController;
+	private SelectionTracker<String> tracker;
 	@Nullable
 	private Parcelable layoutManagerState;
+	@Nullable
+	private ActionMode actionMode;
 
 	private volatile ContactId contactId;
 
@@ -257,6 +268,9 @@ public class ConversationActivity extends BriarActivity
 		ConversationScrollListener scrollListener =
 				new ConversationScrollListener(adapter, viewModel);
 		list.getRecyclerView().addOnScrollListener(scrollListener);
+		if (featureFlags.shouldEnablePrivateMessageDeletion()) {
+			addSelectionTracker();
+		}
 
 		textInputView = findViewById(R.id.text_input_container);
 		if (featureFlags.shouldEnableImageAttachments()) {
@@ -346,12 +360,14 @@ public class ConversationActivity extends BriarActivity
 			layoutManagerState = layoutManager.onSaveInstanceState();
 			outState.putParcelable("layoutManager", layoutManagerState);
 		}
+		if (tracker != null) tracker.onSaveInstanceState(outState);
 	}
 
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
 		layoutManagerState = savedInstanceState.getParcelable("layoutManager");
+		if (tracker != null) tracker.onRestoreInstanceState(savedInstanceState);
 	}
 
 	@Override
@@ -407,6 +423,83 @@ public class ConversationActivity extends BriarActivity
 			default:
 				return super.onOptionsItemSelected(item);
 		}
+	}
+
+	@Override
+	public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+		MenuInflater inflater = mode.getMenuInflater();
+		inflater.inflate(R.menu.conversation_message_actions, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+		return false; // no update needed
+	}
+
+	@Override
+	public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+		if (item.getItemId() == R.id.action_delete) {
+			deleteSelectedMessages();
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public void onDestroyActionMode(ActionMode mode) {
+		tracker.clearSelection();
+		actionMode = null;
+	}
+
+	private void addSelectionTracker() {
+		RecyclerView recyclerView = list.getRecyclerView();
+		if (recyclerView.getAdapter() != adapter)
+			throw new IllegalStateException();
+
+		tracker = new SelectionTracker.Builder<>(
+				"conversationSelection",
+				recyclerView,
+				new ConversationItemKeyProvider(adapter),
+				new ConversationItemDetailsLookup(recyclerView),
+				StorageStrategy.createStringStorage()
+		).withSelectionPredicate(
+				SelectionPredicates.createSelectAnything()
+		).build();
+
+		SelectionObserver<String> observer = new SelectionObserver<String>() {
+			@Override
+			public void onItemStateChanged(String key, boolean selected) {
+				if (selected && actionMode == null) {
+					actionMode = startActionMode(ConversationActivity.this);
+					updateActionModeTitle();
+				} else if (actionMode != null) {
+					if (selected || tracker.hasSelection()) {
+						updateActionModeTitle();
+					} else {
+						actionMode.finish();
+					}
+				}
+			}
+		};
+		tracker.addObserver(observer);
+		adapter.setSelectionTracker(tracker);
+	}
+
+	private void updateActionModeTitle() {
+		if (actionMode == null) throw new IllegalStateException();
+		String title = String.valueOf(tracker.getSelection().size());
+		actionMode.setTitle(title);
+	}
+
+	private Collection<MessageId> getSelection() {
+		Selection<String> selection = tracker.getSelection();
+		List<MessageId> messages = new ArrayList<>(selection.size());
+		for (String str : selection) {
+			MessageId id = new MessageId(fromHexString(str));
+			messages.add(id);
+		}
+		return messages;
 	}
 
 	@UiThread
@@ -766,7 +859,7 @@ public class ConversationActivity extends BriarActivity
 			try {
 				boolean allDeleted =
 						conversationManager.deleteAllMessages(contactId);
-				reloadConversationAfterDeletingAllMessages(allDeleted);
+				reloadConversationAfterDeletingMessages(allDeleted);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				runOnUiThreadUnlessDestroyed(() -> list.showData());
@@ -774,10 +867,28 @@ public class ConversationActivity extends BriarActivity
 		});
 	}
 
-	private void reloadConversationAfterDeletingAllMessages(
+	private void deleteSelectedMessages() {
+		list.showProgressBar();
+		Collection<MessageId> selected = getSelection();
+		// close action mode only after getting the selection
+		if (actionMode != null) actionMode.finish();
+		runOnDbThread(() -> {
+			try {
+				boolean allDeleted =
+						conversationManager.deleteMessages(contactId, selected);
+				reloadConversationAfterDeletingMessages(allDeleted);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				runOnUiThreadUnlessDestroyed(() -> list.showData());
+			}
+		});
+	}
+
+	private void reloadConversationAfterDeletingMessages(
 			boolean allDeleted) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.clear();
+			list.showProgressBar();  // otherwise clearing shows empty state
 			loadMessages();
 			if (!allDeleted) showNotAllDeletedDialog();
 		});

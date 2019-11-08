@@ -44,8 +44,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 		timeColorBubble = getColor(v.getContext(), R.color.briar_white);
 
 		// clone constraint sets from layout files
-		textConstraints
-				.clone(v.getContext(), R.layout.list_item_conversation_msg_in);
+		textConstraints.clone(v.getContext(),
+				R.layout.list_item_conversation_msg_in_content);
 		imageConstraints.clone(v.getContext(),
 				R.layout.list_item_conversation_msg_image);
 		imageTextConstraints.clone(v.getContext(),
@@ -61,8 +61,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 	}
 
 	@Override
-	void bind(ConversationItem conversationItem) {
-		super.bind(conversationItem);
+	void bind(ConversationItem conversationItem, boolean selected) {
+		super.bind(conversationItem, selected);
 		ConversationMessageItem item =
 				(ConversationMessageItem) conversationItem;
 		if (item.getAttachments().isEmpty()) {
