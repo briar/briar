@@ -21,7 +21,13 @@ import static org.briarproject.briar.android.attachment.AttachmentItem.State.MIS
 @NotNullByDefault
 public class AttachmentItem implements Parcelable {
 
-	public enum State {LOADING, MISSING, AVAILABLE, ERROR}
+	public enum State {
+		LOADING, MISSING, AVAILABLE, ERROR;
+
+		public boolean isFinal() {
+			return this == AVAILABLE || this == ERROR;
+		}
+	}
 
 	private final AttachmentHeader header;
 	private final int width, height;

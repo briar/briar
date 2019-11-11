@@ -2,6 +2,7 @@ package org.briarproject.briar.android.attachment;
 
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.api.messaging.Attachment;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -11,6 +12,7 @@ import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.concurrent.Executor;
 
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -33,8 +35,9 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 		MessagingManager messagingManager =
 				context.mock(MessagingManager.class);
 		imageSizeCalculator = context.mock(ImageSizeCalculator.class);
-		retriever = new AttachmentRetrieverImpl(messagingManager, dimensions,
-				imageHelper, imageSizeCalculator);
+		Executor dbExecutor = new ImmediateExecutor();
+		retriever = new AttachmentRetrieverImpl(dbExecutor, messagingManager,
+				dimensions, imageHelper, imageSizeCalculator);
 	}
 
 	@Test
