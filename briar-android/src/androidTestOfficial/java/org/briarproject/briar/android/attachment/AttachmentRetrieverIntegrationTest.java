@@ -28,7 +28,7 @@ public class AttachmentRetrieverIntegrationTest {
 
 	private final ImageHelper imageHelper = new ImageHelperImpl();
 	private final AttachmentRetriever retriever =
-			new AttachmentRetrieverImpl(null, dimensions, imageHelper,
+			new AttachmentRetrieverImpl(null, null, dimensions, imageHelper,
 					new ImageSizeCalculator(imageHelper));
 
 	@Test

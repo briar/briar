@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.attachment;
 
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchMessageException;
@@ -18,15 +17,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.AVAILABLE;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.LOADING;
@@ -38,6 +41,8 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	private static final Logger LOG =
 			getLogger(AttachmentRetrieverImpl.class.getName());
 
+	@DatabaseExecutor
+	private final Executor dbExecutor;
 	private final MessagingManager messagingManager;
 	private final ImageHelper imageHelper;
 	private final ImageSizeCalculator imageSizeCalculator;
@@ -45,17 +50,17 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
 
-	// Info for AttachmentItems that are either still LOADING or MISSING
-	private final Map<MessageId, UnavailableItem> unavailableItems =
-			new ConcurrentHashMap<>();
-	// We cache only items in their final state: AVAILABLE or ERROR
-	private final Map<MessageId, AttachmentItem> itemCache =
-			new ConcurrentHashMap<>();
+	private final Map<MessageId, MutableLiveData<AttachmentItem>>
+			itemsWithSize = new ConcurrentHashMap<>();
+	private final Map<MessageId, MutableLiveData<AttachmentItem>>
+			itemsWithoutSize = new ConcurrentHashMap<>();
 
 	@Inject
-	AttachmentRetrieverImpl(MessagingManager messagingManager,
+	AttachmentRetrieverImpl(@DatabaseExecutor Executor dbExecutor,
+			MessagingManager messagingManager,
 			AttachmentDimensions dimensions, ImageHelper imageHelper,
 			ImageSizeCalculator imageSizeCalculator) {
+		this.dbExecutor = dbExecutor;
 		this.messagingManager = messagingManager;
 		this.imageHelper = imageHelper;
 		this.imageSizeCalculator = imageSizeCalculator;
@@ -74,20 +79,37 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	}
 
 	@Override
-	public List<AttachmentItem> getAttachmentItems(
+	public List<LiveData<AttachmentItem>> getAttachmentItems(
 			PrivateMessageHeader messageHeader) {
 		List<AttachmentHeader> headers = messageHeader.getAttachmentHeaders();
-		List<AttachmentItem> items = new ArrayList<>(headers.size());
+		List<LiveData<AttachmentItem>> items = new ArrayList<>(headers.size());
 		boolean needsSize = headers.size() == 1;
 		for (AttachmentHeader h : headers) {
-			AttachmentItem item = itemCache.get(h.getMessageId());
-			if (item == null || (needsSize && !item.hasSize())) {
-				item = new AttachmentItem(h, defaultSize, defaultSize, LOADING);
-				UnavailableItem unavailableItem = new UnavailableItem(
-						messageHeader.getId(), h, needsSize);
-				unavailableItems.put(h.getMessageId(), unavailableItem);
+			// try cache for existing item live data
+			MutableLiveData<AttachmentItem> liveData;
+			if (needsSize) liveData = itemsWithSize.get(h.getMessageId());
+			else {
+				// try items with size first, as they work as well
+				liveData = itemsWithSize.get(h.getMessageId());
+				if (liveData == null)
+					liveData = itemsWithoutSize.get(h.getMessageId());
 			}
-			items.add(item);
+
+			// create new live data with LOADING item if cache miss
+			if (liveData == null) {
+				AttachmentItem item = new AttachmentItem(h,
+						defaultSize, defaultSize, LOADING);
+				final MutableLiveData<AttachmentItem> finalLiveData =
+						new MutableLiveData<>(item);
+				// kick-off loading of attachment, will post to live data
+				dbExecutor.execute(
+						() -> loadAttachmentItem(h, needsSize, finalLiveData));
+				// add new LiveData to cache
+				liveData = finalLiveData;
+				if (needsSize) itemsWithSize.put(h.getMessageId(), liveData);
+				else itemsWithoutSize.put(h.getMessageId(), liveData);
+			}
+			items.add(liveData);
 		}
 		return items;
 	}
@@ -98,46 +120,63 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 			AttachmentHeader h) throws DbException {
 		try {
 			Attachment a = messagingManager.getAttachment(h);
-			// this adds it to the cache automatically
-			createAttachmentItem(a, true);
+			AttachmentItem item = createAttachmentItem(a, true);
+			MutableLiveData<AttachmentItem> liveData =
+					new MutableLiveData<>(item);
+			itemsWithSize.put(h.getMessageId(), liveData);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Attachment not received yet");
 		}
 	}
 
 	@Override
-	@Nullable
 	@DatabaseExecutor
-	public Pair<MessageId, AttachmentItem> loadAttachmentItem(
-			MessageId attachmentId) throws DbException {
-		UnavailableItem unavailableItem = unavailableItems.get(attachmentId);
-		if (unavailableItem == null) return null;
+	public void loadAttachmentItem(MessageId attachmentId) {
+		// try to find LiveData for attachment in both caches
+		MutableLiveData<AttachmentItem> liveData;
+		boolean needsSize = true;
+		liveData = itemsWithSize.get(attachmentId);
+		if (liveData == null) {
+			needsSize = false;
+			liveData = itemsWithoutSize.get(attachmentId);
+		}
 
-		MessageId conversationMessageId =
-				unavailableItem.getConversationMessageId();
-		AttachmentHeader h = unavailableItem.getHeader();
-		boolean needsSize = unavailableItem.needsSize();
+		// If no LiveData for the attachment exists,
+		// its message did not yet arrive and we can ignore it for now.
+		if (liveData == null) return;
 
+		// actually load the attachment item
+		AttachmentHeader h = requireNonNull(liveData.getValue()).getHeader();
+		loadAttachmentItem(h, needsSize, liveData);
+	}
+
+	/**
+	 * Loads an {@link AttachmentItem} from the database
+	 * and notifies the given {@link LiveData}.
+	 */
+	@DatabaseExecutor
+	private void loadAttachmentItem(AttachmentHeader h, boolean needsSize,
+			MutableLiveData<AttachmentItem> liveData) {
+		Attachment a;
 		AttachmentItem item;
 		try {
-			Attachment a = messagingManager.getAttachment(h);
+			a = messagingManager.getAttachment(h);
 			item = createAttachmentItem(a, needsSize);
-			unavailableItems.remove(attachmentId);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Attachment not received yet");
-			// unavailable item is still tracked, no need to add it again
 			item = new AttachmentItem(h, defaultSize, defaultSize, MISSING);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			item = new AttachmentItem(h, "", ERROR);
 		}
-		return new Pair<>(conversationMessageId, item);
+		liveData.postValue(item);
 	}
 
 	@Override
 	public AttachmentItem createAttachmentItem(Attachment a,
 			boolean needsSize) {
+		AttachmentItem item;
 		AttachmentHeader h = a.getHeader();
-		AttachmentItem item = itemCache.get(h.getMessageId());
-		if (item != null && (needsSize == item.hasSize())) return item;
-
 		if (needsSize) {
 			InputStream is = new BufferedInputStream(a.getStream());
 			Size size = imageSizeCalculator.getSize(is, h.getContentType());
@@ -153,7 +192,6 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 			}
 			item = new AttachmentItem(h, extension, state);
 		}
-		itemCache.put(h.getMessageId(), item);
 		return item;
 	}
 

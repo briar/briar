@@ -96,6 +96,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
@@ -130,7 +131,6 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.join;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
-import static org.briarproject.briar.android.attachment.AttachmentItem.State.LOADING;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENTS;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENT_POSITION;
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
@@ -558,7 +558,8 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Eagerly loading image size for latest message");
 				AttachmentHeader header = headers.get(0);
 				// get the item to retrieve its size
-				attachmentRetriever.cacheAttachmentItemWithSize(h.getId(), header);
+				attachmentRetriever
+						.cacheAttachmentItemWithSize(h.getId(), header);
 			}
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
@@ -637,33 +638,6 @@ public class ConversationActivity extends BriarActivity
 	private boolean shouldScrollWhenUpdatingMessage() {
 		return getLifecycle().getCurrentState().isAtLeast(STARTED)
 				&& adapter.isScrolledToBottom(layoutManager);
-	}
-
-	private void loadMessageAttachments(List<AttachmentItem> items) {
-		runOnDbThread(() -> {
-			for (AttachmentItem item : items) {
-				if (item.getState() == LOADING)
-					loadMessageAttachment(item.getMessageId(), false);
-			}
-		});
-	}
-
-	@DatabaseExecutor
-	private void loadMessageAttachment(MessageId attachmentId,
-			boolean allowedToFail) {
-		try {
-			Pair<MessageId, AttachmentItem> pair = attachmentRetriever
-					.loadAttachmentItem(attachmentId);
-			if (pair == null && allowedToFail) {
-				LOG.warning("Attachment arrived before message");
-				return;
-			} else if (pair == null) throw new AssertionError();
-			MessageId conversationMessageId = pair.getFirst();
-			AttachmentItem item = pair.getSecond();
-			updateMessageAttachment(conversationMessageId, item);
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-		}
 	}
 
 	private void updateMessageAttachment(MessageId m, AttachmentItem item) {
@@ -748,9 +722,8 @@ public class ConversationActivity extends BriarActivity
 
 	@UiThread
 	private void onAttachmentReceived(MessageId attachmentId) {
-		// This is allowed to fail, because the conversation message
-		// might arrive *after* the attachment.
-		runOnDbThread(() -> loadMessageAttachment(attachmentId, true));
+		runOnDbThread(
+				() -> attachmentRetriever.loadAttachmentItem(attachmentId));
 	}
 
 	@UiThread
@@ -1134,9 +1107,32 @@ public class ConversationActivity extends BriarActivity
 	 */
 	@Override
 	public List<AttachmentItem> getAttachmentItems(PrivateMessageHeader h) {
-		List<AttachmentItem> items = attachmentRetriever.getAttachmentItems(h);
-		loadMessageAttachments(items);
+		List<LiveData<AttachmentItem>> liveDataList =
+				attachmentRetriever.getAttachmentItems(h);
+		List<AttachmentItem> items = new ArrayList<>(liveDataList.size());
+		for (LiveData<AttachmentItem> liveData : liveDataList) {
+			liveData.observe(this, new AttachmentObserver(h.getId(), liveData));
+			items.add(requireNonNull(liveData.getValue()));
+		}
 		return items;
+	}
+
+	private class AttachmentObserver implements Observer<AttachmentItem> {
+		private final MessageId conversationMessageId;
+		private final LiveData<AttachmentItem> liveData;
+
+		private AttachmentObserver(MessageId conversationMessageId,
+				LiveData<AttachmentItem> liveData) {
+			this.conversationMessageId = conversationMessageId;
+			this.liveData = liveData;
+		}
+
+		@Override
+		public void onChanged(AttachmentItem attachmentItem) {
+			updateMessageAttachment(conversationMessageId, attachmentItem);
+			if (attachmentItem.getState().isFinal())
+				liveData.removeObserver(this);
+		}
 	}
 
 }
