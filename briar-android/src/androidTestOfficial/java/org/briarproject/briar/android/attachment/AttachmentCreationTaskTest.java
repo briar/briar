@@ -56,12 +56,34 @@ public class AttachmentCreationTaskTest {
 		task.compressImage(is, "image/png");
 	}
 
+	@Test
+	public void testPngSuiteCompress() throws Exception {
+		for (String file : getAssetFiles("PngSuite")) {
+			if (file.endsWith(".png")) {
+				InputStream is = getAssetInputStream("PngSuite/" + file);
+				try {
+					task.compressImage(is, "image/png");
+					LOG.warning("PASS: " + file);
+				} catch (IOException e) {
+					LOG.warning("ERROR: " + file);
+				}
+			}
+		}
+	}
+
 	private InputStream getAssetInputStream(String name) throws IOException {
-		LOG.warning("getAssetInputStream: " + name);
+		LOG.info("getAssetInputStream: " + name);
+		return getAssetManager().open(name);
+	}
+
+	private String[] getAssetFiles(String path) throws IOException {
+		return getAssetManager().list(path);
+	}
+
+	private AssetManager getAssetManager() {
 		// pm.getResourcesForApplication(packageName).getAssets() did not work
 		//noinspection deprecation
-		AssetManager assets = getContext().getAssets();
-		return assets.open(name);
+		return getContext().getAssets();
 	}
 
 }
