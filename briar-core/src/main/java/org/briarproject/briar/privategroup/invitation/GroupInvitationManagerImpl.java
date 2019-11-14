@@ -756,7 +756,6 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 						result.addInvitationSessionInProgress();
 					if (checker.causesProblem(m))
 						result.addInvitationNotAllSelected();
-					break;
 				}
 			}
 			if (sessionDeletable) {

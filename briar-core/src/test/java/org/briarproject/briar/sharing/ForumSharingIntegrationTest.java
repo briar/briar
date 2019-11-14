@@ -866,11 +866,9 @@ public class ForumSharingIntegrationTest
 
 		// messages can not be deleted
 		assertFalse(deleteAllMessages1From0().allDeleted());
-		assertTrue(deleteAllMessages1From0().hasInvitation());
-		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
+		assertTrue(deleteAllMessages1From0().hasInvitationSessionInProgress());
 		assertFalse(deleteAllMessages0From1().allDeleted());
-		assertTrue(deleteAllMessages0From1().hasInvitation());
-		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
+		assertTrue(deleteAllMessages0From1().hasInvitationSessionInProgress());
 
 		// accept invitation
 		respondToRequest(contactId0From1, true);
@@ -892,7 +890,7 @@ public class ForumSharingIntegrationTest
 
 		// 1 can not delete all messages, as last one has not been ACKed
 		assertFalse(deleteAllMessages0From1().allDeleted());
-		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
+		assertTrue(deleteAllMessages0From1().hasInvitationSessionInProgress());
 		assertGroupCount(messageTracker1, g0From1, 2, 1);
 
 		// 0 sends an ACK to their last message
@@ -918,11 +916,11 @@ public class ForumSharingIntegrationTest
 
 		// messages can not be deleted anymore
 		assertFalse(deleteAllMessages1From0().allDeleted());
-		assertTrue(deleteAllMessages1From0().hasSessionInProgress());
+		assertTrue(deleteAllMessages1From0().hasInvitationSessionInProgress());
 		assertEquals(1, getMessages1From0().size());
 		assertGroupCount(messageTracker0, g1From0, 1, 1);
 		assertFalse(deleteAllMessages0From1().allDeleted());
-		assertTrue(deleteAllMessages0From1().hasSessionInProgress());
+		assertTrue(deleteAllMessages0From1().hasInvitationSessionInProgress());
 		assertEquals(1, getMessages0From1().size());
 		assertGroupCount(messageTracker1, g0From1, 1, 0);
 
@@ -998,8 +996,7 @@ public class ForumSharingIntegrationTest
 		Set<MessageId> toDelete = new HashSet<>();
 		toDelete.add(messageId);
 		assertFalse(deleteMessages1From0(toDelete).allDeleted());
-		assertTrue(deleteMessages1From0(toDelete).hasInvitation());
-		assertTrue(deleteMessages1From0(toDelete).hasSessionInProgress());
+		assertTrue(deleteMessages1From0(toDelete).hasInvitationSessionInProgress());
 
 		// decline invitation
 		respondToRequest(contactId0From1, true);
@@ -1009,11 +1006,9 @@ public class ForumSharingIntegrationTest
 		// both can still not delete the invitation,
 		// because the response was not selected for deletion as well
 		assertFalse(deleteMessages1From0(toDelete).allDeleted());
-		assertTrue(deleteMessages1From0(toDelete).hasInvitation());
-		assertTrue(deleteMessages1From0(toDelete).hasNotAllSelected());
+		assertTrue(deleteMessages1From0(toDelete).hasNotAllInvitationSelected());
 		assertFalse(deleteMessages0From1(toDelete).allDeleted());
-		assertTrue(deleteMessages0From1(toDelete).hasInvitation());
-		assertTrue(deleteMessages0From1(toDelete).hasNotAllSelected());
+		assertTrue(deleteMessages0From1(toDelete).hasNotAllInvitationSelected());
 
 		// after selecting response, both messages can be deleted
 		m0 = getMessages1From0();
@@ -1028,9 +1023,8 @@ public class ForumSharingIntegrationTest
 
 		// 1 can still not delete the messages, as last one has not been ACKed
 		assertFalse(deleteMessages0From1(toDelete).allDeleted());
-		assertFalse(deleteMessages0From1(toDelete).hasNotAllSelected());
-		assertTrue(deleteMessages0From1(toDelete).hasInvitation());
-		assertTrue(deleteMessages0From1(toDelete).hasSessionInProgress());
+		assertFalse(deleteMessages0From1(toDelete).hasNotAllInvitationSelected());
+		assertTrue(deleteMessages0From1(toDelete).hasInvitationSessionInProgress());
 
 		// 0 sends an ACK to their last message
 		sendAcks(c0, c1, contactId1From0, 1);

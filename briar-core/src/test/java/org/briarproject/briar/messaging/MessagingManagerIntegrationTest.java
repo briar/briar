@@ -280,38 +280,30 @@ public class MessagingManagerIntegrationTest
 		PrivateMessage m =
 				sendMessage(c0, c1, getRandomString(42), singletonList(h));
 
-		// attachment exists on both devices, state is set to PENDING
-		db0.transaction(false, txn -> {
-			db0.getMessage(txn, h.getMessageId());
-			db0.setMessageState(txn, h.getMessageId(), PENDING);
-		});
+		// attachment exists on both devices, state set to PENDING for receiver
 		db1.transaction(false, txn -> {
 			db1.getMessage(txn, h.getMessageId());
 			db1.setMessageState(txn, h.getMessageId(), PENDING);
 		});
 
-		// deleting message fails (on both sides),
-		// because attachment is not yet delivered
+		// deleting succeeds for sender
 		Set<MessageId> toDelete = singleton(m.getMessage().getId());
 		DeletionResult result0 = db0.transactionWithResult(false, txn ->
 				messagingManager0.deleteMessages(txn, contactId, toDelete));
-		assertFalse(result0.allDeleted());
-		assertTrue(result0.hasNotFullyDownloaded());
+		assertTrue(result0.allDeleted());
+
+		// deleting message fails for receiver,
+		// because attachment is not yet delivered
 		DeletionResult result1 = db1.transactionWithResult(false, txn ->
 				messagingManager1.deleteMessages(txn, contactId, toDelete));
 		assertFalse(result1.allDeleted());
 		assertTrue(result1.hasNotFullyDownloaded());
 
 		// deliver attachment
-		db0.transaction(false,
-				txn -> db0.setMessageState(txn, h.getMessageId(), DELIVERED));
 		db1.transaction(false,
 				txn -> db1.setMessageState(txn, h.getMessageId(), DELIVERED));
 
-		// deleting message and attachment on both sides works now
-		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete))
-				.allDeleted());
+		// deleting message and attachment works for sender now
 		assertTrue(db1.transactionWithResult(false, txn ->
 				messagingManager1.deleteMessages(txn, contactId, toDelete))
 				.allDeleted());

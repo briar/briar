@@ -695,7 +695,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						result.addIntroductionSessionInProgress();
 					if (!selected.contains(m))
 						result.addIntroductionNotAllSelected();
-					break;
 				}
 			}
 			// delete messages of session, if all were ACKed

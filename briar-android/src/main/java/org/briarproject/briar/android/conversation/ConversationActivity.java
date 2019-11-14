@@ -899,17 +899,15 @@ public class ConversationActivity extends BriarActivity
 		StringBuilder msg = new StringBuilder();
 		// get failures the user can not immediately prevent
 		StringBuilder fails = new StringBuilder();
-		if (result.hasSessionInProgress()) {
-			if (result.hasIntroduction()) {
-				String s = getString(
-						R.string.dialog_message_not_deleted_ongoing_introductions);
-				fails.append(s).append("\n");
-			}
-			if (result.hasInvitation()) {
-				String s = getString(
-						R.string.dialog_message_not_deleted_ongoing_invitations);
-				fails.append(s).append("\n");
-			}
+		if (result.hasIntroductionSessionInProgress()) {
+			String s = getString(
+					R.string.dialog_message_not_deleted_ongoing_introductions);
+			fails.append(s).append("\n");
+		}
+		if (result.hasInvitationSessionInProgress()) {
+			String s = getString(
+					R.string.dialog_message_not_deleted_ongoing_invitations);
+			fails.append(s).append("\n");
 		}
 		if (result.hasNotFullyDownloaded()) {
 			String s = getString(
@@ -923,7 +921,8 @@ public class ConversationActivity extends BriarActivity
 			msg.append(s);
 		}
 		// add problems the user can resolve
-		if (result.hasNotAllSelected()) {
+		if (result.hasNotAllIntroductionSelected() ||
+				result.hasNotAllInvitationSelected()) {
 			if (msg.length() > 0) msg.append("\n\n");
 			String s = getString(
 					R.string.dialog_message_not_deleted_not_all_selected);

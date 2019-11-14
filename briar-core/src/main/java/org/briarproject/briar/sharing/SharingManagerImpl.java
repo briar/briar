@@ -677,7 +677,6 @@ abstract class SharingManagerImpl<S extends Shareable>
 						result.addInvitationSessionInProgress();
 					if (checker.causesProblem(m))
 						result.addInvitationNotAllSelected();
-					break;
 				}
 			}
 			if (sessionDeletable) {
