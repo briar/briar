@@ -13,6 +13,8 @@
 	<uses-feature
 		android:name="android.hardware.touchscreen"
 		android:required="false"/>
+	<uses-feature android:name="android.software.leanback"
+        android:required="false" />
 
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
@@ -38,6 +40,7 @@
 		android:icon="@mipmap/ic_launcher_round"
 		android:label="@string/app_name"
 		android:logo="@mipmap/ic_launcher_round"
+		android:banner="@mipmap/tv_banner"
 		android:supportsRtl="true"
 		android:theme="@style/BriarTheme"
 		tools:ignore="GoogleAppIndexingWarning"
@@ -99,6 +102,7 @@
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN"/>
 				<category android:name="android.intent.category.LAUNCHER"/>
+				<category android:name="android.intent.category.LEANBACK_LAUNCHER" />
 			</intent-filter>
 		</activity>
 
