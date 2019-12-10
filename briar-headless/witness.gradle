@@ -1,6 +1,6 @@
 dependencyVerification {
     verify = [
-        'com.fasterxml.jackson.core:jackson-annotations:2.10.0:jackson-annotations-2.10.0.jar:3fa91d84956594824552f2316b79b287532c1dd362bfafff9f5056632c81ba17',
+        'com.fasterxml.jackson.core:jackson-annotations:2.10.0:jackson-annotations-2.10.0.jar:77a0846219774a8269bc1b38cc00294908d34e77f8a9da34d97673982f75853d',
         'com.fasterxml.jackson.core:jackson-core:2.10.0:jackson-core-2.10.0.jar:69e7695b1e40834fa1242fc328a4010607911ced3706ab79abc769d451197513',
         'com.fasterxml.jackson.core:jackson-databind:2.10.0:jackson-databind-2.10.0.jar:8e6c566c67fc61a96c5dfc4a71d430f2565765778ec9a6ef216c5460a9911b60',
         'com.github.ajalt:clikt:2.2.0:clikt-2.2.0.jar:beb3136d06764ec8ce0810a8fd6c8b7b49d04287d1deef3a07c016e43a458d33',
