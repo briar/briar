@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -159,9 +160,11 @@ public class MessagingManagerIntegrationTest
 
 		// delete all messages on both sides (deletes all, because returns true)
 		assertTrue(db0.transactionWithResult(false,
-				txn -> messagingManager0.deleteAllMessages(txn, contactId)));
+				txn -> messagingManager0.deleteAllMessages(txn, contactId))
+				.allDeleted());
 		assertTrue(db1.transactionWithResult(false,
-				txn -> messagingManager1.deleteAllMessages(txn, contactId)));
+				txn -> messagingManager1.deleteAllMessages(txn, contactId))
+				.allDeleted());
 
 		// all messages are gone
 		assertEquals(0, getMessages(c0).size());
@@ -185,9 +188,11 @@ public class MessagingManagerIntegrationTest
 		toDelete.add(m1.getMessage().getId());
 		toDelete.add(m2.getMessage().getId());
 		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete)));
+				messagingManager0.deleteMessages(txn, contactId, toDelete))
+				.allDeleted());
 		assertTrue(db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete)));
+				messagingManager1.deleteMessages(txn, contactId, toDelete))
+				.allDeleted());
 
 		// all messages except 1 are gone
 		assertEquals(1, getMessages(c0).size());
@@ -203,7 +208,8 @@ public class MessagingManagerIntegrationTest
 		toDelete.clear();
 		toDelete.add(m0.getMessage().getId());
 		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete)));
+				messagingManager0.deleteMessages(txn, contactId, toDelete))
+				.allDeleted());
 		assertEquals(0, getMessages(c0).size());
 		assertGroupCounts(c0, 0, 0);
 	}
@@ -225,9 +231,9 @@ public class MessagingManagerIntegrationTest
 		Set<MessageId> toDelete = new HashSet<>();
 		toDelete.add(m0.getMessage().getId());
 		assertTrue(c0.getConversationManager()
-				.deleteMessages(contactId, toDelete));
+				.deleteMessages(contactId, toDelete).allDeleted());
 		assertTrue(c1.getConversationManager()
-				.deleteMessages(contactId, toDelete));
+				.deleteMessages(contactId, toDelete).allDeleted());
 
 		// message was deleted
 		assertEquals(0, getMessages(c0).size());
@@ -246,9 +252,11 @@ public class MessagingManagerIntegrationTest
 
 		// delete message on both sides (deletes all, because returns true)
 		assertTrue(db0.transactionWithResult(false,
-				txn -> messagingManager0.deleteAllMessages(txn, contactId)));
+				txn -> messagingManager0.deleteAllMessages(txn, contactId))
+				.allDeleted());
 		assertTrue(db1.transactionWithResult(false,
-				txn -> messagingManager1.deleteAllMessages(txn, contactId)));
+				txn -> messagingManager1.deleteAllMessages(txn, contactId))
+				.allDeleted());
 
 		// attachment was deleted on both devices
 		try {
@@ -272,35 +280,33 @@ public class MessagingManagerIntegrationTest
 		PrivateMessage m =
 				sendMessage(c0, c1, getRandomString(42), singletonList(h));
 
-		// attachment exists on both devices, state is set to PENDING
-		db0.transaction(false, txn -> {
-			db0.getMessage(txn, h.getMessageId());
-			db0.setMessageState(txn, h.getMessageId(), PENDING);
-		});
+		// attachment exists on both devices, state set to PENDING for receiver
 		db1.transaction(false, txn -> {
 			db1.getMessage(txn, h.getMessageId());
 			db1.setMessageState(txn, h.getMessageId(), PENDING);
 		});
 
-		// deleting message fails (on both sides),
-		// because attachment is not yet delivered
+		// deleting succeeds for sender
 		Set<MessageId> toDelete = singleton(m.getMessage().getId());
-		assertFalse(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete)));
-		assertFalse(db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete)));
+		DeletionResult result0 = db0.transactionWithResult(false, txn ->
+				messagingManager0.deleteMessages(txn, contactId, toDelete));
+		assertTrue(result0.allDeleted());
+
+		// deleting message fails for receiver,
+		// because attachment is not yet delivered
+		DeletionResult result1 = db1.transactionWithResult(false, txn ->
+				messagingManager1.deleteMessages(txn, contactId, toDelete));
+		assertFalse(result1.allDeleted());
+		assertTrue(result1.hasNotFullyDownloaded());
 
 		// deliver attachment
-		db0.transaction(false,
-				txn -> db0.setMessageState(txn, h.getMessageId(), DELIVERED));
 		db1.transaction(false,
 				txn -> db1.setMessageState(txn, h.getMessageId(), DELIVERED));
 
-		// deleting message and attachment on both sides works now
-		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, toDelete)));
+		// deleting message and attachment works for sender now
 		assertTrue(db1.transactionWithResult(false, txn ->
-				messagingManager1.deleteMessages(txn, contactId, toDelete)));
+				messagingManager1.deleteMessages(txn, contactId, toDelete))
+				.allDeleted());
 
 		// attachment was deleted on both devices
 		try {
@@ -320,7 +326,8 @@ public class MessagingManagerIntegrationTest
 	@Test
 	public void testDeletingEmptySet() throws Exception {
 		assertTrue(db0.transactionWithResult(false, txn ->
-				messagingManager0.deleteMessages(txn, contactId, emptySet())));
+				messagingManager0.deleteMessages(txn, contactId, emptySet()))
+				.allDeleted());
 	}
 
 	private PrivateMessage sendMessage(BriarIntegrationTestComponent from,

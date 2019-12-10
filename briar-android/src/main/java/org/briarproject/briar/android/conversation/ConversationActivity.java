@@ -67,6 +67,7 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.conversation.ConversationResponse;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
@@ -857,9 +858,9 @@ public class ConversationActivity extends BriarActivity
 		list.showProgressBar();
 		runOnDbThread(() -> {
 			try {
-				boolean allDeleted =
+				DeletionResult result =
 						conversationManager.deleteAllMessages(contactId);
-				reloadConversationAfterDeletingMessages(allDeleted);
+				reloadConversationAfterDeletingMessages(result);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				runOnUiThreadUnlessDestroyed(() -> list.showData());
@@ -874,9 +875,9 @@ public class ConversationActivity extends BriarActivity
 		if (actionMode != null) actionMode.finish();
 		runOnDbThread(() -> {
 			try {
-				boolean allDeleted =
+				DeletionResult result =
 						conversationManager.deleteMessages(contactId, selected);
-				reloadConversationAfterDeletingMessages(allDeleted);
+				reloadConversationAfterDeletingMessages(result);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				runOnUiThreadUnlessDestroyed(() -> list.showData());
@@ -885,22 +886,54 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void reloadConversationAfterDeletingMessages(
-			boolean allDeleted) {
+			DeletionResult result) {
 		runOnUiThreadUnlessDestroyed(() -> {
 			adapter.clear();
 			list.showProgressBar();  // otherwise clearing shows empty state
 			loadMessages();
-			if (!allDeleted) showNotAllDeletedDialog();
+			if (!result.allDeleted()) showNotAllDeletedDialog(result);
 		});
 	}
 
-	private void showNotAllDeletedDialog() {
+	private void showNotAllDeletedDialog(DeletionResult result) {
+		StringBuilder msg = new StringBuilder();
+		// get failures the user can not immediately prevent
+		StringBuilder fails = new StringBuilder();
+		if (result.hasIntroductionSessionInProgress()) {
+			String s = getString(
+					R.string.dialog_message_not_deleted_ongoing_introductions);
+			fails.append(s).append("\n");
+		}
+		if (result.hasInvitationSessionInProgress()) {
+			String s = getString(
+					R.string.dialog_message_not_deleted_ongoing_invitations);
+			fails.append(s).append("\n");
+		}
+		if (result.hasNotFullyDownloaded()) {
+			String s = getString(
+					R.string.dialog_message_not_deleted_partly_downloaded);
+			fails.append(s).append("\n");
+		}
+		// add failures to message if there are any
+		if (fails.length() > 0) {
+			String s = getString(R.string.dialog_message_not_deleted,
+					fails.toString());
+			msg.append(s);
+		}
+		// add problems the user can resolve
+		if (result.hasNotAllIntroductionSelected() ||
+				result.hasNotAllInvitationSelected()) {
+			if (msg.length() > 0) msg.append("\n\n");
+			String s = getString(
+					R.string.dialog_message_not_deleted_not_all_selected);
+			msg.append(s);
+		}
+		// show dialog
 		AlertDialog.Builder builder =
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(
 				getString(R.string.dialog_title_not_all_messages_deleted));
-		builder.setMessage(
-				getString(R.string.dialog_message_not_all_messages_deleted));
+		builder.setMessage(msg.toString());
 		builder.setPositiveButton(R.string.ok, null);
 		builder.show();
 	}
@@ -912,7 +945,8 @@ public class ConversationActivity extends BriarActivity
 				new AlertDialog.Builder(ConversationActivity.this,
 						R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_delete_contact));
-		builder.setMessage(getString(R.string.dialog_message_delete_contact));
+		builder.setMessage(
+				getString(R.string.dialog_message_delete_contact));
 		builder.setNegativeButton(R.string.delete, okListener);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
@@ -953,7 +987,8 @@ public class ConversationActivity extends BriarActivity
 
 	private void showImageOnboarding() {
 		// TODO: remove cast when removing feature flag
-		((TextAttachmentController) sendController).showImageOnboarding(this);
+		((TextAttachmentController) sendController)
+				.showImageOnboarding(this);
 	}
 
 	private void showIntroductionOnboarding(@Nullable Boolean show) {
@@ -973,7 +1008,8 @@ public class ConversationActivity extends BriarActivity
 		View target = null;
 		for (int i = 0; i < toolbar.getChildCount(); i++) {
 			if (toolbar.getChildAt(i) instanceof ActionMenuView) {
-				ActionMenuView menu = (ActionMenuView) toolbar.getChildAt(i);
+				ActionMenuView menu =
+						(ActionMenuView) toolbar.getChildAt(i);
 				// The overflow icon should be the last child of the menu
 				target = menu.getChildAt(menu.getChildCount() - 1);
 				// If the menu hasn't been populated yet, use the menu itself
@@ -999,7 +1035,8 @@ public class ConversationActivity extends BriarActivity
 
 	@UiThread
 	@Override
-	public void respondToRequest(ConversationRequestItem item, boolean accept) {
+	public void respondToRequest(ConversationRequestItem item,
+			boolean accept) {
 		item.setAnswered();
 		int position = adapter.findItemPosition(item);
 		if (position != INVALID_POSITION) {

@@ -32,6 +32,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVer
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -561,73 +562,49 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@FunctionalInterface
 	private interface MessageRetriever {
-		Map<MessageId, BdfDictionary> getMessages(Transaction txn,
-				GroupId contactGroup) throws DbException;
-	}
-
-	@FunctionalInterface
-	private interface MessageDeletionChecker {
 		/**
-		 * This is called for all messages belonging to a session.
-		 * It returns true if the given {@link MessageId} causes a problem
-		 * so that the session can not be deleted.
+		 * Returns a set of messages that should be deleted.
+		 * These must be a subset of the given set of all messages.
 		 */
-		boolean causesProblem(MessageId messageId);
+		Set<MessageId> getMessages(Set<MessageId> allMessages);
 	}
 
 	@Override
-	public boolean deleteAllMessages(Transaction txn, ContactId c)
+	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
-		return deleteMessages(txn, c, (txn1, g) -> {
-			// get metadata for all messages in the group
-			Map<MessageId, BdfDictionary> messages;
-			try {
-				messages = clientHelper.getMessageMetadataAsDictionary(txn1, g);
-			} catch (FormatException e) {
-				throw new DbException(e);
-			}
-			return messages;
-		}, messageId -> false);
+		return deleteMessages(txn, c, allMessages -> allMessages);
 	}
 
 	@Override
-	public boolean deleteMessages(Transaction txn, ContactId c,
+	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
-		return deleteMessages(txn, c, (txn1, g) -> {
-			// get metadata for messages that shall be deleted
-			Map<MessageId, BdfDictionary> messages =
-					new HashMap<>(messageIds.size());
-			for (MessageId m : messageIds) {
-				BdfDictionary d;
-				try {
-					d = clientHelper.getMessageMetadataAsDictionary(txn1, m);
-				} catch (FormatException e) {
-					throw new DbException(e);
-				}
-				// If message metadata does not exist,
-				// getMessageMetadataAsDictionary(txn, m) returns empty Metadata
-				if (!d.isEmpty()) messages.put(m, d);
-			}
-			return messages;
-			// don't delete sessions if a message is not part of messageIds
-		}, messageId -> !messageIds.contains(messageId));
+		return deleteMessages(txn, c, allMessages -> messageIds);
 	}
 
-	private boolean deleteMessages(Transaction txn, ContactId c,
-			MessageRetriever retriever, MessageDeletionChecker checker)
-			throws DbException {
+	private DeletionResult deleteMessages(Transaction txn, ContactId c,
+			MessageRetriever retriever) throws DbException {
 		// get ID of the contact group
 		GroupId g = getContactGroup(db.getContact(txn, c)).getId();
 
-		// get messages to be deleted
-		Map<MessageId, BdfDictionary> messages = retriever.getMessages(txn, g);
+		// get metadata for all messages in the group
+		Map<MessageId, BdfDictionary> messages;
+		try {
+			messages = clientHelper.getMessageMetadataAsDictionary(txn, g);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 
-		// assign protocol messages to their sessions
+		// get messages to be deleted
+		Set<MessageId> selected = retriever.getMessages(messages.keySet());
+
+		// get sessions for selected messages
 		Map<SessionId, DeletableSession> sessions = new HashMap<>();
-		for (Entry<MessageId, BdfDictionary> entry : messages.entrySet()) {
+		for (MessageId id : selected) {
+			BdfDictionary d = messages.get(id);
+			if (d == null) continue;  // throw new NoSuchMessageException()
 			MessageMetadata m;
 			try {
-				m = messageParser.parseMetadata(entry.getValue());
+				m = messageParser.parseMetadata(d);
 			} catch (FormatException e) {
 				throw new DbException(e);
 			}
@@ -644,6 +621,31 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				session = getDeletableSession(txn, g, m.getSessionId());
 				sessions.put(m.getSessionId(), session);
 			}
+			session.messages.add(id);
+		}
+
+		// assign other protocol messages to their sessions
+		for (Entry<MessageId, BdfDictionary> entry : messages.entrySet()) {
+			// we handled selected messages above
+			if (selected.contains(entry.getKey())) continue;
+
+			MessageMetadata m;
+			try {
+				m = messageParser.parseMetadata(entry.getValue());
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+			if (!m.isVisibleInConversation()) continue;
+			if (m.getSessionId() == null) {
+				// This can only be an unhandled REQUEST message.
+				// Its session is created and stored in incomingMessage(),
+				// and getMessageMetadata() only returns delivered messages,
+				// so the session ID should have been assigned.
+				throw new AssertionError("missing session ID");
+			}
+			// get session from map or database
+			DeletableSession session = sessions.get(m.getSessionId());
+			if (session == null) continue;  // not a session of a selected msg
 			session.messages.add(entry.getKey());
 		}
 
@@ -652,10 +654,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
 			if (!status.isSeen()) notAcked.add(status.getMessageId());
 		}
-		boolean allDeleted =
-				deleteCompletedSessions(txn, sessions, notAcked, checker);
+		DeletionResult result =
+				deleteCompletedSessions(txn, sessions, notAcked, selected);
 		recalculateGroupCount(txn, g);
-		return allDeleted;
+		return result;
 	}
 
 	private DeletableSession getDeletableSession(Transaction txn,
@@ -677,28 +679,30 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private boolean deleteCompletedSessions(Transaction txn,
+	private DeletionResult deleteCompletedSessions(Transaction txn,
 			Map<SessionId, DeletableSession> sessions, Set<MessageId> notAcked,
-			MessageDeletionChecker checker) throws DbException {
+			Set<MessageId> selected) throws DbException {
 		// find completed sessions to delete
-		boolean allDeleted = true;
+		DeletionResult result = new DeletionResult();
 		for (DeletableSession session : sessions.values()) {
 			if (!session.state.isComplete()) {
-				allDeleted = false;
+				result.addIntroductionSessionInProgress();
 				continue;
 			}
 			// we can only delete sessions
 			// where delivery of all messages was confirmed (aka ACKed)
-			boolean allAcked = true;
+			boolean sessionDeletable = true;
 			for (MessageId m : session.messages) {
-				if (notAcked.contains(m) || checker.causesProblem(m)) {
-					allAcked = false;
-					allDeleted = false;
-					break;
+				if (notAcked.contains(m) || !selected.contains(m)) {
+					sessionDeletable = false;
+					if (notAcked.contains(m))
+						result.addIntroductionSessionInProgress();
+					if (!selected.contains(m))
+						result.addIntroductionNotAllSelected();
 				}
 			}
 			// delete messages of session, if all were ACKed
-			if (allAcked) {
+			if (sessionDeletable) {
 				for (MessageId m : session.messages) {
 					db.deleteMessage(txn, m);
 					db.deleteMessageMetadata(txn, m);
@@ -707,7 +711,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				// and then needs the previous MessageIds
 			}
 		}
-		return allDeleted;
+		return result;
 	}
 
 	@Override

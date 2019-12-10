@@ -139,7 +139,11 @@
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>
 	<string name="dialog_title_not_all_messages_deleted">Could not delete all messages</string>
-	<string name="dialog_message_not_all_messages_deleted">Messages related to\n\n• ongoing introductions\n• ongoing (blog/forum/group) invitations\n• partly downloaded messages\n\ncannot be deleted until they conclude.</string>
+	<string name="dialog_message_not_deleted">Messages related to\n\n%s\ncan not be deleted until they conclude.</string>
+	<string name="dialog_message_not_deleted_ongoing_introductions">• ongoing introductions</string>
+	<string name="dialog_message_not_deleted_ongoing_invitations">• ongoing (blog/forum/group) invitations</string>
+	<string name="dialog_message_not_deleted_partly_downloaded">• partly downloaded messages</string>
+	<string name="dialog_message_not_deleted_not_all_selected">To delete an invitation/introduction, you need to select the request and the response.</string>
 	<string name="delete_contact">Delete contact</string>
 	<string name="dialog_title_delete_contact">Confirm Contact Deletion</string>
 	<string name="dialog_message_delete_contact">Are you sure that you want to remove this contact and all messages exchanged with this contact?</string>

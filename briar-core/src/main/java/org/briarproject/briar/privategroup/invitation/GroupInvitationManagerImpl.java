@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVer
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -636,7 +637,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public boolean deleteAllMessages(Transaction txn, ContactId c)
+	public DeletionResult deleteAllMessages(Transaction txn, ContactId c)
 			throws DbException {
 		return deleteMessages(txn, c, (txn1, g, metadata) -> {
 			// get all sessions and their states
@@ -657,7 +658,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public boolean deleteMessages(Transaction txn, ContactId c,
+	public DeletionResult deleteMessages(Transaction txn, ContactId c,
 			Set<MessageId> messageIds) throws DbException {
 		return deleteMessages(txn, c, (txn1, g, metadata) -> {
 			// get only sessions from given messageIds
@@ -685,7 +686,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}, messageId -> !messageIds.contains(messageId));
 	}
 
-	private boolean deleteMessages(Transaction txn, ContactId c,
+	private DeletionResult deleteMessages(Transaction txn, ContactId c,
 			DeletableSessionRetriever retriever, MessageDeletionChecker checker)
 			throws DbException {
 		// get ID of the contact group
@@ -729,40 +730,42 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		for (MessageStatus status : db.getMessageStatus(txn, c, g)) {
 			if (!status.isSeen()) notAcked.add(status.getMessageId());
 		}
-		boolean allDeleted = deleteCompletedSessions(txn, sessions.values(),
+		DeletionResult result = deleteCompletedSessions(txn, sessions.values(),
 				notAcked, checker);
 		recalculateGroupCount(txn, g);
-		return allDeleted;
+		return result;
 	}
 
-	private boolean deleteCompletedSessions(Transaction txn,
+	private DeletionResult deleteCompletedSessions(Transaction txn,
 			Collection<DeletableSession> sessions, Set<MessageId> notAcked,
 			MessageDeletionChecker checker) throws DbException {
 		// find completed sessions to delete
-		boolean allDeleted = true;
+		DeletionResult result = new DeletionResult();
 		for (DeletableSession session : sessions) {
 			if (session.state.isAwaitingResponse()) {
-				allDeleted = false;
+				result.addInvitationSessionInProgress();
 				continue;
 			}
 			// we can only delete sessions
 			// where delivery of all messages was confirmed (aka ACKed)
-			boolean allAcked = true;
+			boolean sessionDeletable = true;
 			for (MessageId m : session.messages) {
 				if (notAcked.contains(m) || checker.causesProblem(m)) {
-					allAcked = false;
-					allDeleted = false;
-					break;
+					sessionDeletable = false;
+					if (notAcked.contains(m))
+						result.addInvitationSessionInProgress();
+					if (checker.causesProblem(m))
+						result.addInvitationNotAllSelected();
 				}
 			}
-			if (allAcked) {
+			if (sessionDeletable) {
 				for (MessageId m : session.messages) {
 					db.deleteMessage(txn, m);
 					db.deleteMessageMetadata(txn, m);
 				}
 			}
 		}
-		return allDeleted;
+		return result;
 	}
 
 	@Override
