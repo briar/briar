@@ -1,6 +1,6 @@
 package org.briarproject.briar.headless.forums
 
-import io.javalin.BadRequestResponse
+import io.javalin.http.BadRequestResponse
 import io.mockk.every
 import io.mockk.mockk
 import org.briarproject.bramble.test.TestUtils.getRandomBytes

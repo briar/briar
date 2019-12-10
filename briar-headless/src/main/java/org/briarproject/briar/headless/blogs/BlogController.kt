@@ -1,6 +1,6 @@
 package org.briarproject.briar.headless.blogs
 
-import io.javalin.Context
+import io.javalin.http.Context
 
 interface BlogController {
 

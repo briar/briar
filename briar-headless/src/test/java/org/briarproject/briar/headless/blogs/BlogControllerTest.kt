@@ -1,7 +1,7 @@
 package org.briarproject.briar.headless.blogs
 
-import io.javalin.BadRequestResponse
-import io.javalin.json.JavalinJson.toJson
+import io.javalin.http.BadRequestResponse
+import io.javalin.plugin.json.JavalinJson.toJson
 import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just

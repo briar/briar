@@ -1,9 +1,9 @@
 package org.briarproject.briar.headless.contact
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import io.javalin.BadRequestResponse
-import io.javalin.Context
-import io.javalin.NotFoundResponse
+import io.javalin.http.BadRequestResponse
+import io.javalin.http.Context
+import io.javalin.http.NotFoundResponse
 import org.briarproject.bramble.api.contact.ContactManager
 import org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX
 import org.briarproject.bramble.api.contact.PendingContactId
