@@ -562,6 +562,10 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@FunctionalInterface
 	private interface MessageRetriever {
+		/**
+		 * Returns a set of messages that should be deleted.
+		 * These must be a subset of the given set of all messages.
+		 */
 		Set<MessageId> getMessages(Set<MessageId> allMessages);
 	}
 
