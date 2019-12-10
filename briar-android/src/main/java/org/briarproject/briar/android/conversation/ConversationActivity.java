@@ -130,6 +130,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
+import static org.briarproject.bramble.util.StringUtils.join;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_ATTACH_IMAGE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_INTRODUCTION;
 import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHMENTS;
@@ -896,44 +897,42 @@ public class ConversationActivity extends BriarActivity
 	}
 
 	private void showNotAllDeletedDialog(DeletionResult result) {
-		StringBuilder msg = new StringBuilder();
-		// get failures the user can not immediately prevent
-		StringBuilder fails = new StringBuilder();
-		if (result.hasIntroductionSessionInProgress()) {
-			String s = getString(
-					R.string.dialog_message_not_deleted_ongoing_introductions);
-			fails.append(s).append("\n");
-		}
-		if (result.hasInvitationSessionInProgress()) {
-			String s = getString(
-					R.string.dialog_message_not_deleted_ongoing_invitations);
-			fails.append(s).append("\n");
+		List<String> fails = new ArrayList<>();
+		// get failures the user cannot immediately resolve
+		if (result.hasIntroductionSessionInProgress() &&
+				result.hasInvitationSessionInProgress()) {
+			fails.add(getString(
+					R.string.dialog_message_not_deleted_ongoing_both));
+		} else if (result.hasIntroductionSessionInProgress()) {
+			fails.add(getString(
+					R.string.dialog_message_not_deleted_ongoing_introductions));
+		} else if (result.hasInvitationSessionInProgress()) {
+			fails.add(getString(
+					R.string.dialog_message_not_deleted_ongoing_invitations));
 		}
 		if (result.hasNotFullyDownloaded()) {
-			String s = getString(
-					R.string.dialog_message_not_deleted_partly_downloaded);
-			fails.append(s).append("\n");
-		}
-		// add failures to message if there are any
-		if (fails.length() > 0) {
-			String s = getString(R.string.dialog_message_not_deleted,
-					fails.toString());
-			msg.append(s);
+			fails.add(getString(
+					R.string.dialog_message_not_deleted_partly_downloaded));
 		}
 		// add problems the user can resolve
-		if (result.hasNotAllIntroductionSelected() ||
+		if (result.hasNotAllIntroductionSelected() &&
 				result.hasNotAllInvitationSelected()) {
-			if (msg.length() > 0) msg.append("\n\n");
-			String s = getString(
-					R.string.dialog_message_not_deleted_not_all_selected);
-			msg.append(s);
+			fails.add(getString(
+					R.string.dialog_message_not_deleted_not_all_selected_both));
+		} else if (result.hasNotAllIntroductionSelected()) {
+			fails.add(getString(
+					R.string.dialog_message_not_deleted_not_all_selected_introductions));
+		} else if (result.hasNotAllInvitationSelected()) {
+			fails.add(getString(
+					R.string.dialog_message_not_deleted_not_all_selected_invitations));
 		}
+		String msg = join(fails, "\n\n");
 		// show dialog
 		AlertDialog.Builder builder =
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(
 				getString(R.string.dialog_title_not_all_messages_deleted));
-		builder.setMessage(msg.toString());
+		builder.setMessage(msg);
 		builder.setPositiveButton(R.string.ok, null);
 		builder.show();
 	}
