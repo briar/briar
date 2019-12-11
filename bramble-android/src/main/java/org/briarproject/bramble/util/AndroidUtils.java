@@ -8,12 +8,12 @@ import android.provider.Settings;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Arrays.asList;
 
 public class AndroidUtils {
 
@@ -26,7 +26,7 @@ public class AndroidUtils {
 	public static Collection<String> getSupportedArchitectures() {
 		List<String> abis = new ArrayList<>();
 		if (SDK_INT >= 21) {
-			abis.addAll(Arrays.asList(Build.SUPPORTED_ABIS));
+			abis.addAll(asList(Build.SUPPORTED_ABIS));
 		} else {
 			abis.add(Build.CPU_ABI);
 			if (Build.CPU_ABI2 != null) abis.add(Build.CPU_ABI2);
@@ -56,5 +56,16 @@ public class AndroidUtils {
 
 	public static File getReportDir(Context ctx) {
 		return ctx.getDir(STORED_REPORTS, MODE_PRIVATE);
+	}
+
+	/**
+	 * Returns an array of supported content types for image attachments.
+	 * GIFs can't be compressed on API < 24 so they're not supported.
+	 * <p>
+	 * TODO: Remove this restriction when large message support is added
+	 */
+	public static String[] getSupportedImageContentTypes() {
+		if (SDK_INT < 24) return new String[] {"image/jpeg", "image/png"};
+		else return new String[] {"image/jpeg", "image/png", "image/gif"};
 	}
 }

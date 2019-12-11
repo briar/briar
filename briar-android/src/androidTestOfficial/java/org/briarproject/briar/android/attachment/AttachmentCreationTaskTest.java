@@ -11,9 +11,11 @@ import java.util.logging.Logger;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static androidx.test.InstrumentationRegistry.getContext;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static java.util.logging.Logger.getLogger;
+import static org.junit.Assume.assumeTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class AttachmentCreationTaskTest {
@@ -30,30 +32,55 @@ public class AttachmentCreationTaskTest {
 			imageSizeCalculator, null, null, true);
 
 	@Test
-	public void testCompress() throws Exception {
-		InputStream is = getAssetInputStream("animated.gif");
-		task.compressImage(is, "image/gif");
+	public void testCompress100x100Png() throws Exception {
+		testCompress("red-100x100.png", "image/png");
+	}
 
-		is = getAssetInputStream("animated2.gif");
-		task.compressImage(is, "image/gif");
+	@Test
+	public void testCompress500x500Png() throws Exception {
+		testCompress("blue-500x500.png", "image/png");
+	}
 
-		is = getAssetInputStream("blue-500x500.png");
-		task.compressImage(is, "image/png");
+	@Test
+	public void testCompress1000x2000Png() throws Exception {
+		testCompress("green-1000x2000.png", "image/png");
+	}
 
-		is = getAssetInputStream("error_high.jpg");
-		task.compressImage(is, "image/jpeg");
+	@Test
+	public void testCompressVeryHighJpg() throws Exception {
+		testCompress("error_high.jpg", "image/jpeg");
+	}
 
-		is = getAssetInputStream("error_large.gif");
-		task.compressImage(is, "image/gif");
+	@Test
+	public void testCompressVeryWideJpg() throws Exception {
+		testCompress("error_wide.jpg", "image/jpeg");
+	}
 
-		is = getAssetInputStream("error_wide.jpg");
-		task.compressImage(is, "image/jpeg");
+	@Test
+	public void testCompressAnimatedGif1() throws Exception {
+		// TODO: Remove this assumption when we support large messages
+		assumeTrue(SDK_INT >= 24);
+		testCompress("animated.gif", "image/gif");
+	}
 
-		is = getAssetInputStream("green-1000x2000.png");
-		task.compressImage(is, "image/png");
+	@Test
+	public void testCompressAnimatedGif2() throws Exception {
+		// TODO: Remove this assumption when we support large messages
+		assumeTrue(SDK_INT >= 24);
+		testCompress("animated2.gif", "image/gif");
+	}
 
-		is = getAssetInputStream("red-100x100.png");
-		task.compressImage(is, "image/png");
+	@Test
+	public void testCompressVeryLargeGif() throws Exception {
+		// TODO: Remove this assumption when we support large messages
+		assumeTrue(SDK_INT >= 24);
+		testCompress("error_large.gif", "image/gif");
+	}
+
+	private void testCompress(String filename, String contentType)
+			throws Exception {
+		InputStream is = getAssetInputStream(filename);
+		task.compressImage(is, contentType);
 	}
 
 	@Test

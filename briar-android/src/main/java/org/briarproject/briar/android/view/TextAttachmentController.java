@@ -40,8 +40,8 @@ import static android.widget.Toast.LENGTH_LONG;
 import static androidx.core.content.ContextCompat.getColor;
 import static androidx.customview.view.AbsSavedState.EMPTY_STATE;
 import static androidx.lifecycle.Lifecycle.State.DESTROYED;
+import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
-import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 
 @UiThread
@@ -131,7 +131,8 @@ public class TextAttachmentController extends TextSendController
 				ACTION_OPEN_DOCUMENT : ACTION_GET_CONTENT);
 		intent.setType("image/*");
 		intent.addCategory(CATEGORY_OPENABLE);
-		if (SDK_INT >= 19) intent.putExtra(EXTRA_MIME_TYPES, IMAGE_MIME_TYPES);
+		if (SDK_INT >= 19)
+			intent.putExtra(EXTRA_MIME_TYPES, getSupportedImageContentTypes());
 		if (SDK_INT >= 18) intent.putExtra(EXTRA_ALLOW_MULTIPLE, true);
 		return intent;
 	}

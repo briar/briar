@@ -26,14 +26,15 @@ import androidx.annotation.VisibleForTesting;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.BitmapFactory.decodeStream;
+import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
@@ -108,7 +109,7 @@ class AttachmentCreationTask {
 		long start = now();
 		String contentType = contentResolver.getType(uri);
 		if (contentType == null) throw new IOException("null content type");
-		if (!isValidMimeType(contentType)) {
+		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
 			String uriString = uri.toString();
 			throw new UnsupportedMimeTypeException("", contentType, uriString);
 		}
@@ -122,13 +123,6 @@ class AttachmentCreationTask {
 		tryToClose(is, LOG, WARNING);
 		logDuration(LOG, "Storing attachment", start);
 		return h;
-	}
-
-	private boolean isValidMimeType(String mimeType) {
-		for (String supportedType : IMAGE_MIME_TYPES) {
-			if (supportedType.equals(mimeType)) return true;
-		}
-		return false;
 	}
 
 	@VisibleForTesting
