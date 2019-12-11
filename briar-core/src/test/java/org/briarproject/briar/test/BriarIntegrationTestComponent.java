@@ -69,17 +69,6 @@ public interface BriarIntegrationTestComponent
 
 	void inject(SharingModule.EagerSingletons init);
 
-	default void injectBriarEagerSingletons() {
-		injectBrambleCoreEagerSingletons();
-		inject(new BlogModule.EagerSingletons());
-		inject(new ForumModule.EagerSingletons());
-		inject(new GroupInvitationModule.EagerSingletons());
-		inject(new IntroductionModule.EagerSingletons());
-		inject(new MessagingModule.EagerSingletons());
-		inject(new PrivateGroupModule.EagerSingletons());
-		inject(new SharingModule.EagerSingletons());
-	}
-
 	LifecycleManager getLifecycleManager();
 
 	EventBus getEventBus();
@@ -121,4 +110,19 @@ public interface BriarIntegrationTestComponent
 	BlogFactory getBlogFactory();
 
 	ConnectionManager getConnectionManager();
+
+	class Helper {
+
+		public static void injectEagerSingletons(
+				BriarIntegrationTestComponent c) {
+			BrambleCoreEagerSingletons.Helper.injectEagerSingletons(c);
+			c.inject(new BlogModule.EagerSingletons());
+			c.inject(new ForumModule.EagerSingletons());
+			c.inject(new GroupInvitationModule.EagerSingletons());
+			c.inject(new IntroductionModule.EagerSingletons());
+			c.inject(new MessagingModule.EagerSingletons());
+			c.inject(new PrivateGroupModule.EagerSingletons());
+			c.inject(new SharingModule.EagerSingletons());
+		}
+	}
 }

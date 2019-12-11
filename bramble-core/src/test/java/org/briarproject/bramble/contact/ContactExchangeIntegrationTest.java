@@ -1,5 +1,6 @@
 package org.briarproject.bramble.contact;
 
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -61,11 +62,11 @@ public class ContactExchangeIntegrationTest extends BrambleTestCase {
 		alice = DaggerContactExchangeIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(
 						new TestDatabaseConfigModule(aliceDir)).build();
-		alice.injectBrambleCoreEagerSingletons();
+		BrambleCoreEagerSingletons.Helper.injectEagerSingletons(alice);
 		bob = DaggerContactExchangeIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(bobDir))
 				.build();
-		bob.injectBrambleCoreEagerSingletons();
+		BrambleCoreEagerSingletons.Helper.injectEagerSingletons(bob);
 		// Set up the devices and get the identities
 		aliceIdentity = setUp(alice, "Alice");
 		bobIdentity = setUp(bob, "Bob");

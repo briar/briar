@@ -28,15 +28,4 @@ import dagger.Module;
 		TestModule.class
 })
 public class BriarCoreModule {
-
-	public static void initEagerSingletons(BriarCoreEagerSingletons c) {
-		c.inject(new BlogModule.EagerSingletons());
-		c.inject(new FeedModule.EagerSingletons());
-		c.inject(new ForumModule.EagerSingletons());
-		c.inject(new GroupInvitationModule.EagerSingletons());
-		c.inject(new MessagingModule.EagerSingletons());
-		c.inject(new PrivateGroupModule.EagerSingletons());
-		c.inject(new SharingModule.EagerSingletons());
-		c.inject(new IntroductionModule.EagerSingletons());
-	}
 }

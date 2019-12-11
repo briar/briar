@@ -82,23 +82,23 @@ public class BlogSharingIntegrationTest
 	protected void createComponents() {
 		BriarIntegrationTestComponent component =
 				DaggerBriarIntegrationTestComponent.builder().build();
-		component.injectBriarEagerSingletons();
+		BriarIntegrationTestComponent.Helper.injectEagerSingletons(component);
 		component.inject(this);
 
 		c0 = DaggerBriarIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t0Dir))
 				.build();
-		c0.injectBriarEagerSingletons();
+		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c0);
 
 		c1 = DaggerBriarIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t1Dir))
 				.build();
-		c1.injectBriarEagerSingletons();
+		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c1);
 
 		c2 = DaggerBriarIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(t2Dir))
 				.build();
-		c2.injectBriarEagerSingletons();
+		BriarIntegrationTestComponent.Helper.injectEagerSingletons(c2);
 	}
 
 	@Test

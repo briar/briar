@@ -60,11 +60,13 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		alice = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(
 						new TestDatabaseConfigModule(aliceDir)).build();
-		alice.injectSimplexMessagingEagerSingletons();
+		SimplexMessagingIntegrationTestComponent.Helper
+				.injectEagerSingletons(alice);
 		bob = DaggerSimplexMessagingIntegrationTestComponent.builder()
 				.testDatabaseConfigModule(new TestDatabaseConfigModule(bobDir))
 				.build();
-		bob.injectSimplexMessagingEagerSingletons();
+		SimplexMessagingIntegrationTestComponent.Helper
+				.injectEagerSingletons(bob);
 	}
 
 	@Test

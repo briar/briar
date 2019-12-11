@@ -39,18 +39,21 @@ public interface BrambleCoreEagerSingletons {
 
 	void inject(VersioningModule.EagerSingletons init);
 
-	default void injectBrambleCoreEagerSingletons() {
-		inject(new ContactModule.EagerSingletons());
-		inject(new CryptoExecutorModule.EagerSingletons());
-		inject(new DatabaseExecutorModule.EagerSingletons());
-		inject(new IdentityModule.EagerSingletons());
-		inject(new LifecycleModule.EagerSingletons());
-		inject(new RendezvousModule.EagerSingletons());
-		inject(new PluginModule.EagerSingletons());
-		inject(new PropertiesModule.EagerSingletons());
-		inject(new SystemModule.EagerSingletons());
-		inject(new TransportModule.EagerSingletons());
-		inject(new ValidationModule.EagerSingletons());
-		inject(new VersioningModule.EagerSingletons());
+	class Helper {
+
+		public static void injectEagerSingletons(BrambleCoreEagerSingletons c) {
+			c.inject(new ContactModule.EagerSingletons());
+			c.inject(new CryptoExecutorModule.EagerSingletons());
+			c.inject(new DatabaseExecutorModule.EagerSingletons());
+			c.inject(new IdentityModule.EagerSingletons());
+			c.inject(new LifecycleModule.EagerSingletons());
+			c.inject(new RendezvousModule.EagerSingletons());
+			c.inject(new PluginModule.EagerSingletons());
+			c.inject(new PropertiesModule.EagerSingletons());
+			c.inject(new SystemModule.EagerSingletons());
+			c.inject(new TransportModule.EagerSingletons());
+			c.inject(new ValidationModule.EagerSingletons());
+			c.inject(new VersioningModule.EagerSingletons());
+		}
 	}
 }

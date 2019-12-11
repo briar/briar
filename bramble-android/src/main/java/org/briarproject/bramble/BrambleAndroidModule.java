@@ -18,10 +18,4 @@ import dagger.Module;
 		SocksModule.class
 })
 public class BrambleAndroidModule {
-
-	public static void initEagerSingletons(BrambleAndroidEagerSingletons c) {
-		c.inject(new AndroidBatteryModule.EagerSingletons());
-		c.inject(new AndroidNetworkModule.EagerSingletons());
-		c.inject(new ReportingModule.EagerSingletons());
-	}
 }

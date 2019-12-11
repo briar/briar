@@ -27,4 +27,17 @@ public interface BriarCoreEagerSingletons {
 
 	void inject(SharingModule.EagerSingletons init);
 
+	class Helper {
+
+		public static void injectEagerSingletons(BriarCoreEagerSingletons c) {
+			c.inject(new BlogModule.EagerSingletons());
+			c.inject(new FeedModule.EagerSingletons());
+			c.inject(new ForumModule.EagerSingletons());
+			c.inject(new GroupInvitationModule.EagerSingletons());
+			c.inject(new MessagingModule.EagerSingletons());
+			c.inject(new PrivateGroupModule.EagerSingletons());
+			c.inject(new SharingModule.EagerSingletons());
+			c.inject(new IntroductionModule.EagerSingletons());
+		}
+	}
 }

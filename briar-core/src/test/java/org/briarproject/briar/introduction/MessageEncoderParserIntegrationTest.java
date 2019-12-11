@@ -74,7 +74,8 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	public MessageEncoderParserIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
-		component.injectBriarEagerSingletons();
+		IntroductionIntegrationTestComponent.Helper
+				.injectEagerSingletons(component);
 		component.inject(this);
 
 		messageEncoder = new MessageEncoderImpl(clientHelper, messageFactory);

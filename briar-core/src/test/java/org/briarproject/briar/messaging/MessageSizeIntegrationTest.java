@@ -44,7 +44,8 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 	public MessageSizeIntegrationTest() {
 		MessageSizeIntegrationTestComponent component =
 				DaggerMessageSizeIntegrationTestComponent.builder().build();
-		component.injectMessageSizeEagerSingletons();
+		MessageSizeIntegrationTestComponent.Helper
+				.injectEagerSingletons(component);
 		component.inject(this);
 	}
 

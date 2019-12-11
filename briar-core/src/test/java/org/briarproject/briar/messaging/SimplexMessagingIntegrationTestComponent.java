@@ -28,11 +28,6 @@ interface SimplexMessagingIntegrationTestComponent
 
 	void inject(MessagingModule.EagerSingletons init);
 
-	default void injectSimplexMessagingEagerSingletons() {
-		injectBrambleCoreEagerSingletons();
-		inject(new MessagingModule.EagerSingletons());
-	}
-
 	LifecycleManager getLifecycleManager();
 
 	IdentityManager getIdentityManager();
@@ -46,4 +41,13 @@ interface SimplexMessagingIntegrationTestComponent
 	EventBus getEventBus();
 
 	ConnectionManager getConnectionManager();
+
+	class Helper {
+
+		public static void injectEagerSingletons(
+				SimplexMessagingIntegrationTestComponent c) {
+			BrambleCoreEagerSingletons.Helper.injectEagerSingletons(c);
+			c.inject(new MessagingModule.EagerSingletons());
+		}
+	}
 }

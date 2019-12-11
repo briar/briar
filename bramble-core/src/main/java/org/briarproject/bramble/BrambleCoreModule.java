@@ -50,8 +50,4 @@ import dagger.Module;
 		VersioningModule.class
 })
 public class BrambleCoreModule {
-
-	public static void initEagerSingletons(BrambleCoreEagerSingletons c) {
-		c.injectBrambleCoreEagerSingletons();
-	}
 }

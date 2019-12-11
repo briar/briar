@@ -6,8 +6,8 @@ import com.github.ajalt.clikt.parameters.options.default
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import com.github.ajalt.clikt.parameters.types.int
-import org.briarproject.bramble.BrambleCoreModule
-import org.briarproject.briar.BriarCoreModule
+import org.briarproject.bramble.BrambleCoreEagerSingletons
+import org.briarproject.briar.BriarCoreEagerSingletons
 import org.slf4j.impl.SimpleLogger.DEFAULT_LOG_LEVEL_KEY
 import org.spongycastle.util.encoders.Base64.toBase64String
 import java.io.File
@@ -70,8 +70,8 @@ private class Main : CliktCommand(
             DaggerBriarHeadlessApp.builder().headlessModule(HeadlessModule(dataDir)).build()
         // We need to load the eager singletons directly after making the
         // dependency graphs
-        BrambleCoreModule.initEagerSingletons(app)
-        BriarCoreModule.initEagerSingletons(app)
+        BrambleCoreEagerSingletons.Helper.injectEagerSingletons(app)
+        BriarCoreEagerSingletons.Helper.injectEagerSingletons(app)
 
         val authToken = getOrCreateAuthToken(dataDir, app.getSecureRandom())
 
