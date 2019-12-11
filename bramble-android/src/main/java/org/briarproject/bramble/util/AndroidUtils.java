@@ -98,6 +98,8 @@ public class AndroidUtils {
 			return null;
 		} catch (InvocationTargetException e) {
 			return null;
+		} catch (SecurityException e) {
+			return null;
 		}
 	}
 
