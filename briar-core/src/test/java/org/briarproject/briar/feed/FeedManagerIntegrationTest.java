@@ -38,7 +38,7 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 				DaggerFeedManagerIntegrationTestComponent.builder()
 						.testDatabaseConfigModule(
 								new TestDatabaseConfigModule(testFile)).build();
-		component.injectFeedManagerEagerSingletons();
+		FeedManagerIntegrationTestComponent.Helper.injectEagerSingletons(component);
 		component.inject(this);
 
 		IdentityManager identityManager = component.getIdentityManager();

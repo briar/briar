@@ -7,9 +7,9 @@ import android.preference.PreferenceManager;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
-import org.briarproject.bramble.BrambleAndroidModule;
-import org.briarproject.bramble.BrambleCoreModule;
-import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.bramble.BrambleAndroidEagerSingletons;
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.briar.BriarCoreEagerSingletons;
 
 import java.util.Collection;
 import java.util.logging.LogRecord;
@@ -42,10 +42,14 @@ public class TestBriarApplication extends Application
 
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
-		BrambleCoreModule.initEagerSingletons(applicationComponent);
-		BrambleAndroidModule.initEagerSingletons(applicationComponent);
-		BriarCoreModule.initEagerSingletons(applicationComponent);
-		AndroidEagerSingletons.initEagerSingletons(applicationComponent);
+		BrambleCoreEagerSingletons.Helper
+				.injectEagerSingletons(applicationComponent);
+		BrambleAndroidEagerSingletons.Helper
+				.injectEagerSingletons(applicationComponent);
+		BriarCoreEagerSingletons.Helper
+				.injectEagerSingletons(applicationComponent);
+		AndroidEagerSingletons.Helper
+				.injectEagerSingletons(applicationComponent);
 		EmojiManager.install(new GoogleEmojiProvider());
 	}
 

@@ -1,8 +1,8 @@
 package org.briarproject.briar.android;
 
-import org.briarproject.bramble.BrambleAndroidModule;
-import org.briarproject.bramble.BrambleCoreModule;
-import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.bramble.BrambleAndroidEagerSingletons;
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.briar.BriarCoreEagerSingletons;
 
 public class BriarTestComponentApplication extends BriarApplicationImpl {
 
@@ -12,10 +12,10 @@ public class BriarTestComponentApplication extends BriarApplicationImpl {
 				.appModule(new AppModule(this)).build();
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
-		BrambleCoreModule.initEagerSingletons(component);  // FIXME AbstractMethodError
-		BrambleAndroidModule.initEagerSingletons(component);
-		BriarCoreModule.initEagerSingletons(component);
-		AndroidEagerSingletons.initEagerSingletons(component);
+		BrambleCoreEagerSingletons.Helper.injectEagerSingletons(component);
+		BrambleAndroidEagerSingletons.Helper.injectEagerSingletons(component);
+		BriarCoreEagerSingletons.Helper.injectEagerSingletons(component);
+		AndroidEagerSingletons.Helper.injectEagerSingletons(component);
 		return component;
 	}
 

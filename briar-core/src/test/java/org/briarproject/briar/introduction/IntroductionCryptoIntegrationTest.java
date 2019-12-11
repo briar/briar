@@ -54,7 +54,8 @@ public class IntroductionCryptoIntegrationTest extends BrambleTestCase {
 	public IntroductionCryptoIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
-		component.injectBriarEagerSingletons();
+		IntroductionIntegrationTestComponent.Helper
+				.injectEagerSingletons(component);
 		component.inject(this);
 		crypto = new IntroductionCryptoImpl(cryptoComponent, clientHelper);
 

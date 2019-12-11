@@ -1,8 +1,13 @@
 package org.briarproject.briar.android;
 
-class AndroidEagerSingletons {
+interface AndroidEagerSingletons {
 
-	static void initEagerSingletons(AndroidComponent c) {
-		c.inject(new AppModule.EagerSingletons());
+	void inject(AppModule.EagerSingletons init);
+
+	class Helper {
+
+		static void injectEagerSingletons(AndroidEagerSingletons c) {
+			c.inject(new AppModule.EagerSingletons());
+		}
 	}
 }

@@ -83,7 +83,8 @@ public class SessionEncoderParserIntegrationTest extends BrambleTestCase {
 	public SessionEncoderParserIntegrationTest() {
 		IntroductionIntegrationTestComponent component =
 				DaggerIntroductionIntegrationTestComponent.builder().build();
-		component.injectBriarEagerSingletons();
+		IntroductionIntegrationTestComponent.Helper
+				.injectEagerSingletons(component);
 		component.inject(this);
 
 		sessionEncoder = new SessionEncoderImpl(clientHelper);

@@ -17,9 +17,9 @@ import com.vanniktech.emoji.google.GoogleEmojiProvider;
 import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
-import org.briarproject.bramble.BrambleAndroidModule;
-import org.briarproject.bramble.BrambleCoreModule;
-import org.briarproject.briar.BriarCoreModule;
+import org.briarproject.bramble.BrambleAndroidEagerSingletons;
+import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logging.CachingLogHandler;
@@ -133,10 +133,12 @@ public class BriarApplicationImpl extends Application
 
 		// We need to load the eager singletons directly after making the
 		// dependency graphs
-		BrambleCoreModule.initEagerSingletons(androidComponent);
-		BrambleAndroidModule.initEagerSingletons(androidComponent);
-		BriarCoreModule.initEagerSingletons(androidComponent);
-		AndroidEagerSingletons.initEagerSingletons(androidComponent);
+		BrambleCoreEagerSingletons.Helper
+				.injectEagerSingletons(androidComponent);
+		BrambleAndroidEagerSingletons.Helper
+				.injectEagerSingletons(androidComponent);
+		BriarCoreEagerSingletons.Helper.injectEagerSingletons(androidComponent);
+		AndroidEagerSingletons.Helper.injectEagerSingletons(androidComponent);
 		return androidComponent;
 	}
 

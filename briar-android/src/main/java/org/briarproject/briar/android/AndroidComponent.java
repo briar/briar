@@ -73,7 +73,7 @@ import dagger.Component;
 })
 public interface AndroidComponent
 		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
-		BriarCoreEagerSingletons {
+		BriarCoreEagerSingletons, AndroidEagerSingletons {
 
 	// Exposed objects
 	@CryptoExecutor
@@ -176,7 +176,4 @@ public interface AndroidComponent
 	void inject(EmojiTextInputView textInputView);
 
 	void inject(BriarModelLoader briarModelLoader);
-
-	// Eager singleton load
-	void inject(AppModule.EagerSingletons init);
 }

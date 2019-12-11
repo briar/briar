@@ -3,9 +3,9 @@ package org.briarproject.briar.headless
 import io.javalin.Javalin
 import io.javalin.core.util.Header.AUTHORIZATION
 import khttp.responses.Response
-import org.briarproject.bramble.BrambleCoreModule
+import org.briarproject.bramble.BrambleCoreEagerSingletons
 import org.briarproject.bramble.api.crypto.CryptoComponent
-import org.briarproject.briar.BriarCoreModule
+import org.briarproject.briar.BriarCoreEagerSingletons
 import org.briarproject.briar.api.test.TestDataCreator
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -32,8 +32,8 @@ abstract class IntegrationTest {
         val app = DaggerBriarHeadlessTestApp.builder()
             .headlessTestModule(HeadlessTestModule(dataDir))
             .build()
-        BrambleCoreModule.initEagerSingletons(app)
-        BriarCoreModule.initEagerSingletons(app)
+        BrambleCoreEagerSingletons.Helper.injectEagerSingletons(app)
+        BriarCoreEagerSingletons.Helper.injectEagerSingletons(app)
         router = app.getRouter()
         crypto = app.getCryptoComponent()
         testDataCreator = app.getTestDataCreator()

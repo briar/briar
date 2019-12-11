@@ -35,12 +35,6 @@ interface FeedManagerIntegrationTestComponent
 
 	void inject(FeedModule.EagerSingletons init);
 
-	default void injectFeedManagerEagerSingletons() {
-		injectBrambleCoreEagerSingletons();
-		inject(new BlogModule.EagerSingletons());
-		inject(new FeedModule.EagerSingletons());
-	}
-
 	IdentityManager getIdentityManager();
 
 	LifecycleManager getLifecycleManager();
@@ -49,4 +43,13 @@ interface FeedManagerIntegrationTestComponent
 
 	BlogManager getBlogManager();
 
+	class Helper {
+
+		public static void injectEagerSingletons(
+				FeedManagerIntegrationTestComponent c) {
+			BrambleCoreEagerSingletons.Helper.injectEagerSingletons(c);
+			c.inject(new BlogModule.EagerSingletons());
+			c.inject(new FeedModule.EagerSingletons());
+		}
+	}
 }
