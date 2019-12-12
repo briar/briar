@@ -135,6 +135,7 @@ dependencies {
 	testImplementation "org.jmock:jmock-junit4:$jmockVersion"
 	testImplementation "org.jmock:jmock-legacy:$jmockVersion"
 
+	androidTestImplementation project(path: ':bramble-api', configuration: 'testOutput')
 	androidTestImplementation 'androidx.test.ext:junit:1.1.1'
 	androidTestImplementation "androidx.test.espresso:espresso-core:$espressoVersion"
 	androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
