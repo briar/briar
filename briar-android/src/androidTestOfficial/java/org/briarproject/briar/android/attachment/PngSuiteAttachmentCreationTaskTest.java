@@ -1,15 +1,14 @@
 package org.briarproject.briar.android.attachment;
 
-import org.briarproject.bramble.api.Pair;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
+import static java.util.Arrays.asList;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.junit.Assert.fail;
 
 @RunWith(Parameterized.class)
@@ -17,36 +16,27 @@ public class PngSuiteAttachmentCreationTaskTest
 		extends AbstractAttachmentCreationTaskTest {
 
 	@Parameters
-	public static Iterable<Pair<String, Boolean>> data() throws IOException {
-		List<Pair<String, Boolean>> data = new ArrayList<>();
-		for (String file : getAssetFiles("PngSuite")) {
-			if (file.endsWith(".png")) {
-				boolean shouldPass = !file.startsWith("x");
-				data.add(new Pair<>("PngSuite/" + file, shouldPass));
-			}
-		}
-		return data;
+	public static Iterable<String> data() throws IOException {
+		return asList(requireNonNull(getAssetManager().list("PngSuite")));
 	}
 
 	private final String filename;
-	private final boolean shouldPass;
 
-	public PngSuiteAttachmentCreationTaskTest(Pair<String, Boolean> data) {
-		filename = data.getFirst();
-		shouldPass = data.getSecond();
+	public PngSuiteAttachmentCreationTaskTest(String filename) {
+		this.filename = filename;
 	}
 
 	@Test
 	public void testPngSuiteCompress() throws Exception {
-		if (shouldPass) {
-			testCompress(filename, "image/png");
-		} else {
+		if (filename.startsWith("x")) {
 			try {
-				testCompress(filename, "image/png");
+				testCompress("PngSuite/" + filename, "image/png");
 				fail();
 			} catch (IOException expected) {
 				// Expected
 			}
+		} else {
+			testCompress("PngSuite/" + filename, "image/png");
 		}
 	}
 }

@@ -28,19 +28,11 @@ abstract class AbstractAttachmentCreationTaskTest {
 
 	void testCompress(String filename, String contentType)
 			throws IOException {
-		InputStream is = getAssetInputStream(filename);
+		InputStream is = getAssetManager().open(filename);
 		task.compressImage(is, contentType);
 	}
 
-	private InputStream getAssetInputStream(String name) throws IOException {
-		return getAssetManager().open(name);
-	}
-
-	static String[] getAssetFiles(String path) throws IOException {
-		return getAssetManager().list(path);
-	}
-
-	private static AssetManager getAssetManager() {
+	static AssetManager getAssetManager() {
 		// pm.getResourcesForApplication(packageName).getAssets() did not work
 		//noinspection deprecation
 		return getContext().getAssets();
