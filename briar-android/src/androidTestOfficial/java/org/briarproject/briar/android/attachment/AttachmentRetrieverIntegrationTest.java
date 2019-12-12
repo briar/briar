@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.attachment;
 
-import android.content.res.AssetManager;
-
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.messaging.Attachment;
@@ -9,39 +7,18 @@ import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Random;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
+import static androidx.test.InstrumentationRegistry.getContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
 public class AttachmentRetrieverIntegrationTest {
-
-	private static final String smallKitten =
-			"https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Kitten_in_Rizal_Park%2C_Manila.jpg/160px-Kitten_in_Rizal_Park%2C_Manila.jpg";
-	private static final String originalKitten =
-			"https://upload.wikimedia.org/wikipedia/commons/0/06/Kitten_in_Rizal_Park%2C_Manila.jpg";
-	private static final String pngKitten =
-			"https://upload.wikimedia.org/wikipedia/commons/c/c8/Young_cat.png";
-	private static final String uberGif =
-			"https://raw.githubusercontent.com/fuzzdb-project/fuzzdb/master/attack/file-upload/malicious-images/uber.gif";
-	private static final String lottaPixel =
-			"https://raw.githubusercontent.com/fuzzdb-project/fuzzdb/master/attack/file-upload/malicious-images/lottapixel.jpg";
-	private static final String imageIoCrash =
-			"https://www.landaire.net/img/crasher.png";
-	private static final String gimpCrash =
-			"https://gitlab.gnome.org/GNOME/gimp/uploads/75f5b7ed3b09b3f1c13f1f65bffe784f/31153c919d3aa634e8e6cff82219fe7352dd8a37.png";
-	private static final String optiPngAfl =
-			"https://sourceforge.net/p/optipng/bugs/64/attachment/test.gif";
-	private static final String librawError =
-			"https://www.libraw.org/sites/libraw.org/files/P1010671.JPG";
 
 	private final AttachmentDimensions dimensions = new AttachmentDimensions(
 			100, 50, 200, 75, 300
@@ -56,7 +33,7 @@ public class AttachmentRetrieverIntegrationTest {
 	@Test
 	public void testSmallJpegImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(smallKitten);
+		InputStream is = getAssetInputStream("kitten_small.jpg");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(msgId, item.getMessageId());
@@ -65,14 +42,14 @@ public class AttachmentRetrieverIntegrationTest {
 		assertEquals(160, item.getThumbnailWidth());
 		assertEquals(240, item.getThumbnailHeight());
 		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
+		assertJpgOrJpeg(item.getExtension());
 		assertFalse(item.hasError());
 	}
 
 	@Test
 	public void testBigJpegImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(originalKitten);
+		InputStream is = getAssetInputStream("kitten_original.jpg");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(msgId, item.getMessageId());
@@ -81,14 +58,14 @@ public class AttachmentRetrieverIntegrationTest {
 		assertEquals(dimensions.maxWidth, item.getThumbnailWidth());
 		assertEquals(dimensions.maxHeight, item.getThumbnailHeight());
 		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
+		assertJpgOrJpeg(item.getExtension());
 		assertFalse(item.hasError());
 	}
 
 	@Test
 	public void testSmallPngImage() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/png");
-		InputStream is = getUrlInputStream(pngKitten);
+		InputStream is = getAssetInputStream("kitten.png");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(msgId, item.getMessageId());
@@ -103,8 +80,8 @@ public class AttachmentRetrieverIntegrationTest {
 
 	@Test
 	public void testUberGif() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(uberGif);
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/gif");
+		InputStream is = getAssetInputStream("uber.gif");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(1, item.getWidth());
@@ -119,7 +96,7 @@ public class AttachmentRetrieverIntegrationTest {
 	@Test
 	public void testLottaPixels() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(lottaPixel);
+		InputStream is = getAssetInputStream("lottapixel.jpg");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(64250, item.getWidth());
@@ -127,14 +104,14 @@ public class AttachmentRetrieverIntegrationTest {
 		assertEquals(dimensions.maxWidth, item.getThumbnailWidth());
 		assertEquals(dimensions.maxWidth, item.getThumbnailHeight());
 		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
+		assertJpgOrJpeg(item.getExtension());
 		assertFalse(item.hasError());
 	}
 
 	@Test
 	public void testImageIoCrash() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(imageIoCrash);
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/png");
+		InputStream is = getAssetInputStream("image_io_crash.png");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(1184, item.getWidth());
@@ -148,8 +125,8 @@ public class AttachmentRetrieverIntegrationTest {
 
 	@Test
 	public void testGimpCrash() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(gimpCrash);
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/gif");
+		InputStream is = getAssetInputStream("gimp_crash.gif");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(1, item.getWidth());
@@ -163,8 +140,8 @@ public class AttachmentRetrieverIntegrationTest {
 
 	@Test
 	public void testOptiPngAfl() throws Exception {
-		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(optiPngAfl);
+		AttachmentHeader h = new AttachmentHeader(msgId, "image/gif");
+		InputStream is = getAssetInputStream("opti_png_afl.gif");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertEquals(32, item.getWidth());
@@ -179,7 +156,7 @@ public class AttachmentRetrieverIntegrationTest {
 	@Test
 	public void testLibrawError() throws Exception {
 		AttachmentHeader h = new AttachmentHeader(msgId, "image/jpeg");
-		InputStream is = getUrlInputStream(librawError);
+		InputStream is = getAssetInputStream("libraw_error.jpg");
 		Attachment a = new Attachment(h, is);
 		AttachmentItem item = retriever.getAttachmentItem(a, true);
 		assertTrue(item.hasError());
@@ -241,7 +218,7 @@ public class AttachmentRetrieverIntegrationTest {
 		assertEquals(dimensions.minWidth, item.getThumbnailWidth());
 		assertEquals(dimensions.maxHeight, item.getThumbnailHeight());
 		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
+		assertJpgOrJpeg(item.getExtension());
 		assertFalse(item.hasError());
 	}
 
@@ -256,17 +233,18 @@ public class AttachmentRetrieverIntegrationTest {
 		assertEquals(dimensions.maxWidth, item.getThumbnailWidth());
 		assertEquals(dimensions.minHeight, item.getThumbnailHeight());
 		assertEquals("image/jpeg", item.getMimeType());
-		assertEquals("jpg", item.getExtension());
+		assertJpgOrJpeg(item.getExtension());
 		assertFalse(item.hasError());
 	}
 
-	private InputStream getUrlInputStream(String url) throws IOException {
-		return new URL(url).openStream();
+	private InputStream getAssetInputStream(String name) throws Exception {
+		// pm.getResourcesForApplication(packageName).getAssets() did not work
+		//noinspection deprecation
+		return getContext().getAssets().open(name);
 	}
 
-	private InputStream getAssetInputStream(String name) throws IOException {
-		AssetManager assets = getApplicationContext().getAssets();
-		return assets.open(name);
+	private void assertJpgOrJpeg(String extension) {
+		assertTrue("jpg".equals(extension) || "jpeg".equals(extension));
 	}
 
 	public static byte[] getRandomBytes(int length) {
