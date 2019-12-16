@@ -71,6 +71,8 @@ Returns a JSON array of contacts:
 }
 ```
 
+Note that the key `alias` isn't guaranteed to be in the response.
+
 ### Adding a contact
 
 The first step is to get your own link:
