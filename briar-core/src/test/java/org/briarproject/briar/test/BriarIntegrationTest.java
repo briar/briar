@@ -164,6 +164,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		validationWaiter = new Waiter();
 		deliveryWaiter = new Waiter();
 		ackWaiter = new Waiter();
+		deliveryCounter.set(0);
+		validationCounter.set(0);
+		ackCounter.set(0);
 
 		createAndRegisterIdentities();
 		startLifecycles();
