@@ -270,9 +270,7 @@ public class ConversationActivity extends BriarActivity
 		ConversationScrollListener scrollListener =
 				new ConversationScrollListener(adapter, viewModel);
 		list.getRecyclerView().addOnScrollListener(scrollListener);
-		if (featureFlags.shouldEnablePrivateMessageDeletion()) {
-			addSelectionTracker();
-		}
+		addSelectionTracker();
 
 		textInputView = findViewById(R.id.text_input_container);
 		if (featureFlags.shouldEnableImageAttachments()) {
@@ -377,11 +375,6 @@ public class ConversationActivity extends BriarActivity
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.conversation_actions, menu);
-
-		// Hide private message deletion action if feature is not enabled
-		if (!featureFlags.shouldEnablePrivateMessageDeletion()) {
-			menu.removeItem(R.id.action_delete_all_messages);
-		}
 
 		// enable introduction action if available
 		observeOnce(viewModel.showIntroductionAction(), this, enable -> {

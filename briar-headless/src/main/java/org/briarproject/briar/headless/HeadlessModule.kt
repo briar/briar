@@ -96,8 +96,5 @@ internal class HeadlessModule(private val appDir: File) {
     internal fun provideObjectMapper() = ObjectMapper()
 
     @Provides
-    internal fun provideFeatureFlags() = object : FeatureFlags {
-        override fun shouldEnableImageAttachments() = false
-        override fun shouldEnablePrivateMessageDeletion() = true
-    }
+    internal fun provideFeatureFlags() = FeatureFlags { false }
 }
