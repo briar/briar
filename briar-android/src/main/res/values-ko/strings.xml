@@ -325,7 +325,7 @@
   <string name="forum_invitation_response_declined_received">%s이(가) 포럼 초대장을 거절했습니다.</string>
   <string name="sharing_status">공유 상태</string>
   <string name="sharing_status_forum">포럼은 참가한 누구나 지인과 공유할 수 있습니다. 다음 연락처와 포럼을 공유하고 있습니다. 이외 다른 구성원이 더 있을 수 있습니다.</string>
-  <string name="shared_with">와(과) 공유하고 있습니다.(%1$d명 온라인)</string>
+  <string name="shared_with">와(과) 공유하고 있습니다.(%1$d %2$d명 온라인)</string>
   <plurals name="forums_shared">
     <item quantity="other">지인과 공유한 %d개의 포럼</item>
   </plurals>
