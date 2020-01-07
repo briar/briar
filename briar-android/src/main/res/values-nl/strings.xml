@@ -41,11 +41,10 @@
     <item quantity="one">Dit is een testversie van Briar. Je account verloopt binnen %d dag en kan niet worden vernieuwd.</item>
     <item quantity="other">Dit is een testversie van Briar. Je account verloopt binnen %d dagen en kan niet worden vernieuwd.</item>
   </plurals>
-  <string name="expiry_update">De verloopdatum voor de test is vooruitgeschoven. Je account verloopt nu binnen %d dagen.</string>
   <string name="expiry_date_reached">Deze software is verlopen.\nBedankt vor het testen!</string>
-  <string name="download_briar">Om Briar te blijven gebruiken, download alsjeblieft versie 1.0.</string>
+  <string name="download_briar">Download de laatste versie om Briar te kunnen blijven gebruiken.</string>
   <string name="create_new_account">Je moet een nieuw account aanmaken. Je kan dezelfde bijnaam gebruiken.</string>
-  <string name="download_briar_button">Download Briar 1.0</string>
+  <string name="download_briar_button">Download de laatste versie</string>
   <string name="startup_open_database">Database aan het ontsleutelen…</string>
   <string name="startup_migrate_database">Database aan het upgraden…</string>
   <string name="startup_compact_database">Database comprimeren...</string>
@@ -110,6 +109,7 @@
   <string name="fix">Oplossen</string>
   <string name="help">Help</string>
   <string name="sorry">Excuses</string>
+  <string name="error_start_activity">Beschikbaar op jouw systeem</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Er zijn geen contacten om te tonen</string>
   <string name="no_contacts_action">Tik op het +-icoon om een contact toe te voegen</string>
@@ -124,6 +124,10 @@
   <string name="set_contact_alias">Verander naam van contact</string>
   <string name="set_contact_alias_hint">Contactnaam</string>
   <string name="set_alias_button">Wijzigen</string>
+  <string name="delete_all_messages">Verwijder alle berichten</string>
+  <string name="dialog_title_delete_all_messages">Bevestig verwijderen berichten</string>
+  <string name="dialog_message_delete_all_messages">Weet je zeker dat je alle berichten wil verwijderen?</string>
+  <string name="dialog_title_not_all_messages_deleted">Kon niet alle berichten verwijderen</string>
   <string name="delete_contact">Verwijder bericht</string>
   <string name="dialog_title_delete_contact">Bevestig verwijderen contact</string>
   <string name="dialog_message_delete_contact">Weet je zeker dat je dit contact en alle berichten die met dit contact zijn uitgewisseld wil verwijderen?</string>
@@ -139,6 +143,7 @@
   <string name="dialog_message_no_image_support">Briar van jouw contact ondersteunt nog geen afbeeldingen als bijlagen. Zodat zij upgraden zul je een ander icoon zien.</string>
   <string name="dialog_title_image_support">Je kan nu afbeeldingen naar dit contact sturen</string>
   <string name="dialog_message_image_support">Tik op dit icoon om afbeelding bij te sluiten.</string>
+  <string name="messaging_too_many_attachments_toast">Alleen de eerste %d afbeeldingen worden verstuurd</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Voeg contact in de buurt toe</string>
   <string name="face_to_face">Je moet een persoon in levenden lijve ontmoeten om die als contact toe te voegen.\n\nDit voortkomt dat anderen zich als jou voor kunnen doen of in de toekomst je berichten kunnen lezen.</string>
@@ -206,6 +211,7 @@
   <string name="offline_state">Geen internetverbinding</string>
   <string name="duplicate_link_dialog_title">Duplicate link</string>
   <string name="duplicate_link_dialog_text_1">Je hebt al en wachtend contact met deze link: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Je hebt al een contact met deze link: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">Zijn %s en %s dezelfde persoon?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

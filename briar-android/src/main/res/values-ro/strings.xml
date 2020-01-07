@@ -42,11 +42,10 @@
     <item quantity="few">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu se poate reînnoi.</item>
     <item quantity="other">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d de zile și nu se poate reînnoi.</item>
   </plurals>
-  <string name="expiry_update">Data de expirare a versiunii de test a fost extinsă. Contul dumneavoastră va expira acum în %d zile.</string>
   <string name="expiry_date_reached">Acest program a expirat.\nVă mulțumim că l-ați testat!</string>
-  <string name="download_briar">Pentru a putea să continuați utilizarea Briar, vă rugăm să descărcați versiunea 1.0.</string>
+  <string name="download_briar">Pentru a putea să utilizați Briar în continuare, vă rugăm să descărcați ultima versiune.</string>
   <string name="create_new_account">Va trebui să creați un cont nou, dar puteți să folosiți același nume.</string>
-  <string name="download_briar_button">Descarcă Briar 1.0</string>
+  <string name="download_briar_button">Descarcă ultima versiune</string>
   <string name="startup_open_database">Decriptare bază de date...</string>
   <string name="startup_migrate_database">Actualizare bază de date...</string>
   <string name="startup_compact_database">Compactare bază de date...</string>
@@ -115,6 +114,7 @@
   <string name="fix">Rezolvă</string>
   <string name="help">Ajutor</string>
   <string name="sorry">Ne pare rău</string>
+  <string name="error_start_activity">Indisponibil pentru sistemul dumneavoastră</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nici un contact de arătat</string>
   <string name="no_contacts_action">Atingeți iconița + pentru a adăuga un contact</string>
@@ -133,7 +133,13 @@
   <string name="dialog_title_delete_all_messages">Confirmare ștergere mesaj</string>
   <string name="dialog_message_delete_all_messages">Sigur doriți să ștergeți toate mesajele?</string>
   <string name="dialog_title_not_all_messages_deleted">Nu s-au putut șterge toate mesajele</string>
-  <string name="dialog_message_not_all_messages_deleted">Mesajele referitoare la recomandări sau invitații în curs nu pot fi șterse înainte de a se încheia.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Mesajele referitoare la recomandări sau invitații în curs nu pot fi șterse înainte de a se încheia.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Mesajele referitoare la recomandări în curs nu pot fi șterse înainte de a se încheia.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Mesajele referitoare la invitații în curs nu pot fi șterse înainte de a se încheia.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Mesajele descărcate parțial nu pot fi șterse înainte de a se termina de descărcat.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Pentru a șterge o invitație sau o recomandare, trebuie să selectați cererea și răspunsul.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Pentru a șterge o recomandare trebuie să selectați cererea și răspunsul.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Pentru a șterge o invitație trebuie să selectați cererea și răspunsul.</string>
   <string name="delete_contact">Șterge contactul</string>
   <string name="dialog_title_delete_contact">Confirmare ștergere contact</string>
   <string name="dialog_message_delete_contact">Sigur doriți să ștergeți acest contact și toate mesajele schimbate?</string>

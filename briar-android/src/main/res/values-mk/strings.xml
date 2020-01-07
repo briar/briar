@@ -41,11 +41,10 @@
     <item quantity="one">Ова е тест верзија на Briar. Вашата сметка ќе истече за %d ден и не може да биде обновена.</item>
     <item quantity="other">Ова е тест верзија на Briar. Вашата сметка ќе истече за %d денови и не може да биде обновена.</item>
   </plurals>
-  <string name="expiry_update">Крајниот рок за тестирање беше продолжен. Вашата сметка ќе истече за %d денови.</string>
   <string name="expiry_date_reached">Софтверот истече.\nВи благодариме за тестирањето!</string>
-  <string name="download_briar">За да продолжите да го користите Briar, ве молиме преземете ја верзија 1.0.</string>
+  <string name="download_briar">За да продолжите со користење на Briar, ве молиме преземете го најновото издание.</string>
   <string name="create_new_account">Ќе треба да создадете нова сметка, но можете да го користите истото корисничко име.</string>
-  <string name="download_briar_button">Преземи го Briar 1.0</string>
+  <string name="download_briar_button">Преземи најново издание</string>
   <string name="startup_open_database">Декриптирање на базата на податоци...</string>
   <string name="startup_migrate_database">Ажурирање на базата на податоци...</string>
   <string name="startup_compact_database">Пакување на базата на податоци</string>
@@ -110,6 +109,7 @@
   <string name="fix">Поправи</string>
   <string name="help">Помош</string>
   <string name="sorry">Жал ни е</string>
+  <string name="error_start_activity">Недостапно на вашиот систем</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Нема контакти за прикажување</string>
   <string name="no_contacts_action">Допрете ја + иконата за да додадете контакт</string>
@@ -128,7 +128,13 @@
   <string name="dialog_title_delete_all_messages">Потврди бришење на порака</string>
   <string name="dialog_message_delete_all_messages">Дали сте сигурни дека сакате да ги избришете сите пораки?</string>
   <string name="dialog_title_not_all_messages_deleted">Не можат да бидат избришани сите пораки</string>
-  <string name="dialog_message_not_all_messages_deleted">Порактите поврзани со претставувањата или поканите кои се во тек не можат да бидат избришани додека не бидат завршени.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Пораките поврзани со покани и запознавања кои се во тек не можат да бидат избрашини додека не бидат завршени.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Пораките поврзани со запознавања кои се во тек не можат да бидат избрашини додека не бидат завршени.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Пораките поврзани со покани кои се во тек не можат да бидат избрашини додека не бидат завршени.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Делумно преземените пораки не можат да бидат избрашини додека не се преземат целосно.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">За да избришете покана или запознавање, треба да изберете барање и одговор.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">За да избришете запознавање, треба да изберете барање и одговор.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">За да избришете покана, треба да изберете барање и одговор.</string>
   <string name="delete_contact">Избриши контакт</string>
   <string name="dialog_title_delete_contact">Потврди бришење на контакт</string>
   <string name="dialog_message_delete_contact">Дали сте сигурни дека сакате да го избришете овој контакт и сите пораки поврзани со него?</string>

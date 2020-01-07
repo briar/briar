@@ -40,11 +40,8 @@
   <plurals name="expiry_warning">
     <item quantity="other">これは、Briarのテストバージョンです。 アカウントは%d日で期限切れになり、更新できません。</item>
   </plurals>
-  <string name="expiry_update">テストの有効期限が延長されました。 アカウントは%d日後に有効期限が切れます。</string>
   <string name="expiry_date_reached">このソフトの有効期限が切れました。テストに参加してくださりありがとうございます！</string>
-  <string name="download_briar">引き続きBriarを使用するには、バージョン1.0を使用してください。</string>
   <string name="create_new_account">新しいアカウントを作成する必要があります。同じニックネームも使用できます。</string>
-  <string name="download_briar_button">Briar 1.0をダウンロード</string>
   <string name="startup_open_database">データベースの復号化中…</string>
   <string name="startup_migrate_database">データベースをアップグレード中…</string>
   <string name="startup_compact_database">データベースの圧縮中…</string>

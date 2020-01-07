@@ -37,11 +37,8 @@
   <string name="startup_failed_data_too_old_error">Vaš račun je napravljen sa starom verzijom aplikacije i nemože se otvoriti novom verzijom. Morate reinstalirati staru verziju ili podesiti novi račun tako što ćete izabrati opciju  \'ZaboraviIi ste lozinku?\' kod unosa lozinke.</string>
   <string name="startup_failed_data_too_new_error">Ova verzija aplikacije je stara. Molim vas da aplikaciju ažurirate na posljednju verziju a zatim pokušate ponovo.</string>
   <string name="startup_failed_service_error">Briar nije mogao da pokrene potreban plugin-dodatak. Reinstaliranje Briara obično riješi problem. Međutim, imajte na umu da ćete izgubiti vaš račun i sve podatke vezane za njega pošto Briar ne koristi centralne servere da sačuva vaše podatke.</string>
-  <string name="expiry_update">Krajnji datum testiranja je pomjeren. Vaš račun će sada isteći za %d dana.</string>
   <string name="expiry_date_reached">Ovaj softver nije više aktuelan.\nHvala na testiranju!</string>
-  <string name="download_briar">Da bi nastavili koristiti Briar, molimo preuzmite verziju 1.0</string>
   <string name="create_new_account">Morate kreirati novi račun, ali možete koristiti isto korisničko ime.</string>
-  <string name="download_briar_button">Preuzmite Briar 1.0</string>
   <string name="startup_open_database">Dekriptujem bazu...</string>
   <string name="startup_migrate_database">Ažuriram bazu...</string>
   <string name="startup_compact_database">Baza se kompaktuje...</string>

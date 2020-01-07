@@ -45,13 +45,12 @@
     <item quantity="one">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
     <item quantity="other">این یک نسخه آزمایشی از Briar (برایر) می باشد. حساب کاربری شما در %d روز آینده به پایان می رسد و امکان تمدید آن وجود نخواهد داشت.</item>
   </plurals>
-  <string name="expiry_update">تاریخ اتمام آزمایش افزایش یافته است. حساب کاربری شما در %d روز آینده به پایان می رسد.</string>
   <string name="expiry_date_reached">این نرم افزار منقضی شده است.
 
 بابت تست از شما سپاسگزاریم.</string>
-  <string name="download_briar">برای اینکه به استفاده خود از Briar (برایر) ادامه دهید، لطفا نسخه ۱.۰ را دانلود کنید.</string>
+  <string name="download_briar">برای ادامه استفاده از Briar، لطفا آخرین نسخه را دانلود کنید.</string>
   <string name="create_new_account">لازم است تا یک حساب کاربری جدید ایجاد کنید، ولی می توانید از همان نام مستعار استفاده کنید.</string>
-  <string name="download_briar_button">دانلود Briar (برایر) 1.0</string>
+  <string name="download_briar_button">دانلود آخرین نسخه</string>
   <string name="startup_open_database">در حال رمزگشایی سیستم ...</string>
   <string name="startup_migrate_database">در حال ارتقا سیستم ...</string>
   <string name="startup_compact_database">درحال فشرده‌ سازی پایگاه داده...</string>
@@ -116,6 +115,7 @@
   <string name="fix">اصلاح</string>
   <string name="help">راهنما</string>
   <string name="sorry">پوزش</string>
+  <string name="error_start_activity">برای سیستم شما موجود نمی باشد</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">هیچ مخاطبی برای نمایش وجود ندارد</string>
   <string name="no_contacts_action">برای افزودن مخاطب روی + کلیک کنید</string>
@@ -130,6 +130,17 @@
   <string name="set_contact_alias">تغییر نام مخاطب</string>
   <string name="set_contact_alias_hint">نام مخاطب</string>
   <string name="set_alias_button">تغییر</string>
+  <string name="delete_all_messages">حذف تمام پیام ها</string>
+  <string name="dialog_title_delete_all_messages">تایید حذف پیام</string>
+  <string name="dialog_message_delete_all_messages">آیا از حذف تمام پیام‌ ها اطمینان دارید؟</string>
+  <string name="dialog_title_not_all_messages_deleted">حذف تمام پیام‌ ها امکان پذیر نیست</string>
+  <string name="dialog_message_not_deleted_ongoing_both">پیام های مرتبط با دعوت ها و معرفی های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">پیام های مرتبط با معرفی های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">پیام های مرتبط با دعوت نامه های جاری نمی توانند حذف شوند تا زمانی که به نتیجه برسند.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">پیام‌های نیمه دانلود شده تا زمانی که دانلود آن ها پایان نیافته است قابل حذف نیستند.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">برای حذف یک دعوت نامه یا معرفی، باید درخواست و پاسخ را انتخاب کنید.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">برای حذف یک معرفی، باید درخواست و پاسخ را انتخاب کنید.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">برای حذف یک دعوت نامه، باید درخواست و پاسخ آن را انتخاب کنید.</string>
   <string name="delete_contact">حذف مخاطب</string>
   <string name="dialog_title_delete_contact">تایید حذف مخاطب</string>
   <string name="dialog_message_delete_contact">آیا مطمئن هستید که میخواهید این مخاطب و تمام پیام های تبادل شده با آن را حذف کنید؟</string>
@@ -147,6 +158,7 @@
   <string name="dialog_message_no_image_support">Briar (برایر) مخاطب شما هنوز از پیوست‌ های تصویری پشتیبانی نمی‌کند. هنگامی که آنها ارتقا دادند یک آیکون متفاوت خواهید دید.</string>
   <string name="dialog_title_image_support">شما هم اکنون می‌توانید به این مخاطب تصاویر ارسال کنید</string>
   <string name="dialog_message_image_support">برای پیوست کردن تصاویر به روی آیکون ضربه بزنید.</string>
+  <string name="messaging_too_many_attachments_toast">فقط %d تصویر آغازین ارسال خواهند شد</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">افزودن مخاطب از نزدیک</string>
   <string name="face_to_face">برای اضافه کردن فرد به عنوان مخاطب باید با او به صورت حضوری ملاقات کنید.
@@ -222,6 +234,7 @@
   <string name="offline_state">ارتباط با اینترنت برقرار نیست</string>
   <string name="duplicate_link_dialog_title">پیوند تکراری</string>
   <string name="duplicate_link_dialog_text_1">شما هم اکنون یک مخاطب معلق با این پیوند دارید: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">شما هم اکنون یک مخاطب با این پیوند دارید: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">آیا %s و %s یک شخص می باشند؟</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

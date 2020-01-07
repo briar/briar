@@ -41,11 +41,8 @@
     <item quantity="one">यह Briar का एक परीक्षण संस्करण है आपका खाता %dदिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है</item>
     <item quantity="other">यह Briar का एक परीक्षण संस्करण है आपका खाता %dदिनों में समाप्त हो जाएगा और नवीनीकरण नहीं किया जा सकता है</item>
   </plurals>
-  <string name="expiry_update">परीक्षण समाप्ति तिथि बढ़ा दी गई है। आपका खाता अब %d दिनों में समाप्त हो जाएगा</string>
   <string name="expiry_date_reached">यह सॉफ्टवेयर समाप्त हो गया है। \n परीक्षण के लिए धन्यवाद!</string>
-  <string name="download_briar">Briar  का उपयोग जारी रखने के लिए, कृपया संस्करण 1.0 डाउनलोड करें।</string>
   <string name="create_new_account">आपको एक नया खाता बनाना होगा, लेकिन आप उसी उपनाम का उपयोग कर सकते हैं।</string>
-  <string name="download_briar_button">Briar  1.0 डाउनलोड करें</string>
   <string name="startup_open_database">डेटाबेस डिक्रिप्ट कर रहा है ...</string>
   <string name="startup_migrate_database">डाटाबेस का उन्नयन ...</string>
   <string name="startup_compact_database">डेटाबेस को कॉम्पैक्ट कर रहा है ...</string>

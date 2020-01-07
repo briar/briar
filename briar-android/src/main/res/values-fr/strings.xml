@@ -41,11 +41,10 @@
     <item quantity="one">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
     <item quantity="other">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jours et ne pourra pas être renouvelé.</item>
   </plurals>
-  <string name="expiry_update">La date de fin de test a été repoussée. Votre compte arrivera maintenant à expiration dans %d jours.</string>
   <string name="expiry_date_reached">Ce logiciel est arrivé à expiration.\nMerci de l’avoir testé !</string>
-  <string name="download_briar">Pour continuer à utiliser Briar, veuillez télécharger la version 1.0.</string>
+  <string name="download_briar">Pour continuer à utiliser Briar, veuillez télécharger la dernière version.</string>
   <string name="create_new_account">Vous devrez créer un nouveau compte, mais vous pouvez utiliser le même pseudonyme.</string>
-  <string name="download_briar_button">Télécharger Briar 1.0</string>
+  <string name="download_briar_button">Télécharger la dernière version</string>
   <string name="startup_open_database">Déchiffrement de la base de données…</string>
   <string name="startup_migrate_database">Mise à niveau de la base de données…</string>
   <string name="startup_compact_database">Compactage de la base de données…</string>
@@ -110,6 +109,7 @@
   <string name="fix">Corriger</string>
   <string name="help">Aide</string>
   <string name="sorry">Désolé</string>
+  <string name="error_start_activity">N’est pas proposée sur votre système.</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Aucun contact à afficher</string>
   <string name="no_contacts_action">Touchez l’icône + pour ajouter un contact</string>
@@ -128,7 +128,13 @@
   <string name="dialog_title_delete_all_messages">Confirmer la suppression des messages</string>
   <string name="dialog_message_delete_all_messages">Voulez-vous vraiment supprimer tous les messages ?</string>
   <string name="dialog_title_not_all_messages_deleted">Impossible de supprimer tous les messages</string>
-  <string name="dialog_message_not_all_messages_deleted">Les messages relatifs aux présentations ou invitations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Les messages relatifs aux invitations et présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Les messages relatifs aux présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Les messages relatifs aux invitations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Les messages partiellement téléchargés ne peuvent pas être supprimés tant que le téléchargement n’est pas terminé.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Pour supprimer une invitation ou une présentation, vous devez sélectionner la demande et la réponse.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Pour supprimer une présentation, vous devez sélectionner la demande et la réponse.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Pour supprimer une invitation, vous devez sélectionner la demande et la réponse.</string>
   <string name="delete_contact">Supprimer le contact</string>
   <string name="dialog_title_delete_contact">Confirmer la suppression du contact</string>
   <string name="dialog_message_delete_contact">Voulez-vous vraiment supprimer ce contact et tous les messages associés ?</string>

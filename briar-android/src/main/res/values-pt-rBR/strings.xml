@@ -41,11 +41,8 @@
     <item quantity="one">Esta é uma versão de teste do Briar. Sua conta irá expirar em %d dia e não poderá ser renovada.</item>
     <item quantity="other">Esta é uma versão de teste do Briar. Sua conta irá expirar em %d dias e não poderá ser renovada.</item>
   </plurals>
-  <string name="expiry_update">O prazo de validade da versão de teste foi extendido. Agora sua conta irá expirar em %d dias.</string>
   <string name="expiry_date_reached">Este software expirou.\nObrigado por testar!</string>
-  <string name="download_briar">Para continuar usando o Briar, por favor baixe a versão 1.0.</string>
   <string name="create_new_account">Você precisará criar uma nova conta, mas poderá usar o mesmo nome de usuária.</string>
-  <string name="download_briar_button">Baixar Briar 1.0</string>
   <string name="startup_open_database">Descriptografando Banco de Dados...</string>
   <string name="startup_migrate_database">Atualizando Banco de Dados...</string>
   <string name="startup_compact_database">Compactando Banco de Dados...</string>

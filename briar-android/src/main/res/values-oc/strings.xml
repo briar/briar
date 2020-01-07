@@ -43,11 +43,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
     <item quantity="one">Aquò es una version de test de Briar. Vòstre compte expirarà d’aquí %d jorn e pòt pas èsser renovat.</item>
     <item quantity="other">Aquò es una version de test de Briar. Vòstre compte expirarà d’aquí %d jorns e pòt pas èsser renovat.</item>
   </plurals>
-  <string name="expiry_update">La data finala pels ensages es passada. Vòstre compte expirarà d’aquí %d jorns.</string>
   <string name="expiry_date_reached">Vòstre logicial s’acabèt.\nMercés d’aver ensajat !</string>
-  <string name="download_briar">Per téner d’utilizar Briar mercés de telecargar la version 1.0.</string>
+  <string name="download_briar">Per tenir d’utilizar Briar, mercés de telecargar la darrièra version.</string>
   <string name="create_new_account">Vos caldrà crear un nòu compte, mas podètz emplegar lo meteis escais-nom.</string>
-  <string name="download_briar_button">Telecargar Briar 1.0</string>
+  <string name="download_briar_button">Telecargar la darrièra version</string>
   <string name="startup_open_database">Deschirament de la basa de donadas…</string>
   <string name="startup_migrate_database">Mesa a nivèl de la basa de donadas…</string>
   <string name="startup_compact_database">Compression de la basa de donadas…</string>
@@ -112,6 +111,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="fix">Correccion</string>
   <string name="help">Ajuda</string>
   <string name="sorry">O planhèm</string>
+  <string name="error_start_activity">Pas disponibla per vòstre sistèma</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Cap de contacte de mostrar</string>
   <string name="no_contacts_action">Tocatz l’icòna + per ajustar un contacte</string>
@@ -126,6 +126,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="set_contact_alias">Cambiar lo nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="set_alias_button">Cambiar</string>
+  <string name="delete_all_messages">Suprimir totes los messatges</string>
+  <string name="dialog_title_delete_all_messages">Confirmatz la supression dels messatges</string>
+  <string name="dialog_message_delete_all_messages">Volètz vertadièrament suprimir totes los messatges ?</string>
+  <string name="dialog_title_not_all_messages_deleted">Supression de totes los messatges impossibla</string>
   <string name="delete_contact">Suprimir lo contacte</string>
   <string name="dialog_title_delete_contact">Confirmatz la supression del contacte</string>
   <string name="dialog_message_delete_contact">Sètz segur de voler suprimir lo contacte e los messatges ligats a el ?</string>
@@ -141,6 +145,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="dialog_message_no_image_support">Vòstre contacte Briar pòt pas encara recebre d’imatges junts. Un còp qu’aurà mes a jorn sa version veiretz una icòna diferenta.</string>
   <string name="dialog_title_image_support">Ara podètz enviar d’imatges a aqueste contacte</string>
   <string name="dialog_message_image_support">Tocatz aquesta icòna per juntar d’imatges.</string>
+  <string name="messaging_too_many_attachments_toast">Solament los %d primièrs imatges seràn enviats</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajustar un contacte a proximitat</string>
   <string name="face_to_face">Vos cal vos amassar amb la persona que volètz apondre als contactes.\n\n Aquò es fach per evitar qu’òm vos raube l’identitat e que vòstres messatges sián legits per d’autres.</string>
@@ -208,6 +213,7 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="offline_state">Cap de connexion Internet</string>
   <string name="duplicate_link_dialog_title">Duplicar lo ligam</string>
   <string name="duplicate_link_dialog_text_1">Avètz ja una demanda en espèra amb aqueste ligam : %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Avètz ja un contacte amb aqueste ligam : %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">Son %s e %s la meteissa persona ?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

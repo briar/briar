@@ -45,12 +45,9 @@
     <item quantity="many">זאת גרסת בחינה של Briar. חשבונך יפוג תוך %d ימים ואינו יכול להתחדש.</item>
     <item quantity="other">זאת גרסת בחינה של Briar. חשבונך יפוג תוך %d ימים ואינו יכול להתחדש.</item>
   </plurals>
-  <string name="expiry_update">תאריך תפוגת ההיבחנות הוארך. חשבונך יפוג תוך %d ימים.</string>
   <string name="expiry_date_reached">פג תוקפה של תוכנה זו.
 תודה לכם שבדקתם.</string>
-  <string name="download_briar">כדי להמשיך להשתמש ב־Briar, אנא הורד את גרסה 1.0.</string>
   <string name="create_new_account">תיצטרך ליצור חשבון חדש, אבל אתה יכול להשתמש באותו כינוי.</string>
-  <string name="download_briar_button">הורד את Briar 1.0</string>
   <string name="startup_open_database">מפענח מסד נתונים...</string>
   <string name="startup_migrate_database">משדרג מסד נתונים...</string>
   <string name="startup_compact_database">מכווץ מסד נתונים...</string>
@@ -141,7 +138,6 @@
   <string name="dialog_title_delete_all_messages">אשר מחיקת הודעה</string>
   <string name="dialog_message_delete_all_messages">האם אתה בטוח שאתה רוצה למחוק את כל ההודעות?</string>
   <string name="dialog_title_not_all_messages_deleted">לא היה ניתן למחוק את כל ההודעות</string>
-  <string name="dialog_message_not_all_messages_deleted">הודעות שקשורות אל היכרויות מתמשכות או הזמנות אינן יכולות להימחק עד שההיכרויות או ההזמנות יסוימו.</string>
   <string name="delete_contact">מחק איש קשר</string>
   <string name="dialog_title_delete_contact">אשר מחיקת איש קשר</string>
   <string name="dialog_message_delete_contact">האם אתה בטוח שאתה רוצה למחוק איש קשר זה ואת כל ההודעות שהוחלפו עם איש קשר זה?</string>

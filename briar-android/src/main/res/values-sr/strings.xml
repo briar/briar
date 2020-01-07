@@ -44,11 +44,8 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
     <item quantity="few">Ovo je testna verzija Briara. Vaš račun će isteći za %d dana i ne može se obnoviti.</item>
     <item quantity="other">Ovo je testna verzija Briara. Vaš račun će isteći za %d dana i ne može se obnoviti.</item>
   </plurals>
-  <string name="expiry_update">Krajnji datum testiranja je pomjeren. Vaš račun će sada isteži za %d dana.</string>
   <string name="expiry_date_reached">Ovaj softver je istekao.\nHvala na testiranju!</string>
-  <string name="download_briar">Da bi nastavili koristiti Briar, molimo preuzmite verziju 1.0</string>
   <string name="create_new_account">Morate kreirati novi račun, ali možete koristiti isti nadimak.</string>
-  <string name="download_briar_button">Preuzmite Briar 1.0</string>
   <string name="startup_open_database">Dekriptujem bazu...</string>
   <string name="startup_migrate_database">Ažuriram bazu...</string>
   <string name="startup_compact_database">Sabijanje baze</string>

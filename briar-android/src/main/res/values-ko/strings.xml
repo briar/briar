@@ -21,7 +21,7 @@
   <string name="don_t_ask_again">다시는 물어보지 않기</string>
   <string name="setup_huawei_text">밑의 버튼을 눌러 Briar를 \"보호된 앱\" 스크린에서 보호되게 해 주세요.</string>
   <string name="setup_huawei_button">Briar 보호하기</string>
-  <string name="setup_huawei_help">Briar가 보호된 앱 목록에 추가되지 않는다면, 백그라운드에서 실행될 수 없습니다.</string>
+  <string name="setup_huawei_help">Briar를 보호된 앱 목록에 추가하지 않는다면, 백그라운드에서 실행될 수 없습니다.</string>
   <string name="warning_dozed">%s가 백그라운드에서 실행될 수 없었습니다</string>
   <!--Login-->
   <string name="enter_password">비밀번호</string>
@@ -35,16 +35,13 @@
   <string name="startup_failed_activity_title">Briar 시작 실패</string>
   <string name="startup_failed_db_error">어떤 이유에선지, Briar 데이터베이스가 복구될 수 없을 정도로 손상됐습니다. 데이터와 모든 연락처 정보가 사라졌습니다. 안타깝게도, Briar를 다시 설치하거나 비밀번호를 입력하는 화면에서 \"비밀번호를 잊어버렸습니다\"를 눌러 새로운 계정을 설정해야 합니다.</string>
   <string name="startup_failed_data_too_old_error">너무 오래된 버전의 Briar를 이용해 만든 계정이라 이 버전으로는 사용할 수 없습니다. 이전 버전을 다시 설치하거나 비밀번호를 입력하는 창에서 \'비밀번호를 잊어버렸습니다\'를 선택해 새로운 계정을 설정하세요.</string>
-  <string name="startup_failed_data_too_new_error">이 버전의 앱은 너무 오래됐습니다. 최신 버전으로 업그레이드하고 다시 시도하세요.</string>
+  <string name="startup_failed_data_too_new_error">이 버전의 앱은 너무 오래됐습니다. 최신 버전으로 업그레이드하고 다시 시도해 주세요.</string>
   <string name="startup_failed_service_error">Briar에서 필요한 플러그인을 시작하지 못했습니다. Briar를 다시 설치하면 대개 이 문제가 해결됩니다. 그렇지만 Briar에서는 데이터를 저장하기 위해 중앙 서버를 사용하고 있지 않기 때문에 계정과 관련된 모든 데이터를 잃게 됩니다.</string>
   <plurals name="expiry_warning">
     <item quantity="other">이 Briar는 테스트용입니다. %d일 내에 계정이 만료되고 다시 되돌리지 못합니다.</item>
   </plurals>
-  <string name="expiry_update">테스트 만료 기한이 늘어났습니다. 이제 %d일 후에 계정이 만료됩니다.</string>
   <string name="expiry_date_reached">이 소프트웨어는 만료되었습니다. \ n 테스트 해 주셔서 감사합니다!</string>
-  <string name="download_briar">Briar를 계속 사용하기 위해선, 1.0 버전을 다운로드해 주세요.</string>
   <string name="create_new_account">새로운 계정을 만들어야 하지만, 같은 별명을 사용할 수 있습니다.</string>
-  <string name="download_briar_button">Briar 1.0 다운로드</string>
   <string name="startup_open_database">데이터베이스를 복호화하고 있습니다....</string>
   <string name="startup_migrate_database">데이터베이스를 업그레이드 하고 있습니다...</string>
   <string name="startup_compact_database">데이터베이스를 작게 만들고 있습니다...</string>
@@ -52,7 +49,7 @@
   <string name="nav_drawer_open_description">탐색 창 열기</string>
   <string name="nav_drawer_close_description">탐색 창 닫기</string>
   <string name="contact_list_button">연락처</string>
-  <string name="groups_button">개인 모임</string>
+  <string name="groups_button">프라이빗 모임</string>
   <string name="forums_button">포럼</string>
   <string name="blogs_button">블로그</string>
   <!--This is part of the main menu. The app will be locked when this is tapped.-->
@@ -71,16 +68,16 @@
   <string name="ongoing_notification_title">Briar에 로그인 됨</string>
   <string name="ongoing_notification_text">Briar를 열려면 만지세요.</string>
   <plurals name="private_message_notification_text">
-    <item quantity="other">새로운 %d개의 개인 메시지가 있습니다.</item>
+    <item quantity="other">프라이빗 메시지가 %d개 새로 왔습니다.</item>
   </plurals>
   <plurals name="group_message_notification_text">
-    <item quantity="other">새로운 %d개의 모임 메시지가 있습니다.</item>
+    <item quantity="other">모임 메시지가 %d개 새로 왔습니다.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
-    <item quantity="other">새로운 %d개의 포럼 게시물이 있습니다.</item>
+    <item quantity="other">포럼 게시물이 %d개 새로 올라왔습니다.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
-    <item quantity="other">새로운 %d개의 블로그 게시물이 있습니다.</item>
+    <item quantity="other">블로그 게시물이 %d개 새로 올라왔습니다.</item>
   </plurals>
   <!--Misc-->
   <string name="now">지금</string>
@@ -111,14 +108,17 @@
   <string name="date_no_private_messages">메시지가 없습니다.</string>
   <string name="no_private_messages">저장된 메시지가 없습니다</string>
   <string name="message_hint">메시지 입력하기</string>
-  <string name="image_caption_hint">캡션 넣기(선택 사항)</string>
+  <string name="image_caption_hint">캡션 추가하기(선택 사항)</string>
   <string name="image_attach">이미지 첨부하기</string>
+  <string name="image_attach_error">이미지를 부치지 못했습니다</string>
+  <string name="image_attach_error_too_big">이미지가 너무 큽니다. %dMB 이하로 부탁드립니다.</string>
+  <string name="image_attach_error_invalid_mime_type">%s는 지원되지 않는 이미지 형식입니다.</string>
   <string name="set_contact_alias">연락처 이름 바꾸기</string>
   <string name="set_contact_alias_hint">연락처 이름</string>
   <string name="set_alias_button">바꾸기</string>
-  <string name="delete_contact">연락처 지우기</string>
+  <string name="delete_contact">연락처 삭제하기</string>
   <string name="dialog_title_delete_contact">연락처 삭제 확인</string>
-  <string name="dialog_message_delete_contact">정말로 이 연락처, 그리고 이 연락처와의 메시지를 모두 빼시겠어요?</string>
+  <string name="dialog_message_delete_contact">정말로 이 연락처, 그리고 이 연락처와의 메시지를 모두 제거하시겠어요?</string>
   <string name="contact_deleted_toast">연락처가 삭제됐습니다</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">당신</string>
@@ -128,20 +128,21 @@
   <string name="save_image_success">이미지가 저장됐습니다</string>
   <string name="save_image_error">이미지를 저장할 수 없었습니다</string>
   <string name="dialog_title_no_image_support">이미지를 사용할 수 없습니다</string>
-  <string name="dialog_message_no_image_support">연락하는 분의 Briar가 이미지 첨부를 지원하지 않습니다. 이 분이 업그레이드하면 다른 상징을 볼 수 있습니다.</string>
+  <string name="dialog_message_no_image_support">지인 분의 Briar가 이미지 첨부를 지원하지 않습니다. 이 분이 업그레이드하면 다른 상징을 볼 수 있습니다.</string>
   <string name="dialog_title_image_support">이제 이 분에게 이미지를 보낼 수 있습니다</string>
   <string name="dialog_message_image_support">이 상징을 눌러 이미지를 첨부하세요.</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">주위의 지인 추가하기</string>
   <string name="face_to_face">연락처를 추가하려는 사람과 먼저 만나야 합니다.\n\n나중에 누군가 당신인 척 하거나 메시지를 훔쳐보는 것을 방지할 수 있습니다.</string>
   <string name="continue_button">계속하기</string>
   <string name="try_again_button">다시 시도하기</string>
-  <string name="waiting_for_contact_to_scan">연락처가 스캔하고 연결하길 기다리고 있습니다\u2026</string>
+  <string name="waiting_for_contact_to_scan">지인이 스캔하고 연결하길 기다리고 있습니다\u2026</string>
   <string name="exchanging_contact_details">연락처 세부사항을 교환하고 있습니다\u2026</string>
-  <string name="contact_added_toast">%s: 연락처가 추가됐습니다.</string>
+  <string name="contact_added_toast">%s: 연락처를 추가했습니다. </string>
   <string name="contact_already_exists">%s의 연락처가 이미 있습니다</string>
-  <string name="qr_code_invalid">QR 코드가 유효하지 않습니다</string>
-  <string name="qr_code_too_old">스캔한 QR 코드는 너무 오래된 버전의 %s에서 나왔습니다.\n\n연락하는 분에게 최신 버전으로 업그레이드를 부탁하고 다시 시도하세요.</string>
-  <string name="qr_code_too_new">스캔한 QR 코드는 더 새로운 버전의 %s에서 나왔습니다.\n\n최신 버전으로 업그레이드 후에 다시 시도해 주세요.</string>
+  <string name="qr_code_invalid">QR 코드가 잘못됐습니다</string>
+  <string name="qr_code_too_old">스캔한 QR 코드는 너무 오래된 버전의 %s에서 나왔습니다.\n\n지인 분에게 최신 버전으로 업그레이드를 부탁하고 다시 시도해 주세요.</string>
+  <string name="qr_code_too_new">스캔한 QR 코드는 더 새로운 버전인 %s에서 보냈습니다.\n\n최신 버전으로 업그레이드하고 다시 시도해 주세요.</string>
   <string name="camera_error">카메라 오류</string>
   <string name="connecting_to_device">\u2026 기기에 연결하고 있습니다</string>
   <string name="authenticating_with_device">\u2026 기기와 인증하고 있습니다</string>
@@ -149,43 +150,87 @@
   <string name="connection_error_explanation">둘 다 같은 Wi-Fi 네트워크에 연결돼 있는지 확인해 보세요.</string>
   <string name="connection_error_feedback">문제가 계속된다면, 부디 <a href="feedback">피드백을 남겨서</a> 앱이 좋아지게 도와주세요.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">멀리서 지인 추가하기</string>
+  <string name="add_contact_nearby_title">주위의 지인 추가하기</string>
+  <string name="add_contact_remotely_title">멀리서 지인 추가하기</string>
+  <string name="contact_name_hint">연락처에 별명을 붙이세요</string>
+  <string name="contact_link_intro">지인 분에게서 받은 링크를 여기에 입력하세요</string>
+  <string name="contact_link_hint">지인 분의 링크</string>
   <string name="paste_button">붙여 넣기</string>
+  <string name="add_contact_button">연락처 추가하기</string>
   <string name="copy_button">복사하기</string>
   <string name="share_button">공유</string>
+  <string name="send_link_title">링크 교환하기</string>
+  <string name="add_contact_choose_nickname">별명을 정하세요</string>
+  <string name="add_contact_choose_a_nickname">별명을 입력하세요</string>
+  <string name="nickname_intro">연락처에 별명을 붙이세요. 다른 사람에게는 보여지지 않습니다.</string>
+  <string name="your_link">추가하고 싶은 지인에게 이 링크를 보내세요</string>
+  <string name="link_clip_label">Briar 링크</string>
+  <string name="link_copied_toast">링크가 복사됐습니다</string>
+  <string name="adding_contact_error">연락처를 추가하는 과정에서 문제가 있었습니다.</string>
+  <string name="pending_contact_requests_snackbar">기다리고 있는 연락 요청이 있습니다</string>
+  <string name="pending_contact_requests">연락 요청이 받아들여지길 기다리고 있습니다</string>
+  <string name="no_pending_contacts">남은 연락 요청이 없습니다</string>
   <string name="add_contact_remote_connecting">접속중...</string>
+  <string name="waiting_for_contact_to_come_online">지인 분이 온라인에 접속하길 기다리고 있습니다...</string>
   <string name="connecting">접속중...</string>
+  <string name="adding_contact">연락처 추가하는 중입니다...</string>
+  <string name="adding_contact_failed">연락처를 추가하지 못했습니다</string>
+  <string name="dialog_title_remove_pending_contact">빼기 확인하기</string>
+  <string name="dialog_message_remove_pending_contact">연락처가 아직 추가되고 있습니다. 지금 제거하면 추가되지 않게 됩니다.</string>
+  <string name="own_link_error">자신이 아니고 지인 분의 링크를 입력해 주세요</string>
+  <string name="nickname_missing">별명을 입력하세요</string>
+  <string name="invalid_link">잘못된 링크입니다</string>
+  <string name="unsupported_link">이 링크는 더 새로운 버전인 Briar에서 보냈습니다. 최신 버전으로 업그레이드하고 다시 시도해 주세요.</string>
+  <string name="intent_own_link">자신의 링크를 열었습니다. 추가하고 싶은 연락처를 사용하세요!</string>
+  <string name="missing_link">링크를 입력하세요</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="other">새로운 연락처 %d개를 추가했습니다.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">평소보다 이 연락처를 추가하는데 오래 걸리고 있습니다</string>
+  <string name="adding_contact_slow_title">연락처에 연결되지 않습니다</string>
+  <string name="adding_contact_slow_text">평소보다 이 연락처를 추가하는데 오래 걸리고 있습니다.\n\n 지인 분이 링크를 받아서 추가했는지 확인해 주세요:</string>
+  <string name="offline_state">인터넷에 연결되지 않음</string>
+  <string name="duplicate_link_dialog_title">중복되는 링크입니다</string>
+  <string name="duplicate_link_dialog_text_1">%s: 이미 이 링크를 통한 연락 요청이 있습니다.</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">%s과(와) %s이(가) 같은 사람인가요?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">같은 사람</string>
   <!--This is a button for answering that two nicknames refer to different people. This string
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">다른 사람</string>
+  <string name="duplicate_link_dialog_text_3">%s과(와) %s이(가) 같은 링크를 보냈습니다.\n\n둘 중 하나가 당신의 지인이 누군지 알아내려고 하는 것일 수도 있습니다.\n\n둘 중 누구에게라도 다른 사람에게서 같은 링크를 받았다고 알리지 마십시오.</string>
+  <string name="pending_contact_updated_toast">남은 연락 요청이 있는지 확인했습니다</string>
   <!--Introductions-->
-  <string name="introduction_onboarding_title">연락처끼리 소개시키기</string>
-  <string name="introduction_onboarding_text">연락처끼리 서로 소개해서, 직접 만날 필요 없이 Briar로 연결될 수 있습니다.</string>
-  <string name="introduction_menu_item">소개하기</string>
+  <string name="introduction_onboarding_title">지인 소개하기</string>
+  <string name="introduction_onboarding_text">지인끼리 서로 소개해서, 직접 만날 필요 없이 Briar로 연결될 수 있습니다.</string>
+  <string name="introduction_menu_item">소개시키기</string>
   <string name="introduction_activity_title">연락처 선택하기</string>
-  <string name="introduction_not_possible">이미 이 연락처와 소개시키고 있습니다. 먼저 이 소개를 끝내주세요. 만약 당신이나 연락하는 분이 거의 온라인이 아니라면, 시간이 좀 걸릴 수 있습니다.</string>
-  <string name="introduction_message_title">연락처 소개하기</string>
+  <string name="introduction_not_possible">이미 이 지인 분과 소개시키고 있습니다. 이 과정을 먼저 끝내주세요. 만약 당신이나 지인 분이 자주 온라인이 아니라면, 이 부분은 시간이 좀 걸릴 수 있습니다.</string>
+  <string name="introduction_message_title">지인 소개하기</string>
   <string name="introduction_message_hint">메시지 추가하기(선택 사항)</string>
-  <string name="introduction_button">소개하기</string>
+  <string name="introduction_button">소개시키기</string>
   <string name="introduction_sent">소개시켰습니다.</string>
-  <string name="introduction_error">소개하는 과정에서 문제가 있었습니다.</string>
+  <string name="introduction_error">소개시키는 과정에서 문제가 있었습니다.</string>
   <string name="introduction_response_error">소개에 응하는 과정에서 문제가 있었습니다.</string>
-  <string name="introduction_request_sent">%2$s에게 %1$s를 소개하고 싶다고 했습니다.</string>
-  <string name="introduction_request_received">%1$s이(가) %2$s에게 소개시키고 싶다고 물었습니다. %2$s을(를) 연락처 목록에 추가하고 싶으십니까?</string>
-  <string name="introduction_request_exists_received">%1$s이(가) %2$s에게 소개시키고 싶다고 물었지만, %2$s은(는) 이미 연락처 목록에 있습니다. %1$s이(가) 아직 이 부분을 모르고 있을 수 있으니, 아직 응할 수 있습니다:</string>
+  <string name="introduction_request_sent">%2$s에게 %1$s을(를) 소개하고 싶다고 전했습니다.</string>
+  <string name="introduction_request_received">%1$s이(가) %2$s에게 소개하고 싶다고 합니다. %2$s을(를) 연락처 목록에 추가하고 싶으십니까?</string>
+  <string name="introduction_request_exists_received">%1$s이(가) %2$s에게 소개하고 싶다고 물었지만, %2$s은(는) 이미 연락처 목록에 있습니다. %1$s이(가) 아직 이 부분을 모르고 있을 수 있으니, 아직 응할 수 있습니다:</string>
   <string name="introduction_request_answered_received">%1$s이(가) %2$s에게 소개시키고 싶다고 물었습니다.</string>
-  <string name="introduction_response_accepted_sent">%1$s에게 소개되겠다고 했습니다.</string>
+  <string name="introduction_response_accepted_sent">%1$s에게 소개되고 싶다고 했습니다.</string>
   <string name="introduction_response_accepted_sent_info">%1$s이(가) 당신의 연락처를 받기 전에, 그 쪽에서도 소개를 승락해야 합니다. 여기서 시간이 좀 걸릴 수 있습니다.</string>
   <string name="introduction_response_declined_sent">%1$s에게 소개되고 싶지 않다고 했습니다.</string>
   <string name="introduction_response_accepted_received">%1$s이(가) %2$s에게 소개해도 괜찮다고 했습니다.</string>
   <string name="introduction_response_declined_received">%1$s이(가) %2$s에게 소개되고 싶지 않다고 했습니다.</string>
-  <string name="introduction_response_declined_received_by_introducee">%1$s이(가) %2$s이(가) 소개를 거절했다고 합니다.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s이(가) %2$s이(가) 소개되고 싶지 않다고 합니다.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">모임이 없습니다.</string>
   <string name="groups_list_empty_action">+ 상징을 눌러 모임을 만들거나, 연락하는 분에게 모임을 공유해 달라고 물어보세요</string>
@@ -195,11 +240,11 @@
   </plurals>
   <string name="groups_group_is_empty">이 모임에는 아무도 없습니다</string>
   <string name="groups_group_is_dissolved">이 모임은 해체됐습니다</string>
-  <string name="groups_remove">빼기</string>
-  <string name="groups_create_group_title">개인 모임 만들기</string>
+  <string name="groups_remove">제거하기</string>
+  <string name="groups_create_group_title">프라이빗 모임 만들기</string>
   <string name="groups_create_group_button">모임 만들기</string>
   <string name="groups_create_group_invitation_button">초대장 보내기</string>
-  <string name="groups_create_group_hint">개인 모임의 이름을 정하세요</string>
+  <string name="groups_create_group_hint">프라이빗 모임의 이름을 정하세요</string>
   <string name="groups_invitation_sent">모임 초대장을 보냈습니다</string>
   <string name="groups_member_list">구성원 목록</string>
   <string name="groups_invite_members">구성원 초대하기</string>
@@ -243,7 +288,7 @@
   <string name="create_forum_title">포럼 만들기</string>
   <string name="choose_forum_hint">만드실 포럼 이름을 정해주세요</string>
   <string name="create_forum_button">포럼 만들기</string>
-  <string name="forum_created_toast">포럼이 만들어졌습니다</string>
+  <string name="forum_created_toast">포럼을 만들었습니다</string>
   <string name="no_forum_posts">게시물이 없습니다</string>
   <string name="no_posts">게시글이 없습니다</string>
   <plurals name="posts">
@@ -263,7 +308,7 @@
   <string name="activity_share_toolbar_header">연락처 선택하기</string>
   <string name="no_contacts_selector">저장된 연락처가 없습니다</string>
   <string name="no_contacts_selector_action">연락처를 추가한 후에 돌아오길 바랍니다</string>
-  <string name="forum_shared_snackbar">선택한 연락처와 공유하는 포럼</string>
+  <string name="forum_shared_snackbar">선택한 지인 분과 공유하는 포럼</string>
   <string name="forum_share_message">메시지 추가하기(선택 사항)</string>
   <string name="forum_share_error">포럼을 공유하는 과정에서 문제가 있었습니다</string>
   <string name="forum_invitation_received">%1$s이(가) \"%2$s\" 포럼을 공유했습니다.</string>
@@ -279,10 +324,10 @@
   <string name="forum_invitation_response_accepted_received">%s이(가) 포럼 초대장을 승락했습니다.</string>
   <string name="forum_invitation_response_declined_received">%s이(가) 포럼 초대장을 거절했습니다.</string>
   <string name="sharing_status">공유 상태</string>
-  <string name="sharing_status_forum">포럼의 어느 구성원이든 연락처와 공유할 수 있습니다. 다음 연락처와 포럼을 공유하고 있습니다. 볼 수 없는 구성원이 더 있을 수 있습니다.</string>
-  <string name="shared_with">와(과) 공유하고 있습니다.(%1$d %2$d명 온라인)</string>
+  <string name="sharing_status_forum">포럼은 참가한 누구나 지인과 공유할 수 있습니다. 다음 연락처와 포럼을 공유하고 있습니다. 이외 다른 구성원이 더 있을 수 있습니다.</string>
+  <string name="shared_with">와(과) 공유하고 있습니다.(%1$d명 온라인)</string>
   <plurals name="forums_shared">
-    <item quantity="other">연락처와 공유한 %d개의 포럼</item>
+    <item quantity="other">지인과 공유한 %d개의 포럼</item>
   </plurals>
   <string name="nobody">아무도 없음</string>
   <!--Blogs-->
@@ -296,17 +341,17 @@
   <string name="blogs_blog_post_scroll_to">스크롤</string>
   <string name="blogs_feed_empty_state">게시물이 없습니다</string>
   <string name="blogs_feed_empty_state_action">연락처와 구독한 블로그의 게시물이 여기에 나타납니다.\n\n게시물을 쓰려면 펜 상징을 누르세요</string>
-  <string name="blogs_remove_blog">블로그 빼기</string>
-  <string name="blogs_remove_blog_dialog_message">정말로 이 블로그를 빼시겠어요?\n\n기기에서 게시물은 빠지겠지만 다른 사람의 기기에서는 빠지지 않습니다.\n\n이 블로그를 공유하던 연락처에서 업데이트가 되지 않을 수 있습니다. </string>
-  <string name="blogs_remove_blog_ok">빼기</string>
-  <string name="blogs_blog_removed">블로그를 뺐습니다</string>
+  <string name="blogs_remove_blog">블로그 제거하기</string>
+  <string name="blogs_remove_blog_dialog_message">정말로 이 블로그를 제거하시겠어요?\n\n기기에서 게시물은 제거되지만 다른 사람의 기기에서는 제거되지 않습니다.\n\n이 블로그를 공유하던 연락처에서 업데이트가 되지 않을 수 있습니다. </string>
+  <string name="blogs_remove_blog_ok">제거하기</string>
+  <string name="blogs_blog_removed">블로그를 제거했습니다</string>
   <string name="blogs_reblog_comment_hint">글 추가하기(선택 사항)</string>
   <string name="blogs_reblog_button">재블로그</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">블로그 공유하기</string>
   <string name="blogs_sharing_error">블로그를 공유하는 과정에서 문제가 있었습니다.</string>
   <string name="blogs_sharing_button">블로그 공유하기</string>
-  <string name="blogs_sharing_snackbar">선택한 연락처와 블로그 공유됨</string>
+  <string name="blogs_sharing_snackbar">선택한 지인 분과 블로그 공유함</string>
   <string name="blogs_sharing_response_accepted_sent">%s(으)로부터 받은 블로그 초대장을 승락했습니다.</string>
   <string name="blogs_sharing_response_declined_sent">%s(으)로부터의 블로그 초대장을 거절했습니다.</string>
   <string name="blogs_sharing_response_accepted_received">%s이(가) 블로그 초대를 승락했습니다.</string>
@@ -316,7 +361,7 @@
   <string name="blogs_sharing_invitations_title">블로그 초대장</string>
   <string name="blogs_sharing_joined_toast">블로그에 구독함</string>
   <string name="blogs_sharing_declined_toast">모임 초대장 거절함</string>
-  <string name="sharing_status_blog">블로그에 구독한 누구든 연락처와 공유할 수 있습니다. 다음 연락처와 이 블로그를 공유하고 있습니다. 보이지 않는 다른 구독자가 더 있을 수 있습니다.</string>
+  <string name="sharing_status_blog">블로그는 구독한 누구나 지인과 공유할 수 있습니다. 다음 지인 분과 이 블로그를 공유하고 있습니다. 이외 다른 구독자가 더 있을 수 있습니다.</string>
   <!--RSS Feeds-->
   <string name="blogs_rss_feeds_import">RSS 피드 불러오기</string>
   <string name="blogs_rss_feeds_import_button">가져오기</string>
@@ -326,10 +371,10 @@
   <string name="blogs_rss_feeds_manage_imported">다음을 불러왔습니다:</string>
   <string name="blogs_rss_feeds_manage_author">작성자:</string>
   <string name="blogs_rss_feeds_manage_updated">최종 업데이트:</string>
-  <string name="blogs_rss_remove_feed">피드 빼기</string>
-  <string name="blogs_rss_remove_feed_dialog_message">정말로 이 피드를 빼시겠어요?\n\n기기에서 게시물은 빠지겠지만 다른 사람의 기기에서는 빠지지 않습니다.\n\n이 피드를 공유하던 연락처에서 업데이트가 되지 않을 수 있습니다. </string>
-  <string name="blogs_rss_remove_feed_ok">빼기</string>
-  <string name="blogs_rss_feeds_manage_delete_error">피드를 지울 수 없었습니다!</string>
+  <string name="blogs_rss_remove_feed">피드 제거하기</string>
+  <string name="blogs_rss_remove_feed_dialog_message">정말로 이 피드를 제거하시겠어요?\n\n기기에서 게시물은 제거되지만 다른 사람의 기기에서는 제거되지 않습니다.\n\n이 피드를 공유하던 연락처에서 업데이트가 되지 않을 수 있습니다. </string>
+  <string name="blogs_rss_remove_feed_ok">제거하기</string>
+  <string name="blogs_rss_feeds_manage_delete_error">피드를 삭제할 수 없었습니다!</string>
   <string name="blogs_rss_feeds_manage_empty_state">보여드릴 RSS 피드가 없습니다\n\n+ 상징을 눌러 피드를 불러오세요</string>
   <string name="blogs_rss_feeds_manage_error">피드를 불러오는 과정에서 문제가 있었습니다. 나중에 다시 시도해 주세요.</string>
   <!--Settings Display-->
@@ -347,7 +392,7 @@
   <string name="bluetooth_setting">블루투스로 연결하기</string>
   <string name="bluetooth_setting_enabled">연락처가 가까이 있을 때마다</string>
   <string name="bluetooth_setting_disabled">연락처를 추가할 때만</string>
-  <string name="tor_network_setting">인터넷(Tor)를 통해 연결하기</string>
+  <string name="tor_network_setting">인터넷(Tor)을 통해 연결하기</string>
   <string name="tor_network_setting_automatic">장소에 따라 자동으로</string>
   <string name="tor_network_setting_without_bridges">Tor를 브리지 없이 사용하기</string>
   <string name="tor_network_setting_with_bridges">Tor를 브리지를 통해 사용하기</string>
@@ -356,7 +401,7 @@
   <string name="tor_network_setting_summary">자동: %1$s(%2$s에서)</string>
   <string name="tor_mobile_data_title">모바일 데이터 사용하기</string>
   <string name="tor_only_when_charging_title">충전할 때만 인터넷(Tor)을 통해 연결하기</string>
-  <string name="tor_only_when_charging_summary">베터리로 구동하고 있을 때는 인터넷 연결을 비활성화</string>
+  <string name="tor_only_when_charging_summary">충전 중이지 않을 때에는 인터넷 연결을 비활성화</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title"> 보안</string>
   <string name="pref_lock_title">앱 잠금</string>
@@ -375,7 +420,7 @@
   <string name="pref_lock_timeout_30">30분</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_60">1시간</string>
-  <string name="pref_lock_timeout_never">절대</string>
+  <string name="pref_lock_timeout_never">사용하지 않기</string>
   <string name="pref_lock_timeout_never_summary">절대 자동으로 Briar 잠그지 않기</string>
   <string name="change_password">비밀번호 바꾸기</string>
   <string name="current_password">현재 비밀번호</string>
@@ -390,21 +435,21 @@
   <string name="panic_app_setting_summary">설정된 앱이 없습니다</string>
   <string name="panic_app_setting_none">없음</string>
   <string name="dialog_title_connect_panic_app">패닉 앱 확인</string>
-  <string name="dialog_message_connect_panic_app">%1$s이(가) 파괴적인 패닉 버튼 동작을 작동시킬 수 있게 허용하시겠어요?</string>
-  <string name="panic_setting_destructive_action">파괴적인 행동</string>
+  <string name="dialog_message_connect_panic_app">%1$s이(가) 파기 권한을 지닌 패닉 버튼 동작을 작동시킬 수 있게 허용하시겠어요?</string>
+  <string name="panic_setting_destructive_action">파기하기</string>
   <string name="panic_setting_signout_title">로그아웃</string>
   <string name="panic_setting_signout_summary">패닉 버튼이 눌리면 Briar에서 로그아웃하기</string>
   <string name="purge_setting_title">계정 삭제하기</string>
-  <string name="purge_setting_summary">패닉 버튼이 눌리면 Brirar 계정을 지우기(주의: 계정, 연락처와 메시지가 영구적으로 지워집니다)</string>
+  <string name="purge_setting_summary">패닉 버튼이 눌리면 Briar 계정을 삭제하기 (주의: 계정, 연락처와 메시지가 영구적으로 지워집니다)</string>
   <string name="uninstall_setting_title">Briar 삭제하기</string>
   <string name="uninstall_setting_summary">패닉 상황에서 수동으로 확인해야 합니다</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">알림</string>
   <string name="notify_sign_in_title">로그인 알려주기</string>
   <string name="notify_sign_in_summary">폰이 켜지거나 앱이 업데이트되면 알려주기</string>
-  <string name="notify_private_messages_setting_title">개인 메시지</string>
-  <string name="notify_private_messages_setting_summary">개인 메시지에 대해 알림 보이기</string>
-  <string name="notify_private_messages_setting_summary_26">개인 메시지에 대해 알림 설정하기</string>
+  <string name="notify_private_messages_setting_title">프라이빗 메시지</string>
+  <string name="notify_private_messages_setting_summary">프라이빗 메시지에 대해 알림 보이기</string>
+  <string name="notify_private_messages_setting_summary_26">프라이빗 메시지에 대해 알림 설정하기</string>
   <string name="notify_group_messages_setting_title">모임 메시지</string>
   <string name="notify_group_messages_setting_summary">모임 메시지 알림 보이기</string>
   <string name="notify_group_messages_setting_summary_26">모임 메시지 알림 설정</string>

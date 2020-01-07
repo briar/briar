@@ -41,11 +41,10 @@
     <item quantity="one">Aquesta és una versió de prova de Briar. El vostre compte expira en %d dia i no es pot renovar.</item>
     <item quantity="other">Aquesta és una versió de prova de Briar. El vostre compte caducarà en %d dies i no es podrà renovar.</item>
   </plurals>
-  <string name="expiry_update">S\'ha allargat la data de caducitat d\'aquesta versió de test de Briar. Ara el vostre compte caducarà d\'aquí a %d dies.</string>
   <string name="expiry_date_reached">Aquesta versió de Briar ha caducat.\nGràcies per haver-lo provat!</string>
-  <string name="download_briar">Per continuar fent servir Briar, descarregueu-vos la versió 1.0.</string>
+  <string name="download_briar">Per continuar utilitzant el Briar, baixeu la darrera versió.</string>
   <string name="create_new_account">Haureu de crear un compte nou, però podeu utilitzar el mateix sobrenom.</string>
-  <string name="download_briar_button">Descarrega Briar 1.0</string>
+  <string name="download_briar_button">Baixa l\'última versió</string>
   <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
   <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
   <string name="startup_compact_database">S\'està compactant la base de dades...</string>
@@ -110,6 +109,7 @@
   <string name="fix">Corregeix</string>
   <string name="help">Ajuda</string>
   <string name="sorry">Ens sap greu</string>
+  <string name="error_start_activity">No disponible al vostre sistema</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">No hi ha cap contacte per mostrar</string>
   <string name="no_contacts_action">Toqueu la icona + per afegir un contacte</string>
@@ -124,6 +124,10 @@
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="set_alias_button">Canvia</string>
+  <string name="delete_all_messages">Suprimeix tots els missatges</string>
+  <string name="dialog_title_delete_all_messages">Confirmeu la supressió dels missatges</string>
+  <string name="dialog_message_delete_all_messages">Esteu segur que voleu suprimir tots els missatges?</string>
+  <string name="dialog_title_not_all_messages_deleted">No s\'ha pogut suprimir tots els missatges</string>
   <string name="delete_contact">Suprimeix aquest contacte</string>
   <string name="dialog_title_delete_contact">Confirmeu la supressió del contacte</string>
   <string name="dialog_message_delete_contact">Segur que voleu suprimir aquest contacte i tots els missatges que us heu intercanviat?</string>
@@ -140,6 +144,7 @@
 Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="dialog_title_image_support">Ara ja podeu enviar imatges a aquest contacte</string>
   <string name="dialog_message_image_support">Premeu aquesta icona per afegir imatges.</string>
+  <string name="messaging_too_many_attachments_toast">Només s\'enviaran les %d primeres imatges</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Afegeix un contacte proper</string>
   <string name="face_to_face">Heu de coincidir en el mateix lloc amb la persona que voleu afegir com a contacte.\n\nD\'aquesta manera evitareu que algú suplanti les vostres identitats o pugui llegir els vostres missatges en el futur.</string>
@@ -207,6 +212,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="offline_state">No hi ha connexió a Internet</string>
   <string name="duplicate_link_dialog_title">Enllaç duplicat</string>
   <string name="duplicate_link_dialog_text_1">Teniu una sol·licitud de contacte pendent amb l\'enllaç %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Ja teniu un contacte amb aquest enllaç: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">%s i %s són la mateixa persona?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

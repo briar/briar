@@ -5,7 +5,7 @@
   <string name="setup_name_explanation">A beceneve fog megjelenni minden tartalom mellett amit Ön osztott meg. Nem tudja megváltoztatni a fiók létrehozása után.</string>
   <string name="setup_next">Következő</string>
   <string name="setup_password_intro">Válasszon jelszót</string>
-  <string name="setup_password_explanation">A Briar fiókja titkosítva az eszközén kerül tárolásra, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú jelszót, amit nehéz kitalálni, mint négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
+  <string name="setup_password_explanation">A Briar fiókja az eszközén kerül tárolásra titkosítva, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
   <string name="setup_doze_title">Háttérkapcsolatok</string>
   <string name="setup_doze_intro">Az üzenetek fogadásához a Briar-nak szüksége van a háttérben csatlakozásra.</string>
   <string name="setup_doze_explanation">Az üzenetek fogadásához a Briarnak szüksége van háttérben csatlakozásra. Kérjük tiltsa le az akkumulátor optimalizációt, így a Briar kapcsolatban tud maradni.</string>
@@ -29,7 +29,7 @@
   <string name="sign_in_button">Bejelentkezés</string>
   <string name="forgotten_password">Elfelejtettem a jelszavam</string>
   <string name="dialog_title_lost_password">Elveszett jelszó</string>
-  <string name="dialog_message_lost_password">A Briar fiókja titkosítva az eszközén kerül tárolásra, nem a felhőben, így nem tudjuk helyreállítani a jelszavát. Szeretné törölni a fiókját és elölről kezdeni?\n\nFigyelem: az identitásai, kapcsolatai és üzenetei végleg elvesznek.</string>
+  <string name="dialog_message_lost_password">A Briar fiókja az eszközén kerül tárolásra titkosítva, nem a felhőben. Ha elfelejti a jelszavát, vagy eltávolítja a Briar-t, nincs lehetőség fiókja visszanyerésére.\n\nVálasszon egy hosszú, nehezen kitalálható jelszót, például négy tetszőleges szó vagy tíz tetszőleges betű, szám vagy szimbólum.</string>
   <string name="startup_failed_notification_title">Briar nem tud elindulni</string>
   <string name="startup_failed_notification_text">Érintse meg további információért</string>
   <string name="startup_failed_activity_title">Briar indítási hiba</string>
@@ -41,11 +41,10 @@
     <item quantity="one">Ez a teszt verziója a Briar-nak. A fiókja le fog járni %d napon belül és nem megújítható.</item>
     <item quantity="other">Ez a teszt verziója a Briar-nak. A fiókja le fog járni %d napon belül és nem megújítható.</item>
   </plurals>
-  <string name="expiry_update">A tesztelési lejárati dátum módosult. A fiókja most lejár %d napon belül.</string>
   <string name="expiry_date_reached">Ez a szoftver lejárt.\nKöszönjük a tesztelését!</string>
-  <string name="download_briar">A Briar használatának folytatásához kérjük töltse le az 1.0 verziót.</string>
+  <string name="download_briar">A Briar használatának folytatásához kérjük töltse le a legújabb verziót.</string>
   <string name="create_new_account">Új fiókot kell létrehoznia, de használhatja ugyanazt a becenevet.</string>
-  <string name="download_briar_button">Briar 1.0 letöltése</string>
+  <string name="download_briar_button">Legújabb verzió letöltése</string>
   <string name="startup_open_database">Adatbázis dekódolása...</string>
   <string name="startup_migrate_database">Adatbázis frissítése</string>
   <string name="startup_compact_database">Adatbázis tömörítése...</string>
@@ -110,6 +109,7 @@
   <string name="fix">Javítás</string>
   <string name="help">Súgó</string>
   <string name="sorry">Sajnáljuk</string>
+  <string name="error_start_activity">Nem elérhető az ön rendszerén</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nincs megjeleníthető kapcsolat</string>
   <string name="no_contacts_action">Érintse meg a + gombot kapcsolatok hozzáadásához</string>
@@ -128,7 +128,6 @@
   <string name="dialog_title_delete_all_messages">Üzenet törlés megerősítése</string>
   <string name="dialog_message_delete_all_messages">Biztos, hogy szeretné törölni összes üzenetét?</string>
   <string name="dialog_title_not_all_messages_deleted">Nem törölhető minden üzenet</string>
-  <string name="dialog_message_not_all_messages_deleted">Azok az üzenetek amik kimenő bemutatkozások vagy meghívások nem törölhetők, míg be nem fejeződnek.</string>
   <string name="delete_contact">Kapcsolat törlése</string>
   <string name="dialog_title_delete_contact">Kapcsolat törlésének megerősítése</string>
   <string name="dialog_message_delete_contact">Biztosan eltávolítja ezt a kapcsolatot és minden vele történt üzenetváltását?</string>
@@ -137,7 +136,9 @@
   <string name="you">Ön</string>
   <string name="save_image">Kép mentése</string>
   <string name="dialog_title_save_image">Kép mentése?</string>
-  <string name="dialog_message_save_image">A kép mentése lehetővé teszi, hogy más alkalmazások is elérjék.\n\nBiztosan szeretné menteni?</string>
+  <string name="dialog_message_save_image">A kép mentése lehetővé teszi, hogy más alkalmazások is elérjék.
+
+Biztosan szeretné menteni?</string>
   <string name="save_image_success">Kép mentve</string>
   <string name="save_image_error">Sikertelen kép mentés</string>
   <string name="dialog_title_no_image_support">Képek nem elérhetők</string>
@@ -146,7 +147,7 @@
   <string name="dialog_message_image_support">Érintse meg az ikont képek csatolásához.</string>
   <string name="messaging_too_many_attachments_toast">Csak az első %d kép kerül küldésre</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Közeli kontakt hozzáadása</string>
+  <string name="add_contact_title">Közeli kapcsolat hozzáadása</string>
   <string name="face_to_face">Találkoznia kell a személlyel akit, hozzá szeretne adni a kapcsolatokhoz.\n\nEz megelőzi azt, hogy valaki megszemélyesítse Önt, vagy elolvassa későbbi üzeneteit.</string>
   <string name="continue_button">Folytatás</string>
   <string name="try_again_button">Újrapróbálkozás</string>
@@ -162,7 +163,7 @@
   <string name="authenticating_with_device">Azonosítás az eszközzel\u2026</string>
   <string name="connection_error_title">Nem sikerült csatlakozni a kapcsolatához</string>
   <string name="connection_error_explanation">Ellenőrizzék, hogy mindketten ugyanahhoz a Wi-Fi hálózathoz vannak-e csatlakozva.</string>
-  <string name="connection_error_feedback">Ha ez a probléma tartósan fennáll, kérjük <a href="feedback"> küldjön visszajelzést </a> nekünk, hogy segítsen fejleszteni az appot.</string>
+  <string name="connection_error_feedback">Ha ez a probléma tartósan fennáll, kérjük <a href="feedback">küldjön visszajelzést</a> nekünk, hogy segítsen fejleszteni az appot.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Távoli kapcsolat hozzá adása</string>
   <string name="add_contact_nearby_title">Közeli kapcsolat hozzáadása</string>
@@ -300,7 +301,7 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="groups_reveal_visible">Kapcsolat viszony látható a csoportnak</string>
   <string name="groups_reveal_visible_revealed_by_us">Kapcsolat viszony látható a csoportnak (Ön által felfedve)</string>
   <string name="groups_reveal_visible_revealed_by_contact">Kapcsolat viszony látható a csoportnak (%s által felfedve)</string>
-  <string name="groups_reveal_invisible">Kapcsolat viszony nem látható a csoportnak (</string>
+  <string name="groups_reveal_invisible">Kapcsolat viszony nem látható a csoportnak </string>
   <!--Forums-->
   <string name="no_forums">Nincs megjelenítendő fórum</string>
   <string name="no_forums_action">Érintse meg a + ikont fórum létrehozásához, vagy kérje meg kapcsolatait, hogy osszanak meg fórumokat Önnel</string>
@@ -364,7 +365,10 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="blogs_feed_empty_state_action">A bejegyzések a kapcsolataitól és a blogoktól, amikre feliratkozott, itt jelennek meg.\n\nÉrintse meg a toll ikont egy blog bejegyzés írásához</string>
   <string name="blogs_remove_blog">Blog eltávolítása</string>
   <string name="blogs_remove_blog_dialog_message">Biztosan eltávolítja ezt a blogot?
-\n\nA bejegyzések törlődni fognak az Ön eszközéről, de nem a többi ember eszközéről.\n\nKapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissítést.</string>
+
+A bejegyzések törlődni fognak az Ön eszközéről, de nem a többi ember eszközéről.
+
+Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissítést.</string>
   <string name="blogs_remove_blog_ok">Eltávolít</string>
   <string name="blogs_blog_removed">Blog eltávolítva</string>
   <string name="blogs_reblog_comment_hint">Megjegyzés hozzáadása (opcionális)</string>
