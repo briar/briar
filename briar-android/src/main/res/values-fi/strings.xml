@@ -41,11 +41,8 @@
     <item quantity="one">Tämä on Briarin testiversio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
     <item quantity="other">Tämä on Briarin testiversio. Sinun tilisi tulee vanhentumaan %d päivän päästä eikä sitä voi uusia.</item>
   </plurals>
-  <string name="expiry_update">Testiaikaa on pidennetty. Tilisi tulee nyt vanhentumaan %d päivän kuluttua.</string>
   <string name="expiry_date_reached">Tämä sovellus on vanhentunut.\nKiitos testaamisesta!</string>
-  <string name="download_briar">Jatkaaksesi Briarin käyttöä, lataa versio 1.0.</string>
   <string name="create_new_account">Sinun täytyy luoda uusi tili, mutta voit käyttää samaa tunnusta.</string>
-  <string name="download_briar_button">Lataa Briar 1.0</string>
   <string name="startup_open_database">Puretaan tietokannan salaus...</string>
   <string name="startup_migrate_database">Päivitetään tietokanta...</string>
   <!--Navigation Drawer-->

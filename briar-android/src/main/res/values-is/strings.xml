@@ -41,11 +41,10 @@
     <item quantity="one">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d dag og er ekki hægt að endurnýja hann.</item>
     <item quantity="other">Þetta er prufuútgáfa af Briar. Notandaaðgangurinn þinn mun renna út eftir %d daga og er ekki hægt að endurnýja hann.</item>
   </plurals>
-  <string name="expiry_update">Dagsetningin fyrir prufuútgáfuna hefur verið framlengd. Notandaaðgangurinn þinn mun núna renna út eftir %d daga.</string>
   <string name="expiry_date_reached">Þessi hugbúnaður er úreltur.\nTakk fyrir að hafa tekið þátt í prófunum!</string>
-  <string name="download_briar">Til að halda áfram að nota Briar, ættirðu að sækja útgáfu 1.0.</string>
+  <string name="download_briar">Til að halda áfram að nota Briar, ættirðu að sækja nýjustu útgáfuna.</string>
   <string name="create_new_account">Þú þarft að búa til nýjan notandaaðgang, en þú getur notað áfram sama stuttnefni.</string>
-  <string name="download_briar_button">Sækja Briar 1.0</string>
+  <string name="download_briar_button">Ná í nýjustu útgáfu</string>
   <string name="startup_open_database">Afkóða gagnagrunn…</string>
   <string name="startup_migrate_database">Uppfæri gagnagrunn…</string>
   <string name="startup_compact_database">Þjappa gagnagrunni…</string>
@@ -54,7 +53,7 @@
   <string name="nav_drawer_close_description">Loka leiðsagnarsleðanum</string>
   <string name="contact_list_button">Tengiliðir</string>
   <string name="groups_button">Einkahópar</string>
-  <string name="forums_button">Vefspjallsvæði</string>
+  <string name="forums_button">Spjallsvæði</string>
   <string name="blogs_button">Blogg</string>
   <!--This is part of the main menu. The app will be locked when this is tapped.-->
   <string name="lock_button">Læsa forriti</string>
@@ -110,6 +109,7 @@
   <string name="fix">Laga</string>
   <string name="help">Hjálp</string>
   <string name="sorry">Því miður</string>
+  <string name="error_start_activity">Er ekki tiltækt fyrir kerfið þitt</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Engir tengiliðir til að birta</string>
   <string name="no_contacts_action">Ýttu á + táknið til að bæta við tengilið</string>
@@ -119,9 +119,14 @@
   <string name="image_caption_hint">Bæta við fyrirsögn (valfrjálst)</string>
   <string name="image_attach">Hengja við mynd</string>
   <string name="image_attach_error">Gat ekki hengt við mynd(ir)</string>
+  <string name="image_attach_error_too_big">Myndin er of stór. Hámark er %d MB.</string>
+  <string name="image_attach_error_invalid_mime_type">Myndskráarsnið er ekki stutt: %s</string>
   <string name="set_contact_alias">Breyta nafni tengiliðar</string>
   <string name="set_contact_alias_hint">Nafn tengiliðar</string>
   <string name="set_alias_button">Breyta</string>
+  <string name="delete_all_messages">Eyða öllum skilaboðum</string>
+  <string name="dialog_title_delete_all_messages">Staðfesta eyðingu skilaboða</string>
+  <string name="dialog_message_delete_all_messages">Ertu viss um að þú viljir eyða öllum skilaboðum?</string>
   <string name="dialog_title_not_all_messages_deleted">Gat ekki eytt öllum skilaboðum</string>
   <string name="delete_contact">Eyða tengilið</string>
   <string name="dialog_title_delete_contact">Staðfesta eyðingu tengiliðar</string>
@@ -138,7 +143,9 @@
   <string name="dialog_message_no_image_support">Briar-útgáfa tengiliðarins þíns styður ekki ennþá myndaviðhengi. Þegar þeir verða búnir að uppgæra hugbúnaðinn muntu sjá öðruvísi tákn.</string>
   <string name="dialog_title_image_support">Þú getur núna sent myndir til þessa tengiliðar</string>
   <string name="dialog_message_image_support">Ýttu á þessa táknmynd til að hengja við myndir.</string>
+  <string name="messaging_too_many_attachments_toast">Einungis fyrstu %d myndirnar verða sendar</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">Bæta við nálægum tengilið</string>
   <string name="face_to_face">Þú verður að hitta persónuna sem þú vilt bæta við sem tengilið.\n\nÞetta kemur í veg fyrir að nokkur geti látist vera þú eða nokkur geti framvegis lesið skilaboðin þín.</string>
   <string name="continue_button">Halda áfram</string>
   <string name="try_again_button">Reyndu aftur</string>
@@ -156,26 +163,76 @@
   <string name="connection_error_explanation">Athugaðu hvort þið séuð ekki báðir tengdir við sama þráðlausa Wi-Fi netið.</string>
   <string name="connection_error_feedback">Ef þetta vandamál er viðvarandi, ættirðu að <a href="feedback">senda umsögn</a> til að hjálpa okkur að bæta forritið.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">Bæta við fjarlægum tengilið</string>
+  <string name="add_contact_nearby_title">Bæta við nálægum tengilið</string>
+  <string name="add_contact_remotely_title">Bæta við fjarlægum tengilið</string>
+  <string name="contact_name_hint">Gefðu tengiliðnum stuttnefni</string>
+  <string name="contact_link_intro">Settu hér inn tengilinn frá tengiliðnum þínum</string>
+  <string name="contact_link_hint">Tengill á tengilið</string>
+  <string name="paste_button">Líma</string>
+  <string name="add_contact_button">Bæta við tengilið</string>
+  <string name="copy_button">Afrita</string>
+  <string name="share_button">Deila</string>
+  <string name="send_link_title">Skiptast á tenglum</string>
+  <string name="add_contact_choose_nickname">Veldu stuttnefni</string>
+  <string name="add_contact_choose_a_nickname">Settu inn stuttnefni</string>
+  <string name="nickname_intro">Gefðu tengiliðnum þínum stuttnefni/gælunafn. Einungis þú getur séð það.</string>
+  <string name="your_link">Gefðu þennan tengil til tengiliðarins sem þú ætlar að bæta við</string>
+  <string name="link_clip_label">Briar tengill</string>
+  <string name="link_copied_toast">Tengill afritaður</string>
+  <string name="adding_contact_error">Villa kom upp við að bæta við tengiliðnum.</string>
+  <string name="pending_contact_requests_snackbar">Það eru nokkrar tengiliðabeiðnir sem bíða</string>
+  <string name="pending_contact_requests">Tengiliðabeiðnir sem bíða</string>
+  <string name="no_pending_contacts">Engar tengiliðabeiðnir bíða</string>
   <string name="add_contact_remote_connecting">Tengist…</string>
+  <string name="waiting_for_contact_to_come_online">Bíð eftir að tengiliður tengist netinu…</string>
   <string name="connecting">Tengist…</string>
+  <string name="adding_contact">Bæti við tengilið…</string>
+  <string name="adding_contact_failed">Það mistókst að bæta við tengilið</string>
+  <string name="dialog_title_remove_pending_contact">Staðfesta að fjarlægja</string>
+  <string name="dialog_message_remove_pending_contact">Það er ennþá verið að bæta þessum tengilið við. Ef þú fjarlægir hann núna, verður honum ekki bætt við.</string>
+  <string name="own_link_error">Settu inn tengilinn frá tengiliðnum þínum, ekki þinn eigin</string>
+  <string name="nickname_missing">Settu inn stuttnefni</string>
+  <string name="invalid_link">Ógildur tengill</string>
+  <string name="unsupported_link">Þessi tengill kemur frá nýrri útgáfu af Briar.\n\nUppfærðu í nýjustu útgáfuna og prófaðu síðan aftur.</string>
+  <string name="intent_own_link">Þú opnaðir þinn eigin tengil. Notaðu tengilinn frá tengiliðnum sem þú ætlar að bæta við!</string>
+  <string name="missing_link">Settu inn tengil</string>
   <!--This is a numeral indicating the first step in a series of screens-->
+  <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
+  <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">Nýjum tengilið bætt við.</item>
+    <item quantity="other">%d nýjum tengiliðum bætt við.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Það að bæta við þessum tengilið tekur lengri tíma en venjulega</string>
+  <string name="adding_contact_slow_title">Tekst ekki að tengjast tengiliðnum</string>
+  <string name="adding_contact_slow_text">Það að bæta við þessum tengilið tekur lengri tíma en venjulega\n\nGakktu úr skugga um að tengiliðurinn þinn hafi fengið tengilinn frá þér og bætt þér við hjá sér:</string>
+  <string name="offline_state">Engin internettenging</string>
+  <string name="duplicate_link_dialog_title">Endurtekinn tengill</string>
+  <string name="duplicate_link_dialog_text_1">Þú ert þegar með tengilið í bið sem er með þessum tengli: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Þú ert þegar með tengilið með þessum tengli: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">Eru %s og %s sami einstaklingurinn?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">Sami einstaklingur</string>
   <!--This is a button for answering that two nicknames refer to different people. This string
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">Annar einstaklingur</string>
+  <string name="duplicate_link_dialog_text_3">%s og %s sendu þér sama tengilinn.\n\nAnnar þeirra gæti verið að reyna að finna út hverjir tengiliðirnir þínir eru.\n\nEkki segja þeim að þú hafir fengið sama tengil frá einhverjum öðrum.</string>
+  <string name="pending_contact_updated_toast">Tengiliður í bið uppfærður</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Kynntu tengiliðina þína</string>
   <string name="introduction_onboarding_text">Þú getur kynnt tengiliðina þína fyrir hver öðrum, svo að þeir þurfi ekki að hittast í eigin persónu til að tengjast í gegnum Briar.</string>
-  <string name="introduction_menu_item">Útbúðu kynningu</string>
+  <string name="introduction_menu_item">Útbúa kynningu</string>
   <string name="introduction_activity_title">Veldu tengilið</string>
   <string name="introduction_not_possible">Þú ert þegar með eina kynningu í vinnslu gagnvart þessum tengiliðum. Leyfðu því ferli að ljúka fyrst. Ef þú eða tengiliðirnir þínir eruð sjaldan á netinu, gæti þetta tekið svolítinn tíma.</string>
   <string name="introduction_message_title">Kynntu tengiliði</string>
   <string name="introduction_message_hint">Bættu við skilaboðum (valfrjálst)</string>
-  <string name="introduction_button">Útbúðu kynningu</string>
+  <string name="introduction_button">Útbúa kynningu</string>
   <string name="introduction_sent">Kynningin þín hefur verið send.</string>
   <string name="introduction_error">Villa kom upp við kynninguna.</string>
   <string name="introduction_response_error">Villa kom upp við að svara kynningunni.</string>
@@ -308,7 +365,7 @@
   <string name="blogs_remove_blog_ok">Fjarlægja</string>
   <string name="blogs_blog_removed">Blogg var fjarlægt</string>
   <string name="blogs_reblog_comment_hint">Bæta við athugasemd (valkvætt)</string>
-  <string name="blogs_reblog_button">Endurblogg</string>
+  <string name="blogs_reblog_button">Endurbirta</string>
   <!--Blog Sharing-->
   <string name="blogs_sharing_share">Deila bloggi</string>
   <string name="blogs_sharing_error">Það kom upp villa við að deila þessu bloggi.</string>
@@ -330,7 +387,7 @@
   <string name="blogs_rss_feeds_import_hint">Settu inn slóðina á RSS-streymið</string>
   <string name="blogs_rss_feeds_import_error">Því miður! Það kom upp villa við að flytja inn streymið.</string>
   <string name="blogs_rss_feeds_manage">Sýsla með RSS-streymi</string>
-  <string name="blogs_rss_feeds_manage_imported">Fflutt inn:</string>
+  <string name="blogs_rss_feeds_manage_imported">Flutt inn:</string>
   <string name="blogs_rss_feeds_manage_author">Höfundur:</string>
   <string name="blogs_rss_feeds_manage_updated">Síðast uppfært:</string>
   <string name="blogs_rss_remove_feed">Fjarlægja streymi</string>

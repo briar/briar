@@ -7,15 +7,13 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 
 import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
-import org.briarproject.bramble.util.StringUtils;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.logging.BriefLogFormatter;
@@ -23,7 +21,6 @@ import org.briarproject.briar.android.logging.BriefLogFormatter;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -43,8 +40,12 @@ import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_MOBILE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
+import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Collections.unmodifiableMap;
+import static org.briarproject.bramble.util.AndroidUtils.getBluetoothAddressAndMethod;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 public class BriarReportPrimer implements ReportPrimer {
 
@@ -195,63 +196,53 @@ public class BriarReportPrimer implements ReportPrimer {
 
 			// Is Bluetooth available?
 			BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
-			boolean btAvailable = bt != null;
-			// Is Bluetooth enabled?
-			boolean btEnabled = bt != null && bt.isEnabled() &&
-					!StringUtils.isNullOrEmpty(bt.getAddress());
-			// Is Bluetooth connectable?
-			boolean btConnectable = bt != null &&
-					(bt.getScanMode() == SCAN_MODE_CONNECTABLE ||
-							bt.getScanMode() ==
-									SCAN_MODE_CONNECTABLE_DISCOVERABLE);
-			// Is Bluetooth discoverable?
-			boolean btDiscoverable = bt != null &&
-					bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-			// Is Bluetooth LE scanning and advertising supported?
-			boolean btLeApi = false, btLeScan = false, btLeAdvertise = false;
-			if (bt != null && Build.VERSION.SDK_INT >= 21) {
-				btLeApi = true;
-				btLeScan = bt.getBluetoothLeScanner() != null;
-				btLeAdvertise = bt.getBluetoothLeAdvertiser() != null;
-			}
+			if (bt == null) {
+				customData.put("Bluetooth status", "Not available");
+			} else {
+				// Is Bluetooth enabled?
+				boolean btEnabled = bt.isEnabled()
+						&& !isNullOrEmpty(bt.getAddress());
+				// Is Bluetooth connectable?
+				int scanMode = bt.getScanMode();
+				boolean btConnectable = scanMode == SCAN_MODE_CONNECTABLE ||
+						scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+				// Is Bluetooth discoverable?
+				boolean btDiscoverable =
+						scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 
-			String btStatus;
-			if (btAvailable) btStatus = "Available, ";
-			else btStatus = "Not available, ";
-			if (btEnabled) btStatus += "enabled, ";
-			else btStatus += "not enabled, ";
-			if (btConnectable) btStatus += "connectable, ";
-			else btStatus += "not connectable, ";
-			if (btDiscoverable) btStatus += "discoverable";
-			else btStatus += "not discoverable";
-			customData.put("Bluetooth status", btStatus);
-			if (btLeApi) {
-				String btLeStatus;
-				if (btLeScan) btLeStatus = "Scanning, ";
-				else btLeStatus = "No scanning, ";
-				if (btLeAdvertise) btLeStatus += "advertising";
-				else btLeStatus += "no advertising";
-				customData.put("Bluetooth LE status", btLeStatus);
-			}
+				String btStatus;
+				if (btEnabled) btStatus = "Available, enabled, ";
+				else btStatus = "Available, not enabled, ";
+				if (btConnectable) btStatus += "connectable, ";
+				else btStatus += "not connectable, ";
+				if (btDiscoverable) btStatus += "discoverable";
+				else btStatus += "not discoverable";
+				customData.put("Bluetooth status", btStatus);
 
-			if (bt != null) {
-				customData.put("Bluetooth address",
-						scrubMacAddress(bt.getAddress()));
+				if (SDK_INT >= 21) {
+					// Is Bluetooth LE scanning and advertising supported?
+					boolean btLeScan = bt.getBluetoothLeScanner() != null;
+					boolean btLeAdvertise =
+							bt.getBluetoothLeAdvertiser() != null;
+					String btLeStatus;
+					if (btLeScan) btLeStatus = "Scanning, ";
+					else btLeStatus = "No scanning, ";
+					if (btLeAdvertise) btLeStatus += "advertising";
+					else btLeStatus += "no advertising";
+					customData.put("Bluetooth LE status", btLeStatus);
+				}
+
+				Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
+				String address = p.getFirst();
+				String method = p.getSecond();
+				customData.put("Bluetooth address", scrubMacAddress(address));
+				customData.put("Bluetooth address method", method);
 			}
-			String btSettingsAddr;
-			try {
-				btSettingsAddr = Settings.Secure.getString(
-						ctx.getContentResolver(), "bluetooth_address");
-			} catch (SecurityException e) {
-				btSettingsAddr = "Could not get address from settings";
-			}
-			customData.put("Bluetooth address from settings",
-					scrubMacAddress(btSettingsAddr));
 
 			// Git commit ID
 			customData.put("Commit ID", BuildConfig.GitHash);
 
-			return Collections.unmodifiableMap(customData);
+			return unmodifiableMap(customData);
 		}
 	}
 

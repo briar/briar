@@ -41,11 +41,10 @@
     <item quantity="one">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dagar och kan ej förnyas.</item>
     <item quantity="other">Det här är en test-version av Briar. Ditt konto kommer att upphöra om %d dag och kan ej förnyas.</item>
   </plurals>
-  <string name="expiry_update">Utgångsdatum för test har förlängts. Ditt konto kommer nu att upphöra om %d dagar.</string>
   <string name="expiry_date_reached">Mjukvaran har gått ut.\nTack för att du bidragit till att testa!</string>
-  <string name="download_briar">Ladda ner version 1.0 för att kunna fortsätta använda Briar.</string>
+  <string name="download_briar">För att fortsätta använda Briar, hämta den senaste utgåvan.</string>
   <string name="create_new_account">Du måste skapa ett nytt konto, men du kan använda samma smeknamn.</string>
-  <string name="download_briar_button">Ladda ner Briar 1.0</string>
+  <string name="download_briar_button">Hämta senaste utgåvan</string>
   <string name="startup_open_database">Dekrypterar databasen...</string>
   <string name="startup_migrate_database">Uppgraderar databasen...</string>
   <string name="startup_compact_database">Komprimerar databasen...</string>
@@ -85,7 +84,7 @@
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">Ett nytt blogginlägg.</item>
-    <item quantity="other">%dnya blogginlägg.</item>
+    <item quantity="other">%d nya blogginlägg.</item>
   </plurals>
   <!--Misc-->
   <string name="now">nu</string>
@@ -110,6 +109,7 @@
   <string name="fix">Laga</string>
   <string name="help">Hjälp</string>
   <string name="sorry">Tyvärr</string>
+  <string name="error_start_activity">Otillgänglig på ditt system</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Inga kontakter</string>
   <string name="no_contacts_action">Tryck på plus-ikonen (+) för att lägga till en kontakt</string>
@@ -124,6 +124,17 @@
   <string name="set_contact_alias">Ändra namn på kontakt</string>
   <string name="set_contact_alias_hint">Kontaktnamn</string>
   <string name="set_alias_button">Ändra</string>
+  <string name="delete_all_messages">Ta bort alla meddelanden</string>
+  <string name="dialog_title_delete_all_messages">Bekräfta meddelande borttagning</string>
+  <string name="dialog_message_delete_all_messages">Är du säker på att du vill ta bort alla meddelanden?</string>
+  <string name="dialog_title_not_all_messages_deleted">Det gick inte att ta bort alla meddelanden</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Meddelanden relaterade till pågående inbjudningar och introduktioner kan inte tas bort förrän de avslutas.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Meddelanden relaterade till pågående introduktioner kan inte tas bort förrän de avslutas.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Meddelanden relaterade till pågående inbjudningar kan inte tas bort förrän de avslutas.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Delvis hämtade meddelanden kan inte tas bort förrän de har hämtats.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">För att ta bort en inbjudan eller introduktion måste du välja förfrågan och svaret.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">För att ta bort en introduktion måste du välja förfrågan och svaret.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">För att ta bort en inbjudan måste du välja förfrågan och svaret.</string>
   <string name="delete_contact">Radera kontakt</string>
   <string name="dialog_title_delete_contact">Bekräfta radering av kontakt</string>
   <string name="dialog_message_delete_contact">Är du säker att du vill radera denna kontakt och alla meddelanden?</string>
@@ -139,6 +150,7 @@
   <string name="dialog_message_no_image_support">Din kontakt använder en version av Briar som inte stödjer bifogade bilder. En annan ikon kommer att visas när denne har uppgraderat.</string>
   <string name="dialog_title_image_support">Du kan nu skicka bilder till den här kontakten</string>
   <string name="dialog_message_image_support">Tryck på denna ikon för att bifoga bilder.</string>
+  <string name="messaging_too_many_attachments_toast">Endast de första %d bilder kommer att skickas</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Lägg till en närvarande kontakt</string>
   <string name="face_to_face">Du måste personligen träffa den som du vill lägga till som kontakt.\n\nDetta för att undvika att någon senare låtsas vara du eller läser dina meddelanden.</string>
@@ -206,6 +218,7 @@
   <string name="offline_state">Ingen Internetanslutning</string>
   <string name="duplicate_link_dialog_title">Kopiera länk</string>
   <string name="duplicate_link_dialog_text_1">Du har redan en väntande kontakt med den här länken: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Du har redan en kontakt med den här länken: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">Är %s och %s samma person?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This

@@ -6,6 +6,4 @@ package org.briarproject.bramble.api;
 public interface FeatureFlags {
 
 	boolean shouldEnableImageAttachments();
-
-	boolean shouldEnablePrivateMessageDeletion();
 }

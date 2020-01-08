@@ -43,11 +43,10 @@
     <item quantity="many">Tai yra bandomoji Briar versija. Jūsų paskyros galiojimas pasibaigs po %d dienų ir negalės būti pratęstas.</item>
     <item quantity="other">Tai yra bandomoji Briar versija. Jūsų paskyros galiojimas pasibaigs po %d dienos ir negalės būti pratęstas.</item>
   </plurals>
-  <string name="expiry_update">Bandomosios versijos galiojimo pabaigos data buvo pratęsta. Dabar, jūsų paskyros galiojimo laikas pasibaigs po %d dienų.</string>
   <string name="expiry_date_reached">Programinės įrangos galiojimas pasibaigė.\nDėkojame, kad išbandėte!</string>
-  <string name="download_briar">Norėdami naudotis Briar, atsisiųskite versiją 1.0.</string>
+  <string name="download_briar">Norėdami ir toliau naudotis Briar, atsisiųskite naujausią programos laidą.</string>
   <string name="create_new_account">Jūs turėsite susikurti paskyrą, tačiau galėsite naudoti tą patį slapyvardį.</string>
-  <string name="download_briar_button">Atsisiųsti Briar 1.0</string>
+  <string name="download_briar_button">Atsisiųsti naujausią laidą</string>
   <string name="startup_open_database">Iššifruojama duomenų bazė…</string>
   <string name="startup_migrate_database">Naujinama duomenų bazė…</string>
   <string name="startup_compact_database">Suspaudžiama duomenų bazė…</string>
@@ -120,6 +119,7 @@
   <string name="fix">Pataisyti</string>
   <string name="help">Pagalba</string>
   <string name="sorry">Atsiprašome</string>
+  <string name="error_start_activity">Jūsų sistemoje neprieinama</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nėra rodytinų adresatų</string>
   <string name="no_contacts_action">Norėdami pridėti adresatą, bakstelėkite + piktogramą</string>
@@ -138,7 +138,13 @@
   <string name="dialog_title_delete_all_messages">Patvirtinkite žinutės ištrynimą</string>
   <string name="dialog_message_delete_all_messages">Ar tikrai norite ištrinti visas žinutes?</string>
   <string name="dialog_title_not_all_messages_deleted">Nepavyko ištrinti visų žinučių</string>
-  <string name="dialog_message_not_all_messages_deleted">Žinutės, susijusios su vykstančiais supažindinimais ar pakvietimais negali būti ištrintos, kol nebus išspręstos.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Žinutės, susijusios su vykstančiais pakvietimais ir supažindinimais, negali būti ištrintos, kol nebus išspręstos.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Žinutės, susijusios su vykstančiais supažindinimais, negali būti ištrintos, kol nebus išspręstos.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Žinutės, susijusios su vykstančiais pakvietimais, negali būti ištrintos, kol nebus išspręstos.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Dalinai atsisiųstos žinutės negali būti ištrintos tol, kol nebus užbaigtas jų atsisiuntimas.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Norėdami ištrinti pakvietimą ar supažindinimą, turite pasirinkti užklausą ir atsakymą.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Norėdami ištrinti supažindinimą, turite pasirinkti užklausą ir atsakymą.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Norėdami ištrinti pakvietimą, turite pasirinkti užklausą ir atsakymą.</string>
   <string name="delete_contact">Ištrinti adresatą</string>
   <string name="dialog_title_delete_contact">Patvirtinkite adresato ištrynimą</string>
   <string name="dialog_message_delete_contact">Ar tikrai norite pašalinti šį adresatą ir visas žinutes, kuriomis apsikeitėte su šiuo adresatu ?</string>

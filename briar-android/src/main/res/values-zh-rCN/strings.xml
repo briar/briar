@@ -40,11 +40,8 @@
   <plurals name="expiry_warning">
     <item quantity="other">这是 Briar 的一个测试版本。您的帐户将在 %d 天后到期，且无法延期。</item>
   </plurals>
-  <string name="expiry_update">测试到期时间延长，您的帐户将在 %d 天后到期。</string>
   <string name="expiry_date_reached">本软件已过期。\n感谢您的测试！</string>
-  <string name="download_briar">为了继续使用 Briar，请下载 1.0 版。</string>
   <string name="create_new_account">您将需要创建一个新帐户，但可以使用相同的昵称。</string>
-  <string name="download_briar_button">下载 Briar 1.0</string>
   <string name="startup_open_database">正在解密数据库……</string>
   <string name="startup_migrate_database">正在更新数据库……</string>
   <string name="startup_compact_database">正在压缩数据库……</string>

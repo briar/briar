@@ -41,11 +41,10 @@
     <item quantity="one">Bu Briar\'ın test versiyasıdır. Hesabınız %dgün ərzində sona çatacaq və yeniləmə mümkün deyil.</item>
     <item quantity="other">Bu Briar\'ın test versiyasıdır. Hesabınız %dgün ərzində sona çatacaq və yeniləmə mümkün deyil.</item>
   </plurals>
-  <string name="expiry_update">Testin sona çatma tarixi uzadıldı. Hesabınız testi %d gün ərzində sona çatacaq.</string>
   <string name="expiry_date_reached">Bu proqram sona çatdı. Test üçün təşəkkür edirik!</string>
-  <string name="download_briar">Briar istifadə etməyə davam etmək üçün, 1.0 versiyasını yükləyin.</string>
+  <string name="download_briar">Briar-dan istifadə etməyə davam etmək üçün ən son versiyanı yükləyin.</string>
   <string name="create_new_account">Yeni bir hesab yaratmaq lazımdır, lakin eyni ləqəbi istifadə edə bilərsiniz.</string>
-  <string name="download_briar_button">Briar 1.0 yükləyin</string>
+  <string name="download_briar_button">Son versiyasını yükləyin </string>
   <string name="startup_open_database">Məlumatlar şifrədən açılması...</string>
   <string name="startup_migrate_database">Məlumatların təzələnməsi...</string>
   <string name="startup_compact_database">Məlumatın sıxılması...</string>
@@ -110,6 +109,7 @@
   <string name="fix">Düzəliş</string>
   <string name="help">Yardım</string>
   <string name="sorry">Bağışlayın</string>
+  <string name="error_start_activity">Sizin sistemdə ələçatmazdır. </string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Göstərmək üçün əlaqə yoxdur</string>
   <string name="no_contacts_action">Kontakt əlavə etmək üçün + işarəsinə toxunun</string>
@@ -124,6 +124,10 @@
   <string name="set_contact_alias">Kontakt adı dəyişdirin</string>
   <string name="set_contact_alias_hint">Əlaqə adı</string>
   <string name="set_alias_button">Dəyiş</string>
+  <string name="delete_all_messages">Bütün mesajları sil</string>
+  <string name="dialog_title_delete_all_messages">Silməyi təsdiq et</string>
+  <string name="dialog_message_delete_all_messages">Bütün mesajları silmək istədiyinizə əminsinizmi? </string>
+  <string name="dialog_title_not_all_messages_deleted">Bütün mesajları silmək alınmadı</string>
   <string name="delete_contact">Kontakt silin</string>
   <string name="dialog_title_delete_contact">Kontaktın silinməsini təsdiqləyin</string>
   <string name="dialog_message_delete_contact">Bu kontaktı və bu kontaktla əvəzlənən bütün mesajları silmək istədiyinizə əminsinizmi?</string>
@@ -139,6 +143,7 @@
   <string name="dialog_message_no_image_support">Sizin Briar kontaktınız hələlik şəkillər dəstəkləmir. Təkmilləşmədən sonra fərqli bir simvol görürsünüz.</string>
   <string name="dialog_title_image_support">İndi bu kontakta şəkilləri göndərə bilərsiniz</string>
   <string name="dialog_message_image_support">Şəkilləri əlavə etmək üçün bu simvola toxunun.</string>
+  <string name="messaging_too_many_attachments_toast">Yalnız %d ilk şəkil göndəriləcək</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Yaxında kontakt əlavə etmək</string>
   <string name="face_to_face">Kontakta əlavə etmək istədiyiniz şəxslə tanış olmalısınız. Bu, hər kəsin kimliyinizi və ya mesajlarınızı gələcəkdə oxumasını maneə törədir.</string>
@@ -156,7 +161,7 @@
   <string name="authenticating_with_device">Cihazla təsdiqlənir \u2026</string>
   <string name="connection_error_title">Kontaktınıza qoşula bilmədi</string>
   <string name="connection_error_explanation">Həmin Wi-Fi şəbəkəsinə qoşulduğunuzu yoxlayın.</string>
-  <string name="connection_error_feedback">Bu problem davam edərsə, tətbiqin təkmilləşdirilməsinə kömək etmək üçün rəy göndərin.</string>
+  <string name="connection_error_feedback"><a href="feedback">Bu problem davam edərsə, tətbiqin təkmilləşdirilməsinə kömək etmək üçün rəy göndərin.</a></string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Məsafədə kontakt əlavə etmək </string>
   <string name="add_contact_nearby_title">Yaxında kontakt əlavə etmək </string>
@@ -196,6 +201,13 @@
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="one">New contact added.</item>
+    <item quantity="other">%d yeni kontakt əlavə olundu. </item>
+  </plurals>
+  <string name="adding_contact_slow_warning">Bu kontaktın əlavə edilməsi adi haldan daha uzun sürür</string>
+  <string name="adding_contact_slow_title">Kontakta qoşula bilmir</string>
+  <string name="adding_contact_slow_text">Bu kontaktın əlavə edilməsi normaldan daha çox vaxt tələb edir.\n\nYoxlayın ki kontakt sizin linkinizi qəbul edib və sizi əlavə etdi: </string>
   <string name="offline_state">İnternet bağlantısı yoxdur</string>
   <string name="duplicate_link_dialog_title">Dublikat Link</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
@@ -270,7 +282,7 @@
   <string name="groups_reveal_contacts">Kontaktları aşkar edin</string>
   <string name="groups_reveal_dialog_message">Bu qrupun bütün mövcud və gələcək üzvlərinə kontaktların aşkarlanıb veriləcəyini seçə bilərsiniz. \n\n Kontaktları geri götürmək, qrupun yaradıcısı olsa da, aşkar əlaqələrlə ünsiyyət qura biləcəyiniz üçün qrupla əlaqənizi daha sürətli və daha etibarlı edir.</string>
   <string name="groups_reveal_visible">Kontakt qrupda görünə bilər</string>
-  <string name="groups_reveal_visible_revealed_by_us">Kontakt əlaqəsi qrupda görür</string>
+  <string name="groups_reveal_visible_revealed_by_us">Kontakt əlaqəsi qrupda görür (sizin üçün görsənir)</string>
   <string name="groups_reveal_invisible">Kontakt əlaqəsi qrup üçün görünmür</string>
   <!--Forums-->
   <string name="no_forums">Göstərmək üçün forum yoxdur</string>
@@ -353,7 +365,7 @@
   <!--Settings Display-->
   <string name="pref_language_title">Dil və region</string>
   <string name="pref_language_changed">Briar-ı yenidən başlatdığınızda bu parametr qüvvəyə minir. Lütfən çıxın və Briar-ı yenidən başladın.</string>
-  <string name="pref_language_default">System default</string>
+  <string name="pref_language_default">Sistemdə olduğu kimi </string>
   <string name="display_settings_title">Görüntü</string>
   <string name="pref_theme_title">Tema</string>
   <string name="pref_theme_light">Ağ</string>
@@ -381,6 +393,7 @@
   <string name="pref_lock_disabled_summary">Bundan istifadə etmək üçün ekran kilidini quraşdırın. </string>
   <string name="pref_lock_timeout_title">Tətbiq kilidinin hərəkətsizlik müddəti</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
+  <string name="pref_lock_timeout_summary">Briar-ı istifadə etməsəniz, onu avtomatik olaraq %s dəqiqədən sonra kilidləyin</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 dəqiqə</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -465,8 +478,10 @@
   <string name="screen_filter_allow">Bu tətbiqlərin yuxarı çəkilməsinə icazə verin</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Camera izni</string>
+  <string name="permission_camera_request_body">QR kodunu skan etmək üçün Briar-a kameraya icazə lazımdır.</string>
   <string name="permission_location_title">Mövqe icazəsi</string>
   <string name="permission_camera_location_title">Kamera və mövqe</string>
+  <string name="permission_camera_denied_body">Kameraya daxil olmağı rədd etdiniz, lakin əlaqə əlavə etmək kameradan istifadə etməyi tələb edir. \n\nİcazə verilməsini düşünün.</string>
   <string name="qr_code">QR kodu</string>
   <string name="show_qr_code_fullscreen">QR kodu tam ekranda göstər</string>
   <!--App Locking-->
@@ -486,7 +501,7 @@
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
   <string name="screenshot_message_1">Salam Bob!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
-  <string name="screenshot_message_2">Salam Alice! Briar haqqında danışdığınız üçün təşəkkür edirik!</string>
+  <string name="screenshot_message_2">Salam Elis! Briar haqqında danışdığınız üçün təşəkkür edirik!</string>
   <!--This is a message to be used in screenshots.-->
   <string name="screenshot_message_3">Problem yoxdur, bunu ümüd edirəm 😀</string>
 </resources>

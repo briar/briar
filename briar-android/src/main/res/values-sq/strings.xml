@@ -21,8 +21,8 @@
   <string name="don_t_ask_again">Mos pyet sërish</string>
   <string name="setup_huawei_text">Ju lutemi, prekni butoni më poshtë dhe sigurohuni që Briar-i të jetë i mbrojtur, te skena \"Aplikacione të Mbrojtur\".</string>
   <string name="setup_huawei_button">Mbroje Briar-in</string>
-  <string name="setup_huawei_help">Nëse Briar-i s’është shtuar te lista e aplikacioneve të mbrojtur, s’do të jetë në gjendje të xhirojë në prapaskenë.</string>
-  <string name="warning_dozed">%s s’qe në gjendje të xhirojë në prapaskenë</string>
+  <string name="setup_huawei_help">Nëse Briar-i s\’është shtuar te lista e aplikacioneve të mbrojtur, s\’do të jetë në gjendje të xhirojë në prapaskenë.</string>
+  <string name="warning_dozed">%s s\’qe në gjendje të xhirojë në prapaskenë</string>
   <!--Login-->
   <string name="enter_password">Fjalëkalim</string>
   <string name="try_again">Fjalëkalim i gabuar, riprovoni</string>
@@ -33,19 +33,18 @@
   <string name="startup_failed_notification_title">Briar-i s\’u nis dot</string>
   <string name="startup_failed_notification_text">Prekeni për më tepër të dhëna.</string>
   <string name="startup_failed_activity_title">Dështim Nisjeje i Briar-it</string>
-  <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave të Briar-it është e dëmtuar sa nuk ndreqet dot. Llogaria juaj, të dhënat tuaja dhe krejt kontaktet tuaja humbën. Mjerisht, ju duhet të ri-instaloni Briar-in dhe të rregulloni një llogari të re, duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
-  <string name="startup_failed_data_too_old_error">Llogaria juaj qe krijuar me një version të vjetër të këtij aplikacioni dhe s\’mund të hapet me këtë version. Ose duhet të ri-instaloni versionin e vjetër, ose të fshini llogarinë tuaj të vjetër duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
+  <string name="startup_failed_db_error">Për ndonjë arsye, baza e të dhënave të Briar-it është e dëmtuar sa nuk ndreqet dot. Llogaria juaj, të dhënat tuaja dhe krejt kontaktet tuaja humbën. Mjerisht, duhet të riinstaloni Briar-in dhe të rregulloni një llogari të re, duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
+  <string name="startup_failed_data_too_old_error">Llogaria juaj qe krijuar me një version të vjetër të këtij aplikacioni dhe s\’mund të hapet me këtë version. Ose duhet të riinstaloni versionin e vjetër, ose të fshini llogarinë tuaj të vjetër duke zgjedhur \'Kam harruar fjalëkalimin tim\' te hapi për fjalëkalimin.</string>
   <string name="startup_failed_data_too_new_error">Ky version i aplikacionit është shumë i vjetër. Ju lutemi, përmirësojeni me versionin më të ri dhe riprovoni.</string>
-  <string name="startup_failed_service_error">Briar-i s\’arriti të nisë një shtojcë të domosdoshme. Zakonisht këtë problem e zgjidh Ri-instalimi i Briar-it. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
+  <string name="startup_failed_service_error">Briar-i s\’arriti të nisë një shtojcë të domosdoshme. Zakonisht këtë problem e zgjidh riinstalimi i Briar-it. Por, ju lutemi, kini parasysh se me të do të humbni llogarinë tuaj dhe krejt të dhënat e lidhura me të, ngaqë Briar nuk përdor shërbyes qendrorë për të depozituar në ta të dhënat tuaja.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
     <item quantity="other">Ky është një version beta i Briar-it. Llogaria juaj do të skadojë për %d ditë dhe s\’mund të rinovohet.</item>
   </plurals>
-  <string name="expiry_update">Data e skadimit të periudhës së testimit është shtyrë më tej. Tani llogaria juaj do të skadojë për %d ditë.</string>
   <string name="expiry_date_reached">Ky software ka skaduar.\nFaleminderit që e provuat!</string>
-  <string name="download_briar">Që të vazhdoni të përdorni Briar-in, ju lutemi, shkarkoni versionin 1.0.</string>
+  <string name="download_briar">Që të vazhdoni të përdorni Briar-in, ju lutemi shkarkoni versionin më të ri.</string>
   <string name="create_new_account">Do t’ju duhet të krijoni një llogari të re, por mund të përdorni të njëjtën nofkë.</string>
-  <string name="download_briar_button">Shkarko Briar 1.0</string>
+  <string name="download_briar_button">Shkarkoni Hedhjen Më të Re Në Qarkullim</string>
   <string name="startup_open_database">Po shfshehtëzohet Baza e të Dhënave…</string>
   <string name="startup_migrate_database">Po përditësohet Baza e të dhënave…</string>
   <string name="startup_compact_database">Po kompaktësohet Baza e të Dhënave…</string>
@@ -110,6 +109,7 @@
   <string name="fix">Ndreqeni</string>
   <string name="help">Ndihmë</string>
   <string name="sorry">Na ndjeni</string>
+  <string name="error_start_activity">Jo i passhëm në sistemin tuaj</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">S’ka kontakte për shfaqje</string>
   <string name="no_contacts_action">Prekni ikonën + që të shtoni një kontakt</string>
@@ -118,7 +118,7 @@
   <string name="message_hint">Shtypni mesazhin</string>
   <string name="image_caption_hint">Shtoni një titull (na daçi)</string>
   <string name="image_attach">Bashkëngjitni figurë</string>
-  <string name="image_attach_error">S’u bashkëngjit dot figurë(a)</string>
+  <string name="image_attach_error">S\’u bashkëngjit dot figurë(a)</string>
   <string name="image_attach_error_too_big">Figurë shumë e madhe. Kufiri është %d MB.</string>
   <string name="image_attach_error_invalid_mime_type">Format i pambuluar figure: %s</string>
   <string name="set_contact_alias">Ndryshoni emër kontakti</string>
@@ -127,8 +127,14 @@
   <string name="delete_all_messages">Fshiji krejt mesazhet</string>
   <string name="dialog_title_delete_all_messages">Ripohoni Fshirje Mesazhesh</string>
   <string name="dialog_message_delete_all_messages">Jeni i sigurt se doni të fshihen krejt mesazhet?</string>
-  <string name="dialog_title_not_all_messages_deleted">S’u fshinë dot krejt mesazhet</string>
-  <string name="dialog_message_not_all_messages_deleted">Mesazhet që lidhen me hyrje në zhvillim e sipër, ose me ftesa, s’mund të fshihen pa përfunduar.</string>
+  <string name="dialog_title_not_all_messages_deleted">S\’u fshinë dot krejt mesazhet</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Mesazhe të lidhur me ftesa dhe prezantime në kryerje e sipër s\’mund të fshihen para se të kryhen.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Mesazhe të lidhur me prezantime në kryerje e sipër s\’mund të fshihen para se të kryhen.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Mesazhe të lidhur me ftesa në kryerje e sipër s\’mund të fshihen para se të kryhen.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Mesazhe të shkarkuar pjesërisht s\’mund të fshihen para se të përfundojë shkarkimi.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Për të fshirë një ftesë apo prezantim, lypset të përzgjidhni kërkesën dhe përgjigjen.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Për të fshirë një prezantim, lypset të përzgjidhni kërkesën dhe përgjigjen.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Për të fshirë një ftesë, lypset të përzgjidhni kërkesën dhe përgjigjen.</string>
   <string name="delete_contact">Fshije kontaktin</string>
   <string name="dialog_title_delete_contact">Ripohoni Fshirje Kontakti</string>
   <string name="dialog_message_delete_contact">Jeni i sigurt se doni të hiqet ky kontakt dhe krejt mesazhet e shkëmbyer me këtë kontakt?</string>
@@ -137,12 +143,12 @@
   <string name="you">Ju</string>
   <string name="save_image">Ruaje figurën</string>
   <string name="dialog_title_save_image">Të ruhet Figura?</string>
-  <string name="dialog_message_save_image">Ruajta e kësaj figure do t’u lejojë aplikacioneve të tjera ta përdorin.\n\nJeni i sigurt se doni të ruhet?</string>
+  <string name="dialog_message_save_image">Ruajta e kësaj figure do t\’u lejojë aplikacioneve të tjera ta përdorin.\n\nJeni i sigurt se doni të ruhet?</string>
   <string name="save_image_success">Figura u ruajt</string>
-  <string name="save_image_error">Figura s’u ruajt dot</string>
+  <string name="save_image_error">Figura s\’u ruajt dot</string>
   <string name="dialog_title_no_image_support">Figura të Pakapshme</string>
   <string name="dialog_message_no_image_support">Briar-i i kontaktit tuaj nuk i mbulon ende bashkëngjitjet figura. Sapo ta përditësojë, do të shihni tjetër ikonë.</string>
-  <string name="dialog_title_image_support">Tani mund t’i dërgoni figura këtij kontakti</string>
+  <string name="dialog_title_image_support">Tani mund t\’i dërgoni figura këtij kontakti</string>
   <string name="dialog_message_image_support">Prekeni këtë ikonë që të bashkëngjitni figura.</string>
   <string name="messaging_too_many_attachments_toast">Do të dërgohen vetëm %d figurat e para</string>
   <!--Adding Contacts-->
@@ -184,14 +190,14 @@
   <string name="adding_contact_error">Pati një gabim në shtimin e kontaktit.</string>
   <string name="pending_contact_requests_snackbar">Ka kërkesa kontakti pezull</string>
   <string name="pending_contact_requests">Kërkesa Kontakti Pezull</string>
-  <string name="no_pending_contacts">S’ka kontakte pezull</string>
+  <string name="no_pending_contacts">S\’ka kontakte pezull</string>
   <string name="add_contact_remote_connecting">Duke u kyqur...</string>
   <string name="waiting_for_contact_to_come_online">Po pritet që kontakti të jetë në linjë…</string>
   <string name="connecting">Duke u kyqur...</string>
   <string name="adding_contact">Po shtohet kontakti…</string>
   <string name="adding_contact_failed">Shtimi i kontaktit dështoi</string>
   <string name="dialog_title_remove_pending_contact">Ripohoni Heqjen</string>
-  <string name="dialog_message_remove_pending_contact">Ky kontakt ende po shtohet. Nëse e hiqni tani, s’do të shtohet.</string>
+  <string name="dialog_message_remove_pending_contact">Ky kontakt ende po shtohet. Nëse e hiqni tani, s\’do të shtohet.</string>
   <string name="own_link_error">Jepni lidhjen e kontaktit tuaj, jo tuajën</string>
   <string name="nickname_missing">Ju lutemi, jepni një nofkë</string>
   <string name="invalid_link">Lidhje e pavlefshme</string>
@@ -207,9 +213,9 @@
     <item quantity="other">U shtuan %d kontakte të reja.</item>
   </plurals>
   <string name="adding_contact_slow_warning">Shtimi i këtij kontakti po zgjat më shumë se zakonisht</string>
-  <string name="adding_contact_slow_title">S’lidhet Dot Me Kontaktin</string>
+  <string name="adding_contact_slow_title">S\’lidhet Dot Me Kontaktin</string>
   <string name="adding_contact_slow_text">Shtimi i këtij kontakti po zgjat më shumë se zakonisht.\n\nJu lutemi, kontrolloni nëse kontakti juaj e ka marrë lidhjen tuaj dhe ju ka shtuar:</string>
-  <string name="offline_state">S’ka lidhje internet</string>
+  <string name="offline_state">S\’ka lidhje internet</string>
   <string name="duplicate_link_dialog_title">Lidhje e Përsëdytur</string>
   <string name="duplicate_link_dialog_text_1">Keni tashmë një kontakt pezull me këtë lidhje: %s</string>
   <string name="duplicate_link_dialog_text_1_contact">Keni tashmë një kontakt me këtë lidhje: %s</string>
@@ -491,7 +497,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">Sinjalizim Lidhjeje</string>
   <string name="link_warning_intro">Ju ndan një hap nga hapja e lidhjes vijuese me një aplikacion të jashtëm.</string>
-  <string name="link_warning_text">Kjo mund të përdoret për t’ju identifikuar. Sillni në mend nëse i zini besë personit që ju dërgoi lidhjen dhe shihni mundësinë e hapjes së saj me Shfletuesin Tor.</string>
+  <string name="link_warning_text">Kjo mund të përdoret për t\’ju identifikuar. Sillni në mend nëse i zini besë personit që ju dërgoi lidhjen dhe shihni mundësinë e hapjes së saj me Shfletuesin Tor.</string>
   <string name="link_warning_open_link">Hape Lidhjen</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">Njoftim Vithisjesh Briar-i</string>
@@ -513,7 +519,7 @@
   <string name="progress_title_logout">Po dilet nga Briar-i…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">U kap dalje jashtë ekrani</string>
-  <string name="screen_filter_body">Sipër Briar-it po vizaton një tjetër aplikacion. Për të mbrojtur sigurinë tuaj, Briar-i nuk do t\’u përgjigjet prekjeve kur një tjetër aplikacion vizaton përsipër.\n\nPërsipër mund të jenë duke vizatuar aplikacionet vijues:\n\n%1$s</string>
+  <string name="screen_filter_body">Sipër Briar-it po vizaton një tjetër aplikacion. Për të mbrojtur sigurinë tuaj, Briar-i s\’do t\’u përgjigjet prekjeve kur një tjetër aplikacion vizaton përsipër.\n\nPërsipër mund të jenë duke vizatuar aplikacionet vijues:\n\n%1$s</string>
   <string name="screen_filter_allow">Lejoji këto aplikacione të vizatojnë përsipër</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Leje mbi kamerën</string>
@@ -527,7 +533,7 @@
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
   <!--App Locking-->
   <string name="lock_unlock">Shkyçe Briar-in</string>
-  <string name="lock_unlock_verbose">Që të shkyçet Briar-i, jepni PIN-in, mostrën ose fjalëkalimin e pajisjes tuaj</string>
+  <string name="lock_unlock_verbose">Që të shkyçet Briar-i, jepni PIN-in, rregullsinë ose fjalëkalimin e pajisjes tuaj</string>
   <string name="lock_unlock_fingerprint_description">Që të vazhdohet, prekni me gishtin e regjistruar ndijuesin e shenjave të gishtave</string>
   <string name="lock_unlock_password">Përdor Fjalëkalim</string>
   <string name="lock_is_locked">Briar-i është i kyçur</string>

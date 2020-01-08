@@ -16,7 +16,7 @@
   <string name="name_too_long">Nome troppo lungo</string>
   <string name="password_too_weak">La password è troppo debole</string>
   <string name="passwords_do_not_match">La password non corrisponde</string>
-  <string name="create_account_button">Creare Account</string>
+  <string name="create_account_button">Crea account</string>
   <string name="more_info">Ulteriori Informazioni</string>
   <string name="don_t_ask_again">Non chiedere più</string>
   <string name="setup_huawei_text">Premi il pulsante qua sotto e assicurati che Briar sia protetto nella schermata \"App protette\"</string>
@@ -41,11 +41,10 @@
     <item quantity="one">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorno e non può essere rinnovato.</item>
     <item quantity="other">Questa è una versione di prova di Briar. Il tuo account scadrà fra %d giorni e non può essere rinnovato.</item>
   </plurals>
-  <string name="expiry_update">La scadenza della versione di prova è stata prorogata. Il tuo account ora scadrà fra %d giorni.</string>
   <string name="expiry_date_reached">Questo software è scaduto.\nGrazie per il test!</string>
-  <string name="download_briar">Per continuare ad usare Briar, scarica la versione 1.0.</string>
+  <string name="download_briar">Per continuare a utilizzare Briar, scarica l\'ultima versione.</string>
   <string name="create_new_account">Avrai bisogno di creare un nuovo account, ma puoi usare lo stesso nickname.</string>
-  <string name="download_briar_button">Scarica Briar 1.0</string>
+  <string name="download_briar_button">Scarica l\'ultima versione</string>
   <string name="startup_open_database">Decrittazione del database...</string>
   <string name="startup_migrate_database">Aggiornamento del database...</string>
   <string name="startup_compact_database">Compattazione del database…</string>
@@ -110,6 +109,7 @@
   <string name="fix">Correggi</string>
   <string name="help">Aiuto</string>
   <string name="sorry">Scusa</string>
+  <string name="error_start_activity">Non disponibile sul tuo sistema</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nessun contatto da mostrare</string>
   <string name="no_contacts_action">Tocca l\'icona + per aggiungere un contatto</string>
@@ -128,7 +128,13 @@
   <string name="dialog_title_delete_all_messages">Conferma l\'eliminazione dei messaggi</string>
   <string name="dialog_message_delete_all_messages">Sei sicuro di voler eliminare tutti i messaggi?</string>
   <string name="dialog_title_not_all_messages_deleted">Impossibile eliminare i messaggi</string>
-  <string name="dialog_message_not_all_messages_deleted">I messaggi relativi a presentazioni o inviti in corso non posssono essere eliminati fino alla loro conclusione.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">I messaggi relativi a presentazioni o inviti in corso non possono essere eliminati fino alla loro conclusione.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">I messaggi relativi a presentazioni in corso non posssono essere eliminati fino alla loro conclusione.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">I messaggi relativi a inviti in corso non posssono essere eliminati fino alla loro conclusione.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">I messaggi parzialmente scaricati non possono essere eliminati fino al termine del download.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Per eliminare un invito o presentazione, devi selezionare la richiesta e la risposta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Per eliminare una presentazione, devi selezionare la richiesta e la risposta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Per eliminare un invito, devi selezionare la richiesta e la risposta.</string>
   <string name="delete_contact">Elimina contatto</string>
   <string name="dialog_title_delete_contact">Conferma cancellazione contatto</string>
   <string name="dialog_message_delete_contact">Sei sicuro di voler rimuovere questo contatto e tutti i messaggi scambiati con esso?</string>

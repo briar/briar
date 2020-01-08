@@ -235,17 +235,6 @@ public class AppModule {
 
 	@Provides
 	FeatureFlags provideFeatureFlags() {
-		return new FeatureFlags() {
-
-			@Override
-			public boolean shouldEnableImageAttachments() {
-				return IS_DEBUG_BUILD;
-			}
-
-			@Override
-			public boolean shouldEnablePrivateMessageDeletion() {
-				return IS_DEBUG_BUILD;
-			}
-		};
+		return () -> IS_DEBUG_BUILD;
 	}
 }

@@ -41,11 +41,10 @@
     <item quantity="one">Esta es una versión de prueba de Briar. Su cuenta expirará en %d día y no podrá ser renovada.</item>
     <item quantity="other">Esta es una versión de prueba de Briar. Tu cuenta expirará en %d días y no podrá ser renovada.</item>
   </plurals>
-  <string name="expiry_update">La fecha de caducidad de las pruebas se ha ampliado. Tu cuenta expirará en %d días.</string>
   <string name="expiry_date_reached">Este programa ha caducado.\n¡Gracias por probarlo!</string>
-  <string name="download_briar">Para continuar usando Briar, por favor descarga la versión 1.0.</string>
+  <string name="download_briar">Para continuar usando Briar, por favor descarga la versión mas reciente.</string>
   <string name="create_new_account">Necesitarás crear una nueva cuenta, pero puedes usar el mismo nombre de usuario.</string>
-  <string name="download_briar_button">Descargar Briar 1.0</string>
+  <string name="download_briar_button">Descargar la última versión.</string>
   <string name="startup_open_database">Descifrando la base de datos...</string>
   <string name="startup_migrate_database">Actualizando la base de datos...</string>
   <string name="startup_compact_database">Compactando base de datos...</string>
@@ -110,6 +109,7 @@
   <string name="fix">Reparar</string>
   <string name="help">Ayuda</string>
   <string name="sorry">Disculpa</string>
+  <string name="error_start_activity">No disponible en tu sistema</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">No hay contactos para mostrar</string>
   <string name="no_contacts_action">Golpear el icono + para añadir un contacto</string>
@@ -128,7 +128,6 @@
   <string name="dialog_title_delete_all_messages">Confirmar la eliminación del mensaje</string>
   <string name="dialog_message_delete_all_messages">¿Estás seguro de que deseas eliminar todos los mensajes?</string>
   <string name="dialog_title_not_all_messages_deleted">No se pudieron eliminar todos los mensajes.</string>
-  <string name="dialog_message_not_all_messages_deleted">Los mensajes relacionados con presentaciones o invitaciones en curso no se pueden eliminar hasta que finalicen.</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirmar eliminación de contacto</string>
   <string name="dialog_message_delete_contact">¿Seguro que quieres eliminar este contacto y todos los mensajes intercambiados entre vosotros?</string>

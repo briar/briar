@@ -18,17 +18,6 @@ public class BrambleCoreIntegrationTestModule {
 
 	@Provides
 	FeatureFlags provideFeatureFlags() {
-		return new FeatureFlags() {
-
-			@Override
-			public boolean shouldEnableImageAttachments() {
-				return true;
-			}
-
-			@Override
-			public boolean shouldEnablePrivateMessageDeletion() {
-				return true;
-			}
-		};
+		return () -> true;
 	}
 }

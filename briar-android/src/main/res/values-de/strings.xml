@@ -41,11 +41,10 @@
     <item quantity="one">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tag ab und kann nicht verlängert werden.</item>
     <item quantity="other">Dies ist eine Testversion von Briar. Dein Konto läuft in %d Tagen ab und kann nicht verlängert werden.</item>
   </plurals>
-  <string name="expiry_update">Das Ablaufdatum des Tests wurde verlängert. Dein Konto läuft nun in %d Tagen ab.</string>
   <string name="expiry_date_reached">Diese Software ist abgelaufen.\nDanke, dass du Briar getestet hast!</string>
-  <string name="download_briar">Lade bitte Version 1.0 herunter, um Briar weiterhin zu nutzen.</string>
+  <string name="download_briar">Bitte lade die aktuelle Version von Briar herunter, um es weiter zu benutzen.</string>
   <string name="create_new_account">Du wirst ein neues Konto erstellen müssen, wobei du jedoch wieder denselben Benutzernamen verwenden kannst.</string>
-  <string name="download_briar_button">Lade Briar 1.0 herunter</string>
+  <string name="download_briar_button">Lade die aktuelle Version herunter</string>
   <string name="startup_open_database">Datenbank wird entschlüsselt...</string>
   <string name="startup_migrate_database">Datenbank wird aktualisiert...</string>
   <string name="startup_compact_database">Datenbank wird komprimiert ...</string>
@@ -110,6 +109,7 @@
   <string name="fix">Behoben</string>
   <string name="help">Hilfe</string>
   <string name="sorry">Entschuldigung</string>
+  <string name="error_start_activity">Nicht Verfügbar auf deinem Gerät</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Keine Kontakte vorhanden</string>
   <string name="no_contacts_action">Tippe auf das + Symbol, um einen Kontakt hinzuzufügen</string>
@@ -128,7 +128,6 @@
   <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
   <string name="dialog_message_delete_all_messages">Bist Du sicher, dass Du alle Nachrichten löschen willst?</string>
   <string name="dialog_title_not_all_messages_deleted">Konnte nicht alle Nachrichten löschen</string>
-  <string name="dialog_message_not_all_messages_deleted">Nachrichten mit Bezug auf offene Kontaktempfehlungen oder Einladungen können erst nach Abschluss dieser gelöscht werden.</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>
@@ -168,7 +167,7 @@
   <string name="add_contact_nearby_title">Kontakt in der Nähe hinzufügen</string>
   <string name="add_contact_remotely_title">Kontakt aus der Ferne hinzufügen</string>
   <string name="contact_name_hint">Gib dem Kontakt einen Spitznamen</string>
-  <string name="contact_link_intro">Hier den Link deines Kontakts einfügen</string>
+  <string name="contact_link_intro">Füge hier den Link des Kontakts ein, den du hinzufügen möchtest:</string>
   <string name="contact_link_hint">Kontakt Link</string>
   <string name="paste_button">Einfügen</string>
   <string name="add_contact_button">Kontakt hinzufügen</string>
@@ -178,7 +177,7 @@
   <string name="add_contact_choose_nickname">Wähle einen Spitznamen</string>
   <string name="add_contact_choose_a_nickname">Gib einen Spitznamen ein</string>
   <string name="nickname_intro">Gib deinem Kontakt einen Spitznamen. Nur du kannst ihn sehen.</string>
-  <string name="your_link">Gebe diesen Link zu dem Kontakt den du hinzufügen möchtest</string>
+  <string name="your_link">Gebe diesen Link dem Kontakt, den du hinzufügen möchtest:</string>
   <string name="link_clip_label">Briar Link</string>
   <string name="link_copied_toast">Link kopiert</string>
   <string name="adding_contact_error">Es gab einen Fehler beim Hinzufügen des Kontaktes.</string>
@@ -196,7 +195,7 @@
   <string name="nickname_missing">Bitte gib einen Spitznamen an</string>
   <string name="invalid_link">Ungültiger Link</string>
   <string name="unsupported_link">Dieser Link kommt von einer neueren Version von Briar. Bitte führe eine Aktualisierung auf die aktuelle Version durch und versuche es dann nochmal. </string>
-  <string name="intent_own_link">Du hast deinen eigenen Link aufgerufen. Nutze einen Link von deinen Kontakten, die du hinzufügen möchtest!</string>
+  <string name="intent_own_link">Du hast deinen eigenen Link aufgerufen. Nutze den Link des  Kontaktes, den du hinzufügen möchtest!</string>
   <string name="missing_link">Bitte gebe einen Link ein</string>
   <!--This is a numeral indicating the first step in a series of screens-->
   <string name="step_1">1</string>

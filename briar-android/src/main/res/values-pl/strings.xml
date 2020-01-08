@@ -43,11 +43,8 @@
     <item quantity="many">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
     <item quantity="other">To jest testowa wersja Briar. Twoje konto wygaśnie za %d dni i nie będzie odnowione.</item>
   </plurals>
-  <string name="expiry_update">Okres testowania został wydłużony. Twoje konto wygaśnie za %d dni.</string>
   <string name="expiry_date_reached">Ten program wygasł.\nDziękujemy za testy!</string>
-  <string name="download_briar">Aby dalej korzystać z Briar, proszę pobrać wersję 1.0.</string>
   <string name="create_new_account">Musisz utworzyć nowe konto, ale możesz użyć takiej samej nazwy użytkownika.</string>
-  <string name="download_briar_button">Pobierz Briar 1.0</string>
   <string name="startup_open_database">Deszyfruję Bazę Danych...</string>
   <string name="startup_migrate_database">Aktualizuję Bazę Danych...</string>
   <string name="startup_compact_database">Kompaktowanie Bazy Danych…</string>

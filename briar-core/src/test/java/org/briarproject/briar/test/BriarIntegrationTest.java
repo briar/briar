@@ -130,7 +130,8 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	protected C c0, c1, c2;
 
 	private final Semaphore messageSemaphore = new Semaphore(0);
-	private final AtomicInteger messageCounter = new AtomicInteger(0);
+	private final AtomicInteger deliveryCounter = new AtomicInteger(0);
+	private final AtomicInteger validationCounter = new AtomicInteger(0);
 	private final AtomicInteger ackCounter = new AtomicInteger(0);
 	private final File testDir = TestUtils.getTestDirectory();
 	private final String AUTHOR0 = "Author 0";
@@ -163,6 +164,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		validationWaiter = new Waiter();
 		deliveryWaiter = new Waiter();
 		ackWaiter = new Waiter();
+		deliveryCounter.set(0);
+		validationCounter.set(0);
+		ackCounter.set(0);
 
 		createAndRegisterIdentities();
 		startLifecycles();
@@ -212,14 +216,14 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 					if (event.getState() == DELIVERED) {
 						LOG.info("Delivered new message "
 								+ event.getMessageId());
-						messageCounter.addAndGet(1);
+						deliveryCounter.addAndGet(1);
 						loadAndLogMessage(event.getMessageId());
 						deliveryWaiter.resume();
 					} else if (event.getState() == INVALID ||
 							event.getState() == PENDING) {
 						LOG.info("Validated new " + event.getState().name() +
 								" message " + event.getMessageId());
-						messageCounter.addAndGet(1);
+						validationCounter.addAndGet(1);
 						loadAndLogMessage(event.getMessageId());
 						validationWaiter.resume();
 					}
@@ -380,10 +384,13 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 		if (valid) {
 			deliveryWaiter.await(TIMEOUT, num);
+			assertEquals("Messages delivered", num,
+					deliveryCounter.getAndSet(0));
 		} else {
 			validationWaiter.await(TIMEOUT, num);
+			assertEquals("Messages validated", num,
+					validationCounter.getAndSet(0));
 		}
-		assertEquals("Messages delivered", num, messageCounter.getAndSet(0));
 		try {
 			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
 		} catch (InterruptedException e) {
@@ -421,7 +428,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 		ackWaiter.await(TIMEOUT, num);
 		assertEquals("ACKs delivered", num, ackCounter.getAndSet(0));
-		assertEquals("No messages delivered", 0, messageCounter.get());
+		assertEquals("No messages delivered", 0, deliveryCounter.get());
 		try {
 			messageSemaphore.tryAcquire(num, TIMEOUT, MILLISECONDS);
 		} catch (InterruptedException e) {

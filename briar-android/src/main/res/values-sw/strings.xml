@@ -44,11 +44,8 @@ umepoteza nenosiri</string>
   <string name="startup_failed_data_too_old_error">Akaunti yako imetengenezwa na tolea la zamani la programu hii na Haiwezekani kufungua hili toleo . Nilazima ubadili hili toleo la zamani au utengeneze Akaunti mpaya kwa kuchagua umesahau nenosiri Katika uwanja wa nenosiri </string>
   <string name="startup_failed_data_too_new_error">Hili toleo la programu ulilo tumia nila zamani . Tafathi boresha kuwa toleo jipya na ujaribu tena .</string>
   <string name="startup_failed_service_error">Briar imeshindikan kuanza Unabidi uunganishwe . Hianzishe Briar kama kwawaida kuondoka hilo tatizo . Japo kuwa utapoteza Akaunti yako na data zako zote kutokana na Briar haifathi data zako kwenye seva kuu.</string>
-  <string name="expiry_update">Muda wa majaribio umeongezwa mbele . Akaunti yako itafikia muda wake kuisha %d siku .</string>
   <string name="expiry_date_reached">Hii programu imemaliza muda wake.\nAsante kwa kujaribu </string>
-  <string name="download_briar">kuendelea kutumia Briar, Tafathali pakua toleo 1.0.</string>
   <string name="create_new_account">Unahitajika  kutenege Akaunti Mpaya , ila unaweza endelea kutumia lakabu yako .</string>
-  <string name="download_briar_button">Pakua Briar 1.0</string>
   <string name="startup_open_database">Kupunguka Hifadhidata</string>
   <string name="startup_migrate_database">Boresha Hifadhidata</string>
   <string name="startup_compact_database">Kuingiliana Hifadhidata</string>

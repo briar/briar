@@ -45,11 +45,10 @@
     <item quantity="many">هذا إصدار تجريبي من Briar (براير). حسابك سينتهي خلال %d يوم ولن يمكن تجديده.</item>
     <item quantity="other">هذا إصدار تجريبي من Briar (براير). حسابك سينتهي خلال %d يوم ولن يمكن تجديده.</item>
   </plurals>
-  <string name="expiry_update">تم تمديد تاريخ انتهاء التجربة. حسابك الآن سوف ينتهي بعد %d يوم.</string>
   <string name="expiry_date_reached">هذا البرنامج قد انتهت مدته.\nشكرا لك للتجربة!</string>
-  <string name="download_briar">للاستمرار في إستعمال Briar (براير)، من فضلك قم بتحميل إصدار رقم 1.0.</string>
+  <string name="download_briar">لمتابعة استخدام Briar (براير)، يرجى تنزيل آخر إصدار. </string>
   <string name="create_new_account">انت في حاجة لانشاء حساب جديد، لكن يمكنك استعمال نفس الاسم المستعار.</string>
-  <string name="download_briar_button">تحميل Briar (براير) 1.0</string>
+  <string name="download_briar_button">تنزيل آخر أصدار</string>
   <string name="startup_open_database">جارِ فك تشفير قاعدة البيانات...</string>
   <string name="startup_migrate_database">جارِ ترقية قاعدة البيانات...</string>
   <string name="startup_compact_database">جارِ ضغظ قاعدة البيانات…</string>
@@ -130,15 +129,32 @@
   <string name="fix">إصلاح</string>
   <string name="help">مساعدة</string>
   <string name="sorry">معذرة</string>
+  <string name="error_start_activity">غير متوفّر على نظامكم </string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">لا جهات اتصال للعرض</string>
   <string name="no_contacts_action">لمس علامة + لإضافة جهة إتصال</string>
   <string name="date_no_private_messages">لا رسائل.</string>
   <string name="no_private_messages">لا رسائل للعرض.</string>
   <string name="message_hint">كتابة رسالة</string>
+  <string name="image_caption_hint">إضافة تعليق (اختياري) </string>
   <string name="image_attach">إرفاق صورة</string>
+  <string name="image_attach_error">لم نتمكّن من إرفاق الصّور(ة)</string>
+  <string name="image_attach_error_too_big">حجم الصورة كبير جدّاً. حدود حجم الملف %d ميجابايت. </string>
+  <string name="image_attach_error_invalid_mime_type">نوع ملف الصورة غير مدعوم : %s</string>
+  <string name="set_contact_alias">تعديل إسم جهة الاتصال</string>
   <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
-  <string name="set_alias_button">تغيير</string>
+  <string name="set_alias_button">تعديل</string>
+  <string name="delete_all_messages">حذف جميع الرّسائل </string>
+  <string name="dialog_title_delete_all_messages">تأكيد حذف الرّسالة</string>
+  <string name="dialog_message_delete_all_messages">هل أنتم متأكّدون من حذف جميع الرّسائل؟ </string>
+  <string name="dialog_title_not_all_messages_deleted">لم نتمكّن من حذف جميع الرّسائل</string>
+  <string name="dialog_message_not_deleted_ongoing_both">لا يمكن حذف الرّسائل القائمة والمتعلّقة بالدعوات وطلبات التعارف حتى حسمها.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">لا يمكن حذف الرّسائل المتعلّقة بطلبات التعارف القائمة حتى حسمها.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">لا يمكن حذف الرّسائل القائمة والمتعلّقة بالدعوات حتى حسمها.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">لا يمكن حذف الرّسائل المُحمّلة جزئيّاً قبل الانتهاء من تحميلها بشكل كامل. </string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">لحذف دعوة أو طلب تعارف، عليكم اختيار الطّلب والرّد. </string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">لحذف طلب تعارف، عليكم اختيار الطّلب والرّد.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">لحذف دعوة، عليكم اختيار الطّلب والرّد. </string>
   <string name="delete_contact">حذف جهة الإتصال</string>
   <string name="dialog_title_delete_contact">تأكيد حذف جهة الإتصال</string>
   <string name="dialog_message_delete_contact">هل أنت متأكد/ة من أنك تريد حذف جهة الإتصال هذه وكل الرسائل المتبادلة بينكما؟</string>
@@ -147,10 +163,16 @@
   <string name="you">أنتَ/أنتِ</string>
   <string name="save_image">حفظ الصورة</string>
   <string name="dialog_title_save_image">حفظ الصورة؟</string>
+  <string name="dialog_message_save_image">حفظ هذه الصورة سيسمح للتطبيقات الأخرى بالوصول إليها. \n\n هل أنتم متأكّدون من رغبتكم في حفظها؟ </string>
   <string name="save_image_success">تم حفظ الصورة</string>
+  <string name="save_image_error">لم نتمكن من حفظ الصورة </string>
   <string name="dialog_title_no_image_support">الصور غير متوفرة</string>
-  <string name="dialog_message_image_support">اضغط على هذه الأيقونة لإرفاق صور.</string>
+  <string name="dialog_message_no_image_support">Briar (براير) لدى جهة الاتصال لا يدعم إرفاق الصور. فور تحديثهم للبرنامج ستظهر لكم أيفونة مختلفة. </string>
+  <string name="dialog_title_image_support">يمكنم الآن إرسال الصور لجهة الاتصال هذه</string>
+  <string name="dialog_message_image_support">الضغط على هذه الأيقونة لإرفاق الصور.</string>
+  <string name="messaging_too_many_attachments_toast">تمكّنا من إرسال %d من الصورة فقط</string>
   <!--Adding Contacts-->
+  <string name="add_contact_title">إضافة جهة اتصال قريبة </string>
   <string name="face_to_face">لا بد من مقابلة الشخص الذي تريد/ين إضافته كجهة اتصال.\n\nهذا سيمنع أي شخص من انتحال شخصيتك أو قراءة رسائلك في المستقبل.</string>
   <string name="continue_button">إستمرار</string>
   <string name="try_again_button">الرجاء المحاولة مجددًا</string>
@@ -159,6 +181,8 @@
   <string name="contact_added_toast">تم إضافة جهة إتصال: %s</string>
   <string name="contact_already_exists">جهة الإتصال %s بالفعل موجودة</string>
   <string name="qr_code_invalid">رمز QR غير صالح</string>
+  <string name="qr_code_too_old">رمز الاستجابة السّريع  أو QR الذي قمتم بمسحه يعود لإصدار قديم من %s. \n\n اطلبوا من جهة الاتصال التحديث لآخر نسخة ومن ثمّ حاولوا مرّة أخرى. </string>
+  <string name="qr_code_too_new">رمز الاستجابة السّريع  أو QR الذي قمتم بمسحه يعود لإصدار أحدث من %s. \n\n يرجى التحديث لآخر إصدار ومن ثمّ المحاولة مرّة أخرى. </string>
   <string name="camera_error">خطأ بالكاميرا</string>
   <string name="connecting_to_device">يتم الإتصال بالجهاز\u2026</string>
   <string name="authenticating_with_device">يتم التوثيق مع الجهاز\u2026</string>
@@ -166,22 +190,71 @@
   <string name="connection_error_explanation">رجاءًا التأكد أن كليكما متصل بنفس شبكة الواي فاي.</string>
   <string name="connection_error_feedback">إذا إستمرت المشكلة، رجاءًا <a href="feedback">أرسل تقرير </a> لمساعدتنا على تحسين التطبيق.</string>
   <!--Adding Contacts Remotely-->
+  <string name="add_contact_remotely_title_case">إضافة جهة اتصال عن بعد </string>
+  <string name="add_contact_nearby_title">إضافة جهة اتصال قريبة</string>
+  <string name="add_contact_remotely_title">إضافة جهة اتصال عن بعد </string>
+  <string name="contact_name_hint">إعطاء اسم مستعار لجهة الاتصال</string>
+  <string name="contact_link_intro">أدخلوا الرّابط المرسل من جهة الاتصال هنا </string>
+  <string name="contact_link_hint">رابط جهة الاتصال</string>
   <string name="paste_button">لصق</string>
+  <string name="add_contact_button">إضافة جهة إتصال</string>
   <string name="copy_button">نسخ</string>
   <string name="share_button">شارك</string>
-  <string name="add_contact_remote_connecting">اتصال...</string>
-  <string name="connecting">اتصال...</string>
+  <string name="send_link_title">تبادل روابط</string>
+  <string name="add_contact_choose_nickname">اختيار اسم مستعار</string>
+  <string name="add_contact_choose_a_nickname">إدخال اسم مستعار</string>
+  <string name="nickname_intro">إعطاء اسم مستعار لجهة الاتصال بإمكانكم رؤيته فقط. </string>
+  <string name="your_link">أرسلوا هذا الرّابط لجهة الاتصال التي تودّون إضافتها </string>
+  <string name="link_clip_label">رابط Briar (براير)</string>
+  <string name="link_copied_toast">تمّ نسخ الرّابط</string>
+  <string name="adding_contact_error">حصل خطأ عند إضافة جهة الاتصال.</string>
+  <string name="pending_contact_requests_snackbar">هناك طلبات للاتصال بكم في الانتظار  </string>
+  <string name="pending_contact_requests">طلبات التواصل القائمة </string>
+  <string name="no_pending_contacts">لا توجد جهات اتصال قيد الإضافة</string>
+  <string name="add_contact_remote_connecting">جاري الاتصال ...</string>
+  <string name="waiting_for_contact_to_come_online">بانتظار ظهور جهة الاتصال على الانترنت. </string>
+  <string name="connecting">جاري الاتصال ...</string>
+  <string name="adding_contact">جاري إضافة جهة الاتصال ...</string>
+  <string name="adding_contact_failed">لم تنجح إضافة جهة الاتصال </string>
+  <string name="dialog_title_remove_pending_contact">تأكيد الإزالة </string>
+  <string name="dialog_message_remove_pending_contact">لا زلنا نحاول إضافة جهة الاتصال هذه. إن قمتم بإزاتها الآن، لن نقوم بالإضافة. </string>
+  <string name="own_link_error">يرجى إخال رابط جهة الاتصال، وليس رابطكم</string>
+  <string name="nickname_missing">يرجى إدخال اسم مستعار</string>
+  <string name="invalid_link">الرّابط غير صالح</string>
+  <string name="unsupported_link">هذا الرّابط قادم من إصدار أحدث من Briar (براير). يرجى التحديث لآخر إصدار والمحاولة من جديد. </string>
+  <string name="intent_own_link">لقد فتحتم الرابط الخاص بكم. يرجى استخدام رابط جهة الاتصال التي تودّون إضافتها! </string>
+  <string name="missing_link">يرجى إدخال رابط</string>
   <!--This is a numeral indicating the first step in a series of screens-->
-  <string name="step_1">‮واحدة</string>
+  <string name="step_1">١</string>
   <!--This is a numeral indicating the second step in a series of screens-->
-  <string name="step_2">2</string>
+  <string name="step_2">٢</string>
+  <plurals name="contact_added_notification_text">
+    <item quantity="zero">تمّت إضافة %d من جهات الاتصال</item>
+    <item quantity="one">تمّت إضافة جهة الاتصال</item>
+    <item quantity="two">تمّت إضافة %d من جهات الاتصال</item>
+    <item quantity="few">تمّت إضافة %d من جهات الاتصال</item>
+    <item quantity="many">تمّت إضافة %d من جهات الاتصال</item>
+    <item quantity="other">تمّت إضافة %d من جهات الاتصال.</item>
+  </plurals>
+  <string name="adding_contact_slow_warning">إضافة جهة الاتصال هذه تستغرق وقتاً أكثر من العادة</string>
+  <string name="adding_contact_slow_title">لم يمكن الاتصال بجهة الاتصال </string>
+  <string name="adding_contact_slow_text">إضافة جهة الاتصال هذه تستغرق وقتاً أكثر من العادة. \n\n يرجى التأكّد من أن جهة الاتصال استلمت الرّابط الخاص بك ومن ثمّ أضافتك:</string>
+  <string name="offline_state">لا اتصال بالانترنت </string>
+  <string name="duplicate_link_dialog_title">الرّابط مكرّر </string>
+  <string name="duplicate_link_dialog_text_1">لديكم جهة اتصال معلّقة تحمل نفس هذا الرّابط: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">لديكم جهة اتصال تحمل نفس هذا الرّابط: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
+  <string name="duplicate_link_dialog_text_2">هل %s و%s هما الشّخص ذاته؟ </string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
 	string will be used in a dialog button, so if the translation of this string is longer than 20
 	characters, please use "Yes" instead, and use "No" for the "Different Person" button-->
+  <string name="same_person_button">الشّخص ذاته</string>
   <!--This is a button for answering that two nicknames refer to different people. This string
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
+  <string name="different_person_button">شخص مختلف</string>
+  <string name="duplicate_link_dialog_text_3">قام كل من %s و%s بإرسال ذات الرّابط إليكم. \n\n أحدهما قد يكون يحاول ان يكتشف من هم جهات اتصالكم. \n\n لا تقولوا لهم بأنّكم حصلتم على ذات الرّابط من شخص آخر. </string>
+  <string name="pending_contact_updated_toast">تمّ تحديث طلب جهة الاتصال العالق</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">قم بتقديم جهات إتصالك</string>
   <string name="introduction_onboarding_text">يمكنك أن تقدم جهات إتصالك لبعضها البعض، فلا يحتاجون للمقابلة الشخصية ليتواصلوا عبر Briar (براير).</string>
@@ -394,10 +467,14 @@
   <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
   <string name="tor_network_setting_summary">تلقائيا: %1$s (في %2$s)</string>
   <string name="tor_mobile_data_title">إستخدام بيانات الجوال</string>
+  <string name="tor_only_when_charging_title">الاتصال عبر الانترنت (تور أو Tor) عند اتصال الجهار بالشّاحن فقط</string>
+  <string name="tor_only_when_charging_summary">تعطيل الاتصال بالانترنت عند تشغيل الجهاز على البطارية</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">الأمان</string>
+  <string name="pref_lock_title">قفل التطبيق</string>
   <string name="pref_lock_summary">الرجاء استخدام قفل شاشة الجهاز لحماية Briar (براير) في حال تسجيل الدخول</string>
   <string name="pref_lock_disabled_summary">لاستخدام هذه الميزة، الرجاء إعداد قفل شاشة لجهازك</string>
+  <string name="pref_lock_timeout_title">قفل التطبيق لعدم النّشاط </string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
   <string name="pref_lock_timeout_summary">في حالة عدم استعمال Briar (براير)، يقفل تلقائيا بعد %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
@@ -426,6 +503,7 @@
   <string name="panic_app_setting_none">لا شيء</string>
   <string name="dialog_title_connect_panic_app">تأكيد تطبيق الذعر</string>
   <string name="dialog_message_connect_panic_app">هل متأكد أنك تريد السماح ل %1$s أن يقوم بتفعيل إجراءات زر الذعر؟</string>
+  <string name="panic_setting_destructive_action">إجراءات الخطر </string>
   <string name="panic_setting_signout_title">تسجيل الخروج</string>
   <string name="panic_setting_signout_summary">تسجيل الخروج من Briar (براير) عند ضغط زر الذعر</string>
   <string name="purge_setting_title">حذف الحساب</string>
@@ -460,6 +538,7 @@
   <!--Link Warning-->
   <string name="link_warning_title">تنبيه بوجود رابط</string>
   <string name="link_warning_intro">أنت بصدد فتح هذا الرابط في تطبيق خارجي</string>
+  <string name="link_warning_text">يمكن لهذا كشف هويّتك. تأكّدوا من ثقتكم بالشخص الذي أرسل لكم هذا الرّابط خذوا بعين الاعتبار فتح الرّابط في متصفّح تور (Tor).</string>
   <string name="link_warning_open_link">افتح الرابط</string>
   <!--Crash Reporter-->
   <string name="crash_report_title">تقرير إنهيار Briar (براير)</string>
@@ -486,7 +565,10 @@
   <!--Permission Requests-->
   <string name="permission_camera_title">إذن الكاميرا</string>
   <string name="permission_camera_request_body">للتمكن من مسح رمز QR، يحتاج Briar (براير) إلى إستعمال الكاميرا.</string>
-  <string name="permission_camera_location_title">آلة التصوير والموقع</string>
+  <string name="permission_location_title">إذن معرفة الموقع </string>
+  <string name="permission_location_request_body">لاكتشاف أجهزة بلوتوث، يحتاج Briar (براير) لإذن بالوصول إلى موقعكم.\n\n لا يخزّن Briar (براير) موقعكم ولا يشاركه مع أي شخص. </string>
+  <string name="permission_camera_location_title">الكاميرا والموقع</string>
+  <string name="permission_camera_location_request_body">لمسح رمز الاستجابة السّريعة أو QR، يحتاج Briar (براير) للوصول إلى الكاميرا. \n\n لاكتشاف أجهزة بلوتوث، يحتاج Briar (براير) لإذن بالوصول إلى موقعكم. \n\n لا يخزّن Briar (براير) موقعكم ولا يشاركه مع أي شخص. </string>
   <string name="permission_camera_denied_body">قد رفضت إعطاء إذن الكاميرا، لكن إضافة جهات إتصال يتطلب إستعمال الكاميرا.\n\nالرجاء منح الإذن.</string>
   <string name="qr_code">رمز QR</string>
   <string name="show_qr_code_fullscreen">اظهار رمز QR بوضع ملء الشاشة</string>
@@ -505,6 +587,9 @@
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_carol">كارول</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
+  <string name="screenshot_message_1">مرحبا بوب! </string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
+  <string name="screenshot_message_2">مرحبا أليس! شكراً لأنّك أخبرتني عن Briar (براير) !</string>
   <!--This is a message to be used in screenshots.-->
+  <string name="screenshot_message_3">أهلاً وسهلاً، أتمنى أن يعجبك 😀</string>
 </resources>

@@ -43,11 +43,8 @@
     <item quantity="many">Це тестова версія Briar. Термін дії вашого профілю спливає через %d днів. Його не можна продовжити.</item>
     <item quantity="other">Це тестова версія Briar. Термін дії вашого профілю спливає через %d дня. Його не можна продовжити.</item>
   </plurals>
-  <string name="expiry_update">Період тестування було продовжено. Тепер ваш обліковий запис стане недоступним через %d днів.</string>
   <string name="expiry_date_reached">У цієї програми закінчився термін дії\nДякуємо, що тестували її!</string>
-  <string name="download_briar">Для того, щоб продовжити користуватися Briar, будь ласка, завантажте версію 1.0.</string>
   <string name="create_new_account">Вам знадобиться створити новий обліковий запис, але ви можете використовувати те саме ім\'я користувача.</string>
-  <string name="download_briar_button">Завантажити Briar 1.0</string>
   <string name="startup_open_database">Розшифрування бази даних...</string>
   <string name="startup_migrate_database">Оновлення бази даних...</string>
   <string name="startup_compact_database">Стиснення бази даних...</string>
@@ -89,7 +86,7 @@
     <item quantity="one">Новий допис на форумі.</item>
     <item quantity="few">%d нові дописи на форумі.</item>
     <item quantity="many">%d нових дописів на форумі.</item>
-    <item quantity="other">%dнового допису на форумі.</item>
+    <item quantity="other">%d нового допису на форумі.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">Новий допис у блозі.</item>
@@ -250,8 +247,8 @@
   <string name="introduction_response_accepted_sent">Ви прийняли запит на знайомство від %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Перед тим, як ви додасте %1$s до списку своїх контактів, він/вона також має підтвердити цей запит. Це може зайняти якийсь час.</string>
   <string name="introduction_response_declined_sent">Ви відхилили запит на знайомство з %1$s.</string>
-  <string name="introduction_response_accepted_received">%1$sприйняв(-ла) запит на знайомство із %2$s.</string>
-  <string name="introduction_response_declined_received">%1$sвідхилив(-ла) запит на знайомство з %2$s.</string>
+  <string name="introduction_response_accepted_received">%1$s прийняв(-ла) запит на знайомство із %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s відхилив(-ла) запит на знайомство з %2$s.</string>
   <string name="introduction_response_declined_received_by_introducee">%1$s повідомляє, що %2$s відхилив(-ла) запит на знайомство.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">Немає груп для відображення</string>
@@ -342,7 +339,7 @@
   <string name="forum_shared_snackbar">Форум поширений обраним контактам</string>
   <string name="forum_share_message">Додати повідомлення (необов\'язково)</string>
   <string name="forum_share_error">Виникла помилка під час поширення цього форуму.</string>
-  <string name="forum_invitation_received">%1$sподілився з вами форумом \"%2$s\"</string>
+  <string name="forum_invitation_received">%1$s поділився з вами форумом \"%2$s\"</string>
   <string name="forum_invitation_sent">Ви поділилися форумом \"%1$s\" з %2$s</string>
   <string name="forum_invitations_title">Запрошення до форуму</string>
   <string name="forum_invitation_exists">Ви вже прийняли запрошення до цього форуму.\n\nПриймаючи більше запрошень, ви робите своє з\'єднання з форумом швидшим та надійнішим.</string>

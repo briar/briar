@@ -41,11 +41,10 @@
     <item quantity="one">Esta versión de Briar é para probas. A conta caducará en %d día e non se pode anovar.</item>
     <item quantity="other">Esta é unha versión de proba de Briar. A conta caducará en %d días e non se pode anovar.</item>
   </plurals>
-  <string name="expiry_update">A data de caducidade de probas foi alongada. Agora a súa conta caduca en %d días.</string>
   <string name="expiry_date_reached">Este software caducou.\nGrazas por probalo!</string>
-  <string name="download_briar">Para continuar utilizando Briar, descargue por favor a versión 1.0.</string>
+  <string name="download_briar">Para seguir utilizando Briar, descarga por favor a última versión.</string>
   <string name="create_new_account">Precisa crear unha nova conta, pero pode utilizar o mesmo alcume.</string>
-  <string name="download_briar_button">Descargar Briar 1.0</string>
+  <string name="download_briar_button">Descargar Última Versión</string>
   <string name="startup_open_database">Descifrando a Base de datos...</string>
   <string name="startup_migrate_database">Actualizando a Base de datos...</string>
   <string name="startup_compact_database">Compactando a base de datos...</string>
@@ -110,6 +109,7 @@
   <string name="fix">Arranxar</string>
   <string name="help">Axuda</string>
   <string name="sorry">Desculpe</string>
+  <string name="error_start_activity">Non dispoñible para o teu sistema</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sen contactos para amosar</string>
   <string name="no_contacts_action">Toque a icona + para engadir un contacto</string>
@@ -124,6 +124,10 @@
   <string name="set_contact_alias">Cambiar o nome do contacto</string>
   <string name="set_contact_alias_hint">Nome do contacto</string>
   <string name="set_alias_button">Cambiar</string>
+  <string name="delete_all_messages">Borrar todas as mensaxes</string>
+  <string name="dialog_title_delete_all_messages">Confirmar borrado de mensaxes</string>
+  <string name="dialog_message_delete_all_messages">Seguro que queres borrar todas as mensaxes?</string>
+  <string name="dialog_title_not_all_messages_deleted">Non se puideron borrar todas as mensaxes</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirme a eliminación do contacto</string>
   <string name="dialog_message_delete_contact">Segura de querer eliminar este contacto e todas as mensaxes que intercambiaron?</string>
@@ -139,6 +143,7 @@
   <string name="dialog_message_no_image_support">O cliente do seu contacto Briar non admite anexos de imaxes. Unha vez actualice verá unha icona diferente.</string>
   <string name="dialog_title_image_support">Xa pode enviar imaxes a este contacto</string>
   <string name="dialog_message_image_support">Toque en esta icona para anexar imaxes.</string>
+  <string name="messaging_too_many_attachments_toast">Só se enviarán as primeiras %d imaxes</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Engadir contacto próximo</string>
   <string name="face_to_face">Debe atoparse coa persoa que quere engadir como contacto.\n\Isto evitará que calquera poida suplantala ou ler as súas mensaxes no futuro.</string>
@@ -206,6 +211,7 @@
   <string name="offline_state">Sen conexión a internet</string>
   <string name="duplicate_link_dialog_title">Duplicar Ligazón</string>
   <string name="duplicate_link_dialog_text_1">Xa ten un contacto pendente con esta ligazón: %s</string>
+  <string name="duplicate_link_dialog_text_1_contact">Xa tes un contacto con esta ligazón: %s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">Son %s e %s a mesma persoa?</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
