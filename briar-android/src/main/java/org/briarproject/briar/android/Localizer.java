@@ -153,14 +153,11 @@ public class Localizer {
 	 * Indicates whether the language represented by locale
 	 * should be offered to the user on this device.
 	 * * Android doesn't pick up Asturian on API < 21
-	 * * Android can't render Devanagari characters on API 15.
 	 * * RTL languages are supported since API >= 17
 	 */
 	public static boolean isLocaleSupported(Locale locale) {
 		if (SDK_INT >= 21) return true;
 		if (locale.getLanguage().equals("ast")) return false;
-		if (SDK_INT == 15 && locale.getLanguage().equals("hi"))
-			return false;
 		if (SDK_INT >= 17) return true;
 		return isLeftToRight(locale);
 	}
