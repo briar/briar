@@ -103,7 +103,6 @@ public class Localizer {
 		Resources res = context.getResources();
 		Configuration conf = res.getConfiguration();
 		updateConfiguration(conf, locale);
-		//noinspection deprecation
 		res.updateConfiguration(conf, res.getDisplayMetrics());
 	}
 
@@ -132,6 +131,7 @@ public class Localizer {
 		if (SDK_INT >= 24) {
 			return config.getLocales().get(0);
 		} else {
+			//noinspection deprecation
 			return config.locale;
 		}
 	}
