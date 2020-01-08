@@ -22,17 +22,19 @@ import java.util.Collection;
 import java.util.logging.Logger;
 
 import androidx.annotation.Nullable;
+import androidx.annotation.VisibleForTesting;
 
 import static android.graphics.Bitmap.CompressFormat.JPEG;
 import static android.graphics.BitmapFactory.decodeStream;
+import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.api.messaging.MessagingConstants.IMAGE_MIME_TYPES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
@@ -107,7 +109,7 @@ class AttachmentCreationTask {
 		long start = now();
 		String contentType = contentResolver.getType(uri);
 		if (contentType == null) throw new IOException("null content type");
-		if (!isValidMimeType(contentType)) {
+		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
 			String uriString = uri.toString();
 			throw new UnsupportedMimeTypeException("", contentType, uriString);
 		}
@@ -123,14 +125,8 @@ class AttachmentCreationTask {
 		return h;
 	}
 
-	private boolean isValidMimeType(String mimeType) {
-		for (String supportedType : IMAGE_MIME_TYPES) {
-			if (supportedType.equals(mimeType)) return true;
-		}
-		return false;
-	}
-
-	private InputStream compressImage(InputStream is, String contentType)
+	@VisibleForTesting
+	InputStream compressImage(InputStream is, String contentType)
 			throws IOException {
 		ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
@@ -170,6 +166,8 @@ class AttachmentCreationTask {
 			LOG.info("Scaling attachment by factor of " + inSampleSize);
 		Options options = new Options();
 		options.inSampleSize = inSampleSize;
+		if (contentType.equals("image/png"))
+			options.inPreferredConfig = Bitmap.Config.RGB_565;
 		Bitmap bitmap = decodeStream(is, null, options);
 		if (bitmap == null) throw new IOException();
 		return bitmap;

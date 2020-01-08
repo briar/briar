@@ -20,15 +20,6 @@ public interface MessagingConstants {
 	int MAX_CONTENT_TYPE_BYTES = 50;
 
 	/**
-	 * The supported mime types for image attachments.
-	 */
-	String[] IMAGE_MIME_TYPES = {
-			"image/jpeg",
-			"image/png",
-			"image/gif",
-	};
-
-	/**
 	 * The maximum allowed size of image attachments.
 	 * TODO: Different limit for GIFs?
 	 */

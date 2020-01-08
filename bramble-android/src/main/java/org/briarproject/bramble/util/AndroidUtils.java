@@ -106,4 +106,15 @@ public class AndroidUtils {
 	public static File getReportDir(Context ctx) {
 		return ctx.getDir(STORED_REPORTS, MODE_PRIVATE);
 	}
+
+	/**
+	 * Returns an array of supported content types for image attachments.
+	 * GIFs can't be compressed on API < 24 so they're not supported.
+	 * <p>
+	 * TODO: Remove this restriction when large message support is added
+	 */
+	public static String[] getSupportedImageContentTypes() {
+		if (SDK_INT < 24) return new String[] {"image/jpeg", "image/png"};
+		else return new String[] {"image/jpeg", "image/png", "image/gif"};
+	}
 }
