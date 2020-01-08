@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.content.res.Resources;
-import android.support.v4.text.TextUtilsCompat;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -13,8 +12,10 @@ import java.util.Locale;
 
 import javax.annotation.Nullable;
 
+import androidx.core.text.TextUtilsCompat;
+
 import static android.os.Build.VERSION.SDK_INT;
-import static android.support.v4.view.ViewCompat.LAYOUT_DIRECTION_LTR;
+import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static org.briarproject.briar.android.settings.SettingsFragment.LANGUAGE;
 
 @NotNullByDefault
@@ -77,8 +78,9 @@ public class Localizer {
 		if (tag.contains("-")) {
 			String[] langArray = tag.split("-");
 			return new Locale(langArray[0], langArray[1]);
-		} else
+		} else {
 			return new Locale(tag);
+		}
 	}
 
 	// Returns the localized version of context
@@ -108,21 +110,22 @@ public class Localizer {
 	private void updateConfiguration(Configuration conf, Locale locale) {
 		if (SDK_INT >= 17) {
 			conf.setLocale(locale);
-		} else
+		} else {
 			conf.locale = locale;
+		}
 	}
 
 	private void setLocaleAndSystemConfiguration(@Nullable Locale locale) {
 		if (locale == null) return;
 		Locale.setDefault(locale);
 		if (SDK_INT >= 23) return;
-		Configuration systemConfiguration =
-				Resources.getSystem().getConfiguration();
+		Resources systemResources = Resources.getSystem();
+		Configuration systemConfiguration = systemResources.getConfiguration();
 		updateConfiguration(systemConfiguration, locale);
 		// DateUtils uses the system resources, so we need to update them too.
 		//noinspection deprecation
-		Resources.getSystem().updateConfiguration(systemConfiguration,
-				Resources.getSystem().getDisplayMetrics());
+		systemResources.updateConfiguration(systemConfiguration,
+				systemResources.getDisplayMetrics());
 	}
 
 	private Locale getLocaleFromConfig(Configuration config) {
