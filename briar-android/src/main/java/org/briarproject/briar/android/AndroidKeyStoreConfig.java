@@ -31,7 +31,7 @@ class AndroidKeyStoreConfig implements KeyStoreConfig {
 	}
 
 	@Override
-	public String getAlias() {
+	public String getKeyAlias() {
 		return "db";
 	}
 

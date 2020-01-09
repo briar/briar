@@ -10,10 +10,20 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 public interface DatabaseConfig {
 
+	/**
+	 * Returns the directory where the database stores its data.
+	 */
 	File getDatabaseDirectory();
 
+	/**
+	 * Returns the directory where the encrypted database key is stored.
+	 */
 	File getDatabaseKeyDirectory();
 
+	/**
+	 * Returns a {@link KeyStoreConfig} for strengthening the encryption of the
+	 * database key, or null if no keystore should be used.
+	 */
 	@Nullable
 	KeyStoreConfig getKeyStoreConfig();
 }

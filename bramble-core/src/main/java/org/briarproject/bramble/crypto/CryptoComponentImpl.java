@@ -383,7 +383,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			ks.load(null);
 			// Load or generate the stored key
 			javax.crypto.SecretKey storedKey;
-			Entry e = ks.getEntry(config.getAlias(), null);
+			Entry e = ks.getEntry(config.getKeyAlias(), null);
 			if (e == null) {
 				if (!generateIfMissing) {
 					LOG.warning("Key not found in keystore");

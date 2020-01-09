@@ -132,6 +132,9 @@ public interface CryptoComponent {
 	 * storage. The encryption and authentication keys are derived from the
 	 * given password. The ciphertext will be decryptable using the same
 	 * password after the app restarts.
+	 *
+	 * @param keyStoreConfig Configures the use of a stored key to strengthen
+	 * the password-based key. If null, no stored key will be used
 	 */
 	byte[] encryptWithPassword(byte[] plaintext, String password,
 			@Nullable KeyStoreConfig keyStoreConfig);
@@ -141,6 +144,10 @@ public interface CryptoComponent {
 	 * storage. The encryption and authentication keys are derived from the
 	 * given password. Returns null if the ciphertext cannot be decrypted and
 	 * authenticated (for example, if the password is wrong).
+	 *
+	 * @param keyStoreConfig Configures the use of a stored key to strengthen
+	 * the password-based key. If null, or if no stored key was used when
+	 * encrypting the ciphertext, then no stored key will be used
 	 */
 	@Nullable
 	byte[] decryptWithPassword(byte[] ciphertext, String password,
