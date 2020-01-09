@@ -29,8 +29,6 @@ class AndroidAccountManager extends AccountManagerImpl
 	private static final Logger LOG =
 			Logger.getLogger(AndroidAccountManager.class.getName());
 
-	private static final String PREF_DB_KEY = "key";
-
 	protected final Context appContext;
 	private final SharedPreferences prefs;
 
@@ -51,36 +49,6 @@ class AndroidAccountManager extends AccountManagerImpl
 			logFileOrDir(LOG, INFO, getDataDir());
 		}
 		return exists;
-	}
-
-	// Locking: stateChangeLock
-	@Override
-	@Nullable
-	protected String loadEncryptedDatabaseKey() {
-		String key = getDatabaseKeyFromPreferences();
-		if (key == null) key = super.loadEncryptedDatabaseKey();
-		else migrateDatabaseKeyToFile(key);
-		return key;
-	}
-
-	// Locking: stateChangeLock
-	@Nullable
-	private String getDatabaseKeyFromPreferences() {
-		String key = prefs.getString(PREF_DB_KEY, null);
-		if (key == null) LOG.info("No database key in preferences");
-		else LOG.info("Found database key in preferences");
-		return key;
-	}
-
-	// Locking: stateChangeLock
-	private void migrateDatabaseKeyToFile(String key) {
-		if (storeEncryptedDatabaseKey(key)) {
-			if (prefs.edit().remove(PREF_DB_KEY).commit())
-				LOG.info("Database key migrated to file");
-			else LOG.warning("Database key not removed from preferences");
-		} else {
-			LOG.warning("Database key not migrated to file");
-		}
 	}
 
 	@Override
