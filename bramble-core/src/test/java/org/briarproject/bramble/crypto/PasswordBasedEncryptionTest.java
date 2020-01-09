@@ -21,8 +21,8 @@ public class PasswordBasedEncryptionTest extends BrambleTestCase {
 	public void testEncryptionAndDecryption() {
 		byte[] input = TestUtils.getRandomBytes(1234);
 		String password = "password";
-		byte[] ciphertext = crypto.encryptWithPassword(input, password);
-		byte[] output = crypto.decryptWithPassword(ciphertext, password);
+		byte[] ciphertext = crypto.encryptWithPassword(input, password, null);
+		byte[] output = crypto.decryptWithPassword(ciphertext, password, null);
 		assertArrayEquals(input, output);
 	}
 
@@ -30,11 +30,11 @@ public class PasswordBasedEncryptionTest extends BrambleTestCase {
 	public void testInvalidCiphertextReturnsNull() {
 		byte[] input = TestUtils.getRandomBytes(1234);
 		String password = "password";
-		byte[] ciphertext = crypto.encryptWithPassword(input, password);
+		byte[] ciphertext = crypto.encryptWithPassword(input, password, null);
 		// Modify the ciphertext
 		int position = new Random().nextInt(ciphertext.length);
 		ciphertext[position] = (byte) (ciphertext[position] ^ 0xFF);
-		byte[] output = crypto.decryptWithPassword(ciphertext, password);
+		byte[] output = crypto.decryptWithPassword(ciphertext, password, null);
 		assertNull(output);
 	}
 }

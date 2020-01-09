@@ -19,6 +19,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
@@ -68,9 +69,10 @@ class AccountManagerImpl implements AccountManager {
 		return databaseKey;
 	}
 
-	// Locking: stateChangeLock
+	// Package access for testing
+	@GuardedBy("stateChangeLock")
 	@Nullable
-	protected String loadEncryptedDatabaseKey() {
+	String loadEncryptedDatabaseKey() {
 		String key = readDbKeyFromFile(dbKeyFile);
 		if (key == null) {
 			LOG.info("No database key in primary file");
@@ -83,7 +85,7 @@ class AccountManagerImpl implements AccountManager {
 		return key;
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	private String readDbKeyFromFile(File f) {
 		if (!f.exists()) {
@@ -102,8 +104,9 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
-	protected boolean storeEncryptedDatabaseKey(String hex) {
+	// Package access for testing
+	@GuardedBy("stateChangeLock")
+	boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
 		// Create the directory if necessary
 		if (databaseConfig.getDatabaseKeyDirectory().mkdirs())
@@ -140,7 +143,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private void writeDbKeyToFile(String key, File f) throws IOException {
 		FileOutputStream out = new FileOutputStream(f);
 		out.write(key.getBytes("UTF-8"));
@@ -170,10 +173,11 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private boolean encryptAndStoreDatabaseKey(SecretKey key, String password) {
 		byte[] plaintext = key.getBytes();
-		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password);
+		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password,
+				databaseConfig.getKeyStoreConfig());
 		return storeEncryptedDatabaseKey(toHexString(ciphertext));
 	}
 
@@ -197,7 +201,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	private SecretKey loadAndDecryptDatabaseKey(String password) {
 		String hex = loadEncryptedDatabaseKey();
@@ -206,7 +210,8 @@ class AccountManagerImpl implements AccountManager {
 			return null;
 		}
 		byte[] ciphertext = fromHexString(hex);
-		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password);
+		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password,
+				databaseConfig.getKeyStoreConfig());
 		if (plaintext == null) {
 			LOG.info("Failed to decrypt database key");
 			return null;

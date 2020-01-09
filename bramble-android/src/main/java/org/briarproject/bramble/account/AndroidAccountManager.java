@@ -16,6 +16,7 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
 import static android.os.Build.VERSION.SDK_INT;
@@ -73,7 +74,7 @@ class AndroidAccountManager extends AccountManagerImpl
 		return PreferenceManager.getDefaultSharedPreferences(appContext);
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private void deleteAppData(SharedPreferences... clear) {
 		// Clear and commit shared preferences
 		for (SharedPreferences prefs : clear) {

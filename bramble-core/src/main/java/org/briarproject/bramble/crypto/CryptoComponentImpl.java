@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
+import org.briarproject.bramble.api.crypto.KeyStoreConfig;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -24,7 +25,11 @@ import org.spongycastle.crypto.digests.Blake2bDigest;
 import org.whispersystems.curve25519.Curve25519;
 import org.whispersystems.curve25519.Curve25519KeyPair;
 
+import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.security.KeyStore;
+import java.security.KeyStore.Entry;
+import java.security.KeyStore.SecretKeyEntry;
 import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
@@ -32,12 +37,15 @@ import java.security.Security;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.crypto.KeyGenerator;
+import javax.crypto.Mac;
 import javax.inject.Inject;
 
 import static java.lang.System.arraycopy;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -51,7 +59,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	private static final int SIGNATURE_KEY_PAIR_BITS = 256;
 	private static final int STORAGE_IV_BYTES = 24; // 196 bits
 	private static final int PBKDF_SALT_BYTES = 32; // 256 bits
-	private static final int PBKDF_FORMAT_SCRYPT = 0;
+	private static final byte PBKDF_FORMAT_SCRYPT = 0;
+	private static final byte PBKDF_FORMAT_SCRYPT_KEYSTORE = 1;
 
 	private final SecureRandom secureRandom;
 	private final PasswordBasedKdf passwordBasedKdf;
@@ -311,7 +320,8 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	public byte[] encryptWithPassword(byte[] input, String password) {
+	public byte[] encryptWithPassword(byte[] input, String password,
+			@Nullable KeyStoreConfig keyStoreConfig) {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
 		// Generate a random salt
@@ -319,8 +329,10 @@ class CryptoComponentImpl implements CryptoComponent {
 		secureRandom.nextBytes(salt);
 		// Calibrate the KDF
 		int cost = passwordBasedKdf.chooseCostParameter();
-		// Derive the key from the password
+		// Derive the encryption key from the password
 		SecretKey key = passwordBasedKdf.deriveKey(password, salt, cost);
+		if (keyStoreConfig != null)
+			key = requireNonNull(deriveKey(key, keyStoreConfig, true));
 		// Generate a random IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		secureRandom.nextBytes(iv);
@@ -331,7 +343,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] output = new byte[outputLen];
 		int outputOff = 0;
 		// Format version
-		output[outputOff] = PBKDF_FORMAT_SCRYPT;
+		byte formatVersion = keyStoreConfig == null
+				? PBKDF_FORMAT_SCRYPT : PBKDF_FORMAT_SCRYPT_KEYSTORE;
+		output[outputOff] = formatVersion;
 		outputOff++;
 		// Salt
 		arraycopy(salt, 0, output, outputOff, salt.length);
@@ -352,9 +366,53 @@ class CryptoComponentImpl implements CryptoComponent {
 		}
 	}
 
+	/**
+	 * Derives a key from the given key and another key stored in a keystore.
+	 *
+	 * @param generateIfMissing Whether the stored key should be generated and
+	 * stored if it doesn't already exist
+	 * @return The derived key, or null if the stored key doesn't exist and
+	 * {@code generateIfMissing} is false
+	 */
+	@Nullable
+	private SecretKey deriveKey(SecretKey key, KeyStoreConfig config,
+			boolean generateIfMissing) {
+		try {
+			// Load the keystore
+			KeyStore ks = KeyStore.getInstance(config.getKeyStoreType());
+			ks.load(null);
+			// Load or generate the stored key
+			javax.crypto.SecretKey storedKey;
+			Entry e = ks.getEntry(config.getAlias(), null);
+			if (e == null) {
+				if (!generateIfMissing) {
+					LOG.warning("Key not found in keystore");
+					return null;
+				}
+				KeyGenerator kg = KeyGenerator.getInstance(
+						config.getMacAlgorithmName(), config.getProviderName());
+				kg.init(config.getParameterSpec());
+				storedKey = kg.generateKey();
+				LOG.info("Stored key in keystore");
+			} else {
+				if (!(e instanceof SecretKeyEntry))
+					throw new IllegalArgumentException();
+				storedKey = ((SecretKeyEntry) e).getSecretKey();
+				LOG.info("Loaded key from keystore");
+			}
+			// Use the input key and the stored key to derive the output key
+			Mac mac = Mac.getInstance(config.getMacAlgorithmName());
+			mac.init(storedKey);
+			return new SecretKey(mac.doFinal(key.getBytes()));
+		} catch (GeneralSecurityException | IOException e) {
+			throw new IllegalArgumentException(e);
+		}
+	}
+
 	@Override
 	@Nullable
-	public byte[] decryptWithPassword(byte[] input, String password) {
+	public byte[] decryptWithPassword(byte[] input, String password,
+			@Nullable KeyStoreConfig keyStoreConfig) {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
 		// The input contains the format version, salt, cost parameter, IV,
@@ -366,8 +424,13 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Format version
 		byte formatVersion = input[inputOff];
 		inputOff++;
-		if (formatVersion != PBKDF_FORMAT_SCRYPT)
-			return null; // Unknown format
+		// Check whether we support this format version
+		if (formatVersion != PBKDF_FORMAT_SCRYPT &&
+				formatVersion != PBKDF_FORMAT_SCRYPT_KEYSTORE) {
+			return null;
+		}
+		boolean useKeyStore = keyStoreConfig != null &&
+				formatVersion == PBKDF_FORMAT_SCRYPT_KEYSTORE;
 		// Salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
 		arraycopy(input, inputOff, salt, 0, salt.length);
@@ -381,8 +444,12 @@ class CryptoComponentImpl implements CryptoComponent {
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		arraycopy(input, inputOff, iv, 0, iv.length);
 		inputOff += iv.length;
-		// Derive the key from the password
+		// Derive the decryption key from the password
 		SecretKey key = passwordBasedKdf.deriveKey(password, salt, (int) cost);
+		if (useKeyStore) {
+			key = deriveKey(key, keyStoreConfig, false);
+			if (key == null) return null;
+		}
 		// Initialise the cipher
 		try {
 			cipher.init(false, key, iv);

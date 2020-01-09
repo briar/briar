@@ -1,6 +1,7 @@
 package org.briarproject.bramble.account;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyStoreConfig;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.Identity;
@@ -39,6 +40,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseConfig databaseConfig =
 			context.mock(DatabaseConfig.class);
+	private final KeyStoreConfig keyStoreConfig =
+			context.mock(KeyStoreConfig.class);
 	private final CryptoComponent crypto = context.mock(CryptoComponent.class);
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);
@@ -68,6 +71,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(dbDir));
 			allowing(databaseConfig).getDatabaseKeyDirectory();
 			will(returnValue(keyDir));
+			allowing(databaseConfig).getKeyStoreConfig();
+			will(returnValue(keyStoreConfig));
 		}});
 
 		accountManager =
@@ -89,7 +94,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testSignInReturnsFalseIfPasswordIsWrong() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).decryptWithPassword(encryptedKey, password);
+			oneOf(crypto).decryptWithPassword(encryptedKey, password,
+					keyStoreConfig);
 			will(returnValue(null));
 		}});
 
@@ -109,7 +115,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testSignInReturnsTrueIfPasswordIsRight() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).decryptWithPassword(encryptedKey, password);
+			oneOf(crypto).decryptWithPassword(encryptedKey, password,
+					keyStoreConfig);
 			will(returnValue(key.getBytes()));
 		}});
 
@@ -258,7 +265,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 			oneOf(identityManager).registerIdentity(identity);
 			oneOf(crypto).generateSecretKey();
 			will(returnValue(key));
-			oneOf(crypto).encryptWithPassword(key.getBytes(), password);
+			oneOf(crypto).encryptWithPassword(key.getBytes(), password,
+					keyStoreConfig);
 			will(returnValue(encryptedKey));
 		}});
 
@@ -287,7 +295,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	public void testChangePasswordReturnsFalseIfPasswordIsWrong()
 			throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).decryptWithPassword(encryptedKey, password);
+			oneOf(crypto).decryptWithPassword(encryptedKey, password,
+					keyStoreConfig);
 			will(returnValue(null));
 		}});
 
@@ -304,9 +313,11 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	public void testChangePasswordReturnsTrueIfPasswordIsRight()
 			throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(crypto).decryptWithPassword(encryptedKey, password);
+			oneOf(crypto).decryptWithPassword(encryptedKey, password,
+					keyStoreConfig);
 			will(returnValue(key.getBytes()));
-			oneOf(crypto).encryptWithPassword(key.getBytes(), newPassword);
+			oneOf(crypto).encryptWithPassword(key.getBytes(), newPassword,
+					keyStoreConfig);
 			will(returnValue(newEncryptedKey));
 		}});
 
