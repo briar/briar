@@ -468,6 +468,12 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
+	public boolean isEncryptedWithStoredKey(byte[] ciphertext) {
+		return ciphertext.length > 0 &&
+				ciphertext[0] == PBKDF_FORMAT_SCRYPT_KEYSTORE;
+	}
+
+	@Override
 	public byte[] encryptToKey(PublicKey publicKey, byte[] plaintext) {
 		try {
 			return messageEncrypter.encrypt(publicKey, plaintext);

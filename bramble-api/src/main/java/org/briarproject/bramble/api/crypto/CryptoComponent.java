@@ -154,6 +154,13 @@ public interface CryptoComponent {
 			@Nullable KeyStoreConfig keyStoreConfig);
 
 	/**
+	 * Returns true if the given ciphertext was encrypted using a stored key
+	 * to strengthen the password-based key. The validity of the ciphertext is
+	 * not checked.
+	 */
+	boolean isEncryptedWithStoredKey(byte[] ciphertext);
+
+	/**
 	 * Encrypts the given plaintext to the given public key.
 	 */
 	byte[] encryptToKey(PublicKey publicKey, byte[] plaintext);

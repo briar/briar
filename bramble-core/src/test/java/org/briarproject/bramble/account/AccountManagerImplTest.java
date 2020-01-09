@@ -118,6 +118,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 			oneOf(crypto).decryptWithPassword(encryptedKey, password,
 					keyStoreConfig);
 			will(returnValue(key.getBytes()));
+			oneOf(crypto).isEncryptedWithStoredKey(encryptedKey);
+			will(returnValue(true));
 		}});
 
 		storeDatabaseKey(keyFile, encryptedKeyHex);
@@ -134,6 +136,35 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
+	}
+
+	@Test
+	public void testSignInReEncryptsKey() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(crypto).decryptWithPassword(encryptedKey, password,
+					keyStoreConfig);
+			will(returnValue(key.getBytes()));
+			oneOf(crypto).isEncryptedWithStoredKey(encryptedKey);
+			will(returnValue(false));
+			oneOf(crypto).encryptWithPassword(key.getBytes(), password,
+					keyStoreConfig);
+			will(returnValue(newEncryptedKey));
+		}});
+
+		storeDatabaseKey(keyFile, encryptedKeyHex);
+		storeDatabaseKey(keyBackupFile, encryptedKeyHex);
+
+		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
+		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
+
+		assertTrue(accountManager.signIn(password));
+		assertTrue(accountManager.hasDatabaseKey());
+		SecretKey decrypted = accountManager.getDatabaseKey();
+		assertNotNull(decrypted);
+		assertArrayEquals(key.getBytes(), decrypted.getBytes());
+
+		assertEquals(newEncryptedKeyHex, loadDatabaseKey(keyFile));
+		assertEquals(newEncryptedKeyHex, loadDatabaseKey(keyBackupFile));
 	}
 
 	@Test
@@ -316,6 +347,8 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 			oneOf(crypto).decryptWithPassword(encryptedKey, password,
 					keyStoreConfig);
 			will(returnValue(key.getBytes()));
+			oneOf(crypto).isEncryptedWithStoredKey(encryptedKey);
+			will(returnValue(true));
 			oneOf(crypto).encryptWithPassword(key.getBytes(), newPassword,
 					keyStoreConfig);
 			will(returnValue(newEncryptedKey));

@@ -2,6 +2,7 @@ package org.briarproject.bramble.account;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyStoreConfig;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.Identity;
@@ -210,13 +211,22 @@ class AccountManagerImpl implements AccountManager {
 			return null;
 		}
 		byte[] ciphertext = fromHexString(hex);
+		KeyStoreConfig keyStoreConfig = databaseConfig.getKeyStoreConfig();
 		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password,
-				databaseConfig.getKeyStoreConfig());
+				keyStoreConfig);
 		if (plaintext == null) {
 			LOG.info("Failed to decrypt database key");
 			return null;
 		}
-		return new SecretKey(plaintext);
+		SecretKey key = new SecretKey(plaintext);
+		// If the DB key was encrypted without using a stored key and a stored
+		// key is now available, re-encrypt the DB key with the stored key
+		if (keyStoreConfig != null &&
+				!crypto.isEncryptedWithStoredKey(ciphertext)) {
+			LOG.info("Re-encrypting database key with stored key");
+			encryptAndStoreDatabaseKey(key, password);
+		}
+		return key;
 	}
 
 	@Override
