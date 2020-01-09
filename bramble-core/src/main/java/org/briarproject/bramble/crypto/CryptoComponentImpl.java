@@ -34,6 +34,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.Provider;
 import java.security.SecureRandom;
 import java.security.Security;
+import java.security.spec.AlgorithmParameterSpec;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -382,17 +383,28 @@ class CryptoComponentImpl implements CryptoComponent {
 			KeyStore ks = KeyStore.getInstance(config.getKeyStoreType());
 			ks.load(null);
 			// Load or generate the stored key
-			javax.crypto.SecretKey storedKey;
+			javax.crypto.SecretKey storedKey = null;
 			Entry e = ks.getEntry(config.getKeyAlias(), null);
 			if (e == null) {
 				if (!generateIfMissing) {
 					LOG.warning("Key not found in keystore");
 					return null;
 				}
-				KeyGenerator kg = KeyGenerator.getInstance(
-						config.getMacAlgorithmName(), config.getProviderName());
-				kg.init(config.getParameterSpec());
-				storedKey = kg.generateKey();
+				// Try the parameter specs in order of preference
+				for (AlgorithmParameterSpec spec : config.getParameterSpecs()) {
+					try {
+						KeyGenerator kg = KeyGenerator.getInstance(
+								config.getMacAlgorithmName(),
+								config.getProviderName());
+						kg.init(spec);
+						storedKey = kg.generateKey();
+					} catch (GeneralSecurityException e1) {
+						if (LOG.isLoggable(INFO))
+							LOG.info("Could not generate key: " + e1);
+						// Fall back to next spec
+					}
+				}
+				if (storedKey == null) throw new IllegalArgumentException();
 				LOG.info("Stored key in keystore");
 			} else {
 				if (!(e instanceof SecretKeyEntry))

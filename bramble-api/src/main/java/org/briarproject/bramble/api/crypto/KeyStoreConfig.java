@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.crypto;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.List;
 
 /**
  * Configures the use of a stored key to strengthen password-based encryption.
@@ -23,5 +24,9 @@ public interface KeyStoreConfig {
 
 	String getMacAlgorithmName();
 
-	AlgorithmParameterSpec getParameterSpec();
+	/**
+	 * Returns a list of {@link AlgorithmParameterSpec AlgorithmParameterSpecs}
+	 * to use for key generation, in order of preference.
+	 */
+	List<AlgorithmParameterSpec> getParameterSpecs();
 }
