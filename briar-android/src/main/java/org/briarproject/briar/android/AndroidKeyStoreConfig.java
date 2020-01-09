@@ -10,7 +10,6 @@ import java.security.spec.AlgorithmParameterSpec;
 import androidx.annotation.RequiresApi;
 
 import static android.security.keystore.KeyProperties.PURPOSE_SIGN;
-import static android.security.keystore.KeyProperties.PURPOSE_VERIFY;
 
 @RequiresApi(23)
 @NotNullByDefault
@@ -19,8 +18,7 @@ class AndroidKeyStoreConfig implements KeyStoreConfig {
 	private final KeyGenParameterSpec spec;
 
 	AndroidKeyStoreConfig() {
-		int purposes = PURPOSE_SIGN | PURPOSE_VERIFY;
-		spec = new KeyGenParameterSpec.Builder("db", purposes)
+		spec = new KeyGenParameterSpec.Builder("db", PURPOSE_SIGN)
 				.setKeySize(256)
 				.build();
 	}
