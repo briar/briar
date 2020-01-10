@@ -399,7 +399,7 @@ class CryptoComponentImpl implements CryptoComponent {
 						kg.init(spec);
 						storedKey = kg.generateKey();
 						break;
-					} catch (GeneralSecurityException e1) {
+					} catch (Exception e1) {
 						if (LOG.isLoggable(INFO))
 							LOG.info("Could not generate key: " + e1);
 						// Fall back to next spec
