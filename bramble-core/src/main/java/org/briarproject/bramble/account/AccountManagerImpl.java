@@ -2,7 +2,7 @@ package org.briarproject.bramble.account;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
-import org.briarproject.bramble.api.crypto.KeyStoreConfig;
+import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.Identity;
@@ -178,7 +178,7 @@ class AccountManagerImpl implements AccountManager {
 	private boolean encryptAndStoreDatabaseKey(SecretKey key, String password) {
 		byte[] plaintext = key.getBytes();
 		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password,
-				databaseConfig.getKeyStoreConfig());
+				databaseConfig.getKeyStrengthener());
 		return storeEncryptedDatabaseKey(toHexString(ciphertext));
 	}
 
@@ -211,19 +211,19 @@ class AccountManagerImpl implements AccountManager {
 			return null;
 		}
 		byte[] ciphertext = fromHexString(hex);
-		KeyStoreConfig keyStoreConfig = databaseConfig.getKeyStoreConfig();
+		KeyStrengthener keyStrengthener = databaseConfig.getKeyStrengthener();
 		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password,
-				keyStoreConfig);
+				keyStrengthener);
 		if (plaintext == null) {
 			LOG.info("Failed to decrypt database key");
 			return null;
 		}
 		SecretKey key = new SecretKey(plaintext);
-		// If the DB key was encrypted without using a stored key and a stored
-		// key is now available, re-encrypt the DB key with the stored key
-		if (keyStoreConfig != null &&
-				!crypto.isEncryptedWithStoredKey(ciphertext)) {
-			LOG.info("Re-encrypting database key with stored key");
+		// If the DB key was encrypted with a weak key and a key strengthener
+		// is now available, re-encrypt the DB key with a strengthened key
+		if (keyStrengthener != null &&
+				!crypto.isEncryptedWithStrengthenedKey(ciphertext)) {
+			LOG.info("Re-encrypting database key with strengthened key");
 			encryptAndStoreDatabaseKey(key, password);
 		}
 		return key;

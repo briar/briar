@@ -1,6 +1,6 @@
 package org.briarproject.bramble.test;
 
-import org.briarproject.bramble.api.crypto.KeyStoreConfig;
+import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -30,7 +30,7 @@ public class TestDatabaseConfig implements DatabaseConfig {
 
 	@Nullable
 	@Override
-	public KeyStoreConfig getKeyStoreConfig() {
+	public KeyStrengthener getKeyStrengthener() {
 		return null;
 	}
 }

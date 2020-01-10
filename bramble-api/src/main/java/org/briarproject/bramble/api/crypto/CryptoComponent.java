@@ -133,11 +133,11 @@ public interface CryptoComponent {
 	 * given password. The ciphertext will be decryptable using the same
 	 * password after the app restarts.
 	 *
-	 * @param keyStoreConfig Configures the use of a stored key to strengthen
-	 * the password-based key. If null, no stored key will be used
+	 * @param keyStrengthener Used to strengthen the password-based key. If
+	 * null, the password-based key will not be strengthened
 	 */
 	byte[] encryptWithPassword(byte[] plaintext, String password,
-			@Nullable KeyStoreConfig keyStoreConfig);
+			@Nullable KeyStrengthener keyStrengthener);
 
 	/**
 	 * Decrypts and authenticates the given ciphertext that has been read from
@@ -145,20 +145,19 @@ public interface CryptoComponent {
 	 * given password. Returns null if the ciphertext cannot be decrypted and
 	 * authenticated (for example, if the password is wrong).
 	 *
-	 * @param keyStoreConfig Configures the use of a stored key to strengthen
-	 * the password-based key. If null, or if no stored key was used when
-	 * encrypting the ciphertext, then no stored key will be used
+	 * @param keyStrengthener Used to strengthen the password-based key. If
+	 * null, or if strengthening was not used when encrypting the ciphertext,
+	 * the password-based key will not be strengthened
 	 */
 	@Nullable
 	byte[] decryptWithPassword(byte[] ciphertext, String password,
-			@Nullable KeyStoreConfig keyStoreConfig);
+			@Nullable KeyStrengthener keyStrengthener);
 
 	/**
-	 * Returns true if the given ciphertext was encrypted using a stored key
-	 * to strengthen the password-based key. The validity of the ciphertext is
-	 * not checked.
+	 * Returns true if the given ciphertext was encrypted using a strengthened
+	 * key. The validity of the ciphertext is not checked.
 	 */
-	boolean isEncryptedWithStoredKey(byte[] ciphertext);
+	boolean isEncryptedWithStrengthenedKey(byte[] ciphertext);
 
 	/**
 	 * Encrypts the given plaintext to the given public key.

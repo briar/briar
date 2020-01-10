@@ -1,6 +1,6 @@
 package org.briarproject.bramble.api.db;
 
-import org.briarproject.bramble.api.crypto.KeyStoreConfig;
+import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.io.File;
@@ -21,9 +21,9 @@ public interface DatabaseConfig {
 	File getDatabaseKeyDirectory();
 
 	/**
-	 * Returns a {@link KeyStoreConfig} for strengthening the encryption of the
-	 * database key, or null if no keystore should be used.
+	 * Returns a {@link KeyStrengthener} for strengthening the encryption of
+	 * the database key, or null if no strengthener should be used.
 	 */
 	@Nullable
-	KeyStoreConfig getKeyStoreConfig();
+	KeyStrengthener getKeyStrengthener();
 }

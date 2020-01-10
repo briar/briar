@@ -1,6 +1,6 @@
 package org.briarproject.briar.android;
 
-import org.briarproject.bramble.api.crypto.KeyStoreConfig;
+import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -8,19 +8,18 @@ import java.io.File;
 
 import javax.annotation.Nullable;
 
-import static android.os.Build.VERSION.SDK_INT;
-
 @NotNullByDefault
 class AndroidDatabaseConfig implements DatabaseConfig {
 
 	private final File dbDir, keyDir;
 	@Nullable
-	private final KeyStoreConfig keyStoreConfig;
+	private final KeyStrengthener keyStrengthener;
 
-	AndroidDatabaseConfig(File dbDir, File keyDir) {
+	AndroidDatabaseConfig(File dbDir, File keyDir,
+			@Nullable KeyStrengthener keyStrengthener) {
 		this.dbDir = dbDir;
 		this.keyDir = keyDir;
-		keyStoreConfig = SDK_INT >= 23 ? new AndroidKeyStoreConfig() : null;
+		this.keyStrengthener = keyStrengthener;
 	}
 
 	@Override
@@ -35,7 +34,7 @@ class AndroidDatabaseConfig implements DatabaseConfig {
 
 	@Nullable
 	@Override
-	public KeyStoreConfig getKeyStoreConfig() {
-		return keyStoreConfig;
+	public KeyStrengthener getKeyStrengthener() {
+		return keyStrengthener;
 	}
 }
