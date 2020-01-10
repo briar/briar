@@ -398,6 +398,7 @@ class CryptoComponentImpl implements CryptoComponent {
 								config.getProviderName());
 						kg.init(spec);
 						storedKey = kg.generateKey();
+						break;
 					} catch (GeneralSecurityException e1) {
 						if (LOG.isLoggable(INFO))
 							LOG.info("Could not generate key: " + e1);
