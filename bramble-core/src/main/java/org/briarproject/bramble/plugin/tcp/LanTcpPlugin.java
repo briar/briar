@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -41,6 +40,7 @@ import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PO
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_PORT;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.join;
@@ -271,10 +271,10 @@ class LanTcpPlugin extends TcpPlugin {
 			} catch (IOException e) {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Failed to bind " + scrubSocketAddress(addr));
-				tryToClose(ss);
+				tryToClose(ss, LOG, WARNING);
 			}
 		}
-		if (ss == null || !ss.isBound()) {
+		if (ss == null) {
 			LOG.info("Could not bind server socket for key agreement");
 			return null;
 		}
@@ -290,8 +290,8 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
-		if (!isRunning()) return null;
-		ServerSocket ss = socket;
+		ServerSocket ss = state.getServerSocket();
+		if (ss == null) return null;
 		InterfaceAddress local = getLocalInterfaceAddress(ss.getInetAddress());
 		if (local == null) {
 			LOG.warning("No interface for key agreement server socket");
@@ -363,7 +363,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 		@Override
 		public void close() {
-			IoUtils.tryToClose(ss, LOG, WARNING);
+			tryToClose(ss, LOG, WARNING);
 		}
 	}
 }

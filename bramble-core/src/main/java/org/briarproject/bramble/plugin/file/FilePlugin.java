@@ -16,6 +16,7 @@ import java.util.logging.Logger;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.FileConstants.PROP_PATH;
+import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
@@ -45,7 +46,7 @@ abstract class FilePlugin implements SimplexPlugin {
 
 	@Override
 	public TransportConnectionReader createReader(TransportProperties p) {
-		if (!isRunning()) return null;
+		if (getState() != AVAILABLE) return null;
 		String path = p.get(PROP_PATH);
 		if (isNullOrEmpty(path)) return null;
 		try {
@@ -60,7 +61,7 @@ abstract class FilePlugin implements SimplexPlugin {
 
 	@Override
 	public TransportConnectionWriter createWriter(TransportProperties p) {
-		if (!isRunning()) return null;
+		if (getState() != AVAILABLE) return null;
 		String path = p.get(PROP_PATH);
 		if (isNullOrEmpty(path)) return null;
 		try {

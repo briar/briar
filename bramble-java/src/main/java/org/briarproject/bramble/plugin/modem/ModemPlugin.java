@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
@@ -23,9 +24,16 @@ import java.util.Collection;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
+
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
@@ -44,8 +52,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	private final PluginCallback callback;
 	private final int maxLatency;
 	private final AtomicBoolean used = new AtomicBoolean(false);
+	private final PluginState state = new PluginState();
 
-	private volatile boolean running = false;
 	private volatile Modem modem = null;
 
 	ModemPlugin(ModemFactory modemFactory, SerialPortList serialPortList,
@@ -75,6 +83,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	@Override
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		state.setStarted();
+		callback.pluginStateChanged(getState());
 		for (String portName : serialPortList.getPortNames()) {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
@@ -83,18 +93,23 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				if (!modem.start()) continue;
 				if (LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
-				running = true;
+				state.setInitialised();
+				callback.pluginStateChanged(getState());
 				return;
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
 		}
+		LOG.warning("Failed to initialised modem");
+		state.setFailed();
+		callback.pluginStateChanged(getState());
 		throw new PluginException();
 	}
 
 	@Override
 	public void stop() {
-		running = false;
+		state.setStopped();
+		callback.pluginStateChanged(getState());
 		if (modem != null) {
 			try {
 				modem.stop();
@@ -105,8 +120,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running;
+	public State getState() {
+		return state.getState();
 	}
 
 	@Override
@@ -125,8 +140,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		throw new UnsupportedOperationException();
 	}
 
-	private boolean resetModem() {
-		if (!running) return false;
+	private void resetModem() {
+		if (getState() != AVAILABLE) return;
 		for (String portName : serialPortList.getPortNames()) {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
@@ -135,18 +150,19 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				if (!modem.start()) continue;
 				if (LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
-				return true;
+				return;
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
 		}
-		running = false;
-		return false;
+		LOG.warning("Failed to initialise modem");
+		state.setFailed();
+		callback.pluginStateChanged(getState());
 	}
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (!running) return null;
+		if (getState() != AVAILABLE) return null;
 		// Get the ISO 3166 code for the caller's country
 		String fromIso = callback.getLocalProperties().get("iso3166");
 		if (isNullOrEmpty(fromIso)) return null;
@@ -230,6 +246,39 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				exception = true;
 			}
 			if (exception) resetModem();
+		}
+	}
+
+	@ThreadSafe
+	@NotNullByDefault
+	private static class PluginState {
+
+		@GuardedBy("this")
+		private boolean started = false,
+				stopped = false,
+				initialised = false,
+				failed = false;
+
+		private synchronized void setStarted() {
+			started = true;
+		}
+
+		private synchronized void setStopped() {
+			stopped = true;
+		}
+
+		private synchronized void setInitialised() {
+			initialised = true;
+		}
+
+		private synchronized void setFailed() {
+			failed = true;
+		}
+
+		private State getState() {
+			if (!started || stopped) return DISABLED;
+			if (failed) return UNAVAILABLE;
+			return initialised ? AVAILABLE : ENABLING;
 		}
 	}
 }

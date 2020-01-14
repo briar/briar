@@ -33,6 +33,8 @@ import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
@@ -68,14 +70,9 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		initialisePortProperty();
-		running = true;
+		state.setStarted();
+		callback.pluginStateChanged(getState());
 		updateConnectionStatus();
-	}
-
-	@Override
-	public void stop() {
-		running = false;
-		tryToClose(socket);
 	}
 
 	@Override
@@ -135,7 +132,8 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 
 	private void updateConnectionStatus() {
 		connectionStatusExecutor.execute(() -> {
-			if (!running) return;
+			State state = getState();
+			if (state != AVAILABLE && state != UNAVAILABLE) return;
 			List<InetAddress> addrs = getUsableLocalInetAddresses();
 			if (addrs.contains(WIFI_AP_ADDRESS)
 					|| addrs.contains(WIFI_DIRECT_AP_ADDRESS)) {
@@ -145,15 +143,15 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 				// make outgoing connections on API 21+ if another network
 				// has internet access
 				socketFactory = SocketFactory.getDefault();
-				if (socket == null || socket.isClosed()) bind();
+				if (state == UNAVAILABLE) bind();
 			} else if (addrs.isEmpty()) {
 				LOG.info("Not connected to wifi");
 				socketFactory = SocketFactory.getDefault();
-				tryToClose(socket);
+				// TODO: Check that socket was closed when interface went down
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
-				if (socket == null || socket.isClosed()) bind();
+				if (state == UNAVAILABLE) bind();
 			}
 		});
 	}
