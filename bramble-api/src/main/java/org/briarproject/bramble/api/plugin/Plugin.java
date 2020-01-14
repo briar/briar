@@ -9,6 +9,34 @@ import java.util.Collection;
 @NotNullByDefault
 public interface Plugin {
 
+	enum State {
+
+		/**
+		 * The plugin has not been started, has been stopped, or is disabled by
+		 * settings.
+		 */
+		DISABLED,
+
+		/**
+		 * The plugin has been started, has not been stopped, is enabled by
+		 * settings, but can't yet tell whether it can make or receive
+		 * connections.
+		 */
+		ENABLING,
+
+		/**
+		 * The plugin has been started, has not been stopped, is enabled by
+		 * settings, and can make or receive connections.
+		 */
+		AVAILABLE,
+
+		/**
+		 * The plugin has been started, has not been stopped, is enabled by
+		 * settings, but can't make or receive connections
+		 */
+		UNAVAILABLE
+	}
+
 	/**
 	 * Returns the plugin's transport identifier.
 	 */
@@ -35,9 +63,9 @@ public interface Plugin {
 	void stop() throws PluginException;
 
 	/**
-	 * Returns true if the plugin is running.
+	 * Returns the current state of the plugin.
 	 */
-	boolean isRunning();
+	State getState();
 
 	/**
 	 * Returns true if the plugin should be polled periodically to attempt to

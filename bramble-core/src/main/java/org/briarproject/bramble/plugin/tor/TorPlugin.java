@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
@@ -54,6 +55,9 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.net.SocketFactory;
 
 import static java.util.Arrays.asList;
@@ -65,6 +69,10 @@ import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
@@ -113,15 +121,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final int maxLatency, maxIdleTime, socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, obfs4File, configFile;
 	private final File doneFile, cookieFile;
-	private final ConnectionStatus connectionStatus;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	private volatile ServerSocket socket = null;
+	protected final PluginState state = new PluginState();
+
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
 	private volatile Settings settings = null;
-
-	protected volatile boolean running = false;
 
 	protected abstract int getProcessId();
 
@@ -159,7 +165,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		connectionStatus = new ConnectionStatus();
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("TorPlugin", ioExecutor, 1);
@@ -258,7 +263,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Tell Tor to exit when the control connection is closed
 			controlConnection.takeOwnership();
 			controlConnection.resetConf(singletonList(OWNER));
-			running = true;
 			// Register to receive events from the Tor process
 			controlConnection.setEventHandler(this);
 			controlConnection.setEvents(asList(EVENTS));
@@ -266,11 +270,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String phase = controlConnection.getInfo("status/bootstrap-phase");
 			if (phase != null && phase.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
-				connectionStatus.setBootstrapped();
+				state.setBootstrapped();
 			}
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
+		state.setStarted();
+		callback.pluginStateChanged(getState());
 		// Check whether we're online
 		updateConnectionStatus(networkManager.getNetworkStatus(),
 				batteryManager.isCharging());
@@ -393,11 +399,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				tryToClose(ss, LOG, WARNING);
 				return;
 			}
-			if (!running) {
+			if (!state.setServerSocket(ss)) {
+				LOG.info("Closing redundant server socket");
 				tryToClose(ss, LOG, WARNING);
 				return;
 			}
-			socket = ss;
 			// Store the port number
 			String localPort = String.valueOf(ss.getLocalPort());
 			Settings s = new Settings();
@@ -412,7 +418,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void publishHiddenService(String port) {
-		if (!running) return;
+		if (!state.isRunning()) return;
 		LOG.info("Creating hidden service");
 		String privKey = settings.get(HS_PRIVKEY);
 		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
@@ -450,14 +456,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void acceptContactConnections(ServerSocket ss) {
-		while (running) {
+		while (true) {
 			Socket s;
 			try {
 				s = ss.accept();
 				s.setSoTimeout(socketTimeout);
 			} catch (IOException e) {
-				// This is expected when the socket is closed
-				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+				// This is expected when the server socket is closed
+				// TODO: Check that this is logged at shutdown
+				LOG.info("Server socket closed");
+				state.clearServerSocket(ss);
 				return;
 			}
 			LOG.info("Connection received");
@@ -467,10 +475,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	protected void enableNetwork(boolean enable) throws IOException {
-		if (!running) return;
-		connectionStatus.enableNetwork(enable);
+		if (!state.isRunning()) return;
+		state.enableNetwork(enable);
+		callback.pluginStateChanged(getState());
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
-		if (!enable) callback.transportDisabled();
 	}
 
 	private void enableBridges(boolean enable, boolean needsMeek)
@@ -494,9 +502,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public void stop() {
-		running = false;
-		tryToClose(socket, LOG, WARNING);
-		callback.transportDisabled();
+		ServerSocket ss = state.setStopped();
+		callback.pluginStateChanged(getState());
+		tryToClose(ss, LOG, WARNING);
 		if (controlSocket != null && controlConnection != null) {
 			try {
 				LOG.info("Stopping Tor");
@@ -510,8 +518,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running && connectionStatus.isConnected();
+	public State getState() {
+		return state.getState();
 	}
 
 	@Override
@@ -527,7 +535,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (!isRunning()) return;
+		if (getState() != AVAILABLE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
@@ -546,7 +554,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (!isRunning()) return null;
+		if (getState() != AVAILABLE) return null;
 		String bestOnion = null;
 		String onion2 = p.get(PROP_ONION_V2);
 		String onion3 = p.get(PROP_ONION_V3);
@@ -663,10 +671,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void circuitStatus(String status, String id, String path) {
 		if (status.equals("BUILT") &&
-				connectionStatus.getAndSetCircuitBuilt()) {
+				state.getAndSetCircuitBuilt()) {
+			callback.pluginStateChanged(getState());
 			LOG.info("First circuit built");
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
@@ -697,9 +705,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
-			connectionStatus.setBootstrapped();
+			state.setBootstrapped();
+			callback.pluginStateChanged(getState());
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
@@ -746,7 +754,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void updateConnectionStatus(NetworkStatus status,
 			boolean charging) {
 		connectionStatusExecutor.execute(() -> {
-			if (!running) return;
+			if (!state.isRunning()) return;
 			boolean online = status.isConnected();
 			boolean wifi = status.isWifi();
 			String country = locationUtils.getCurrentCountry();
@@ -762,7 +770,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Online: " + online + ", wifi: " + wifi);
-				if ("".equals(country)) LOG.info("Country code unknown");
+				if (country.isEmpty()) LOG.info("Country code unknown");
 				else LOG.info("Country code: " + country);
 				LOG.info("Charging: " + charging);
 			}
@@ -810,33 +818,73 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
-		if (!running) return;
+		if (!state.isRunning()) return;
 		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
 	}
 
-	private static class ConnectionStatus {
+	@ThreadSafe
+	@NotNullByDefault
+	protected static class PluginState {
 
-		// All of the following are locking: this
-		private boolean networkEnabled = false;
-		private boolean bootstrapped = false, circuitBuilt = false;
+		@GuardedBy("this")
+		private boolean started = false,
+				stopped = false,
+				networkInitialised = false,
+				networkEnabled = false,
+				bootstrapped = false,
+				circuitBuilt = false;
 
-		private synchronized void setBootstrapped() {
+		@GuardedBy("this")
+		@Nullable
+		private ServerSocket serverSocket = null;
+
+		synchronized void setStarted() {
+			started = true;
+		}
+
+		synchronized boolean isRunning() {
+			return started && !stopped;
+		}
+
+		@Nullable
+		synchronized ServerSocket setStopped() {
+			stopped = true;
+			ServerSocket ss = serverSocket;
+			serverSocket = null;
+			return ss;
+		}
+
+		synchronized void setBootstrapped() {
 			bootstrapped = true;
 		}
 
-		private synchronized boolean getAndSetCircuitBuilt() {
+		synchronized boolean getAndSetCircuitBuilt() {
 			boolean firstCircuit = !circuitBuilt;
 			circuitBuilt = true;
 			return firstCircuit;
 		}
 
-		private synchronized void enableNetwork(boolean enable) {
+		synchronized void enableNetwork(boolean enable) {
+			networkInitialised = true;
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
 		}
 
-		private synchronized boolean isConnected() {
-			return networkEnabled && bootstrapped && circuitBuilt;
+		synchronized boolean setServerSocket(ServerSocket ss) {
+			if (stopped || serverSocket != null) return false;
+			serverSocket = ss;
+			return true;
+		}
+
+		synchronized void clearServerSocket(ServerSocket ss) {
+			if (serverSocket == ss) serverSocket = null;
+		}
+
+		synchronized State getState() {
+			if (!started || stopped) return DISABLED;
+			if (!networkInitialised) return ENABLING;
+			if (!networkEnabled) return UNAVAILABLE;
+			return bootstrapped && circuitBuilt ? AVAILABLE : ENABLING;
 		}
 	}
 }

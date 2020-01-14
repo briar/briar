@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.plugin;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
 
@@ -32,12 +33,7 @@ public interface PluginCallback extends ConnectionHandler {
 	void mergeLocalProperties(TransportProperties p);
 
 	/**
-	 * Signals that the transport is enabled.
+	 * Signals that the transport's state may have changed.
 	 */
-	void transportEnabled();
-
-	/**
-	 * Signals that the transport is disabled.
-	 */
-	void transportDisabled();
+	void pluginStateChanged(State state);
 }
