@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
@@ -14,7 +15,6 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -35,12 +35,18 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -60,9 +66,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected final int maxLatency, maxIdleTime;
 	protected final int connectionTimeout, socketTimeout;
 	protected final AtomicBoolean used = new AtomicBoolean(false);
-
-	protected volatile boolean running = false;
-	protected volatile ServerSocket socket = null;
+	protected final PluginState state = new PluginState();
 
 	/**
 	 * Returns zero or more socket addresses on which the plugin should listen,
@@ -118,14 +122,14 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		running = true;
+		state.setStarted();
+		callback.pluginStateChanged(getState());
 		bind();
 	}
 
 	protected void bind() {
 		bindExecutor.execute(() -> {
-			if (!running) return;
-			if (socket != null && !socket.isClosed()) return;
+			if (getState() != UNAVAILABLE) return;
 			ServerSocket ss = null;
 			for (InetSocketAddress addr : getLocalSocketAddresses()) {
 				try {
@@ -135,32 +139,27 @@ abstract class TcpPlugin implements DuplexPlugin {
 				} catch (IOException e) {
 					if (LOG.isLoggable(INFO))
 						LOG.info("Failed to bind " + scrubSocketAddress(addr));
-					tryToClose(ss);
+					tryToClose(ss, LOG, WARNING);
 				}
 			}
-			if (ss == null || !ss.isBound()) {
+			if (ss == null) {
 				LOG.info("Could not bind server socket");
 				return;
 			}
-			if (!running) {
-				tryToClose(ss);
+			if (!state.setServerSocket(ss)) {
+				LOG.info("Closing redundant server socket");
+				tryToClose(ss, LOG, WARNING);
 				return;
 			}
-			socket = ss;
 			backoff.reset();
 			InetSocketAddress local =
 					(InetSocketAddress) ss.getLocalSocketAddress();
 			setLocalSocketAddress(local);
+			callback.pluginStateChanged(getState());
 			if (LOG.isLoggable(INFO))
 				LOG.info("Listening on " + scrubSocketAddress(local));
-			callback.transportEnabled();
-			acceptContactConnections();
+			acceptContactConnections(ss);
 		});
-	}
-
-	protected void tryToClose(@Nullable ServerSocket ss) {
-		IoUtils.tryToClose(ss, LOG, WARNING);
-		callback.transportDisabled();
 	}
 
 	String getIpPortString(InetSocketAddress a) {
@@ -170,15 +169,18 @@ abstract class TcpPlugin implements DuplexPlugin {
 		return addr + ":" + a.getPort();
 	}
 
-	private void acceptContactConnections() {
-		while (isRunning()) {
+	private void acceptContactConnections(ServerSocket ss) {
+		while (true) {
 			Socket s;
 			try {
-				s = socket.accept();
+				s = ss.accept();
 				s.setSoTimeout(socketTimeout);
 			} catch (IOException e) {
-				// This is expected when the socket is closed
-				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+				// This is expected when the server socket is closed
+				// TODO: Check that this is logged at shutdown/when LAN disabled
+				LOG.info("Server socket closed");
+				state.clearServerSocket(ss);
+				callback.pluginStateChanged(getState());
 				return;
 			}
 			if (LOG.isLoggable(INFO))
@@ -191,13 +193,14 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Override
 	public void stop() {
-		running = false;
-		tryToClose(socket);
+		ServerSocket ss = state.setStopped();
+		callback.pluginStateChanged(getState());
+		tryToClose(ss, LOG, WARNING);
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running && socket != null && !socket.isClosed();
+	public State getState() {
+		return state.getState();
 	}
 
 	@Override
@@ -213,7 +216,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (!isRunning()) return;
+		if (getState() != AVAILABLE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
@@ -232,8 +235,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (!isRunning()) return null;
-		ServerSocket ss = socket;
+		ServerSocket ss = state.getServerSocket();
+		if (ss == null) return null;
 		InterfaceAddress local = getLocalInterfaceAddress(ss.getInetAddress());
 		if (local == null) {
 			LOG.warning("No interface for server socket");
@@ -364,6 +367,49 @@ abstract class TcpPlugin implements DuplexPlugin {
 		} catch (SocketException e) {
 			logException(LOG, WARNING, e);
 			return emptyList();
+		}
+	}
+
+	@ThreadSafe
+	@NotNullByDefault
+	protected static class PluginState {
+
+		@GuardedBy("this")
+		private boolean started = false, stopped = false;
+		@GuardedBy("this")
+		@Nullable
+		private ServerSocket serverSocket = null;
+
+		synchronized void setStarted() {
+			started = true;
+		}
+
+		@Nullable
+		synchronized ServerSocket setStopped() {
+			stopped = true;
+			ServerSocket ss = serverSocket;
+			serverSocket = null;
+			return ss;
+		}
+
+		@Nullable
+		synchronized ServerSocket getServerSocket() {
+			return serverSocket;
+		}
+
+		synchronized boolean setServerSocket(ServerSocket ss) {
+			if (stopped || serverSocket != null) return false;
+			serverSocket = ss;
+			return true;
+		}
+
+		synchronized void clearServerSocket(ServerSocket ss) {
+			if (serverSocket == ss) serverSocket = null;
+		}
+
+		synchronized State getState() {
+			if (!started || stopped) return DISABLED;
+			return serverSocket == null ? UNAVAILABLE : AVAILABLE;
 		}
 	}
 }

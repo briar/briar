@@ -30,6 +30,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -176,7 +177,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	@Override
 	public boolean isTransportRunning(TransportId transportId) {
 		Plugin plugin = pluginManager.getPlugin(transportId);
-		return plugin != null && plugin.isRunning();
+		return plugin != null && plugin.getState() == AVAILABLE;
 	}
 
 }
