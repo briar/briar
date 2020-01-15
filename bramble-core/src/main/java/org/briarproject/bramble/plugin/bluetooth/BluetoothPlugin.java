@@ -132,9 +132,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	void onAdapterDisabled() {
 		LOG.info("Bluetooth disabled");
-		// TODO: Is this needed, or will the socket be closed automatically?
-		SS ss = state.clearServerSocket();
-		tryToClose(ss);
 		connectionLimiter.allConnectionsClosed();
 		callback.pluginStateChanged(getState());
 	}
@@ -237,7 +234,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				conn = acceptConnection(ss);
 			} catch (IOException e) {
 				// This is expected when the socket is closed
-				// TODO: Check that this is logged at shutdown/when BT disabled
 				LOG.info("Server socket closed");
 				state.clearServerSocket();
 				return;

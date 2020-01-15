@@ -147,7 +147,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 			} else if (addrs.isEmpty()) {
 				LOG.info("Not connected to wifi");
 				socketFactory = SocketFactory.getDefault();
-				// TODO: Check that socket was closed when interface went down
+				// Server socket was closed when wifi interface went down
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
