@@ -2,6 +2,7 @@ package org.briarproject.bramble.account;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.identity.Identity;
@@ -19,6 +20,7 @@ import java.io.InputStreamReader;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
@@ -68,9 +70,10 @@ class AccountManagerImpl implements AccountManager {
 		return databaseKey;
 	}
 
-	// Locking: stateChangeLock
+	// Package access for testing
+	@GuardedBy("stateChangeLock")
 	@Nullable
-	protected String loadEncryptedDatabaseKey() {
+	String loadEncryptedDatabaseKey() {
 		String key = readDbKeyFromFile(dbKeyFile);
 		if (key == null) {
 			LOG.info("No database key in primary file");
@@ -83,7 +86,7 @@ class AccountManagerImpl implements AccountManager {
 		return key;
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	private String readDbKeyFromFile(File f) {
 		if (!f.exists()) {
@@ -102,8 +105,9 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
-	protected boolean storeEncryptedDatabaseKey(String hex) {
+	// Package access for testing
+	@GuardedBy("stateChangeLock")
+	boolean storeEncryptedDatabaseKey(String hex) {
 		LOG.info("Storing database key in file");
 		// Create the directory if necessary
 		if (databaseConfig.getDatabaseKeyDirectory().mkdirs())
@@ -140,7 +144,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private void writeDbKeyToFile(String key, File f) throws IOException {
 		FileOutputStream out = new FileOutputStream(f);
 		out.write(key.getBytes("UTF-8"));
@@ -170,10 +174,11 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	private boolean encryptAndStoreDatabaseKey(SecretKey key, String password) {
 		byte[] plaintext = key.getBytes();
-		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password);
+		byte[] ciphertext = crypto.encryptWithPassword(plaintext, password,
+				databaseConfig.getKeyStrengthener());
 		return storeEncryptedDatabaseKey(toHexString(ciphertext));
 	}
 
@@ -197,7 +202,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 	}
 
-	// Locking: stateChangeLock
+	@GuardedBy("stateChangeLock")
 	@Nullable
 	private SecretKey loadAndDecryptDatabaseKey(String password) {
 		String hex = loadEncryptedDatabaseKey();
@@ -206,12 +211,22 @@ class AccountManagerImpl implements AccountManager {
 			return null;
 		}
 		byte[] ciphertext = fromHexString(hex);
-		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password);
+		KeyStrengthener keyStrengthener = databaseConfig.getKeyStrengthener();
+		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password,
+				keyStrengthener);
 		if (plaintext == null) {
 			LOG.info("Failed to decrypt database key");
 			return null;
 		}
-		return new SecretKey(plaintext);
+		SecretKey key = new SecretKey(plaintext);
+		// If the DB key was encrypted with a weak key and a key strengthener
+		// is now available, re-encrypt the DB key with a strengthened key
+		if (keyStrengthener != null &&
+				!crypto.isEncryptedWithStrengthenedKey(ciphertext)) {
+			LOG.info("Re-encrypting database key with strengthened key");
+			encryptAndStoreDatabaseKey(key, password);
+		}
+		return key;
 	}
 
 	@Override

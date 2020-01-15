@@ -16,13 +16,10 @@ import org.junit.Test;
 
 import java.io.File;
 
-import static junit.framework.Assert.assertEquals;
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
-import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
-import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 public class AndroidAccountManagerTest extends BrambleMockTestCase {
 
@@ -40,11 +37,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 	private final Application app;
 	private final ApplicationInfo applicationInfo;
 
-	private final String encryptedKeyHex = toHexString(getRandomBytes(123));
 	private final File testDir = getTestDirectory();
 	private final File keyDir = new File(testDir, "key");
-	private final File keyFile = new File(keyDir, "db.key");
-	private final File keyBackupFile = new File(keyDir, "db.key.bak");
 	private final File dbDir = new File(testDir, "db");
 
 	private AndroidAccountManager accountManager;
@@ -73,29 +67,6 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 				return defaultPrefs;
 			}
 		};
-	}
-
-	@Test
-	public void testDbKeyIsMigratedFromPreferencesToFile() {
-		context.checking(new Expectations() {{
-			oneOf(prefs).getString("key", null);
-			will(returnValue(encryptedKeyHex));
-			oneOf(prefs).edit();
-			will(returnValue(editor));
-			oneOf(editor).remove("key");
-			will(returnValue(editor));
-			oneOf(editor).commit();
-			will(returnValue(true));
-		}});
-
-		assertFalse(keyFile.exists());
-		assertFalse(keyBackupFile.exists());
-
-		assertEquals(encryptedKeyHex,
-				accountManager.loadEncryptedDatabaseKey());
-
-		assertTrue(keyFile.exists());
-		assertTrue(keyBackupFile.exists());
 	}
 
 	@Test

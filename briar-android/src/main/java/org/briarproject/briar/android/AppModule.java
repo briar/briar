@@ -10,6 +10,7 @@ import com.vanniktech.emoji.RecentEmoji;
 import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
@@ -56,6 +57,7 @@ import dagger.Module;
 import dagger.Provides;
 
 import static android.content.Context.MODE_PRIVATE;
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
@@ -101,7 +103,9 @@ public class AppModule {
 		File dbDir = app.getApplicationContext().getDir("db", MODE_PRIVATE);
 		File keyDir = app.getApplicationContext().getDir("key", MODE_PRIVATE);
 		StrictMode.setThreadPolicy(tp);
-		return new AndroidDatabaseConfig(dbDir, keyDir);
+		KeyStrengthener keyStrengthener = SDK_INT >= 23
+				? new AndroidKeyStrengthener() : null;
+		return new AndroidDatabaseConfig(dbDir, keyDir, keyStrengthener);
 	}
 
 	@Provides
