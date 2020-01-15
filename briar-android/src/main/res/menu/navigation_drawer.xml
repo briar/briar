@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu
-	xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools">
 
 	<group android:checkableBehavior="single">
 		<item
@@ -30,7 +30,8 @@
 			android:id="@+id/nav_btn_lock"
 			android:icon="@drawable/startup_lock"
 			android:title="@string/lock_button"
-			android:visible="false"/>
+			android:visible="false"
+			tools:visible="false" />
 		<item
 			android:id="@+id/nav_btn_signout"
 			android:icon="@drawable/ic_signout"

@@ -1,19 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<merge xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
-	android:layout_width="match_parent"
+	android:layout_width="wrap_content"
 	android:layout_height="wrap_content"
-	android:orientation="vertical"
+	tools:parentTag="androidx.constraintlayout.widget.ConstraintLayout"
 	tools:showIn="@layout/navigation_menu">
 
-	<View style="@style/Divider.Horizontal" />
+	<androidx.appcompat.widget.AppCompatImageButton
+		android:id="@+id/chevronView"
+		android:layout_width="0dp"
+		android:layout_height="24dp"
+		android:layout_marginBottom="8dp"
+		android:background="@color/divider"
+		android:src="@drawable/chevron_down_white"
+		app:tint="?attr/colorControlNormal"
+		app:layout_constraintBottom_toTopOf="@+id/longRangeLabel"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/navigation"
+		app:layout_constraintVertical_bias="1.0"
+		tools:ignore="ContentDescription"
+		tools:visibility="visible" />
 
-	<GridView
-		android:id="@+id/transportsView"
-		android:layout_width="match_parent"
+	<View
+		android:id="@+id/backgroundView"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:layout_marginBottom="8dp"
+		android:background="@color/item_background_highlight"
+		app:layout_constraintBottom_toTopOf="@+id/nearbyLabel"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/chevronView" />
+
+	<TextView
+		android:id="@+id/longRangeLabel"
+		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:listSelector="@android:color/transparent"
-		android:numColumns="3"
-		tools:listitem="@layout/list_item_transport" />
+		android:layout_marginBottom="8dp"
+		android:text="@string/transport_internet"
+		android:textSize="12sp"
+		app:layout_constraintBottom_toTopOf="@+id/torSwitch"
+		app:layout_constraintStart_toStartOf="@+id/torIcon" />
 
-</LinearLayout>
+	<ImageView
+		android:id="@+id/torIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:src="@drawable/transport_tor"
+		app:layout_constraintBottom_toBottomOf="@+id/torSwitch"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/torSwitch"
+		app:tint="@color/briar_green"
+		tools:ignore="ContentDescription" />
+
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/torSwitch"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:layout_marginEnd="16dp"
+		android:layout_marginRight="16dp"
+		android:layout_marginBottom="16dp"
+		android:text="@string/transport_tor"
+		app:layout_constraintBottom_toTopOf="@id/nearbyLabel"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/torIcon"
+		tools:checked="true" />
+
+	<TextView
+		android:id="@+id/nearbyLabel"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginTop="16dp"
+		android:layout_marginBottom="8dp"
+		android:gravity="center_vertical"
+		android:text="@string/transport_nearby"
+		android:textSize="12sp"
+		app:layout_constraintBottom_toTopOf="@+id/wifiSwitch"
+		app:layout_constraintStart_toStartOf="@+id/torIcon" />
+
+	<ImageView
+		android:id="@+id/wifiIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:src="@drawable/transport_lan"
+		app:layout_constraintBottom_toBottomOf="@+id/wifiSwitch"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/wifiSwitch"
+		app:tint="@color/briar_green"
+		tools:checked="true"
+		tools:ignore="ContentDescription" />
+
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/wifiSwitch"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:layout_marginEnd="16dp"
+		android:layout_marginRight="16dp"
+		android:layout_marginBottom="8dp"
+		android:text="@string/transport_lan"
+		app:layout_constraintBottom_toTopOf="@+id/btSwitch"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/wifiIcon"
+		tools:checked="true" />
+
+	<ImageView
+		android:id="@+id/btIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:src="@drawable/transport_bt"
+		app:layout_constraintBottom_toBottomOf="@+id/btSwitch"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/btSwitch"
+		app:tint="@color/briar_green"
+		tools:checked="true"
+		tools:ignore="ContentDescription" />
+
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/btSwitch"
+		android:layout_width="0dp"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:layout_marginEnd="16dp"
+		android:layout_marginRight="16dp"
+		android:layout_marginBottom="8dp"
+		android:text="@string/transport_bt"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toEndOf="@+id/btIcon"
+		app:layout_constraintVertical_bias="1.0"
+		tools:checked="true" />
+
+	<TextView
+		android:id="@+id/connectionsLabel"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="8dp"
+		android:layout_marginLeft="8dp"
+		android:layout_marginEnd="8dp"
+		android:layout_marginRight="8dp"
+		android:text="@string/transport_connection"
+		android:textSize="12sp"
+		android:visibility="gone"
+		app:layout_constraintBottom_toBottomOf="@+id/torIcon"
+		app:layout_constraintEnd_toStartOf="@+id/torIcon"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="@+id/torIcon" />
+
+</merge>

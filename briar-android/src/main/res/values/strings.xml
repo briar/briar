@@ -70,7 +70,10 @@
 	<string name="sign_out_button">Sign Out</string>
 
 	<!-- Transports -->
-	<string name="transport_tor">Internet</string>
+	<string name="transport_connection">Connections</string>
+	<string name="transport_internet">Internet</string>
+	<string name="transport_tor">Tor</string>
+	<string name="transport_nearby">Nearby</string>
 	<string name="transport_bt">Bluetooth</string>
 	<string name="transport_lan">Wi-Fi</string>
 

@@ -1,17 +1,15 @@
 package org.briarproject.briar.android.navdrawer;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.GridView;
+import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
@@ -21,10 +19,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.BluetoothConstants;
-import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin.State;
-import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -39,25 +34,22 @@ import org.briarproject.briar.android.logout.SignOutFragment;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.core.view.GravityCompat.START;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
@@ -65,8 +57,6 @@ import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
-import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
-import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
@@ -102,10 +92,8 @@ public class NavDrawerActivity extends BriarActivity implements
 	LifecycleManager lifecycleManager;
 
 	private DrawerLayout drawerLayout;
+	private ScrollView drawerScrollView;
 	private NavigationView navigation;
-
-	private List<Transport> transports;
-	private BaseAdapter transportsAdapter;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -118,10 +106,26 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
+		drawerScrollView = findViewById(R.id.drawerScrollView);
+		drawerScrollView.getViewTreeObserver().addOnGlobalLayoutListener(
+				new OnGlobalLayoutListener() {
+					@Override
+					public void onGlobalLayout() {
+						// hide/show chevron depending on whether we can scroll
+						View chevronView = findViewById(R.id.chevronView);
+						if (drawerScrollView.canScrollVertically(1)) {
+							chevronView.setVisibility(VISIBLE);
+						} else {
+							chevronView.setVisibility(INVISIBLE);
+						}
+						drawerScrollView.getViewTreeObserver()
+								.removeOnGlobalLayoutListener(this);
+					}
+				});
+
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = findViewById(R.id.navigation);
-		GridView transportsView = findViewById(R.id.transportsView);
 
 		setSupportActionBar(toolbar);
 		ActionBar actionBar = requireNonNull(getSupportActionBar());
@@ -133,9 +137,6 @@ public class NavDrawerActivity extends BriarActivity implements
 				R.string.nav_drawer_close_description);
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
-
-		initializeTransports(getLayoutInflater());
-		transportsView.setAdapter(transportsAdapter);
 
 		lockManager.isLockable().observe(this, this::setLockVisible);
 
@@ -152,10 +153,8 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@Override
-	@SuppressLint("NewApi")
 	public void onStart() {
 		super.onStart();
-		updateTransports();
 		lockManager.checkIfLockable();
 		controller.showExpiryWarning(new UiResultHandler<Boolean>(this) {
 			@Override
@@ -373,109 +372,9 @@ public class NavDrawerActivity extends BriarActivity implements
 		expiryWarning.setVisibility(VISIBLE);
 	}
 
-	private void initializeTransports(LayoutInflater inflater) {
-		transports = new ArrayList<>(3);
-
-		Transport tor = new Transport();
-		tor.id = TorConstants.ID;
-		tor.state = controller.getTransportState(tor.id);
-		tor.iconId = R.drawable.transport_tor;
-		tor.textId = R.string.transport_tor;
-		transports.add(tor);
-
-		Transport bt = new Transport();
-		bt.id = BluetoothConstants.ID;
-		bt.state = controller.getTransportState(bt.id);
-		bt.iconId = R.drawable.transport_bt;
-		bt.textId = R.string.transport_bt;
-		transports.add(bt);
-
-		Transport lan = new Transport();
-		lan.id = LanTcpConstants.ID;
-		lan.state = controller.getTransportState(lan.id);
-		lan.iconId = R.drawable.transport_lan;
-		lan.textId = R.string.transport_lan;
-		transports.add(lan);
-
-		transportsAdapter = new BaseAdapter() {
-			@Override
-			public int getCount() {
-				return transports.size();
-			}
-
-			@Override
-			public Transport getItem(int position) {
-				return transports.get(position);
-			}
-
-			@Override
-			public long getItemId(int position) {
-				return 0;
-			}
-
-			@Override
-			public View getView(int position, View convertView,
-					ViewGroup parent) {
-				View view;
-				if (convertView != null) {
-					view = convertView;
-				} else {
-					view = inflater.inflate(R.layout.list_item_transport,
-							parent, false);
-				}
-
-				Transport t = getItem(position);
-				int c;
-				if (t.state == ACTIVE) {
-					c = ContextCompat.getColor(NavDrawerActivity.this,
-							R.color.briar_green_light);
-				} else if (t.state == ENABLING) {
-					c = ContextCompat.getColor(NavDrawerActivity.this,
-							R.color.briar_yellow);
-				} else {
-					c = ContextCompat.getColor(NavDrawerActivity.this,
-							android.R.color.tertiary_text_light);
-				}
-
-				ImageView icon = view.findViewById(R.id.imageView);
-				icon.setImageDrawable(ContextCompat
-						.getDrawable(NavDrawerActivity.this, t.iconId));
-				icon.setColorFilter(c);
-
-				TextView text = view.findViewById(R.id.textView);
-				text.setText(getString(t.textId));
-
-				return view;
-			}
-		};
-	}
-
-	private void updateTransports() {
-		if (transports == null || transportsAdapter == null) return;
-		for (Transport t : transports) {
-			t.state = controller.getTransportState(t.id);
-		}
-		transportsAdapter.notifyDataSetChanged();
-	}
-
 	@Override
 	public void stateUpdate(TransportId id, State state) {
-		if (transports == null || transportsAdapter == null) return;
-		for (Transport t : transports) {
-			if (t.id.equals(id)) {
-				t.state = state;
-				transportsAdapter.notifyDataSetChanged();
-				break;
-			}
-		}
+		// TODO
 	}
 
-	@UiThread
-	private static class Transport {
-
-		private TransportId id;
-		private State state;
-		private int iconId;
-		private int textId;
-	}
 }
