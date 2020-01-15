@@ -463,7 +463,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				s.setSoTimeout(socketTimeout);
 			} catch (IOException e) {
 				// This is expected when the server socket is closed
-				// TODO: Check that this is logged at shutdown
 				LOG.info("Server socket closed");
 				state.clearServerSocket(ss);
 				return;

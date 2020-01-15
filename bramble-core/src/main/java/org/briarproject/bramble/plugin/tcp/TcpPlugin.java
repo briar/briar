@@ -177,7 +177,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 				s.setSoTimeout(socketTimeout);
 			} catch (IOException e) {
 				// This is expected when the server socket is closed
-				// TODO: Check that this is logged at shutdown/when LAN disabled
 				LOG.info("Server socket closed");
 				state.clearServerSocket(ss);
 				callback.pluginStateChanged(getState());
