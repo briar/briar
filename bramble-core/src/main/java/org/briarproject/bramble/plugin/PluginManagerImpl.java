@@ -47,7 +47,7 @@ import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -308,7 +308,7 @@ class PluginManagerImpl implements PluginManager, Service {
 					LOG.info(id + " changed from state " + oldState
 							+ " to " + newState);
 				}
-				if (newState == AVAILABLE) {
+				if (newState == ACTIVE) {
 					if (!enabled.getAndSet(true))
 						eventBus.broadcast(new TransportEnabledEvent(id));
 				} else {
