@@ -155,9 +155,9 @@ abstract class TcpPlugin implements DuplexPlugin {
 			InetSocketAddress local =
 					(InetSocketAddress) ss.getLocalSocketAddress();
 			setLocalSocketAddress(local);
-			callback.pluginStateChanged(getState());
 			if (LOG.isLoggable(INFO))
 				LOG.info("Listening on " + scrubSocketAddress(local));
+			callback.pluginStateChanged(getState());
 			acceptContactConnections(ss);
 		});
 	}
