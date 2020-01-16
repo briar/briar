@@ -10,4 +10,7 @@ public interface BluetoothConstants {
 	String PROP_UUID = "uuid";
 
 	String PREF_BT_ENABLE = "enable";
+
+	int REASON_USER = 1;
+	int REASON_NO_BT_ADAPTER = 2;
 }
