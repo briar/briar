@@ -13,6 +13,7 @@ public interface TorConstants {
 	int CONNECT_TO_PROXY_TIMEOUT = 5000; // Milliseconds
 	int EXTRA_SOCKET_TIMEOUT = 30000; // Milliseconds
 
+	String PREF_TOR_ENABLE = "enable";
 	String PREF_TOR_NETWORK = "network2";
 	String PREF_TOR_PORT = "port";
 	String PREF_TOR_MOBILE = "useMobileData";
