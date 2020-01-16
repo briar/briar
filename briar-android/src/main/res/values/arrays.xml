@@ -1,14 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string-array name="boolean_array">
-		<item>true</item>
-		<item>false</item>
-	</string-array>
-	<string-array name="bt_setting_names">
-		<item>@string/bluetooth_setting_enabled</item>
-		<item>@string/bluetooth_setting_disabled</item>
-	</string-array>
-
 	<string-array name="tor_network_setting_names">
 		<item>@string/tor_network_setting_automatic</item>
 		<item>@string/tor_network_setting_without_bridges</item>
@@ -64,6 +55,7 @@
 		<item>zh-CN</item>
 		<item>zh-TW</item>
 	</string-array>
+
 	<string-array name="pref_theme_entries">
 		<item>@string/pref_theme_light</item>
 		<item>@string/pref_theme_dark</item>
