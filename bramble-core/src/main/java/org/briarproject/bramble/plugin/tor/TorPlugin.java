@@ -652,8 +652,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 								new TorTransportConnection(this, s));
 					}
 				} catch (IOException e) {
-					// This is expected when the socket is closed
-					if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+					// This is expected when the server socket is closed
+					LOG.info("Rendezvous server socket closed");
 				}
 			});
 			Map<Integer, String> portLines =
@@ -682,9 +682,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void circuitStatus(String status, String id, String path) {
 		if (status.equals("BUILT") &&
 				state.getAndSetCircuitBuilt()) {
-			callback.pluginStateChanged(getState());
 			LOG.info("First circuit built");
 			backoff.reset();
+			callback.pluginStateChanged(getState());
 		}
 	}
 
@@ -716,8 +716,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			state.setBootstrapped();
-			callback.pluginStateChanged(getState());
 			backoff.reset();
+			callback.pluginStateChanged(getState());
 		}
 	}
 
