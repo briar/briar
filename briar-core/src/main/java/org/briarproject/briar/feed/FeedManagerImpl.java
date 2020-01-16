@@ -24,7 +24,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
@@ -120,8 +120,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof TransportEnabledEvent) {
-			TransportId t = ((TransportEnabledEvent) e).getTransportId();
+		if (e instanceof TransportActiveEvent) {
+			TransportId t = ((TransportActiveEvent) e).getTransportId();
 			if (t.equals(TorConstants.ID)) {
 				startFeedExecutor();
 			}
