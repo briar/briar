@@ -23,6 +23,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
@@ -64,6 +65,8 @@ import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
@@ -375,21 +378,21 @@ public class NavDrawerActivity extends BriarActivity implements
 
 		Transport tor = new Transport();
 		tor.id = TorConstants.ID;
-		tor.enabled = controller.isTransportRunning(tor.id);
+		tor.state = controller.getTransportState(tor.id);
 		tor.iconId = R.drawable.transport_tor;
 		tor.textId = R.string.transport_tor;
 		transports.add(tor);
 
 		Transport bt = new Transport();
 		bt.id = BluetoothConstants.ID;
-		bt.enabled = controller.isTransportRunning(bt.id);
+		bt.state = controller.getTransportState(bt.id);
 		bt.iconId = R.drawable.transport_bt;
 		bt.textId = R.string.transport_bt;
 		transports.add(bt);
 
 		Transport lan = new Transport();
 		lan.id = LanTcpConstants.ID;
-		lan.enabled = controller.isTransportRunning(lan.id);
+		lan.state = controller.getTransportState(lan.id);
 		lan.iconId = R.drawable.transport_lan;
 		lan.textId = R.string.transport_lan;
 		transports.add(lan);
@@ -423,9 +426,12 @@ public class NavDrawerActivity extends BriarActivity implements
 
 				Transport t = getItem(position);
 				int c;
-				if (t.enabled) {
+				if (t.state == ACTIVE) {
 					c = ContextCompat.getColor(NavDrawerActivity.this,
 							R.color.briar_green_light);
+				} else if (t.state == ENABLING) {
+					c = ContextCompat.getColor(NavDrawerActivity.this,
+							R.color.briar_yellow);
 				} else {
 					c = ContextCompat.getColor(NavDrawerActivity.this,
 							android.R.color.tertiary_text_light);
@@ -444,35 +450,31 @@ public class NavDrawerActivity extends BriarActivity implements
 		};
 	}
 
-	@UiThread
-	private void setTransport(TransportId id, boolean enabled) {
+	private void updateTransports() {
+		if (transports == null || transportsAdapter == null) return;
+		for (Transport t : transports) {
+			t.state = controller.getTransportState(t.id);
+		}
+		transportsAdapter.notifyDataSetChanged();
+	}
+
+	@Override
+	public void stateUpdate(TransportId id, State state) {
 		if (transports == null || transportsAdapter == null) return;
 		for (Transport t : transports) {
 			if (t.id.equals(id)) {
-				t.enabled = enabled;
+				t.state = state;
 				transportsAdapter.notifyDataSetChanged();
 				break;
 			}
 		}
 	}
 
-	private void updateTransports() {
-		if (transports == null || transportsAdapter == null) return;
-		for (Transport t : transports) {
-			t.enabled = controller.isTransportRunning(t.id);
-		}
-		transportsAdapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void stateUpdate(TransportId id, boolean enabled) {
-		setTransport(id, enabled);
-	}
-
+	@UiThread
 	private static class Transport {
 
 		private TransportId id;
-		private boolean enabled;
+		private State state;
 		private int iconId;
 		private int textId;
 	}
