@@ -233,7 +233,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			try {
 				conn = acceptConnection(ss);
 			} catch (IOException e) {
-				// This is expected when the socket is closed
+				// This is expected when the server socket is closed
 				LOG.info("Server socket closed");
 				state.clearServerSocket();
 				return;
