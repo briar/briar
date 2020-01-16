@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tcp;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -27,12 +28,14 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
+	private final EventBus eventBus;
 	private final BackoffFactory backoffFactory;
 	private final ShutdownManager shutdownManager;
 
-	public WanTcpPluginFactory(Executor ioExecutor,
+	public WanTcpPluginFactory(Executor ioExecutor, EventBus eventBus,
 			BackoffFactory backoffFactory, ShutdownManager shutdownManager) {
 		this.ioExecutor = ioExecutor;
+		this.eventBus = eventBus;
 		this.backoffFactory = backoffFactory;
 		this.shutdownManager = shutdownManager;
 	}
@@ -51,8 +54,10 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new WanTcpPlugin(ioExecutor, backoff,
+		WanTcpPlugin plugin = new WanTcpPlugin(ioExecutor, backoff,
 				new PortMapperImpl(shutdownManager), callback, MAX_LATENCY,
 				MAX_IDLE_TIME, CONNECTION_TIMEOUT);
+		eventBus.addListener(plugin);
+		return plugin;
 	}
 }

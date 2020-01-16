@@ -3,7 +3,10 @@ package org.briarproject.bramble.plugin.tcp;
 import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -15,6 +18,8 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
+import org.briarproject.bramble.api.settings.Settings;
+import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -46,6 +51,8 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
+import static org.briarproject.bramble.api.plugin.TcpConstants.REASON_USER;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
@@ -53,7 +60,7 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-abstract class TcpPlugin implements DuplexPlugin {
+abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	private static final Logger LOG = getLogger(TcpPlugin.class.getName());
 
@@ -122,7 +129,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		state.setStarted();
+		Settings settings = callback.getSettings();
+		state.setStarted(settings.getBoolean(PREF_TCP_ENABLE, false));
 		bind();
 	}
 
@@ -200,7 +208,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@Override
 	public int getReasonDisabled() {
-		return getState() == DISABLED ? REASON_STARTING_STOPPING : -1;
+		return state.getReasonDisabled();
 	}
 
 	@Override
@@ -370,18 +378,44 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 	}
 
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof SettingsUpdatedEvent) {
+			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
+			if (s.getNamespace().equals(getId().getString()))
+				ioExecutor.execute(() -> onSettingsUpdated(s.getSettings()));
+		}
+	}
+
+	@IoExecutor
+	private void onSettingsUpdated(Settings settings) {
+		boolean enabledByUser = settings.getBoolean(PREF_TCP_ENABLE, false);
+		ServerSocket ss = state.setEnabledByUser(enabledByUser);
+		State s = getState();
+		callback.pluginStateChanged(s);
+		if (ss != null) {
+			LOG.info("Disabled by user, closing server socket");
+			tryToClose(ss, LOG, WARNING);
+		} else if (s == INACTIVE) {
+			LOG.info("Enabled by user, opening server socket");
+			bind();
+		}
+	}
+
 	@ThreadSafe
 	@NotNullByDefault
 	protected class PluginState {
 
 		@GuardedBy("this")
-		private boolean started = false, stopped = false;
+		private boolean started = false, stopped = false, enabledByUser = false;
+
 		@GuardedBy("this")
 		@Nullable
 		private ServerSocket serverSocket = null;
 
-		synchronized void setStarted() {
+		synchronized void setStarted(boolean enabledByUser) {
 			started = true;
+			this.enabledByUser = enabledByUser;
 			callback.pluginStateChanged(getState());
 		}
 
@@ -390,6 +424,18 @@ abstract class TcpPlugin implements DuplexPlugin {
 			stopped = true;
 			ServerSocket ss = serverSocket;
 			serverSocket = null;
+			callback.pluginStateChanged(getState());
+			return ss;
+		}
+
+		@Nullable
+		synchronized ServerSocket setEnabledByUser(boolean enabledByUser) {
+			this.enabledByUser = enabledByUser;
+			ServerSocket ss = null;
+			if (!enabledByUser) {
+				ss = serverSocket;
+				serverSocket = null;
+			}
 			callback.pluginStateChanged(getState());
 			return ss;
 		}
@@ -412,8 +458,13 @@ abstract class TcpPlugin implements DuplexPlugin {
 		}
 
 		synchronized State getState() {
-			if (!started || stopped) return DISABLED;
+			if (!started || stopped || !enabledByUser) return DISABLED;
 			return serverSocket == null ? INACTIVE : ACTIVE;
+		}
+
+		synchronized int getReasonDisabled() {
+			if (!started || stopped) return REASON_STARTING_STOPPING;
+			return enabledByUser ? -1 : REASON_USER;
 		}
 	}
 }
