@@ -17,8 +17,8 @@ import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
-import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
@@ -178,10 +178,10 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		rendezvousPoller.startService();
 		context.assertIsSatisfied();
 
-		// Enable the transport - no endpoints should be created yet
+		// Activate the transport - no endpoints should be created yet
 		expectGetPlugin();
 
-		rendezvousPoller.eventOccurred(new TransportEnabledEvent(transportId));
+		rendezvousPoller.eventOccurred(new TransportActiveEvent(transportId));
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
@@ -212,8 +212,8 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 				new PendingContactRemovedEvent(pendingContact.getId()));
 		context.assertIsSatisfied();
 
-		// Disable the transport - endpoint is already closed
-		rendezvousPoller.eventOccurred(new TransportDisabledEvent(transportId));
+		// Deactivate the transport - endpoint is already closed
+		rendezvousPoller.eventOccurred(new TransportInactiveEvent(transportId));
 	}
 
 	@Test
@@ -230,10 +230,10 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 		rendezvousPoller.startService();
 		context.assertIsSatisfied();
 
-		// Enable the transport - no endpoints should be created yet
+		// Activate the transport - no endpoints should be created yet
 		expectGetPlugin();
 
-		rendezvousPoller.eventOccurred(new TransportEnabledEvent(transportId));
+		rendezvousPoller.eventOccurred(new TransportActiveEvent(transportId));
 		context.assertIsSatisfied();
 
 		// Add the pending contact - endpoint should be created and polled
@@ -269,12 +269,12 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 				new PendingContactRemovedEvent(pendingContact.getId()));
 		context.assertIsSatisfied();
 
-		// Disable the transport - endpoint is already closed
-		rendezvousPoller.eventOccurred(new TransportDisabledEvent(transportId));
+		// Deactivate the transport - endpoint is already closed
+		rendezvousPoller.eventOccurred(new TransportInactiveEvent(transportId));
 	}
 
 	@Test
-	public void testCreatesAndClosesEndpointsWhenTransportIsEnabledAndDisabled()
+	public void testCreatesAndClosesEndpointsWhenTransportIsActivatedAndDeactivated()
 			throws Exception {
 		long beforeExpiry = pendingContact.getTimestamp();
 
@@ -292,19 +292,19 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 				new PendingContactAddedEvent(pendingContact));
 		context.assertIsSatisfied();
 
-		// Enable the transport - endpoint should be created
+		// Activate the transport - endpoint should be created
 		expectGetPlugin();
 		expectCreateEndpoint();
 		expectStateChangedEvent(WAITING_FOR_CONNECTION);
 
-		rendezvousPoller.eventOccurred(new TransportEnabledEvent(transportId));
+		rendezvousPoller.eventOccurred(new TransportActiveEvent(transportId));
 		context.assertIsSatisfied();
 
-		// Disable the transport - endpoint should be closed
+		// Deactivate the transport - endpoint should be closed
 		expectCloseEndpoint();
 		expectStateChangedEvent(OFFLINE);
 
-		rendezvousPoller.eventOccurred(new TransportDisabledEvent(transportId));
+		rendezvousPoller.eventOccurred(new TransportInactiveEvent(transportId));
 		context.assertIsSatisfied();
 
 		// Remove the pending contact - endpoint is already closed
