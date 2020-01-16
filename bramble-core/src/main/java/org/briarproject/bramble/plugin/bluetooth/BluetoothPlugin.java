@@ -263,6 +263,11 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	}
 
 	@Override
+	public int getReasonDisabled() {
+		return getState() == DISABLED ? REASON_STARTING_STOPPING : -1;
+	}
+
+	@Override
 	public boolean shouldPoll() {
 		return true;
 	}

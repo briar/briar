@@ -23,4 +23,8 @@ public interface TorConstants {
 	int PREF_TOR_NETWORK_WITH_BRIDGES = 2;
 	int PREF_TOR_NETWORK_NEVER = 3;
 
+	int REASON_USER = 1;
+	int REASON_BATTERY = 2;
+	int REASON_MOBILE_DATA = 3;
+	int REASON_COUNTRY_BLOCKED = 4;
 }

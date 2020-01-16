@@ -57,6 +57,7 @@ import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.net.SocketFactory;
 
@@ -84,6 +85,10 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_USER;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -522,6 +527,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
+	public int getReasonDisabled() {
+		return state.getReasonDisabled();
+	}
+
+	@Override
 	public boolean shouldPoll() {
 		return true;
 	}
@@ -754,62 +764,91 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			boolean charging) {
 		connectionStatusExecutor.execute(() -> {
 			if (!state.isRunning()) return;
-			boolean online = status.isConnected();
-			boolean wifi = status.isWifi();
-			String country = locationUtils.getCurrentCountry();
-			boolean blocked =
-					circumventionProvider.isTorProbablyBlocked(country);
-			int network = settings.getInt(PREF_TOR_NETWORK,
-					PREF_TOR_NETWORK_AUTOMATIC);
-			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
-			boolean onlyWhenCharging =
-					settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
-			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
-			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
+			NetworkConfig config = getNetworkConfig(status, charging);
+			state.setDisabledBySettings(config.disabledBySettings,
+					config.reasonDisabled);
+			callback.pluginStateChanged(getState());
+			applyNetworkConfig(config);
+		});
+	}
 
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("Online: " + online + ", wifi: " + wifi);
-				if (country.isEmpty()) LOG.info("Country code unknown");
-				else LOG.info("Country code: " + country);
-				LOG.info("Charging: " + charging);
+	private NetworkConfig getNetworkConfig(NetworkStatus status,
+			boolean charging) {
+		boolean online = status.isConnected();
+		boolean wifi = status.isWifi();
+		String country = locationUtils.getCurrentCountry();
+		boolean blocked = circumventionProvider.isTorProbablyBlocked(country);
+		int network =
+				settings.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+		boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
+		boolean onlyWhenCharging =
+				settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
+		boolean bridgesWork = circumventionProvider.doBridgesWork(country);
+		boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
+
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Online: " + online + ", wifi: " + wifi);
+			if (country.isEmpty()) LOG.info("Country code unknown");
+			else LOG.info("Country code: " + country);
+			LOG.info("Charging: " + charging);
+		}
+
+		boolean enableNetwork = false, enableBridges = false;
+		boolean useMeek = false, enableConnectionPadding = false;
+		boolean disabledBySettings = false;
+		int reasonDisabled = REASON_STARTING_STOPPING;
+
+		if (!online) {
+			LOG.info("Disabling network, device is offline");
+		} else if (network == PREF_TOR_NETWORK_NEVER) {
+			LOG.info("Disabling network, user has disabled Tor");
+			disabledBySettings = true;
+			reasonDisabled = REASON_USER;
+		} else if (!charging && onlyWhenCharging) {
+			LOG.info("Disabling network, device is on battery");
+			disabledBySettings = true;
+			reasonDisabled = REASON_BATTERY;
+		} else if (!useMobile && !wifi) {
+			LOG.info("Disabling network, device is using mobile data");
+			disabledBySettings = true;
+			reasonDisabled = REASON_MOBILE_DATA;
+		} else if (automatic && blocked && !bridgesWork) {
+			LOG.info("Disabling network, country is blocked");
+			disabledBySettings = true;
+			reasonDisabled = REASON_COUNTRY_BLOCKED;
+		} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
+				(automatic && bridgesWork)) {
+			if (circumventionProvider.needsMeek(country)) {
+				LOG.info("Enabling network, using meek bridges");
+				enableBridges = true;
+				useMeek = true;
+			} else {
+				LOG.info("Enabling network, using obfs4 bridges");
+				enableBridges = true;
 			}
+			enableNetwork = true;
+		} else {
+			LOG.info("Enabling network, not using bridges");
+			enableNetwork = true;
+		}
 
+		if (online && wifi && charging) {
+			LOG.info("Enabling connection padding");
+			enableConnectionPadding = true;
+		} else {
+			LOG.info("Disabling connection padding");
+		}
+
+		return new NetworkConfig(enableNetwork, enableBridges, useMeek,
+				enableConnectionPadding, disabledBySettings, reasonDisabled);
+	}
+
+	private void applyNetworkConfig(NetworkConfig config) {
+		connectionStatusExecutor.execute(() -> {
 			try {
-				if (!online) {
-					LOG.info("Disabling network, device is offline");
-					enableNetwork(false);
-				} else if (!charging && onlyWhenCharging) {
-					LOG.info("Disabling network, device is on battery");
-					enableNetwork(false);
-				} else if (network == PREF_TOR_NETWORK_NEVER ||
-						(!useMobile && !wifi)) {
-					LOG.info("Disabling network, device is using mobile data");
-					enableNetwork(false);
-				} else if (automatic && blocked && !bridgesWork) {
-					LOG.info("Disabling network, country is blocked");
-					enableNetwork(false);
-				} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
-						(automatic && bridgesWork)) {
-					if (circumventionProvider.needsMeek(country)) {
-						LOG.info("Enabling network, using meek bridges");
-						enableBridges(true, true);
-					} else {
-						LOG.info("Enabling network, using obfs4 bridges");
-						enableBridges(true, false);
-					}
-					enableNetwork(true);
-				} else {
-					LOG.info("Enabling network, not using bridges");
-					enableBridges(false, false);
-					enableNetwork(true);
-				}
-				if (online && wifi && charging) {
-					LOG.info("Enabling connection padding");
-					enableConnectionPadding(true);
-				} else {
-					LOG.info("Disabling connection padding");
-					enableConnectionPadding(false);
-				}
+				enableBridges(config.enableBridges, config.useMeek);
+				enableNetwork(config.enableNetwork);
+				enableConnectionPadding(config.enableConnectionPadding);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -819,6 +858,26 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void enableConnectionPadding(boolean enable) throws IOException {
 		if (!state.isRunning()) return;
 		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
+	}
+
+	@Immutable
+	@NotNullByDefault
+	private static class NetworkConfig {
+
+		private final boolean enableNetwork, enableBridges, useMeek;
+		private final boolean enableConnectionPadding, disabledBySettings;
+		private final int reasonDisabled;
+
+		private NetworkConfig(boolean enableNetwork, boolean enableBridges,
+				boolean useMeek, boolean enableConnectionPadding,
+				boolean disabledBySettings, int reasonDisabled) {
+			this.enableNetwork = enableNetwork;
+			this.enableBridges = enableBridges;
+			this.useMeek = useMeek;
+			this.enableConnectionPadding = enableConnectionPadding;
+			this.disabledBySettings = disabledBySettings;
+			this.reasonDisabled = reasonDisabled;
+		}
 	}
 
 	@ThreadSafe
@@ -831,7 +890,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				networkInitialised = false,
 				networkEnabled = false,
 				bootstrapped = false,
-				circuitBuilt = false;
+				circuitBuilt = false,
+				disabledBySettings = false;
+
+		@GuardedBy("this")
+		private int reasonDisabled = REASON_STARTING_STOPPING;
 
 		@GuardedBy("this")
 		@Nullable
@@ -869,6 +932,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (!enable) circuitBuilt = false;
 		}
 
+		synchronized void setDisabledBySettings(boolean disabledBySettings,
+				int reasonDisabled) {
+			this.disabledBySettings = disabledBySettings;
+			this.reasonDisabled = reasonDisabled;
+		}
+
 		synchronized boolean setServerSocket(ServerSocket ss) {
 			if (stopped || serverSocket != null) return false;
 			serverSocket = ss;
@@ -880,10 +949,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 
 		synchronized State getState() {
-			if (!started || stopped) return DISABLED;
+			if (!started || stopped || disabledBySettings) return DISABLED;
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
 			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
+		}
+
+		synchronized int getReasonDisabled() {
+			return getState() == DISABLED ? reasonDisabled : -1;
 		}
 	}
 }
