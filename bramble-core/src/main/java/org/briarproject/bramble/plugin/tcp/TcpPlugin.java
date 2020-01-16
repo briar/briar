@@ -52,7 +52,6 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
-import static org.briarproject.bramble.api.plugin.TcpConstants.REASON_USER;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;

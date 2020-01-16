@@ -11,6 +11,6 @@ public interface BluetoothConstants {
 
 	String PREF_BT_ENABLE = "enable";
 
-	int REASON_USER = 1;
+	// Reason code returned by Plugin#getReasonDisabled()
 	int REASON_NO_BT_ADAPTER = 2;
 }

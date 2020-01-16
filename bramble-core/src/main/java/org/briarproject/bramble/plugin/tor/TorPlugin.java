@@ -88,7 +88,6 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
-import static org.briarproject.bramble.api.plugin.TorConstants.REASON_USER;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
