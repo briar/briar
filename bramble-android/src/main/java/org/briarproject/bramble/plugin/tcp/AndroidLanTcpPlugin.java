@@ -32,9 +32,11 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
@@ -140,8 +142,8 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 
 	private void updateConnectionStatus() {
 		connectionStatusExecutor.execute(() -> {
-			State state = getState();
-			if (state != ACTIVE && state != INACTIVE) return;
+			State s = getState();
+			if (s != ACTIVE && s != INACTIVE) return;
 			Collection<InetAddress> addrs = getLocalIpAddresses();
 			if (addrs.contains(WIFI_AP_ADDRESS)) {
 				LOG.info("Providing wifi hotspot");
@@ -150,15 +152,21 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 				// make outgoing connections on API 21+ if another network
 				// has internet access
 				socketFactory = SocketFactory.getDefault();
-				if (state == INACTIVE) bind();
+				if (s == INACTIVE) bind();
 			} else if (addrs.isEmpty()) {
 				LOG.info("Not connected to wifi");
 				socketFactory = SocketFactory.getDefault();
-				// Server socket was closed when wifi interface went down
+				// Server socket may not have been closed automatically when
+				// interface was taken down. Socket will be cleared and state
+				// updated in acceptContactConnections()
+				if (s == ACTIVE) {
+					LOG.info("Closing server socket");
+					tryToClose(state.getServerSocket(), LOG, WARNING);
+				}
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
-				if (state == INACTIVE) bind();
+				if (s == INACTIVE) bind();
 			}
 		});
 	}
