@@ -39,6 +39,14 @@
 			android:title="@string/bluetooth_setting"
 			app:iconSpaceReserved="false"/>
 
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="pref_key_tor_enable"
+			android:persistent="false"
+			android:title="@string/tor_enable_title"
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
+
 		<ListPreference
 			android:defaultValue="0"
 			android:entries="@array/tor_network_setting_names"

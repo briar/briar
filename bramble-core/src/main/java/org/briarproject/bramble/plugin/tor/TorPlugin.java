@@ -75,6 +75,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
@@ -200,7 +201,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 		}
 		// Load the settings
-		settings = callback.getSettings();
+		settings = migrateSettings(callback.getSettings());
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
 		if (cookieFile.exists() && !cookieFile.delete())
@@ -286,6 +287,18 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				batteryManager.isCharging());
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
+	}
+
+	// TODO: Remove after a reasonable migration period (added 2020-01-16)
+	private Settings migrateSettings(Settings settings) {
+		int network = settings.getInt(PREF_TOR_NETWORK,
+				PREF_TOR_NETWORK_AUTOMATIC);
+		if (network == PREF_TOR_NETWORK_NEVER) {
+			settings.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+			settings.putBoolean(PREF_TOR_ENABLE, false);
+			callback.mergeSettings(settings);
+		}
+		return settings;
 	}
 
 	private boolean assetsAreUpToDate() {
@@ -763,6 +776,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
+			boolean enabledByUser = settings.getBoolean(PREF_TOR_ENABLE, true);
 			int network = settings.getInt(PREF_TOR_NETWORK,
 					PREF_TOR_NETWORK_AUTOMATIC);
 			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
@@ -785,7 +799,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 			if (!online) {
 				LOG.info("Disabling network, device is offline");
-			} else if (network == PREF_TOR_NETWORK_NEVER) {
+			} else if (!enabledByUser) {
 				LOG.info("Disabling network, user has disabled Tor");
 				disabledBySettings = true;
 				reasonDisabled = REASON_USER;
@@ -870,11 +884,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			callback.pluginStateChanged(getState());
 		}
 
+		// Doesn't affect getState()
 		synchronized void setTorStarted() {
 			torStarted = true;
 		}
 
-		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 		synchronized boolean isTorRunning() {
 			return torStarted && !stopped;
 		}
@@ -914,12 +928,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			callback.pluginStateChanged(getState());
 		}
 
+		// Doesn't affect getState()
 		synchronized boolean setServerSocket(ServerSocket ss) {
 			if (stopped || serverSocket != null) return false;
 			serverSocket = ss;
 			return true;
 		}
 
+		// Doesn't affect getState()
 		synchronized void clearServerSocket(ServerSocket ss) {
 			if (serverSocket == ss) serverSocket = null;
 		}
