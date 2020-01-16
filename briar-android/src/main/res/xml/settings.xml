@@ -29,14 +29,12 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/network_settings_title">
 
-		<ListPreference
+		<SwitchPreference
 			android:defaultValue="false"
-			android:entries="@array/bt_setting_names"
-			android:entryValues="@array/boolean_array"
 			android:key="pref_key_bluetooth"
 			android:persistent="false"
-			android:summary="%s"
 			android:title="@string/bluetooth_setting"
+			android:widgetLayout="@layout/preference_switch_compat"
 			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
