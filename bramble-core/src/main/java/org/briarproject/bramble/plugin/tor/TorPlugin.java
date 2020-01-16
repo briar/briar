@@ -193,6 +193,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		state.setStarted();
+		callback.pluginStateChanged(getState());
 		if (!torDirectory.exists()) {
 			if (!torDirectory.mkdirs()) {
 				LOG.warning("Could not create Tor directory.");
@@ -280,8 +282,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
-		state.setStarted();
-		callback.pluginStateChanged(getState());
+		state.setTorStarted();
 		// Check whether we're online
 		updateConnectionStatus(networkManager.getNetworkStatus(),
 				batteryManager.isCharging());
@@ -423,7 +424,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void publishHiddenService(String port) {
-		if (!state.isRunning()) return;
+		if (!state.isTorRunning()) return;
 		LOG.info("Creating hidden service");
 		String privKey = settings.get(HS_PRIVKEY);
 		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
@@ -479,7 +480,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	protected void enableNetwork(boolean enable) throws IOException {
-		if (!state.isRunning()) return;
+		if (!state.isTorRunning()) return;
 		state.enableNetwork(enable);
 		callback.pluginStateChanged(getState());
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
@@ -763,7 +764,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void updateConnectionStatus(NetworkStatus status,
 			boolean charging) {
 		connectionStatusExecutor.execute(() -> {
-			if (!state.isRunning()) return;
+			if (!state.isTorRunning()) return;
 			NetworkConfig config = getNetworkConfig(status, charging);
 			state.setDisabledBySettings(config.disabledBySettings,
 					config.reasonDisabled);
@@ -856,7 +857,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
-		if (!state.isRunning()) return;
+		if (!state.isTorRunning()) return;
 		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
 	}
 
@@ -887,6 +888,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@GuardedBy("this")
 		private boolean started = false,
 				stopped = false,
+				torStarted = false,
 				networkInitialised = false,
 				networkEnabled = false,
 				bootstrapped = false,
@@ -904,8 +906,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			started = true;
 		}
 
-		synchronized boolean isRunning() {
-			return started && !stopped;
+		synchronized void setTorStarted() {
+			torStarted = true;
+		}
+
+		@SuppressWarnings("BooleanMethodIsAlwaysInverted")
+		synchronized boolean isTorRunning() {
+			return torStarted && !stopped;
 		}
 
 		@Nullable
