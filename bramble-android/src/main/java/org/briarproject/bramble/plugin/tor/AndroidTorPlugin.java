@@ -74,7 +74,7 @@ class AndroidTorPlugin extends TorPlugin {
 
 	@Override
 	protected void enableNetwork(boolean enable) throws IOException {
-		if (!state.isRunning()) return;
+		if (!state.isTorRunning()) return;
 		if (enable) wakeLock.acquire();
 		super.enableNetwork(enable);
 		if (!enable) wakeLock.release();
