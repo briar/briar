@@ -163,28 +163,21 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	public void onCreatePreferences(Bundle bundle, String s) {
 		addPreferencesFromResource(R.xml.settings);
 
-		language = (ListPreference) findPreference(LANGUAGE);
+		language = findPreference(LANGUAGE);
 		setLanguageEntries();
-		ListPreference theme =
-				(ListPreference) findPreference("pref_key_theme");
-		enableBluetooth = (ListPreference) findPreference("pref_key_bluetooth");
-		torNetwork = (ListPreference) findPreference(TOR_NETWORK);
-		torMobile = (SwitchPreference) findPreference(TOR_MOBILE);
-		torOnlyWhenCharging =
-				(SwitchPreference) findPreference(TOR_ONLY_WHEN_CHARGING);
-		screenLock = (SwitchPreference) findPreference(PREF_SCREEN_LOCK);
-		screenLockTimeout =
-				(ListPreference) findPreference(PREF_SCREEN_LOCK_TIMEOUT);
-		notifyPrivateMessages = (SwitchPreference) findPreference(
-				"pref_key_notify_private_messages");
-		notifyGroupMessages = (SwitchPreference) findPreference(
-				"pref_key_notify_group_messages");
-		notifyForumPosts = (SwitchPreference) findPreference(
-				"pref_key_notify_forum_posts");
-		notifyBlogPosts = (SwitchPreference) findPreference(
-				"pref_key_notify_blog_posts");
-		notifyVibration = (SwitchPreference) findPreference(
-				"pref_key_notify_vibration");
+		ListPreference theme = findPreference("pref_key_theme");
+		enableBluetooth = findPreference("pref_key_bluetooth");
+		torNetwork = findPreference(TOR_NETWORK);
+		torMobile = findPreference(TOR_MOBILE);
+		torOnlyWhenCharging = findPreference(TOR_ONLY_WHEN_CHARGING);
+		screenLock = findPreference(PREF_SCREEN_LOCK);
+		screenLockTimeout = findPreference(PREF_SCREEN_LOCK_TIMEOUT);
+		notifyPrivateMessages =
+				findPreference("pref_key_notify_private_messages");
+		notifyGroupMessages = findPreference("pref_key_notify_group_messages");
+		notifyForumPosts = findPreference("pref_key_notify_forum_posts");
+		notifyBlogPosts = findPreference("pref_key_notify_blog_posts");
+		notifyVibration = findPreference("pref_key_notify_vibration");
 		notifySound = findPreference("pref_key_notify_sound");
 
 		language.setOnPreferenceChangeListener(this);
@@ -335,7 +328,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		boolean blocked =
 				circumventionProvider.isTorProbablyBlocked(country);
 		boolean useBridges = circumventionProvider.doBridgesWork(country);
-		String setting = getString(R.string.tor_network_setting_without_bridges);
+		String setting =
+				getString(R.string.tor_network_setting_without_bridges);
 		if (blocked && useBridges) {
 			setting = getString(R.string.tor_network_setting_with_bridges);
 		} else if (blocked) {
