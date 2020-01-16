@@ -19,8 +19,9 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -256,7 +257,6 @@ class PluginManagerImpl implements PluginManager, Service {
 		private final TransportId id;
 		private final AtomicReference<State> state =
 				new AtomicReference<>(DISABLED);
-		private final AtomicBoolean enabled = new AtomicBoolean(false);
 
 		private Callback(TransportId id) {
 			this.id = id;
@@ -308,12 +308,11 @@ class PluginManagerImpl implements PluginManager, Service {
 					LOG.info(id + " changed from state " + oldState
 							+ " to " + newState);
 				}
+				eventBus.broadcast(new TransportStateEvent(id, newState));
 				if (newState == ACTIVE) {
-					if (!enabled.getAndSet(true))
-						eventBus.broadcast(new TransportEnabledEvent(id));
-				} else {
-					if (enabled.getAndSet(false))
-						eventBus.broadcast(new TransportDisabledEvent(id));
+					eventBus.broadcast(new TransportActiveEvent(id));
+				} else if (oldState == ACTIVE) {
+					eventBus.broadcast(new TransportInactiveEvent(id));
 				}
 			} else {
 				// TODO: Remove
