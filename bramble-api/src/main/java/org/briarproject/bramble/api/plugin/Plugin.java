@@ -35,11 +35,17 @@ public interface Plugin {
 	}
 
 	/**
-	 * Reason code returned by {@link #getReasonDisabled()} ()} to indicate
-	 * that the plugin is disabled because it has not been started or has been
+	 * Reason code returned by {@link #getReasonDisabled()} to indicate that
+	 * the plugin is disabled because it has not been started or has been
 	 * stopped.
 	 */
 	int REASON_STARTING_STOPPING = 0;
+
+	/**
+	 * Reason code returned by {@link #getReasonDisabled()} to indicate that
+	 * the plugin has been disabled by the user.
+	 */
+	int REASON_USER = 1;
 
 	/**
 	 * Returns the plugin's transport identifier.
@@ -75,9 +81,9 @@ public interface Plugin {
 	 * Returns an integer code indicating why the plugin is
 	 * {@link State#DISABLED disabled}, or -1 if the plugin is not disabled.
 	 * <p>
-	 * The codes used are plugin-specific, except the generic code
-	 * {@link #REASON_STARTING_STOPPING}, which may be used by
-	 * any plugin.
+	 * The codes used are plugin-specific, except the generic codes
+	 * {@link #REASON_STARTING_STOPPING} and {@link #REASON_USER}, which may
+	 * be used by any plugin.
 	 */
 	int getReasonDisabled();
 
