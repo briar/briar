@@ -38,6 +38,14 @@
 			app:iconSpaceReserved="false"/>
 
 		<SwitchPreference
+			android:defaultValue="false"
+			android:key="pref_key_wifi"
+			android:persistent="false"
+			android:title="@string/wifi_setting"
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
+
+		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_tor_enable"
 			android:persistent="false"
