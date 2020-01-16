@@ -57,7 +57,6 @@ import java.util.zip.ZipInputStream;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
-import javax.annotation.concurrent.Immutable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.net.SocketFactory;
 
@@ -480,7 +479,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	protected void enableNetwork(boolean enable) throws IOException {
-		if (!state.isTorRunning()) return;
 		state.enableNetwork(enable);
 		callback.pluginStateChanged(getState());
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
@@ -714,6 +712,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
+		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			state.setBootstrapped();
 			backoff.reset();
@@ -754,7 +753,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void disableNetwork() {
 		connectionStatusExecutor.execute(() -> {
 			try {
-				enableNetwork(false);
+				if (state.isTorRunning()) enableNetwork(false);
 			} catch (IOException ex) {
 				logException(LOG, WARNING, ex);
 			}
@@ -765,91 +764,79 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			boolean charging) {
 		connectionStatusExecutor.execute(() -> {
 			if (!state.isTorRunning()) return;
-			NetworkConfig config = getNetworkConfig(status, charging);
-			state.setDisabledBySettings(config.disabledBySettings,
-					config.reasonDisabled);
-			callback.pluginStateChanged(getState());
-			applyNetworkConfig(config);
-		});
-	}
+			boolean online = status.isConnected();
+			boolean wifi = status.isWifi();
+			String country = locationUtils.getCurrentCountry();
+			boolean blocked =
+					circumventionProvider.isTorProbablyBlocked(country);
+			int network = settings.getInt(PREF_TOR_NETWORK,
+					PREF_TOR_NETWORK_AUTOMATIC);
+			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
+			boolean onlyWhenCharging =
+					settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
+			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
+			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
 
-	private NetworkConfig getNetworkConfig(NetworkStatus status,
-			boolean charging) {
-		boolean online = status.isConnected();
-		boolean wifi = status.isWifi();
-		String country = locationUtils.getCurrentCountry();
-		boolean blocked = circumventionProvider.isTorProbablyBlocked(country);
-		int network =
-				settings.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
-		boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
-		boolean onlyWhenCharging =
-				settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
-		boolean bridgesWork = circumventionProvider.doBridgesWork(country);
-		boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
-
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Online: " + online + ", wifi: " + wifi);
-			if (country.isEmpty()) LOG.info("Country code unknown");
-			else LOG.info("Country code: " + country);
-			LOG.info("Charging: " + charging);
-		}
-
-		boolean enableNetwork = false, enableBridges = false;
-		boolean useMeek = false, enableConnectionPadding = false;
-		boolean disabledBySettings = false;
-		int reasonDisabled = REASON_STARTING_STOPPING;
-
-		if (!online) {
-			LOG.info("Disabling network, device is offline");
-		} else if (network == PREF_TOR_NETWORK_NEVER) {
-			LOG.info("Disabling network, user has disabled Tor");
-			disabledBySettings = true;
-			reasonDisabled = REASON_USER;
-		} else if (!charging && onlyWhenCharging) {
-			LOG.info("Disabling network, device is on battery");
-			disabledBySettings = true;
-			reasonDisabled = REASON_BATTERY;
-		} else if (!useMobile && !wifi) {
-			LOG.info("Disabling network, device is using mobile data");
-			disabledBySettings = true;
-			reasonDisabled = REASON_MOBILE_DATA;
-		} else if (automatic && blocked && !bridgesWork) {
-			LOG.info("Disabling network, country is blocked");
-			disabledBySettings = true;
-			reasonDisabled = REASON_COUNTRY_BLOCKED;
-		} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
-				(automatic && bridgesWork)) {
-			if (circumventionProvider.needsMeek(country)) {
-				LOG.info("Enabling network, using meek bridges");
-				enableBridges = true;
-				useMeek = true;
-			} else {
-				LOG.info("Enabling network, using obfs4 bridges");
-				enableBridges = true;
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Online: " + online + ", wifi: " + wifi);
+				if (country.isEmpty()) LOG.info("Country code unknown");
+				else LOG.info("Country code: " + country);
+				LOG.info("Charging: " + charging);
 			}
-			enableNetwork = true;
-		} else {
-			LOG.info("Enabling network, not using bridges");
-			enableNetwork = true;
-		}
 
-		if (online && wifi && charging) {
-			LOG.info("Enabling connection padding");
-			enableConnectionPadding = true;
-		} else {
-			LOG.info("Disabling connection padding");
-		}
+			boolean enableNetwork = false, enableBridges = false;
+			boolean useMeek = false, enableConnectionPadding = false;
+			boolean disabledBySettings = false;
+			int reasonDisabled = REASON_STARTING_STOPPING;
 
-		return new NetworkConfig(enableNetwork, enableBridges, useMeek,
-				enableConnectionPadding, disabledBySettings, reasonDisabled);
-	}
+			if (!online) {
+				LOG.info("Disabling network, device is offline");
+			} else if (network == PREF_TOR_NETWORK_NEVER) {
+				LOG.info("Disabling network, user has disabled Tor");
+				disabledBySettings = true;
+				reasonDisabled = REASON_USER;
+			} else if (!charging && onlyWhenCharging) {
+				LOG.info("Disabling network, device is on battery");
+				disabledBySettings = true;
+				reasonDisabled = REASON_BATTERY;
+			} else if (!useMobile && !wifi) {
+				LOG.info("Disabling network, device is using mobile data");
+				disabledBySettings = true;
+				reasonDisabled = REASON_MOBILE_DATA;
+			} else if (automatic && blocked && !bridgesWork) {
+				LOG.info("Disabling network, country is blocked");
+				disabledBySettings = true;
+				reasonDisabled = REASON_COUNTRY_BLOCKED;
+			} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
+					(automatic && bridgesWork)) {
+				if (circumventionProvider.needsMeek(country)) {
+					LOG.info("Enabling network, using meek bridges");
+					enableBridges = true;
+					useMeek = true;
+				} else {
+					LOG.info("Enabling network, using obfs4 bridges");
+					enableBridges = true;
+				}
+				enableNetwork = true;
+			} else {
+				LOG.info("Enabling network, not using bridges");
+				enableNetwork = true;
+			}
 
-	private void applyNetworkConfig(NetworkConfig config) {
-		connectionStatusExecutor.execute(() -> {
+			if (online && wifi && charging) {
+				LOG.info("Enabling connection padding");
+				enableConnectionPadding = true;
+			} else {
+				LOG.info("Disabling connection padding");
+			}
+
+			state.setDisabledBySettings(disabledBySettings, reasonDisabled);
+			callback.pluginStateChanged(getState());
+
 			try {
-				enableBridges(config.enableBridges, config.useMeek);
-				enableNetwork(config.enableNetwork);
-				enableConnectionPadding(config.enableConnectionPadding);
+				enableBridges(enableBridges, useMeek);
+				enableNetwork(enableNetwork);
+				enableConnectionPadding(enableConnectionPadding);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -857,28 +844,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
-		if (!state.isTorRunning()) return;
 		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
-	}
-
-	@Immutable
-	@NotNullByDefault
-	private static class NetworkConfig {
-
-		private final boolean enableNetwork, enableBridges, useMeek;
-		private final boolean enableConnectionPadding, disabledBySettings;
-		private final int reasonDisabled;
-
-		private NetworkConfig(boolean enableNetwork, boolean enableBridges,
-				boolean useMeek, boolean enableConnectionPadding,
-				boolean disabledBySettings, int reasonDisabled) {
-			this.enableNetwork = enableNetwork;
-			this.enableBridges = enableBridges;
-			this.useMeek = useMeek;
-			this.enableConnectionPadding = enableConnectionPadding;
-			this.disabledBySettings = disabledBySettings;
-			this.reasonDisabled = reasonDisabled;
-		}
 	}
 
 	@ThreadSafe
