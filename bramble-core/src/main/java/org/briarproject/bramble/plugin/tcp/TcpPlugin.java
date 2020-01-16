@@ -43,9 +43,9 @@ import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
-import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
@@ -129,7 +129,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	protected void bind() {
 		bindExecutor.execute(() -> {
-			if (getState() != UNAVAILABLE) return;
+			if (getState() != INACTIVE) return;
 			ServerSocket ss = null;
 			for (InetSocketAddress addr : getLocalSocketAddresses()) {
 				try {
@@ -215,7 +215,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (getState() != AVAILABLE) return;
+		if (getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
@@ -408,7 +408,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 		synchronized State getState() {
 			if (!started || stopped) return DISABLED;
-			return serverSocket == null ? UNAVAILABLE : AVAILABLE;
+			return serverSocket == null ? INACTIVE : ACTIVE;
 		}
 	}
 }

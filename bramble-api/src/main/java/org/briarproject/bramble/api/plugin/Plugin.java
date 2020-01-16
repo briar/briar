@@ -18,23 +18,20 @@ public interface Plugin {
 		DISABLED,
 
 		/**
-		 * The plugin has been started, has not been stopped, is enabled by
-		 * settings, but can't yet tell whether it can make or receive
+		 * The plugin is being enabled and can't yet make or receive
 		 * connections.
 		 */
 		ENABLING,
 
 		/**
-		 * The plugin has been started, has not been stopped, is enabled by
-		 * settings, and can make or receive connections.
+		 * The plugin is enabled and can make or receive connections.
 		 */
-		AVAILABLE,
+		ACTIVE,
 
 		/**
-		 * The plugin has been started, has not been stopped, is enabled by
-		 * settings, but can't make or receive connections
+		 * The plugin is enabled but can't make or receive connections
 		 */
-		UNAVAILABLE
+		INACTIVE
 	}
 
 	/**

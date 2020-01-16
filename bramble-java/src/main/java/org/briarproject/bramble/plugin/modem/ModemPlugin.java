@@ -30,10 +30,10 @@ import javax.annotation.concurrent.ThreadSafe;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
-import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
@@ -141,7 +141,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	private void resetModem() {
-		if (getState() != AVAILABLE) return;
+		if (getState() != ACTIVE) return;
 		for (String portName : serialPortList.getPortNames()) {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
@@ -162,7 +162,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (getState() != AVAILABLE) return null;
+		if (getState() != ACTIVE) return null;
 		// Get the ISO 3166 code for the caller's country
 		String fromIso = callback.getLocalProperties().get("iso3166");
 		if (isNullOrEmpty(fromIso)) return null;
@@ -277,8 +277,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private State getState() {
 			if (!started || stopped) return DISABLED;
-			if (failed) return UNAVAILABLE;
-			return initialised ? AVAILABLE : ENABLING;
+			if (failed) return INACTIVE;
+			return initialised ? ACTIVE : ENABLING;
 		}
 	}
 }

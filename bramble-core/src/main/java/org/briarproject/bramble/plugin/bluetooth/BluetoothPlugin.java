@@ -49,9 +49,9 @@ import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENA
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
-import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
-import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -180,7 +180,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	private void bind() {
 		ioExecutor.execute(() -> {
-			if (!shouldAllowContactConnections() || getState() != AVAILABLE)
+			if (!shouldAllowContactConnections() || getState() != ACTIVE)
 				return;
 			// Bind a server socket to accept connections from contacts
 			SS ss;
@@ -271,7 +271,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (!shouldAllowContactConnections() || getState() != AVAILABLE) return;
+		if (!shouldAllowContactConnections() || getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
@@ -284,7 +284,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		String uuid = p.get(PROP_UUID);
 		if (isNullOrEmpty(uuid)) return;
 		ioExecutor.execute(() -> {
-			if (!shouldAllowContactConnections() || getState() != AVAILABLE)
+			if (!shouldAllowContactConnections() || getState() != ACTIVE)
 				return;
 			if (!connectionLimiter.canOpenContactConnection()) return;
 			DuplexTransportConnection d = createConnection(p);
@@ -329,7 +329,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (!shouldAllowContactConnections() || getState() != AVAILABLE)
+		if (!shouldAllowContactConnections() || getState() != ACTIVE)
 			return null;
 		if (!connectionLimiter.canOpenContactConnection()) return null;
 		String address = p.get(PROP_ADDRESS);
@@ -349,7 +349,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
-		if (getState() != AVAILABLE) return null;
+		if (getState() != ACTIVE) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
@@ -361,7 +361,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			logException(LOG, WARNING, e);
 			return null;
 		}
-		if (getState() != AVAILABLE) {
+		if (getState() != ACTIVE) {
 			tryToClose(ss);
 			return null;
 		}
@@ -375,7 +375,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
-		if (getState() != AVAILABLE) return null;
+		if (getState() != ACTIVE) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		DuplexTransportConnection conn;
@@ -510,7 +510,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 		synchronized State getState() {
 			if (!started || stopped) return DISABLED;
-			return isAdapterEnabled() ? AVAILABLE : UNAVAILABLE;
+			return isAdapterEnabled() ? ACTIVE : INACTIVE;
 		}
 	}
 }
