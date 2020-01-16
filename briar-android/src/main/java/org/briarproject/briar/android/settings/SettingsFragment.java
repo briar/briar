@@ -114,6 +114,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private static final String BT_NAMESPACE =
 			BluetoothConstants.ID.getString();
+	private static final String BT_ENABLE = "pref_key_bluetooth";
+
 	private static final String TOR_NAMESPACE = TorConstants.ID.getString();
 	private static final String TOR_ENABLE = "pref_key_tor_enable";
 	private static final String TOR_NETWORK = "pref_key_tor_network";
@@ -126,7 +128,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private SettingsActivity listener;
 	private ListPreference language;
-	private ListPreference enableBluetooth;
+	private SwitchPreference enableBluetooth;
 	private SwitchPreference enableTor;
 	private ListPreference torNetwork;
 	private SwitchPreference torMobile;
@@ -171,7 +173,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		language = findPreference(LANGUAGE);
 		setLanguageEntries();
 		ListPreference theme = findPreference("pref_key_theme");
-		enableBluetooth = findPreference("pref_key_bluetooth");
+		enableBluetooth = findPreference(BT_ENABLE);
 		enableTor = findPreference(TOR_ENABLE);
 		torNetwork = findPreference(TOR_NETWORK);
 		torMobile = findPreference(TOR_MOBILE);
@@ -369,7 +371,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 			boolean btEnabledSetting =
 					btSettings.getBoolean(PREF_BT_ENABLE, false);
-			enableBluetooth.setValue(Boolean.toString(btEnabledSetting));
+			enableBluetooth.setChecked(btEnabledSetting);
 
 			boolean torEnabledSetting =
 					torSettings.getBoolean(PREF_TOR_ENABLE, true);
@@ -550,7 +552,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				languageChanged((String) newValue);
 			return false;
 		} else if (preference == enableBluetooth) {
-			boolean btSetting = Boolean.valueOf((String) newValue);
+			boolean btSetting = (Boolean) newValue;
 			storeBluetoothSettings(btSetting);
 		} else if (preference == enableTor) {
 			boolean torEnabledSetting = (Boolean) newValue;

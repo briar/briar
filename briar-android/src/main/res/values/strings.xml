@@ -445,9 +445,7 @@
 
 	<!-- Settings Connections -->
 	<string name="network_settings_title">Connections</string>
-	<string name="bluetooth_setting">Connect via Bluetooth</string>
-	<string name="bluetooth_setting_enabled">Whenever contacts are nearby</string>
-	<string name="bluetooth_setting_disabled">Only when adding contacts</string>
+	<string name="bluetooth_setting">Connect to contacts via Bluetooth</string>
 	<string name="tor_enable_title">Connect to contacts via Internet (Tor)</string>
 	<string name="tor_network_setting">Connection method for Internet (Tor)</string>
 	<string name="tor_network_setting_automatic">Automatic based on location</string>
