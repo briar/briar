@@ -91,7 +91,8 @@ class LanTcpPlugin extends TcpPlugin {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		initialisePortProperty();
-		running = true;
+		Settings settings = callback.getSettings();
+		state.setStarted(settings.getBoolean(PREF_PLUGIN_ENABLE, false));
 		bind();
 	}
 
