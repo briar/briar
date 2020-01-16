@@ -33,8 +33,8 @@ import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
-import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
@@ -141,7 +141,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	private void updateConnectionStatus() {
 		connectionStatusExecutor.execute(() -> {
 			State state = getState();
-			if (state != AVAILABLE && state != UNAVAILABLE) return;
+			if (state != ACTIVE && state != INACTIVE) return;
 			Collection<InetAddress> addrs = getLocalIpAddresses();
 			if (addrs.contains(WIFI_AP_ADDRESS)) {
 				LOG.info("Providing wifi hotspot");
@@ -150,7 +150,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 				// make outgoing connections on API 21+ if another network
 				// has internet access
 				socketFactory = SocketFactory.getDefault();
-				if (state == UNAVAILABLE) bind();
+				if (state == INACTIVE) bind();
 			} else if (addrs.isEmpty()) {
 				LOG.info("Not connected to wifi");
 				socketFactory = SocketFactory.getDefault();
@@ -158,7 +158,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
-				if (state == UNAVAILABLE) bind();
+				if (state == INACTIVE) bind();
 			}
 		});
 	}

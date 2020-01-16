@@ -69,10 +69,10 @@ import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
-import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
-import static org.briarproject.bramble.api.plugin.Plugin.State.UNAVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
@@ -534,7 +534,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (getState() != AVAILABLE) return;
+		if (getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
@@ -553,7 +553,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (getState() != AVAILABLE) return null;
+		if (getState() != ACTIVE) return null;
 		String bestOnion = null;
 		String onion2 = p.get(PROP_ONION_V2);
 		String onion3 = p.get(PROP_ONION_V3);
@@ -882,8 +882,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		synchronized State getState() {
 			if (!started || stopped) return DISABLED;
 			if (!networkInitialised) return ENABLING;
-			if (!networkEnabled) return UNAVAILABLE;
-			return bootstrapped && circuitBuilt ? AVAILABLE : ENABLING;
+			if (!networkEnabled) return INACTIVE;
+			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
 		}
 	}
 }

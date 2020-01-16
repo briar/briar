@@ -32,7 +32,7 @@ import javax.net.SocketFactory;
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.plugin.Plugin.State.AVAILABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.isOptionalTestEnabled;
@@ -142,10 +142,10 @@ public class BridgeTest extends BrambleTestCase {
 			plugin.start();
 			long start = clock.currentTimeMillis();
 			while (clock.currentTimeMillis() - start < TIMEOUT) {
-				if (plugin.getState() == AVAILABLE) return;
+				if (plugin.getState() == ACTIVE) return;
 				clock.sleep(500);
 			}
-			if (plugin.getState() != AVAILABLE) {
+			if (plugin.getState() != ACTIVE) {
 				fail("Could not connect to Tor within timeout.");
 			}
 		} finally {
