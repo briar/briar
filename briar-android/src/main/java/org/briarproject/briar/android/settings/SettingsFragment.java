@@ -573,10 +573,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeWifiSetting(wifiSetting);
 		} else if (preference == enableTor) {
 			boolean torEnabledSetting = (Boolean) newValue;
-			torNetwork.setEnabled(torNetwork.isEnabled() && torEnabledSetting);
-			torMobile.setEnabled(torMobile.isEnabled() && torEnabledSetting);
-			torOnlyWhenCharging.setEnabled(torOnlyWhenCharging.isEnabled() &&
-					torEnabledSetting);
+			torNetwork.setEnabled(torEnabledSetting);
+			torMobile.setEnabled(torEnabledSetting);
+			torOnlyWhenCharging.setEnabled(torEnabledSetting);
 			storeTorEnabledSetting(torEnabledSetting);
 		} else if (preference == torNetwork) {
 			int torNetworkSetting = Integer.valueOf((String) newValue);
