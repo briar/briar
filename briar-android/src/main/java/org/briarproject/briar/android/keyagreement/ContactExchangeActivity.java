@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -79,13 +80,13 @@ public class ContactExchangeActivity extends KeyAgreementActivity {
 
 	@UiThread
 	private void contactExchangeFailed() {
-		showErrorFragment(R.string.connection_error_explanation);
+		showErrorFragment();
 	}
 
 	@UiThread
 	@Override
 	public void keyAgreementFailed() {
-		showErrorFragment(R.string.connection_error_explanation);
+		showErrorFragment();
 	}
 
 	@UiThread
@@ -103,7 +104,7 @@ public class ContactExchangeActivity extends KeyAgreementActivity {
 	@UiThread
 	@Override
 	public void keyAgreementAborted(boolean remoteAborted) {
-		showErrorFragment(R.string.connection_error_explanation);
+		showErrorFragment();
 	}
 
 	@UiThread
@@ -111,5 +112,11 @@ public class ContactExchangeActivity extends KeyAgreementActivity {
 	public String keyAgreementFinished(KeyAgreementResult result) {
 		startContactExchange(result);
 		return getString(R.string.exchanging_contact_details);
+	}
+
+	protected void showErrorFragment() {
+		String errorMsg = getString(R.string.connection_error_explanation);
+		BaseFragment f = ContactExchangeErrorFragment.newInstance(errorMsg);
+		showNextFragment(f);
 	}
 }
