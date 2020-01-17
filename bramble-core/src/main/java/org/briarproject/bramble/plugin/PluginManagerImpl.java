@@ -314,10 +314,6 @@ class PluginManagerImpl implements PluginManager, Service {
 				} else if (oldState == ACTIVE) {
 					eventBus.broadcast(new TransportInactiveEvent(id));
 				}
-			} else {
-				// TODO: Remove
-				if (LOG.isLoggable(INFO))
-					LOG.info(id + " stayed in state " + oldState);
 			}
 		}
 
