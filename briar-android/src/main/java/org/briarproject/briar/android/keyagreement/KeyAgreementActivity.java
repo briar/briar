@@ -44,6 +44,8 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
 
@@ -62,7 +64,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyAgreementActivity.class.getName());
+			getLogger(KeyAgreementActivity.class.getName());
 
 	@Inject
 	EventBus eventBus;
@@ -74,18 +76,21 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	 * https://issuetracker.google.com/issues/37067655.
 	 */
 	private boolean isResumed = false;
+
 	/**
 	 * Set to true when the continue button is clicked, and false when the QR
 	 * code fragment is shown. This prevents the QR code fragment from being
 	 * shown automatically before the continue button has been clicked.
 	 */
 	private boolean continueClicked = false;
+
 	/**
 	 * Records whether the Bluetooth adapter was already enabled before we
 	 * asked for Bluetooth discoverability, so we know whether to broadcast a
 	 * {@link BluetoothEnabledEvent}.
 	 */
 	private boolean wasAdapterEnabled = false;
+
 	private Permission cameraPermission = Permission.UNKNOWN;
 	private Permission locationPermission = Permission.UNKNOWN;
 	private BluetoothState bluetoothState = BluetoothState.UNKNOWN;
@@ -96,14 +101,13 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		component.inject(this);
 	}
 
-	@SuppressWarnings("ConstantConditions")
 	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_fragment_container_toolbar);
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		setSupportActionBar(toolbar);
-		getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+		requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 		if (state == null) {
 			showInitialFragment(IntroFragment.newInstance());
 		}
@@ -122,13 +126,11 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				onBackPressed();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			onBackPressed();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
@@ -206,7 +208,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		if (request == REQUEST_BLUETOOTH_DISCOVERABLE) {
 			if (result == RESULT_CANCELED) {
 				setBluetoothState(BluetoothState.REFUSED);
@@ -237,12 +240,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 					.addToBackStack(f.getUniqueTag())
 					.commit();
 		}
-	}
-
-	protected void showErrorFragment(@StringRes int errorResId) {
-		String errorMsg = getString(errorResId);
-		BaseFragment f = ContactExchangeErrorFragment.newInstance(errorMsg);
-		showNextFragment(f);
 	}
 
 	private boolean checkPermissions() {
