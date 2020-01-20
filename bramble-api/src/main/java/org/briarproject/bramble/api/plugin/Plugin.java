@@ -9,6 +9,38 @@ import java.util.Collection;
 @NotNullByDefault
 public interface Plugin {
 
+	enum State {
+
+		/**
+		 * The plugin has not been started, has been stopped, or is disabled by
+		 * settings.
+		 */
+		DISABLED,
+
+		/**
+		 * The plugin is being enabled and can't yet make or receive
+		 * connections.
+		 */
+		ENABLING,
+
+		/**
+		 * The plugin is enabled and can make or receive connections.
+		 */
+		ACTIVE,
+
+		/**
+		 * The plugin is enabled but can't make or receive connections
+		 */
+		INACTIVE
+	}
+
+	/**
+	 * Reason code returned by {@link #getReasonDisabled()} ()} to indicate
+	 * that the plugin is disabled because it has not been started or has been
+	 * stopped.
+	 */
+	int REASON_STARTING_STOPPING = 0;
+
 	/**
 	 * Returns the plugin's transport identifier.
 	 */
@@ -35,9 +67,19 @@ public interface Plugin {
 	void stop() throws PluginException;
 
 	/**
-	 * Returns true if the plugin is running.
+	 * Returns the current state of the plugin.
 	 */
-	boolean isRunning();
+	State getState();
+
+	/**
+	 * Returns an integer code indicating why the plugin is
+	 * {@link State#DISABLED disabled}, or -1 if the plugin is not disabled.
+	 * <p>
+	 * The codes used are plugin-specific, except the generic code
+	 * {@link #REASON_STARTING_STOPPING}, which may be used by
+	 * any plugin.
+	 */
+	int getReasonDisabled();
 
 	/**
 	 * Returns true if the plugin should be polled periodically to attempt to

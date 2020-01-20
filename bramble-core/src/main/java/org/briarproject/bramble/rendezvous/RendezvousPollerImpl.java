@@ -31,8 +31,8 @@ import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
@@ -269,11 +269,11 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		} else if (e instanceof PendingContactRemovedEvent) {
 			PendingContactRemovedEvent p = (PendingContactRemovedEvent) e;
 			removePendingContactAsync(p.getId());
-		} else if (e instanceof TransportEnabledEvent) {
-			TransportEnabledEvent t = (TransportEnabledEvent) e;
+		} else if (e instanceof TransportActiveEvent) {
+			TransportActiveEvent t = (TransportActiveEvent) e;
 			addTransportAsync(t.getTransportId());
-		} else if (e instanceof TransportDisabledEvent) {
-			TransportDisabledEvent t = (TransportDisabledEvent) e;
+		} else if (e instanceof TransportInactiveEvent) {
+			TransportInactiveEvent t = (TransportInactiveEvent) e;
 			removeTransportAsync(t.getTransportId());
 		} else if (e instanceof RendezvousConnectionOpenedEvent) {
 			RendezvousConnectionOpenedEvent r =

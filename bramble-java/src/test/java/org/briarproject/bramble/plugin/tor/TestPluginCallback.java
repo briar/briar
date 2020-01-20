@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
@@ -30,11 +31,7 @@ public class TestPluginCallback implements PluginCallback {
 	}
 
 	@Override
-	public void transportEnabled() {
-	}
-
-	@Override
-	public void transportDisabled() {
+	public void pluginStateChanged(State state) {
 	}
 
 	@Override

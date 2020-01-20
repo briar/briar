@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.Plugin;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.PluginException;
@@ -18,8 +19,9 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -36,6 +38,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -45,6 +48,8 @@ import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -250,7 +255,8 @@ class PluginManagerImpl implements PluginManager, Service {
 	private class Callback implements PluginCallback {
 
 		private final TransportId id;
-		private final AtomicBoolean enabled = new AtomicBoolean(false);
+		private final AtomicReference<State> state =
+				new AtomicReference<>(DISABLED);
 
 		private Callback(TransportId id) {
 			this.id = id;
@@ -295,15 +301,20 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 
 		@Override
-		public void transportEnabled() {
-			if (!enabled.getAndSet(true))
-				eventBus.broadcast(new TransportEnabledEvent(id));
-		}
-
-		@Override
-		public void transportDisabled() {
-			if (enabled.getAndSet(false))
-				eventBus.broadcast(new TransportDisabledEvent(id));
+		public void pluginStateChanged(State newState) {
+			State oldState = state.getAndSet(newState);
+			if (newState != oldState) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info(id + " changed from state " + oldState
+							+ " to " + newState);
+				}
+				eventBus.broadcast(new TransportStateEvent(id, newState));
+				if (newState == ACTIVE) {
+					eventBus.broadcast(new TransportActiveEvent(id));
+				} else if (oldState == ACTIVE) {
+					eventBus.broadcast(new TransportInactiveEvent(id));
+				}
+			}
 		}
 
 		@Override

@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TorConstants;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.IoUtils;
@@ -92,8 +92,8 @@ class DevReporterImpl implements DevReporter, EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof TransportEnabledEvent) {
-			TransportEnabledEvent t = (TransportEnabledEvent) e;
+		if (e instanceof TransportActiveEvent) {
+			TransportActiveEvent t = (TransportActiveEvent) e;
 			if (t.getTransportId().equals(TorConstants.ID))
 				ioExecutor.execute(this::sendReports);
 		}

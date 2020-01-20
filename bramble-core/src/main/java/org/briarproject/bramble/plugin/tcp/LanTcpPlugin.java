@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
-import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
 import java.net.Inet4Address;
@@ -19,7 +18,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -38,6 +36,7 @@ import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
+import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.join;
@@ -149,8 +148,9 @@ class LanTcpPlugin extends TcpPlugin {
 		if (remote.getPort() == 0) return false;
 		if (!isAcceptableAddress(remote.getAddress())) return false;
 		// Try to determine whether the address is on the same LAN as us
-		if (socket == null) return false;
-		byte[] localIp = socket.getInetAddress().getAddress();
+		ServerSocket ss = state.getServerSocket();
+		if (ss == null) return false;
+		byte[] localIp = ss.getInetAddress().getAddress();
 		byte[] remoteIp = remote.getAddress().getAddress();
 		return addressesAreOnSameLan(localIp, remoteIp);
 	}
@@ -209,10 +209,10 @@ class LanTcpPlugin extends TcpPlugin {
 			} catch (IOException e) {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Failed to bind " + scrubSocketAddress(addr));
-				tryToClose(ss);
+				tryToClose(ss, LOG, WARNING);
 			}
 		}
-		if (ss == null || !ss.isBound()) {
+		if (ss == null) {
 			LOG.info("Could not bind server socket for key agreement");
 			return null;
 		}
@@ -228,7 +228,8 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
-		if (!isRunning()) return null;
+		ServerSocket ss = state.getServerSocket();
+		if (ss == null) return null;
 		InetSocketAddress remote;
 		try {
 			remote = parseSocketAddress(descriptor);
@@ -238,10 +239,9 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 		if (!isConnectable(remote)) {
 			if (LOG.isLoggable(INFO)) {
-				SocketAddress local = socket.getLocalSocketAddress();
 				LOG.info(scrubSocketAddress(remote) +
 						" is not connectable from " +
-						scrubSocketAddress(local));
+						scrubSocketAddress(ss.getLocalSocketAddress()));
 			}
 			return null;
 		}
@@ -249,7 +249,7 @@ class LanTcpPlugin extends TcpPlugin {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connecting to " + scrubSocketAddress(remote));
 			Socket s = createSocket();
-			s.bind(new InetSocketAddress(socket.getInetAddress(), 0));
+			s.bind(new InetSocketAddress(ss.getInetAddress(), 0));
 			s.connect(remote);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO))
@@ -296,7 +296,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 		@Override
 		public void close() {
-			IoUtils.tryToClose(ss, LOG, WARNING);
+			tryToClose(ss, LOG, WARNING);
 		}
 	}
 

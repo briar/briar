@@ -14,8 +14,8 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.android.controller.DbControllerImpl;
@@ -30,6 +30,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -85,16 +86,16 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof TransportEnabledEvent) {
-			TransportId id = ((TransportEnabledEvent) e).getTransportId();
+		if (e instanceof TransportActiveEvent) {
+			TransportId id = ((TransportActiveEvent) e).getTransportId();
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("TransportEnabledEvent: " + id.getString());
+				LOG.info("TransportActiveEvent: " + id.getString());
 			}
 			listener.stateUpdate(id, true);
-		} else if (e instanceof TransportDisabledEvent) {
-			TransportId id = ((TransportDisabledEvent) e).getTransportId();
+		} else if (e instanceof TransportInactiveEvent) {
+			TransportId id = ((TransportInactiveEvent) e).getTransportId();
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("TransportDisabledEvent: " + id.getString());
+				LOG.info("TransportInactiveEvent: " + id.getString());
 			}
 			listener.stateUpdate(id, false);
 		}
@@ -176,7 +177,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 	@Override
 	public boolean isTransportRunning(TransportId transportId) {
 		Plugin plugin = pluginManager.getPlugin(transportId);
-		return plugin != null && plugin.isRunning();
+		return plugin != null && plugin.getState() == ACTIVE;
 	}
 
 }

@@ -13,8 +13,8 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
-import org.briarproject.bramble.api.plugin.event.TransportDisabledEvent;
-import org.briarproject.bramble.api.plugin.event.TransportEnabledEvent;
+import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
@@ -322,7 +322,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testPollsOnTransportEnabled() throws Exception {
+	public void testPollsOnTransportActivated() throws Exception {
 		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
 
 		context.checking(new Expectations() {{
@@ -361,7 +361,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 					pairOf(equal(properties), any(ConnectionHandler.class)))));
 		}});
 
-		poller.eventOccurred(new TransportEnabledEvent(transportId));
+		poller.eventOccurred(new TransportActiveEvent(transportId));
 	}
 
 	@Test
@@ -402,11 +402,11 @@ public class PollerImplTest extends BrambleMockTestCase {
 			// All contacts are connected, so don't poll the plugin
 		}});
 
-		poller.eventOccurred(new TransportEnabledEvent(transportId));
+		poller.eventOccurred(new TransportActiveEvent(transportId));
 	}
 
 	@Test
-	public void testCancelsPollingOnTransportDisabled() {
+	public void testCancelsPollingOnTransportDeactivated() {
 		Plugin plugin = context.mock(Plugin.class);
 
 		context.checking(new Expectations() {{
@@ -424,11 +424,11 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)), with(0L),
 					with(MILLISECONDS));
 			will(returnValue(future));
-			// The plugin is disabled before the task runs - cancel the task
+			// The plugin is deactivated before the task runs - cancel the task
 			oneOf(future).cancel(false);
 		}});
 
-		poller.eventOccurred(new TransportEnabledEvent(transportId));
-		poller.eventOccurred(new TransportDisabledEvent(transportId));
+		poller.eventOccurred(new TransportActiveEvent(transportId));
+		poller.eventOccurred(new TransportInactiveEvent(transportId));
 	}
 }

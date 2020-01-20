@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
@@ -327,6 +328,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		assertEquals(0, comparator.compare(linkLocal, linkLocal));
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean systemHasLocalIpv4Address() throws Exception {
 		for (NetworkInterface i : list(getNetworkInterfaces())) {
 			for (InetAddress a : list(i.getInetAddresses())) {
@@ -365,11 +367,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		}
 
 		@Override
-		public void transportEnabled() {
-		}
-
-		@Override
-		public void transportDisabled() {
+		public void pluginStateChanged(State newState) {
 		}
 
 		@Override
