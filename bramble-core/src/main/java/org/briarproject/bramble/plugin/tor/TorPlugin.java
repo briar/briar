@@ -801,35 +801,39 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Disabling network, country is blocked");
 				disabledBySettings = true;
 				reasonDisabled = REASON_COUNTRY_BLOCKED;
-			} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
-					(automatic && bridgesWork)) {
-				if (circumventionProvider.needsMeek(country)) {
-					LOG.info("Enabling network, using meek bridges");
-					enableBridges = true;
-					useMeek = true;
-				} else {
-					LOG.info("Enabling network, using obfs4 bridges");
-					enableBridges = true;
-				}
-				enableNetwork = true;
 			} else {
-				LOG.info("Enabling network, not using bridges");
+				LOG.info("Enabling network");
 				enableNetwork = true;
+				if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
+						(automatic && bridgesWork)) {
+					if (circumventionProvider.needsMeek(country)) {
+						LOG.info("Using meek bridges");
+						enableBridges = true;
+						useMeek = true;
+					} else {
+						LOG.info("Using obfs4 bridges");
+						enableBridges = true;
+					}
+				} else {
+					LOG.info("Not using bridges");
+				}
+				if (wifi && charging) {
+					LOG.info("Enabling connection padding");
+					enableConnectionPadding = true;
+				} else {
+					LOG.info("Disabling connection padding");
+				}
 			}
 
-			if (online && wifi && charging) {
-				LOG.info("Enabling connection padding");
-				enableConnectionPadding = true;
-			} else {
-				LOG.info("Disabling connection padding");
-			}
 
 			state.setDisabledBySettings(disabledBySettings, reasonDisabled);
 
 			try {
-				enableBridges(enableBridges, useMeek);
+				if (enableNetwork) {
+					enableBridges(enableBridges, useMeek);
+					enableConnectionPadding(enableConnectionPadding);
+				}
 				enableNetwork(enableNetwork);
-				enableConnectionPadding(enableConnectionPadding);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
