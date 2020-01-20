@@ -84,7 +84,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		state.setStarted();
-		callback.pluginStateChanged(getState());
 		for (String portName : serialPortList.getPortNames()) {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Trying to initialise modem on " + portName);
@@ -94,7 +93,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Initialised modem on " + portName);
 				state.setInitialised();
-				callback.pluginStateChanged(getState());
 				return;
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
@@ -102,14 +100,12 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 		LOG.warning("Failed to initialised modem");
 		state.setFailed();
-		callback.pluginStateChanged(getState());
 		throw new PluginException();
 	}
 
 	@Override
 	public void stop() {
 		state.setStopped();
-		callback.pluginStateChanged(getState());
 		if (modem != null) {
 			try {
 				modem.stop();
@@ -162,7 +158,6 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 		LOG.warning("Failed to initialise modem");
 		state.setFailed();
-		callback.pluginStateChanged(getState());
 	}
 
 	@Override
@@ -256,7 +251,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 	@ThreadSafe
 	@NotNullByDefault
-	private static class PluginState {
+	private class PluginState {
 
 		@GuardedBy("this")
 		private boolean started = false,
@@ -266,18 +261,22 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 
 		private synchronized void setStarted() {
 			started = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		private synchronized void setStopped() {
 			stopped = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		private synchronized void setInitialised() {
 			initialised = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		private synchronized void setFailed() {
 			failed = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		private State getState() {

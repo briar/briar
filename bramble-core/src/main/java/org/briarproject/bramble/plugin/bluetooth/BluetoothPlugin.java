@@ -168,7 +168,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 		updateProperties();
 		state.setStarted();
-		callback.pluginStateChanged(getState());
 		loadSettings(callback.getSettings());
 		if (shouldAllowContactConnections()) {
 			if (isAdapterEnabled()) bind();
@@ -203,7 +202,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				return;
 			}
 			backoff.reset();
-			callback.pluginStateChanged(getState());
 			acceptContactConnections(ss);
 		});
 	}
@@ -254,7 +252,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public void stop() {
 		SS ss = state.setStopped();
-		callback.pluginStateChanged(getState());
 		tryToClose(ss);
 		disableAdapterIfEnabledByUs();
 	}
@@ -491,6 +488,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 		synchronized void setStarted() {
 			started = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		@Nullable
@@ -498,12 +496,14 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			stopped = true;
 			SS ss = serverSocket;
 			serverSocket = null;
+			callback.pluginStateChanged(getState());
 			return ss;
 		}
 
 		synchronized boolean setServerSocket(SS ss) {
 			if (stopped || serverSocket != null) return false;
 			serverSocket = ss;
+			callback.pluginStateChanged(getState());
 			return true;
 		}
 

@@ -123,7 +123,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		state.setStarted();
-		callback.pluginStateChanged(getState());
 		bind();
 	}
 
@@ -157,7 +156,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 			setLocalSocketAddress(local);
 			if (LOG.isLoggable(INFO))
 				LOG.info("Listening on " + scrubSocketAddress(local));
-			callback.pluginStateChanged(getState());
 			acceptContactConnections(ss);
 		});
 	}
@@ -179,7 +177,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 				// This is expected when the server socket is closed
 				LOG.info("Server socket closed");
 				state.clearServerSocket(ss);
-				callback.pluginStateChanged(getState());
 				return;
 			}
 			if (LOG.isLoggable(INFO))
@@ -193,7 +190,6 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public void stop() {
 		ServerSocket ss = state.setStopped();
-		callback.pluginStateChanged(getState());
 		tryToClose(ss, LOG, WARNING);
 	}
 
@@ -376,7 +372,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 	@ThreadSafe
 	@NotNullByDefault
-	protected static class PluginState {
+	protected class PluginState {
 
 		@GuardedBy("this")
 		private boolean started = false, stopped = false;
@@ -386,6 +382,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 
 		synchronized void setStarted() {
 			started = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		@Nullable
@@ -393,6 +390,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 			stopped = true;
 			ServerSocket ss = serverSocket;
 			serverSocket = null;
+			callback.pluginStateChanged(getState());
 			return ss;
 		}
 
@@ -404,11 +402,13 @@ abstract class TcpPlugin implements DuplexPlugin {
 		synchronized boolean setServerSocket(ServerSocket ss) {
 			if (stopped || serverSocket != null) return false;
 			serverSocket = ss;
+			callback.pluginStateChanged(getState());
 			return true;
 		}
 
 		synchronized void clearServerSocket(ServerSocket ss) {
 			if (serverSocket == ss) serverSocket = null;
+			callback.pluginStateChanged(getState());
 		}
 
 		synchronized State getState() {
