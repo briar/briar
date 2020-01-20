@@ -464,9 +464,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		enableBluetooth.setEnabled(enabled);
 		enableWifi.setEnabled(enabled);
 		enableTor.setEnabled(enabled);
-		torNetwork.setEnabled(enabled && enableTor.isChecked());
-		torMobile.setEnabled(enabled && enableTor.isChecked());
-		torOnlyWhenCharging.setEnabled(enabled && enableTor.isChecked());
+		torNetwork.setEnabled(enabled);
+		torMobile.setEnabled(enabled);
+		torOnlyWhenCharging.setEnabled(enabled);
 		if (!enabled) screenLock.setEnabled(false);
 		notifyPrivateMessages.setEnabled(enabled);
 		notifyGroupMessages.setEnabled(enabled);
@@ -573,9 +573,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			storeWifiSetting(wifiSetting);
 		} else if (preference == enableTor) {
 			boolean torEnabledSetting = (Boolean) newValue;
-			torNetwork.setEnabled(torEnabledSetting);
-			torMobile.setEnabled(torEnabledSetting);
-			torOnlyWhenCharging.setEnabled(torEnabledSetting);
 			storeTorEnabledSetting(torEnabledSetting);
 		} else if (preference == torNetwork) {
 			int torNetworkSetting = Integer.valueOf((String) newValue);
