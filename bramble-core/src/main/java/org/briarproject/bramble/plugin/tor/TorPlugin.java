@@ -712,7 +712,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
-		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			state.setBootstrapped();
 			backoff.reset();
