@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Sveiki atvykę į Briar</string>
   <string name="setup_name_explanation">Jūsų slapyvardis bus rodomas šalia bet kokio jūsų skelbiamo turinio. Sukūrę paskyrą, slapyvardžio pakeisti nebegalėsite.</string>
@@ -199,7 +199,7 @@
   <string name="link_copied_toast">Nuoroda nukopijuota</string>
   <string name="adding_contact_error">Pridedant adresatą, įvyko klaida.</string>
   <string name="pending_contact_requests_snackbar">Yra laukiančių adresato užklausų</string>
-  <string name="pending_contact_requests">Laukiančios adresato užklausos</string>
+  <string name="pending_contact_requests">Laukiančios adresatų užklausos</string>
   <string name="no_pending_contacts">Laukiančių adresatų nėra</string>
   <string name="add_contact_remote_connecting">Jungiamasi…</string>
   <string name="waiting_for_contact_to_come_online">Laukiama, kol adresatas prisijungs prie tinko…</string>

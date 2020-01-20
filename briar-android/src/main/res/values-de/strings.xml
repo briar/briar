@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Willkommen bei Briar</string>
   <string name="setup_name_explanation">Dein Benutzername wird neben deinem geposteten Inhalt angezeigt. Du kannst diesen nicht mehr ändern, nachdem du dein Konto erstellt hast.</string>
@@ -128,6 +128,10 @@
   <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
   <string name="dialog_message_delete_all_messages">Bist Du sicher, dass Du alle Nachrichten löschen willst?</string>
   <string name="dialog_title_not_all_messages_deleted">Konnte nicht alle Nachrichten löschen</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Nachrichten, die sich auf laufende Einladungen und Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Nachrichten, die sich auf laufende Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Nachrichten, die sich auf laufende Einladungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Teilweise heruntergeladene Nachrichten können erst nach dem Ende des Downloads gelöscht werden.</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>
