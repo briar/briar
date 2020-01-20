@@ -18,6 +18,8 @@ public interface EventBus {
 	/**
 	 * Asynchronously notifies all listeners of an event. Listeners are
 	 * notified on the {@link EventExecutor}.
+	 * <p>
+	 * This method can safely be called while holding a lock.
 	 */
 	void broadcast(Event e);
 }
