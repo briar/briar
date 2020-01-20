@@ -76,15 +76,22 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 					SocketFactory.getDefault(), clock, noDnsLookups);
 
 	@Test
-	public void testEmptyFetchFeed() throws Exception {
-		BdfList feedList = new BdfList();
-		expectGetFeeds(feedList);
-		expectStoreFeed(feedList);
+	public void testFetchFeedsReturnsEarlyIfTorIsNotActive() {
+		feedManager.setTorActive(false);
 		feedManager.fetchFeeds();
 	}
 
 	@Test
-	public void testFetchFeedIoException() throws Exception {
+	public void testEmptyFetchFeeds() throws Exception {
+		BdfList feedList = new BdfList();
+		expectGetFeeds(feedList);
+		expectStoreFeed(feedList);
+		feedManager.setTorActive(true);
+		feedManager.fetchFeeds();
+	}
+
+	@Test
+	public void testFetchFeedsIoException() throws Exception {
 		BdfDictionary feedDict= new BdfDictionary();
 		BdfList feedList = BdfList.of(feedDict);
 
@@ -95,6 +102,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 		}});
 		expectStoreFeed(feedList);
 
+		feedManager.setTorActive(true);
 		feedManager.fetchFeeds();
 	}
 
