@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
@@ -97,6 +98,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private final Dns noDnsLookups;
 	private final AtomicBoolean fetcherStarted = new AtomicBoolean(false);
 
+	private volatile boolean torActive = false;
+
 	@Inject
 	FeedManagerImpl(@Scheduler ScheduledExecutorService scheduler,
 			@IoExecutor Executor ioExecutor, DatabaseComponent db,
@@ -123,9 +126,18 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		if (e instanceof TransportActiveEvent) {
 			TransportId t = ((TransportActiveEvent) e).getTransportId();
 			if (t.equals(TorConstants.ID)) {
+				setTorActive(true);
 				startFeedExecutor();
 			}
+		} else if (e instanceof TransportInactiveEvent) {
+			TransportId t = ((TransportInactiveEvent) e).getTransportId();
+			if (t.equals(TorConstants.ID)) setTorActive(false);
 		}
+	}
+
+	// Package access for testing
+	void setTorActive(boolean active) {
+		torActive = active;
 	}
 
 	private void startFeedExecutor() {
@@ -279,6 +291,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	 * and we can not block the database that long.
 	 */
 	void fetchFeeds() {
+		if (!torActive) return;
 		LOG.info("Updating RSS feeds...");
 
 		// Get current feeds
