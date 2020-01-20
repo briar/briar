@@ -193,7 +193,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		state.setStarted();
-		callback.pluginStateChanged(getState());
 		if (!torDirectory.exists()) {
 			if (!torDirectory.mkdirs()) {
 				LOG.warning("Could not create Tor directory.");
@@ -480,7 +479,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	protected void enableNetwork(boolean enable) throws IOException {
 		state.enableNetwork(enable);
-		callback.pluginStateChanged(getState());
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
 	}
 
@@ -506,7 +504,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void stop() {
 		ServerSocket ss = state.setStopped();
-		callback.pluginStateChanged(getState());
 		tryToClose(ss, LOG, WARNING);
 		if (controlSocket != null && controlConnection != null) {
 			try {
@@ -682,7 +679,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				state.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
 			backoff.reset();
-			callback.pluginStateChanged(getState());
 		}
 	}
 
@@ -715,7 +711,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
 			state.setBootstrapped();
 			backoff.reset();
-			callback.pluginStateChanged(getState());
 		}
 	}
 
@@ -830,7 +825,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 
 			state.setDisabledBySettings(disabledBySettings, reasonDisabled);
-			callback.pluginStateChanged(getState());
 
 			try {
 				enableBridges(enableBridges, useMeek);
@@ -848,7 +842,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@ThreadSafe
 	@NotNullByDefault
-	protected static class PluginState {
+	protected class PluginState {
 
 		@GuardedBy("this")
 		private boolean started = false,
@@ -869,6 +863,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 		synchronized void setStarted() {
 			started = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		synchronized void setTorStarted() {
@@ -885,16 +880,19 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			stopped = true;
 			ServerSocket ss = serverSocket;
 			serverSocket = null;
+			callback.pluginStateChanged(getState());
 			return ss;
 		}
 
 		synchronized void setBootstrapped() {
 			bootstrapped = true;
+			callback.pluginStateChanged(getState());
 		}
 
 		synchronized boolean getAndSetCircuitBuilt() {
 			boolean firstCircuit = !circuitBuilt;
 			circuitBuilt = true;
+			callback.pluginStateChanged(getState());
 			return firstCircuit;
 		}
 
@@ -902,12 +900,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			networkInitialised = true;
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
+			callback.pluginStateChanged(getState());
 		}
 
 		synchronized void setDisabledBySettings(boolean disabledBySettings,
 				int reasonDisabled) {
 			this.disabledBySettings = disabledBySettings;
 			this.reasonDisabled = reasonDisabled;
+			callback.pluginStateChanged(getState());
 		}
 
 		synchronized boolean setServerSocket(ServerSocket ss) {

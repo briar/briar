@@ -84,7 +84,6 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		state.setStarted();
-		callback.pluginStateChanged(getState());
 		updateConnectionStatus();
 	}
 
