@@ -391,7 +391,6 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 		boolean enabledByUser = settings.getBoolean(PREF_TCP_ENABLE, false);
 		ServerSocket ss = state.setEnabledByUser(enabledByUser);
 		State s = getState();
-		callback.pluginStateChanged(s);
 		if (ss != null) {
 			LOG.info("Disabled by user, closing server socket");
 			tryToClose(ss, LOG, WARNING);
