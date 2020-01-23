@@ -9,11 +9,11 @@ import android.net.wifi.WifiManager;
 
 import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
+import org.briarproject.bramble.api.settings.Settings;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -36,10 +36,11 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @NotNullByDefault
-class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
+class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	private static final Logger LOG =
 			getLogger(AndroidLanTcpPlugin.class.getName());
@@ -83,7 +84,8 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	@Override
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		state.setStarted();
+		Settings settings = callback.getSettings();
+		state.setStarted(settings.getBoolean(PREF_TCP_ENABLE, false));
 		updateConnectionStatus();
 	}
 
@@ -136,6 +138,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
+		super.eventOccurred(e);
 		if (e instanceof NetworkStatusEvent) updateConnectionStatus();
 	}
 

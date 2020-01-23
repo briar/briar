@@ -37,9 +37,9 @@ public class DesktopPluginModule extends PluginModule {
 						backoffFactory);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
-		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor,
+		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor, eventBus,
 				backoffFactory);
-		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor,
+		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor, eventBus,
 				backoffFactory, shutdownManager);
 		Collection<DuplexPluginFactory> duplex =
 				asList(bluetooth, modem, lan, wan);

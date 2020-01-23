@@ -13,6 +13,7 @@ public interface TorConstants {
 	int CONNECT_TO_PROXY_TIMEOUT = 5000; // Milliseconds
 	int EXTRA_SOCKET_TIMEOUT = 30000; // Milliseconds
 
+	String PREF_TOR_ENABLE = "enable";
 	String PREF_TOR_NETWORK = "network2";
 	String PREF_TOR_PORT = "port";
 	String PREF_TOR_MOBILE = "useMobileData";
@@ -23,7 +24,7 @@ public interface TorConstants {
 	int PREF_TOR_NETWORK_WITH_BRIDGES = 2;
 	int PREF_TOR_NETWORK_NEVER = 3;
 
-	int REASON_USER = 1;
+	// Reason codes returned by Plugin#getReasonDisabled()
 	int REASON_BATTERY = 2;
 	int REASON_MOBILE_DATA = 3;
 	int REASON_COUNTRY_BLOCKED = 4;

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.tcp;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -25,11 +26,13 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
+	private final EventBus eventBus;
 	private final BackoffFactory backoffFactory;
 
-	public LanTcpPluginFactory(Executor ioExecutor,
+	public LanTcpPluginFactory(Executor ioExecutor, EventBus eventBus,
 			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
+		this.eventBus = eventBus;
 		this.backoffFactory = backoffFactory;
 	}
 
@@ -47,7 +50,9 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		return new LanTcpPlugin(ioExecutor, backoff, callback, MAX_LATENCY,
-				MAX_IDLE_TIME);
+		LanTcpPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
+				MAX_LATENCY, MAX_IDLE_TIME);
+		eventBus.addListener(plugin);
+		return plugin;
 	}
 }
