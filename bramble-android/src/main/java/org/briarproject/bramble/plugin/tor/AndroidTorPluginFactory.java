@@ -25,17 +25,31 @@ import javax.net.SocketFactory;
 
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.logging.Logger.getLogger;
 
 @Immutable
 @NotNullByDefault
 public class AndroidTorPluginFactory implements DuplexPluginFactory {
 
 	private static final Logger LOG =
-			Logger.getLogger(AndroidTorPluginFactory.class.getName());
+			getLogger(AndroidTorPluginFactory.class.getName());
 
 	private static final int MAX_LATENCY = (int) SECONDS.toMillis(30);
 	private static final int MAX_IDLE_TIME = (int) SECONDS.toMillis(30);
-	private static final int POLLING_INTERVAL = (int) MINUTES.toMillis(1);
+
+	/**
+	 * How often to poll before our hidden service becomes reachable.
+	 */
+	private static final int INITIAL_POLLING_INTERVAL =
+			(int) MINUTES.toMillis(1);
+
+	/**
+	 * How often to poll when our hidden service is reachable. Our contacts
+	 * will poll when they come online, so our polling is just a fallback in
+	 * case of repeated connection failures.
+	 */
+	private static final int STABLE_POLLING_INTERVAL =
+			(int) MINUTES.toMillis(15);
 
 	private final Executor ioExecutor;
 	private final ScheduledExecutorService scheduler;
@@ -111,7 +125,8 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 				appContext, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
 				torRendezvousCrypto, callback, architecture, MAX_LATENCY,
-				MAX_IDLE_TIME, POLLING_INTERVAL);
+				MAX_IDLE_TIME, INITIAL_POLLING_INTERVAL,
+				STABLE_POLLING_INTERVAL);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

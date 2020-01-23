@@ -110,14 +110,45 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private static final Logger LOG = getLogger(TorPlugin.class.getName());
 
+	/**
+	 * Controller events we want to receive.
+	 */
 	private static final String[] EVENTS = {
 			"CIRC", "ORCONN", "HS_DESC", "NOTICE", "WARN", "ERR"
 	};
+
+	/**
+	 * Command-line argument to set our process as Tor's owning controller
+	 * so Tor exits when our process dies.
+	 */
 	private static final String OWNER = "__OwningControllerProcess";
+
+	/**
+	 * How long to wait for the authentication cookie file to be created.
+	 */
 	private static final int COOKIE_TIMEOUT_MS = 3000;
+
+	/**
+	 * How often to check whether the authentication cookie file has been
+	 * created.
+	 */
 	private static final int COOKIE_POLLING_INTERVAL_MS = 200;
+
+	/**
+	 * Regex for matching v2 hidden service names.
+	 */
 	private static final Pattern ONION_V2 = Pattern.compile("[a-z2-7]{16}");
+
+	/**
+	 * Regex for matching v3 hidden service names.
+	 */
 	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
+
+	/**
+	 * How many copies of our descriptor must be uploaded before we consider
+	 * our hidden service to be reachable and switch to less frequent polling.
+	 */
+	private static final int MIN_DESCRIPTORS_UPLOADED = 5;
 
 	private final Executor ioExecutor, connectionStatusExecutor;
 	private final NetworkManager networkManager;
@@ -130,7 +161,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final String architecture;
 	private final CircumventionProvider circumventionProvider;
 	private final ResourceProvider resourceProvider;
-	private final int maxLatency, maxIdleTime, pollingInterval, socketTimeout;
+	private final int maxLatency, maxIdleTime, socketTimeout;
+	private final int initialPollingInterval, stablePollingInterval;
 	private final File torDirectory, torFile, geoIpFile, obfs4File, configFile;
 	private final File doneFile, cookieFile;
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -152,7 +184,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			BatteryManager batteryManager,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime, int pollingInterval, File torDirectory) {
+			int maxIdleTime, int initialPollingInterval,
+			int stablePollingInterval, File torDirectory) {
 		this.ioExecutor = ioExecutor;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
@@ -166,10 +199,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		this.architecture = architecture;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
-		this.pollingInterval = pollingInterval;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
+		this.initialPollingInterval = initialPollingInterval;
+		this.stablePollingInterval = stablePollingInterval;
 		this.torDirectory = torDirectory;
 		torFile = new File(torDirectory, "tor");
 		geoIpFile = new File(torDirectory, "geoip");
@@ -604,7 +638,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public int getPollingInterval() {
-		return pollingInterval;
+		if (state.isDescriptorPublished()) {
+			LOG.info("Using stable polling interval");
+			return stablePollingInterval;
+		} else {
+			LOG.info("Using initial polling interval");
+			return initialPollingInterval;
+		}
 	}
 
 	@Override
@@ -788,13 +828,12 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void unrecognized(String type, String msg) {
 		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
-			if (LOG.isLoggable(INFO)) {
-				String[] words = msg.split(" ");
-				if (words.length > 1 && ONION_V3.matcher(words[1]).matches()) {
-					LOG.info("V3 descriptor uploaded");
-				} else {
-					LOG.info("V2 descriptor uploaded");
-				}
+			String[] words = msg.split(" ");
+			if (words.length > 1 && ONION_V3.matcher(words[1]).matches()) {
+				LOG.info("V3 descriptor uploaded");
+				state.descriptorUploaded();
+			} else {
+				LOG.info("V2 descriptor uploaded");
 			}
 		}
 	}
@@ -953,6 +992,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@GuardedBy("this")
 		private final Set<String> orConnections = new HashSet<>();
 
+		@GuardedBy("this")
+		private int descriptorsUploaded = 0;
+
 		synchronized void setStarted() {
 			started = true;
 			callback.pluginStateChanged(getState());
@@ -986,7 +1028,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		synchronized void enableNetwork(boolean enable) {
 			networkInitialised = true;
 			networkEnabled = enable;
-			if (!enable) circuitBuilt = false;
+			if (!enable) {
+				circuitBuilt = false;
+				descriptorsUploaded = 0;
+			}
 			callback.pluginStateChanged(getState());
 		}
 
@@ -1003,11 +1048,25 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				}
 			} else {
 				orConnections.remove(orName);
+				if (orConnections.isEmpty()) descriptorsUploaded = 0;
 			}
 			if (LOG.isLoggable(INFO)) {
 				LOG.info(orConnections.size() + " OR connections");
 			}
 			callback.pluginStateChanged(getState());
+		}
+
+		// Doesn't affect getState()
+		synchronized void descriptorUploaded() {
+			if (networkEnabled && !orConnections.isEmpty()) {
+				descriptorsUploaded++;
+			} else {
+				LOG.warning("Descriptor was uploaded with no OR connection");
+			}
+		}
+
+		synchronized boolean isDescriptorPublished() {
+			return descriptorsUploaded >= MIN_DESCRIPTORS_UPLOADED;
 		}
 
 		// Doesn't affect getState()

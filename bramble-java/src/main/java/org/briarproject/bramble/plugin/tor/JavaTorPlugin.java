@@ -26,11 +26,13 @@ abstract class JavaTorPlugin extends TorPlugin {
 			BatteryManager batteryManager,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime, int pollingInterval, File torDirectory) {
+			int maxIdleTime, int initialPollingInterval,
+			int stablePollingInterval, File torDirectory) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
 				torRendezvousCrypto, callback, architecture, maxLatency,
-				maxIdleTime, pollingInterval, torDirectory);
+				maxIdleTime, initialPollingInterval, stablePollingInterval,
+				torDirectory);
 	}
 
 	@Override

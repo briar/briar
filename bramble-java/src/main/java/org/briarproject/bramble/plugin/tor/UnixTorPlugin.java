@@ -26,11 +26,13 @@ class UnixTorPlugin extends JavaTorPlugin {
 			BatteryManager batteryManager,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime, int pollingInterval, File torDirectory) {
+			int maxIdleTime, int initialPollingInterval,
+			int stablePollingInterval, File torDirectory) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				torRendezvousCrypto, callback, architecture, maxLatency,
-				maxIdleTime, pollingInterval, torDirectory);
+				torRendezvousCrypto, callback, architecture,
+				maxLatency, maxIdleTime, initialPollingInterval,
+				stablePollingInterval, torDirectory);
 	}
 
 	@Override

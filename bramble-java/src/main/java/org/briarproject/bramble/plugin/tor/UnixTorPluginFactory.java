@@ -34,7 +34,20 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 
 	private static final int MAX_LATENCY = (int) SECONDS.toMillis(30);
 	private static final int MAX_IDLE_TIME = (int) SECONDS.toMillis(30);
-	private static final int POLLING_INTERVAL = (int) MINUTES.toMillis(1);
+
+	/**
+	 * How often to poll before our hidden service becomes reachable.
+	 */
+	private static final int INITIAL_POLLING_INTERVAL =
+			(int) MINUTES.toMillis(1);
+
+	/**
+	 * How often to poll when our hidden service is reachable. Our contacts
+	 * will poll when they come online, so our polling is just a fallback in
+	 * case of repeated connection failures.
+	 */
+	private static final int STABLE_POLLING_INTERVAL =
+			(int) MINUTES.toMillis(15);
 
 	private final Executor ioExecutor;
 	private final NetworkManager networkManager;
@@ -95,7 +108,8 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 				locationUtils, torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, torRendezvousCrypto,
 				callback, architecture, MAX_LATENCY, MAX_IDLE_TIME,
-				POLLING_INTERVAL, torDirectory);
+				INITIAL_POLLING_INTERVAL, STABLE_POLLING_INTERVAL,
+				torDirectory);
 		eventBus.addListener(plugin);
 		return plugin;
 	}
