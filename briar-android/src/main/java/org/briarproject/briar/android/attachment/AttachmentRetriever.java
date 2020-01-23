@@ -49,6 +49,13 @@ public interface AttachmentRetriever {
 	 * Loads an {@link AttachmentItem}
 	 * that arrived via an {@link AttachmentReceivedEvent}
 	 * and notifies the associated {@link LiveData}.
+	 *
+	 * Note that you need to call {@link #getAttachmentItems(PrivateMessageHeader)}
+	 * first to get the LiveData.
+	 *
+	 * It is possible that no LiveData is available,
+	 * because the message of the AttachmentItem did not arrive, yet.
+	 * In this case, the load wil be deferred until the message arrives.
 	 */
 	@DatabaseExecutor
 	void loadAttachmentItem(MessageId attachmentId);
