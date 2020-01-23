@@ -437,7 +437,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		boolean enabledByUser = settings.getBoolean(PREF_BT_ENABLE, false);
 		SS ss = state.setEnabledByUser(enabledByUser);
 		State s = getState();
-		callback.pluginStateChanged(s);
 		if (ss != null) {
 			LOG.info("Disabled by user, closing server socket");
 			tryToClose(ss);
