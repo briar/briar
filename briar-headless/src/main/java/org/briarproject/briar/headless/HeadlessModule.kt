@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.event.EventBus
 import org.briarproject.bramble.api.lifecycle.IoExecutor
 import org.briarproject.bramble.api.network.NetworkManager
-import org.briarproject.bramble.api.plugin.BackoffFactory
 import org.briarproject.bramble.api.plugin.PluginConfig
 import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
@@ -70,16 +69,15 @@ internal class HeadlessModule(private val appDir: File) {
     @Provides
     internal fun providePluginConfig(
         @IoExecutor ioExecutor: Executor, torSocketFactory: SocketFactory,
-        backoffFactory: BackoffFactory, networkManager: NetworkManager,
-        locationUtils: LocationUtils, eventBus: EventBus, resourceProvider: ResourceProvider,
-        circumventionProvider: CircumventionProvider, batteryManager: BatteryManager, clock: Clock
+        networkManager: NetworkManager, locationUtils: LocationUtils, eventBus: EventBus,
+        resourceProvider: ResourceProvider, circumventionProvider: CircumventionProvider,
+        batteryManager: BatteryManager, clock: Clock
     ): PluginConfig {
         val duplex: List<DuplexPluginFactory> = if (isLinux() || isMac()) {
             val torDirectory = File(appDir, "tor")
             val tor = UnixTorPluginFactory(
                 ioExecutor, networkManager, locationUtils, eventBus, torSocketFactory,
-                backoffFactory, resourceProvider, circumventionProvider, batteryManager, clock,
-                torDirectory
+                resourceProvider, circumventionProvider, batteryManager, clock, torDirectory
             )
             listOf(tor)
         } else {

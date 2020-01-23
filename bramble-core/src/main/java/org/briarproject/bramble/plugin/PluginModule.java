@@ -2,7 +2,6 @@ package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.PluginManager;
 
@@ -20,11 +19,6 @@ public class PluginModule {
 		PluginManager pluginManager;
 		@Inject
 		Poller poller;
-	}
-
-	@Provides
-	BackoffFactory provideBackoffFactory() {
-		return new BackoffFactoryImpl();
 	}
 
 	@Provides

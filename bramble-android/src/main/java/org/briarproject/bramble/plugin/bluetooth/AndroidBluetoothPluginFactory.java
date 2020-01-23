@@ -5,8 +5,6 @@ import android.content.Context;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -20,17 +18,17 @@ import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 
 @Immutable
 @NotNullByDefault
 public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 
-	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
-	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
-	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
-	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
-	private static final double BACKOFF_BASE = 1.2;
+	private static final int MAX_LATENCY = (int) SECONDS.toMillis(30);
+	private static final int MAX_IDLE_TIME = (int) SECONDS.toMillis(30);
+	private static final int POLLING_INTERVAL = (int) MINUTES.toMillis(2);
 
 	private final Executor ioExecutor;
 	private final ScheduledExecutorService scheduler;
@@ -40,13 +38,12 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private final EventBus eventBus;
 	private final Clock clock;
 	private final TimeoutMonitor timeoutMonitor;
-	private final BackoffFactory backoffFactory;
 
 	public AndroidBluetoothPluginFactory(Executor ioExecutor,
 			ScheduledExecutorService scheduler,
 			AndroidExecutor androidExecutor, Context appContext,
 			SecureRandom secureRandom, EventBus eventBus, Clock clock,
-			TimeoutMonitor timeoutMonitor, BackoffFactory backoffFactory) {
+			TimeoutMonitor timeoutMonitor) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.androidExecutor = androidExecutor;
@@ -55,7 +52,6 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 		this.eventBus = eventBus;
 		this.clock = clock;
 		this.timeoutMonitor = timeoutMonitor;
-		this.backoffFactory = backoffFactory;
 	}
 
 	@Override
@@ -72,12 +68,10 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		BluetoothConnectionLimiter connectionLimiter =
 				new BluetoothConnectionLimiterImpl(eventBus);
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(
 				connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
-				scheduler, androidExecutor, appContext, clock, backoff,
-				callback, MAX_LATENCY, MAX_IDLE_TIME);
+				scheduler, androidExecutor, appContext, clock, callback,
+				MAX_LATENCY, MAX_IDLE_TIME, POLLING_INTERVAL);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
@@ -88,9 +87,9 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 	}
 
-	LanTcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
-			int maxLatency, int maxIdleTime, int connectionTimeout) {
-		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime,
+	LanTcpPlugin(Executor ioExecutor, PluginCallback callback, int maxLatency,
+			int maxIdleTime, int pollingInterval, int connectionTimeout) {
+		super(ioExecutor, callback, maxLatency, maxIdleTime, pollingInterval,
 				connectionTimeout);
 	}
 

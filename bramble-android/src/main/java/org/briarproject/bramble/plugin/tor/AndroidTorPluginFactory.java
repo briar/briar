@@ -6,8 +6,6 @@ import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -25,6 +23,9 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.Immutable;
 import javax.net.SocketFactory;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 @Immutable
 @NotNullByDefault
 public class AndroidTorPluginFactory implements DuplexPluginFactory {
@@ -32,11 +33,9 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private static final Logger LOG =
 			Logger.getLogger(AndroidTorPluginFactory.class.getName());
 
-	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
-	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
-	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
-	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
-	private static final double BACKOFF_BASE = 1.2;
+	private static final int MAX_LATENCY = (int) SECONDS.toMillis(30);
+	private static final int MAX_IDLE_TIME = (int) SECONDS.toMillis(30);
+	private static final int POLLING_INTERVAL = (int) MINUTES.toMillis(1);
 
 	private final Executor ioExecutor;
 	private final ScheduledExecutorService scheduler;
@@ -45,7 +44,6 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final LocationUtils locationUtils;
 	private final EventBus eventBus;
 	private final SocketFactory torSocketFactory;
-	private final BackoffFactory backoffFactory;
 	private final ResourceProvider resourceProvider;
 	private final CircumventionProvider circumventionProvider;
 	private final BatteryManager batteryManager;
@@ -55,7 +53,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			ScheduledExecutorService scheduler, Context appContext,
 			NetworkManager networkManager, LocationUtils locationUtils,
 			EventBus eventBus, SocketFactory torSocketFactory,
-			BackoffFactory backoffFactory, ResourceProvider resourceProvider,
+			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Clock clock) {
 		this.ioExecutor = ioExecutor;
@@ -65,7 +63,6 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
 		this.torSocketFactory = torSocketFactory;
-		this.backoffFactory = backoffFactory;
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
@@ -109,14 +106,12 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		// Use position-independent executable
 		architecture += "_pie";
 
-		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
-				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
 		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor, scheduler,
 				appContext, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture,
-				MAX_LATENCY, MAX_IDLE_TIME);
+				torRendezvousCrypto, callback, architecture, MAX_LATENCY,
+				MAX_IDLE_TIME, POLLING_INTERVAL);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

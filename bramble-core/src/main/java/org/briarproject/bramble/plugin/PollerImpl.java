@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
-import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
@@ -96,16 +95,10 @@ class PollerImpl implements Poller, EventListener {
 			connectToContact(c.getContactId());
 		} else if (e instanceof ConnectionClosedEvent) {
 			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
-			// Reschedule polling, the polling interval may have decreased
-			reschedule(c.getTransportId());
 			// If an outgoing connection failed, try to reconnect
 			if (!c.isIncoming() && c.isException()) {
 				connectToContact(c.getContactId(), c.getTransportId());
 			}
-		} else if (e instanceof ConnectionOpenedEvent) {
-			ConnectionOpenedEvent c = (ConnectionOpenedEvent) e;
-			// Reschedule polling, the polling interval may have decreased
-			reschedule(c.getTransportId());
 		} else if (e instanceof TransportActiveEvent) {
 			TransportActiveEvent t = (TransportActiveEvent) e;
 			// Poll the newly activated transport
@@ -162,12 +155,6 @@ class PollerImpl implements Poller, EventListener {
 				logException(LOG, WARNING, e);
 			}
 		});
-	}
-
-	private void reschedule(TransportId t) {
-		Plugin p = pluginManager.getPlugin(t);
-		if (p != null && p.shouldPoll())
-			schedule(p, p.getPollingInterval(), false);
 	}
 
 	private void pollNow(TransportId t) {

@@ -3,7 +3,6 @@ package org.briarproject.bramble.plugin.tcp;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
@@ -42,7 +41,6 @@ import static org.junit.Assume.assumeTrue;
 
 public class LanTcpPluginTest extends BrambleTestCase {
 
-	private final Backoff backoff = new TestBackoff();
 	private final ExecutorService ioExecutor = newCachedThreadPool();
 
 	private Callback callback = null;
@@ -51,7 +49,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	@Before
 	public void setUp() {
 		callback = new Callback();
-		plugin = new LanTcpPlugin(ioExecutor, backoff, callback, 0, 0, 1000) {
+		plugin = new LanTcpPlugin(ioExecutor, callback, 0, 0, 0, 1000) {
 			@Override
 			protected boolean canConnectToOwnAddress() {
 				return true;
@@ -345,22 +343,6 @@ public class LanTcpPluginTest extends BrambleTestCase {
 
 		@Override
 		public void handleWriter(TransportConnectionWriter w) {
-		}
-	}
-
-	private static class TestBackoff implements Backoff {
-
-		@Override
-		public int getPollingInterval() {
-			return 60 * 1000;
-		}
-
-		@Override
-		public void increment() {
-		}
-
-		@Override
-		public void reset() {
 		}
 	}
 }

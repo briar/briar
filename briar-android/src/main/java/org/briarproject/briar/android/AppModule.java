@@ -19,7 +19,6 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
@@ -127,23 +126,22 @@ public class AppModule {
 	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
 			@Scheduler ScheduledExecutorService scheduler,
 			AndroidExecutor androidExecutor, SecureRandom random,
-			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
-			Application app, NetworkManager networkManager,
-			LocationUtils locationUtils, EventBus eventBus,
-			ResourceProvider resourceProvider,
+			SocketFactory torSocketFactory, Application app,
+			NetworkManager networkManager, LocationUtils locationUtils,
+			EventBus eventBus, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager, Clock clock,
 			TimeoutMonitor timeoutMonitor) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new AndroidBluetoothPluginFactory(
 				ioExecutor, scheduler, androidExecutor, appContext, random,
-				eventBus, clock, timeoutMonitor, backoffFactory);
+				eventBus, clock, timeoutMonitor);
 		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
 				scheduler, appContext, networkManager, locationUtils, eventBus,
-				torSocketFactory, backoffFactory, resourceProvider,
-				circumventionProvider, batteryManager, clock);
+				torSocketFactory, resourceProvider, circumventionProvider,
+				batteryManager, clock);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
-				eventBus, backoffFactory, appContext);
+				eventBus, appContext);
 		Collection<DuplexPluginFactory> duplex = asList(bluetooth, tor, lan);
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {

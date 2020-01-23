@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
@@ -67,9 +66,8 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 			Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 
 	protected final Executor ioExecutor, bindExecutor;
-	protected final Backoff backoff;
 	protected final PluginCallback callback;
-	protected final int maxLatency, maxIdleTime;
+	protected final int maxLatency, maxIdleTime, pollingInterval;
 	protected final int connectionTimeout, socketTimeout;
 	protected final AtomicBoolean used = new AtomicBoolean(false);
 	protected final PluginState state = new PluginState();
@@ -107,13 +105,13 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	 */
 	protected abstract boolean isEnabledByDefault();
 
-	TcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
-			int maxLatency, int maxIdleTime, int connectionTimeout) {
+	TcpPlugin(Executor ioExecutor, PluginCallback callback, int maxLatency,
+			int maxIdleTime, int pollingInterval, int connectionTimeout) {
 		this.ioExecutor = ioExecutor;
-		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
+		this.pollingInterval = pollingInterval;
 		this.connectionTimeout = connectionTimeout;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
@@ -171,7 +169,6 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 			tryToClose(ss, LOG, WARNING);
 			return;
 		}
-		backoff.reset();
 		InetSocketAddress local =
 				(InetSocketAddress) ss.getLocalSocketAddress();
 		setLocalSocketAddress(local, ipv4);
@@ -204,7 +201,6 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 				LOG.info("Connection from " +
 						scrubSocketAddress(s.getRemoteSocketAddress()));
 			}
-			backoff.reset();
 			callback.handleConnection(new TcpTransportConnection(this, s));
 		}
 	}
@@ -231,14 +227,13 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	@Override
 	public int getPollingInterval() {
-		return backoff.getPollingInterval();
+		return pollingInterval;
 	}
 
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
 		if (getState() != ACTIVE) return;
-		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
 		}
@@ -247,10 +242,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	private void connect(TransportProperties p, ConnectionHandler h) {
 		ioExecutor.execute(() -> {
 			DuplexTransportConnection d = createConnection(p);
-			if (d != null) {
-				backoff.reset();
-				h.handleConnection(d);
-			}
+			if (d != null) h.handleConnection(d);
 		});
 	}
 

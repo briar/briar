@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
@@ -41,13 +40,14 @@ class AndroidTorPlugin extends TorPlugin {
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Backoff backoff,
+			BatteryManager batteryManager,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime) {
+			int maxIdleTime, int pollingInterval) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture, maxLatency, maxIdleTime,
+				torRendezvousCrypto, callback, architecture, maxLatency,
+				maxIdleTime, pollingInterval,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
 		PowerManager pm = (PowerManager)

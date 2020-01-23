@@ -6,7 +6,6 @@ import com.sun.jna.Native;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
@@ -24,14 +23,14 @@ class UnixTorPlugin extends JavaTorPlugin {
 			LocationUtils locationUtils, SocketFactory torSocketFactory,
 			Clock clock, ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Backoff backoff,
+			BatteryManager batteryManager,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime, File torDirectory) {
+			int maxIdleTime, int pollingInterval, File torDirectory) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture,
-				maxLatency, maxIdleTime, torDirectory);
+				torRendezvousCrypto, callback, architecture, maxLatency,
+				maxIdleTime, pollingInterval, torDirectory);
 	}
 
 	@Override

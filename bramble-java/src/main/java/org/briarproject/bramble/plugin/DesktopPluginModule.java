@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
@@ -37,18 +36,16 @@ public class DesktopPluginModule extends PluginModule {
 
 	@Provides
 	PluginConfig getPluginConfig(@IoExecutor Executor ioExecutor,
-			SecureRandom random, BackoffFactory backoffFactory,
-			ReliabilityLayerFactory reliabilityFactory,
+			SecureRandom random, ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager, EventBus eventBus,
 			TimeoutMonitor timeoutMonitor) {
 		DuplexPluginFactory bluetooth = new JavaBluetoothPluginFactory(
-				ioExecutor, random, eventBus, timeoutMonitor, backoffFactory);
+				ioExecutor, random, eventBus, timeoutMonitor);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
-		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor, eventBus,
-				backoffFactory);
+		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor, eventBus);
 		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor, eventBus,
-				backoffFactory, shutdownManager);
+				shutdownManager);
 		Collection<DuplexPluginFactory> duplex =
 				asList(bluetooth, modem, lan, wan);
 		@NotNullByDefault
