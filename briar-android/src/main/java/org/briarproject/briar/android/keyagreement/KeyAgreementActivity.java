@@ -16,10 +16,13 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginManager;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
-import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
+import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.R;
@@ -48,14 +51,17 @@ import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
-import static android.bluetooth.BluetoothAdapter.EXTRA_SCAN_MODE;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
@@ -66,9 +72,9 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		BaseFragmentListener, IntroScreenSeenListener,
 		KeyAgreementEventListener, EventListener {
 
-	private enum BluetoothState {
+	private enum BluetoothDecision {
 		/**
-		 * We don't yet know the state of the Bluetooth adapter or plugin.
+		 * We haven't asked the user about Bluetooth discoverability.
 		 */
 		UNKNOWN,
 
@@ -78,27 +84,19 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		NO_ADAPTER,
 
 		/**
-		 * We're waiting for the user to decide whether to allow
-		 * discoverability, or the user has allowed discoverability and we're
-		 * waiting for the adapter to become discoverable.
+		 * We're waiting for the user to accept or refuse discoverability.
 		 */
 		WAITING,
 
 		/**
+		 * The user has accepted discoverability.
+		 */
+		ACCEPTED,
+
+		/**
 		 * The user has refused discoverability.
 		 */
-		REFUSED,
-
-		/**
-		 * The Bluetooth adapter is discoverable.
-		 */
-		DISCOVERABLE,
-
-		/**
-		 * The Bluetooth adapter is discoverable and we're waiting for the
-		 * Bluetooth plugin to become active.
-		 */
-		ACTIVATING_PLUGIN
+		REFUSED
 	}
 
 	private enum Permission {
@@ -144,15 +142,20 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	private boolean wasAdapterEnabled = false;
 
 	/**
-	 * Records whether the user accepted the most recent request (if any) to
-	 * make the Bluetooth adapter discoverable, so we know whether to broadcast
-	 * a {@link BluetoothEnabledEvent}.
+	 * Records whether we've enabled the wifi plugin so we don't enable it more
+	 * than once.
 	 */
-	private boolean wasRequestAccepted = false;
+	private boolean hasEnabledWifi = false;
+
+	/**
+	 * Records whether we've enabled the Bluetooth plugin so we don't enable it
+	 * more than once.
+	 */
+	private boolean hasEnabledBluetooth = false;
 
 	private Permission cameraPermission = Permission.UNKNOWN;
 	private Permission locationPermission = Permission.UNKNOWN;
-	private BluetoothState bluetoothState = BluetoothState.UNKNOWN;
+	private BluetoothDecision bluetoothDecision = BluetoothDecision.UNKNOWN;
 	private BroadcastReceiver bluetoothReceiver = null;
 
 	@Override
@@ -210,21 +213,21 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 	private void showQrCodeFragmentIfAllowed() {
 		if (isResumed && continueClicked && areEssentialPermissionsGranted()) {
-			if (bluetoothState == BluetoothState.UNKNOWN) {
-				requestBluetoothDiscoverable();
-			} else if (bluetoothState == BluetoothState.NO_ADAPTER ||
-					bluetoothState == BluetoothState.REFUSED) {
-				LOG.info("Continuing without Bluetooth");
+			if (isWifiReady() && isBluetoothReady()) {
+				LOG.info("Wifi and Bluetooth are ready");
 				showQrCodeFragment();
-			} else if (bluetoothState == BluetoothState.DISCOVERABLE ||
-					bluetoothState == BluetoothState.ACTIVATING_PLUGIN) {
-				if (isBluetoothPluginActive()) {
-					LOG.info("Bluetooth plugin is active");
-					showQrCodeFragment();
-				} else {
+			} else {
+				if (shouldEnableWifi()) {
+					LOG.info("Enabling wifi plugin");
+					hasEnabledWifi = true;
+					enablePlugin(LanTcpConstants.ID, PREF_TCP_ENABLE);
+				}
+				if (bluetoothDecision == BluetoothDecision.UNKNOWN) {
+					requestBluetoothDiscoverable();
+				} else if (shouldEnableBluetooth()) {
 					LOG.info("Enabling Bluetooth plugin");
-					bluetoothState = BluetoothState.ACTIVATING_PLUGIN;
-					enableBluetoothPlugin();
+					hasEnabledBluetooth = true;
+					enablePlugin(BluetoothConstants.ID, PREF_BT_ENABLE);
 				}
 			}
 		}
@@ -238,22 +241,79 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 						locationPermission == Permission.PERMANENTLY_DENIED);
 	}
 
-	private boolean isBluetoothPluginActive() {
-		Plugin p = pluginManager.getPlugin(BluetoothConstants.ID);
-		return p != null && p.getState() == ACTIVE;
+	private boolean isWifiReady() {
+		Plugin p = pluginManager.getPlugin(LanTcpConstants.ID);
+		if (p == null) return true; // Continue without wifi
+		State state = p.getState();
+		// Wait for plugin to become enabled
+		return state == ACTIVE || state == INACTIVE;
 	}
 
-	private void enableBluetoothPlugin() {
+	private boolean isBluetoothReady() {
+		if (bluetoothDecision == BluetoothDecision.UNKNOWN ||
+				bluetoothDecision == BluetoothDecision.WAITING) {
+			// Wait for decision
+			return false;
+		}
+		if (bluetoothDecision == BluetoothDecision.NO_ADAPTER
+				|| bluetoothDecision == BluetoothDecision.REFUSED) {
+			// Continue without Bluetooth
+			return true;
+		}
+		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
+		if (bt == null) return true; // Continue without Bluetooth
+		if (bt.getScanMode() != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			// Wait for adapter to become discoverable
+			return false;
+		}
+		Plugin p = pluginManager.getPlugin(BluetoothConstants.ID);
+		if (p == null) return true; // Continue without Bluetooth
+		// Wait for plugin to become active
+		return p.getState() == ACTIVE;
+	}
+
+	private boolean shouldEnableWifi() {
+		if (hasEnabledWifi) return false;
+		Plugin p = pluginManager.getPlugin(LanTcpConstants.ID);
+		return p != null && p.getState() == DISABLED;
+	}
+
+	private void enablePlugin(TransportId t, String settingKey) {
 		ioExecutor.execute(() -> {
 			try {
 				Settings s = new Settings();
-				s.putBoolean(PREF_BT_ENABLE, true);
-				String namespace = BluetoothConstants.ID.getString();
-				settingsManager.mergeSettings(s, namespace);
+				s.putBoolean(settingKey, true);
+				settingsManager.mergeSettings(s, t.getString());
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	private void requestBluetoothDiscoverable() {
+		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
+		if (bt == null) {
+			bluetoothDecision = BluetoothDecision.NO_ADAPTER;
+			showQrCodeFragmentIfAllowed();
+		} else {
+			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+			if (i.resolveActivity(getPackageManager()) != null) {
+				LOG.info("Asking for Bluetooth discoverability");
+				bluetoothDecision = BluetoothDecision.WAITING;
+				wasAdapterEnabled = bt.isEnabled();
+				startActivityForResult(i, REQUEST_BLUETOOTH_DISCOVERABLE);
+			} else {
+				bluetoothDecision = BluetoothDecision.NO_ADAPTER;
+				showQrCodeFragmentIfAllowed();
+			}
+		}
+	}
+
+	private boolean shouldEnableBluetooth() {
+		if (bluetoothDecision != BluetoothDecision.ACCEPTED) return false;
+		if (hasEnabledBluetooth) return false;
+		Plugin p = pluginManager.getPlugin(BluetoothConstants.ID);
+		return p != null && p.getState() == DISABLED;
 	}
 
 	@Override
@@ -274,51 +334,23 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		if (checkPermissions()) showQrCodeFragmentIfAllowed();
 	}
 
-	private void requestBluetoothDiscoverable() {
-		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
-		if (bt == null) {
-			setBluetoothState(BluetoothState.NO_ADAPTER);
-		} else {
-			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
-			if (i.resolveActivity(getPackageManager()) != null) {
-				setBluetoothState(BluetoothState.WAITING);
-				wasAdapterEnabled = bt.isEnabled();
-				startActivityForResult(i, REQUEST_BLUETOOTH_DISCOVERABLE);
-			} else {
-				setBluetoothState(BluetoothState.NO_ADAPTER);
-			}
-		}
-	}
-
-	private void setBluetoothState(BluetoothState bluetoothState) {
-		LOG.info("Setting Bluetooth state to " + bluetoothState);
-		this.bluetoothState = bluetoothState;
-		if (!wasAdapterEnabled && wasRequestAccepted &&
-				bluetoothState == BluetoothState.DISCOVERABLE) {
-			LOG.info("Bluetooth adapter was enabled by us");
-			eventBus.broadcast(new BluetoothEnabledEvent());
-			wasRequestAccepted = false;
-			wasAdapterEnabled = true;
-		}
-		showQrCodeFragmentIfAllowed();
-	}
-
 	@Override
 	public void onActivityResult(int request, int result,
 			@Nullable Intent data) {
 		if (request == REQUEST_BLUETOOTH_DISCOVERABLE) {
 			if (result == RESULT_CANCELED) {
-				setBluetoothState(BluetoothState.REFUSED);
+				LOG.info("Bluetooth discoverability was refused");
+				bluetoothDecision = BluetoothDecision.REFUSED;
 			} else {
-				wasRequestAccepted = true;
-				// If Bluetooth is already discoverable, show the QR code -
-				// otherwise wait for the state or scan mode to change
-				BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
-				if (bt == null) throw new AssertionError();
-				if (bt.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-					setBluetoothState(BluetoothState.DISCOVERABLE);
+				LOG.info("Bluetooth discoverability was accepted");
+				bluetoothDecision = BluetoothDecision.ACCEPTED;
+				if (!wasAdapterEnabled) {
+					LOG.info("Bluetooth adapter was enabled by us");
+					eventBus.broadcast(new BluetoothEnabledEvent());
+					wasAdapterEnabled = true;
 				}
 			}
+			showQrCodeFragmentIfAllowed();
 		} else super.onActivityResult(request, result, data);
 	}
 
@@ -328,7 +360,12 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		continueClicked = false;
 		// If we return to the intro fragment, ask for Bluetooth
 		// discoverability again before showing the QR code fragment
-		bluetoothState = BluetoothState.UNKNOWN;
+		bluetoothDecision = BluetoothDecision.UNKNOWN;
+		// If we return to the intro fragment, we may need to enable wifi and
+		// Bluetooth again
+		hasEnabledWifi = false;
+		hasEnabledBluetooth = false;
+
 		// FIXME #824
 		FragmentManager fm = getSupportFragmentManager();
 		if (fm.findFragmentByTag(KeyAgreementFragment.TAG) == null) {
@@ -432,9 +469,17 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof TransportActiveEvent) {
-			TransportActiveEvent t = (TransportActiveEvent) e;
+		if (e instanceof TransportStateEvent) {
+			TransportStateEvent t = (TransportStateEvent) e;
 			if (t.getTransportId().equals(BluetoothConstants.ID)) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Bluetooth state changed to " + t.getState());
+				}
+				showQrCodeFragmentIfAllowed();
+			} else if (t.getTransportId().equals(LanTcpConstants.ID)) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Wifi state changed to " + t.getState());
+				}
 				showQrCodeFragmentIfAllowed();
 			}
 		}
@@ -444,17 +489,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-			if (ACTION_SCAN_MODE_CHANGED.equals(action)) {
-				int scanMode = intent.getIntExtra(EXTRA_SCAN_MODE, 0);
-				if (scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
-					LOG.info("Bluetooth adapter is discoverable");
-					setBluetoothState(BluetoothState.DISCOVERABLE);
-				} else if (bluetoothState == BluetoothState.DISCOVERABLE) {
-					LOG.info("Bluetooth adapter is not discoverable");
-					setBluetoothState(BluetoothState.UNKNOWN);
-				}
-			}
+			LOG.info("Bluetooth scan mode changed");
+			showQrCodeFragmentIfAllowed();
 		}
 	}
 }
