@@ -640,16 +640,14 @@ public class ConversationActivity extends BriarActivity
 				&& adapter.isScrolledToBottom(layoutManager);
 	}
 
+	@UiThread
 	private void updateMessageAttachment(MessageId m, AttachmentItem item) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			Pair<Integer, ConversationMessageItem> pair =
-					adapter.getMessageItem(m);
-			if (pair != null && pair.getSecond().updateAttachments(item)) {
-				boolean scroll = shouldScrollWhenUpdatingMessage();
-				adapter.notifyItemChanged(pair.getFirst());
-				if (scroll) scrollToBottom();
-			}
-		});
+		Pair<Integer, ConversationMessageItem> pair = adapter.getMessageItem(m);
+		if (pair != null && pair.getSecond().updateAttachments(item)) {
+			boolean scroll = shouldScrollWhenUpdatingMessage();
+			adapter.notifyItemChanged(pair.getFirst());
+			if (scroll) scrollToBottom();
+		}
 	}
 
 	@Override

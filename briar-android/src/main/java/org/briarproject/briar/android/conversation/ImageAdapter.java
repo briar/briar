@@ -59,7 +59,7 @@ class ImageAdapter extends Adapter<ImageViewHolder> {
 		// get item
 		requireNonNull(conversationItem);
 		AttachmentItem item = items.get(position);
-		// set onClick listener, if not missing or error
+		// set onClick listener
 		imageViewHolder.itemView.setOnClickListener(v ->
 				listener.onAttachmentClicked(v, conversationItem, item)
 		);

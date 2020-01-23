@@ -135,10 +135,6 @@ public class AttachmentItem implements Parcelable {
 		return toHexString(instanceId);
 	}
 
-	boolean hasSize() {
-		return width != 0 && height != 0;
-	}
-
 	@Override
 	public int describeContents() {
 		return 0;
@@ -156,6 +152,10 @@ public class AttachmentItem implements Parcelable {
 		dest.writeString(state.name());
 	}
 
+	/**
+	 * This is used to identity if two items are the same,
+	 * irrespective of their state or size.
+	 */
 	@Override
 	public boolean equals(@Nullable Object o) {
 		return o instanceof AttachmentItem &&
@@ -164,4 +164,8 @@ public class AttachmentItem implements Parcelable {
 				);
 	}
 
+	@Override
+	public int hashCode() {
+		return header.getMessageId().hashCode();
+	}
 }
