@@ -75,7 +75,6 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
@@ -294,7 +293,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				PREF_TOR_NETWORK_AUTOMATIC);
 		if (network == PREF_TOR_NETWORK_NEVER) {
 			settings.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
-			settings.putBoolean(PREF_TOR_ENABLE, false);
+			settings.putBoolean(PREF_PLUGIN_ENABLE, false);
 			callback.mergeSettings(settings);
 		}
 		return settings;
@@ -775,7 +774,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
-			boolean enabledByUser = settings.getBoolean(PREF_TOR_ENABLE, true);
+			boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, true);
 			int network = settings.getInt(PREF_TOR_NETWORK,
 					PREF_TOR_NETWORK_AUTOMATIC);
 			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);

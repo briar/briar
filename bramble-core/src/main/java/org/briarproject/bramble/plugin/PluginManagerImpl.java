@@ -48,6 +48,7 @@ import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -182,6 +183,26 @@ class PluginManagerImpl implements PluginManager, Service {
 		return supported;
 	}
 
+	@Override
+	public void setPluginEnabled(TransportId t, boolean enabled) {
+		Plugin plugin = plugins.get(t);
+		if (plugin == null) return;
+
+		Settings s = new Settings();
+		s.putBoolean(PREF_PLUGIN_ENABLE, enabled);
+		ioExecutor.execute(() -> mergeSettings(s, t.getString()));
+	}
+
+	private void mergeSettings(Settings s, String namespace) {
+		try {
+			long start = now();
+			settingsManager.mergeSettings(s, namespace);
+			logDuration(LOG, "Merging settings", start);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
+	}
+
 	private class PluginStarter implements Runnable {
 
 		private final Plugin plugin;
@@ -284,11 +305,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		@Override
 		public void mergeSettings(Settings s) {
-			try {
-				settingsManager.mergeSettings(s, id.getString());
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
+			PluginManagerImpl.this.mergeSettings(s, id.getString());
 		}
 
 		@Override

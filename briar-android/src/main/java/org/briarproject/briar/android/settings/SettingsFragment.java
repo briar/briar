@@ -73,9 +73,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
-import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ENABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
@@ -379,15 +377,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			if (!settingsLoaded) return;
 
 			boolean btEnabledSetting =
-					btSettings.getBoolean(PREF_BT_ENABLE, false);
+					btSettings.getBoolean(PREF_PLUGIN_ENABLE, false);
 			enableBluetooth.setChecked(btEnabledSetting);
 
 			boolean wifiEnabledSetting =
-					wifiSettings.getBoolean(PREF_TCP_ENABLE, false);
+					wifiSettings.getBoolean(PREF_PLUGIN_ENABLE, false);
 			enableWifi.setChecked(wifiEnabledSetting);
 
 			boolean torEnabledSetting =
-					torSettings.getBoolean(PREF_TOR_ENABLE, true);
+					torSettings.getBoolean(PREF_PLUGIN_ENABLE, true);
 			enableTor.setChecked(torEnabledSetting);
 
 			int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
@@ -639,7 +637,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void storeTorEnabledSetting(boolean torEnabledSetting) {
 		Settings s = new Settings();
-		s.putBoolean(PREF_TOR_ENABLE, torEnabledSetting);
+		s.putBoolean(PREF_PLUGIN_ENABLE, torEnabledSetting);
 		mergeSettings(s, TOR_NAMESPACE);
 	}
 
@@ -663,13 +661,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	private void storeBluetoothSetting(boolean btSetting) {
 		Settings s = new Settings();
-		s.putBoolean(PREF_BT_ENABLE, btSetting);
+		s.putBoolean(PREF_PLUGIN_ENABLE, btSetting);
 		mergeSettings(s, BT_NAMESPACE);
 	}
 
 	private void storeWifiSetting(boolean wifiSetting) {
 		Settings s = new Settings();
-		s.putBoolean(PREF_TCP_ENABLE, wifiSetting);
+		s.putBoolean(PREF_PLUGIN_ENABLE, wifiSetting);
 		mergeSettings(s, WIFI_NAMESPACE);
 	}
 

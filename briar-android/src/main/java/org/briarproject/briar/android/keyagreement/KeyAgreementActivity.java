@@ -8,11 +8,9 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
@@ -20,11 +18,8 @@ import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginManager;
-import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
-import org.briarproject.bramble.api.settings.Settings;
-import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -34,7 +29,6 @@ import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeen
 import org.briarproject.briar.android.keyagreement.KeyAgreementFragment.KeyAgreementEventListener;
 import org.briarproject.briar.android.util.UiUtils;
 
-import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -54,15 +48,11 @@ import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
-import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
-import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
-import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
 
@@ -111,13 +101,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 	@Inject
 	PluginManager pluginManager;
-
-	@Inject
-	@IoExecutor
-	Executor ioExecutor;
-
-	@Inject
-	SettingsManager settingsManager;
 
 	/**
 	 * Set to true in onPostResume() and false in onPause(). This prevents the
@@ -220,14 +203,14 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 				if (shouldEnableWifi()) {
 					LOG.info("Enabling wifi plugin");
 					hasEnabledWifi = true;
-					enablePlugin(LanTcpConstants.ID, PREF_TCP_ENABLE);
+					pluginManager.setPluginEnabled(LanTcpConstants.ID, true);
 				}
 				if (bluetoothDecision == BluetoothDecision.UNKNOWN) {
 					requestBluetoothDiscoverable();
 				} else if (shouldEnableBluetooth()) {
 					LOG.info("Enabling Bluetooth plugin");
 					hasEnabledBluetooth = true;
-					enablePlugin(BluetoothConstants.ID, PREF_BT_ENABLE);
+					pluginManager.setPluginEnabled(BluetoothConstants.ID, true);
 				}
 			}
 		}
@@ -276,18 +259,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		if (hasEnabledWifi) return false;
 		Plugin p = pluginManager.getPlugin(LanTcpConstants.ID);
 		return p != null && p.getState() == DISABLED;
-	}
-
-	private void enablePlugin(TransportId t, String settingKey) {
-		ioExecutor.execute(() -> {
-			try {
-				Settings s = new Settings();
-				s.putBoolean(settingKey, true);
-				settingsManager.mergeSettings(s, t.getString());
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
 	}
 
 	private void requestBluetoothDiscoverable() {

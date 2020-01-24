@@ -51,7 +51,6 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
-import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
@@ -129,7 +128,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		Settings settings = callback.getSettings();
-		state.setStarted(settings.getBoolean(PREF_TCP_ENABLE, false));
+		state.setStarted(settings.getBoolean(PREF_PLUGIN_ENABLE, false));
 		bind();
 	}
 
@@ -388,7 +387,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	@IoExecutor
 	private void onSettingsUpdated(Settings settings) {
-		boolean enabledByUser = settings.getBoolean(PREF_TCP_ENABLE, false);
+		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
 		ServerSocket ss = state.setEnabledByUser(enabledByUser);
 		State s = getState();
 		if (ss != null) {
