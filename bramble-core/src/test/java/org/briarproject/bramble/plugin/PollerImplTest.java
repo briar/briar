@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
-import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
 import org.briarproject.bramble.api.plugin.event.TransportActiveEvent;
 import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
@@ -157,22 +156,20 @@ public class PollerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testRescheduleOnOutgoingConnectionClosed() {
+	public void testDoesNotReconnectOnOutgoingConnectionClosed() {
 		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
 			will(returnValue(transportId));
 		}});
-		expectReschedule(plugin);
 
 		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
 				false, false));
 	}
 
 	@Test
-	public void testRescheduleAndReconnectOnOutgoingConnectionFailed()
-			throws Exception {
+	public void testReconnectsOnOutgoingConnectionFailed() throws Exception {
 		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
 		DuplexTransportConnection duplexConnection =
 				context.mock(DuplexTransportConnection.class);
@@ -181,7 +178,6 @@ public class PollerImplTest extends BrambleMockTestCase {
 			allowing(plugin).getId();
 			will(returnValue(transportId));
 		}});
-		expectReschedule(plugin);
 		expectReconnect(plugin, duplexConnection);
 
 		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
@@ -189,145 +185,29 @@ public class PollerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testRescheduleOnIncomingConnectionClosed() {
+	public void testDoesNotReconnectOnIncomingConnectionClosed() {
 		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
 			will(returnValue(transportId));
 		}});
-		expectReschedule(plugin);
 
 		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
 				true, false));
 	}
 
 	@Test
-	public void testRescheduleOnIncomingConnectionFailed() {
+	public void testDoesNotReconnectOnIncomingConnectionFailed() {
 		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
 
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
 			will(returnValue(transportId));
 		}});
-		expectReschedule(plugin);
 
 		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
 				true, false));
-	}
-
-	@Test
-	public void testRescheduleOnConnectionOpened() {
-		Plugin plugin = context.mock(Plugin.class);
-
-		context.checking(new Expectations() {{
-			allowing(plugin).getId();
-			will(returnValue(transportId));
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Schedule the next poll
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with((long) pollingInterval), with(MILLISECONDS));
-			will(returnValue(future));
-		}});
-
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
-	}
-
-	@Test
-	public void testRescheduleDoesNotReplaceEarlierTask() {
-		Plugin plugin = context.mock(Plugin.class);
-
-		context.checking(new Expectations() {{
-			allowing(plugin).getId();
-			will(returnValue(transportId));
-			// First event
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Schedule the next poll
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with((long) pollingInterval), with(MILLISECONDS));
-			will(returnValue(future));
-			// Second event
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Don't replace the previously scheduled task, due earlier
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now + 1));
-		}});
-
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
-	}
-
-	@Test
-	public void testRescheduleReplacesLaterTask() {
-		Plugin plugin = context.mock(Plugin.class);
-
-		context.checking(new Expectations() {{
-			allowing(plugin).getId();
-			will(returnValue(transportId));
-			// First event
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Schedule the next poll
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with((long) pollingInterval), with(MILLISECONDS));
-			will(returnValue(future));
-			// Second event
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Replace the previously scheduled task, due later
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval - 2));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now + 1));
-			oneOf(future).cancel(false);
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with((long) pollingInterval - 2), with(MILLISECONDS));
-		}});
-
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
-		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
-				false));
 	}
 
 	@Test
@@ -439,25 +319,6 @@ public class PollerImplTest extends BrambleMockTestCase {
 
 		poller.eventOccurred(new TransportActiveEvent(transportId));
 		poller.eventOccurred(new TransportInactiveEvent(transportId));
-	}
-
-	private void expectReschedule(Plugin plugin) {
-		context.checking(new Expectations() {{
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Schedule the next poll
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with((long) pollingInterval), with(MILLISECONDS));
-			will(returnValue(future));
-		}});
 	}
 
 	private void expectReconnect(DuplexPlugin plugin,
