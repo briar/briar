@@ -36,7 +36,6 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
-import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
 @NotNullByDefault
@@ -85,7 +84,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		Settings settings = callback.getSettings();
-		state.setStarted(settings.getBoolean(PREF_TCP_ENABLE, false));
+		state.setStarted(settings.getBoolean(PREF_PLUGIN_ENABLE, false));
 		updateConnectionStatus();
 	}
 

@@ -34,7 +34,7 @@ import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
-import static org.briarproject.bramble.api.plugin.TcpConstants.PREF_TCP_ENABLE;
+import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -349,7 +349,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		private final Settings settings = new Settings();
 
 		private Callback() {
-			settings.putBoolean(PREF_TCP_ENABLE, true);
+			settings.putBoolean(PREF_PLUGIN_ENABLE, true);
 		}
 
 		@Override

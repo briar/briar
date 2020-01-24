@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.plugin;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.settings.SettingsManager;
 
 import java.util.Collection;
 
@@ -33,6 +34,12 @@ public interface Plugin {
 		 */
 		INACTIVE
 	}
+
+	/**
+	 * The string for the boolean preference
+	 * to use with the {@link SettingsManager} to enable or disable the plugin.
+	 */
+	String PREF_PLUGIN_ENABLE = "enable";
 
 	/**
 	 * Reason code returned by {@link #getReasonDisabled()} to indicate that
