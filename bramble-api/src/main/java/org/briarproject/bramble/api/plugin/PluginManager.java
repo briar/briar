@@ -41,4 +41,17 @@ public interface PluginManager {
 	 * Returns any duplex plugins that support rendezvous.
 	 */
 	Collection<DuplexPlugin> getRendezvousPlugins();
+
+	/**
+	 * Enables or disables the plugin
+	 * identified by the given {@link TransportId}.
+	 * <p>
+	 * Note that this applies the change asynchronously
+	 * and there are no order guarantees.
+	 * <p>
+	 * If no plugin with the given {@link TransportId} is registered,
+	 * this is a no-op.
+	 */
+	void setPluginEnabled(TransportId t, boolean enabled);
+
 }
