@@ -14,12 +14,12 @@
 		android:layout_marginBottom="8dp"
 		android:background="@color/divider"
 		android:src="@drawable/chevron_down_white"
-		app:tint="?attr/colorControlNormal"
 		app:layout_constraintBottom_toTopOf="@+id/longRangeLabel"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/navigation"
 		app:layout_constraintVertical_bias="1.0"
+		app:tint="?attr/colorControlNormal"
 		tools:ignore="ContentDescription"
 		tools:visibility="visible" />
 
@@ -54,8 +54,8 @@
 		app:layout_constraintBottom_toBottomOf="@+id/torSwitch"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/torSwitch"
-		app:tint="@color/briar_green"
-		tools:ignore="ContentDescription" />
+		tools:ignore="ContentDescription"
+		tools:tint="@color/briar_green" />
 
 	<androidx.appcompat.widget.SwitchCompat
 		android:id="@+id/torSwitch"
@@ -94,9 +94,9 @@
 		app:layout_constraintBottom_toBottomOf="@+id/wifiSwitch"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/wifiSwitch"
-		app:tint="@color/briar_green"
 		tools:checked="true"
-		tools:ignore="ContentDescription" />
+		tools:ignore="ContentDescription"
+		tools:tint="@color/briar_green" />
 
 	<androidx.appcompat.widget.SwitchCompat
 		android:id="@+id/wifiSwitch"
@@ -123,9 +123,9 @@
 		app:layout_constraintBottom_toBottomOf="@+id/btSwitch"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toTopOf="@+id/btSwitch"
-		app:tint="@color/briar_green"
 		tools:checked="true"
-		tools:ignore="ContentDescription" />
+		tools:ignore="ContentDescription"
+		tools:tint="@color/briar_green" />
 
 	<androidx.appcompat.widget.SwitchCompat
 		android:id="@+id/btSwitch"

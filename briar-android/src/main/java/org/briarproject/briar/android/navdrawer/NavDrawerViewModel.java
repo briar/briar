@@ -1,30 +1,34 @@
 package org.briarproject.briar.android.navdrawer;
 
-import android.app.Activity;
-import android.content.Context;
+import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginManager;
+import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.briar.android.controller.DbControllerImpl;
-import org.briarproject.briar.android.controller.handler.ResultHandler;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.AndroidViewModel;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
@@ -38,50 +42,51 @@ import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
-public class NavDrawerControllerImpl extends DbControllerImpl
-		implements NavDrawerController, EventListener {
+@NotNullByDefault
+public class NavDrawerViewModel extends AndroidViewModel
+		implements EventListener {
 
 	private static final Logger LOG =
-			getLogger(NavDrawerControllerImpl.class.getName());
+			getLogger(NavDrawerViewModel.class.getName());
 
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
+	static final TransportId[] TRANSPORT_IDS =
+			{TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID};
 
-	private final PluginManager pluginManager;
+	@DatabaseExecutor
+	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
+	private final PluginManager pluginManager;
 	private final EventBus eventBus;
 
-	// UI thread
-	private TransportStateListener listener;
+	private final MutableLiveData<Boolean> showExpiryWarning =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> shouldAskForDozeWhitelisting =
+			new MutableLiveData<>();
+
+	private final MutableLiveData<Plugin.State> torPluginState =
+			new MutableLiveData<>();
+	private final MutableLiveData<Plugin.State> wifiPluginState =
+			new MutableLiveData<>();
+	private final MutableLiveData<Plugin.State> btPluginState =
+			new MutableLiveData<>();
 
 	@Inject
-	NavDrawerControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager, PluginManager pluginManager,
-			SettingsManager settingsManager, EventBus eventBus) {
-		super(dbExecutor, lifecycleManager);
-		this.pluginManager = pluginManager;
+	NavDrawerViewModel(Application app, @DatabaseExecutor Executor dbExecutor,
+			SettingsManager settingsManager, PluginManager pluginManager,
+			EventBus eventBus) {
+		super(app);
+		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
+		this.pluginManager = pluginManager;
 		this.eventBus = eventBus;
-	}
-
-	@Override
-	public void onActivityCreate(Activity activity) {
-		listener = (TransportStateListener) activity;
-	}
-
-	@Override
-	public void onActivityStart() {
 		eventBus.addListener(this);
+		updatePluginStates();
 	}
 
 	@Override
-	public void onActivityStop() {
+	protected void onCleared() {
 		eventBus.removeListener(this);
-	}
-
-	@Override
-	public void onActivityDestroy() {
 	}
 
 	@Override
@@ -93,17 +98,22 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("TransportStateEvent: " + id + " is " + state);
 			}
-			listener.stateUpdate(id, state);
+			MutableLiveData<Plugin.State> liveData = getPluginLiveData(id);
+			if (liveData != null) liveData.postValue(state);
 		}
 	}
 
-	@Override
-	public void showExpiryWarning(ResultHandler<Boolean> handler) {
+	LiveData<Boolean> showExpiryWarning() {
+		return showExpiryWarning;
+	}
+
+	@UiThread
+	void checkExpiryWarning() {
 		if (!IS_DEBUG_BUILD) {
-			handler.onResult(false);
+			showExpiryWarning.setValue(false);
 			return;
 		}
-		runOnDbThread(() -> {
+		dbExecutor.execute(() -> {
 			try {
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
@@ -111,7 +121,7 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 
 				if (warningInt == 0) {
 					// we have not warned before
-					handler.onResult(true);
+					showExpiryWarning.postValue(true);
 				} else {
 					long warningLong = warningInt * 1000L;
 					long now = System.currentTimeMillis();
@@ -121,12 +131,12 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 							(EXPIRY_DATE - now) / DAYS.toMillis(1);
 
 					if (daysSinceLastWarning >= 30) {
-						handler.onResult(true);
+						showExpiryWarning.postValue(true);
 					} else if (daysBeforeExpiry <= 3 &&
 							daysSinceLastWarning > 0) {
-						handler.onResult(true);
+						showExpiryWarning.postValue(true);
 					} else {
-						handler.onResult(false);
+						showExpiryWarning.postValue(false);
 					}
 				}
 			} catch (DbException e) {
@@ -135,9 +145,10 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 		});
 	}
 
-	@Override
-	public void expiryWarningDismissed() {
-		runOnDbThread(() -> {
+	@UiThread
+	void expiryWarningDismissed() {
+		showExpiryWarning.setValue(false);
+		dbExecutor.execute(() -> {
 			try {
 				Settings settings = new Settings();
 				int date = (int) (System.currentTimeMillis() / 1000L);
@@ -149,31 +160,64 @@ public class NavDrawerControllerImpl extends DbControllerImpl
 		});
 	}
 
-	@Override
-	public void shouldAskForDozeWhitelisting(Context ctx,
-			ResultHandler<Boolean> handler) {
+	LiveData<Boolean> shouldAskForDozeWhitelisting() {
+		return shouldAskForDozeWhitelisting;
+	}
+
+	@UiThread
+	void checkDozeWhitelisting() {
 		// check this first, to hit the DbThread only when really necessary
-		if (!needsDozeWhitelisting(ctx)) {
-			handler.onResult(false);
+		if (!needsDozeWhitelisting(getApplication())) {
+			shouldAskForDozeWhitelisting.setValue(false);
 			return;
 		}
-		runOnDbThread(() -> {
+		dbExecutor.execute(() -> {
 			try {
 				Settings settings =
 						settingsManager.getSettings(SETTINGS_NAMESPACE);
 				boolean ask = settings.getBoolean(DOZE_ASK_AGAIN, true);
-				handler.onResult(ask);
+				shouldAskForDozeWhitelisting.postValue(ask);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
-				handler.onResult(true);
+				shouldAskForDozeWhitelisting.postValue(true);
 			}
 		});
 	}
 
-	@Override
-	public State getTransportState(TransportId transportId) {
-		Plugin plugin = pluginManager.getPlugin(transportId);
+	private void updatePluginStates() {
+		for (TransportId t : TRANSPORT_IDS) {
+			MutableLiveData<Plugin.State> liveData = getPluginLiveData(t);
+			if (liveData == null) throw new AssertionError();
+			liveData.setValue(getTransportState(t));
+		}
+	}
+
+	private State getTransportState(TransportId id) {
+		Plugin plugin = pluginManager.getPlugin(id);
 		return plugin == null ? DISABLED : plugin.getState();
+	}
+
+	@Nullable
+	private MutableLiveData<State> getPluginLiveData(TransportId t) {
+		if (t.equals(TorConstants.ID)) {
+			return torPluginState;
+		} else if (t.equals(LanTcpConstants.ID)) {
+			return wifiPluginState;
+		} else if (t.equals(BluetoothConstants.ID)) {
+			return btPluginState;
+		} else {
+			return null;
+		}
+	}
+
+	LiveData<State> getPluginState(TransportId t) {
+		LiveData<Plugin.State> liveData = getPluginLiveData(t);
+		if (liveData == null) throw new AssertionError();
+		return liveData;
+	}
+
+	void setPluginEnabled(TransportId t, boolean enabled) {
+		pluginManager.setPluginEnabled(t, enabled);
 	}
 
 }

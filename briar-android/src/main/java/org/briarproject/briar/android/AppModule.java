@@ -41,6 +41,7 @@ import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.login.LoginModule;
+import org.briarproject.briar.android.navdrawer.NavDrawerModule;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
@@ -76,6 +77,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 @Module(includes = {
 		ContactExchangeModule.class,
 		LoginModule.class,
+		NavDrawerModule.class,
 		ViewModelModule.class
 })
 public class AppModule {

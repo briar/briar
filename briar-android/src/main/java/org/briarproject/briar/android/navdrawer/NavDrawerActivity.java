@@ -19,14 +19,11 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.plugin.Plugin.State;
-import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
-import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
@@ -47,6 +44,8 @@ import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
@@ -65,8 +64,7 @@ import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class NavDrawerActivity extends BriarActivity implements
-		BaseFragmentListener, TransportStateListener,
-		OnNavigationItemSelectedListener {
+		BaseFragmentListener, OnNavigationItemSelectedListener {
 
 	private static final Logger LOG =
 			getLogger(NavDrawerActivity.class.getName());
@@ -84,10 +82,11 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static Uri SIGN_OUT_URI =
 			Uri.parse("briar-content://org.briarproject.briar/sign-out");
 
+	private NavDrawerViewModel viewModel;
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Inject
-	NavDrawerController controller;
+	ViewModelProvider.Factory viewModelFactory;
 	@Inject
 	LifecycleManager lifecycleManager;
 
@@ -106,6 +105,14 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
+		viewModel = ViewModelProviders.of(this, viewModelFactory)
+				.get(NavDrawerViewModel.class);
+
+		viewModel.showExpiryWarning().observe(this, this::showExpiryWarning);
+		viewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
+			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
+		});
+
 		drawerScrollView = findViewById(R.id.drawerScrollView);
 		drawerScrollView.getViewTreeObserver().addOnGlobalLayoutListener(
 				new OnGlobalLayoutListener() {
@@ -122,6 +129,7 @@ public class NavDrawerActivity extends BriarActivity implements
 								.removeOnGlobalLayoutListener(this);
 					}
 				});
+		new PluginViewController(drawerScrollView, this, viewModel);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
@@ -156,12 +164,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		lockManager.checkIfLockable();
-		controller.showExpiryWarning(new UiResultHandler<Boolean>(this) {
-			@Override
-			public void onResultUi(Boolean expiry) {
-				if (expiry) showExpiryWarning();
-			}
-		});
+		viewModel.checkExpiryWarning();
 	}
 
 	@Override
@@ -169,16 +172,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD && result == RESULT_OK) {
-			controller.shouldAskForDozeWhitelisting(this,
-					new UiResultHandler<Boolean>(this) {
-						@Override
-						public void onResultUi(Boolean ask) {
-							if (ask) {
-								showDozeDialog(
-										getString(R.string.setup_doze_intro));
-							}
-						}
-					});
+			viewModel.checkDozeWhitelisting();
 		}
 	}
 
@@ -348,33 +342,31 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (item != null) item.setVisible(visible);
 	}
 
-	private void showExpiryWarning() {
+	private void showExpiryWarning(boolean show) {
 		int daysUntilExpiry = getDaysUntilExpiry();
-		if (daysUntilExpiry < 0) signOut();
+		if (daysUntilExpiry < 0) {
+			signOut();
+			return;
+		}
 
-		// show expiry warning text
 		ViewGroup expiryWarning = findViewById(R.id.expiryWarning);
-		TextView expiryWarningText =
-				expiryWarning.findViewById(R.id.expiryWarningText);
-		// make close button functional
-		ImageView expiryWarningClose =
-				expiryWarning.findViewById(R.id.expiryWarningClose);
-
-		expiryWarningText.setText(getResources()
-				.getQuantityString(R.plurals.expiry_warning,
-						daysUntilExpiry, daysUntilExpiry));
-
-		expiryWarningClose.setOnClickListener(v -> {
-			controller.expiryWarningDismissed();
+		if (show) {
+			// show expiry warning text
+			TextView expiryWarningText =
+					expiryWarning.findViewById(R.id.expiryWarningText);
+			String text = getResources().getQuantityString(
+					R.plurals.expiry_warning, daysUntilExpiry, daysUntilExpiry);
+			expiryWarningText.setText(text);
+			// make close button functional
+			ImageView expiryWarningClose =
+					expiryWarning.findViewById(R.id.expiryWarningClose);
+			expiryWarningClose.setOnClickListener(v ->
+					viewModel.expiryWarningDismissed()
+			);
+			expiryWarning.setVisibility(VISIBLE);
+		} else {
 			expiryWarning.setVisibility(GONE);
-		});
-
-		expiryWarning.setVisibility(VISIBLE);
-	}
-
-	@Override
-	public void stateUpdate(TransportId id, State state) {
-		// TODO
+		}
 	}
 
 }

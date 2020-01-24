@@ -8,8 +8,6 @@ import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.BriarControllerImpl;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.DbControllerImpl;
-import org.briarproject.briar.android.navdrawer.NavDrawerController;
-import org.briarproject.briar.android.navdrawer.NavDrawerControllerImpl;
 
 import dagger.Module;
 import dagger.Provides;
@@ -56,14 +54,6 @@ public class ActivityModule {
 	@Provides
 	DbController provideDBController(DbControllerImpl dbController) {
 		return dbController;
-	}
-
-	@ActivityScope
-	@Provides
-	NavDrawerController provideNavDrawerController(
-			NavDrawerControllerImpl navDrawerController) {
-		activity.addLifecycleController(navDrawerController);
-		return navDrawerController;
 	}
 
 	@ActivityScope
