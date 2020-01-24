@@ -15,8 +15,8 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -50,9 +50,9 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	private final int minWidth, maxWidth;
 	private final int minHeight, maxHeight;
 
-	private final Map<MessageId, MutableLiveData<AttachmentItem>>
+	private final ConcurrentMap<MessageId, MutableLiveData<AttachmentItem>>
 			itemsWithSize = new ConcurrentHashMap<>();
-	private final Map<MessageId, MutableLiveData<AttachmentItem>>
+	private final ConcurrentMap<MessageId, MutableLiveData<AttachmentItem>>
 			itemsWithoutSize = new ConcurrentHashMap<>();
 
 	@Inject
@@ -99,15 +99,25 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 			if (liveData == null) {
 				AttachmentItem item = new AttachmentItem(h,
 						defaultSize, defaultSize, LOADING);
-				final MutableLiveData<AttachmentItem> finalLiveData =
-						new MutableLiveData<>(item);
-				// kick-off loading of attachment, will post to live data
-				dbExecutor.execute(
-						() -> loadAttachmentItem(h, needsSize, finalLiveData));
-				// add new LiveData to cache
-				liveData = finalLiveData;
-				if (needsSize) itemsWithSize.put(h.getMessageId(), liveData);
-				else itemsWithoutSize.put(h.getMessageId(), liveData);
+				liveData = new MutableLiveData<>(item);
+				// add new LiveData to cache, checking for concurrent updates
+				MutableLiveData<AttachmentItem> oldLiveData;
+				if (needsSize) {
+					oldLiveData = itemsWithSize.putIfAbsent(h.getMessageId(),
+							liveData);
+				} else {
+					oldLiveData = itemsWithoutSize.putIfAbsent(h.getMessageId(),
+							liveData);
+				}
+				if (oldLiveData == null) {
+					// kick-off loading of attachment, will post to live data
+					MutableLiveData<AttachmentItem> finalLiveData = liveData;
+					dbExecutor.execute(() ->
+							loadAttachmentItem(h, needsSize, finalLiveData));
+				} else {
+					// Concurrent cache update - use the existing live data
+					liveData = oldLiveData;
+				}
 			}
 			items.add(liveData);
 		}
@@ -118,12 +128,15 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 	@DatabaseExecutor
 	public void cacheAttachmentItemWithSize(MessageId conversationMessageId,
 			AttachmentHeader h) throws DbException {
+		// If a live data is already cached we don't need to do anything
+		if (itemsWithSize.containsKey(h.getMessageId())) return;
 		try {
 			Attachment a = messagingManager.getAttachment(h);
 			AttachmentItem item = createAttachmentItem(a, true);
 			MutableLiveData<AttachmentItem> liveData =
 					new MutableLiveData<>(item);
-			itemsWithSize.put(h.getMessageId(), liveData);
+			// If a live data was concurrently cached, don't replace it
+			itemsWithSize.putIfAbsent(h.getMessageId(), liveData);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Attachment not received yet");
 		}
