@@ -47,6 +47,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
+import static android.view.View.FOCUS_DOWN;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -114,12 +115,12 @@ public class NavDrawerActivity extends BriarActivity implements
 		});
 
 		drawerScrollView = findViewById(R.id.drawerScrollView);
+		View chevronView = drawerScrollView.findViewById(R.id.chevronView);
 		drawerScrollView.getViewTreeObserver().addOnGlobalLayoutListener(
 				new OnGlobalLayoutListener() {
 					@Override
 					public void onGlobalLayout() {
 						// hide/show chevron depending on whether we can scroll
-						View chevronView = findViewById(R.id.chevronView);
 						if (drawerScrollView.canScrollVertically(1)) {
 							chevronView.setVisibility(VISIBLE);
 						} else {
@@ -130,6 +131,9 @@ public class NavDrawerActivity extends BriarActivity implements
 					}
 				});
 		new PluginViewController(drawerScrollView, this, viewModel);
+		chevronView.setOnClickListener(v ->
+				drawerScrollView.fullScroll(FOCUS_DOWN)
+		);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
