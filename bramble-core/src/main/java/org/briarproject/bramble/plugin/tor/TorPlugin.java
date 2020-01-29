@@ -191,7 +191,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		state.setStarted();
 		if (!torDirectory.exists()) {
 			if (!torDirectory.mkdirs()) {
 				LOG.warning("Could not create Tor directory.");
@@ -279,7 +278,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
-		state.setTorStarted();
+		state.setStarted();
 		// Check whether we're online
 		updateConnectionStatus(networkManager.getNetworkStatus(),
 				batteryManager.isCharging());
@@ -863,7 +862,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		@GuardedBy("this")
 		private boolean started = false,
 				stopped = false,
-				torStarted = false,
 				networkInitialised = false,
 				networkEnabled = false,
 				bootstrapped = false,
@@ -882,13 +880,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			callback.pluginStateChanged(getState());
 		}
 
-		// Doesn't affect getState()
-		synchronized void setTorStarted() {
-			torStarted = true;
-		}
-
 		synchronized boolean isTorRunning() {
-			return torStarted && !stopped;
+			return started && !stopped;
 		}
 
 		@Nullable
