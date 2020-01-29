@@ -13,6 +13,7 @@
 		android:layout_height="24dp"
 		android:layout_marginBottom="8dp"
 		android:background="@color/divider"
+		android:foreground="?attr/selectableItemBackground"
 		android:src="@drawable/chevron_down_white"
 		app:layout_constraintBottom_toTopOf="@+id/longRangeLabel"
 		app:layout_constraintEnd_toEndOf="parent"
