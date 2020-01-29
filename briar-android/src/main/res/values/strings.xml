@@ -111,7 +111,6 @@
 	<string name="delete">Delete</string>
 	<string name="accept">Accept</string>
 	<string name="decline">Decline</string>
-	<string name="options">Options</string>
 	<string name="online">Online</string>
 	<string name="offline">Offline</string>
 	<string name="send">Send</string>
@@ -193,7 +192,6 @@
 	<string name="add_contact_remotely_title_case">Add Contact at a Distance</string>
 	<string name="add_contact_nearby_title">Add contact nearby</string>
 	<string name="add_contact_remotely_title">Add contact at a distance</string>
-	<string name="contact_name_hint">Give contact a nickname</string>
 	<string name="contact_link_intro">Enter the link from your contact here</string>
 	<string name="contact_link_hint">Contact\'s link</string>
 	<string name="paste_button">Paste</string>
@@ -211,7 +209,6 @@
 	<string name="pending_contact_requests_snackbar">There are pending contact requests</string>
 	<string name="pending_contact_requests">Pending Contact Requests</string>
 	<string name="no_pending_contacts">No pending contacts</string>
-	<string name="add_contact_remote_connecting">Connecting…</string>
 	<string name="waiting_for_contact_to_come_online">Waiting for contact to come online…</string>
 	<string name="connecting">Connecting…</string>
 	<string name="adding_contact">Adding contact…</string>
@@ -232,9 +229,6 @@
 		<item quantity="one">New contact added.</item>
 		<item quantity="other">%d new contacts added.</item>
 	</plurals>
-	<string name="adding_contact_slow_warning">Adding this contact is taking longer than usual</string>
-	<string name="adding_contact_slow_title">Cannot Connect to Contact</string>
-	<string name="adding_contact_slow_text">Adding this contact is taking longer than usual.\n\nPlease check that your contact has received your link and added you:</string>
 	<string name="offline_state">No Internet connection</string>
 	<string name="duplicate_link_dialog_title">Duplicate Link</string>
 	<string name="duplicate_link_dialog_text_1">You already have a pending contact with this link: %s</string>
@@ -264,11 +258,9 @@
 	<string name="introduction_button">Make Introduction</string>
 	<string name="introduction_sent">Your introduction has been sent.</string>
 	<string name="introduction_error">There was an error making the introduction.</string>
-	<string name="introduction_response_error">Error when responding to introduction</string>
 	<string name="introduction_request_sent">You have asked to introduce %1$s to %2$s.</string>
 	<string name="introduction_request_received">%1$s has asked to introduce you to %2$s. Do you want to add %2$s to your contact list?</string>
 	<string name="introduction_request_exists_received">%1$s has asked to introduce you to %2$s, but %2$s is already in your contact list. Since %1$s might not know that, you can still respond:</string>
-	<string name="introduction_request_answered_received">%1$s has asked to introduce you to %2$s.</string>
 	<string name="introduction_response_accepted_sent">You accepted the introduction to %1$s.</string>
 	<string name="introduction_response_accepted_sent_info">Before %1$s gets added to your contacts, they need to accept the introduction as well. This might take some time.</string>
 	<string name="introduction_response_declined_sent">You declined the introduction to %1$s.</string>
@@ -448,9 +440,6 @@
 
 	<!-- Settings Connections -->
 	<string name="network_settings_title">Connections</string>
-	<string name="bluetooth_setting">Connect to contacts via Bluetooth</string>
-	<string name="wifi_setting">Connect to contacts on the same Wi-Fi network</string>
-	<string name="tor_enable_title">Connect to contacts via Internet (Tor)</string>
 	<string name="tor_network_setting">Connection method for Internet (Tor)</string>
 	<string name="tor_network_setting_automatic">Automatic based on location</string>
 	<string name="tor_network_setting_without_bridges">Use Tor without bridges</string>
@@ -502,8 +491,6 @@
 	<string name="panic_setting_signout_summary">Sign out of Briar if a panic button is pressed</string>
 	<string name="purge_setting_title">Delete Account</string>
 	<string name="purge_setting_summary">Delete your Briar account if a panic button is pressed. Caution: This will permanently delete your identities, contacts and messages</string>
-	<string name="uninstall_setting_title">Uninstall Briar</string>
-	<string name="uninstall_setting_summary">This requires manual confirmation in a panic event</string>
 
 	<!-- Settings Notifications -->
 	<string name="notification_settings_title">Notifications</string>
