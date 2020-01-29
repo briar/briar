@@ -836,7 +836,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				}
 			}
 
-
 			state.setDisabledBySettings(disabledBySettings, reasonDisabled);
 
 			try {
@@ -866,6 +865,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				networkEnabled = false,
 				bootstrapped = false,
 				circuitBuilt = false,
+				settingsChecked = false,
 				disabledBySettings = false;
 
 		@GuardedBy("this")
@@ -914,6 +914,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 		synchronized void setDisabledBySettings(boolean disabledBySettings,
 				int reasonDisabled) {
+			settingsChecked = true;
 			this.disabledBySettings = disabledBySettings;
 			this.reasonDisabled = reasonDisabled;
 			callback.pluginStateChanged(getState());
@@ -932,7 +933,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 
 		synchronized State getState() {
-			if (!started || stopped || disabledBySettings) return DISABLED;
+			if (!started || stopped || !settingsChecked || disabledBySettings) {
+				return DISABLED;
+			}
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
 			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
