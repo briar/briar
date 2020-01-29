@@ -72,9 +72,11 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_NEVER;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -341,7 +343,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			try {
 				long start = now();
 				settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-				torSettings = settingsManager.getSettings(TOR_NAMESPACE);
+				torSettings = migrateTorSettings(
+						settingsManager.getSettings(TOR_NAMESPACE));
 				settingsLoaded = true;
 				logDuration(LOG, "Loading settings", start);
 				displaySettings();
@@ -349,6 +352,19 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	// TODO: Remove after a reasonable migration period (added 2020-01-29)
+	private Settings migrateTorSettings(Settings s) {
+		int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+		if (network == PREF_TOR_NETWORK_NEVER) {
+			s.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+			s.putBoolean(PREF_PLUGIN_ENABLE, false);
+			// We don't need to save the migrated settings - the Tor plugin is
+			// responsible for that. This code just handles the case where the
+			// settings are loaded before the plugin migrates them.
+		}
+		return s;
 	}
 
 	private void displaySettings() {
@@ -669,7 +685,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 				displaySettings();
 			} else if (namespace.equals(TOR_NAMESPACE)) {
 				LOG.info("Tor settings updated");
-				torSettings = s.getSettings();
+				torSettings = migrateTorSettings(s.getSettings());
 				displaySettings();
 			}
 		}
