@@ -53,6 +53,7 @@ import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
 
@@ -258,7 +259,9 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	private boolean shouldEnableWifi() {
 		if (hasEnabledWifi) return false;
 		Plugin p = pluginManager.getPlugin(LanTcpConstants.ID);
-		return p != null && p.getState() == DISABLED;
+		if (p == null) return false;
+		State state = p.getState();
+		return state == STARTING_STOPPING || state == DISABLED;
 	}
 
 	private void requestBluetoothDiscoverable() {
@@ -284,7 +287,9 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		if (bluetoothDecision != BluetoothDecision.ACCEPTED) return false;
 		if (hasEnabledBluetooth) return false;
 		Plugin p = pluginManager.getPlugin(BluetoothConstants.ID);
-		return p != null && p.getState() == DISABLED;
+		if (p == null) return false;
+		State state = p.getState();
+		return state == STARTING_STOPPING || state == DISABLED;
 	}
 
 	@Override

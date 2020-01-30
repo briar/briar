@@ -17,6 +17,7 @@ import static androidx.core.content.ContextCompat.getColor;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.navdrawer.NavDrawerViewModel.TRANSPORT_IDS;
 
 class PluginViewController {
@@ -38,10 +39,13 @@ class PluginViewController {
 		for (TransportId t : TRANSPORT_IDS) {
 			// a OnCheckedChangeListener would get triggered on programmatic updates
 			SwitchCompat switchCompat = getSwitch(t);
-			switchCompat.setOnClickListener(buttonView ->
-					// TODO check reason first and change settings if needed
-					viewModel.setPluginEnabled(t, switchCompat.isChecked())
-			);
+			switchCompat.setOnClickListener(buttonView -> {
+				// TODO check reason first and change settings if needed
+				viewModel.setPluginEnabled(t, switchCompat.isChecked());
+				// Revert the switch to its previous state until the plugin
+				// changes its state
+				switchCompat.toggle();
+			});
 			viewModel.getPluginState(t)
 					.observe(owner, state -> stateUpdate(t, state));
 		}
@@ -60,7 +64,9 @@ class PluginViewController {
 	}
 
 	private void updateSwitch(SwitchCompat switchCompat, State state) {
-		switchCompat.setChecked(state != DISABLED);
+		boolean checked = state != STARTING_STOPPING && state != DISABLED;
+		switchCompat.setChecked(checked);
+		switchCompat.setEnabled(state != STARTING_STOPPING);
 	}
 
 	private ImageView getIcon(TransportId id) {

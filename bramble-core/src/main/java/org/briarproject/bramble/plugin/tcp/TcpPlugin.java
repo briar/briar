@@ -51,6 +51,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
@@ -205,8 +206,8 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public int getReasonDisabled() {
-		return state.getReasonDisabled();
+	public int getReasonsDisabled() {
+		return state.getReasonsDisabled();
 	}
 
 	@Override
@@ -455,13 +456,13 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 		}
 
 		synchronized State getState() {
-			if (!started || stopped || !enabledByUser) return DISABLED;
+			if (!started || stopped) return STARTING_STOPPING;
+			if (!enabledByUser) return DISABLED;
 			return serverSocket == null ? INACTIVE : ACTIVE;
 		}
 
-		synchronized int getReasonDisabled() {
-			if (!started || stopped) return REASON_STARTING_STOPPING;
-			return enabledByUser ? -1 : REASON_USER;
+		synchronized int getReasonsDisabled() {
+			return getState() == DISABLED ? REASON_USER : 0;
 		}
 	}
 }

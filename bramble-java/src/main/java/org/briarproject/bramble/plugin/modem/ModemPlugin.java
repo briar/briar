@@ -31,9 +31,9 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
-import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
@@ -121,8 +121,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public int getReasonDisabled() {
-		return getState() == DISABLED ? REASON_STARTING_STOPPING : -1;
+	public int getReasonsDisabled() {
+		return 0;
 	}
 
 	@Override
@@ -280,7 +280,7 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 		}
 
 		private State getState() {
-			if (!started || stopped) return DISABLED;
+			if (!started || stopped) return STARTING_STOPPING;
 			if (failed) return INACTIVE;
 			return initialised ? ACTIVE : ENABLING;
 		}

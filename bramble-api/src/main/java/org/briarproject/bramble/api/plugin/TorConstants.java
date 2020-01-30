@@ -24,8 +24,18 @@ public interface TorConstants {
 	// TODO: Remove when settings migration code is removed
 	int PREF_TOR_NETWORK_NEVER = 3;
 
-	// Reason codes returned by Plugin#getReasonDisabled()
+	/**
+	 * Reason flag returned by {@link Plugin#getReasonsDisabled()}.
+	 */
 	int REASON_BATTERY = 2;
-	int REASON_MOBILE_DATA = 3;
-	int REASON_COUNTRY_BLOCKED = 4;
+
+	/**
+	 * Reason flag returned by {@link Plugin#getReasonsDisabled()}.
+	 */
+	int REASON_MOBILE_DATA = 4;
+
+	/**
+	 * Reason flag returned by {@link Plugin#getReasonsDisabled()}.
+	 */
+	int REASON_COUNTRY_BLOCKED = 8;
 }

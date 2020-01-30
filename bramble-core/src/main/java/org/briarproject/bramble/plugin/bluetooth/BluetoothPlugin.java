@@ -48,11 +48,11 @@ import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TR
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
-import static org.briarproject.bramble.api.plugin.BluetoothConstants.REASON_NO_BT_ADAPTER;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -159,16 +159,15 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
-		try {
-			initialiseAdapter();
-		} catch (IOException e) {
-			state.setNoAdapter();
-			throw new PluginException(e);
-		}
-		updateProperties();
 		Settings settings = callback.getSettings();
 		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
 		state.setStarted(enabledByUser);
+		try {
+			initialiseAdapter();
+		} catch (IOException e) {
+			throw new PluginException(e);
+		}
+		updateProperties();
 		if (enabledByUser) {
 			if (isAdapterEnabled()) bind();
 			else enableAdapter();
@@ -252,8 +251,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public int getReasonDisabled() {
-		return state.getReasonDisabled();
+	public int getReasonsDisabled() {
+		return state.getReasonsDisabled();
 	}
 
 	@Override
@@ -477,7 +476,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		@GuardedBy("this")
 		private boolean started = false,
 				stopped = false,
-				noAdapter = false,
 				enabledByUser = false;
 
 		@GuardedBy("this")
@@ -497,11 +495,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			serverSocket = null;
 			callback.pluginStateChanged(getState());
 			return ss;
-		}
-
-		synchronized void setNoAdapter() {
-			noAdapter = true;
-			callback.pluginStateChanged(getState());
 		}
 
 		@Nullable
@@ -532,14 +525,13 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 
 		synchronized State getState() {
-			if (!started || stopped || !enabledByUser) return DISABLED;
+			if (!started || stopped) return STARTING_STOPPING;
+			if (!enabledByUser) return DISABLED;
 			return serverSocket == null ? INACTIVE : ACTIVE;
 		}
 
-		synchronized int getReasonDisabled() {
-			if (noAdapter && !stopped) return REASON_NO_BT_ADAPTER;
-			if (!started || stopped) return REASON_STARTING_STOPPING;
-			return enabledByUser ? -1 : REASON_USER;
+		synchronized int getReasonsDisabled() {
+			return getState() == DISABLED ? REASON_USER : 0;
 		}
 	}
 }

@@ -50,7 +50,7 @@ import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
-import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -277,7 +277,7 @@ class PluginManagerImpl implements PluginManager, Service {
 
 		private final TransportId id;
 		private final AtomicReference<State> state =
-				new AtomicReference<>(DISABLED);
+				new AtomicReference<>(STARTING_STOPPING);
 
 		private Callback(TransportId id) {
 			this.id = id;
