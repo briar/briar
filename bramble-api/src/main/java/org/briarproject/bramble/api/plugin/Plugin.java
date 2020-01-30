@@ -13,8 +13,13 @@ public interface Plugin {
 	enum State {
 
 		/**
-		 * The plugin has not been started, has been stopped, or is disabled by
-		 * settings.
+		 * The plugin has not finished starting or has been stopped.
+		 */
+		STARTING_STOPPING,
+
+		/**
+		 * The plugin is disabled by settings. Use {@link #getReasonsDisabled()}
+		 * to find out which settings are responsible.
 		 */
 		DISABLED,
 
@@ -42,14 +47,7 @@ public interface Plugin {
 	String PREF_PLUGIN_ENABLE = "enable";
 
 	/**
-	 * Reason code returned by {@link #getReasonDisabled()} to indicate that
-	 * the plugin is disabled because it has not been started or has been
-	 * stopped.
-	 */
-	int REASON_STARTING_STOPPING = 0;
-
-	/**
-	 * Reason code returned by {@link #getReasonDisabled()} to indicate that
+	 * Reason flag returned by {@link #getReasonsDisabled()} to indicate that
 	 * the plugin has been disabled by the user.
 	 */
 	int REASON_USER = 1;
@@ -85,14 +83,13 @@ public interface Plugin {
 	State getState();
 
 	/**
-	 * Returns an integer code indicating why the plugin is
-	 * {@link State#DISABLED disabled}, or -1 if the plugin is not disabled.
+	 * Returns a set of flags indicating why the plugin is
+	 * {@link State#DISABLED disabled}, or 0 if the plugin is not disabled.
 	 * <p>
-	 * The codes used are plugin-specific, except the generic codes
-	 * {@link #REASON_STARTING_STOPPING} and {@link #REASON_USER}, which may
-	 * be used by any plugin.
+	 * The flags used are plugin-specific, except the generic flag
+	 * {@link #REASON_USER}, which may be used by any plugin.
 	 */
-	int getReasonDisabled();
+	int getReasonsDisabled();
 
 	/**
 	 * Returns true if the plugin should be polled periodically to attempt to

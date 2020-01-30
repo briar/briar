@@ -8,7 +8,4 @@ public interface BluetoothConstants {
 
 	String PROP_ADDRESS = "address";
 	String PROP_UUID = "uuid";
-
-	// Reason code returned by Plugin#getReasonDisabled()
-	int REASON_NO_BT_ADAPTER = 2;
 }

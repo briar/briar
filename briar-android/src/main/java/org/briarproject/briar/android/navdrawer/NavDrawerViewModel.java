@@ -34,7 +34,7 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -194,7 +194,7 @@ public class NavDrawerViewModel extends AndroidViewModel
 
 	private State getTransportState(TransportId id) {
 		Plugin plugin = pluginManager.getPlugin(id);
-		return plugin == null ? DISABLED : plugin.getState();
+		return plugin == null ? STARTING_STOPPING : plugin.getState();
 	}
 
 	@Nullable

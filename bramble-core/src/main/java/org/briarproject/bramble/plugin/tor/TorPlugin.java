@@ -73,6 +73,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
@@ -533,8 +534,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public int getReasonDisabled() {
-		return state.getReasonDisabled();
+	public int getReasonsDisabled() {
+		return state.getReasonsDisabled();
 	}
 
 	@Override
@@ -773,7 +774,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
-			boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, true);
+			boolean enabledByUser =
+					settings.getBoolean(PREF_PLUGIN_ENABLE, true);
 			int network = settings.getInt(PREF_TOR_NETWORK,
 					PREF_TOR_NETWORK_AUTOMATIC);
 			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
@@ -789,54 +791,58 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				LOG.info("Charging: " + charging);
 			}
 
+			int reasonsDisabled = 0;
 			boolean enableNetwork = false, enableBridges = false;
 			boolean useMeek = false, enableConnectionPadding = false;
-			boolean disabledBySettings = false;
-			int reasonDisabled = REASON_STARTING_STOPPING;
 
 			if (!online) {
 				LOG.info("Disabling network, device is offline");
-			} else if (!enabledByUser) {
-				LOG.info("Disabling network, user has disabled Tor");
-				disabledBySettings = true;
-				reasonDisabled = REASON_USER;
-			} else if (!charging && onlyWhenCharging) {
-				LOG.info("Disabling network, device is on battery");
-				disabledBySettings = true;
-				reasonDisabled = REASON_BATTERY;
-			} else if (!useMobile && !wifi) {
-				LOG.info("Disabling network, device is using mobile data");
-				disabledBySettings = true;
-				reasonDisabled = REASON_MOBILE_DATA;
-			} else if (automatic && blocked && !bridgesWork) {
-				LOG.info("Disabling network, country is blocked");
-				disabledBySettings = true;
-				reasonDisabled = REASON_COUNTRY_BLOCKED;
 			} else {
-				LOG.info("Enabling network");
-				enableNetwork = true;
-				if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
-						(automatic && bridgesWork)) {
-					if (circumventionProvider.needsMeek(country)) {
-						LOG.info("Using meek bridges");
-						enableBridges = true;
-						useMeek = true;
-					} else {
-						LOG.info("Using obfs4 bridges");
-						enableBridges = true;
-					}
-				} else {
-					LOG.info("Not using bridges");
+				if (!enabledByUser) {
+					LOG.info("User has disabled Tor");
+					reasonsDisabled |= REASON_USER;
 				}
-				if (wifi && charging) {
-					LOG.info("Enabling connection padding");
-					enableConnectionPadding = true;
+				if (!charging && onlyWhenCharging) {
+					LOG.info("Configured not to use battery");
+					reasonsDisabled |= REASON_BATTERY;
+				}
+				if (!useMobile && !wifi) {
+					LOG.info("Configured not to use mobile data");
+					reasonsDisabled |= REASON_MOBILE_DATA;
+				}
+				if (automatic && blocked && !bridgesWork) {
+					LOG.info("Country is blocked");
+					reasonsDisabled |= REASON_COUNTRY_BLOCKED;
+				}
+
+				if (reasonsDisabled != 0) {
+					LOG.info("Disabling network due to settings");
 				} else {
-					LOG.info("Disabling connection padding");
+					LOG.info("Enabling network");
+					enableNetwork = true;
+					if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
+							(automatic && bridgesWork)) {
+						if (circumventionProvider.needsMeek(country)) {
+							LOG.info("Using meek bridges");
+							enableBridges = true;
+							useMeek = true;
+						} else {
+							LOG.info("Using obfs4 bridges");
+							enableBridges = true;
+						}
+					} else {
+						LOG.info("Not using bridges");
+					}
+					if (wifi && charging) {
+						LOG.info("Enabling connection padding");
+						enableConnectionPadding = true;
+					} else {
+						LOG.info("Disabling connection padding");
+					}
 				}
 			}
 
-			state.setDisabledBySettings(disabledBySettings, reasonDisabled);
+			state.setReasonsDisabled(reasonsDisabled);
 
 			try {
 				if (enableNetwork) {
@@ -865,11 +871,10 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				networkEnabled = false,
 				bootstrapped = false,
 				circuitBuilt = false,
-				settingsChecked = false,
-				disabledBySettings = false;
+				settingsChecked = false;
 
 		@GuardedBy("this")
-		private int reasonDisabled = REASON_STARTING_STOPPING;
+		private int reasonsDisabled = 0;
 
 		@GuardedBy("this")
 		@Nullable
@@ -912,11 +917,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			callback.pluginStateChanged(getState());
 		}
 
-		synchronized void setDisabledBySettings(boolean disabledBySettings,
-				int reasonDisabled) {
+		synchronized void setReasonsDisabled(int reasonsDisabled) {
 			settingsChecked = true;
-			this.disabledBySettings = disabledBySettings;
-			this.reasonDisabled = reasonDisabled;
+			this.reasonsDisabled = reasonsDisabled;
 			callback.pluginStateChanged(getState());
 		}
 
@@ -933,16 +936,17 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 
 		synchronized State getState() {
-			if (!started || stopped || !settingsChecked || disabledBySettings) {
-				return DISABLED;
+			if (!started || stopped || !settingsChecked) {
+				return STARTING_STOPPING;
 			}
+			if (reasonsDisabled != 0) return DISABLED;
 			if (!networkInitialised) return ENABLING;
 			if (!networkEnabled) return INACTIVE;
 			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
 		}
 
-		synchronized int getReasonDisabled() {
-			return getState() == DISABLED ? reasonDisabled : -1;
+		synchronized int getReasonsDisabled() {
+			return getState() == DISABLED ? reasonsDisabled : 0;
 		}
 	}
 }
