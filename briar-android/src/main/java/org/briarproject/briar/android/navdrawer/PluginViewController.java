@@ -2,6 +2,7 @@ package org.briarproject.briar.android.navdrawer;
 
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
@@ -13,6 +14,9 @@ import org.briarproject.briar.R;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.lifecycle.LifecycleOwner;
 
+import static android.view.View.FOCUS_DOWN;
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static androidx.core.content.ContextCompat.getColor;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
@@ -22,15 +26,38 @@ import static org.briarproject.briar.android.navdrawer.NavDrawerViewModel.TRANSP
 
 class PluginViewController {
 
-	private final ImageView torIcon, wifiIcon, btIcon;
+	private final ImageView torIconExpanded, torIconCollapsed;
+	private final ImageView wifiIconExpanded, wifiIconCollapsed;
+	private final ImageView btIconExpanded, btIconCollapsed;
 	private final SwitchCompat torSwitch, wifiSwitch, btSwitch;
 
 	PluginViewController(View v, LifecycleOwner owner,
 			NavDrawerViewModel viewModel) {
 
-		torIcon = v.findViewById(R.id.torIcon);
-		wifiIcon = v.findViewById(R.id.wifiIcon);
-		btIcon = v.findViewById(R.id.btIcon);
+		ScrollView scrollView = v.findViewById(R.id.drawerScrollView);
+		View expandedLayout = v.findViewById(R.id.expandedLayout);
+		View collapsedLayout = v.findViewById(R.id.collapsedLayout);
+
+		expandedLayout.addOnLayoutChangeListener((view, left, top, right,
+				bottom, oldLeft, oldTop, oldRight, oldBottom) ->
+				scrollView.fullScroll(FOCUS_DOWN));
+
+		v.findViewById(R.id.chevronViewCollapsed).setOnClickListener(view -> {
+			expandedLayout.setVisibility(VISIBLE);
+			collapsedLayout.setVisibility(GONE);
+		});
+
+		v.findViewById(R.id.chevronViewExpanded).setOnClickListener(view -> {
+			expandedLayout.setVisibility(GONE);
+			collapsedLayout.setVisibility(VISIBLE);
+		});
+
+		torIconExpanded = v.findViewById(R.id.torIconExpanded);
+		torIconCollapsed = v.findViewById(R.id.torIconCollapsed);
+		wifiIconExpanded = v.findViewById(R.id.wifiIconExpanded);
+		wifiIconCollapsed = v.findViewById(R.id.wifiIconCollapsed);
+		btIconExpanded = v.findViewById(R.id.btIconExpanded);
+		btIconCollapsed = v.findViewById(R.id.btIconCollapsed);
 
 		torSwitch = v.findViewById(R.id.torSwitch);
 		wifiSwitch = v.findViewById(R.id.wifiSwitch);
@@ -52,7 +79,8 @@ class PluginViewController {
 	}
 
 	private void stateUpdate(TransportId id, State state) {
-		updateIcon(getIcon(id), state);
+		updateIcon(getExpandedIcon(id), state);
+		updateIcon(getCollapsedIcon(id), state);
 		updateSwitch(getSwitch(id), state);
 	}
 
@@ -69,10 +97,17 @@ class PluginViewController {
 		switchCompat.setEnabled(state != STARTING_STOPPING);
 	}
 
-	private ImageView getIcon(TransportId id) {
-		if (id == TorConstants.ID) return torIcon;
-		if (id == BluetoothConstants.ID) return btIcon;
-		if (id == LanTcpConstants.ID) return wifiIcon;
+	private ImageView getExpandedIcon(TransportId id) {
+		if (id == TorConstants.ID) return torIconExpanded;
+		if (id == BluetoothConstants.ID) return btIconExpanded;
+		if (id == LanTcpConstants.ID) return wifiIconExpanded;
+		throw new AssertionError();
+	}
+
+	private ImageView getCollapsedIcon(TransportId id) {
+		if (id == TorConstants.ID) return torIconCollapsed;
+		if (id == BluetoothConstants.ID) return btIconCollapsed;
+		if (id == LanTcpConstants.ID) return wifiIconCollapsed;
 		throw new AssertionError();
 	}
 

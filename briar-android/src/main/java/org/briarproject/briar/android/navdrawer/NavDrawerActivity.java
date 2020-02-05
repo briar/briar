@@ -7,9 +7,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
@@ -47,9 +45,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
-import static android.view.View.FOCUS_DOWN;
 import static android.view.View.GONE;
-import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static androidx.core.view.GravityCompat.START;
 import static androidx.drawerlayout.widget.DrawerLayout.LOCK_MODE_LOCKED_CLOSED;
@@ -92,7 +88,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	LifecycleManager lifecycleManager;
 
 	private DrawerLayout drawerLayout;
-	private ScrollView drawerScrollView;
 	private NavigationView navigation;
 
 	@Override
@@ -114,26 +109,8 @@ public class NavDrawerActivity extends BriarActivity implements
 			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
 		});
 
-		drawerScrollView = findViewById(R.id.drawerScrollView);
-		View chevronView = drawerScrollView.findViewById(R.id.chevronView);
-		drawerScrollView.getViewTreeObserver().addOnGlobalLayoutListener(
-				new OnGlobalLayoutListener() {
-					@Override
-					public void onGlobalLayout() {
-						// hide/show chevron depending on whether we can scroll
-						if (drawerScrollView.canScrollVertically(1)) {
-							chevronView.setVisibility(VISIBLE);
-						} else {
-							chevronView.setVisibility(INVISIBLE);
-						}
-						drawerScrollView.getViewTreeObserver()
-								.removeOnGlobalLayoutListener(this);
-					}
-				});
+		View drawerScrollView = findViewById(R.id.drawerScrollView);
 		new PluginViewController(drawerScrollView, this, viewModel);
-		chevronView.setOnClickListener(v ->
-				drawerScrollView.fullScroll(FOCUS_DOWN)
-		);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
