@@ -10,6 +10,8 @@ import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
@@ -21,6 +23,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static android.transition.TransitionManager.beginDelayedTransition;
 import static android.view.View.FOCUS_DOWN;
 import static androidx.core.content.ContextCompat.getColor;
+import static org.briarproject.bramble.api.plugin.Plugin.REASON_USER;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
@@ -29,16 +32,20 @@ import static org.briarproject.briar.android.navdrawer.NavDrawerViewModel.TRANSP
 
 class PluginViewController {
 
+	private final NavDrawerViewModel viewModel;
 	private final ConstraintLayout drawerContent;
 	private final ConstraintSet collapsedConstraints, expandedConstraints;
 	private final AppCompatImageButton chevronView;
 	private final ImageView torIcon, wifiIcon, btIcon;
 	private final SwitchCompat torSwitch, wifiSwitch, btSwitch;
+	private final MutableLiveEvent<Integer> reasonsTorDisabled =
+			new MutableLiveEvent<>();
 
 	private boolean expanded = false;
 
 	PluginViewController(View v, LifecycleOwner owner,
 			NavDrawerViewModel viewModel) {
+		this.viewModel = viewModel;
 		drawerContent = v.findViewById(R.id.drawerContent);
 
 		collapsedConstraints = new ConstraintSet();
@@ -75,8 +82,8 @@ class PluginViewController {
 			// a OnCheckedChangeListener would get triggered on programmatic updates
 			SwitchCompat switchCompat = getSwitch(t);
 			switchCompat.setOnClickListener(buttonView -> {
-				// TODO check reason first and change settings if needed
-				viewModel.setPluginEnabled(t, switchCompat.isChecked());
+				if (switchCompat.isChecked()) tryToEnablePlugin(t);
+				else viewModel.setPluginEnabled(t, false);
 				// Revert the switch to its previous state until the plugin
 				// changes its state
 				switchCompat.toggle();
@@ -96,6 +103,23 @@ class PluginViewController {
 			chevronView.setImageResource(R.drawable.chevron_down_white);
 		}
 		expanded = !expanded;
+	}
+
+	LiveEvent<Integer> getReasonsTorDisabled() {
+		return reasonsTorDisabled;
+	}
+
+	private void tryToEnablePlugin(TransportId id) {
+		if (id.equals(TorConstants.ID)) {
+			int reasons = viewModel.getReasonsDisabled(id);
+			if (reasons == 0 || reasons == REASON_USER) {
+				viewModel.setPluginEnabled(id, true);
+			} else {
+				reasonsTorDisabled.setEvent(reasons);
+			}
+		} else {
+			viewModel.setPluginEnabled(id, true);
+		}
 	}
 
 	private void stateUpdate(TransportId id, State state) {

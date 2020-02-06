@@ -569,6 +569,11 @@
 	<string name="lock_is_locked">Briar is locked</string>
 	<string name="lock_tap_to_unlock">Tap to unlock</string>
 
+	<!-- Overriding Tor settings -->
+	<string name="tor_override_settings_body">Turning on Tor will change the following settings:\n\n%1$s</string>
+	<string name="tor_override_mobile_data_setting">Don\'t use mobile data</string>
+	<string name="tor_override_network_setting">Don\'t connect to Internet (Tor) in %1$s</string>
+
 	<!-- Screenshots -->
 
 	<!-- This is a name to be used in screenshots. Feel free to change it to a local name. -->

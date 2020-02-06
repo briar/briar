@@ -85,6 +85,7 @@ import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
+import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
@@ -316,13 +317,8 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 		// Look up country name in the user's chosen language if available
 		String country = locationUtils.getCurrentCountry();
-		String countryName = country;
-		for (Locale locale : Locale.getAvailableLocales()) {
-			if (locale.getCountry().equalsIgnoreCase(country)) {
-				countryName = locale.getDisplayCountry();
-				break;
-			}
-		}
+		String countryName = getCountryDisplayName(country);
+
 		boolean blocked =
 				circumventionProvider.isTorProbablyBlocked(country);
 		boolean useBridges = circumventionProvider.doBridgesWork(country);
