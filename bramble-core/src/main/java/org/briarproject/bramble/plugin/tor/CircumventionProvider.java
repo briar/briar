@@ -17,7 +17,7 @@ public interface CircumventionProvider {
 	String[] BLOCKED = {"CN", "IR", "EG", "BY", "TR", "SY", "VE"};
 
 	/**
-	 * Countries where obfs4 bridge connection are likely to work.
+	 * Countries where obfs4 or meek bridge connections are likely to work.
 	 * Should be a subset of {@link #BLOCKED}.
 	 */
 	String[] BRIDGES = { "CN", "IR", "EG", "BY", "TR", "SY", "VE" };

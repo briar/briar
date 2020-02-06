@@ -38,6 +38,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 
+import java.util.Locale;
+
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
@@ -402,4 +404,13 @@ public class UiUtils {
 				LAYOUT_DIRECTION_RTL;
 	}
 
+	public static String getCountryDisplayName(String isoCode) {
+		for (Locale locale : Locale.getAvailableLocales()) {
+			if (locale.getCountry().equalsIgnoreCase(isoCode)) {
+				return locale.getDisplayCountry();
+			}
+		}
+		// Name is unknown
+		return isoCode;
+	}
 }

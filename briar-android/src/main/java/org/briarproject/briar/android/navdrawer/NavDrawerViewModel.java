@@ -34,7 +34,12 @@ import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WITH_BRIDGES;
+import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -216,8 +221,31 @@ public class NavDrawerViewModel extends AndroidViewModel
 		return liveData;
 	}
 
+	int getReasonsDisabled(TransportId id) {
+		Plugin plugin = pluginManager.getPlugin(id);
+		return plugin == null ? 0 : plugin.getReasonsDisabled();
+	}
+
 	void setPluginEnabled(TransportId t, boolean enabled) {
 		pluginManager.setPluginEnabled(t, enabled);
+	}
+
+	void setTorEnabled(boolean battery, boolean mobileData, boolean location) {
+		Plugin plugin = pluginManager.getPlugin(TorConstants.ID);
+		if (plugin == null) return;
+
+		Settings s = new Settings();
+		s.putBoolean(PREF_PLUGIN_ENABLE, true);
+		if (battery) s.putBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
+		if (mobileData) s.putBoolean(PREF_TOR_MOBILE, true);
+		if (location) s.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_WITH_BRIDGES);
+		dbExecutor.execute(() -> {
+			try {
+				settingsManager.mergeSettings(s, TorConstants.ID.getString());
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
 	}
 
 }

@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -37,6 +38,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -53,9 +55,13 @@ import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
+import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 
 @MethodsNotNullByDefault
@@ -84,8 +90,12 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
+
 	@Inject
 	LifecycleManager lifecycleManager;
+
+	@Inject
+	LocationUtils locationUtils;
 
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
@@ -110,7 +120,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		});
 
 		View drawerScrollView = findViewById(R.id.drawerScrollView);
-		new PluginViewController(drawerScrollView, this, viewModel);
+		PluginViewController pluginViewController =
+				new PluginViewController(drawerScrollView, this, viewModel);
+		pluginViewController.getReasonsTorDisabled().observeEvent(this,
+				this::showTorSettingsDialog);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
@@ -350,4 +363,38 @@ public class NavDrawerActivity extends BriarActivity implements
 		}
 	}
 
+	private void showTorSettingsDialog(int reasonsDisabled) {
+		boolean battery = (reasonsDisabled & REASON_BATTERY) != 0;
+		boolean mobileData = (reasonsDisabled & REASON_MOBILE_DATA) != 0;
+		boolean location = (reasonsDisabled & REASON_COUNTRY_BLOCKED) != 0;
+
+		StringBuilder s = new StringBuilder();
+		if (location) {
+			s.append("\t\u2022 ");
+			s.append(getString(R.string.tor_override_network_setting,
+					getCountryDisplayName(locationUtils.getCurrentCountry())));
+			s.append('\n');
+		}
+		if (mobileData) {
+			s.append("\t\u2022 ");
+			s.append(getString(R.string.tor_override_mobile_data_setting));
+			s.append('\n');
+		}
+		if (battery) {
+			s.append("\t\u2022 ");
+			s.append(getString(R.string.tor_only_when_charging_title));
+			s.append('\n');
+		}
+		String message =
+				getString(R.string.tor_override_settings_body, s.toString());
+
+		AlertDialog.Builder b =
+				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		b.setMessage(message);
+		b.setPositiveButton(R.string.continue_button, (dialog, which) ->
+				viewModel.setTorEnabled(battery, mobileData, location));
+		b.setNegativeButton(R.string.cancel, (dialog, which) ->
+				dialog.dismiss());
+		b.show();
+	}
 }
