@@ -42,7 +42,7 @@ class PluginViewController {
 				bottom, oldLeft, oldTop, oldRight, oldBottom) ->
 				scrollView.fullScroll(FOCUS_DOWN));
 
-		v.findViewById(R.id.chevronViewCollapsed).setOnClickListener(view -> {
+		collapsedLayout.setOnClickListener(view -> {
 			expandedLayout.setVisibility(VISIBLE);
 			collapsedLayout.setVisibility(GONE);
 		});
