@@ -8,12 +8,12 @@
 		android:id="@+id/expandedLayout"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		app:layout_constraintTop_toBottomOf="@+id/navigation"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
+		android:visibility="gone"
 		app:layout_constraintBottom_toBottomOf="parent"
-		app:layout_constraintVertical_bias="1.0"
-		android:visibility="gone">
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/navigation"
+		app:layout_constraintVertical_bias="1.0">
 
 		<androidx.appcompat.widget.AppCompatImageButton
 			android:id="@+id/chevronViewExpanded"
@@ -156,10 +156,10 @@
 		android:id="@+id/collapsedLayout"
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
-		app:layout_constraintTop_toBottomOf="@+id/navigation"
-		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/navigation"
 		app:layout_constraintVertical_bias="1.0">
 
 		<androidx.appcompat.widget.AppCompatImageButton
@@ -168,6 +168,8 @@
 			android:layout_height="24dp"
 			android:layout_marginBottom="8dp"
 			android:background="@color/divider"
+			android:clickable="false"
+			android:focusable="false"
 			android:foreground="?attr/selectableItemBackground"
 			android:src="@drawable/chevron_up_white"
 			app:layout_constraintEnd_toEndOf="parent"
