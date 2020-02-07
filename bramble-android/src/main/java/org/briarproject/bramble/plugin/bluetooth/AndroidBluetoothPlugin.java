@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -47,7 +46,10 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
+import static android.bluetooth.BluetoothDevice.DEVICE_TYPE_LE;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Collections.shuffle;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -240,11 +242,15 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 						break;
 					} else if (ACTION_FOUND.equals(action)) {
 						BluetoothDevice d = i.getParcelableExtra(EXTRA_DEVICE);
-						String address = d.getAddress();
-						if (LOG.isLoggable(INFO))
-							LOG.info("Discovered " + scrubMacAddress(address));
-						if (!addresses.contains(address))
-							addresses.add(address);
+						// Ignore Bluetooth LE devices
+						if (SDK_INT < 18 || d.getType() != DEVICE_TYPE_LE) {
+							String address = d.getAddress();
+							if (LOG.isLoggable(INFO))
+								LOG.info("Discovered " +
+										scrubMacAddress(address));
+							if (!addresses.contains(address))
+								addresses.add(address);
+						}
 					}
 					now = clock.currentTimeMillis();
 				}
@@ -260,7 +266,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			appContext.unregisterReceiver(receiver);
 		}
 		// Shuffle the addresses so we don't always try the same one first
-		Collections.shuffle(addresses);
+		shuffle(addresses);
 		return addresses;
 	}
 
