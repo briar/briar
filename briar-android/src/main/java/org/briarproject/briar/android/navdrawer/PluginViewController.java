@@ -10,14 +10,13 @@ import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.viewmodel.LiveEvent;
-import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
-import androidx.lifecycle.LifecycleOwner;
 
 import static android.os.Build.VERSION.SDK_INT;
 import static android.transition.TransitionManager.beginDelayedTransition;
@@ -28,23 +27,26 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.briar.android.navdrawer.NavDrawerViewModel.TRANSPORT_IDS;
 
 class PluginViewController {
 
+	private final AppCompatActivity activity;
 	private final NavDrawerViewModel viewModel;
 	private final ConstraintLayout drawerContent;
 	private final ConstraintSet collapsedConstraints, expandedConstraints;
 	private final AppCompatImageButton chevronView;
 	private final ImageView torIcon, wifiIcon, btIcon;
 	private final SwitchCompat torSwitch, wifiSwitch, btSwitch;
-	private final MutableLiveEvent<Integer> reasonsTorDisabled =
-			new MutableLiveEvent<>();
 
 	private boolean expanded = false;
 
-	PluginViewController(View v, LifecycleOwner owner,
+	PluginViewController(View v, AppCompatActivity activity,
 			NavDrawerViewModel viewModel) {
+		this.activity = activity;
 		this.viewModel = viewModel;
 		drawerContent = v.findViewById(R.id.drawerContent);
 
@@ -88,8 +90,8 @@ class PluginViewController {
 				// changes its state
 				switchCompat.toggle();
 			});
-			viewModel.getPluginState(t)
-					.observe(owner, state -> stateUpdate(t, state));
+			viewModel.getPluginState(t).observe(activity, state ->
+					stateUpdate(t, state));
 		}
 	}
 
@@ -105,17 +107,13 @@ class PluginViewController {
 		expanded = !expanded;
 	}
 
-	LiveEvent<Integer> getReasonsTorDisabled() {
-		return reasonsTorDisabled;
-	}
-
 	private void tryToEnablePlugin(TransportId id) {
 		if (id.equals(TorConstants.ID)) {
 			int reasons = viewModel.getReasonsDisabled(id);
 			if (reasons == 0 || reasons == REASON_USER) {
 				viewModel.setPluginEnabled(id, true);
 			} else {
-				reasonsTorDisabled.setEvent(reasons);
+				showTorSettingsDialog(reasons);
 			}
 		} else {
 			viewModel.setPluginEnabled(id, true);
@@ -160,4 +158,42 @@ class PluginViewController {
 		icon.setColorFilter(color);
 	}
 
+	private void showTorSettingsDialog(int reasonsDisabled) {
+		boolean battery = (reasonsDisabled & REASON_BATTERY) != 0;
+		boolean mobileData = (reasonsDisabled & REASON_MOBILE_DATA) != 0;
+		boolean location = (reasonsDisabled & REASON_COUNTRY_BLOCKED) != 0;
+
+		StringBuilder s = new StringBuilder();
+		if (location) {
+			s.append("\t\u2022 ");
+			s.append(activity.getString(R.string.tor_override_network_setting,
+					viewModel.getCurrentCountryName()));
+			s.append('\n');
+		}
+		if (mobileData) {
+			s.append("\t\u2022 ");
+			s.append(activity.getString(
+					R.string.tor_override_mobile_data_setting));
+			s.append('\n');
+		}
+		if (battery) {
+			s.append("\t\u2022 ");
+			s.append(activity.getString(R.string.tor_only_when_charging_title));
+			s.append('\n');
+		}
+		String message = activity.getString(
+				R.string.tor_override_settings_body, s.toString());
+
+		AlertDialog.Builder b =
+				new AlertDialog.Builder(activity, R.style.BriarDialogTheme);
+		b.setTitle(R.string.tor_override_settings_title);
+		b.setIcon(R.drawable.ic_settings_black_24dp);
+		b.setMessage(message);
+		b.setPositiveButton(R.string.tor_override_settings_confirm,
+				(dialog, which) ->
+						viewModel.setTorEnabled(battery, mobileData, location));
+		b.setNegativeButton(R.string.cancel, (dialog, which) ->
+				dialog.dismiss());
+		b.show();
+	}
 }
