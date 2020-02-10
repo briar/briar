@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.system.LocationUtils;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -45,6 +46,7 @@ import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
+import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 @NotNullByDefault
@@ -62,6 +64,7 @@ public class NavDrawerViewModel extends AndroidViewModel
 	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
 	private final PluginManager pluginManager;
+	private final LocationUtils locationUtils;
 	private final EventBus eventBus;
 
 	private final MutableLiveData<Boolean> showExpiryWarning =
@@ -79,11 +82,12 @@ public class NavDrawerViewModel extends AndroidViewModel
 	@Inject
 	NavDrawerViewModel(Application app, @DatabaseExecutor Executor dbExecutor,
 			SettingsManager settingsManager, PluginManager pluginManager,
-			EventBus eventBus) {
+			LocationUtils locationUtils, EventBus eventBus) {
 		super(app);
 		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
 		this.pluginManager = pluginManager;
+		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
 		eventBus.addListener(this);
 		updatePluginStates();
@@ -248,4 +252,7 @@ public class NavDrawerViewModel extends AndroidViewModel
 		});
 	}
 
+	String getCurrentCountryName() {
+		return getCountryDisplayName(locationUtils.getCurrentCountry());
+	}
 }
