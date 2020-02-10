@@ -11,12 +11,15 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 
+import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.constraintlayout.widget.ConstraintSet;
 import androidx.lifecycle.LifecycleOwner;
 
+import static android.os.Build.VERSION.SDK_INT;
+import static android.transition.TransitionManager.beginDelayedTransition;
 import static android.view.View.FOCUS_DOWN;
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
 import static androidx.core.content.ContextCompat.getColor;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
@@ -26,38 +29,43 @@ import static org.briarproject.briar.android.navdrawer.NavDrawerViewModel.TRANSP
 
 class PluginViewController {
 
-	private final ImageView torIconExpanded, torIconCollapsed;
-	private final ImageView wifiIconExpanded, wifiIconCollapsed;
-	private final ImageView btIconExpanded, btIconCollapsed;
+	private final ConstraintLayout drawerContent;
+	private final ConstraintSet collapsedConstraints, expandedConstraints;
+	private final AppCompatImageButton chevronView;
+	private final ImageView torIcon, wifiIcon, btIcon;
 	private final SwitchCompat torSwitch, wifiSwitch, btSwitch;
+
+	private boolean expanded = false;
 
 	PluginViewController(View v, LifecycleOwner owner,
 			NavDrawerViewModel viewModel) {
+		drawerContent = v.findViewById(R.id.drawerContent);
 
+		collapsedConstraints = new ConstraintSet();
+		collapsedConstraints.clone(v.getContext(),
+				R.layout.navigation_menu_collapsed);
+
+		expandedConstraints = new ConstraintSet();
+		expandedConstraints.clone(v.getContext(),
+				R.layout.navigation_menu_expanded);
+
+		// Scroll the drawer to the bottom when the view is expanded/collapsed
 		ScrollView scrollView = v.findViewById(R.id.drawerScrollView);
-		View expandedLayout = v.findViewById(R.id.expandedLayout);
-		View collapsedLayout = v.findViewById(R.id.collapsedLayout);
-
-		expandedLayout.addOnLayoutChangeListener((view, left, top, right,
+		drawerContent.addOnLayoutChangeListener((view, left, top, right,
 				bottom, oldLeft, oldTop, oldRight, oldBottom) ->
 				scrollView.fullScroll(FOCUS_DOWN));
 
-		collapsedLayout.setOnClickListener(view -> {
-			expandedLayout.setVisibility(VISIBLE);
-			collapsedLayout.setVisibility(GONE);
-		});
+		// Clicking the chevron expands or collapses the view
+		chevronView = v.findViewById(R.id.chevronView);
+		chevronView.setOnClickListener(view -> expandOrCollapseView());
 
-		v.findViewById(R.id.chevronViewExpanded).setOnClickListener(view -> {
-			expandedLayout.setVisibility(GONE);
-			collapsedLayout.setVisibility(VISIBLE);
-		});
+		// The whole view is clickable when collapsed
+		v.findViewById(R.id.connectionsBackground).setOnClickListener(view ->
+				expandOrCollapseView());
 
-		torIconExpanded = v.findViewById(R.id.torIconExpanded);
-		torIconCollapsed = v.findViewById(R.id.torIconCollapsed);
-		wifiIconExpanded = v.findViewById(R.id.wifiIconExpanded);
-		wifiIconCollapsed = v.findViewById(R.id.wifiIconCollapsed);
-		btIconExpanded = v.findViewById(R.id.btIconExpanded);
-		btIconCollapsed = v.findViewById(R.id.btIconCollapsed);
+		torIcon = v.findViewById(R.id.torIcon);
+		wifiIcon = v.findViewById(R.id.wifiIcon);
+		btIcon = v.findViewById(R.id.btIcon);
 
 		torSwitch = v.findViewById(R.id.torSwitch);
 		wifiSwitch = v.findViewById(R.id.wifiSwitch);
@@ -78,9 +86,20 @@ class PluginViewController {
 		}
 	}
 
+	private void expandOrCollapseView() {
+		if (SDK_INT >= 19) beginDelayedTransition(drawerContent);
+		if (expanded) {
+			collapsedConstraints.applyTo(drawerContent);
+			chevronView.setImageResource(R.drawable.chevron_up_white);
+		} else {
+			expandedConstraints.applyTo(drawerContent);
+			chevronView.setImageResource(R.drawable.chevron_down_white);
+		}
+		expanded = !expanded;
+	}
+
 	private void stateUpdate(TransportId id, State state) {
-		updateIcon(getExpandedIcon(id), state);
-		updateIcon(getCollapsedIcon(id), state);
+		updateIcon(getIcon(id), state);
 		updateSwitch(getSwitch(id), state);
 	}
 
@@ -97,17 +116,10 @@ class PluginViewController {
 		switchCompat.setEnabled(state != STARTING_STOPPING);
 	}
 
-	private ImageView getExpandedIcon(TransportId id) {
-		if (id == TorConstants.ID) return torIconExpanded;
-		if (id == BluetoothConstants.ID) return btIconExpanded;
-		if (id == LanTcpConstants.ID) return wifiIconExpanded;
-		throw new AssertionError();
-	}
-
-	private ImageView getCollapsedIcon(TransportId id) {
-		if (id == TorConstants.ID) return torIconCollapsed;
-		if (id == BluetoothConstants.ID) return btIconCollapsed;
-		if (id == LanTcpConstants.ID) return wifiIconCollapsed;
+	private ImageView getIcon(TransportId id) {
+		if (id == TorConstants.ID) return torIcon;
+		if (id == BluetoothConstants.ID) return btIcon;
+		if (id == LanTcpConstants.ID) return wifiIcon;
 		throw new AssertionError();
 	}
 

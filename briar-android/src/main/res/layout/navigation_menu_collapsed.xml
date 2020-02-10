@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/drawerContent"
+	android:layout_width="wrap_content"
+	android:layout_height="wrap_content"
+	android:background="@color/window_background">
+
+	<com.google.android.material.navigation.NavigationView
+		android:id="@+id/navigation"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:background="@color/window_background"
+		app:elevation="0dp"
+		app:headerLayout="@layout/navigation_header"
+		app:itemBackground="@drawable/navigation_item_background"
+		app:itemIconTint="?attr/colorControlNormal"
+		app:itemTextColor="?android:textColorPrimary"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent"
+		app:layout_constraintVertical_bias="0.0"
+		app:menu="@menu/navigation_drawer" />
+
+	<androidx.appcompat.widget.AppCompatImageButton
+		android:id="@+id/chevronView"
+		android:layout_width="0dp"
+		android:layout_height="24dp"
+		android:layout_marginBottom="8dp"
+		android:background="@color/divider"
+		android:foreground="?attr/selectableItemBackground"
+		android:src="@drawable/chevron_up_white"
+		app:layout_constraintBottom_toTopOf="@+id/connectionsLabel"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/navigation"
+		app:layout_constraintVertical_bias="1.0"
+		app:layout_constraintVertical_chainStyle="packed"
+		app:tint="?attr/colorControlNormal"
+		tools:ignore="ContentDescription,UnusedAttribute" />
+
+	<View
+		android:id="@+id/connectionsBackground"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/chevronView" />
+
+	<TextView
+		android:id="@+id/connectionsLabel"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginStart="16dp"
+		android:layout_marginLeft="16dp"
+		android:layout_marginTop="8dp"
+		android:layout_marginBottom="16dp"
+		android:text="@string/transport_connection"
+		android:textSize="12sp"
+		android:visibility="visible"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/torIcon"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/chevronView" />
+
+	<!-- Hidden -->
+	<View
+		android:id="@+id/longRangeBackground"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:background="@color/item_background_highlight"
+		android:visibility="gone"
+		tools:ignore="MissingConstraints" />
+
+	<!-- Hidden -->
+	<TextView
+		android:id="@+id/longRangeLabel"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:text="@string/transport_internet"
+		android:textSize="12sp"
+		android:visibility="gone"
+		tools:ignore="MissingConstraints" />
+
+	<ImageView
+		android:id="@+id/torIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="16dp"
+		android:layout_marginRight="16dp"
+		android:src="@drawable/transport_tor"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/wifiIcon"
+		app:layout_constraintTop_toBottomOf="@+id/chevronView"
+		tools:ignore="ContentDescription"
+		tools:tint="@color/briar_green" />
+
+	<!-- Hidden -->
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/torSwitch"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:text="@string/transport_tor"
+		android:visibility="gone"
+		tools:ignore="MissingConstraints" />
+
+	<!-- Hidden -->
+	<TextView
+		android:id="@+id/nearbyLabel"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:text="@string/transport_nearby"
+		android:textSize="12sp"
+		android:visibility="gone"
+		tools:ignore="MissingConstraints" />
+
+	<ImageView
+		android:id="@+id/wifiIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="16dp"
+		android:layout_marginRight="16dp"
+		android:src="@drawable/transport_lan"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toStartOf="@+id/btIcon"
+		app:layout_constraintTop_toBottomOf="@+id/chevronView"
+		tools:checked="true"
+		tools:ignore="ContentDescription"
+		tools:tint="@color/briar_green" />
+
+	<!-- Hidden -->
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/wifiSwitch"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:text="@string/transport_lan"
+		android:visibility="gone"
+		tools:ignore="MissingConstraints" />
+
+	<ImageView
+		android:id="@+id/btIcon"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_marginEnd="16dp"
+		android:layout_marginRight="16dp"
+		android:src="@drawable/transport_bt"
+		app:layout_constraintBottom_toBottomOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintTop_toBottomOf="@+id/chevronView"
+		tools:checked="true"
+		tools:ignore="ContentDescription"
+		tools:tint="@color/briar_green" />
+
+	<!-- Hidden -->
+	<androidx.appcompat.widget.SwitchCompat
+		android:id="@+id/btSwitch"
+		android:layout_width="0dp"
+		android:layout_height="0dp"
+		android:text="@string/transport_bt"
+		android:visibility="gone"
+		tools:ignore="MissingConstraints" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
