@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-	xmlns:app="http://schemas.android.com/apk/res-auto"
 	android:id="@+id/drawerScrollView"
 	android:layout_width="wrap_content"
 	android:layout_height="match_parent"
@@ -8,29 +7,6 @@
 	android:fillViewport="true"
 	android:orientation="vertical">
 
-	<androidx.constraintlayout.widget.ConstraintLayout
-		android:layout_width="wrap_content"
-		android:layout_height="wrap_content"
-		android:background="@color/window_background"
-		android:orientation="vertical">
-
-		<com.google.android.material.navigation.NavigationView
-			android:id="@+id/navigation"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:background="@color/window_background"
-			app:elevation="0dp"
-			app:headerLayout="@layout/navigation_header"
-			app:itemBackground="@drawable/navigation_item_background"
-			app:itemIconTint="?attr/colorControlNormal"
-			app:itemTextColor="?android:textColorPrimary"
-			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toTopOf="parent"
-			app:layout_constraintVertical_bias="0.0"
-			app:menu="@menu/navigation_drawer" />
-
-		<include layout="@layout/transports_list" />
-
-	</androidx.constraintlayout.widget.ConstraintLayout>
+	<include layout="@layout/navigation_menu_collapsed" />
 
 </ScrollView>
