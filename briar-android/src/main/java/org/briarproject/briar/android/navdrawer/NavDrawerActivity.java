@@ -390,9 +390,12 @@ public class NavDrawerActivity extends BriarActivity implements
 
 		AlertDialog.Builder b =
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
+		b.setTitle(R.string.tor_override_settings_title);
+		b.setIcon(R.drawable.ic_settings_black_24dp);
 		b.setMessage(message);
-		b.setPositiveButton(R.string.continue_button, (dialog, which) ->
-				viewModel.setTorEnabled(battery, mobileData, location));
+		b.setPositiveButton(R.string.tor_override_settings_confirm,
+				(dialog, which) ->
+						viewModel.setTorEnabled(battery, mobileData, location));
 		b.setNegativeButton(R.string.cancel, (dialog, which) ->
 				dialog.dismiss());
 		b.show();
