@@ -1109,6 +1109,10 @@ public class ConversationActivity extends BriarActivity
 				attachmentRetriever.getAttachmentItems(h);
 		List<AttachmentItem> items = new ArrayList<>(liveDataList.size());
 		for (LiveData<AttachmentItem> liveData : liveDataList) {
+			// first remove all our observers to avoid having more than one
+			// in case we reload the conversation, e.g. after deleting messages
+			liveData.removeObservers(this);
+			// add a new observer
 			liveData.observe(this, new AttachmentObserver(h.getId(), liveData));
 			items.add(requireNonNull(liveData.getValue()));
 		}

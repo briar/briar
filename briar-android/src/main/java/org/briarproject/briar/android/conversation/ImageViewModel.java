@@ -27,7 +27,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -40,6 +42,7 @@ import androidx.lifecycle.AndroidViewModel;
 import static android.media.MediaScannerConnection.scanFile;
 import static android.os.Environment.DIRECTORY_PICTURES;
 import static android.os.Environment.getExternalStoragePublicDirectory;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
@@ -57,8 +60,10 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 	@IoExecutor
 	private final Executor ioExecutor;
 
-	private final MutableLiveEvent<MessageId> attachmentLoaded =
-			new MutableLiveEvent<>();
+	private volatile boolean receivedAttachmentsInitialized = false;
+	private ConcurrentHashMap<MessageId, MutableLiveEvent<Boolean>>
+			receivedAttachments = new ConcurrentHashMap<>();
+
 	/**
 	 * true means there was an error saving the image, false if image was saved.
 	 */
@@ -91,13 +96,36 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof AttachmentReceivedEvent) {
-			attachmentLoaded
-					.postEvent(((AttachmentReceivedEvent) e).getMessageId());
+			MessageId id = ((AttachmentReceivedEvent) e).getMessageId();
+			MutableLiveEvent<Boolean> oldEvent;
+			if (receivedAttachmentsInitialized) {
+				oldEvent = receivedAttachments.get(id);
+			} else {
+				oldEvent = receivedAttachments
+						.putIfAbsent(id, new MutableLiveEvent<>(true));
+			}
+			if (oldEvent != null) oldEvent.postEvent(true);
 		}
 	}
 
-	LiveEvent<MessageId> getOnAttachmentLoaded() {
-		return attachmentLoaded;
+	@UiThread
+	public void expectAttachments(List<AttachmentItem> attachments) {
+		for (AttachmentItem item : attachments) {
+			// no need to track items that are in a final state already
+			if (item.getState().isFinal()) continue;
+			// add new live events, if not added concurrently by Event
+			MessageId id = item.getMessageId();
+			receivedAttachments.putIfAbsent(id, new MutableLiveEvent<>());
+		}
+		receivedAttachmentsInitialized = true;
+	}
+
+	@UiThread
+	LiveEvent<Boolean> getOnAttachmentReceived(MessageId messageId) {
+		if (receivedAttachments.size() == 0) {
+			throw new IllegalStateException("expectAttachments() not called");
+		}
+		return requireNonNull(receivedAttachments.get(messageId));
 	}
 
 	void clickImage() {

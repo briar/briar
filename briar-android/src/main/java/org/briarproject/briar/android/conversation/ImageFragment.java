@@ -95,8 +95,6 @@ public class ImageFragment extends Fragment
 
 		viewModel = ViewModelProviders.of(requireNonNull(getActivity()),
 				viewModelFactory).get(ImageViewModel.class);
-		viewModel.getOnAttachmentLoaded()
-				.observeEvent(this, this::onAttachmentLoaded);
 
 		photoView = v.findViewById(R.id.photoView);
 		photoView.setScaleLevels(1, 2, 4);
@@ -111,6 +109,9 @@ public class ImageFragment extends Fragment
 		} else {
 			photoView.setImageResource(R.drawable.ic_image_missing);
 			startPostponedTransition();
+			// state is not final, so observe state changes
+			viewModel.getOnAttachmentReceived(attachment.getMessageId())
+					.observeEvent(this, this::onAttachmentReceived);
 		}
 
 		return v;
@@ -127,8 +128,8 @@ public class ImageFragment extends Fragment
 				.into(photoView);
 	}
 
-	private void onAttachmentLoaded(MessageId messageId) {
-		if (attachment.getMessageId().equals(messageId)) loadImage();
+	private void onAttachmentReceived(Boolean received) {
+		if (received) loadImage();
 	}
 
 	@Override

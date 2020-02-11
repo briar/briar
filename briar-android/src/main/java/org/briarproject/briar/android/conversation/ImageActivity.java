@@ -103,9 +103,20 @@ public class ImageActivity extends BriarActivity
 			setSceneTransitionAnimation(transition, null, transition);
 		}
 
+		// Intent Extras
+		Intent i = getIntent();
+		attachments =
+				requireNonNull(i.getParcelableArrayListExtra(ATTACHMENTS));
+		int position = i.getIntExtra(ATTACHMENT_POSITION, -1);
+		if (position == -1) throw new IllegalStateException();
+		String name = i.getStringExtra(NAME);
+		long time = i.getLongExtra(DATE, 0);
+		byte[] messageIdBytes = requireNonNull(i.getByteArrayExtra(ITEM_ID));
+
 		// get View Model
 		viewModel = ViewModelProviders.of(this, viewModelFactory)
 				.get(ImageViewModel.class);
+		viewModel.expectAttachments(attachments);
 		viewModel.getSaveState().observeEvent(this,
 				this::onImageSaveStateChanged);
 
@@ -129,17 +140,11 @@ public class ImageActivity extends BriarActivity
 		TextView contactName = toolbar.findViewById(R.id.contactName);
 		TextView dateView = toolbar.findViewById(R.id.dateView);
 
-		// Intent Extras
-		Intent i = getIntent();
-		attachments = i.getParcelableArrayListExtra(ATTACHMENTS);
-		int position = i.getIntExtra(ATTACHMENT_POSITION, -1);
-		if (position == -1) throw new IllegalStateException();
-		String name = i.getStringExtra(NAME);
-		long time = i.getLongExtra(DATE, 0);
+		// Set contact name and message time
 		String date = formatDateAbsolute(this, time);
 		contactName.setText(name);
 		dateView.setText(date);
-		conversationMessageId = new MessageId(i.getByteArrayExtra(ITEM_ID));
+		conversationMessageId = new MessageId(messageIdBytes);
 
 		// Set up image ViewPager
 		viewPager = findViewById(R.id.viewPager);
