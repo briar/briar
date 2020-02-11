@@ -92,7 +92,7 @@ public class PendingContactListViewModel extends AndroidViewModel
 				Collection<Pair<PendingContact, PendingContactState>> pairs =
 						contactManager.getPendingContacts();
 				List<PendingContactItem> items = new ArrayList<>(pairs.size());
-				boolean online = items.isEmpty();
+				boolean online = pairs.isEmpty();
 				for (Pair<PendingContact, PendingContactState> pair : pairs) {
 					PendingContact p = pair.getFirst();
 					PendingContactState state = pair.getSecond();
