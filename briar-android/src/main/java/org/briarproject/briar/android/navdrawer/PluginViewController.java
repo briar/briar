@@ -31,6 +31,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.briar.android.navdrawer.NavDrawerViewModel.TRANSPORT_IDS;
+import static org.briarproject.briar.android.util.UiUtils.getDialogIcon;
 
 class PluginViewController {
 
@@ -187,7 +188,7 @@ class PluginViewController {
 		AlertDialog.Builder b =
 				new AlertDialog.Builder(activity, R.style.BriarDialogTheme);
 		b.setTitle(R.string.tor_override_settings_title);
-		b.setIcon(R.drawable.ic_settings_black_24dp);
+		b.setIcon(getDialogIcon(activity, R.drawable.ic_settings_black_24dp));
 		b.setMessage(message);
 		b.setPositiveButton(R.string.tor_override_settings_confirm,
 				(dialog, which) ->
