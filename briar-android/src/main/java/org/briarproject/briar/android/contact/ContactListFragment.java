@@ -61,7 +61,7 @@ import io.github.kobakei.materialfabspeeddial.FabSpeedDial.OnMenuItemClickListen
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static androidx.core.view.ViewCompat.getTransitionName;
-import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
+import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -87,7 +87,12 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 
 	private ContactListAdapter adapter;
 	private BriarRecyclerView list;
-	private Snackbar snackbar;
+	/**
+	 * The Snackbar is non-null when shown and null otherwise.
+	 * Use {@link #showSnackBar()} and {@link #dismissSnackBar()} to interact.
+	 */
+	@Nullable
+	private Snackbar snackbar = null;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -163,13 +168,6 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		list.setEmptyText(getString(R.string.no_contacts));
 		list.setEmptyAction(getString(R.string.no_contacts_action));
 
-		snackbar = new BriarSnackbarBuilder()
-				.setAction(R.string.show, v ->
-						startActivity(new Intent(getContext(),
-								PendingContactListActivity.class)))
-				.make(contentView, R.string.pending_contact_requests_snackbar,
-						LENGTH_INDEFINITE);
-
 		return contentView;
 	}
 
@@ -203,9 +201,9 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		listener.runOnDbThread(() -> {
 			try {
 				if (contactManager.getPendingContacts().isEmpty()) {
-					runOnUiThreadUnlessDestroyed(() -> snackbar.dismiss());
+					runOnUiThreadUnlessDestroyed(this::dismissSnackBar);
 				} else {
-					runOnUiThreadUnlessDestroyed(() -> snackbar.show());
+					runOnUiThreadUnlessDestroyed(this::showSnackBar);
 				}
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -220,6 +218,7 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		adapter.clear();
 		list.showProgressBar();
 		list.stopPeriodicUpdate();
+		dismissSnackBar();
 	}
 
 	private void loadContacts() {
@@ -313,6 +312,29 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 			item.setConnected(connected);
 			adapter.updateItemAt(position, item);
 		}
+	}
+
+	@UiThread
+	private void showSnackBar() {
+		if (snackbar != null) return;
+		View v = requireNonNull(getView());
+		int stringRes = R.string.pending_contact_requests_snackbar;
+		snackbar = new BriarSnackbarBuilder()
+				.setAction(R.string.show, view -> showPendingContactList())
+				.make(v, stringRes, LENGTH_INDEFINITE);
+		snackbar.show();
+	}
+
+	@UiThread
+	private void dismissSnackBar() {
+		if (snackbar == null) return;
+		snackbar.dismiss();
+		snackbar = null;
+	}
+
+	private void showPendingContactList() {
+		Intent i = new Intent(getContext(), PendingContactListActivity.class);
+		startActivity(i);
 	}
 
 }
