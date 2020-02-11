@@ -74,7 +74,6 @@ import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
-import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
 import java.util.ArrayList;
@@ -652,13 +651,6 @@ public class ConversationActivity extends BriarActivity
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof AttachmentReceivedEvent) {
-			AttachmentReceivedEvent a = (AttachmentReceivedEvent) e;
-			if (a.getContactId().equals(contactId)) {
-				LOG.info("Attachment received");
-				onAttachmentReceived(a.getMessageId());
-			}
-		}
 		if (e instanceof ContactRemovedEvent) {
 			ContactRemovedEvent c = (ContactRemovedEvent) e;
 			if (c.getContactId().equals(contactId)) {
@@ -716,12 +708,6 @@ public class ConversationActivity extends BriarActivity
 		// is visible, even if we're not currently at the bottom
 		if (getLifecycle().getCurrentState().isAtLeast(STARTED))
 			scrollToBottom();
-	}
-
-	@UiThread
-	private void onAttachmentReceived(MessageId attachmentId) {
-		runOnDbThread(
-				() -> attachmentRetriever.loadAttachmentItem(attachmentId));
 	}
 
 	@UiThread

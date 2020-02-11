@@ -11,6 +11,9 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.db.TransactionManager;
+import org.briarproject.bramble.api.event.Event;
+import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
@@ -30,6 +33,7 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
+import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 
 import java.util.Collection;
 import java.util.List;
@@ -56,7 +60,7 @@ import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
 @NotNullByDefault
 public class ConversationViewModel extends AndroidViewModel
-		implements AttachmentManager {
+		implements EventListener, AttachmentManager {
 
 	private static Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
@@ -69,6 +73,7 @@ public class ConversationViewModel extends AndroidViewModel
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 	private final TransactionManager db;
+	private final EventBus eventBus;
 	private final MessagingManager messagingManager;
 	private final ContactManager contactManager;
 	private final SettingsManager settingsManager;
@@ -101,6 +106,7 @@ public class ConversationViewModel extends AndroidViewModel
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			TransactionManager db,
+			EventBus eventBus,
 			MessagingManager messagingManager,
 			ContactManager contactManager,
 			SettingsManager settingsManager,
@@ -110,6 +116,7 @@ public class ConversationViewModel extends AndroidViewModel
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.db = db;
+		this.eventBus = eventBus;
 		this.messagingManager = messagingManager;
 		this.contactManager = contactManager;
 		this.settingsManager = settingsManager;
@@ -119,12 +126,27 @@ public class ConversationViewModel extends AndroidViewModel
 		messagingGroupId = Transformations
 				.map(contact, c -> messagingManager.getContactGroup(c).getId());
 		contactDeleted.setValue(false);
+
+		eventBus.addListener(this);
 	}
 
 	@Override
 	protected void onCleared() {
 		super.onCleared();
 		attachmentCreator.deleteUnsentAttachments();
+		eventBus.removeListener(this);
+	}
+
+	@Override
+	public void eventOccurred(Event e) {
+		if (e instanceof AttachmentReceivedEvent) {
+			AttachmentReceivedEvent a = (AttachmentReceivedEvent) e;
+			if (a.getContactId().equals(contactId)) {
+				LOG.info("Attachment received");
+				dbExecutor.execute(() -> attachmentRetriever
+						.loadAttachmentItem(a.getMessageId()));
+			}
+		}
 	}
 
 	/**
