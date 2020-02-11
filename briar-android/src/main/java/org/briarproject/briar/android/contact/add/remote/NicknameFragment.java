@@ -3,7 +3,6 @@ package org.briarproject.briar.android.contact.add.remote;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.view.LayoutInflater;
@@ -38,12 +37,10 @@ import androidx.lifecycle.ViewModelProviders;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_LONG;
-import static androidx.core.content.ContextCompat.getColor;
-import static androidx.core.content.ContextCompat.getDrawable;
-import static androidx.core.graphics.drawable.DrawableCompat.setTint;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
+import static org.briarproject.briar.android.util.UiUtils.getDialogIcon;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -199,9 +196,7 @@ public class NicknameFragment extends BaseFragment {
 	private void showWarningDialog(String name1, String name2) {
 		Context ctx = requireContext();
 		Builder b = new Builder(ctx, R.style.BriarDialogTheme);
-		Drawable icon = getDrawable(ctx, R.drawable.alerts_and_states_error);
-		setTint(requireNonNull(icon), getColor(ctx, R.color.color_primary));
-		b.setIcon(icon);
+		b.setIcon(getDialogIcon(ctx, R.drawable.alerts_and_states_error));
 		b.setTitle(getString(R.string.duplicate_link_dialog_title));
 		b.setMessage(
 				getString(R.string.duplicate_link_dialog_text_3, name1, name2));

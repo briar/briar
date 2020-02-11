@@ -2,7 +2,6 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.transition.Fade;
 import android.transition.Transition;
@@ -35,8 +34,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog.Builder;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -59,6 +56,7 @@ import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SAVE_ATTACHMENT;
 import static org.briarproject.briar.android.util.UiUtils.formatDateAbsolute;
+import static org.briarproject.briar.android.util.UiUtils.getDialogIcon;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -278,10 +276,7 @@ public class ImageActivity extends BriarActivity
 		Builder builder = new Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_save_image));
 		builder.setMessage(getString(R.string.dialog_message_save_image));
-		Drawable icon = ContextCompat.getDrawable(this, R.drawable.ic_security);
-		DrawableCompat.setTint(requireNonNull(icon),
-				ContextCompat.getColor(this, R.color.color_primary));
-		builder.setIcon(icon);
+		builder.setIcon(getDialogIcon(this, R.drawable.ic_security));
 		builder.setPositiveButton(R.string.save_image, okListener);
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.show();
