@@ -28,7 +28,9 @@ import static android.security.keystore.KeyProperties.PURPOSE_SIGN;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @RequiresApi(23)
 @NotNullByDefault
@@ -79,7 +81,10 @@ class AndroidKeyStrengthener implements KeyStrengthener {
 				return true;
 			}
 			return false;
-		} catch (GeneralSecurityException | IOException e) {
+		} catch (GeneralSecurityException e) {
+			logException(LOG, WARNING, e);
+			return false;
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
