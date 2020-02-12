@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.widget;
 
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -10,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -22,6 +24,7 @@ import androidx.fragment.app.DialogFragment;
 
 import static android.content.Intent.ACTION_VIEW;
 import static android.content.pm.PackageManager.MATCH_DEFAULT_ONLY;
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
@@ -64,18 +67,23 @@ public class LinkDialogFragment extends DialogFragment {
 		urlView.setText(url);
 
 		// prepare normal intent or intent chooser
+		Context ctx = requireContext();
 		Intent i = new Intent(ACTION_VIEW, Uri.parse(url));
-		PackageManager packageManager =
-				requireNonNull(getContext()).getPackageManager();
-		List activities = packageManager.queryIntentActivities(i,
-				MATCH_DEFAULT_ONLY);
+		PackageManager packageManager = ctx.getPackageManager();
+		List activities =
+				packageManager.queryIntentActivities(i, MATCH_DEFAULT_ONLY);
 		boolean choice = activities.size() > 1;
 		Intent intent = choice ? Intent.createChooser(i,
 				getString(R.string.link_warning_open_link)) : i;
 
 		Button openButton = v.findViewById(R.id.openButton);
 		openButton.setOnClickListener(v1 -> {
-			startActivity(intent);
+			if (intent.resolveActivity(packageManager) != null) {
+				startActivity(intent);
+			} else {
+				Toast.makeText(ctx, R.string.error_start_activity, LENGTH_SHORT)
+						.show();
+			}
 			getDialog().dismiss();
 		});
 
