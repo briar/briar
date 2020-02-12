@@ -71,7 +71,10 @@ class SessionParserImpl implements SessionParser {
 	@Override
 	public CreatorSession parseCreatorSession(GroupId contactGroupId,
 			BdfDictionary d) throws FormatException {
-		if (getRole(d) != CREATOR) throw new IllegalArgumentException();
+		if (getRole(d) != CREATOR) {
+			throw new IllegalArgumentException(
+					"Expected creator, but found " + getRole(d).name());
+		}
 		return new CreatorSession(contactGroupId, getPrivateGroupId(d),
 				getLastLocalMessageId(d), getLastRemoteMessageId(d),
 				getLocalTimestamp(d), getInviteTimestamp(d),
