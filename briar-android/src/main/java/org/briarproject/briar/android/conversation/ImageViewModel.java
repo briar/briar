@@ -27,9 +27,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -60,9 +60,9 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 	@IoExecutor
 	private final Executor ioExecutor;
 
-	private volatile boolean receivedAttachmentsInitialized = false;
-	private ConcurrentHashMap<MessageId, MutableLiveEvent<Boolean>>
-			receivedAttachments = new ConcurrentHashMap<>();
+	private boolean receivedAttachmentsInitialized = false;
+	private HashMap<MessageId, MutableLiveEvent<Boolean>> receivedAttachments =
+			new HashMap<>();
 
 	/**
 	 * true means there was an error saving the image, false if image was saved.
@@ -93,6 +93,7 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 		eventBus.removeListener(this);
 	}
 
+	@UiThread
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof AttachmentReceivedEvent) {
@@ -100,11 +101,10 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 			MutableLiveEvent<Boolean> oldEvent;
 			if (receivedAttachmentsInitialized) {
 				oldEvent = receivedAttachments.get(id);
+				if (oldEvent != null) oldEvent.postEvent(true);
 			} else {
-				oldEvent = receivedAttachments
-						.putIfAbsent(id, new MutableLiveEvent<>(true));
+				receivedAttachments.put(id, new MutableLiveEvent<>(true));
 			}
-			if (oldEvent != null) oldEvent.postEvent(true);
 		}
 	}
 
@@ -113,18 +113,21 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 		for (AttachmentItem item : attachments) {
 			// no need to track items that are in a final state already
 			if (item.getState().isFinal()) continue;
-			// add new live events, if not added concurrently by Event
+			// add new live events, if not already added by eventOccurred()
 			MessageId id = item.getMessageId();
-			receivedAttachments.putIfAbsent(id, new MutableLiveEvent<>());
+			if (!receivedAttachments.containsKey(id)) {
+				receivedAttachments.put(id, new MutableLiveEvent<>());
+			}
 		}
 		receivedAttachmentsInitialized = true;
 	}
 
+	/**
+	 * Returns a LiveData for attachments in a non-final state.
+	 * Note that you need to call {@link #expectAttachments(List)} first.
+	 */
 	@UiThread
 	LiveEvent<Boolean> getOnAttachmentReceived(MessageId messageId) {
-		if (receivedAttachments.size() == 0) {
-			throw new IllegalStateException("expectAttachments() not called");
-		}
 		return requireNonNull(receivedAttachments.get(messageId));
 	}
 

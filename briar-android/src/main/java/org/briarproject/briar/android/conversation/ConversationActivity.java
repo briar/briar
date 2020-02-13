@@ -260,7 +260,6 @@ public class ConversationActivity extends BriarActivity
 		adapter = new ConversationAdapter(this, this);
 		list = findViewById(R.id.conversationView);
 		layoutManager = new LinearLayoutManager(this);
-		layoutManager.setStackFromEnd(true);
 		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
 		list.setEmptyText(getString(R.string.no_private_messages));
