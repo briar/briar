@@ -80,8 +80,13 @@ class GroupListControllerImpl extends DbControllerImpl
 	}
 
 	@Override
-	public void setGroupListListener(@Nullable GroupListListener listener) {
+	public void setGroupListListener(GroupListListener listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public void unsetGroupListListener(GroupListListener listener) {
+		if (this.listener == listener) this.listener = null;
 	}
 
 	@Override

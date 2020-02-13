@@ -69,8 +69,13 @@ class FeedControllerImpl extends BaseControllerImpl implements FeedController {
 	}
 
 	@Override
-	public void setFeedListener(@Nullable FeedListener listener) {
+	public void setFeedListener(FeedListener listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public void unsetFeedListener(FeedListener listener) {
+		if (this.listener == listener) this.listener = null;
 	}
 
 	@Override

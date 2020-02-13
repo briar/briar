@@ -17,6 +17,12 @@ public interface SharingController {
 	void setSharingListener(SharingListener listener);
 
 	/**
+	 * Unsets the listener.
+	 */
+	@UiThread
+	void unsetSharingListener(SharingListener listener);
+
+	/**
 	 * Call this when your lifecycle starts,
 	 * so the listener will be called when information changes.
 	 */

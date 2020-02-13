@@ -141,7 +141,8 @@ public class BlogFragment extends BaseFragment
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		blogController.setBlogSharingListener(null);
+		blogController.unsetBlogSharingListener(this);
+		sharingController.unsetSharingListener(this);
 	}
 
 	@Override
