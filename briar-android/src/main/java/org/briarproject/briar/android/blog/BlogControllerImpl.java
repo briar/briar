@@ -96,8 +96,13 @@ class BlogControllerImpl extends BaseControllerImpl
 	}
 
 	@Override
-	public void setBlogSharingListener(@Nullable BlogSharingListener listener) {
+	public void setBlogSharingListener(BlogSharingListener listener) {
 		this.listener = listener;
+	}
+
+	@Override
+	public void unsetBlogSharingListener(BlogSharingListener listener) {
+		if (this.listener == listener) this.listener = null;
 	}
 
 	@Override

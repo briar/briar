@@ -44,6 +44,11 @@ public class SharingControllerImpl implements SharingController, EventListener {
 	}
 
 	@Override
+	public void unsetSharingListener(SharingListener listener) {
+		if (this.listener == listener) this.listener = null;
+	}
+
+	@Override
 	public void onStart() {
 		eventBus.addListener(this);
 	}

@@ -134,7 +134,7 @@ public class FeedFragment extends BaseFragment implements
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		feedController.setFeedListener(null);
+		feedController.unsetFeedListener(this);
 	}
 
 	@Override

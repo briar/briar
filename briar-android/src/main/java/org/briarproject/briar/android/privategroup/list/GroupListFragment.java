@@ -112,7 +112,7 @@ public class GroupListFragment extends BaseFragment implements
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		controller.setGroupListListener(null);
+		controller.unsetGroupListListener(this);
 	}
 
 	@Override

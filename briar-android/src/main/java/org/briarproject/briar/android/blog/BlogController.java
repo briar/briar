@@ -9,7 +9,6 @@ import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 
 import java.util.Collection;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 @NotNullByDefault
@@ -18,7 +17,10 @@ public interface BlogController extends BaseController {
 	void setGroupId(GroupId g);
 
 	@UiThread
-	void setBlogSharingListener(@Nullable BlogSharingListener listener);
+	void setBlogSharingListener(BlogSharingListener listener);
+
+	@UiThread
+	void unsetBlogSharingListener(BlogSharingListener listener);
 
 	void loadBlogPosts(
 			ResultExceptionHandler<Collection<BlogPostItem>, DbException> handler);
