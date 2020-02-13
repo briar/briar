@@ -168,7 +168,7 @@
   <string name="authenticating_with_device">Autentiserar med enhet\u2026</string>
   <string name="connection_error_title">Kunde ej ansluta till din kontakt</string>
   <string name="connection_error_explanation">Kontrollera att ni båda är anslutna på samma Wi-Fi-nätverk.</string>
-  <string name="connection_error_feedback">Om det här problemet kvarstår, vänligen<a href="feedback">ge återkoppling</a> så vi kan förbättra appan.</string>
+  <string name="connection_error_feedback">Om det här problemet kvarstår, vänligen lämna <a href="feedback">synpunkter</a> så vi kan förbättra appen.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Lägg till en kontakt på avstånd</string>
   <string name="add_contact_nearby_title">Lägg till en närvarande kontakt</string>
@@ -492,8 +492,8 @@
   <string name="choose_ringtone_title">Välj ringsignal</string>
   <string name="cannot_load_ringtone">Kan ej ladda ringsignal</string>
   <!--Settings Feedback-->
-  <string name="feedback_settings_title">Återkoppling</string>
-  <string name="send_feedback">Ge återkoppling</string>
+  <string name="feedback_settings_title">Synpunkter</string>
+  <string name="send_feedback">Lämna synpunkter</string>
   <!--Link Warning-->
   <string name="link_warning_title">Länkvarning</string>
   <string name="link_warning_intro">Följande länk är på väg att öppnas i en extern app.</string>
@@ -505,9 +505,9 @@
   <string name="not_your_fault">Detta är inte ditt fel.</string>
   <string name="please_send_report">Hjälp oss att förbättra Briar genom att skicka en felrapport.</string>
   <string name="report_is_encrypted">Vi lovar att felrapporten är krypterad och skickas säkert.</string>
-  <string name="feedback_title">Återkoppling</string>
+  <string name="feedback_title">Synpunkter</string>
   <string name="describe_crash">Beskriv vad som hänt (valfritt)</string>
-  <string name="enter_feedback">Ge din återkoppling</string>
+  <string name="enter_feedback">Skriv ner dina synpunkter</string>
   <string name="optional_contact_email">Din e-postadress (valfritt)</string>
   <string name="include_debug_report_crash">Inkludera anonym data om krashen.</string>
   <string name="include_debug_report_feedback">Inkludera anonym data om den här enheten</string>

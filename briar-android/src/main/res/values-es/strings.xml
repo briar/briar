@@ -125,9 +125,16 @@
   <string name="set_contact_alias_hint">Nombre del contacto</string>
   <string name="set_alias_button">Cambiar</string>
   <string name="delete_all_messages">Eliminar todos los mensajes</string>
-  <string name="dialog_title_delete_all_messages">Confirmar la eliminación del mensaje</string>
+  <string name="dialog_title_delete_all_messages">Confirmar eliminación de mensajes</string>
   <string name="dialog_message_delete_all_messages">¿Estás seguro de que deseas eliminar todos los mensajes?</string>
   <string name="dialog_title_not_all_messages_deleted">No se pudieron eliminar todos los mensajes.</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Los mensajes relacionados con presentaciones o invitaciones en curso no se pueden eliminar hasta que finalicen.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Los mensajes relacionados con presentaciones o invitaciones en curso no se pueden eliminar hasta que finalicen.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Los mensajes relacionados a invitaciones en curso no pueden ser borrados hasta su conclusión.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Los mensajes parcialmente descargados no se pueden eliminar hasta que haya finalizado la descarga.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Para borrar una invitación o presentación, debes seleccionar la petición y la respuesta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Para eliminar una introducción, debe seleccionar la solicitud y la respuesta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Para eliminar una invitación, debe seleccionar la solicitud y la respuesta.</string>
   <string name="delete_contact">Eliminar contacto</string>
   <string name="dialog_title_delete_contact">Confirmar eliminación de contacto</string>
   <string name="dialog_message_delete_contact">¿Seguro que quieres eliminar este contacto y todos los mensajes intercambiados entre vosotros?</string>

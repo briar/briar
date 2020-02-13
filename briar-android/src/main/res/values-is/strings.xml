@@ -128,6 +128,13 @@
   <string name="dialog_title_delete_all_messages">Staðfesta eyðingu skilaboða</string>
   <string name="dialog_message_delete_all_messages">Ertu viss um að þú viljir eyða öllum skilaboðum?</string>
   <string name="dialog_title_not_all_messages_deleted">Gat ekki eytt öllum skilaboðum</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Skilaboð sem tengjast fyrirliggjandi kynningum fyrirliggjandi boðum og kynningum er ekki hægt að eyða fyrr en viðkomandi ferli er lokið.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Skilaboð sem tengjast fyrirliggjandi kynningum fyrirliggjandi kynningum er ekki hægt að eyða fyrr en viðkomandi ferli er lokið.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Skilaboð sem tengjast fyrirliggjandi kynningum fyrirliggjandi boðum er ekki hægt að eyða fyrr en viðkomandi ferli er lokið.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Skilaboðum sem sótt hafa verið að hluta er ekki hægt að eyða fyrr en niðurhali þeirra er lokið.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Til að eyða boði eða kynningu, þarftu að velja beiðnina og svarið.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Til að eyða kynningu, þarftu að velja beiðnina og svarið.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Til að eyða boði, þarftu að velja beiðnina og svarið.</string>
   <string name="delete_contact">Eyða tengilið</string>
   <string name="dialog_title_delete_contact">Staðfesta eyðingu tengiliðar</string>
   <string name="dialog_message_delete_contact">Ertu viss að þú viljir fjarlægja þennan tengilið ásamt öllum þeim skilaboðum sem ykkur hafa farið á milli?</string>

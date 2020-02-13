@@ -258,11 +258,11 @@
   <string name="introduction_error">Произошла ошибка во время представления.</string>
   <string name="introduction_response_error">Ошибка при ответе на представление</string>
   <string name="introduction_request_sent">Вы сделали представление %1$s %2$s.</string>
-  <string name="introduction_request_received">%1$s попросил вас представить %2$s. Вы хотите добавить %2$s в ваш список контактов?</string>
-  <string name="introduction_request_exists_received">%1$s попросил вас представить %2$s, но %2$s уже находится в вашем списке контактов. Поскольку %1$s может не знать об этом, вы все равно можете ответить:</string>
-  <string name="introduction_request_answered_received">%1$s попросил вас представить %2$s.</string>
+  <string name="introduction_request_received">%1$s попросил(-а) вас представить %2$s. Вы хотите добавить %2$s в ваш список контактов?</string>
+  <string name="introduction_request_exists_received">%1$s попросил(-а) вас представить %2$s, но %2$s уже находится в вашем списке контактов. Поскольку %1$s может не знать об этом, вы все равно можете ответить:</string>
+  <string name="introduction_request_answered_received">%1$s попросил(-а) вас представить %2$s.</string>
   <string name="introduction_response_accepted_sent">Вы приняли представление %1$s.</string>
-  <string name="introduction_response_accepted_sent_info">Прежде чем добавить %1$s в свои контакты, необходимо чтобы он принял представление. Это может занять некоторое время.</string>
+  <string name="introduction_response_accepted_sent_info">%1$s будет добавлен(-а) в контакты после принятия представления. Это может занять некоторое время.</string>
   <string name="introduction_response_declined_sent">Вы отказались от представления %1$s.</string>
   <string name="introduction_response_accepted_received">%1$s принял(-а) представление %2$s.</string>
   <string name="introduction_response_declined_received">%1$s отказался от представления %2$s.</string>
@@ -303,8 +303,8 @@
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">Приглашения в группу</string>
   <string name="groups_invitations_invitation_sent">Вы пригласили %1$s присоединиться к группе \"%2$s\".</string>
-  <string name="groups_invitations_invitation_received">%1$s пригласил вас присоединиться к группе \"%2$s\".</string>
-  <string name="groups_invitations_joined">Присоединился к группе</string>
+  <string name="groups_invitations_invitation_received">%1$s пригласил(-а) вас присоединиться к группе \"%2$s\".</string>
+  <string name="groups_invitations_joined">Присоединился(-лась) к группе</string>
   <string name="groups_invitations_declined">Приглашение в группу отклонено</string>
   <plurals name="groups_invitations_open">
     <item quantity="one">%d открытое приглашение в группу</item>
@@ -360,10 +360,10 @@
   <string name="forum_invitation_sent">Вы поделились форумом \"%1$s\" с %2$s.</string>
   <string name="forum_invitations_title">Приглашения на форум</string>
   <string name="forum_invitation_exists">Вы уже приняли приглашение на этот форум.\n\nПринятие большего количества приглашений сделает вашу связь с форумом более быстрой и надежной.</string>
-  <string name="forum_joined_toast">Присоединился к форуму</string>
+  <string name="forum_joined_toast">Присоединился(-лась) к форуму</string>
   <string name="forum_declined_toast">Приглашение отклонено</string>
   <string name="shared_by_format">Совместно %s</string>
-  <string name="forum_invitation_already_sharing">Уже поделился</string>
+  <string name="forum_invitation_already_sharing">Уже поделился(-лась)</string>
   <string name="forum_invitation_response_accepted_sent">Вы приняли приглашение на форум от %s.</string>
   <string name="forum_invitation_response_declined_sent">Вы отклонили приглашение на форум от %s.</string>
   <string name="forum_invitation_response_accepted_received">%s принял(-а) приглашение на форум.</string>
@@ -399,12 +399,12 @@
   <string name="blogs_sharing_share">Поделиться блогом</string>
   <string name="blogs_sharing_error">Произошла ошибка при при попытке поделиться этим блогом.</string>
   <string name="blogs_sharing_button">Поделиться блогом</string>
-  <string name="blogs_sharing_snackbar">Поделиться блогом совместно с выбранными контактами</string>
+  <string name="blogs_sharing_snackbar">Доступ к блогу предоставлен выбранным контактам</string>
   <string name="blogs_sharing_response_accepted_sent">Вы приняли приглашение в блог от %s.</string>
   <string name="blogs_sharing_response_declined_sent">Вы отклонили приглашение в блог от %s.</string>
   <string name="blogs_sharing_response_accepted_received">%s принял(-а) приглашение в блог.</string>
   <string name="blogs_sharing_response_declined_received">%s отклонил(-а) приглашение в блог.</string>
-  <string name="blogs_sharing_invitation_received">%1$s поделился блогом \"%2$s\" с вами.</string>
+  <string name="blogs_sharing_invitation_received">%1$s поделился(-лась) блогом \"%2$s\" с вами.</string>
   <string name="blogs_sharing_invitation_sent">Вы поделились блогом \"%1$s\" с %2$s.</string>
   <string name="blogs_sharing_invitations_title">Приглашения в блог</string>
   <string name="blogs_sharing_joined_toast">Подписка на блог</string>
