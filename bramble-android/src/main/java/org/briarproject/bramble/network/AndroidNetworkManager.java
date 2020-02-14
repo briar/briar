@@ -32,6 +32,7 @@ import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.wifi.p2p.WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static java.util.concurrent.TimeUnit.MINUTES;
@@ -76,9 +77,9 @@ class AndroidNetworkManager implements NetworkManager, Service {
 		filter.addAction(ACTION_SCREEN_ON);
 		filter.addAction(ACTION_SCREEN_OFF);
 		filter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
+		filter.addAction(WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
 		appContext.registerReceiver(networkStateReceiver, filter);
-
 	}
 
 	@Override
@@ -136,7 +137,8 @@ class AndroidNetworkManager implements NetworkManager, Service {
 		}
 
 		private boolean isApEvent(@Nullable String action) {
-			return WIFI_AP_STATE_CHANGED_ACTION.equals(action);
+			return WIFI_AP_STATE_CHANGED_ACTION.equals(action) ||
+					WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action);
 		}
 	}
 }

@@ -19,10 +19,11 @@ import static org.briarproject.bramble.api.plugin.WanTcpConstants.ID;
 @NotNullByDefault
 public class WanTcpPluginFactory implements DuplexPluginFactory {
 
-	private static final int MAX_LATENCY = 30 * 1000; // 30 seconds
-	private static final int MAX_IDLE_TIME = 30 * 1000; // 30 seconds
-	private static final int MIN_POLLING_INTERVAL = 60 * 1000; // 1 minute
-	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
+	private static final int MAX_LATENCY = 30_000; // 30 seconds
+	private static final int MAX_IDLE_TIME = 30_000; // 30 seconds
+	private static final int CONNECTION_TIMEOUT = 30_000; // 30 seconds
+	private static final int MIN_POLLING_INTERVAL = 60_000; // 1 minute
+	private static final int MAX_POLLING_INTERVAL = 600_000; // 10 mins
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
@@ -52,6 +53,6 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		return new WanTcpPlugin(ioExecutor, backoff,
 				new PortMapperImpl(shutdownManager), callback, MAX_LATENCY,
-				MAX_IDLE_TIME);
+				MAX_IDLE_TIME, CONNECTION_TIMEOUT);
 	}
 }

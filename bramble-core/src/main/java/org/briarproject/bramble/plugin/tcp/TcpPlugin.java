@@ -58,7 +58,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	protected final Executor ioExecutor, bindExecutor;
 	protected final Backoff backoff;
 	protected final PluginCallback callback;
-	protected final int maxLatency, maxIdleTime, socketTimeout;
+	protected final int maxLatency, maxIdleTime;
+	protected final int connectionTimeout, socketTimeout;
 	protected final AtomicBoolean used = new AtomicBoolean(false);
 
 	protected volatile boolean running = false;
@@ -86,15 +87,17 @@ abstract class TcpPlugin implements DuplexPlugin {
 	/**
 	 * Returns true if connections to the given address can be attempted.
 	 */
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	protected abstract boolean isConnectable(InetSocketAddress remote);
 
 	TcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
-			int maxLatency, int maxIdleTime) {
+			int maxLatency, int maxIdleTime, int connectionTimeout) {
 		this.ioExecutor = ioExecutor;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
+		this.connectionTimeout = connectionTimeout;
 		if (maxIdleTime > Integer.MAX_VALUE / 2)
 			socketTimeout = Integer.MAX_VALUE;
 		else socketTimeout = maxIdleTime * 2;
@@ -231,6 +234,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (!isRunning()) return null;
 		for (InetSocketAddress remote : getRemoteSocketAddresses(p)) {
+			// Don't try to connect to our own address
+			if (!canConnectToOwnAddress() &&
+					remote.getAddress().equals(socket.getInetAddress())) {
+				continue;
+			}
 			if (!isConnectable(remote)) {
 				if (LOG.isLoggable(INFO)) {
 					SocketAddress local = socket.getLocalSocketAddress();
@@ -245,7 +253,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 					LOG.info("Connecting to " + scrubSocketAddress(remote));
 				Socket s = createSocket();
 				s.bind(new InetSocketAddress(socket.getInetAddress(), 0));
-				s.connect(remote);
+				s.connect(remote, connectionTimeout);
 				s.setSoTimeout(socketTimeout);
 				if (LOG.isLoggable(INFO))
 					LOG.info("Connected to " + scrubSocketAddress(remote));
@@ -257,6 +265,11 @@ abstract class TcpPlugin implements DuplexPlugin {
 			}
 		}
 		return null;
+	}
+
+	// Override for testing
+	protected boolean canConnectToOwnAddress() {
+		return false;
 	}
 
 	protected Socket createSocket() throws IOException {
