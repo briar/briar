@@ -85,6 +85,8 @@ public class LanTcpPluginTest extends BrambleTestCase {
 				makeAddress(10, 255, 255, 255)));
 		assertFalse(plugin.addressesAreOnSameLan(makeAddress(192, 168, 0, 0),
 				makeAddress(172, 31, 255, 255)));
+		assertFalse(plugin.addressesAreOnSameLan(makeAddress(169, 254, 0, 0),
+				makeAddress(192, 168, 255, 255)));
 		// Remote prefix unrecognised should return false
 		assertFalse(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
 				makeAddress(1, 2, 3, 4)));
@@ -92,8 +94,8 @@ public class LanTcpPluginTest extends BrambleTestCase {
 				makeAddress(1, 2, 3, 4)));
 		assertFalse(plugin.addressesAreOnSameLan(makeAddress(192, 168, 0, 0),
 				makeAddress(1, 2, 3, 4)));
-		// Both prefixes unrecognised should return true (could be link-local)
-		assertTrue(plugin.addressesAreOnSameLan(makeAddress(1, 2, 3, 4),
+		// Both prefixes unrecognised should return false
+		assertFalse(plugin.addressesAreOnSameLan(makeAddress(1, 2, 3, 4),
 				makeAddress(5, 6, 7, 8)));
 	}
 
@@ -280,41 +282,33 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	@Test
 	public void testComparatorPrefersLongerPrefixes() {
 		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
+		InetSocketAddress prefix169 = new InetSocketAddress("169.254.0.1", 0);
 		InetSocketAddress prefix192 = new InetSocketAddress("192.168.0.1", 0);
 		InetSocketAddress prefix172 = new InetSocketAddress("172.16.0.1", 0);
 		InetSocketAddress prefix10 = new InetSocketAddress("10.0.0.1", 0);
 
+		assertEquals(0, comparator.compare(prefix169, prefix169));
+		assertEquals(0, comparator.compare(prefix169, prefix192));
+		assertTrue(comparator.compare(prefix169, prefix172) < 0);
+		assertTrue(comparator.compare(prefix169, prefix10) < 0);
+
 		assertEquals(0, comparator.compare(prefix192, prefix192));
+		assertEquals(0, comparator.compare(prefix192, prefix169));
 		assertTrue(comparator.compare(prefix192, prefix172) < 0);
 		assertTrue(comparator.compare(prefix192, prefix10) < 0);
 
+		assertTrue(comparator.compare(prefix172, prefix169) > 0);
 		assertTrue(comparator.compare(prefix172, prefix192) > 0);
 		assertEquals(0, comparator.compare(prefix172, prefix172));
 		assertTrue(comparator.compare(prefix172, prefix10) < 0);
 
+		assertTrue(comparator.compare(prefix10, prefix169) > 0);
 		assertTrue(comparator.compare(prefix10, prefix192) > 0);
 		assertTrue(comparator.compare(prefix10, prefix172) > 0);
 		assertEquals(0, comparator.compare(prefix10, prefix10));
 	}
 
-	@Test
-	public void testComparatorPrefersSiteLocalToLinkLocal() {
-		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
-		InetSocketAddress prefix192 = new InetSocketAddress("192.168.0.1", 0);
-		InetSocketAddress prefix172 = new InetSocketAddress("172.16.0.1", 0);
-		InetSocketAddress prefix10 = new InetSocketAddress("10.0.0.1", 0);
-		InetSocketAddress linkLocal = new InetSocketAddress("169.254.0.1", 0);
-
-		assertTrue(comparator.compare(prefix192, linkLocal) < 0);
-		assertTrue(comparator.compare(prefix172, linkLocal) < 0);
-		assertTrue(comparator.compare(prefix10, linkLocal) < 0);
-
-		assertTrue(comparator.compare(linkLocal, prefix192) > 0);
-		assertTrue(comparator.compare(linkLocal, prefix172) > 0);
-		assertTrue(comparator.compare(linkLocal, prefix10) > 0);
-		assertEquals(0, comparator.compare(linkLocal, linkLocal));
-	}
-
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean systemHasLocalIpv4Address() throws Exception {
 		for (NetworkInterface i : list(getNetworkInterfaces())) {
 			for (InetAddress a : list(i.getInetAddresses())) {
