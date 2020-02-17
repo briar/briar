@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -84,19 +84,19 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	}
 
 	@Override
-	protected Collection<InetAddress> getLocalIpAddresses() {
+	protected List<InetAddress> getUsableLocalInetAddresses() {
 		// If the device doesn't have wifi, don't open any sockets
 		if (wifiManager == null) return emptyList();
-		// If we're connected to a wifi network, use that network
+		// If we're connected to a wifi network, return its address
 		WifiInfo info = wifiManager.getConnectionInfo();
-		if (info != null && info.getIpAddress() != 0)
+		if (info != null && info.getIpAddress() != 0) {
 			return singletonList(intToInetAddress(info.getIpAddress()));
+		}
 		// If we're running an access point, return its address
-		Collection<InetAddress> all = super.getLocalIpAddresses();
-		if (all.contains(WIFI_AP_ADDRESS))
-			return singletonList(WIFI_AP_ADDRESS);
-		if (all.contains(WIFI_DIRECT_AP_ADDRESS))
-			return singletonList(WIFI_DIRECT_AP_ADDRESS);
+		for (InetAddress addr : getLocalInetAddresses()) {
+			if (addr.equals(WIFI_AP_ADDRESS)) return singletonList(addr);
+			if (addr.equals(WIFI_DIRECT_AP_ADDRESS)) return singletonList(addr);
+		}
 		// No suitable addresses
 		return emptyList();
 	}
@@ -136,7 +136,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	private void updateConnectionStatus() {
 		connectionStatusExecutor.execute(() -> {
 			if (!running) return;
-			Collection<InetAddress> addrs = getLocalIpAddresses();
+			List<InetAddress> addrs = getLocalInetAddresses();
 			if (addrs.contains(WIFI_AP_ADDRESS)
 					|| addrs.contains(WIFI_DIRECT_AP_ADDRESS)) {
 				LOG.info("Providing wifi hotspot");

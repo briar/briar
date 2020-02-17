@@ -19,10 +19,10 @@ import org.briarproject.bramble.util.IoUtils;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -36,7 +36,6 @@ import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
 
-import static java.net.NetworkInterface.getNetworkInterfaces;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
@@ -88,7 +87,8 @@ abstract class TcpPlugin implements DuplexPlugin {
 	 * Returns true if connections to the given address can be attempted.
 	 */
 	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
-	protected abstract boolean isConnectable(InetSocketAddress remote);
+	protected abstract boolean isConnectable(InterfaceAddress local,
+			InetSocketAddress remote);
 
 	TcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
 			int maxLatency, int maxIdleTime, int connectionTimeout) {
@@ -233,18 +233,23 @@ abstract class TcpPlugin implements DuplexPlugin {
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (!isRunning()) return null;
+		ServerSocket ss = socket;
+		InterfaceAddress local = getLocalInterfaceAddress(ss.getInetAddress());
+		if (local == null) {
+			LOG.warning("No interface for server socket");
+			return null;
+		}
 		for (InetSocketAddress remote : getRemoteSocketAddresses(p)) {
 			// Don't try to connect to our own address
 			if (!canConnectToOwnAddress() &&
-					remote.getAddress().equals(socket.getInetAddress())) {
+					remote.getAddress().equals(ss.getInetAddress())) {
 				continue;
 			}
-			if (!isConnectable(remote)) {
+			if (!isConnectable(local, remote)) {
 				if (LOG.isLoggable(INFO)) {
-					SocketAddress local = socket.getLocalSocketAddress();
 					LOG.info(scrubSocketAddress(remote) +
 							" is not connectable from " +
-							scrubSocketAddress(local));
+							scrubSocketAddress(ss.getLocalSocketAddress()));
 				}
 				continue;
 			}
@@ -252,7 +257,7 @@ abstract class TcpPlugin implements DuplexPlugin {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Connecting to " + scrubSocketAddress(remote));
 				Socket s = createSocket();
-				s.bind(new InetSocketAddress(socket.getInetAddress(), 0));
+				s.bind(new InetSocketAddress(ss.getInetAddress(), 0));
 				s.connect(remote, connectionTimeout);
 				s.setSoTimeout(socketTimeout);
 				if (LOG.isLoggable(INFO))
@@ -263,6 +268,14 @@ abstract class TcpPlugin implements DuplexPlugin {
 					LOG.info("Could not connect to " +
 							scrubSocketAddress(remote));
 			}
+		}
+		return null;
+	}
+
+	@Nullable
+	InterfaceAddress getLocalInterfaceAddress(InetAddress a) {
+		for (InterfaceAddress ifAddr : getLocalInterfaceAddresses()) {
+			if (ifAddr.getAddress().equals(a)) return ifAddr;
 		}
 		return null;
 	}
@@ -327,14 +340,27 @@ abstract class TcpPlugin implements DuplexPlugin {
 		throw new UnsupportedOperationException();
 	}
 
-	Collection<InetAddress> getLocalIpAddresses() {
+	List<InterfaceAddress> getLocalInterfaceAddresses() {
+		List<InterfaceAddress> addrs = new ArrayList<>();
+		for (NetworkInterface iface : getNetworkInterfaces()) {
+			addrs.addAll(iface.getInterfaceAddresses());
+		}
+		return addrs;
+	}
+
+	List<InetAddress> getLocalInetAddresses() {
+		List<InetAddress> addrs = new ArrayList<>();
+		for (NetworkInterface iface : getNetworkInterfaces()) {
+			addrs.addAll(list(iface.getInetAddresses()));
+		}
+		return addrs;
+	}
+
+	private List<NetworkInterface> getNetworkInterfaces() {
 		try {
-			Enumeration<NetworkInterface> ifaces = getNetworkInterfaces();
-			if (ifaces == null) return emptyList();
-			List<InetAddress> addrs = new ArrayList<>();
-			for (NetworkInterface iface : list(ifaces))
-				addrs.addAll(list(iface.getInetAddresses()));
-			return addrs;
+			Enumeration<NetworkInterface> ifaces =
+					NetworkInterface.getNetworkInterfaces();
+			return ifaces == null ? emptyList() : list(ifaces);
 		} catch (SocketException e) {
 			logException(LOG, WARNING, e);
 			return emptyList();
