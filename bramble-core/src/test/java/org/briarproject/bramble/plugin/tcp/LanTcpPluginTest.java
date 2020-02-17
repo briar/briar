@@ -7,12 +7,12 @@ import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
-import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.plugin.tcp.LanTcpPlugin.LanAddressComparator;
 import org.briarproject.bramble.test.BrambleTestCase;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -37,17 +37,29 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assume.assumeTrue;
 
 public class LanTcpPluginTest extends BrambleTestCase {
 
 	private final Backoff backoff = new TestBackoff();
 	private final ExecutorService ioExecutor = newCachedThreadPool();
 
+	private Callback callback = null;
+	private LanTcpPlugin plugin = null;
+
+	@Before
+	public void setUp() {
+		callback = new Callback();
+		plugin = new LanTcpPlugin(ioExecutor, backoff, callback, 0, 0, 1000) {
+			@Override
+			protected boolean canConnectToOwnAddress() {
+				return true;
+			}
+		};
+	}
+
 	@Test
 	public void testAddressesAreOnSameLan() {
-		Callback callback = new Callback();
-		LanTcpPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
-				0, 0);
 		// Local and remote in 10.0.0.0/8 should return true
 		assertTrue(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
 				makeAddress(10, 255, 255, 255)));
@@ -93,13 +105,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 
 	@Test
 	public void testIncomingConnection() throws Exception {
-		if (!systemHasLocalIpv4Address()) {
-			System.err.println("WARNING: Skipping test, no local IPv4 address");
-			return;
-		}
-		Callback callback = new Callback();
-		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
-				0, 0);
+		assumeTrue(systemHasLocalIpv4Address());
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -128,13 +134,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 
 	@Test
 	public void testOutgoingConnection() throws Exception {
-		if (!systemHasLocalIpv4Address()) {
-			System.err.println("WARNING: Skipping test, no local IPv4 address");
-			return;
-		}
-		Callback callback = new Callback();
-		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
-				0, 0);
+		assumeTrue(systemHasLocalIpv4Address());
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -177,13 +177,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 
 	@Test
 	public void testIncomingKeyAgreementConnection() throws Exception {
-		if (!systemHasLocalIpv4Address()) {
-			System.err.println("WARNING: Skipping test, no local IPv4 address");
-			return;
-		}
-		Callback callback = new Callback();
-		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
-				0, 0);
+		assumeTrue(systemHasLocalIpv4Address());
 		plugin.start();
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
 		KeyAgreementListener kal =
@@ -225,13 +219,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 
 	@Test
 	public void testOutgoingKeyAgreementConnection() throws Exception {
-		if (!systemHasLocalIpv4Address()) {
-			System.err.println("WARNING: Skipping test, no local IPv4 address");
-			return;
-		}
-		Callback callback = new Callback();
-		DuplexPlugin plugin = new LanTcpPlugin(ioExecutor, backoff, callback,
-				0, 0);
+		assumeTrue(systemHasLocalIpv4Address());
 		plugin.start();
 		// The plugin should have bound a socket and stored the port number
 		assertTrue(callback.propertiesLatch.await(5, SECONDS));
@@ -340,7 +328,9 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	@NotNullByDefault
 	private static class Callback implements PluginCallback {
 
-		private final CountDownLatch propertiesLatch = new CountDownLatch(1);
+		// Properties will be stored twice: the preferred port at startup,
+		// and the IP:port when the server socket is bound
+		private final CountDownLatch propertiesLatch = new CountDownLatch(2);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();
 

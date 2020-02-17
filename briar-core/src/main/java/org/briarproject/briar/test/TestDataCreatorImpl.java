@@ -230,6 +230,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			sb.append(getRandomLanAddress());
 		}
 		lan.put(LanTcpConstants.PROP_IP_PORTS, sb.toString());
+		String port = String.valueOf(getRandomPortNumber());
+		lan.put(LanTcpConstants.PROP_PORT, port);
 		props.put(LanTcpConstants.ID, lan);
 
 		// Tor
@@ -266,16 +268,19 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			sb.append("10.");
 			sb.append(random.nextInt(2)).append('.');
 			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(256));
+			sb.append(random.nextInt(255));
 		} else {
 			sb.append("192.168.");
 			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(256));
+			sb.append(random.nextInt(255));
 		}
 		// port
-		sb.append(":");
-		sb.append(1024 + random.nextInt(50000));
+		sb.append(':').append(getRandomPortNumber());
 		return sb.toString();
+	}
+
+	private int getRandomPortNumber() {
+		return 32768 + random.nextInt(32768);
 	}
 
 	private String getRandomTorAddress() {

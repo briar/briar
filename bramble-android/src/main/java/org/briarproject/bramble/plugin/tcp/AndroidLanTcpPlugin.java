@@ -40,19 +40,6 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	private static final Logger LOG =
 			getLogger(AndroidLanTcpPlugin.class.getName());
 
-	private static final byte[] WIFI_AP_ADDRESS_BYTES =
-			{(byte) 192, (byte) 168, 43, 1};
-	private static final InetAddress WIFI_AP_ADDRESS;
-
-	static {
-		try {
-			WIFI_AP_ADDRESS = InetAddress.getByAddress(WIFI_AP_ADDRESS_BYTES);
-		} catch (UnknownHostException e) {
-			// Should only be thrown if the address has an illegal length
-			throw new AssertionError(e);
-		}
-	}
-
 	private final Executor connectionStatusExecutor;
 	private final ConnectivityManager connectivityManager;
 	@Nullable
@@ -62,8 +49,9 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 
 	AndroidLanTcpPlugin(Executor ioExecutor, Context appContext,
 			Backoff backoff, PluginCallback callback, int maxLatency,
-			int maxIdleTime) {
-		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
+			int maxIdleTime, int connectionTimeout) {
+		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime,
+				connectionTimeout);
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("AndroidLanTcpPlugin", ioExecutor, 1);
@@ -79,6 +67,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	@Override
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		initialisePortProperty();
 		running = true;
 		updateConnectionStatus();
 	}
@@ -103,8 +92,11 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 		if (info != null && info.getIpAddress() != 0)
 			return singletonList(intToInetAddress(info.getIpAddress()));
 		// If we're running an access point, return its address
-		if (super.getLocalIpAddresses().contains(WIFI_AP_ADDRESS))
+		Collection<InetAddress> all = super.getLocalIpAddresses();
+		if (all.contains(WIFI_AP_ADDRESS))
 			return singletonList(WIFI_AP_ADDRESS);
+		if (all.contains(WIFI_DIRECT_AP_ADDRESS))
+			return singletonList(WIFI_DIRECT_AP_ADDRESS);
 		// No suitable addresses
 		return emptyList();
 	}
@@ -145,7 +137,8 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 		connectionStatusExecutor.execute(() -> {
 			if (!running) return;
 			Collection<InetAddress> addrs = getLocalIpAddresses();
-			if (addrs.contains(WIFI_AP_ADDRESS)) {
+			if (addrs.contains(WIFI_AP_ADDRESS)
+					|| addrs.contains(WIFI_DIRECT_AP_ADDRESS)) {
 				LOG.info("Providing wifi hotspot");
 				// There's no corresponding Network object and thus no way
 				// to get a suitable socket factory, so we won't be able to

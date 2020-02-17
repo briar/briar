@@ -24,11 +24,14 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
+
+import static java.lang.Integer.parseInt;
 import static java.util.Collections.addAll;
-import static java.util.Collections.emptyList;
 import static java.util.Collections.sort;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -37,6 +40,7 @@ import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TR
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_PORT;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -53,9 +57,33 @@ class LanTcpPlugin extends TcpPlugin {
 	private static final int MAX_ADDRESSES = 4;
 	private static final String SEPARATOR = ",";
 
+	/**
+	 * The IP address of an Android device providing a wifi access point.
+	 */
+	protected static final InetAddress WIFI_AP_ADDRESS;
+
+	/**
+	 * The IP address of an Android device providing a wifi direct
+	 * legacy mode access point.
+	 */
+	protected static final InetAddress WIFI_DIRECT_AP_ADDRESS;
+
+	static {
+		try {
+			WIFI_AP_ADDRESS = InetAddress.getByAddress(
+					new byte[] {(byte) 192, (byte) 168, 43, 1});
+			WIFI_DIRECT_AP_ADDRESS = InetAddress.getByAddress(
+					new byte[] {(byte) 192, (byte) 168, 49, 1});
+		} catch (UnknownHostException e) {
+			// Should only be thrown if the address has an illegal length
+			throw new AssertionError(e);
+		}
+	}
+
 	LanTcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
-			int maxLatency, int maxIdleTime) {
-		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime);
+			int maxLatency, int maxIdleTime, int connectionTimeout) {
+		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime,
+				connectionTimeout);
 	}
 
 	@Override
@@ -64,19 +92,43 @@ class LanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected List<InetSocketAddress> getLocalSocketAddresses() {
-		// Use the same address and port as last time if available
+	public void start() {
+		if (used.getAndSet(true)) throw new IllegalStateException();
+		initialisePortProperty();
+		running = true;
+		bind();
+	}
+
+	protected void initialisePortProperty() {
 		TransportProperties p = callback.getLocalProperties();
+		if (isNullOrEmpty(p.get(PROP_PORT))) {
+			int port = new Random().nextInt(32768) + 32768;
+			p.put(PROP_PORT, String.valueOf(port));
+			callback.mergeLocalProperties(p);
+		}
+	}
+
+	@Override
+	protected List<InetSocketAddress> getLocalSocketAddresses() {
+		TransportProperties p = callback.getLocalProperties();
+		int port = parsePortProperty(p.get(PROP_PORT));
 		String oldIpPorts = p.get(PROP_IP_PORTS);
 		List<InetSocketAddress> olds = parseSocketAddresses(oldIpPorts);
 		List<InetSocketAddress> locals = new ArrayList<>();
 		for (InetAddress local : getLocalIpAddresses()) {
 			if (isAcceptableAddress(local)) {
-				// If this is the old address, try to use the same port
+				// If we've used this address before, try to use the same port
+				boolean reused = false;
 				for (InetSocketAddress old : olds) {
-					if (old.getAddress().equals(local))
+					if (old.getAddress().equals(local)) {
 						locals.add(new InetSocketAddress(local, old.getPort()));
+						reused = true;
+						break;
+					}
 				}
+				// Otherwise try to use our preferred port
+				if (!reused) locals.add(new InetSocketAddress(local, port));
+				// Fall back to any available port
 				locals.add(new InetSocketAddress(local, 0));
 			}
 		}
@@ -84,11 +136,19 @@ class LanTcpPlugin extends TcpPlugin {
 		return locals;
 	}
 
+	private int parsePortProperty(@Nullable String portProperty) {
+		if (isNullOrEmpty(portProperty)) return 0;
+		try {
+			return parseInt(portProperty);
+		} catch (NumberFormatException e) {
+			return 0;
+		}
+	}
+
 	private List<InetSocketAddress> parseSocketAddresses(String ipPorts) {
-		if (isNullOrEmpty(ipPorts)) return emptyList();
-		String[] split = ipPorts.split(SEPARATOR);
 		List<InetSocketAddress> addresses = new ArrayList<>();
-		for (String ipPort : split) {
+		if (isNullOrEmpty(ipPorts)) return addresses;
+		for (String ipPort : ipPorts.split(SEPARATOR)) {
 			InetSocketAddress a = parseSocketAddress(ipPort);
 			if (a != null) addresses.add(a);
 		}
@@ -132,7 +192,20 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	protected List<InetSocketAddress> getRemoteSocketAddresses(
 			TransportProperties p) {
-		return parseSocketAddresses(p.get(PROP_IP_PORTS));
+		String ipPorts = p.get(PROP_IP_PORTS);
+		List<InetSocketAddress> remotes = parseSocketAddresses(ipPorts);
+		int port = parsePortProperty(p.get(PROP_PORT));
+		// If the contact has a preferred port, we can guess their IP:port when
+		// they're providing a wifi access point
+		if (port != 0) {
+			InetSocketAddress wifiAp =
+					new InetSocketAddress(WIFI_AP_ADDRESS, port);
+			if (!remotes.contains(wifiAp)) remotes.add(wifiAp);
+			InetSocketAddress wifiDirectAp =
+					new InetSocketAddress(WIFI_DIRECT_AP_ADDRESS, port);
+			if (!remotes.contains(wifiDirectAp)) remotes.add(wifiDirectAp);
+		}
+		return remotes;
 	}
 
 	private boolean isAcceptableAddress(InetAddress a) {
@@ -250,7 +323,7 @@ class LanTcpPlugin extends TcpPlugin {
 				LOG.info("Connecting to " + scrubSocketAddress(remote));
 			Socket s = createSocket();
 			s.bind(new InetSocketAddress(socket.getInetAddress(), 0));
-			s.connect(remote);
+			s.connect(remote, connectionTimeout);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connected to " + scrubSocketAddress(remote));

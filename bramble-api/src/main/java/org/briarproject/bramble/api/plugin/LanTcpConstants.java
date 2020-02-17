@@ -4,10 +4,10 @@ public interface LanTcpConstants {
 
 	TransportId ID = new TransportId("org.briarproject.bramble.lan");
 
-	// a transport property (shared with contacts)
+	// Transport properties (shared with contacts)
 	String PROP_IP_PORTS = "ipPorts";
+	String PROP_PORT = "port";
 
-	// a local setting
+	// A local setting
 	String PREF_LAN_IP_PORTS = "ipPorts";
-
 }
