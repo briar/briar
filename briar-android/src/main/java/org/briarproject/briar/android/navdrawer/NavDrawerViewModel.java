@@ -235,9 +235,6 @@ public class NavDrawerViewModel extends AndroidViewModel
 	}
 
 	void setTorEnabled(boolean battery, boolean mobileData, boolean location) {
-		Plugin plugin = pluginManager.getPlugin(TorConstants.ID);
-		if (plugin == null) return;
-
 		Settings s = new Settings();
 		s.putBoolean(PREF_PLUGIN_ENABLE, true);
 		if (battery) s.putBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
