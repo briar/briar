@@ -43,6 +43,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
@@ -78,20 +79,22 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	 * Returns zero or more socket addresses on which the plugin should listen,
 	 * in order of preference. At most one of the addresses will be bound.
 	 */
-	protected abstract List<InetSocketAddress> getLocalSocketAddresses();
+	protected abstract List<InetSocketAddress> getLocalSocketAddresses(
+			boolean ipv4);
 
 	/**
 	 * Adds the address on which the plugin is listening to the transport
 	 * properties.
 	 */
-	protected abstract void setLocalSocketAddress(InetSocketAddress a);
+	protected abstract void setLocalSocketAddress(InetSocketAddress a,
+			boolean ipv4);
 
 	/**
 	 * Returns zero or more socket addresses for connecting to a contact with
 	 * the given transport properties.
 	 */
 	protected abstract List<InetSocketAddress> getRemoteSocketAddresses(
-			TransportProperties p);
+			TransportProperties p, boolean ipv4);
 
 	/**
 	 * Returns true if connections to the given address can be attempted.
@@ -136,35 +139,41 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	protected void bind() {
 		bindExecutor.execute(() -> {
 			if (getState() != INACTIVE) return;
-			ServerSocket ss = null;
-			for (InetSocketAddress addr : getLocalSocketAddresses()) {
-				try {
-					ss = new ServerSocket();
-					ss.bind(addr);
-					break;
-				} catch (IOException e) {
-					if (LOG.isLoggable(INFO))
-						LOG.info("Failed to bind " + scrubSocketAddress(addr));
-					tryToClose(ss, LOG, WARNING);
-				}
-			}
-			if (ss == null) {
-				LOG.info("Could not bind server socket");
-				return;
-			}
-			if (!state.setServerSocket(ss)) {
-				LOG.info("Closing redundant server socket");
-				tryToClose(ss, LOG, WARNING);
-				return;
-			}
-			backoff.reset();
-			InetSocketAddress local =
-					(InetSocketAddress) ss.getLocalSocketAddress();
-			setLocalSocketAddress(local);
-			if (LOG.isLoggable(INFO))
-				LOG.info("Listening on " + scrubSocketAddress(local));
-			acceptContactConnections(ss);
+			bind(true);
+			bind(false);
 		});
+	}
+
+	private void bind(boolean ipv4) {
+		ServerSocket ss = null;
+		for (InetSocketAddress addr : getLocalSocketAddresses(ipv4)) {
+			try {
+				ss = new ServerSocket();
+				ss.bind(addr);
+				break;
+			} catch (IOException e) {
+				if (LOG.isLoggable(INFO))
+					LOG.info("Failed to bind " + scrubSocketAddress(addr));
+				tryToClose(ss, LOG, WARNING);
+			}
+		}
+		if (ss == null) {
+			LOG.info("Could not bind server socket");
+			return;
+		}
+		if (!state.setServerSocket(ss, ipv4)) {
+			LOG.info("Closing redundant server socket");
+			tryToClose(ss, LOG, WARNING);
+			return;
+		}
+		backoff.reset();
+		InetSocketAddress local =
+				(InetSocketAddress) ss.getLocalSocketAddress();
+		setLocalSocketAddress(local, ipv4);
+		if (LOG.isLoggable(INFO))
+			LOG.info("Listening on " + scrubSocketAddress(local));
+		ServerSocket finalSocket = ss;
+		ioExecutor.execute(() -> acceptContactConnections(finalSocket, ipv4));
 	}
 
 	String getIpPortString(InetSocketAddress a) {
@@ -174,7 +183,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 		return addr + ":" + a.getPort();
 	}
 
-	private void acceptContactConnections(ServerSocket ss) {
+	private void acceptContactConnections(ServerSocket ss, boolean ipv4) {
 		while (true) {
 			Socket s;
 			try {
@@ -183,12 +192,13 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 			} catch (IOException e) {
 				// This is expected when the server socket is closed
 				LOG.info("Server socket closed");
-				state.clearServerSocket(ss);
+				state.clearServerSocket(ss, ipv4);
 				return;
 			}
-			if (LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO)) {
 				LOG.info("Connection from " +
 						scrubSocketAddress(s.getRemoteSocketAddress()));
+			}
 			backoff.reset();
 			callback.handleConnection(new TcpTransportConnection(this, s));
 		}
@@ -196,8 +206,9 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	@Override
 	public void stop() {
-		ServerSocket ss = state.setStopped();
-		tryToClose(ss, LOG, WARNING);
+		for (@Nullable ServerSocket ss : state.setStopped()) {
+			tryToClose(ss, LOG, WARNING);
+		}
 	}
 
 	@Override
@@ -242,14 +253,22 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		ServerSocket ss = state.getServerSocket();
+		DuplexTransportConnection c = createConnection(p, true);
+		if (c != null) return c;
+		return createConnection(p, false);
+	}
+
+	@Nullable
+	private DuplexTransportConnection createConnection(TransportProperties p,
+			boolean ipv4) {
+		ServerSocket ss = state.getServerSocket(ipv4);
 		if (ss == null) return null;
 		InterfaceAddress local = getLocalInterfaceAddress(ss.getInetAddress());
 		if (local == null) {
 			LOG.warning("No interface for server socket");
 			return null;
 		}
-		for (InetSocketAddress remote : getRemoteSocketAddresses(p)) {
+		for (InetSocketAddress remote : getRemoteSocketAddresses(p, ipv4)) {
 			// Don't try to connect to our own address
 			if (!canConnectToOwnAddress() &&
 					remote.getAddress().equals(ss.getInetAddress())) {
@@ -274,9 +293,10 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 					LOG.info("Connected to " + scrubSocketAddress(remote));
 				return new TcpTransportConnection(this, s);
 			} catch (IOException e) {
-				if (LOG.isLoggable(INFO))
+				if (LOG.isLoggable(INFO)) {
 					LOG.info("Could not connect to " +
 							scrubSocketAddress(remote));
+				}
 			}
 		}
 		return null;
@@ -299,8 +319,12 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 		return new Socket();
 	}
 
+	int chooseEphemeralPort() {
+		return 32768 + (int) (Math.random() * 32768);
+	}
+
 	@Nullable
-	InetSocketAddress parseSocketAddress(String ipPort) {
+	InetSocketAddress parseIpv4SocketAddress(String ipPort) {
 		if (isNullOrEmpty(ipPort)) return null;
 		String[] split = ipPort.split(":");
 		if (split.length != 2) return null;
@@ -311,14 +335,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 			InetAddress a = InetAddress.getByName(addr);
 			int p = Integer.parseInt(port);
 			return new InetSocketAddress(a, p);
-		} catch (UnknownHostException e) {
-			if (LOG.isLoggable(WARNING))
-				// not scrubbing to enable us to find the problem
-				LOG.warning("Invalid address: " + addr);
-			return null;
-		} catch (NumberFormatException e) {
-			if (LOG.isLoggable(WARNING))
-				LOG.warning("Invalid port: " + port);
+		} catch (UnknownHostException | NumberFormatException e) {
 			return null;
 		}
 	}
@@ -389,13 +406,15 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	@IoExecutor
 	private void onSettingsUpdated(Settings settings) {
 		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
-		ServerSocket ss = state.setEnabledByUser(enabledByUser);
+		List<ServerSocket> toClose = state.setEnabledByUser(enabledByUser);
 		State s = getState();
-		if (ss != null) {
-			LOG.info("Disabled by user, closing server socket");
-			tryToClose(ss, LOG, WARNING);
+		if (!toClose.isEmpty()) {
+			LOG.info("Disabled by user, closing server sockets");
+			for (@Nullable ServerSocket ss : toClose) {
+				tryToClose(ss, LOG, WARNING);
+			}
 		} else if (s == INACTIVE) {
-			LOG.info("Enabled by user, opening server socket");
+			LOG.info("Enabled by user, opening server sockets");
 			bind();
 		}
 	}
@@ -409,7 +428,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 		@GuardedBy("this")
 		@Nullable
-		private ServerSocket serverSocket = null;
+		private ServerSocket serverSocketV4 = null, serverSocketV6 = null;
 
 		synchronized void setStarted(boolean enabledByUser) {
 			started = true;
@@ -417,48 +436,62 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 			callback.pluginStateChanged(getState());
 		}
 
-		@Nullable
-		synchronized ServerSocket setStopped() {
+		synchronized List<ServerSocket> setStopped() {
 			stopped = true;
-			ServerSocket ss = serverSocket;
-			serverSocket = null;
+			List<ServerSocket> toClose = clearServerSockets();
 			callback.pluginStateChanged(getState());
-			return ss;
+			return toClose;
 		}
 
-		@Nullable
-		synchronized ServerSocket setEnabledByUser(boolean enabledByUser) {
+		@GuardedBy("this")
+		private List<ServerSocket> clearServerSockets() {
+			List<ServerSocket> toClose = asList(serverSocketV4, serverSocketV6);
+			serverSocketV4 = null;
+			serverSocketV6 = null;
+			return toClose;
+		}
+
+		synchronized List<ServerSocket> setEnabledByUser(
+				boolean enabledByUser) {
 			this.enabledByUser = enabledByUser;
-			ServerSocket ss = null;
-			if (!enabledByUser) {
-				ss = serverSocket;
-				serverSocket = null;
-			}
+			List<ServerSocket> toClose = enabledByUser
+					? emptyList() : clearServerSockets();
 			callback.pluginStateChanged(getState());
-			return ss;
+			return toClose;
 		}
 
 		@Nullable
-		synchronized ServerSocket getServerSocket() {
-			return serverSocket;
+		synchronized ServerSocket getServerSocket(boolean ipv4) {
+			return ipv4 ? serverSocketV4 : serverSocketV6;
 		}
 
-		synchronized boolean setServerSocket(ServerSocket ss) {
-			if (stopped || serverSocket != null) return false;
-			serverSocket = ss;
+		synchronized boolean setServerSocket(ServerSocket ss, boolean ipv4) {
+			if (stopped) return false;
+			if (ipv4) {
+				if (serverSocketV4 != null) return false;
+				serverSocketV4 = ss;
+			} else {
+				if (serverSocketV6 != null) return false;
+				serverSocketV6 = ss;
+			}
 			callback.pluginStateChanged(getState());
 			return true;
 		}
 
-		synchronized void clearServerSocket(ServerSocket ss) {
-			if (serverSocket == ss) serverSocket = null;
+		synchronized void clearServerSocket(ServerSocket ss, boolean ipv4) {
+			if (ipv4) {
+				if (serverSocketV4 == ss) serverSocketV4 = null;
+			} else {
+				if (serverSocketV6 == ss) serverSocketV6 = null;
+			}
 			callback.pluginStateChanged(getState());
 		}
 
 		synchronized State getState() {
 			if (!started || stopped) return STARTING_STOPPING;
 			if (!enabledByUser) return DISABLED;
-			return serverSocket == null ? INACTIVE : ACTIVE;
+			if (serverSocketV4 != null || serverSocketV6 != null) return ACTIVE;
+			return INACTIVE;
 		}
 
 		synchronized int getReasonsDisabled() {

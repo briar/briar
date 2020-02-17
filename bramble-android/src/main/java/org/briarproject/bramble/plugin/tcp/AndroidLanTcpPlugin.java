@@ -83,7 +83,12 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	}
 
 	@Override
-	protected List<InetAddress> getUsableLocalInetAddresses() {
+	protected List<InetAddress> getUsableLocalInetAddresses(boolean ipv4) {
+		if (ipv4) return getUsableLocalIpv4Addresses();
+		else return getUsableLocalIpv6Addresses();
+	}
+
+	private List<InetAddress> getUsableLocalIpv4Addresses() {
 		// If the device doesn't have wifi, don't open any sockets
 		if (wifiManager == null) return emptyList();
 		// If we're connected to a wifi network, return its address
@@ -95,6 +100,17 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		for (InetAddress addr : getLocalInetAddresses()) {
 			if (addr.equals(WIFI_AP_ADDRESS)) return singletonList(addr);
 			if (addr.equals(WIFI_DIRECT_AP_ADDRESS)) return singletonList(addr);
+		}
+		// No suitable addresses
+		return emptyList();
+	}
+
+	private List<InetAddress> getUsableLocalIpv6Addresses() {
+		// If the device doesn't have wifi, don't open any sockets
+		if (wifiManager == null) return emptyList();
+		// If we have a SLAAC address, return it
+		for (InetAddress addr : getLocalInetAddresses()) {
+			if (isSlaacAddress(addr)) return singletonList(addr);
 		}
 		// No suitable addresses
 		return emptyList();
@@ -150,12 +166,13 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 			} else if (addrs.isEmpty()) {
 				LOG.info("Not connected to wifi");
 				socketFactory = SocketFactory.getDefault();
-				// Server socket may not have been closed automatically when
-				// interface was taken down. Socket will be cleared and state
+				// Server sockets may not have been closed automatically when
+				// interface was taken down. Sockets will be cleared and state
 				// updated in acceptContactConnections()
 				if (s == ACTIVE) {
-					LOG.info("Closing server socket");
-					tryToClose(state.getServerSocket(), LOG, WARNING);
+					LOG.info("Closing server sockets");
+					tryToClose(state.getServerSocket(true), LOG, WARNING);
+					tryToClose(state.getServerSocket(false), LOG, WARNING);
 				}
 			} else {
 				LOG.info("Connected to wifi");

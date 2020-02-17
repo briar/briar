@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.settings.Settings;
 
 import java.io.IOException;
 import java.net.Inet4Address;
+import java.net.Inet6Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.InterfaceAddress;
@@ -22,7 +23,6 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -30,6 +30,8 @@ import javax.annotation.Nullable;
 
 import static java.lang.Integer.parseInt;
 import static java.util.Collections.addAll;
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -39,11 +41,14 @@ import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_PORT;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_SLAAC;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.join;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
 
 @NotNullByDefault
 class LanTcpPlugin extends TcpPlugin {
@@ -52,6 +57,13 @@ class LanTcpPlugin extends TcpPlugin {
 
 	private static final int MAX_ADDRESSES = 4;
 	private static final String SEPARATOR = ",";
+
+	/**
+	 * The network prefix of a SLAAC IPv6 address. See
+	 * https://tools.ietf.org/html/rfc4862#section-5.3
+	 */
+	private static final byte[] SLAAC_PREFIX =
+			new byte[] {(byte) 0xFE, (byte) 0x80, 0, 0, 0, 0, 0, 0};
 
 	/**
 	 * The IP address of an Android device providing a wifi access point.
@@ -99,22 +111,22 @@ class LanTcpPlugin extends TcpPlugin {
 	protected void initialisePortProperty() {
 		TransportProperties p = callback.getLocalProperties();
 		if (isNullOrEmpty(p.get(PROP_PORT))) {
-			int port = new Random().nextInt(32768) + 32768;
+			int port = chooseEphemeralPort();
 			p.put(PROP_PORT, String.valueOf(port));
 			callback.mergeLocalProperties(p);
 		}
 	}
 
 	@Override
-	protected List<InetSocketAddress> getLocalSocketAddresses() {
+	protected List<InetSocketAddress> getLocalSocketAddresses(boolean ipv4) {
 		TransportProperties p = callback.getLocalProperties();
 		int preferredPort = parsePortProperty(p.get(PROP_PORT));
 		String oldIpPorts = p.get(PROP_IP_PORTS);
-		List<InetSocketAddress> olds = parseSocketAddresses(oldIpPorts);
+		List<InetSocketAddress> olds = parseIpv4SocketAddresses(oldIpPorts);
 
 		List<InetSocketAddress> locals = new ArrayList<>();
 		List<InetSocketAddress> fallbacks = new ArrayList<>();
-		for (InetAddress local : getUsableLocalInetAddresses()) {
+		for (InetAddress local : getUsableLocalInetAddresses(ipv4)) {
 			// If we've used this address before, try to use the same port
 			int port = preferredPort;
 			for (InetSocketAddress old : olds) {
@@ -140,17 +152,17 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 	}
 
-	private List<InetSocketAddress> parseSocketAddresses(String ipPorts) {
+	private List<InetSocketAddress> parseIpv4SocketAddresses(String ipPorts) {
 		List<InetSocketAddress> addresses = new ArrayList<>();
 		if (isNullOrEmpty(ipPorts)) return addresses;
 		for (String ipPort : ipPorts.split(SEPARATOR)) {
-			InetSocketAddress a = parseSocketAddress(ipPort);
+			InetSocketAddress a = parseIpv4SocketAddress(ipPort);
 			if (a != null) addresses.add(a);
 		}
 		return addresses;
 	}
 
-	protected List<InetAddress> getUsableLocalInetAddresses() {
+	protected List<InetAddress> getUsableLocalInetAddresses(boolean ipv4) {
 		List<InterfaceAddress> ifAddrs =
 				new ArrayList<>(getLocalInterfaceAddresses());
 		// Prefer longer network prefixes
@@ -159,13 +171,18 @@ class LanTcpPlugin extends TcpPlugin {
 		List<InetAddress> addrs = new ArrayList<>();
 		for (InterfaceAddress ifAddr : ifAddrs) {
 			InetAddress addr = ifAddr.getAddress();
-			if (isAcceptableAddress(addr)) addrs.add(addr);
+			if (isAcceptableAddress(addr, ipv4)) addrs.add(addr);
 		}
 		return addrs;
 	}
 
 	@Override
-	protected void setLocalSocketAddress(InetSocketAddress a) {
+	protected void setLocalSocketAddress(InetSocketAddress a, boolean ipv4) {
+		if (ipv4) setLocalIpv4SocketAddress(a);
+		else setLocalIpv6SocketAddress(a);
+	}
+
+	private void setLocalIpv4SocketAddress(InetSocketAddress a) {
 		String ipPort = getIpPortString(a);
 		// Get the list of recently used addresses
 		String setting = callback.getSettings().get(PREF_LAN_IP_PORTS);
@@ -198,11 +215,38 @@ class LanTcpPlugin extends TcpPlugin {
 		callback.mergeSettings(settings);
 	}
 
+	private void setLocalIpv6SocketAddress(InetSocketAddress a) {
+		if (isSlaacAddress(a.getAddress())) {
+			String property = toHexString(a.getAddress().getAddress());
+			TransportProperties properties = new TransportProperties();
+			properties.put(PROP_SLAAC, property);
+			callback.mergeLocalProperties(properties);
+		}
+	}
+
+	// See https://tools.ietf.org/html/rfc4862#section-5.3
+	protected boolean isSlaacAddress(InetAddress a) {
+		if (!(a instanceof Inet6Address)) return false;
+		byte[] ip = a.getAddress();
+		for (int i = 0; i < 8; i++) {
+			if (ip[i] != SLAAC_PREFIX[i]) return false;
+		}
+		return (ip[8] & 0x02) == 0x02
+				&& ip[11] == (byte) 0xFF
+				&& ip[12] == (byte) 0xFE;
+	}
+
 	@Override
 	protected List<InetSocketAddress> getRemoteSocketAddresses(
+			TransportProperties p, boolean ipv4) {
+		if (ipv4) return getRemoteIpv4SocketAddresses(p);
+		else return getRemoteIpv6SocketAddresses(p);
+	}
+
+	private List<InetSocketAddress> getRemoteIpv4SocketAddresses(
 			TransportProperties p) {
 		String ipPorts = p.get(PROP_IP_PORTS);
-		List<InetSocketAddress> remotes = parseSocketAddresses(ipPorts);
+		List<InetSocketAddress> remotes = parseIpv4SocketAddresses(ipPorts);
 		int port = parsePortProperty(p.get(PROP_PORT));
 		// If the contact has a preferred port, we can guess their IP:port when
 		// they're providing a wifi access point
@@ -217,20 +261,48 @@ class LanTcpPlugin extends TcpPlugin {
 		return remotes;
 	}
 
-	private boolean isAcceptableAddress(InetAddress a) {
-		// Accept link-local and site-local IPv4 addresses
-		boolean ipv4 = a instanceof Inet4Address;
-		boolean loop = a.isLoopbackAddress();
-		boolean link = a.isLinkLocalAddress();
-		boolean site = a.isSiteLocalAddress();
-		return ipv4 && !loop && (link || site);
+	private List<InetSocketAddress> getRemoteIpv6SocketAddresses(
+			TransportProperties p) {
+		InetAddress slaac = parseSlaacProperty(p.get(PROP_SLAAC));
+		int port = parsePortProperty(p.get(PROP_PORT));
+		if (slaac == null || port == 0) return emptyList();
+		return singletonList(new InetSocketAddress(slaac, port));
+	}
+
+	@Nullable
+	private InetAddress parseSlaacProperty(String slaacProperty) {
+		if (isNullOrEmpty(slaacProperty)) return null;
+		try {
+			byte[] ip = fromHexString(slaacProperty);
+			if (ip.length != 16) return null;
+			InetAddress a = InetAddress.getByAddress(ip);
+			return isSlaacAddress(a) ? a : null;
+		} catch (IllegalArgumentException | UnknownHostException e) {
+			return null;
+		}
+	}
+
+	private boolean isAcceptableAddress(InetAddress a, boolean ipv4) {
+		if (ipv4) {
+			// Accept link-local and site-local IPv4 addresses
+			boolean isIpv4 = a instanceof Inet4Address;
+			boolean loop = a.isLoopbackAddress();
+			boolean link = a.isLinkLocalAddress();
+			boolean site = a.isSiteLocalAddress();
+			return isIpv4 && !loop && (link || site);
+		} else {
+			// Accept IPv6 SLAAC addresses
+			return isSlaacAddress(a);
+		}
 	}
 
 	@Override
 	protected boolean isConnectable(InterfaceAddress local,
 			InetSocketAddress remote) {
 		if (remote.getPort() == 0) return false;
-		if (!isAcceptableAddress(remote.getAddress())) return false;
+		InetAddress remoteAddress = remote.getAddress();
+		boolean ipv4 = local.getAddress() instanceof Inet4Address;
+		if (!isAcceptableAddress(remoteAddress, ipv4)) return false;
 		// Try to determine whether the address is on the same LAN as us
 		byte[] localIp = local.getAddress().getAddress();
 		byte[] remoteIp = remote.getAddress().getAddress();
@@ -262,7 +334,7 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		ServerSocket ss = null;
-		for (InetSocketAddress addr : getLocalSocketAddresses()) {
+		for (InetSocketAddress addr : getLocalSocketAddresses(true)) {
 			// Don't try to reuse the same port we use for contact connections
 			addr = new InetSocketAddress(addr.getAddress(), 0);
 			try {
@@ -291,7 +363,7 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
-		ServerSocket ss = state.getServerSocket();
+		ServerSocket ss = state.getServerSocket(true);
 		if (ss == null) return null;
 		InterfaceAddress local = getLocalInterfaceAddress(ss.getInetAddress());
 		if (local == null) {

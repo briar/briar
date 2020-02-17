@@ -7,6 +7,7 @@ public interface LanTcpConstants {
 	// Transport properties (shared with contacts)
 	String PROP_IP_PORTS = "ipPorts";
 	String PROP_PORT = "port";
+	String PROP_SLAAC = "slaac";
 
 	// A local setting
 	String PREF_LAN_IP_PORTS = "ipPorts";

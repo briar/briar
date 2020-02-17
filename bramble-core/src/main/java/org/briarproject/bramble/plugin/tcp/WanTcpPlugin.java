@@ -43,10 +43,11 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected List<InetSocketAddress> getLocalSocketAddresses() {
+	protected List<InetSocketAddress> getLocalSocketAddresses(boolean ipv4) {
+		if (!ipv4) return emptyList();
 		// Use the same address and port as last time if available
 		TransportProperties p = callback.getLocalProperties();
-		InetSocketAddress old = parseSocketAddress(p.get(PROP_IP_PORT));
+		InetSocketAddress old = parseIpv4SocketAddress(p.get(PROP_IP_PORT));
 		List<InetSocketAddress> addrs = new LinkedList<>();
 		for (InetAddress a : getLocalInetAddresses()) {
 			if (isAcceptableAddress(a)) {
@@ -76,14 +77,11 @@ class WanTcpPlugin extends TcpPlugin {
 		return ipv4 && !loop && !link && !site;
 	}
 
-	private int chooseEphemeralPort() {
-		return 32768 + (int) (Math.random() * 32768);
-	}
-
 	@Override
 	protected List<InetSocketAddress> getRemoteSocketAddresses(
-			TransportProperties p) {
-		InetSocketAddress parsed = parseSocketAddress(p.get(PROP_IP_PORT));
+			TransportProperties p, boolean ipv4) {
+		if (!ipv4) return emptyList();
+		InetSocketAddress parsed = parseIpv4SocketAddress(p.get(PROP_IP_PORT));
 		if (parsed == null) return emptyList();
 		return singletonList(parsed);
 	}
@@ -96,7 +94,8 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected void setLocalSocketAddress(InetSocketAddress a) {
+	protected void setLocalSocketAddress(InetSocketAddress a, boolean ipv4) {
+		if (!ipv4) throw new AssertionError();
 		if (mappingResult != null && mappingResult.isUsable()) {
 			// Advertise the external address to contacts
 			if (a.equals(mappingResult.getInternal())) {
