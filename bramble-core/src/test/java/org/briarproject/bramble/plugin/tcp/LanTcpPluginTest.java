@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
-import org.briarproject.bramble.plugin.tcp.LanTcpPlugin.LanAddressComparator;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,7 +21,6 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Comparator;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -33,6 +31,7 @@ import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
+import static org.briarproject.bramble.plugin.tcp.LanTcpPlugin.areAddressesInSameNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -59,44 +58,62 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testAddressesAreOnSameLan() {
-		// Local and remote in 10.0.0.0/8 should return true
-		assertTrue(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
-				makeAddress(10, 255, 255, 255)));
-		// Local and remote in 172.16.0.0/12 should return true
-		assertTrue(plugin.addressesAreOnSameLan(makeAddress(172, 16, 0, 0),
-				makeAddress(172, 31, 255, 255)));
-		// Local and remote in 192.168.0.0/16 should return true
-		assertTrue(plugin.addressesAreOnSameLan(makeAddress(192, 168, 0, 0),
-				makeAddress(192, 168, 255, 255)));
-		// Local and remote in 169.254.0.0/16 (link-local) should return true
-		assertTrue(plugin.addressesAreOnSameLan(makeAddress(169, 254, 0, 0),
-				makeAddress(169, 254, 255, 255)));
-		// Local and remote in different recognised prefixes should return false
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
-				makeAddress(172, 31, 255, 255)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
-				makeAddress(192, 168, 255, 255)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(172, 16, 0, 0),
-				makeAddress(10, 255, 255, 255)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(172, 16, 0, 0),
-				makeAddress(192, 168, 255, 255)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(192, 168, 0, 0),
-				makeAddress(10, 255, 255, 255)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(192, 168, 0, 0),
-				makeAddress(172, 31, 255, 255)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(169, 254, 0, 0),
-				makeAddress(192, 168, 255, 255)));
-		// Remote prefix unrecognised should return false
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(10, 0, 0, 0),
-				makeAddress(1, 2, 3, 4)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(172, 16, 0, 0),
-				makeAddress(1, 2, 3, 4)));
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(192, 168, 0, 0),
-				makeAddress(1, 2, 3, 4)));
-		// Both prefixes unrecognised should return false
-		assertFalse(plugin.addressesAreOnSameLan(makeAddress(1, 2, 3, 4),
-				makeAddress(5, 6, 7, 8)));
+	public void testAreAddressesInSameNetwork() {
+		// Local and remote in 10.0.0.0/8
+		assertTrue(areAddressesInSameNetwork(makeAddress(10, 0, 0, 0),
+				makeAddress(10, 255, 255, 255), 8));
+		assertFalse(areAddressesInSameNetwork(makeAddress(10, 0, 0, 0),
+				makeAddress(10, 255, 255, 255), 9));
+
+		// Local and remote in 172.16.0.0/12
+		assertTrue(areAddressesInSameNetwork(makeAddress(172, 16, 0, 0),
+				makeAddress(172, 31, 255, 255), 12));
+		assertFalse(areAddressesInSameNetwork(makeAddress(172, 16, 0, 0),
+				makeAddress(172, 31, 255, 255), 13));
+
+		// Local and remote in 192.168.0.0/16
+		assertTrue(areAddressesInSameNetwork(makeAddress(192, 168, 0, 0),
+				makeAddress(192, 168, 255, 255), 16));
+		assertFalse(areAddressesInSameNetwork(makeAddress(192, 168, 0, 0),
+				makeAddress(192, 168, 255, 255), 17));
+
+		// Local and remote in 169.254.0.0/16
+		assertTrue(areAddressesInSameNetwork(makeAddress(169, 254, 0, 0),
+				makeAddress(169, 254, 255, 255), 16));
+		assertFalse(areAddressesInSameNetwork(makeAddress(169, 254, 0, 0),
+				makeAddress(169, 254, 255, 255), 17));
+
+		// Local in 10.0.0.0/8, remote in a different network
+		assertFalse(areAddressesInSameNetwork(makeAddress(10, 0, 0, 0),
+				makeAddress(172, 31, 255, 255), 8));
+		assertFalse(areAddressesInSameNetwork(makeAddress(10, 0, 0, 0),
+				makeAddress(192, 168, 255, 255), 8));
+		assertFalse(areAddressesInSameNetwork(makeAddress(10, 0, 0, 0),
+				makeAddress(169, 254, 255, 255), 8));
+
+		// Local in 172.16.0.0/12, remote in a different network
+		assertFalse(areAddressesInSameNetwork(makeAddress(172, 16, 0, 0),
+				makeAddress(10, 255, 255, 255), 12));
+		assertFalse(areAddressesInSameNetwork(makeAddress(172, 16, 0, 0),
+				makeAddress(192, 168, 255, 255), 12));
+		assertFalse(areAddressesInSameNetwork(makeAddress(172, 16, 0, 0),
+				makeAddress(169, 254, 255, 255), 12));
+
+		// Local in 192.168.0.0/16, remote in a different network
+		assertFalse(areAddressesInSameNetwork(makeAddress(192, 168, 0, 0),
+				makeAddress(10, 255, 255, 255), 16));
+		assertFalse(areAddressesInSameNetwork(makeAddress(192, 168, 0, 0),
+				makeAddress(172, 31, 255, 255), 16));
+		assertFalse(areAddressesInSameNetwork(makeAddress(192, 168, 0, 0),
+				makeAddress(169, 254, 255, 255), 16));
+
+		// Local in 169.254.0.0/16, remote in a different network
+		assertFalse(areAddressesInSameNetwork(makeAddress(169, 254, 0, 0),
+				makeAddress(10, 255, 255, 255), 16));
+		assertFalse(areAddressesInSameNetwork(makeAddress(169, 254, 0, 0),
+				makeAddress(172, 31, 255, 255), 16));
+		assertFalse(areAddressesInSameNetwork(makeAddress(169, 254, 0, 0),
+				makeAddress(192, 168, 255, 255), 16));
 	}
 
 	private byte[] makeAddress(int... parts) {
@@ -266,54 +283,12 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		plugin.stop();
 	}
 
-	@Test
-	public void testComparatorPrefersNonZeroPorts() {
-		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
-		InetSocketAddress nonZero = new InetSocketAddress("1.2.3.4", 1234);
-		InetSocketAddress zero = new InetSocketAddress("1.2.3.4", 0);
-
-		assertEquals(0, comparator.compare(nonZero, nonZero));
-		assertTrue(comparator.compare(nonZero, zero) < 0);
-
-		assertTrue(comparator.compare(zero, nonZero) > 0);
-		assertEquals(0, comparator.compare(zero, zero));
-	}
-
-	@Test
-	public void testComparatorPrefersLongerPrefixes() {
-		Comparator<InetSocketAddress> comparator = new LanAddressComparator();
-		InetSocketAddress prefix169 = new InetSocketAddress("169.254.0.1", 0);
-		InetSocketAddress prefix192 = new InetSocketAddress("192.168.0.1", 0);
-		InetSocketAddress prefix172 = new InetSocketAddress("172.16.0.1", 0);
-		InetSocketAddress prefix10 = new InetSocketAddress("10.0.0.1", 0);
-
-		assertEquals(0, comparator.compare(prefix169, prefix169));
-		assertEquals(0, comparator.compare(prefix169, prefix192));
-		assertTrue(comparator.compare(prefix169, prefix172) < 0);
-		assertTrue(comparator.compare(prefix169, prefix10) < 0);
-
-		assertEquals(0, comparator.compare(prefix192, prefix192));
-		assertEquals(0, comparator.compare(prefix192, prefix169));
-		assertTrue(comparator.compare(prefix192, prefix172) < 0);
-		assertTrue(comparator.compare(prefix192, prefix10) < 0);
-
-		assertTrue(comparator.compare(prefix172, prefix169) > 0);
-		assertTrue(comparator.compare(prefix172, prefix192) > 0);
-		assertEquals(0, comparator.compare(prefix172, prefix172));
-		assertTrue(comparator.compare(prefix172, prefix10) < 0);
-
-		assertTrue(comparator.compare(prefix10, prefix169) > 0);
-		assertTrue(comparator.compare(prefix10, prefix192) > 0);
-		assertTrue(comparator.compare(prefix10, prefix172) > 0);
-		assertEquals(0, comparator.compare(prefix10, prefix10));
-	}
-
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	private boolean systemHasLocalIpv4Address() throws Exception {
 		for (NetworkInterface i : list(getNetworkInterfaces())) {
 			for (InetAddress a : list(i.getInetAddresses())) {
-				if (a instanceof Inet4Address)
+				if (a instanceof Inet4Address) {
 					return a.isLinkLocalAddress() || a.isSiteLocalAddress();
+				}
 			}
 		}
 		return false;

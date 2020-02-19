@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -47,7 +48,7 @@ class WanTcpPlugin extends TcpPlugin {
 		TransportProperties p = callback.getLocalProperties();
 		InetSocketAddress old = parseSocketAddress(p.get(PROP_IP_PORT));
 		List<InetSocketAddress> addrs = new LinkedList<>();
-		for (InetAddress a : getLocalIpAddresses()) {
+		for (InetAddress a : getLocalInetAddresses()) {
 			if (isAcceptableAddress(a)) {
 				// If this is the old address, try to use the same port
 				if (old != null && old.getAddress().equals(a))
@@ -88,7 +89,8 @@ class WanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected boolean isConnectable(InetSocketAddress remote) {
+	protected boolean isConnectable(InterfaceAddress local,
+			InetSocketAddress remote) {
 		if (remote.getPort() == 0) return false;
 		return isAcceptableAddress(remote.getAddress());
 	}

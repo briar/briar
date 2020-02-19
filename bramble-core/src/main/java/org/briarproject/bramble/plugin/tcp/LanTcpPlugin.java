@@ -17,12 +17,11 @@ import java.io.IOException;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.InterfaceAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
@@ -50,9 +49,6 @@ import static org.briarproject.bramble.util.StringUtils.join;
 class LanTcpPlugin extends TcpPlugin {
 
 	private static final Logger LOG = getLogger(LanTcpPlugin.class.getName());
-
-	private static final LanAddressComparator ADDRESS_COMPARATOR =
-			new LanAddressComparator();
 
 	private static final int MAX_ADDRESSES = 4;
 	private static final String SEPARATOR = ",";
@@ -111,28 +107,26 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	protected List<InetSocketAddress> getLocalSocketAddresses() {
 		TransportProperties p = callback.getLocalProperties();
-		int port = parsePortProperty(p.get(PROP_PORT));
+		int preferredPort = parsePortProperty(p.get(PROP_PORT));
 		String oldIpPorts = p.get(PROP_IP_PORTS);
 		List<InetSocketAddress> olds = parseSocketAddresses(oldIpPorts);
+
 		List<InetSocketAddress> locals = new ArrayList<>();
-		for (InetAddress local : getLocalIpAddresses()) {
-			if (isAcceptableAddress(local)) {
-				// If we've used this address before, try to use the same port
-				boolean reused = false;
-				for (InetSocketAddress old : olds) {
-					if (old.getAddress().equals(local)) {
-						locals.add(new InetSocketAddress(local, old.getPort()));
-						reused = true;
-						break;
-					}
+		List<InetSocketAddress> fallbacks = new ArrayList<>();
+		for (InetAddress local : getUsableLocalInetAddresses()) {
+			// If we've used this address before, try to use the same port
+			int port = preferredPort;
+			for (InetSocketAddress old : olds) {
+				if (old.getAddress().equals(local)) {
+					port = old.getPort();
+					break;
 				}
-				// Otherwise try to use our preferred port
-				if (!reused) locals.add(new InetSocketAddress(local, port));
-				// Fall back to any available port
-				locals.add(new InetSocketAddress(local, 0));
 			}
+			locals.add(new InetSocketAddress(local, port));
+			// Fall back to any available port
+			fallbacks.add(new InetSocketAddress(local, 0));
 		}
-		sort(locals, ADDRESS_COMPARATOR);
+		locals.addAll(fallbacks);
 		return locals;
 	}
 
@@ -153,6 +147,20 @@ class LanTcpPlugin extends TcpPlugin {
 			if (a != null) addresses.add(a);
 		}
 		return addresses;
+	}
+
+	protected List<InetAddress> getUsableLocalInetAddresses() {
+		List<InterfaceAddress> ifAddrs =
+				new ArrayList<>(getLocalInterfaceAddresses());
+		// Prefer longer network prefixes
+		sort(ifAddrs, (a, b) ->
+				b.getNetworkPrefixLength() - a.getNetworkPrefixLength());
+		List<InetAddress> addrs = new ArrayList<>();
+		for (InterfaceAddress ifAddr : ifAddrs) {
+			InetAddress addr = ifAddr.getAddress();
+			if (isAcceptableAddress(addr)) addrs.add(addr);
+		}
+		return addrs;
 	}
 
 	@Override
@@ -218,55 +226,31 @@ class LanTcpPlugin extends TcpPlugin {
 	}
 
 	@Override
-	protected boolean isConnectable(InetSocketAddress remote) {
+	protected boolean isConnectable(InterfaceAddress local,
+			InetSocketAddress remote) {
 		if (remote.getPort() == 0) return false;
 		if (!isAcceptableAddress(remote.getAddress())) return false;
 		// Try to determine whether the address is on the same LAN as us
-		if (socket == null) return false;
-		byte[] localIp = socket.getInetAddress().getAddress();
+		byte[] localIp = local.getAddress().getAddress();
 		byte[] remoteIp = remote.getAddress().getAddress();
-		return addressesAreOnSameLan(localIp, remoteIp);
+		int prefixLength = local.getNetworkPrefixLength();
+		return areAddressesInSameNetwork(localIp, remoteIp, prefixLength);
 	}
 
 	// Package access for testing
-	boolean addressesAreOnSameLan(byte[] localIp, byte[] remoteIp) {
-		// 10.0.0.0/8
-		if (isSlash8SiteLocal(localIp)) return isSlash8SiteLocal(remoteIp);
-		// 172.16.0.0/12
-		if (isSlash12SiteLocal(localIp)) return isSlash12SiteLocal(remoteIp);
-		// 192.168.0.0/16
-		if (isSlash16SiteLocal(localIp)) return isSlash16SiteLocal(remoteIp);
-		// 169.254.0.0/16
-		if (isSlash16LinkLocal(localIp)) return isSlash16LinkLocal(remoteIp);
-		// Unrecognised prefix
-		return false;
-	}
-
-	private static boolean isSlash8SiteLocal(byte[] ipv4) {
-		return ipv4[0] == 10;
-	}
-
-	private static boolean isSlash12SiteLocal(byte[] ipv4) {
-		return ipv4[0] == (byte) 172 && (ipv4[1] & 0xF0) == 16;
-	}
-
-	private static boolean isSlash16SiteLocal(byte[] ipv4) {
-		return ipv4[0] == (byte) 192 && ipv4[1] == (byte) 168;
-	}
-
-	private static boolean isSlash16LinkLocal(byte[] ipv4) {
-		return ipv4[0] == (byte) 169 && ipv4[1] == (byte) 254;
-	}
-
-	// Returns the prefix length for a link-local or site-local address, or 0
-	// for any other address
-	private static int getPrefixLengthIfKnown(InetAddress addr) {
-		if (!(addr instanceof Inet4Address)) return 0;
-		byte[] ipv4 = addr.getAddress();
-		if (isSlash8SiteLocal(ipv4)) return 8;
-		if (isSlash12SiteLocal(ipv4)) return 12;
-		if (isSlash16SiteLocal(ipv4) || isSlash16LinkLocal(ipv4)) return 16;
-		return 0;
+	static boolean areAddressesInSameNetwork(byte[] localIp, byte[] remoteIp,
+			int prefixLength) {
+		if (localIp.length != remoteIp.length) return false;
+		// Compare the first prefixLength bits of the addresses
+		for (int i = 0; i < prefixLength; i++) {
+			int byteIndex = i >> 3;
+			int bitIndex = i & 7; // 0 to 7
+			int mask = 128 >> bitIndex; // Select the bit at bitIndex
+			if ((localIp[byteIndex] & mask) != (remoteIp[byteIndex] & mask)) {
+				return false; // Addresses differ at bit i
+			}
+		}
+		return true;
 	}
 
 	@Override
@@ -307,6 +291,12 @@ class LanTcpPlugin extends TcpPlugin {
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
 		if (!isRunning()) return null;
+		ServerSocket ss = socket;
+		InterfaceAddress local = getLocalInterfaceAddress(ss.getInetAddress());
+		if (local == null) {
+			LOG.warning("No interface for key agreement server socket");
+			return null;
+		}
 		InetSocketAddress remote;
 		try {
 			remote = parseSocketAddress(descriptor);
@@ -314,12 +304,11 @@ class LanTcpPlugin extends TcpPlugin {
 			LOG.info("Invalid IP/port in key agreement descriptor");
 			return null;
 		}
-		if (!isConnectable(remote)) {
+		if (!isConnectable(local, remote)) {
 			if (LOG.isLoggable(INFO)) {
-				SocketAddress local = socket.getLocalSocketAddress();
 				LOG.info(scrubSocketAddress(remote) +
 						" is not connectable from " +
-						scrubSocketAddress(local));
+						scrubSocketAddress(ss.getLocalSocketAddress()));
 			}
 			return null;
 		}
@@ -327,7 +316,7 @@ class LanTcpPlugin extends TcpPlugin {
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connecting to " + scrubSocketAddress(remote));
 			Socket s = createSocket();
-			s.bind(new InetSocketAddress(socket.getInetAddress(), 0));
+			s.bind(new InetSocketAddress(ss.getInetAddress(), 0));
 			s.connect(remote, connectionTimeout);
 			s.setSoTimeout(socketTimeout);
 			if (LOG.isLoggable(INFO))
@@ -375,21 +364,6 @@ class LanTcpPlugin extends TcpPlugin {
 		@Override
 		public void close() {
 			IoUtils.tryToClose(ss, LOG, WARNING);
-		}
-	}
-
-	static class LanAddressComparator implements Comparator<InetSocketAddress> {
-
-		@Override
-		public int compare(InetSocketAddress a, InetSocketAddress b) {
-			// Prefer addresses with non-zero ports
-			int aPort = a.getPort(), bPort = b.getPort();
-			if (aPort > 0 && bPort == 0) return -1;
-			if (aPort == 0 && bPort > 0) return 1;
-			// Prefer addresses with longer prefixes
-			int aPrefix = getPrefixLengthIfKnown(a.getAddress());
-			int bPrefix = getPrefixLengthIfKnown(b.getAddress());
-			return bPrefix - aPrefix;
 		}
 	}
 }
