@@ -241,9 +241,12 @@ class LanTcpPlugin extends TcpPlugin {
 	static boolean areAddressesInSameNetwork(byte[] localIp, byte[] remoteIp,
 			int prefixLength) {
 		if (localIp.length != remoteIp.length) return false;
+		// Compare the first prefixLength bits of the addresses
 		for (int i = 0; i < prefixLength; i++) {
-			int mask = 128 >> (i & 7);
-			if ((localIp[i >> 3] & mask) != (remoteIp[i >> 3] & mask)) {
+			int byteIndex = i >> 3;
+			int bitIndex = i & 7; // 0 to 7
+			int mask = 128 >> bitIndex; // Select the bit at bitIndex
+			if ((localIp[byteIndex] & mask) != (remoteIp[byteIndex] & mask)) {
 				return false; // Addresses differ at bit i
 			}
 		}
