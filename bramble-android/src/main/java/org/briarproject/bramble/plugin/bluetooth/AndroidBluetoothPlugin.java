@@ -23,7 +23,6 @@ import org.briarproject.bramble.util.IoUtils;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
@@ -54,6 +53,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
@@ -63,7 +63,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private static final Logger LOG =
 			getLogger(AndroidBluetoothPlugin.class.getName());
 
-	private static final int MAX_DISCOVERY_MS = 10_000;
+	private static final int MAX_DISCOVERY_MS = 60_000;
 
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
@@ -208,7 +208,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	@Nullable
 	DuplexTransportConnection discoverAndConnect(String uuid) {
 		if (adapter == null) return null;
-		for (String address : discoverDevices()) {
+		for (BluetoothDevice d : discoverDevices()) {
+			String address = d.getAddress();
 			try {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Connecting to " + scrubMacAddress(address));
@@ -224,8 +225,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		return null;
 	}
 
-	private Collection<String> discoverDevices() {
-		List<String> addresses = new ArrayList<>();
+	private List<BluetoothDevice> discoverDevices() {
+		List<BluetoothDevice> devices = new ArrayList<>();
 		BlockingQueue<Intent> intents = new LinkedBlockingQueue<>();
 		DiscoveryReceiver receiver = new DiscoveryReceiver(intents);
 		IntentFilter filter = new IntentFilter();
@@ -247,15 +248,15 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 						LOG.info("Discovery finished");
 						break;
 					} else if (ACTION_FOUND.equals(action)) {
-						BluetoothDevice d = i.getParcelableExtra(EXTRA_DEVICE);
+						BluetoothDevice d = requireNonNull(
+								i.getParcelableExtra(EXTRA_DEVICE));
 						// Ignore Bluetooth LE devices
 						if (SDK_INT < 18 || d.getType() != DEVICE_TYPE_LE) {
-							String address = d.getAddress();
-							if (LOG.isLoggable(INFO))
-								LOG.info("Discovered " +
-										scrubMacAddress(address));
-							if (!addresses.contains(address))
-								addresses.add(address);
+							if (LOG.isLoggable(INFO)) {
+								LOG.info("Discovered "
+										+ scrubMacAddress(d.getAddress()));
+							}
+							if (!devices.contains(d)) devices.add(d);
 						}
 					}
 					now = clock.currentTimeMillis();
@@ -271,9 +272,9 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			adapter.cancelDiscovery();
 			appContext.unregisterReceiver(receiver);
 		}
-		// Shuffle the addresses so we don't always try the same one first
-		shuffle(addresses);
-		return addresses;
+		// Shuffle the devices so we don't always try the same one first
+		shuffle(devices);
+		return devices;
 	}
 
 	private class BluetoothStateReceiver extends BroadcastReceiver {
