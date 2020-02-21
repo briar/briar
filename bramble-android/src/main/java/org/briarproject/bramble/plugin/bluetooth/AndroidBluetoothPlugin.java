@@ -76,6 +76,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private static final Logger LOG =
 			getLogger(AndroidBluetoothPlugin.class.getName());
 
+	private static final int MIN_DEVICE_DISCOVERY_MS = 2_000;
 	private static final int MAX_DEVICE_DISCOVERY_MS = 30_000;
 	private static final int MAX_SERVICE_DISCOVERY_MS = 15_000;
 
@@ -416,8 +417,9 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		appContext.registerReceiver(receiver, filter);
 		try {
 			if (adapter.startDiscovery()) {
-				long now = clock.currentTimeMillis();
-				long end = now + MAX_DEVICE_DISCOVERY_MS;
+				long start = clock.currentTimeMillis();
+				long end = start + MAX_DEVICE_DISCOVERY_MS;
+				long now = start;
 				while (now < end) {
 					Intent i = intents.poll(end - now, MILLISECONDS);
 					if (i == null) break;
@@ -426,7 +428,16 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 						LOG.info("Discovery started");
 					} else if (ACTION_DISCOVERY_FINISHED.equals(action)) {
 						LOG.info("Discovery finished");
-						break;
+						now = clock.currentTimeMillis();
+						if (now - start < MIN_DEVICE_DISCOVERY_MS) {
+							LOG.info("Discovery finished quickly, retrying");
+							if (!adapter.startDiscovery()) {
+								LOG.info("Could not restart discovery");
+								break;
+							}
+						} else {
+							break;
+						}
 					} else if (ACTION_FOUND.equals(action)) {
 						BluetoothDevice d = requireNonNull(
 								i.getParcelableExtra(EXTRA_DEVICE));
