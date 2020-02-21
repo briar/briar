@@ -407,6 +407,10 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	}
 
 	private List<BluetoothDevice> discoverDevices() {
+		if (adapter.isDiscovering()) {
+			LOG.info("Already discovering");
+			return emptyList();
+		}
 		List<BluetoothDevice> devices = new ArrayList<>();
 		BlockingQueue<Intent> intents = new LinkedBlockingQueue<>();
 		QueueingReceiver receiver = new QueueingReceiver(intents);
