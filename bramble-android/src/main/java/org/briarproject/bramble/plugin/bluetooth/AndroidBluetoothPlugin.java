@@ -76,7 +76,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private static final Logger LOG =
 			getLogger(AndroidBluetoothPlugin.class.getName());
 
-	private static final int MAX_DEVICE_DISCOVERY_MS = 60_000;
+	private static final int MAX_DEVICE_DISCOVERY_MS = 30_000;
 	private static final int MAX_SERVICE_DISCOVERY_MS = 15_000;
 
 	private final AndroidExecutor androidExecutor;
@@ -254,6 +254,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			return;
 		}
 
+		List<Pair<TransportProperties, DiscoveryHandler>> discovered =
+				new ArrayList<>();
 		Map<String, Pair<TransportProperties, DiscoveryHandler>> byUuid =
 				new HashMap<>();
 		Map<String, Pair<TransportProperties, DiscoveryHandler>> byAddress =
@@ -289,7 +291,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 						TransportProperties p =
 								new TransportProperties(pair.getFirst());
 						p.put(PROP_ADDRESS, d.getAddress());
-						pair.getSecond().handleDevice(p);
+						discovered.add(new Pair<>(p, pair.getSecond()));
 						unknown.remove(d);
 						break;
 					}
@@ -299,7 +301,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 					LOG.info("Matched " + scrubMacAddress(d.getAddress())
 							+ " by address");
 				}
-				pair.getSecond().handleDevice(pair.getFirst());
+				discovered.add(pair);
 				unknown.remove(d);
 			}
 		}
@@ -365,7 +367,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 						TransportProperties p =
 								new TransportProperties(pair.getFirst());
 						p.put(PROP_ADDRESS, d.getAddress());
-						pair.getSecond().handleDevice(p);
+						discovered.add(new Pair<>(p, pair.getSecond()));
 						break;
 					}
 				}
@@ -385,6 +387,13 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			Thread.currentThread().interrupt();
 		} finally {
 			appContext.unregisterReceiver(receiver);
+		}
+
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Discovered " + discovered.size() + " contacts");
+		}
+		for (Pair<TransportProperties, DiscoveryHandler> pair : discovered) {
+			pair.getSecond().handleDevice(pair.getFirst());
 		}
 	}
 
