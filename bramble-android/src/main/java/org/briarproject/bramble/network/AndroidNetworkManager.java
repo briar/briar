@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
 
 import org.briarproject.bramble.api.event.EventBus;
@@ -32,12 +34,15 @@ import static android.content.Intent.ACTION_SCREEN_OFF;
 import static android.content.Intent.ACTION_SCREEN_ON;
 import static android.net.ConnectivityManager.CONNECTIVITY_ACTION;
 import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.NetworkCapabilities.NET_CAPABILITY_INTERNET;
+import static android.net.NetworkCapabilities.TRANSPORT_WIFI;
 import static android.net.wifi.p2p.WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.os.PowerManager.ACTION_DEVICE_IDLE_MODE_CHANGED;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.INFO;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -52,7 +57,8 @@ class AndroidNetworkManager implements NetworkManager, Service {
 
 	private final ScheduledExecutorService scheduler;
 	private final EventBus eventBus;
-	private final Context appContext;
+	private final Application app;
+	private final ConnectivityManager connectivityManager;
 	private final AtomicReference<Future<?>> connectivityCheck =
 			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
@@ -64,7 +70,9 @@ class AndroidNetworkManager implements NetworkManager, Service {
 			EventBus eventBus, Application app) {
 		this.scheduler = scheduler;
 		this.eventBus = eventBus;
-		this.appContext = app.getApplicationContext();
+		this.app = app;
+		connectivityManager = (ConnectivityManager)
+				requireNonNull(app.getSystemService(CONNECTIVITY_SERVICE));
 	}
 
 	@Override
@@ -79,24 +87,33 @@ class AndroidNetworkManager implements NetworkManager, Service {
 		filter.addAction(WIFI_AP_STATE_CHANGED_ACTION);
 		filter.addAction(WIFI_P2P_THIS_DEVICE_CHANGED_ACTION);
 		if (SDK_INT >= 23) filter.addAction(ACTION_DEVICE_IDLE_MODE_CHANGED);
-		appContext.registerReceiver(networkStateReceiver, filter);
+		app.registerReceiver(networkStateReceiver, filter);
 	}
 
 	@Override
 	public void stopService() {
-		if (networkStateReceiver != null)
-			appContext.unregisterReceiver(networkStateReceiver);
+		if (networkStateReceiver != null) {
+			app.unregisterReceiver(networkStateReceiver);
+		}
 	}
 
 	@Override
 	public NetworkStatus getNetworkStatus() {
-		ConnectivityManager cm = (ConnectivityManager)
-				appContext.getSystemService(CONNECTIVITY_SERVICE);
-		if (cm == null) throw new AssertionError();
-		NetworkInfo net = cm.getActiveNetworkInfo();
-		boolean connected = net != null && net.isConnected();
-		boolean wifi = connected && net.getType() == TYPE_WIFI;
-		return new NetworkStatus(connected, wifi);
+		if (SDK_INT >= 23) {
+			Network net = connectivityManager.getActiveNetwork();
+			if (net == null) return new NetworkStatus(false, false);
+			NetworkCapabilities caps =
+					connectivityManager.getNetworkCapabilities(net);
+			if (caps == null) return new NetworkStatus(false, false);
+			boolean connected = caps.hasCapability(NET_CAPABILITY_INTERNET);
+			boolean wifi = caps.hasTransport(TRANSPORT_WIFI);
+			return new NetworkStatus(connected, wifi);
+		} else {
+			NetworkInfo net = connectivityManager.getActiveNetworkInfo();
+			boolean connected = net != null && net.isConnected();
+			boolean wifi = connected && net.getType() == TYPE_WIFI;
+			return new NetworkStatus(connected, wifi);
+		}
 	}
 
 	private void updateConnectionStatus() {
