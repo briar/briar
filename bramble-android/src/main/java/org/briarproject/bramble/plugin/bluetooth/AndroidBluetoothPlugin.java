@@ -26,11 +26,14 @@ import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -57,6 +60,8 @@ import static android.bluetooth.BluetoothDevice.DEVICE_TYPE_LE;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
 import static android.bluetooth.BluetoothDevice.EXTRA_UUID;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.nio.ByteOrder.LITTLE_ENDIAN;
+import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.shuffle;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -273,15 +278,11 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 		List<BluetoothDevice> unknown = new ArrayList<>(devices);
 		for (BluetoothDevice d : devices) {
-			List<String> uuids = getUuids(d);
-			if (LOG.isLoggable(INFO)) {
-				LOG.info(uuids.size() + " cached UUIDs for "
-						+ scrubMacAddress(d.getAddress()));
-			}
 			Pair<TransportProperties, DiscoveryHandler> pair =
 					byAddress.remove(d.getAddress());
 			if (pair == null) {
-				for (String uuid : uuids) {
+				// Try cached UUIDs
+				for (String uuid : getUuids(d)) {
 					pair = byUuid.remove(uuid);
 					if (pair != null) {
 						if (LOG.isLoggable(INFO)) {
@@ -341,18 +342,16 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 				if (i == null) break;
 				BluetoothDevice d = requireNonNull(
 						i.getParcelableExtra(EXTRA_DEVICE));
-				List<String> uuids = getUuids(d);
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Fetched UUIDs for "
+							+ scrubMacAddress(d.getAddress()));
+				}
+				Set<String> uuids = getUuids(d);
 				Parcelable[] extra = i.getParcelableArrayExtra(EXTRA_UUID);
 				if (extra != null) {
 					for (Parcelable p : extra) {
-						if (!uuids.contains(p.toString())) {
-							uuids.add(p.toString());
-						}
+						uuids.addAll(getUuidStrings((ParcelUuid) p));
 					}
-				}
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Fetched " + uuids.size() + " UUIDs for "
-							+ scrubMacAddress(d.getAddress()));
 				}
 				for (String uuid : uuids) {
 					Pair<TransportProperties, DiscoveryHandler> pair =
@@ -396,12 +395,24 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		}
 	}
 
-	private List<String> getUuids(BluetoothDevice d) {
+	private Set<String> getUuids(BluetoothDevice d) {
+		Set<String> strings = new TreeSet<>();
 		ParcelUuid[] uuids = d.getUuids();
-		if (uuids == null) return new ArrayList<>();
-		List<String> strings = new ArrayList<>(uuids.length);
-		for (ParcelUuid u : uuids) strings.add(u.toString());
+		if (uuids == null) return strings;
+		for (ParcelUuid u : uuids) strings.addAll(getUuidStrings(u));
 		return strings;
+	}
+
+	// Workaround for https://code.google.com/p/android/issues/detail?id=197341
+	private List<String> getUuidStrings(ParcelUuid u) {
+		UUID forwards = u.getUuid();
+		ByteBuffer buf = ByteBuffer.allocate(16);
+		buf.putLong(forwards.getLeastSignificantBits());
+		buf.putLong(forwards.getMostSignificantBits());
+		buf.rewind();
+		buf.order(LITTLE_ENDIAN);
+		UUID backwards = new UUID(buf.getLong(), buf.getLong());
+		return asList(forwards.toString(), backwards.toString());
 	}
 
 	private List<BluetoothDevice> discoverDevices() {
