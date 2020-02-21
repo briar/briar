@@ -351,6 +351,9 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with((long) (pollingInterval * 0.5)), with(MILLISECONDS));
 			will(returnValue(future));
+			// FIXME: Revert
+			oneOf(plugin).supportsDiscovery();
+			will(returnValue(false));
 			// Get the transport properties and connected contacts
 			oneOf(transportPropertyManager).getRemoteProperties(transportId);
 			will(returnValue(singletonMap(contactId, properties)));
@@ -394,6 +397,9 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with((long) (pollingInterval * 0.5)), with(MILLISECONDS));
 			will(returnValue(future));
+			// FIXME: Revert
+			oneOf(plugin).supportsDiscovery();
+			will(returnValue(false));
 			// Get the transport properties and connected contacts
 			oneOf(transportPropertyManager).getRemoteProperties(transportId);
 			will(returnValue(singletonMap(contactId, properties)));

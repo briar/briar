@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.DiscoveryHandler;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
@@ -211,7 +212,7 @@ class PollerImpl implements Poller, EventListener {
 	@IoExecutor
 	private void poll(Plugin p) {
 		TransportId t = p.getId();
-		if (LOG.isLoggable(INFO)) LOG.info("Polling plugin " + t);
+		if (LOG.isLoggable(INFO)) LOG.info("Polling " + t);
 		try {
 			Map<ContactId, TransportProperties> remote =
 					transportPropertyManager.getRemoteProperties(t);
@@ -221,10 +222,36 @@ class PollerImpl implements Poller, EventListener {
 					new ArrayList<>();
 			for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
 				ContactId c = e.getKey();
-				if (!connected.contains(c))
-					properties.add(new Pair<>(e.getValue(), new Handler(c, t)));
+				if (!connected.contains(c)) {
+					ConnHandler handler = new ConnHandler(c, t);
+					properties.add(new Pair<>(e.getValue(), handler));
+				}
 			}
 			if (!properties.isEmpty()) p.poll(properties);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
+	}
+
+	@IoExecutor
+	private void discover(DuplexPlugin p) {
+		TransportId t = p.getId();
+		if (LOG.isLoggable(INFO)) LOG.info("Discovering peers for " + t);
+		try {
+			Map<ContactId, TransportProperties> remote =
+					transportPropertyManager.getRemoteProperties(t);
+			Collection<ContactId> connected =
+					connectionRegistry.getConnectedContacts(t);
+			List<Pair<TransportProperties, DiscoveryHandler>> properties =
+					new ArrayList<>();
+			for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
+				ContactId c = e.getKey();
+				if (!connected.contains(c)) {
+					DiscoHandler handler = new DiscoHandler(c, p);
+					properties.add(new Pair<>(e.getValue(), handler));
+				}
+			}
+			if (!properties.isEmpty()) p.discoverPeers(properties);
 		} catch (DbException e) {
 			logException(LOG, WARNING, e);
 		}
@@ -269,16 +296,23 @@ class PollerImpl implements Poller, EventListener {
 			int delay = plugin.getPollingInterval();
 			if (randomiseNext) delay = (int) (delay * random.nextDouble());
 			schedule(plugin, delay, false);
-			poll(plugin);
+			// FIXME: Revert
+			if (plugin instanceof DuplexPlugin) {
+				DuplexPlugin d = (DuplexPlugin) plugin;
+				if (d.supportsDiscovery()) discover(d);
+				else poll(d);
+			} else {
+				poll(plugin);
+			}
 		}
 	}
 
-	private class Handler implements ConnectionHandler {
+	private class ConnHandler implements ConnectionHandler {
 
 		private final ContactId contactId;
 		private final TransportId transportId;
 
-		private Handler(ContactId contactId, TransportId transportId) {
+		private ConnHandler(ContactId contactId, TransportId transportId) {
 			this.contactId = contactId;
 			this.transportId = transportId;
 		}
@@ -299,6 +333,29 @@ class PollerImpl implements Poller, EventListener {
 		public void handleWriter(TransportConnectionWriter w) {
 			connectionManager.manageOutgoingConnection(contactId,
 					transportId, w);
+		}
+	}
+
+	private class DiscoHandler implements DiscoveryHandler {
+
+		private final ContactId contactId;
+		private final DuplexPlugin plugin;
+
+		private DiscoHandler(ContactId contactId, DuplexPlugin plugin) {
+			this.contactId = contactId;
+			this.plugin = plugin;
+		}
+
+		@Override
+		public void handleDevice(TransportProperties p) {
+			LOG.info("Discovered contact via " + plugin.getId());
+			ioExecutor.execute(() -> {
+				DuplexTransportConnection c = plugin.createConnection(p);
+				if (c != null) {
+					connectionManager.manageOutgoingConnection(contactId,
+							plugin.getId(), c);
+				}
+			});
 		}
 	}
 }

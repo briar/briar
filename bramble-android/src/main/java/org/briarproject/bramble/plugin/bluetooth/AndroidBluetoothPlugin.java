@@ -26,6 +26,8 @@ import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.IoUtils;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -71,6 +73,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
@@ -157,9 +160,28 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	@Override
 	void disableAdapterIfEnabledByUs() {
 		if (isAdapterEnabled() && wasEnabledByUs) {
+			cancelDiscoverability();
 			if (adapter.disable()) LOG.info("Disabling Bluetooth");
 			else LOG.info("Could not disable Bluetooth");
 			wasEnabledByUs = false;
+		}
+	}
+
+	private void cancelDiscoverability() {
+		if (adapter.getScanMode() == SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
+			try {
+				Method setDiscoverableTimeout = BluetoothAdapter.class
+						.getDeclaredMethod("setDiscoverableTimeout", int.class);
+				setDiscoverableTimeout.setAccessible(true);
+				setDiscoverableTimeout.invoke(adapter, 1);
+				LOG.info("Cancelled discoverability");
+			} catch (NoSuchMethodException e) {
+				logException(LOG, WARNING, e);
+			} catch (IllegalAccessException e) {
+				logException(LOG, WARNING, e);
+			} catch (InvocationTargetException e) {
+				logException(LOG, WARNING, e);
+			}
 		}
 	}
 

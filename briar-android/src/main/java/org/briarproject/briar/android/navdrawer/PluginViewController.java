@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.navdrawer;
 
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.ScrollView;
@@ -17,7 +19,10 @@ import androidx.appcompat.widget.AppCompatImageButton;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.constraintlayout.widget.ConstraintSet;
+import androidx.core.app.ActivityCompat;
 
+import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
+import static android.bluetooth.BluetoothAdapter.EXTRA_DISCOVERABLE_DURATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static android.transition.TransitionManager.beginDelayedTransition;
 import static android.view.View.FOCUS_DOWN;
@@ -116,6 +121,14 @@ class PluginViewController {
 			} else {
 				showTorSettingsDialog(reasons);
 			}
+		} else if (id.equals(BluetoothConstants.ID)) {
+			Intent i = new Intent(ACTION_REQUEST_DISCOVERABLE);
+			i.putExtra(EXTRA_DISCOVERABLE_DURATION, 0);
+			PackageManager pm = activity.getPackageManager();
+			if (i.resolveActivity(pm) != null) {
+				ActivityCompat.startActivity(activity, i, null);
+			}
+			viewModel.setPluginEnabled(id, true);
 		} else {
 			viewModel.setPluginEnabled(id, true);
 		}
