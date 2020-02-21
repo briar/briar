@@ -342,19 +342,17 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 				BluetoothDevice d = requireNonNull(
 						i.getParcelableExtra(EXTRA_DEVICE));
 				List<String> uuids = getUuids(d);
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Fetched " + uuids.size() + " UUIDs for "
-							+ scrubMacAddress(d.getAddress()));
-				}
-				// TODO: Test whether EXTRA_UUID is redundant on all devices
 				Parcelable[] extra = i.getParcelableArrayExtra(EXTRA_UUID);
 				if (extra != null) {
 					for (Parcelable p : extra) {
 						if (!uuids.contains(p.toString())) {
-							LOG.info("Extra UUID: " + p);
 							uuids.add(p.toString());
 						}
 					}
+				}
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Fetched " + uuids.size() + " UUIDs for "
+							+ scrubMacAddress(d.getAddress()));
 				}
 				for (String uuid : uuids) {
 					Pair<TransportProperties, DiscoveryHandler> pair =
@@ -400,7 +398,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	private List<String> getUuids(BluetoothDevice d) {
 		ParcelUuid[] uuids = d.getUuids();
-		if (uuids == null) return emptyList();
+		if (uuids == null) return new ArrayList<>();
 		List<String> strings = new ArrayList<>(uuids.length);
 		for (ParcelUuid u : uuids) strings.add(u.toString());
 		return strings;
