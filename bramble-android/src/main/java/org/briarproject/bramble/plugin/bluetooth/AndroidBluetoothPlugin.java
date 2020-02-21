@@ -8,13 +8,18 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.ParcelUuid;
+import android.os.Parcelable;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.DiscoveryHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.AndroidUtils;
@@ -23,7 +28,9 @@ import org.briarproject.bramble.util.IoUtils;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
@@ -45,16 +52,22 @@ import static android.bluetooth.BluetoothAdapter.SCAN_MODE_NONE;
 import static android.bluetooth.BluetoothAdapter.STATE_OFF;
 import static android.bluetooth.BluetoothAdapter.STATE_ON;
 import static android.bluetooth.BluetoothDevice.ACTION_FOUND;
+import static android.bluetooth.BluetoothDevice.ACTION_UUID;
 import static android.bluetooth.BluetoothDevice.DEVICE_TYPE_LE;
 import static android.bluetooth.BluetoothDevice.EXTRA_DEVICE;
+import static android.bluetooth.BluetoothDevice.EXTRA_UUID;
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.shuffle;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -63,7 +76,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private static final Logger LOG =
 			getLogger(AndroidBluetoothPlugin.class.getName());
 
-	private static final int MAX_DISCOVERY_MS = 60_000;
+	private static final int MAX_DEVICE_DISCOVERY_MS = 60_000;
+	private static final int MAX_SERVICE_DISCOVERY_MS = 15_000;
 
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
@@ -225,10 +239,167 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		return null;
 	}
 
+	@Override
+	public boolean supportsDiscovery() {
+		return true;
+	}
+
+	@Override
+	public void discoverPeers(
+			List<Pair<TransportProperties, DiscoveryHandler>> properties) {
+		// Discover all nearby devices
+		List<BluetoothDevice> devices = discoverDevices();
+		if (devices.isEmpty()) {
+			LOG.info("No devices discovered");
+			return;
+		}
+
+		Map<String, Pair<TransportProperties, DiscoveryHandler>> byUuid =
+				new HashMap<>();
+		Map<String, Pair<TransportProperties, DiscoveryHandler>> byAddress =
+				new HashMap<>();
+		for (Pair<TransportProperties, DiscoveryHandler> pair : properties) {
+			TransportProperties p = pair.getFirst();
+			String uuid = p.get(PROP_UUID);
+			if (!isNullOrEmpty(uuid)) {
+				byUuid.put(uuid, pair);
+				String address = p.get(PROP_ADDRESS);
+				if (!isNullOrEmpty(address)) byAddress.put(address, pair);
+			}
+		}
+
+		List<BluetoothDevice> unknown = new ArrayList<>(devices);
+		for (BluetoothDevice d : devices) {
+			List<String> uuids = getUuids(d);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info(uuids.size() + " cached UUIDs for "
+						+ scrubMacAddress(d.getAddress()));
+			}
+			Pair<TransportProperties, DiscoveryHandler> pair =
+					byAddress.remove(d.getAddress());
+			if (pair == null) {
+				for (String uuid : uuids) {
+					pair = byUuid.remove(uuid);
+					if (pair != null) {
+						if (LOG.isLoggable(INFO)) {
+							LOG.info("Matched "
+									+ scrubMacAddress(d.getAddress())
+									+ " by cached UUID");
+						}
+						TransportProperties p =
+								new TransportProperties(pair.getFirst());
+						p.put(PROP_ADDRESS, d.getAddress());
+						pair.getSecond().handleDevice(p);
+						unknown.remove(d);
+						break;
+					}
+				}
+			} else {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Matched " + scrubMacAddress(d.getAddress())
+							+ " by address");
+				}
+				pair.getSecond().handleDevice(pair.getFirst());
+				unknown.remove(d);
+			}
+		}
+		if (unknown.isEmpty()) {
+			LOG.info("All discovered devices are known, not fetching UUIDs");
+			return;
+		}
+		// Fetch up-to-date UUIDs
+		if (LOG.isLoggable(INFO))
+			LOG.info("Fetching UUIDs for " + unknown.size() + " devices");
+		BlockingQueue<Intent> intents = new LinkedBlockingQueue<>();
+		QueueingReceiver receiver = new QueueingReceiver(intents);
+		IntentFilter filter = new IntentFilter();
+		filter.addAction(ACTION_UUID);
+		appContext.registerReceiver(receiver, filter);
+		try {
+			List<BluetoothDevice> pending = new ArrayList<>();
+			for (BluetoothDevice d : unknown) {
+				if (d.fetchUuidsWithSdp()) {
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Fetching UUIDs for "
+								+ scrubMacAddress(d.getAddress()));
+					}
+					pending.add(d);
+				} else {
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Failed to fetch UUIDs for "
+								+ scrubMacAddress(d.getAddress()));
+					}
+				}
+			}
+			long now = clock.currentTimeMillis();
+			long end = now + MAX_SERVICE_DISCOVERY_MS;
+			while (now < end && !pending.isEmpty()) {
+				Intent i = intents.poll(end - now, MILLISECONDS);
+				if (i == null) break;
+				BluetoothDevice d = requireNonNull(
+						i.getParcelableExtra(EXTRA_DEVICE));
+				List<String> uuids = getUuids(d);
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Fetched " + uuids.size() + " UUIDs for "
+							+ scrubMacAddress(d.getAddress()));
+				}
+				// TODO: Test whether EXTRA_UUID is redundant on all devices
+				Parcelable[] extra = i.getParcelableArrayExtra(EXTRA_UUID);
+				if (extra != null) {
+					for (Parcelable p : extra) {
+						if (!uuids.contains(p.toString())) {
+							LOG.info("Extra UUID: " + p);
+							uuids.add(p.toString());
+						}
+					}
+				}
+				for (String uuid : uuids) {
+					Pair<TransportProperties, DiscoveryHandler> pair =
+							byUuid.remove(uuid);
+					if (pair != null) {
+						if (LOG.isLoggable(INFO)) {
+							LOG.info("Matched "
+									+ scrubMacAddress(d.getAddress())
+									+ " by fetched UUID");
+						}
+						TransportProperties p =
+								new TransportProperties(pair.getFirst());
+						p.put(PROP_ADDRESS, d.getAddress());
+						pair.getSecond().handleDevice(p);
+						break;
+					}
+				}
+				pending.remove(d);
+				now = clock.currentTimeMillis();
+			}
+			if (LOG.isLoggable(INFO)) {
+				if (pending.isEmpty()) {
+					LOG.info("Finished fetching UUIDs");
+				} else {
+					LOG.info("Failed to fetch UUIDs for " + pending.size()
+							+ " devices");
+				}
+			}
+		} catch (InterruptedException e) {
+			LOG.info("Interrupted while fetching UUIDs");
+			Thread.currentThread().interrupt();
+		} finally {
+			appContext.unregisterReceiver(receiver);
+		}
+	}
+
+	private List<String> getUuids(BluetoothDevice d) {
+		ParcelUuid[] uuids = d.getUuids();
+		if (uuids == null) return emptyList();
+		List<String> strings = new ArrayList<>(uuids.length);
+		for (ParcelUuid u : uuids) strings.add(u.toString());
+		return strings;
+	}
+
 	private List<BluetoothDevice> discoverDevices() {
 		List<BluetoothDevice> devices = new ArrayList<>();
 		BlockingQueue<Intent> intents = new LinkedBlockingQueue<>();
-		DiscoveryReceiver receiver = new DiscoveryReceiver(intents);
+		QueueingReceiver receiver = new QueueingReceiver(intents);
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_DISCOVERY_STARTED);
 		filter.addAction(ACTION_DISCOVERY_FINISHED);
@@ -237,7 +408,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		try {
 			if (adapter.startDiscovery()) {
 				long now = clock.currentTimeMillis();
-				long end = now + MAX_DISCOVERY_MS;
+				long end = now + MAX_DEVICE_DISCOVERY_MS;
 				while (now < end) {
 					Intent i = intents.poll(end - now, MILLISECONDS);
 					if (i == null) break;
@@ -295,11 +466,11 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		}
 	}
 
-	private static class DiscoveryReceiver extends BroadcastReceiver {
+	private static class QueueingReceiver extends BroadcastReceiver {
 
 		private final BlockingQueue<Intent> intents;
 
-		private DiscoveryReceiver(BlockingQueue<Intent> intents) {
+		private QueueingReceiver(BlockingQueue<Intent> intents) {
 			this.intents = intents;
 		}
 
