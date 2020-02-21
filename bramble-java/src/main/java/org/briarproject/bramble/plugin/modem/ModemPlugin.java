@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.DiscoveryHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -20,7 +21,7 @@ import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -136,8 +137,8 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	}
 
 	@Override
-	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
-			properties) {
+	public void poll(
+			List<Pair<TransportProperties, ConnectionHandler>> properties) {
 		throw new UnsupportedOperationException();
 	}
 
@@ -210,6 +211,17 @@ class ModemPlugin implements DuplexPlugin, Modem.Callback {
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			boolean alice, ConnectionHandler incoming) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean supportsDiscovery() {
+		return false;
+	}
+
+	@Override
+	public void discoverPeers(
+			List<Pair<TransportProperties, DiscoveryHandler>> properties) {
 		throw new UnsupportedOperationException();
 	}
 

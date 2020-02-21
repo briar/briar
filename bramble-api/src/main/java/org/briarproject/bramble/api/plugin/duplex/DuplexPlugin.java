@@ -1,13 +1,17 @@
 package org.briarproject.bramble.api.plugin.duplex;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.DiscoveryHandler;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
+
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -58,4 +62,16 @@ public interface DuplexPlugin extends Plugin {
 	@Nullable
 	RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			boolean alice, ConnectionHandler incoming);
+
+	/**
+	 * Returns true if the plugin supports peer discovery.
+	 */
+	boolean supportsDiscovery();
+
+	/**
+	 * Attempts to discover peers using the given transport properties, passing
+	 * any discovered peers to the corresponding handlers.
+	 */
+	void discoverPeers(List<Pair<TransportProperties, DiscoveryHandler>>
+			properties);
 }

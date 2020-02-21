@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.DiscoveryHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -549,8 +550,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
-			properties) {
+	public void poll(
+			List<Pair<TransportProperties, ConnectionHandler>> properties) {
 		if (getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
@@ -682,6 +683,17 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			logException(LOG, WARNING, e);
 			return null;
 		}
+	}
+
+	@Override
+	public boolean supportsDiscovery() {
+		return false;
+	}
+
+	@Override
+	public void discoverPeers(
+			List<Pair<TransportProperties, DiscoveryHandler>> properties) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

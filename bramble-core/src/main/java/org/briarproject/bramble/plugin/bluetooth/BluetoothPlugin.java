@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.DiscoveryHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -31,7 +32,7 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 
 import java.io.IOException;
 import java.security.SecureRandom;
-import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -266,8 +267,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
-			properties) {
+	public void poll(
+			List<Pair<TransportProperties, ConnectionHandler>> properties) {
 		if (getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
@@ -408,6 +409,17 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			boolean alice, ConnectionHandler incoming) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean supportsDiscovery() {
+		return false;
+	}
+
+	@Override
+	public void discoverPeers(
+			List<Pair<TransportProperties, DiscoveryHandler>> properties) {
 		throw new UnsupportedOperationException();
 	}
 

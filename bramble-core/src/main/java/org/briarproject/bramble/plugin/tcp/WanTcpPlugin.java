@@ -1,10 +1,13 @@
 package org.briarproject.bramble.plugin.tcp;
 
+import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.net.Inet4Address;
@@ -40,6 +43,22 @@ class WanTcpPlugin extends TcpPlugin {
 	@Override
 	public TransportId getId() {
 		return ID;
+	}
+
+	@Override
+	public boolean supportsKeyAgreement() {
+		return false;
+	}
+
+	@Override
+	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public DuplexTransportConnection createKeyAgreementConnection(
+			byte[] commitment, BdfList descriptor) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

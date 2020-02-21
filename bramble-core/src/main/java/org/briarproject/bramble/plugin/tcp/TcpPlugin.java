@@ -2,16 +2,15 @@ package org.briarproject.bramble.plugin.tcp;
 
 import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.Pair;
-import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
+import org.briarproject.bramble.api.plugin.DiscoveryHandler;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
@@ -221,8 +220,8 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
-			properties) {
+	public void poll(
+			List<Pair<TransportProperties, ConnectionHandler>> properties) {
 		if (getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
@@ -324,22 +323,6 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	}
 
 	@Override
-	public boolean supportsKeyAgreement() {
-		return false;
-	}
-
-	@Override
-	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
 	public boolean supportsRendezvous() {
 		return false;
 	}
@@ -347,6 +330,17 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	@Override
 	public RendezvousEndpoint createRendezvousEndpoint(KeyMaterialSource k,
 			boolean alice, ConnectionHandler incoming) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public boolean supportsDiscovery() {
+		return false;
+	}
+
+	@Override
+	public void discoverPeers(
+			List<Pair<TransportProperties, DiscoveryHandler>> properties) {
 		throw new UnsupportedOperationException();
 	}
 

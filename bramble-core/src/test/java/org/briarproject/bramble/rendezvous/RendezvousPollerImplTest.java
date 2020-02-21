@@ -49,7 +49,7 @@ import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
-import static org.briarproject.bramble.test.CollectionMatcher.collectionOf;
+import static org.briarproject.bramble.test.ListMatcher.listOf;
 import static org.briarproject.bramble.test.PairMatcher.pairOf;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPrivateKey;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
@@ -196,7 +196,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(beforeExpiry));
 			oneOf(eventBus).broadcast(with(any(RendezvousPollEvent.class)));
-			oneOf(plugin).poll(with(collectionOf(pairOf(
+			oneOf(plugin).poll(with(listOf(pairOf(
 					equal(transportProperties),
 					any(ConnectionHandler.class)))));
 		}});
@@ -248,7 +248,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(beforeExpiry));
 			oneOf(eventBus).broadcast(with(any(RendezvousPollEvent.class)));
-			oneOf(plugin).poll(with(collectionOf(pairOf(
+			oneOf(plugin).poll(with(listOf(pairOf(
 					equal(transportProperties),
 					any(ConnectionHandler.class)))));
 		}});

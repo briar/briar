@@ -32,6 +32,7 @@ import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
@@ -216,8 +217,8 @@ class PollerImpl implements Poller, EventListener {
 					transportPropertyManager.getRemoteProperties(t);
 			Collection<ContactId> connected =
 					connectionRegistry.getConnectedContacts(t);
-			Collection<Pair<TransportProperties, ConnectionHandler>>
-					properties = new ArrayList<>();
+			List<Pair<TransportProperties, ConnectionHandler>> properties =
+					new ArrayList<>();
 			for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {
 				ContactId c = e.getKey();
 				if (!connected.contains(c))

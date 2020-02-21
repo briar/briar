@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.SettingsManager;
 
-import java.util.Collection;
+import java.util.List;
 
 @NotNullByDefault
 public interface Plugin {
@@ -106,6 +106,5 @@ public interface Plugin {
 	 * Attempts to create connections using the given transport properties,
 	 * passing any created connections to the corresponding handlers.
 	 */
-	void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
-			properties);
+	void poll(List<Pair<TransportProperties, ConnectionHandler>> properties);
 }

@@ -5,24 +5,24 @@ import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
 
-import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 @NotNullByDefault
-public class CollectionMatcher<T> extends BaseMatcher<Collection<T>> {
+public class ListMatcher<T> extends BaseMatcher<List<T>> {
 
 	private final Matcher<T> elementMatcher;
 
-	public CollectionMatcher(Matcher<T> elementMatcher) {
+	public ListMatcher(Matcher<T> elementMatcher) {
 		this.elementMatcher = elementMatcher;
 	}
 
 	@Override
 	public boolean matches(@Nullable Object item) {
-		if (!(item instanceof Collection)) return false;
-		Collection collection = (Collection) item;
-		for (Object element : collection) {
+		if (!(item instanceof List)) return false;
+		List list = (List) item;
+		for (Object element : list) {
 			if (!elementMatcher.matches(element)) return false;
 		}
 		return true;
@@ -33,7 +33,7 @@ public class CollectionMatcher<T> extends BaseMatcher<Collection<T>> {
 		description.appendText("matches a collection");
 	}
 
-	public static <T> CollectionMatcher<T> collectionOf(Matcher<T> t) {
-		return new CollectionMatcher<>(t);
+	public static <T> ListMatcher<T> listOf(Matcher<T> t) {
+		return new ListMatcher<>(t);
 	}
 }
