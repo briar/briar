@@ -240,55 +240,6 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testAccountExistsReturnsFalseIfDbDirectoryDoesNotExist()
-			throws Exception {
-		storeDatabaseKey(keyFile, encryptedKeyHex);
-		storeDatabaseKey(keyBackupFile, encryptedKeyHex);
-
-		assertFalse(dbDir.exists());
-
-		assertFalse(accountManager.accountExists());
-
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
-		assertFalse(dbDir.exists());
-	}
-
-	@Test
-	public void testAccountExistsReturnsFalseIfDbDirectoryIsNotDirectory()
-			throws Exception {
-		storeDatabaseKey(keyFile, encryptedKeyHex);
-		storeDatabaseKey(keyBackupFile, encryptedKeyHex);
-
-		assertTrue(dbDir.createNewFile());
-		assertFalse(dbDir.isDirectory());
-
-		assertFalse(accountManager.accountExists());
-
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
-		assertTrue(dbDir.exists());
-		assertFalse(dbDir.isDirectory());
-	}
-
-	@Test
-	public void testAccountExistsReturnsTrueIfDbDirectoryIsDirectory()
-			throws Exception {
-		storeDatabaseKey(keyFile, encryptedKeyHex);
-		storeDatabaseKey(keyBackupFile, encryptedKeyHex);
-
-		assertTrue(dbDir.mkdirs());
-		assertTrue(dbDir.isDirectory());
-
-		assertTrue(accountManager.accountExists());
-
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
-		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
-		assertTrue(dbDir.exists());
-		assertTrue(dbDir.isDirectory());
-	}
-
-	@Test
 	public void testCreateAccountStoresDbKey() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(identityManager).createIdentity(authorName);
