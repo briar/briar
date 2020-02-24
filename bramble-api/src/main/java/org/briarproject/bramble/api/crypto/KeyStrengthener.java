@@ -5,6 +5,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 /**
  * Interface for strengthening a password-based key, for example by using a
  * key stored in a key management service or hardware security module.
+ *
+ * TODO: Remove after a reasonable migration period unless we can work around
+ * Android keymaster bugs. Added 2020-02-24
  */
 @NotNullByDefault
 public interface KeyStrengthener {
