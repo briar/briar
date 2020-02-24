@@ -92,6 +92,9 @@ public abstract class BaseActivity extends AppCompatActivity
 				.build();
 		injectActivity(activityComponent);
 		super.onCreate(state);
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Creating " + getClass().getSimpleName());
+		}
 
 		// WARNING: When removing this or making it possible to turn it off,
 		//          we need a solution for the app lock feature.
@@ -127,8 +130,9 @@ public abstract class BaseActivity extends AppCompatActivity
 	@Override
 	protected void onStart() {
 		super.onStart();
-		if (LOG.isLoggable(INFO))
-			LOG.info("Starting " + this.getClass().getSimpleName());
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Starting " + getClass().getSimpleName());
+		}
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityStart();
 		}
@@ -145,10 +149,27 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@Override
+	protected void onResume() {
+		super.onResume();
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Resuming " + getClass().getSimpleName());
+		}
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Pausing " + getClass().getSimpleName());
+		}
+	}
+
+	@Override
 	protected void onStop() {
 		super.onStop();
-		if (LOG.isLoggable(INFO))
-			LOG.info("Stopping " + this.getClass().getSimpleName());
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Stopping " + getClass().getSimpleName());
+		}
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityStop();
 		}
@@ -203,6 +224,9 @@ public abstract class BaseActivity extends AppCompatActivity
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Destroying " + getClass().getSimpleName());
+		}
 		destroyed = true;
 		for (ActivityLifecycleController alc : lifecycleControllers) {
 			alc.onActivityDestroy();
