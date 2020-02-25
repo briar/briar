@@ -15,27 +15,32 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.briarproject.bramble.api.crypto.DecryptionResult;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.controller.handler.UiResultHandler;
-import org.briarproject.briar.android.util.UiUtils;
 
 import javax.inject.Inject;
 
-import androidx.annotation.NonNull;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static android.widget.Toast.LENGTH_LONG;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.KEY_STRENGTHENER_ERROR;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.SUCCESS;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
+import static org.briarproject.briar.android.login.LoginUtils.createKeyStrengthenerErrorDialog;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.util.UiUtils.setError;
 import static org.briarproject.briar.android.util.UiUtils.showSoftKeyboard;
 
 public class ChangePasswordActivity extends BriarActivity
 		implements OnClickListener, OnEditorActionListener {
 
 	@Inject
-	protected ChangePasswordController passwordController;
+	ViewModelProvider.Factory viewModelFactory;
 
 	private TextInputLayout currentPasswordEntryWrapper;
 	private TextInputLayout newPasswordEntryWrapper;
@@ -47,10 +52,16 @@ public class ChangePasswordActivity extends BriarActivity
 	private Button changePasswordButton;
 	private ProgressBar progress;
 
+	// Package access for testing
+	ChangePasswordViewModel viewModel;
+
 	@Override
 	public void onCreate(Bundle state) {
 		super.onCreate(state);
 		setContentView(R.layout.activity_change_password);
+
+		viewModel = ViewModelProviders.of(this, viewModelFactory)
+				.get(ChangePasswordViewModel.class);
 
 		currentPasswordEntryWrapper =
 				findViewById(R.id.current_password_entry_wrapper);
@@ -102,13 +113,12 @@ public class ChangePasswordActivity extends BriarActivity
 		String firstPassword = newPassword.getText().toString();
 		String secondPassword = newPasswordConfirmation.getText().toString();
 		boolean passwordsMatch = firstPassword.equals(secondPassword);
-		float strength =
-				passwordController.estimatePasswordStrength(firstPassword);
+		float strength = viewModel.estimatePasswordStrength(firstPassword);
 		strengthMeter.setStrength(strength);
-		UiUtils.setError(newPasswordEntryWrapper,
+		setError(newPasswordEntryWrapper,
 				getString(R.string.password_too_weak),
 				firstPassword.length() > 0 && strength < QUITE_WEAK);
-		UiUtils.setError(newPasswordConfirmationWrapper,
+		setError(newPasswordConfirmationWrapper,
 				getString(R.string.passwords_do_not_match),
 				secondPassword.length() > 0 && !passwordsMatch);
 		changePasswordButton.setEnabled(
@@ -127,32 +137,34 @@ public class ChangePasswordActivity extends BriarActivity
 		// Replace the button with a progress bar
 		changePasswordButton.setVisibility(INVISIBLE);
 		progress.setVisibility(VISIBLE);
-		passwordController.changePassword(currentPassword.getText().toString(),
-				newPassword.getText().toString(),
-				new UiResultHandler<Boolean>(this) {
-					@Override
-					public void onResultUi(@NonNull Boolean result) {
-						if (result) {
-							Toast.makeText(ChangePasswordActivity.this,
-									R.string.password_changed,
-									Toast.LENGTH_LONG).show();
-							setResult(RESULT_OK);
-							supportFinishAfterTransition();
-						} else {
-							tryAgain();
-						}
+
+		String curPwd = currentPassword.getText().toString();
+		String newPwd = newPassword.getText().toString();
+		viewModel.changePassword(curPwd, newPwd).observeEvent(this, result -> {
+					if (result == SUCCESS) {
+						Toast.makeText(ChangePasswordActivity.this,
+								R.string.password_changed,
+								LENGTH_LONG).show();
+						setResult(RESULT_OK);
+						supportFinishAfterTransition();
+					} else {
+						tryAgain(result);
 					}
-				});
+				}
+		);
 	}
 
-	private void tryAgain() {
-		UiUtils.setError(currentPasswordEntryWrapper,
-				getString(R.string.try_again), true);
+	private void tryAgain(DecryptionResult result) {
 		changePasswordButton.setVisibility(VISIBLE);
 		progress.setVisibility(INVISIBLE);
-		currentPassword.setText("");
-
-		// show the keyboard again
-		showSoftKeyboard(currentPassword);
+		if (result == KEY_STRENGTHENER_ERROR) {
+			createKeyStrengthenerErrorDialog(this).show();
+		} else {
+			setError(currentPasswordEntryWrapper,
+					getString(R.string.try_again), true);
+			currentPassword.setText("");
+			// show the keyboard again
+			showSoftKeyboard(currentPassword);
+		}
 	}
 }

@@ -1,6 +1,7 @@
 package org.briarproject.briar.headless
 
 import org.briarproject.bramble.api.account.AccountManager
+import org.briarproject.bramble.api.crypto.DecryptionException
 import org.briarproject.bramble.api.lifecycle.LifecycleManager
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
@@ -23,7 +24,9 @@ constructor(
             accountManager.deleteAccount()
         }
         accountManager.createAccount(user, pass)
-        if (!accountManager.signIn(pass)) {
+        try {
+            accountManager.signIn(pass)
+        } catch (e: DecryptionException) {
             throw AssertionError("Password invalid")
         }
         val dbKey = accountManager.databaseKey ?: throw AssertionError()

@@ -1,6 +1,7 @@
 package org.briarproject.bramble.account;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
@@ -19,12 +20,15 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 import javax.annotation.Nullable;
 
 import static junit.framework.Assert.assertFalse;
 import static junit.framework.Assert.assertNull;
 import static junit.framework.Assert.assertTrue;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.INVALID_CIPHERTEXT;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.INVALID_PASSWORD;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getIdentity;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -35,6 +39,7 @@ import static org.briarproject.bramble.util.StringUtils.toHexString;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 public class AccountManagerImplTest extends BrambleMockTestCase {
 
@@ -83,8 +88,13 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testSignInReturnsFalseIfDbKeyCannotBeLoaded() {
-		assertFalse(accountManager.signIn(password));
+	public void testSignInThrowsExceptionIfDbKeyCannotBeLoaded() {
+		try {
+			accountManager.signIn(password);
+			fail();
+		} catch (DecryptionException expected) {
+			assertEquals(INVALID_CIPHERTEXT, expected.getDecryptionResult());
+		}
 		assertFalse(accountManager.hasDatabaseKey());
 
 		assertFalse(keyFile.exists());
@@ -92,11 +102,11 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testSignInReturnsFalseIfPasswordIsWrong() throws Exception {
+	public void testSignInThrowsExceptionIfPasswordIsWrong() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(crypto).decryptWithPassword(encryptedKey, password,
 					keyStrengthener);
-			will(returnValue(null));
+			will(throwException(new DecryptionException(INVALID_PASSWORD)));
 		}});
 
 		storeDatabaseKey(keyFile, encryptedKeyHex);
@@ -105,7 +115,12 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 
-		assertFalse(accountManager.signIn(password));
+		try {
+			accountManager.signIn(password);
+			fail();
+		} catch (DecryptionException expected) {
+			assertEquals(INVALID_PASSWORD, expected.getDecryptionResult());
+		}
 		assertFalse(accountManager.hasDatabaseKey());
 
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
@@ -128,7 +143,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 
-		assertTrue(accountManager.signIn(password));
+		accountManager.signIn(password);
 		assertTrue(accountManager.hasDatabaseKey());
 		SecretKey decrypted = accountManager.getDatabaseKey();
 		assertNotNull(decrypted);
@@ -157,7 +172,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
 
-		assertTrue(accountManager.signIn(password));
+		accountManager.signIn(password);
 		assertTrue(accountManager.hasDatabaseKey());
 		SecretKey decrypted = accountManager.getDatabaseKey();
 		assertNotNull(decrypted);
@@ -315,26 +330,36 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testChangePasswordReturnsFalseIfDbKeyCannotBeLoaded() {
-		assertFalse(accountManager.changePassword(password, newPassword));
+	public void testChangePasswordThrowsExceptionIfDbKeyCannotBeLoaded() {
+		try {
+			accountManager.changePassword(password, newPassword);
+			fail();
+		} catch (DecryptionException expected) {
+			assertEquals(INVALID_CIPHERTEXT, expected.getDecryptionResult());
+		}
 
 		assertFalse(keyFile.exists());
 		assertFalse(keyBackupFile.exists());
 	}
 
 	@Test
-	public void testChangePasswordReturnsFalseIfPasswordIsWrong()
+	public void testChangePasswordThrowsExceptionIfPasswordIsWrong()
 			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(crypto).decryptWithPassword(encryptedKey, password,
 					keyStrengthener);
-			will(returnValue(null));
+			will(throwException(new DecryptionException(INVALID_PASSWORD)));
 		}});
 
 		storeDatabaseKey(keyFile, encryptedKeyHex);
 		storeDatabaseKey(keyBackupFile, encryptedKeyHex);
 
-		assertFalse(accountManager.changePassword(password, newPassword));
+		try {
+			accountManager.changePassword(password, newPassword);
+			fail();
+		} catch (DecryptionException expected) {
+			assertEquals(INVALID_PASSWORD, expected.getDecryptionResult());
+		}
 
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyFile));
 		assertEquals(encryptedKeyHex, loadDatabaseKey(keyBackupFile));
@@ -357,7 +382,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 		storeDatabaseKey(keyFile, encryptedKeyHex);
 		storeDatabaseKey(keyBackupFile, encryptedKeyHex);
 
-		assertTrue(accountManager.changePassword(password, newPassword));
+		accountManager.changePassword(password, newPassword);
 
 		assertEquals(newEncryptedKeyHex, loadDatabaseKey(keyFile));
 		assertEquals(newEncryptedKeyHex, loadDatabaseKey(keyBackupFile));
@@ -366,7 +391,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	private void storeDatabaseKey(File f, String hex) throws IOException {
 		f.getParentFile().mkdirs();
 		FileOutputStream out = new FileOutputStream(f);
-		out.write(hex.getBytes("UTF-8"));
+		out.write(hex.getBytes(Charset.forName("UTF-8")));
 		out.flush();
 		out.close();
 	}
@@ -374,7 +399,7 @@ public class AccountManagerImplTest extends BrambleMockTestCase {
 	@Nullable
 	private String loadDatabaseKey(File f) throws IOException {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(
-				new FileInputStream(f), "UTF-8"));
+				new FileInputStream(f), Charset.forName("UTF-8")));
 		String hex = reader.readLine();
 		reader.close();
 		return hex;

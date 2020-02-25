@@ -8,8 +8,6 @@ import org.briarproject.briar.android.controller.BriarController;
 import org.briarproject.briar.android.controller.BriarControllerImpl;
 import org.briarproject.briar.android.controller.DbController;
 import org.briarproject.briar.android.controller.DbControllerImpl;
-import org.briarproject.briar.android.login.ChangePasswordController;
-import org.briarproject.briar.android.login.ChangePasswordControllerImpl;
 import org.briarproject.briar.android.navdrawer.NavDrawerController;
 import org.briarproject.briar.android.navdrawer.NavDrawerControllerImpl;
 
@@ -48,13 +46,6 @@ public class ActivityModule {
 
 	@ActivityScope
 	@Provides
-	ChangePasswordController providePasswordController(
-			ChangePasswordControllerImpl passwordController) {
-		return passwordController;
-	}
-
-	@ActivityScope
-	@Provides
 	protected BriarController provideBriarController(
 			BriarControllerImpl briarController) {
 		activity.addLifecycleController(briarController);
@@ -80,5 +71,4 @@ public class ActivityModule {
 	BriarServiceConnection provideBriarServiceConnection() {
 		return new BriarServiceConnection();
 	}
-
 }

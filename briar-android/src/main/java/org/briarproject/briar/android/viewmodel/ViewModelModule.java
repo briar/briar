@@ -4,7 +4,6 @@ import org.briarproject.briar.android.contact.add.remote.AddContactViewModel;
 import org.briarproject.briar.android.contact.add.remote.PendingContactListViewModel;
 import org.briarproject.briar.android.conversation.ConversationViewModel;
 import org.briarproject.briar.android.conversation.ImageViewModel;
-import org.briarproject.briar.android.login.StartupViewModel;
 
 import javax.inject.Singleton;
 
@@ -16,11 +15,6 @@ import dagger.multibindings.IntoMap;
 
 @Module
 public abstract class ViewModelModule {
-
-	@Binds
-	@IntoMap
-	@ViewModelKey(StartupViewModel.class)
-	abstract ViewModel bindStartupViewModel(StartupViewModel startupViewModel);
 
 	@Binds
 	@IntoMap

@@ -2,6 +2,7 @@ package org.briarproject.bramble.account;
 
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
@@ -17,6 +18,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -24,6 +26,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.INVALID_CIPHERTEXT;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
@@ -95,7 +98,7 @@ class AccountManagerImpl implements AccountManager {
 		}
 		try {
 			BufferedReader reader = new BufferedReader(new InputStreamReader(
-					new FileInputStream(f), "UTF-8"));
+					new FileInputStream(f), Charset.forName("UTF-8")));
 			String key = reader.readLine();
 			reader.close();
 			return key;
@@ -147,7 +150,7 @@ class AccountManagerImpl implements AccountManager {
 	@GuardedBy("stateChangeLock")
 	private void writeDbKeyToFile(String key, File f) throws IOException {
 		FileOutputStream out = new FileOutputStream(f);
-		out.write(key.getBytes("UTF-8"));
+		out.write(key.getBytes(Charset.forName("UTF-8")));
 		out.flush();
 		out.close();
 	}
@@ -193,31 +196,24 @@ class AccountManagerImpl implements AccountManager {
 	}
 
 	@Override
-	public boolean signIn(String password) {
+	public void signIn(String password) throws DecryptionException {
 		synchronized (stateChangeLock) {
-			SecretKey key = loadAndDecryptDatabaseKey(password);
-			if (key == null) return false;
-			databaseKey = key;
-			return true;
+			databaseKey = loadAndDecryptDatabaseKey(password);
 		}
 	}
 
 	@GuardedBy("stateChangeLock")
-	@Nullable
-	private SecretKey loadAndDecryptDatabaseKey(String password) {
+	private SecretKey loadAndDecryptDatabaseKey(String password)
+			throws DecryptionException {
 		String hex = loadEncryptedDatabaseKey();
 		if (hex == null) {
 			LOG.warning("Failed to load encrypted database key");
-			return null;
+			throw new DecryptionException(INVALID_CIPHERTEXT);
 		}
 		byte[] ciphertext = fromHexString(hex);
 		KeyStrengthener keyStrengthener = databaseConfig.getKeyStrengthener();
 		byte[] plaintext = crypto.decryptWithPassword(ciphertext, password,
 				keyStrengthener);
-		if (plaintext == null) {
-			LOG.info("Failed to decrypt database key");
-			return null;
-		}
 		SecretKey key = new SecretKey(plaintext);
 		// If the DB key was encrypted with a weak key and a key strengthener
 		// is now available, re-encrypt the DB key with a strengthened key
@@ -230,10 +226,11 @@ class AccountManagerImpl implements AccountManager {
 	}
 
 	@Override
-	public boolean changePassword(String oldPassword, String newPassword) {
+	public void changePassword(String oldPassword, String newPassword)
+			throws DecryptionException {
 		synchronized (stateChangeLock) {
 			SecretKey key = loadAndDecryptDatabaseKey(oldPassword);
-			return key != null && encryptAndStoreDatabaseKey(key, newPassword);
+			encryptAndStoreDatabaseKey(key, newPassword);
 		}
 	}
 }

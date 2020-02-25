@@ -3,6 +3,8 @@ package org.briarproject.briar.android.login;
 import android.app.Application;
 
 import org.briarproject.bramble.api.account.AccountManager;
+import org.briarproject.bramble.api.crypto.DecryptionException;
+import org.briarproject.bramble.api.crypto.DecryptionResult;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -24,6 +26,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static org.briarproject.bramble.api.crypto.DecryptionResult.SUCCESS;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.COMPACTING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.MIGRATING_DATABASE;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
@@ -46,7 +49,7 @@ public class StartupViewModel extends AndroidViewModel
 	@IoExecutor
 	private final Executor ioExecutor;
 
-	private final MutableLiveEvent<Boolean> passwordValidated =
+	private final MutableLiveEvent<DecryptionResult> passwordValidated =
 			new MutableLiveEvent<>();
 	private final MutableLiveEvent<Boolean> accountDeleted =
 			new MutableLiveEvent<>();
@@ -105,13 +108,17 @@ public class StartupViewModel extends AndroidViewModel
 
 	void validatePassword(String password) {
 		ioExecutor.execute(() -> {
-			boolean signedIn = accountManager.signIn(password);
-			passwordValidated.postEvent(signedIn);
-			if (signedIn) state.postValue(SIGNED_IN);
+			try {
+				accountManager.signIn(password);
+				passwordValidated.postEvent(SUCCESS);
+				state.postValue(SIGNED_IN);
+			} catch (DecryptionException e) {
+				passwordValidated.postEvent(e.getDecryptionResult());
+			}
 		});
 	}
 
-	LiveEvent<Boolean> getPasswordValidated() {
+	LiveEvent<DecryptionResult> getPasswordValidated() {
 		return passwordValidated;
 	}
 

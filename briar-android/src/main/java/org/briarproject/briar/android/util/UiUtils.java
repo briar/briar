@@ -381,7 +381,7 @@ public class UiUtils {
 	/**
 	 * Same as {@link #observeOnce(LiveData, LifecycleOwner, Observer)},
 	 * but without a {@link LifecycleOwner}.
-	 *
+	 * <p>
 	 * Warning: Do NOT call from objects that have a lifecycle.
 	 */
 	@UiThread
@@ -401,5 +401,4 @@ public class UiUtils {
 		return ctx.getResources().getConfiguration().getLayoutDirection() ==
 				LAYOUT_DIRECTION_RTL;
 	}
-
 }
