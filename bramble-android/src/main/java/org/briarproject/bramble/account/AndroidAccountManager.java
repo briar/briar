@@ -36,7 +36,7 @@ class AndroidAccountManager extends AccountManagerImpl
 	 * Directories that shouldn't be deleted when deleting the user's account.
 	 */
 	private static final List<String> PROTECTED_DIR_NAMES =
-			asList("code_cache", "lib", "shared_prefs");
+			asList("cache", "code_cache", "lib", "shared_prefs");
 
 	protected final Context appContext;
 	private final SharedPreferences prefs;
@@ -104,7 +104,6 @@ class AndroidAccountManager extends AccountManagerImpl
 			}
 		}
 		files.add(appContext.getFilesDir());
-		files.add(appContext.getCacheDir());
 		addIfNotNull(files, appContext.getExternalCacheDir());
 		if (SDK_INT >= 19) {
 			for (File file : appContext.getExternalCacheDirs()) {
@@ -116,15 +115,15 @@ class AndroidAccountManager extends AccountManagerImpl
 				addIfNotNull(files, file);
 			}
 		}
+		// Clear the cache directory but don't delete it
+		File cacheDir = appContext.getCacheDir();
+		File[] children = cacheDir.listFiles();
+		if (children != null) files.addAll(asList(children));
 		for (File file : files) {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Deleting " + file.getAbsolutePath());
 			}
 			deleteFileOrDir(file);
-		}
-		// Recreate the cache dir as some OpenGL drivers expect it to exist
-		if (!new File(dataDir, "cache").mkdirs()) {
-			LOG.warning("Could not recreate cache dir");
 		}
 	}
 
