@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 
 import java.io.File;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -20,6 +21,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.inject.Inject;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.util.IoUtils.deleteFileOrDir;
 import static org.briarproject.bramble.util.LogUtils.logFileOrDir;
@@ -29,6 +31,12 @@ class AndroidAccountManager extends AccountManagerImpl
 
 	private static final Logger LOG =
 			Logger.getLogger(AndroidAccountManager.class.getName());
+
+	/**
+	 * Directories that shouldn't be deleted when deleting the user's account.
+	 */
+	private static final List<String> PROTECTED_DIR_NAMES =
+			asList("cache", "code_cache", "lib", "shared_prefs");
 
 	protected final Context appContext;
 	private final SharedPreferences prefs;
@@ -81,7 +89,7 @@ class AndroidAccountManager extends AccountManagerImpl
 			if (!prefs.edit().clear().commit())
 				LOG.warning("Could not clear shared preferences");
 		}
-		// Delete files, except lib and shared_prefs directories
+		// Delete files, except protected directories
 		Set<File> files = new HashSet<>();
 		File dataDir = getDataDir();
 		@Nullable
@@ -90,14 +98,12 @@ class AndroidAccountManager extends AccountManagerImpl
 			LOG.warning("Could not list files in app data dir");
 		} else {
 			for (File file : fileArray) {
-				String name = file.getName();
-				if (!name.equals("lib") && !name.equals("shared_prefs")) {
+				if (!PROTECTED_DIR_NAMES.contains(file.getName())) {
 					files.add(file);
 				}
 			}
 		}
 		files.add(appContext.getFilesDir());
-		files.add(appContext.getCacheDir());
 		addIfNotNull(files, appContext.getExternalCacheDir());
 		if (SDK_INT >= 19) {
 			for (File file : appContext.getExternalCacheDirs()) {
@@ -109,12 +115,16 @@ class AndroidAccountManager extends AccountManagerImpl
 				addIfNotNull(files, file);
 			}
 		}
+		// Clear the cache directory but don't delete it
+		File cacheDir = appContext.getCacheDir();
+		File[] children = cacheDir.listFiles();
+		if (children != null) files.addAll(asList(children));
 		for (File file : files) {
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Deleting " + file.getAbsolutePath());
+			}
 			deleteFileOrDir(file);
 		}
-		// Recreate the cache dir as some OpenGL drivers expect it to exist
-		if (!new File(dataDir, "cache").mkdirs())
-			LOG.warning("Could not recreate cache dir");
 	}
 
 	private File getDataDir() {

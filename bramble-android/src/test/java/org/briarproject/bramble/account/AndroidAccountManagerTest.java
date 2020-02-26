@@ -72,7 +72,9 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 	@Test
 	public void testDeleteAccountClearsSharedPrefsAndDeletesFiles()
 			throws Exception {
-		// Directories 'lib' and 'shared_prefs' should be spared
+		// Directories 'code_cache', 'lib' and 'shared_prefs' should be spared
+		File codeCacheDir = new File(testDir, "code_cache");
+		File codeCacheFile = new File(codeCacheDir, "file");
 		File libDir = new File(testDir, "lib");
 		File libFile = new File(libDir, "file");
 		File sharedPrefsDir = new File(testDir, "shared_prefs");
@@ -111,6 +113,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 
 		assertTrue(dbDir.mkdirs());
 		assertTrue(keyDir.mkdirs());
+		assertTrue(codeCacheDir.mkdirs());
+		assertTrue(codeCacheFile.createNewFile());
 		assertTrue(libDir.mkdirs());
 		assertTrue(libFile.createNewFile());
 		assertTrue(sharedPrefsDir.mkdirs());
@@ -126,6 +130,8 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 
 		assertFalse(dbDir.exists());
 		assertFalse(keyDir.exists());
+		assertTrue(codeCacheDir.exists());
+		assertTrue(codeCacheFile.exists());
 		assertTrue(libDir.exists());
 		assertTrue(libFile.exists());
 		assertTrue(sharedPrefsDir.exists());
