@@ -136,7 +136,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin implements EventListener {
 	private void updateConnectionStatus() {
 		connectionStatusExecutor.execute(() -> {
 			if (!running) return;
-			List<InetAddress> addrs = getLocalInetAddresses();
+			List<InetAddress> addrs = getUsableLocalInetAddresses();
 			if (addrs.contains(WIFI_AP_ADDRESS)
 					|| addrs.contains(WIFI_DIRECT_AP_ADDRESS)) {
 				LOG.info("Providing wifi hotspot");
