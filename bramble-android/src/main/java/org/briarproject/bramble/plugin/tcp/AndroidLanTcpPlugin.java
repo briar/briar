@@ -8,6 +8,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
 import org.briarproject.bramble.PoliteExecutor;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -17,7 +18,9 @@ import org.briarproject.bramble.api.settings.Settings;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.Socket;
+import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -31,12 +34,14 @@ import static android.content.Context.WIFI_SERVICE;
 import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.list;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class AndroidLanTcpPlugin extends LanTcpPlugin {
@@ -84,36 +89,58 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	@Override
 	protected List<InetAddress> getUsableLocalInetAddresses(boolean ipv4) {
-		if (ipv4) return getUsableLocalIpv4Addresses();
-		else return getUsableLocalIpv6Addresses();
+		Pair<InetAddress, Boolean> wifi = getWifiIpv4Address();
+		if (wifi == null) return emptyList();
+		if (ipv4) return singletonList(wifi.getFirst());
+		InetAddress slaac = getSlaacAddressForInterface(wifi.getFirst());
+		return slaac == null ? emptyList() : singletonList(slaac);
 	}
 
-	private List<InetAddress> getUsableLocalIpv4Addresses() {
-		// If the device doesn't have wifi, don't open any sockets
-		if (wifiManager == null) return emptyList();
+	/**
+	 * Returns a {@link Pair} where the first element is the IPv4 address of
+	 * the wifi interface and the second element is true if this device is
+	 * providing an access point, or false if this device is a client. Returns
+	 * null if this device isn't connected to wifi as an access point or client.
+	 */
+	@Nullable
+	private Pair<InetAddress, Boolean> getWifiIpv4Address() {
+		if (wifiManager == null) return null;
 		// If we're connected to a wifi network, return its address
 		WifiInfo info = wifiManager.getConnectionInfo();
 		if (info != null && info.getIpAddress() != 0) {
-			return singletonList(intToInetAddress(info.getIpAddress()));
+			return new Pair<>(intToInetAddress(info.getIpAddress()), false);
 		}
-		// If we're running an access point, return its address
-		for (InetAddress addr : getLocalInetAddresses()) {
-			if (addr.equals(WIFI_AP_ADDRESS)) return singletonList(addr);
-			if (addr.equals(WIFI_DIRECT_AP_ADDRESS)) return singletonList(addr);
+		List<InetAddress> addrs = getLocalInetAddresses();
+		// If we're providing a normal access point, return its address
+		for (InetAddress addr : addrs) {
+			if (WIFI_AP_ADDRESS.equals(addr)) {
+				return new Pair<>(addr, true);
+			}
 		}
-		// No suitable addresses
-		return emptyList();
+		// If we're providing a wifi direct access point, return its address
+		for (InetAddress addr : addrs) {
+			if (WIFI_DIRECT_AP_ADDRESS.equals(addr)) {
+				return new Pair<>(addr, true);
+			}
+		}
+		// Not connected to wifi
+		return null;
 	}
 
-	private List<InetAddress> getUsableLocalIpv6Addresses() {
-		// If the device doesn't have wifi, don't open any sockets
-		if (wifiManager == null) return emptyList();
-		// If we have a SLAAC address, return it
-		for (InetAddress addr : getLocalInetAddresses()) {
-			if (isSlaacAddress(addr)) return singletonList(addr);
+	@Nullable
+	private InetAddress getSlaacAddressForInterface(InetAddress wifi) {
+		try {
+			NetworkInterface iface = NetworkInterface.getByInetAddress(wifi);
+			if (iface == null) return null;
+			for (InetAddress addr : list(iface.getInetAddresses())) {
+				if (isSlaacAddress(addr)) return addr;
+			}
+			// No suitable address
+			return null;
+		} catch (SocketException e) {
+			logException(LOG, WARNING, e);
+			return null;
 		}
-		// No suitable addresses
-		return emptyList();
 	}
 
 	private InetAddress intToInetAddress(int ip) {
@@ -153,9 +180,20 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		connectionStatusExecutor.execute(() -> {
 			State s = getState();
 			if (s != ACTIVE && s != INACTIVE) return;
-			List<InetAddress> addrs = getLocalInetAddresses();
-			if (addrs.contains(WIFI_AP_ADDRESS)
-					|| addrs.contains(WIFI_DIRECT_AP_ADDRESS)) {
+			Pair<InetAddress, Boolean> wifi = getWifiIpv4Address();
+			if (wifi == null) {
+				LOG.info("Not connected to wifi");
+				socketFactory = SocketFactory.getDefault();
+				// Server sockets may not have been closed automatically when
+				// interface was taken down. If any sockets are open, closing
+				// them here will cause the sockets to be cleared and the state
+				// to be updated in acceptContactConnections()
+				if (s == ACTIVE) {
+					LOG.info("Closing server sockets");
+					tryToClose(state.getServerSocket(true), LOG, WARNING);
+					tryToClose(state.getServerSocket(false), LOG, WARNING);
+				}
+			} else if (wifi.getSecond()) {
 				LOG.info("Providing wifi hotspot");
 				// There's no corresponding Network object and thus no way
 				// to get a suitable socket factory, so we won't be able to
@@ -163,17 +201,6 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 				// has internet access
 				socketFactory = SocketFactory.getDefault();
 				if (s == INACTIVE) bind();
-			} else if (addrs.isEmpty()) {
-				LOG.info("Not connected to wifi");
-				socketFactory = SocketFactory.getDefault();
-				// Server sockets may not have been closed automatically when
-				// interface was taken down. Sockets will be cleared and state
-				// updated in acceptContactConnections()
-				if (s == ACTIVE) {
-					LOG.info("Closing server sockets");
-					tryToClose(state.getServerSocket(true), LOG, WARNING);
-					tryToClose(state.getServerSocket(false), LOG, WARNING);
-				}
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
