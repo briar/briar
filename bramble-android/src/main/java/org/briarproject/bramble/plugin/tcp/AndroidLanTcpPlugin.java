@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.settings.Settings;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
@@ -110,21 +111,51 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		if (info != null && info.getIpAddress() != 0) {
 			return new Pair<>(intToInetAddress(info.getIpAddress()), false);
 		}
-		List<InetAddress> addrs = getLocalInetAddresses();
+		List<InterfaceAddress> ifAddrs = getLocalInterfaceAddresses();
 		// If we're providing a normal access point, return its address
-		for (InetAddress addr : addrs) {
-			if (WIFI_AP_ADDRESS.equals(addr)) {
-				return new Pair<>(addr, true);
+		for (InterfaceAddress ifAddr : ifAddrs) {
+			if (isAndroidWifiApAddress(ifAddr)) {
+				return new Pair<>(ifAddr.getAddress(), true);
 			}
 		}
 		// If we're providing a wifi direct access point, return its address
-		for (InetAddress addr : addrs) {
-			if (WIFI_DIRECT_AP_ADDRESS.equals(addr)) {
-				return new Pair<>(addr, true);
+		for (InterfaceAddress ifAddr : ifAddrs) {
+			if (isAndroidWifiDirectApAddress(ifAddr)) {
+				return new Pair<>(ifAddr.getAddress(), true);
 			}
 		}
 		// Not connected to wifi
 		return null;
+	}
+
+	/**
+	 * Returns true if the given address belongs to a network provided by an
+	 * Android access point (including the access point's own address).
+	 * <p>
+	 * The access point's address is usually 192.168.43.1, but at least one
+	 * device (Honor 8A) may use other addresses in the range 192.168.43.0/24.
+	 */
+	private boolean isAndroidWifiApAddress(InterfaceAddress ifAddr) {
+		if (ifAddr.getNetworkPrefixLength() != 24) return false;
+		byte[] ip = ifAddr.getAddress().getAddress();
+		return ip.length == 4
+				&& ip[0] == (byte) 192
+				&& ip[1] == (byte) 168
+				&& ip[2] == (byte) 43;
+	}
+
+	/**
+	 * Returns true if the given address belongs to a network provided by an
+	 * Android wifi direct legacy mode access point (including the access
+	 * point's own address).
+	 */
+	private boolean isAndroidWifiDirectApAddress(InterfaceAddress ifAddr) {
+		if (ifAddr.getNetworkPrefixLength() != 24) return false;
+		byte[] ip = ifAddr.getAddress().getAddress();
+		return ip.length == 4
+				&& ip[0] == (byte) 192
+				&& ip[1] == (byte) 168
+				&& ip[2] == (byte) 49;
 	}
 
 	@Nullable

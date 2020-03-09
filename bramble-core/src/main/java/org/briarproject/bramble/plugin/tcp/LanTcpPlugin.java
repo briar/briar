@@ -67,14 +67,17 @@ class LanTcpPlugin extends TcpPlugin {
 
 	/**
 	 * The IP address of an Android device providing a wifi access point.
+	 * <p>
+	 * Most devices use this address, but at least one device (Honor 8A) may
+	 * use other addresses in the range 192.168.43.0/24.
 	 */
-	protected static final InetAddress WIFI_AP_ADDRESS;
+	private static final InetAddress WIFI_AP_ADDRESS;
 
 	/**
 	 * The IP address of an Android device providing a wifi direct
 	 * legacy mode access point.
 	 */
-	protected static final InetAddress WIFI_DIRECT_AP_ADDRESS;
+	private static final InetAddress WIFI_DIRECT_AP_ADDRESS;
 
 	static {
 		try {
