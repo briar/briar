@@ -20,9 +20,11 @@ import java.util.logging.Logger;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
+import static org.briarproject.bramble.util.IoUtils.isNonEmptyDirectory;
 
 /**
  * Contains all the HSQLDB-specific code for the database.
@@ -64,7 +66,10 @@ class HyperSqlDatabase extends JdbcDatabase {
 	public boolean open(SecretKey key, @Nullable MigrationListener listener)
 			throws DbException {
 		this.key = key;
-		boolean reopen = !config.getDatabaseDirectory().mkdirs();
+		File dir = config.getDatabaseDirectory();
+		boolean reopen = isNonEmptyDirectory(dir);
+		if (LOG.isLoggable(INFO)) LOG.info("Reopening DB: " + reopen);
+		if (!reopen && dir.mkdirs()) LOG.info("Created database directory");
 		super.open("org.hsqldb.jdbc.JDBCDriver", reopen, key, listener);
 		return reopen;
 	}

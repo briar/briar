@@ -13,7 +13,8 @@ public interface AccountManager {
 	 * Returns true if the manager has the database key. This will be false
 	 * before {@link #createAccount(String, String)} or {@link #signIn(String)}
 	 * has been called, and true after {@link #createAccount(String, String)}
-	 * or {@link #signIn(String)} has returned true, until the process exits.
+	 * or {@link #signIn(String)} has returned true, until
+	 * {@link #deleteAccount()} is called or the process exits.
 	 */
 	boolean hasDatabaseKey();
 
@@ -22,25 +23,22 @@ public interface AccountManager {
 	 * before {@link #createAccount(String, String)} or {@link #signIn(String)}
 	 * has been called, and non-null after
 	 * {@link #createAccount(String, String)} or {@link #signIn(String)} has
-	 * returned true, until the process exits.
+	 * returned true, until {@link #deleteAccount()} is called or the process
+	 * exits.
 	 */
 	@Nullable
 	SecretKey getDatabaseKey();
 
 	/**
-	 * Returns true if the encrypted database key can be loaded from disk, and
-	 * the database directory exists and is a directory.
+	 * Returns true if the encrypted database key can be loaded from disk.
 	 */
 	boolean accountExists();
 
 	/**
 	 * Creates an identity with the given name and registers it with the
 	 * {@link IdentityManager}. Creates a database key, encrypts it with the
-	 * given password and stores it on disk.
-	 * <p/>
-	 * This method does not create the database directory, so
-	 * {@link #accountExists()} will continue to return false until the
-	 * database directory is created.
+	 * given password and stores it on disk. {@link #accountExists()} will
+	 * return true after this method returns true.
 	 */
 	boolean createAccount(String name, String password);
 

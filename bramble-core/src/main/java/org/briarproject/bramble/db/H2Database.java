@@ -25,6 +25,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.db.JdbcUtils.tryToClose;
+import static org.briarproject.bramble.util.IoUtils.isNonEmptyDirectory;
 import static org.briarproject.bramble.util.LogUtils.logFileOrDir;
 
 /**
@@ -69,8 +70,9 @@ class H2Database extends JdbcDatabase {
 			LOG.info("Contents of account directory before opening DB:");
 			logFileOrDir(LOG, INFO, dir.getParentFile());
 		}
-		boolean reopen = !dir.mkdirs();
+		boolean reopen = isNonEmptyDirectory(dir);
 		if (LOG.isLoggable(INFO)) LOG.info("Reopening DB: " + reopen);
+		if (!reopen && dir.mkdirs()) LOG.info("Created database directory");
 		super.open("org.h2.Driver", reopen, key, listener);
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Contents of account directory after opening DB:");

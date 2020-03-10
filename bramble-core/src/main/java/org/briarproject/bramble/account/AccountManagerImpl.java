@@ -155,8 +155,7 @@ class AccountManagerImpl implements AccountManager {
 	@Override
 	public boolean accountExists() {
 		synchronized (stateChangeLock) {
-			return loadEncryptedDatabaseKey() != null
-					&& databaseConfig.getDatabaseDirectory().isDirectory();
+			return loadEncryptedDatabaseKey() != null;
 		}
 	}
 

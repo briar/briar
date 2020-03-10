@@ -117,4 +117,10 @@ public class IoUtils {
 			throw new IOException(e);
 		}
 	}
+
+	public static boolean isNonEmptyDirectory(File f) {
+		if (!f.isDirectory()) return false;
+		File[] children = f.listFiles();
+		return children != null && children.length > 0;
+	}
 }
