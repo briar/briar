@@ -270,10 +270,7 @@ class LanTcpPlugin extends TcpPlugin {
 			List<InetAddress> addrs = new ArrayList<>();
 			for (String hex : property.split(SEPARATOR)) {
 				byte[] ip = fromHexString(hex);
-				if (ip.length == 16) {
-					InetAddress addr = InetAddress.getByAddress(ip);
-					if (isIpv6LinkLocalAddress(addr)) addrs.add(addr);
-				}
+				if (ip.length == 16) addrs.add(InetAddress.getByAddress(ip));
 			}
 			return addrs;
 		} catch (IllegalArgumentException | UnknownHostException e) {
