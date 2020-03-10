@@ -22,6 +22,8 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -31,17 +33,18 @@ import javax.annotation.Nullable;
 import static java.lang.Integer.parseInt;
 import static java.util.Collections.addAll;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.singletonList;
 import static java.util.Collections.sort;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_IPV6;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IPV6;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_IP_PORTS;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_PORT;
-import static org.briarproject.bramble.api.plugin.LanTcpConstants.PROP_SLAAC;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MAX_PROPERTY_LENGTH;
 import static org.briarproject.bramble.util.ByteUtils.MAX_16_BIT_UNSIGNED;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubSocketAddress;
@@ -49,21 +52,14 @@ import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 import static org.briarproject.bramble.util.StringUtils.join;
 import static org.briarproject.bramble.util.StringUtils.toHexString;
+import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 
 @NotNullByDefault
 class LanTcpPlugin extends TcpPlugin {
 
 	private static final Logger LOG = getLogger(LanTcpPlugin.class.getName());
 
-	private static final int MAX_ADDRESSES = 4;
 	private static final String SEPARATOR = ",";
-
-	/**
-	 * The network prefix of a SLAAC IPv6 address. See
-	 * https://tools.ietf.org/html/rfc4862#section-5.3
-	 */
-	private static final byte[] SLAAC_PREFIX =
-			new byte[] {(byte) 0xFE, (byte) 0x80, 0, 0, 0, 0, 0, 0};
 
 	/**
 	 * The IP address of an Android device providing a wifi access point.
@@ -187,56 +183,48 @@ class LanTcpPlugin extends TcpPlugin {
 
 	private void setLocalIpv4SocketAddress(InetSocketAddress a) {
 		String ipPort = getIpPortString(a);
+		updateRecentAddresses(PREF_LAN_IP_PORTS, PROP_IP_PORTS, ipPort);
+	}
+
+	private void setLocalIpv6SocketAddress(InetSocketAddress a) {
+		String hex = toHexString(a.getAddress().getAddress());
+		updateRecentAddresses(PREF_IPV6, PROP_IPV6, hex);
+	}
+
+	private void updateRecentAddresses(String settingKey, String propertyKey,
+			String item) {
 		// Get the list of recently used addresses
-		String setting = callback.getSettings().get(PREF_LAN_IP_PORTS);
-		List<String> recent = new ArrayList<>();
-		if (!isNullOrEmpty(setting))
+		String setting = callback.getSettings().get(settingKey);
+		Deque<String> recent = new LinkedList<>();
+		if (!isNullOrEmpty(setting)) {
 			addAll(recent, setting.split(SEPARATOR));
-		// Is the address already in the list?
-		if (recent.remove(ipPort)) {
-			// Move the address to the start of the list
-			recent.add(0, ipPort);
+		}
+		if (recent.remove(item)) {
+			// Move the item to the start of the list
+			recent.addFirst(item);
 			setting = join(recent, SEPARATOR);
 		} else {
-			// Add the address to the start of the list
-			recent.add(0, ipPort);
-			// Drop the least recently used address if the list is full
-			if (recent.size() > MAX_ADDRESSES)
-				recent = recent.subList(0, MAX_ADDRESSES);
+			// Add the item to the start of the list
+			recent.addFirst(item);
+			// Drop items from the end of the list if it's too long to encode
 			setting = join(recent, SEPARATOR);
+			while (utf8IsTooLong(setting, MAX_PROPERTY_LENGTH)) {
+				recent.removeLast();
+				setting = join(recent, SEPARATOR);
+			}
 			// Update the list of addresses shared with contacts
-			List<String> shared = new ArrayList<>(recent);
-			sort(shared);
-			String property = join(shared, SEPARATOR);
 			TransportProperties properties = new TransportProperties();
-			properties.put(PROP_IP_PORTS, property);
+			properties.put(propertyKey, setting);
 			callback.mergeLocalProperties(properties);
 		}
 		// Save the setting
 		Settings settings = new Settings();
-		settings.put(PREF_LAN_IP_PORTS, setting);
+		settings.put(settingKey, setting);
 		callback.mergeSettings(settings);
 	}
 
-	private void setLocalIpv6SocketAddress(InetSocketAddress a) {
-		if (isSlaacAddress(a.getAddress())) {
-			String property = toHexString(a.getAddress().getAddress());
-			TransportProperties properties = new TransportProperties();
-			properties.put(PROP_SLAAC, property);
-			callback.mergeLocalProperties(properties);
-		}
-	}
-
-	// See https://tools.ietf.org/html/rfc4862#section-5.3
-	protected boolean isSlaacAddress(InetAddress a) {
-		if (!(a instanceof Inet6Address)) return false;
-		byte[] ip = a.getAddress();
-		for (int i = 0; i < 8; i++) {
-			if (ip[i] != SLAAC_PREFIX[i]) return false;
-		}
-		return (ip[8] & 0x02) == 0x02
-				&& ip[11] == (byte) 0xFF
-				&& ip[12] == (byte) 0xFE;
+	protected boolean isIpv6LinkLocalAddress(InetAddress a) {
+		return a instanceof Inet6Address && a.isLinkLocalAddress();
 	}
 
 	@Override
@@ -266,22 +254,30 @@ class LanTcpPlugin extends TcpPlugin {
 
 	private List<InetSocketAddress> getRemoteIpv6SocketAddresses(
 			TransportProperties p) {
-		InetAddress slaac = parseSlaacProperty(p.get(PROP_SLAAC));
+		List<InetAddress> addrs = parseIpv6Addresses(p.get(PROP_IPV6));
 		int port = parsePortProperty(p.get(PROP_PORT));
-		if (slaac == null || port == 0) return emptyList();
-		return singletonList(new InetSocketAddress(slaac, port));
+		if (addrs.isEmpty() || port == 0) return emptyList();
+		List<InetSocketAddress> remotes = new ArrayList<>();
+		for (InetAddress addr : addrs) {
+			remotes.add(new InetSocketAddress(addr, port));
+		}
+		return remotes;
 	}
 
-	@Nullable
-	private InetAddress parseSlaacProperty(String slaacProperty) {
-		if (isNullOrEmpty(slaacProperty)) return null;
+	private List<InetAddress> parseIpv6Addresses(String property) {
+		if (isNullOrEmpty(property)) return emptyList();
 		try {
-			byte[] ip = fromHexString(slaacProperty);
-			if (ip.length != 16) return null;
-			InetAddress a = InetAddress.getByAddress(ip);
-			return isSlaacAddress(a) ? a : null;
+			List<InetAddress> addrs = new ArrayList<>();
+			for (String hex : property.split(SEPARATOR)) {
+				byte[] ip = fromHexString(hex);
+				if (ip.length == 16) {
+					InetAddress addr = InetAddress.getByAddress(ip);
+					if (isIpv6LinkLocalAddress(addr)) addrs.add(addr);
+				}
+			}
+			return addrs;
 		} catch (IllegalArgumentException | UnknownHostException e) {
-			return null;
+			return emptyList();
 		}
 	}
 
@@ -289,13 +285,12 @@ class LanTcpPlugin extends TcpPlugin {
 		if (ipv4) {
 			// Accept link-local and site-local IPv4 addresses
 			boolean isIpv4 = a instanceof Inet4Address;
-			boolean loop = a.isLoopbackAddress();
 			boolean link = a.isLinkLocalAddress();
 			boolean site = a.isSiteLocalAddress();
-			return isIpv4 && !loop && (link || site);
+			return isIpv4 && (link || site);
 		} else {
-			// Accept IPv6 SLAAC addresses
-			return isSlaacAddress(a);
+			// Accept link-local IPv6 addresses
+			return isIpv6LinkLocalAddress(a);
 		}
 	}
 

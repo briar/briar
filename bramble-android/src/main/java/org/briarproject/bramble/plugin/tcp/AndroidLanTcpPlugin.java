@@ -93,8 +93,8 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		Pair<InetAddress, Boolean> wifi = getWifiIpv4Address();
 		if (wifi == null) return emptyList();
 		if (ipv4) return singletonList(wifi.getFirst());
-		InetAddress slaac = getSlaacAddressForInterface(wifi.getFirst());
-		return slaac == null ? emptyList() : singletonList(slaac);
+		InetAddress ipv6 = getIpv6AddressForInterface(wifi.getFirst());
+		return ipv6 == null ? emptyList() : singletonList(ipv6);
 	}
 
 	/**
@@ -159,12 +159,12 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	}
 
 	@Nullable
-	private InetAddress getSlaacAddressForInterface(InetAddress wifi) {
+	private InetAddress getIpv6AddressForInterface(InetAddress wifi) {
 		try {
 			NetworkInterface iface = NetworkInterface.getByInetAddress(wifi);
 			if (iface == null) return null;
 			for (InetAddress addr : list(iface.getInetAddresses())) {
-				if (isSlaacAddress(addr)) return addr;
+				if (isIpv6LinkLocalAddress(addr)) return addr;
 			}
 			// No suitable address
 			return null;
