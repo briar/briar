@@ -329,7 +329,7 @@ class LanTcpPlugin extends TcpPlugin {
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
 		ServerSocket ss = null;
-		for (InetSocketAddress addr : getLocalSocketAddresses(true)) {
+		for (InetSocketAddress addr : getLocalSocketAddresses()) {
 			// Don't try to reuse the same port we use for contact connections
 			addr = new InetSocketAddress(addr.getAddress(), 0);
 			try {
@@ -353,6 +353,13 @@ class LanTcpPlugin extends TcpPlugin {
 		descriptor.add(local.getAddress().getAddress());
 		descriptor.add(local.getPort());
 		return new LanKeyAgreementListener(descriptor, ss);
+	}
+
+	private List<InetSocketAddress> getLocalSocketAddresses() {
+		List<InetSocketAddress> addrs = new ArrayList<>();
+		addrs.addAll(getLocalSocketAddresses(true));
+		addrs.addAll(getLocalSocketAddresses(false));
+		return addrs;
 	}
 
 	@Override
