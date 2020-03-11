@@ -1,9 +1,12 @@
 package org.briarproject.bramble.plugin.tcp;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.LinkAddress;
+import android.net.LinkProperties;
 import android.net.Network;
-import android.net.NetworkInfo;
+import android.net.NetworkCapabilities;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 
@@ -32,7 +35,7 @@ import javax.net.SocketFactory;
 
 import static android.content.Context.CONNECTIVITY_SERVICE;
 import static android.content.Context.WIFI_SERVICE;
-import static android.net.ConnectivityManager.TYPE_WIFI;
+import static android.net.NetworkCapabilities.TRANSPORT_WIFI;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
@@ -90,11 +93,22 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	@Override
 	protected List<InetAddress> getUsableLocalInetAddresses(boolean ipv4) {
+		InetAddress addr = getWifiAddress(ipv4);
+		return addr == null ? emptyList() : singletonList(addr);
+	}
+
+	@Nullable
+	private InetAddress getWifiAddress(boolean ipv4) {
 		Pair<InetAddress, Boolean> wifi = getWifiIpv4Address();
-		if (wifi == null) return emptyList();
-		if (ipv4) return singletonList(wifi.getFirst());
-		InetAddress ipv6 = getIpv6AddressForInterface(wifi.getFirst());
-		return ipv6 == null ? emptyList() : singletonList(ipv6);
+		if (ipv4) return wifi == null ? null : wifi.getFirst();
+		// If there's no wifi IPv4 address, we might be a client on an
+		// IPv6-only wifi network. We can only detect this on API 21+
+		if (wifi == null) {
+			return SDK_INT >= 21 ? getWifiClientIpv6Address() : null;
+		}
+		// Use the wifi IPv4 address to determine which interface's IPv6
+		// address we should return (if the interface has a suitable address)
+		return getIpv6AddressForInterface(wifi.getFirst());
 	}
 
 	/**
@@ -158,10 +172,35 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 				&& ip[2] == (byte) 49;
 	}
 
+	/**
+	 * Returns a link-local IPv6 address for the wifi client interface, or null
+	 * if there's no such interface or it doesn't have a suitable address.
+	 */
+	@TargetApi(21)
 	@Nullable
-	private InetAddress getIpv6AddressForInterface(InetAddress wifi) {
+	private InetAddress getWifiClientIpv6Address() {
+		for (Network net : connectivityManager.getAllNetworks()) {
+			NetworkCapabilities caps =
+					connectivityManager.getNetworkCapabilities(net);
+			if (caps == null || !caps.hasTransport(TRANSPORT_WIFI)) continue;
+			LinkProperties props = connectivityManager.getLinkProperties(net);
+			if (props == null) continue;
+			for (LinkAddress linkAddress : props.getLinkAddresses()) {
+				InetAddress addr = linkAddress.getAddress();
+				if (isIpv6LinkLocalAddress(addr)) return addr;
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Returns a link-local IPv6 address for the interface with the given IPv4
+	 * address, or null if the interface doesn't have a suitable address.
+	 */
+	@Nullable
+	private InetAddress getIpv6AddressForInterface(InetAddress ipv4) {
 		try {
-			NetworkInterface iface = NetworkInterface.getByInetAddress(wifi);
+			NetworkInterface iface = NetworkInterface.getByInetAddress(ipv4);
 			if (iface == null) return null;
 			for (InetAddress addr : list(iface.getInetAddresses())) {
 				if (isIpv6LinkLocalAddress(addr)) return addr;
@@ -193,9 +232,11 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 	private SocketFactory getSocketFactory() {
 		if (SDK_INT < 21) return SocketFactory.getDefault();
 		for (Network net : connectivityManager.getAllNetworks()) {
-			NetworkInfo info = connectivityManager.getNetworkInfo(net);
-			if (info != null && info.getType() == TYPE_WIFI)
+			NetworkCapabilities caps =
+					connectivityManager.getNetworkCapabilities(net);
+			if (caps != null && caps.hasTransport(TRANSPORT_WIFI)) {
 				return net.getSocketFactory();
+			}
 		}
 		LOG.warning("Could not find suitable socket factory");
 		return SocketFactory.getDefault();
