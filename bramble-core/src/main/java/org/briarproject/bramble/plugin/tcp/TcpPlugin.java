@@ -43,7 +43,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
-import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.logging.Level.INFO;
@@ -206,9 +205,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	@Override
 	public void stop() {
-		for (@Nullable ServerSocket ss : state.setStopped()) {
-			tryToClose(ss, LOG, WARNING);
-		}
+		for (ServerSocket ss : state.setStopped()) tryToClose(ss, LOG, WARNING);
 	}
 
 	@Override
@@ -410,9 +407,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 		State s = getState();
 		if (!toClose.isEmpty()) {
 			LOG.info("Disabled by user, closing server sockets");
-			for (@Nullable ServerSocket ss : toClose) {
-				tryToClose(ss, LOG, WARNING);
-			}
+			for (ServerSocket ss : toClose) tryToClose(ss, LOG, WARNING);
 		} else if (s == INACTIVE) {
 			LOG.info("Enabled by user, opening server sockets");
 			bind();
@@ -445,9 +440,15 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 		@GuardedBy("this")
 		private List<ServerSocket> clearServerSockets() {
-			List<ServerSocket> toClose = asList(serverSocketV4, serverSocketV6);
-			serverSocketV4 = null;
-			serverSocketV6 = null;
+			List<ServerSocket> toClose = new ArrayList<>(2);
+			if (serverSocketV4 != null) {
+				toClose.add(serverSocketV4);
+				serverSocketV4 = null;
+			}
+			if (serverSocketV6 != null) {
+				toClose.add(serverSocketV6);
+				serverSocketV6 = null;
+			}
 			return toClose;
 		}
 
