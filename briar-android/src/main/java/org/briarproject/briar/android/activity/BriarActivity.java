@@ -95,12 +95,14 @@ public abstract class BriarActivity extends BaseActivity {
 			// Also check that the activity isn't finishing already.
 			// This is possible if we finished in onActivityResult().
 			// Launching another StartupActivity would cause a loop.
+			LOG.info("Not signed in, launching StartupActivity");
 			Intent i = new Intent(this, StartupActivity.class);
 			startActivityForResult(i, REQUEST_PASSWORD);
 		} else if (lockManager.isLocked() && !isFinishing()) {
 			// Also check that the activity isn't finishing already.
 			// This is possible if we finished in onActivityResult().
 			// Launching another UnlockActivity would cause a loop.
+			LOG.info("Locked, launching UnlockActivity");
 			Intent i = new Intent(this, UnlockActivity.class);
 			startActivityForResult(i, REQUEST_UNLOCK);
 		} else if (SDK_INT >= 23) {
