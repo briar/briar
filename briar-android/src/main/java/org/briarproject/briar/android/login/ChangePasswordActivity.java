@@ -22,6 +22,7 @@ import org.briarproject.briar.android.activity.BriarActivity;
 
 import javax.inject.Inject;
 
+import androidx.annotation.VisibleForTesting;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -52,7 +53,7 @@ public class ChangePasswordActivity extends BriarActivity
 	private Button changePasswordButton;
 	private ProgressBar progress;
 
-	// Package access for testing
+	@VisibleForTesting
 	ChangePasswordViewModel viewModel;
 
 	@Override
