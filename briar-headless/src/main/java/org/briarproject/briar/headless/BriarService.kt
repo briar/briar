@@ -4,6 +4,7 @@ import com.github.ajalt.clikt.core.UsageError
 import com.github.ajalt.clikt.output.TermUi.echo
 import com.github.ajalt.clikt.output.TermUi.prompt
 import org.briarproject.bramble.api.account.AccountManager
+import org.briarproject.bramble.api.crypto.DecryptionException
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK
 import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
@@ -34,7 +35,9 @@ constructor(
         } else {
             val password = prompt("Password", hideInput = true)
                 ?: throw UsageError("Could not get password. Is STDIN connected?")
-            if (!accountManager.signIn(password)) {
+            try {
+                accountManager.signIn(password)
+            } catch (e : DecryptionException) {
                 echo("Error: Password invalid")
                 exitProcess(1)
             }

@@ -1,5 +1,6 @@
 package org.briarproject.bramble.api.account;
 
+import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -52,17 +53,19 @@ public interface AccountManager {
 	 * Loads the encrypted database key from disk and decrypts it with the
 	 * given password.
 	 *
-	 * @return true if the database key was successfully loaded and decrypted.
+	 * @throws DecryptionException If the database key could not be loaded and
+	 * decrypted.
 	 */
-	boolean signIn(String password);
+	void signIn(String password) throws DecryptionException;
 
 	/**
 	 * Loads the encrypted database key from disk, decrypts it with the old
 	 * password, encrypts it with the new password, and stores it on disk,
 	 * replacing the old key.
 	 *
-	 * @return true if the database key was successfully loaded, re-encrypted
-	 * and stored.
+	 * @throws DecryptionException If the database key could not be loaded and
+	 * decrypted.
 	 */
-	boolean changePassword(String oldPassword, String newPassword);
+	void changePassword(String oldPassword, String newPassword)
+			throws DecryptionException;
 }

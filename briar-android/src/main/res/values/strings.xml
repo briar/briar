@@ -32,6 +32,8 @@
 	<!-- Login -->
 	<string name="enter_password">Password</string>
 	<string name="try_again">Wrong password, try again</string>
+	<string name="dialog_title_cannot_check_password">Cannot Check Password</string>
+	<string name="dialog_message_cannot_check_password">Briar cannot check your password. Please try rebooting your device to solve this problem.</string>
 	<string name="sign_in_button">Sign In</string>
 	<string name="forgotten_password">I have forgotten my password</string>
 	<string name="dialog_title_lost_password">Lost Password</string>

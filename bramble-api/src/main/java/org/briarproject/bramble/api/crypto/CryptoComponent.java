@@ -142,16 +142,17 @@ public interface CryptoComponent {
 	/**
 	 * Decrypts and authenticates the given ciphertext that has been read from
 	 * storage. The encryption and authentication keys are derived from the
-	 * given password. Returns null if the ciphertext cannot be decrypted and
-	 * authenticated (for example, if the password is wrong).
+	 * given password.
 	 *
 	 * @param keyStrengthener Used to strengthen the password-based key. If
 	 * null, or if strengthening was not used when encrypting the ciphertext,
 	 * the password-based key will not be strengthened
+	 * @throws DecryptionException If the ciphertext cannot be decrypted and
+	 * authenticated (for example, if the password is wrong).
 	 */
-	@Nullable
 	byte[] decryptWithPassword(byte[] ciphertext, String password,
-			@Nullable KeyStrengthener keyStrengthener);
+			@Nullable KeyStrengthener keyStrengthener)
+			throws DecryptionException;
 
 	/**
 	 * Returns true if the given ciphertext was encrypted using a strengthened

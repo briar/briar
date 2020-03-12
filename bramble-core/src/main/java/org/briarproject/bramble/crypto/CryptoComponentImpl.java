@@ -7,6 +7,7 @@ import net.i2p.crypto.eddsa.KeyPairGenerator;
 import org.briarproject.bramble.api.crypto.AgreementPrivateKey;
 import org.briarproject.bramble.api.crypto.AgreementPublicKey;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
+import org.briarproject.bramble.api.crypto.DecryptionException;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.KeyStrengthener;
@@ -39,6 +40,9 @@ import static java.lang.System.arraycopy;
 import static java.util.logging.Level.INFO;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_AGREEMENT;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.KEY_TYPE_SIGNATURE;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.INVALID_CIPHERTEXT;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.INVALID_PASSWORD;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.KEY_STRENGTHENER_ERROR;
 import static org.briarproject.bramble.util.ByteUtils.INT_32_BYTES;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -359,16 +363,17 @@ class CryptoComponentImpl implements CryptoComponent {
 	}
 
 	@Override
-	@Nullable
 	public byte[] decryptWithPassword(byte[] input, String password,
-			@Nullable KeyStrengthener keyStrengthener) {
+			@Nullable KeyStrengthener keyStrengthener)
+			throws DecryptionException {
 		AuthenticatedCipher cipher = new XSalsa20Poly1305AuthenticatedCipher();
 		int macBytes = cipher.getMacBytes();
 		// The input contains the format version, salt, cost parameter, IV,
 		// ciphertext and MAC
 		if (input.length < 1 + PBKDF_SALT_BYTES + INT_32_BYTES
-				+ STORAGE_IV_BYTES + macBytes)
-			return null; // Invalid input
+				+ STORAGE_IV_BYTES + macBytes) {
+			throw new DecryptionException(INVALID_CIPHERTEXT);
+		}
 		int inputOff = 0;
 		// Format version
 		byte formatVersion = input[inputOff];
@@ -376,7 +381,7 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Check whether we support this format version
 		if (formatVersion != PBKDF_FORMAT_SCRYPT &&
 				formatVersion != PBKDF_FORMAT_SCRYPT_STRENGTHENED) {
-			return null;
+			throw new DecryptionException(INVALID_CIPHERTEXT);
 		}
 		// Salt
 		byte[] salt = new byte[PBKDF_SALT_BYTES];
@@ -385,8 +390,9 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Cost parameter
 		long cost = ByteUtils.readUint32(input, inputOff);
 		inputOff += INT_32_BYTES;
-		if (cost < 2 || cost > Integer.MAX_VALUE)
-			return null; // Invalid cost parameter
+		if (cost < 2 || cost > Integer.MAX_VALUE) {
+			throw new DecryptionException(INVALID_CIPHERTEXT);
+		}
 		// IV
 		byte[] iv = new byte[STORAGE_IV_BYTES];
 		arraycopy(input, inputOff, iv, 0, iv.length);
@@ -394,8 +400,10 @@ class CryptoComponentImpl implements CryptoComponent {
 		// Derive the decryption key from the password
 		SecretKey key = passwordBasedKdf.deriveKey(password, salt, (int) cost);
 		if (formatVersion == PBKDF_FORMAT_SCRYPT_STRENGTHENED) {
-			if (keyStrengthener == null || !keyStrengthener.isInitialised())
-				return null; // Can't derive the same strengthened key
+			if (keyStrengthener == null || !keyStrengthener.isInitialised()) {
+				// Can't derive the same strengthened key
+				throw new DecryptionException(KEY_STRENGTHENER_ERROR);
+			}
 			key = keyStrengthener.strengthenKey(key);
 		}
 		// Initialise the cipher
@@ -411,7 +419,7 @@ class CryptoComponentImpl implements CryptoComponent {
 			cipher.process(input, inputOff, inputLen, output, 0);
 			return output;
 		} catch (GeneralSecurityException e) {
-			return null; // Invalid ciphertext
+			throw new DecryptionException(INVALID_PASSWORD);
 		}
 	}
 

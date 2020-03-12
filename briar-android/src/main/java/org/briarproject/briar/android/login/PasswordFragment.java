@@ -12,6 +12,7 @@ import android.widget.ProgressBar;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 
+import org.briarproject.bramble.api.crypto.DecryptionResult;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -28,6 +29,9 @@ import androidx.lifecycle.ViewModelProviders;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.KEY_STRENGTHENER_ERROR;
+import static org.briarproject.bramble.api.crypto.DecryptionResult.SUCCESS;
+import static org.briarproject.briar.android.login.LoginUtils.createKeyStrengthenerErrorDialog;
 import static org.briarproject.briar.android.util.UiUtils.enterPressed;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 import static org.briarproject.briar.android.util.UiUtils.setError;
@@ -58,12 +62,13 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 		View v = inflater.inflate(R.layout.fragment_password, container,
-						false);
+				false);
 
 		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
 				.get(StartupViewModel.class);
-		viewModel.getPasswordValidated().observeEvent(this, valid -> {
-			if (!valid) onPasswordInvalid();
+
+		viewModel.getPasswordValidated().observeEvent(this, result -> {
+			if (result != SUCCESS) onPasswordInvalid(result);
 		});
 
 		signInButton = v.findViewById(R.id.btn_sign_in);
@@ -107,18 +112,20 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 		viewModel.validatePassword(password.getText().toString());
 	}
 
-	private void onPasswordInvalid() {
-		setError(input, getString(R.string.try_again), true);
+	private void onPasswordInvalid(DecryptionResult result) {
 		signInButton.setVisibility(VISIBLE);
 		progress.setVisibility(INVISIBLE);
-		password.setText(null);
-
-		// show the keyboard again
-		showSoftKeyboard(password);
+		if (result == KEY_STRENGTHENER_ERROR) {
+			createKeyStrengthenerErrorDialog(requireContext()).show();
+		} else {
+			setError(input, getString(R.string.try_again), true);
+			password.setText(null);
+			// show the keyboard again
+			showSoftKeyboard(password);
+		}
 	}
 
-	public void onForgottenPasswordClick() {
-		// TODO Encapsulate the dialog in a re-usable fragment
+	private void onForgottenPasswordClick() {
 		AlertDialog.Builder builder = new AlertDialog.Builder(requireContext(),
 				R.style.BriarDialogTheme);
 		builder.setTitle(R.string.dialog_title_lost_password);
