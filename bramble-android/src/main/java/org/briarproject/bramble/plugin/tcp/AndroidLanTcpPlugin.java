@@ -252,7 +252,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		connectionStatusExecutor.execute(() -> {
 			State s = getState();
 			if (s != ACTIVE && s != INACTIVE) return;
-			Pair<InetAddress, Boolean> wifi = getWifiIpv4Address();
+			Pair<InetAddress, Boolean> wifi = getPreferredWifiAddress();
 			if (wifi == null) {
 				LOG.info("Not connected to wifi");
 				socketFactory = SocketFactory.getDefault();
@@ -279,5 +279,24 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 				if (s == INACTIVE) bind();
 			}
 		});
+	}
+
+	/**
+	 * Returns a {@link Pair} where the first element is an IP address (IPv4 if
+	 * available, otherwise IPv6) of the wifi interface and the second element
+	 * is true if this device is providing an access point, or false if this
+	 * device is a client. Returns null if this device isn't connected to wifi
+	 * as an access point or client.
+	 */
+	@Nullable
+	private Pair<InetAddress, Boolean> getPreferredWifiAddress() {
+		Pair<InetAddress, Boolean> wifi = getWifiIpv4Address();
+		// If there's no wifi IPv4 address, we might be a client on an
+		// IPv6-only wifi network. We can only detect this on API 21+
+		if (wifi == null && SDK_INT >= 21) {
+			InetAddress ipv6 = getWifiClientIpv6Address();
+			if (ipv6 != null) return new Pair<>(ipv6, false);
+		}
+		return wifi;
 	}
 }
