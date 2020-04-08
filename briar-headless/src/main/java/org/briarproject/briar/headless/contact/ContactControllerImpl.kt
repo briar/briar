@@ -17,6 +17,7 @@ import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
 import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
 import org.briarproject.bramble.util.StringUtils.toUtf8
+import org.briarproject.briar.api.conversation.ConversationManager
 import org.briarproject.briar.headless.event.WebSocketController
 import org.briarproject.briar.headless.getContactIdFromPathParam
 import org.briarproject.briar.headless.getFromJson
@@ -38,6 +39,7 @@ internal class ContactControllerImpl
 @Inject
 constructor(
     private val contactManager: ContactManager,
+    private val conversationManager: ConversationManager,
     private val objectMapper: ObjectMapper,
     private val webSocket: WebSocketController
 ) : ContactController, EventListener {
@@ -61,7 +63,7 @@ constructor(
 
     override fun list(ctx: Context): Context {
         val contacts = contactManager.contacts.map { contact ->
-            contact.output()
+            contact.output(conversationManager)
         }
         return ctx.json(contacts)
     }

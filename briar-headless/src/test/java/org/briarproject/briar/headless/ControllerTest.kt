@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.sync.Message
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.test.TestUtils.*
 import org.briarproject.bramble.util.StringUtils.getRandomString
+import org.briarproject.briar.api.conversation.ConversationManager
 import org.briarproject.briar.headless.event.WebSocketController
 import org.skyscreamer.jsonassert.JSONAssert.assertEquals
 import org.skyscreamer.jsonassert.JSONCompareMode.STRICT
@@ -23,6 +24,7 @@ import javax.servlet.http.HttpServletResponse
 abstract class ControllerTest {
 
     protected val contactManager = mockk<ContactManager>()
+    protected val conversationManager = mockk<ConversationManager>()
     protected val identityManager = mockk<IdentityManager>()
     protected val clock = mockk<Clock>()
     protected val ctx = mockk<Context>()

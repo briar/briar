@@ -67,7 +67,8 @@ Returns a JSON array of contacts:
     "contactId": 1,
     "alias" : "A local nickname",
     "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
-    "verified": true
+    "verified": true,
+    "lastChatActivity": 1557838312175
 }
 ```
 
