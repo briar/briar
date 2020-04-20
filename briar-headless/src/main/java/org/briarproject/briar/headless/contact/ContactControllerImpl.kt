@@ -63,7 +63,8 @@ constructor(
 
     override fun list(ctx: Context): Context {
         val contacts = contactManager.contacts.map { contact ->
-            contact.output(conversationManager)
+            val latestMsgTime = conversationManager.getGroupCount(contact.id).latestMsgTime
+            contact.output(latestMsgTime)
         }
         return ctx.json(contacts)
     }

@@ -34,8 +34,12 @@ internal class ContactControllerTest : ControllerTest() {
 
     private val pendingContact = getPendingContact()
 
-    private val controller =
-        ContactControllerImpl(contactManager, conversationManager, objectMapper, webSocketController)
+    private val controller = ContactControllerImpl(
+        contactManager,
+        conversationManager,
+        objectMapper,
+        webSocketController
+    )
 
     @Test
     fun testEmptyContactList() {
@@ -48,7 +52,7 @@ internal class ContactControllerTest : ControllerTest() {
     fun testList() {
         every { contactManager.contacts } returns listOf(contact)
         every { conversationManager.getGroupCount(contact.id).latestMsgTime } returns timestamp
-        every { ctx.json(listOf(contact.output(conversationManager))) } returns ctx
+        every { ctx.json(listOf(contact.output(timestamp))) } returns ctx
         controller.list(ctx)
     }
 
@@ -265,7 +269,6 @@ internal class ContactControllerTest : ControllerTest() {
 
     @Test
     fun testOutputContact() {
-        every { conversationManager.getGroupCount(contact.id).latestMsgTime } returns timestamp
         assertNotNull(contact.handshakePublicKey)
         val json = """
             {
@@ -274,10 +277,10 @@ internal class ContactControllerTest : ControllerTest() {
                 "alias" : "${contact.alias}",
                 "handshakePublicKey": ${toJson(contact.handshakePublicKey!!.encoded)},
                 "verified": ${contact.isVerified},
-                "lastChatActivity": ${timestamp}
+                "lastChatActivity": $timestamp
             }
         """
-        assertJsonEquals(json, contact.output(conversationManager))
+        assertJsonEquals(json, contact.output(timestamp))
     }
 
     @Test
