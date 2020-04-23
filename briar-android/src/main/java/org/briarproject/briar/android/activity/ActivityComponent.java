@@ -47,6 +47,7 @@ import org.briarproject.briar.android.login.OpenDatabaseFragment;
 import org.briarproject.briar.android.login.PasswordFragment;
 import org.briarproject.briar.android.login.StartupActivity;
 import org.briarproject.briar.android.navdrawer.NavDrawerActivity;
+import org.briarproject.briar.android.navdrawer.TransportsActivity;
 import org.briarproject.briar.android.panic.PanicPreferencesActivity;
 import org.briarproject.briar.android.panic.PanicResponderActivity;
 import org.briarproject.briar.android.privategroup.conversation.GroupActivity;
@@ -162,6 +163,8 @@ public interface ActivityComponent {
 	void inject(ReblogActivity activity);
 
 	void inject(SettingsActivity activity);
+
+	void inject(TransportsActivity activity);
 
 	void inject(TestDataActivity activity);
 

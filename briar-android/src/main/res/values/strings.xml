@@ -69,10 +69,37 @@
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
 
-	<!-- Transports -->
+	<!-- Transports: Tor -->
 	<string name="transport_tor">Internet</string>
-	<string name="transport_bt">Bluetooth</string>
+	<string name="tor_status">Internet status:</string>
+	<string name="tor_device_status_online_wifi">Your phone has Internet access via Wi-Fi</string>
+	<string name="tor_device_status_online_mobile_data">Your phone has Internet access via mobile data</string>
+	<string name="tor_device_status_offline">Your phone does not have Internet access</string>
+	<string name="tor_plugin_status_enabling">Briar is connecting to the Internet</string>
+	<string name="tor_plugin_status_active">Briar can connect to contacts via the Internet</string>
+	<string name="tor_plugin_status_inactive">Briar can\'t connect to contacts via the Internet</string>
+	<string name="tor_plugin_status_disabled">Briar is configured not to connect to contacts via the Internet</string>
+
+	<!-- Transports: Wi-Fi -->
 	<string name="transport_lan">Wi-Fi</string>
+	<string name="transport_lan_long">Same Wi-Fi network</string>
+	<string name="lan_status">Wi-Fi status:</string>
+	<string name="lan_device_status_on">Your phone is connected to Wi-Fi</string>
+	<string name="lan_device_status_off">Your phone is not connected to Wi-Fi</string>
+	<string name="lan_plugin_status_enabling">Briar is connecting to the Wi-Fi network</string>
+	<string name="lan_plugin_status_active">Briar can connect to contacts on the same Wi-Fi network</string>
+	<string name="lan_plugin_status_inactive">Briar can\'t connect to contacts on the same Wi-Fi network</string>
+	<string name="lan_plugin_status_disabled">Briar is configured not to connect to contacts on the same Wi-Fi network</string>
+
+	<!-- Transports: Bluetooth -->
+	<string name="transport_bt">Bluetooth</string>
+	<string name="bt_status">Bluetooth status:</string>
+	<string name="bt_device_status_on">Your phone\'s Bluetooth is turned on</string>
+	<string name="bt_device_status_off">Your phone\'s Bluetooth is turned off</string>
+	<string name="bt_plugin_status_enabling">Briar is connecting to Bluetooth</string>
+	<string name="bt_plugin_status_active">Briar can connect to contacts via Bluetooth</string>
+	<string name="bt_plugin_status_inactive">Briar can\'t connect to contacts via Bluetooth</string>
+	<string name="bt_plugin_status_disabled">Briar is configured not to connect to contacts via Bluetooth</string>
 
 	<!-- Notifications -->
 	<string name="reminder_notification_title">Signed out of Briar</string>
@@ -121,6 +148,7 @@
 	<string name="help">Help</string>
 	<string name="sorry">Sorry</string>
 	<string name="error_start_activity">Unavailable on your system</string>
+	<string name="status_heading">Status:</string>
 
 	<!-- Contacts and Private Conversations-->
 	<string name="no_contacts">No contacts to show</string>

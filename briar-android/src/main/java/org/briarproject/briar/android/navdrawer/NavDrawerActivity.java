@@ -97,6 +97,8 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static Uri SIGN_OUT_URI =
 			Uri.parse("briar-content://org.briarproject.briar/sign-out");
 
+	private final List<Transport> transports = new ArrayList<>(3);
+
 	private NavDrawerViewModel navDrawerViewModel;
 	private PluginViewModel pluginViewModel;
 	private ActionBarDrawerToggle drawerToggle;
@@ -110,7 +112,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
 
-	private List<Transport> transports;
 	private BaseAdapter transportsAdapter;
 
 	@Override
@@ -141,6 +142,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = findViewById(R.id.navigation);
 		GridView transportsView = findViewById(R.id.transportsView);
+		transportsView.setOnItemClickListener((parent, view, position, id) -> {
+			LOG.info("Starting transports activity");
+			startActivity(new Intent(this, TransportsActivity.class));
+		});
 
 		setSupportActionBar(toolbar);
 		ActionBar actionBar = requireNonNull(getSupportActionBar());
@@ -380,8 +385,6 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	private void initializeTransports() {
-		transports = new ArrayList<>(3);
-
 		transportsAdapter = new BaseAdapter() {
 
 			@Override
