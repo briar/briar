@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +20,11 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.LanTcpConstants;
+import org.briarproject.bramble.api.plugin.Plugin.State;
+import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
@@ -29,16 +37,21 @@ import org.briarproject.briar.android.logout.SignOutFragment;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -53,6 +66,9 @@ import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
@@ -79,7 +95,8 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static Uri SIGN_OUT_URI =
 			Uri.parse("briar-content://org.briarproject.briar/sign-out");
 
-	private NavDrawerViewModel viewModel;
+	private NavDrawerViewModel navDrawerViewModel;
+	private PluginViewModel pluginViewModel;
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Inject
@@ -90,6 +107,9 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	private DrawerLayout drawerLayout;
 	private NavigationView navigation;
+
+	private List<Transport> transports;
+	private BaseAdapter transportsAdapter;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -102,20 +122,21 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
-				.get(NavDrawerViewModel.class);
+		ViewModelProvider provider =
+				ViewModelProviders.of(this, viewModelFactory);
+		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
+		pluginViewModel = provider.get(PluginViewModel.class);
 
-		viewModel.showExpiryWarning().observe(this, this::showExpiryWarning);
-		viewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
+		navDrawerViewModel.showExpiryWarning()
+				.observe(this, this::showExpiryWarning);
+		navDrawerViewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
 			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
 		});
-
-		View drawerScrollView = findViewById(R.id.drawerScrollView);
-		new PluginViewController(drawerScrollView, this, viewModel);
 
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = findViewById(R.id.navigation);
+		GridView transportsView = findViewById(R.id.transportsView);
 
 		setSupportActionBar(toolbar);
 		ActionBar actionBar = requireNonNull(getSupportActionBar());
@@ -127,6 +148,9 @@ public class NavDrawerActivity extends BriarActivity implements
 				R.string.nav_drawer_close_description);
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
+
+		initializeTransports();
+		transportsView.setAdapter(transportsAdapter);
 
 		lockManager.isLockable().observe(this, this::setLockVisible);
 
@@ -146,7 +170,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		lockManager.checkIfLockable();
-		viewModel.checkExpiryWarning();
+		navDrawerViewModel.checkExpiryWarning();
 	}
 
 	@Override
@@ -154,7 +178,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD && result == RESULT_OK) {
-			viewModel.checkDozeWhitelisting();
+			navDrawerViewModel.checkDozeWhitelisting();
 		}
 	}
 
@@ -343,11 +367,101 @@ public class NavDrawerActivity extends BriarActivity implements
 			ImageView expiryWarningClose =
 					expiryWarning.findViewById(R.id.expiryWarningClose);
 			expiryWarningClose.setOnClickListener(v ->
-					viewModel.expiryWarningDismissed()
-			);
+					navDrawerViewModel.expiryWarningDismissed());
 			expiryWarning.setVisibility(VISIBLE);
 		} else {
 			expiryWarning.setVisibility(GONE);
+		}
+	}
+
+	private void initializeTransports() {
+		transports = new ArrayList<>(3);
+
+		transportsAdapter = new BaseAdapter() {
+
+			@Override
+			public int getCount() {
+				return transports.size();
+			}
+
+			@Override
+			public Transport getItem(int position) {
+				return transports.get(position);
+			}
+
+			@Override
+			public long getItemId(int position) {
+				return 0;
+			}
+
+			@Override
+			public View getView(int position, View convertView,
+					ViewGroup parent) {
+				View view;
+				if (convertView != null) {
+					view = convertView;
+				} else {
+					LayoutInflater inflater = getLayoutInflater();
+					view = inflater.inflate(R.layout.list_item_transport,
+							parent, false);
+				}
+
+				Transport t = getItem(position);
+
+				ImageView icon = view.findViewById(R.id.imageView);
+				icon.setImageDrawable(ContextCompat
+						.getDrawable(NavDrawerActivity.this, t.iconId));
+				icon.setColorFilter(getIconColour(t.state));
+
+				TextView text = view.findViewById(R.id.textView);
+				text.setText(getString(t.textId));
+
+				return view;
+			}
+		};
+
+		transports.add(createTransport(TorConstants.ID,
+				R.drawable.transport_tor, R.string.transport_tor));
+		transports.add(createTransport(LanTcpConstants.ID,
+				R.drawable.transport_lan, R.string.transport_lan));
+		transports.add(createTransport(BluetoothConstants.ID,
+				R.drawable.transport_bt, R.string.transport_bt));
+	}
+
+	private int getIconColour(State state) {
+		int colorRes;
+		if (state == ACTIVE) {
+			colorRes = R.color.briar_green_light;
+		} else if (state == ENABLING) {
+			colorRes = R.color.briar_yellow;
+		} else {
+			colorRes = android.R.color.tertiary_text_light;
+		}
+		return ContextCompat.getColor(this, colorRes);
+	}
+
+	private Transport createTransport(TransportId id, @DrawableRes int iconId,
+			@StringRes int textId) {
+		Transport transport = new Transport(iconId, textId);
+		pluginViewModel.getPluginState(id).observe(this, state -> {
+			transport.state = state;
+			transportsAdapter.notifyDataSetChanged();
+		});
+		return transport;
+	}
+
+	private static class Transport {
+
+		@DrawableRes
+		private final int iconId;
+		@StringRes
+		private final int textId;
+
+		private State state = STARTING_STOPPING;
+
+		private Transport(@DrawableRes int iconId, @StringRes int textId) {
+			this.iconId = iconId;
+			this.textId = textId;
 		}
 	}
 }

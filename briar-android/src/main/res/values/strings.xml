@@ -70,10 +70,7 @@
 	<string name="sign_out_button">Sign Out</string>
 
 	<!-- Transports -->
-	<string name="transport_connection">Connections</string>
-	<string name="transport_internet">Internet</string>
-	<string name="transport_tor">Tor</string>
-	<string name="transport_nearby">Nearby</string>
+	<string name="transport_tor">Internet</string>
 	<string name="transport_bt">Bluetooth</string>
 	<string name="transport_lan">Wi-Fi</string>
 
@@ -440,15 +437,19 @@
 
 	<!-- Settings Connections -->
 	<string name="network_settings_title">Connections</string>
-	<string name="tor_network_setting">Connection method for Internet (Tor)</string>
+	<string name="bluetooth_setting">Connect to contacts via Bluetooth</string>
+	<string name="wifi_setting">Connect to contacts on the same Wi-Fi network</string>
+	<string name="tor_enable_title">Connect to contacts via the Internet</string>
+	<string name="tor_enable_summary">All connections go through the Tor network for privacy</string>
+	<string name="tor_network_setting">Connection method for Tor network</string>
 	<string name="tor_network_setting_automatic">Automatic based on location</string>
-	<string name="tor_network_setting_without_bridges">Use Tor without bridges</string>
-	<string name="tor_network_setting_with_bridges">Use Tor with bridges</string>
-	<string name="tor_network_setting_never">Don\'t connect</string>
-	<!-- How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus) -->
+	<string name="tor_network_setting_without_bridges">Use Tor network without bridges</string>
+	<string name="tor_network_setting_with_bridges">Use Tor network with bridges</string>
+	<string name="tor_network_setting_never">Don\'t connect to the Internet</string>
+	<!-- How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)" -->
 	<string name="tor_network_setting_summary">Automatic: %1$s (in %2$s)</string>
 	<string name="tor_mobile_data_title">Use mobile data</string>
-	<string name="tor_only_when_charging_title">Connect via Internet (Tor) only when charging</string>
+	<string name="tor_only_when_charging_title">Connect to the Internet only when charging</string>
 	<string name="tor_only_when_charging_summary">Disables Internet connection when device is running on battery</string>
 
 	<!-- Settings Security and Panic -->
@@ -571,9 +572,9 @@
 
 	<!-- Overriding Tor settings -->
 	<string name="tor_override_settings_title">Change Settings</string>
-	<string name="tor_override_settings_body">Turning on Tor will change the following settings:\n\n%1$s</string>
+	<string name="tor_override_settings_body">Turning on connections via the Internet will change the following settings:\n\n%1$s</string>
 	<string name="tor_override_mobile_data_setting">Don\'t use mobile data</string>
-	<string name="tor_override_network_setting">Don\'t connect to Internet (Tor) in %1$s</string>
+	<string name="tor_override_network_setting">Don\'t connect to the Internet in %1$s</string>
 	<string name="tor_override_settings_confirm">Change</string>
 
 	<!-- Screenshots -->

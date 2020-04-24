@@ -16,4 +16,8 @@ public abstract class NavDrawerModule {
 	abstract ViewModel bindNavDrawerViewModel(
 			NavDrawerViewModel navDrawerViewModel);
 
+	@Binds
+	@IntoMap
+	@ViewModelKey(PluginViewModel.class)
+	abstract ViewModel bindPluginViewModel(PluginViewModel pluginViewModel);
 }

@@ -29,8 +29,34 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/network_settings_title">
 
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="pref_key_bluetooth"
+			android:persistent="false"
+			android:title="@string/bluetooth_setting"
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
+
+		<SwitchPreference
+			android:defaultValue="false"
+			android:key="pref_key_wifi"
+			android:persistent="false"
+			android:title="@string/wifi_setting"
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
+
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="pref_key_tor_enable"
+			android:persistent="false"
+			android:title="@string/tor_enable_title"
+			android:summary="@string/tor_enable_summary"
+			android:widgetLayout="@layout/preference_switch_compat"
+			app:iconSpaceReserved="false"/>
+
 		<ListPreference
 			android:defaultValue="0"
+			android:dependency="pref_key_tor_enable"
 			android:entries="@array/tor_network_setting_names"
 			android:entryValues="@array/tor_network_setting_values"
 			android:key="pref_key_tor_network"
@@ -41,6 +67,7 @@
 
 		<SwitchPreference
 			android:defaultValue="true"
+			android:dependency="pref_key_tor_enable"
 			android:key="pref_key_tor_mobile_data"
 			android:persistent="false"
 			android:title="@string/tor_mobile_data_title"
@@ -49,6 +76,7 @@
 
 		<SwitchPreference
 			android:defaultValue="false"
+			android:dependency="pref_key_tor_enable"
 			android:key="pref_key_tor_only_when_charging"
 			android:persistent="false"
 			android:title="@string/tor_only_when_charging_title"

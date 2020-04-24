@@ -4,54 +4,36 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.event.Event;
-import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
-import org.briarproject.bramble.api.plugin.Plugin;
-import org.briarproject.bramble.api.plugin.Plugin.State;
-import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
-import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
-import org.briarproject.bramble.api.system.LocationUtils;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.concurrent.TimeUnit.DAYS;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
-import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_WITH_BRIDGES;
-import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.controller.BriarControllerImpl.DOZE_ASK_AGAIN;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
-import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
 @NotNullByDefault
-public class NavDrawerViewModel extends AndroidViewModel
-		implements EventListener {
+public class NavDrawerViewModel extends AndroidViewModel {
 
 	private static final Logger LOG =
 			getLogger(NavDrawerViewModel.class.getName());
@@ -63,53 +45,18 @@ public class NavDrawerViewModel extends AndroidViewModel
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 	private final SettingsManager settingsManager;
-	private final PluginManager pluginManager;
-	private final LocationUtils locationUtils;
-	private final EventBus eventBus;
 
 	private final MutableLiveData<Boolean> showExpiryWarning =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> shouldAskForDozeWhitelisting =
 			new MutableLiveData<>();
 
-	private final MutableLiveData<Plugin.State> torPluginState =
-			new MutableLiveData<>();
-	private final MutableLiveData<Plugin.State> wifiPluginState =
-			new MutableLiveData<>();
-	private final MutableLiveData<Plugin.State> btPluginState =
-			new MutableLiveData<>();
-
 	@Inject
 	NavDrawerViewModel(Application app, @DatabaseExecutor Executor dbExecutor,
-			SettingsManager settingsManager, PluginManager pluginManager,
-			LocationUtils locationUtils, EventBus eventBus) {
+			SettingsManager settingsManager) {
 		super(app);
 		this.dbExecutor = dbExecutor;
 		this.settingsManager = settingsManager;
-		this.pluginManager = pluginManager;
-		this.locationUtils = locationUtils;
-		this.eventBus = eventBus;
-		eventBus.addListener(this);
-		updatePluginStates();
-	}
-
-	@Override
-	protected void onCleared() {
-		eventBus.removeListener(this);
-	}
-
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof TransportStateEvent) {
-			TransportStateEvent t = (TransportStateEvent) e;
-			TransportId id = t.getTransportId();
-			State state = t.getState();
-			if (LOG.isLoggable(INFO)) {
-				LOG.info("TransportStateEvent: " + id + " is " + state);
-			}
-			MutableLiveData<Plugin.State> liveData = getPluginLiveData(id);
-			if (liveData != null) liveData.postValue(state);
-		}
 	}
 
 	LiveData<Boolean> showExpiryWarning() {
@@ -191,65 +138,5 @@ public class NavDrawerViewModel extends AndroidViewModel
 				shouldAskForDozeWhitelisting.postValue(true);
 			}
 		});
-	}
-
-	private void updatePluginStates() {
-		for (TransportId t : TRANSPORT_IDS) {
-			MutableLiveData<Plugin.State> liveData = getPluginLiveData(t);
-			if (liveData == null) throw new AssertionError();
-			liveData.setValue(getTransportState(t));
-		}
-	}
-
-	private State getTransportState(TransportId id) {
-		Plugin plugin = pluginManager.getPlugin(id);
-		return plugin == null ? STARTING_STOPPING : plugin.getState();
-	}
-
-	@Nullable
-	private MutableLiveData<State> getPluginLiveData(TransportId t) {
-		if (t.equals(TorConstants.ID)) {
-			return torPluginState;
-		} else if (t.equals(LanTcpConstants.ID)) {
-			return wifiPluginState;
-		} else if (t.equals(BluetoothConstants.ID)) {
-			return btPluginState;
-		} else {
-			return null;
-		}
-	}
-
-	LiveData<State> getPluginState(TransportId t) {
-		LiveData<Plugin.State> liveData = getPluginLiveData(t);
-		if (liveData == null) throw new AssertionError();
-		return liveData;
-	}
-
-	int getReasonsDisabled(TransportId id) {
-		Plugin plugin = pluginManager.getPlugin(id);
-		return plugin == null ? 0 : plugin.getReasonsDisabled();
-	}
-
-	void setPluginEnabled(TransportId t, boolean enabled) {
-		pluginManager.setPluginEnabled(t, enabled);
-	}
-
-	void setTorEnabled(boolean battery, boolean mobileData, boolean location) {
-		Settings s = new Settings();
-		s.putBoolean(PREF_PLUGIN_ENABLE, true);
-		if (battery) s.putBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
-		if (mobileData) s.putBoolean(PREF_TOR_MOBILE, true);
-		if (location) s.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_WITH_BRIDGES);
-		dbExecutor.execute(() -> {
-			try {
-				settingsManager.mergeSettings(s, TorConstants.ID.getString());
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	String getCurrentCountryName() {
-		return getCountryDisplayName(locationUtils.getCurrentCountry());
 	}
 }
