@@ -71,8 +71,8 @@ public class PluginViewModel extends ViewModel implements EventListener {
 		}
 	}
 
-	LiveData<State> getPluginState(TransportId t) {
-		LiveData<State> liveData = getPluginLiveData(t);
+	LiveData<State> getPluginState(TransportId id) {
+		LiveData<State> liveData = getPluginLiveData(id);
 		if (liveData == null) throw new IllegalArgumentException();
 		return liveData;
 	}
@@ -83,10 +83,10 @@ public class PluginViewModel extends ViewModel implements EventListener {
 	}
 
 	@Nullable
-	private MutableLiveData<State> getPluginLiveData(TransportId t) {
-		if (t.equals(TorConstants.ID)) return torPluginState;
-		else if (t.equals(LanTcpConstants.ID)) return wifiPluginState;
-		else if (t.equals(BluetoothConstants.ID)) return btPluginState;
+	private MutableLiveData<State> getPluginLiveData(TransportId id) {
+		if (id.equals(TorConstants.ID)) return torPluginState;
+		else if (id.equals(LanTcpConstants.ID)) return wifiPluginState;
+		else if (id.equals(BluetoothConstants.ID)) return btPluginState;
 		else return null;
 	}
 }

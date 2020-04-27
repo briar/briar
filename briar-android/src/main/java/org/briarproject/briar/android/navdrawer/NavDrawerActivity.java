@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.ColorRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -409,12 +410,13 @@ public class NavDrawerActivity extends BriarActivity implements
 				Transport t = getItem(position);
 
 				ImageView icon = view.findViewById(R.id.imageView);
-				icon.setImageDrawable(ContextCompat
-						.getDrawable(NavDrawerActivity.this, t.iconId));
-				icon.setColorFilter(getIconColour(t.state));
+				icon.setImageDrawable(ContextCompat.getDrawable(
+						NavDrawerActivity.this, t.iconDrawable));
+				icon.setColorFilter(ContextCompat.getColor(
+						NavDrawerActivity.this, t.iconColor));
 
 				TextView text = view.findViewById(R.id.textView);
-				text.setText(getString(t.textId));
+				text.setText(getString(t.label));
 
 				return view;
 			}
@@ -428,23 +430,19 @@ public class NavDrawerActivity extends BriarActivity implements
 				R.drawable.transport_bt, R.string.transport_bt));
 	}
 
-	private int getIconColour(State state) {
-		int colorRes;
-		if (state == ACTIVE) {
-			colorRes = R.color.briar_green_light;
-		} else if (state == ENABLING) {
-			colorRes = R.color.briar_yellow;
-		} else {
-			colorRes = android.R.color.tertiary_text_light;
-		}
-		return ContextCompat.getColor(this, colorRes);
+	@ColorRes
+	private int getIconColor(State state) {
+		if (state == ACTIVE) return R.color.briar_green_light;
+		else if (state == ENABLING) return R.color.briar_yellow;
+		else return android.R.color.tertiary_text_light;
 	}
 
-	private Transport createTransport(TransportId id, @DrawableRes int iconId,
-			@StringRes int textId) {
-		Transport transport = new Transport(iconId, textId);
+	private Transport createTransport(TransportId id,
+			@DrawableRes int iconDrawable, @StringRes int label) {
+		int iconColor = getIconColor(STARTING_STOPPING);
+		Transport transport = new Transport(iconDrawable, label, iconColor);
 		pluginViewModel.getPluginState(id).observe(this, state -> {
-			transport.state = state;
+			transport.iconColor = getIconColor(state);
 			transportsAdapter.notifyDataSetChanged();
 		});
 		return transport;
@@ -453,15 +451,18 @@ public class NavDrawerActivity extends BriarActivity implements
 	private static class Transport {
 
 		@DrawableRes
-		private final int iconId;
+		private final int iconDrawable;
 		@StringRes
-		private final int textId;
+		private final int label;
 
-		private State state = STARTING_STOPPING;
+		@ColorRes
+		private int iconColor;
 
-		private Transport(@DrawableRes int iconId, @StringRes int textId) {
-			this.iconId = iconId;
-			this.textId = textId;
+		private Transport(@DrawableRes int iconDrawable, @StringRes int label,
+				@ColorRes int iconColor) {
+			this.iconDrawable = iconDrawable;
+			this.label = label;
+			this.iconColor = iconColor;
 		}
 	}
 }
