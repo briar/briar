@@ -32,7 +32,6 @@ import org.junit.jupiter.api.Test
 internal class MessagingControllerImplTest : ControllerTest() {
 
     private val messagingManager = mockk<MessagingManager>()
-    private val conversationManager = mockk<ConversationManager>()
     private val privateMessageFactory = mockk<PrivateMessageFactory>()
     private val dbExecutor = ImmediateExecutor()
 
