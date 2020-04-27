@@ -5,10 +5,6 @@ import android.app.Application;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.BluetoothConstants;
-import org.briarproject.bramble.api.plugin.LanTcpConstants;
-import org.briarproject.bramble.api.plugin.TorConstants;
-import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 
@@ -39,8 +35,6 @@ public class NavDrawerViewModel extends AndroidViewModel {
 			getLogger(NavDrawerViewModel.class.getName());
 
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
-	static final TransportId[] TRANSPORT_IDS =
-			{TorConstants.ID, LanTcpConstants.ID, BluetoothConstants.ID};
 
 	@DatabaseExecutor
 	private final Executor dbExecutor;
