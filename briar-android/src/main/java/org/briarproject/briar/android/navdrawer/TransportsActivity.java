@@ -47,6 +47,9 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -253,10 +256,24 @@ public class TransportsActivity extends BriarActivity {
 
 	@StringRes
 	private int getTorPluginStatus(State state) {
-		if (state == ENABLING) return R.string.tor_plugin_status_enabling;
-		else if (state == ACTIVE) return R.string.tor_plugin_status_active;
-		else if (state == DISABLED) return R.string.tor_plugin_status_disabled;
-		else return R.string.tor_plugin_status_inactive;
+		if (state == ENABLING) {
+			return R.string.tor_plugin_status_enabling;
+		} else if (state == ACTIVE) {
+			return R.string.tor_plugin_status_active;
+		} else if (state == DISABLED) {
+			int reasons = viewModel.getReasonsTorDisabled();
+			if ((reasons & REASON_MOBILE_DATA) != 0) {
+				return R.string.tor_plugin_status_disabled_mobile_data;
+			} else if ((reasons & REASON_BATTERY) != 0) {
+				return R.string.tor_plugin_status_disabled_battery;
+			} else if ((reasons & REASON_COUNTRY_BLOCKED) != 0) {
+				return R.string.tor_plugin_status_disabled_country_blocked;
+			} else {
+				return R.string.tor_plugin_status_disabled;
+			}
+		} else {
+			return R.string.tor_plugin_status_inactive;
+		}
 	}
 
 	@StringRes

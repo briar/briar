@@ -162,6 +162,11 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 		return bluetoothTurnedOn;
 	}
 
+	int getReasonsTorDisabled() {
+		Plugin plugin = pluginManager.getPlugin(TorConstants.ID);
+		return plugin == null ? 0 : plugin.getReasonsDisabled();
+	}
+
 	void enableTransport(TransportId id, boolean enable) {
 		Settings s = new Settings();
 		s.putBoolean(PREF_PLUGIN_ENABLE, enable);

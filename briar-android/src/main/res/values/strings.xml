@@ -79,6 +79,9 @@
 	<string name="tor_plugin_status_active">Briar is connected to the Internet</string>
 	<string name="tor_plugin_status_inactive">Briar can\'t connect to the Internet</string>
 	<string name="tor_plugin_status_disabled">Briar is configured not to use the Internet</string>
+	<string name="tor_plugin_status_disabled_mobile_data">Briar is configured not to use mobile data</string>
+	<string name="tor_plugin_status_disabled_battery">Briar is configured not to use the Internet when running on battery</string>
+	<string name="tor_plugin_status_disabled_country_blocked">Briar is configured not to use the Internet in this country</string>
 
 	<!-- Transports: Wi-Fi -->
 	<string name="transport_lan">Wi-Fi</string>
