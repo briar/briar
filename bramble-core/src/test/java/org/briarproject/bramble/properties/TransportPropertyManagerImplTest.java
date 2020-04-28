@@ -24,12 +24,12 @@ import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
@@ -405,25 +405,25 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		List<Contact> contacts = asList(contact1, contact2);
 		Group contactGroup1 = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Group contactGroup2 = getGroup(CLIENT_ID, MAJOR_VERSION);
-		Map<MessageId, BdfDictionary> messageMetadata2 =
+		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
 		// A remote update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
-		messageMetadata2.put(barUpdateId, BdfDictionary.of(
+		messageMetadata.put(barUpdateId, BdfDictionary.of(
 				new BdfEntry("transportId", "bar"),
 				new BdfEntry("version", 1),
 				new BdfEntry("local", false)
 		));
 		// A local update for the right transport should be ignored
 		MessageId localUpdateId = new MessageId(getRandomId());
-		messageMetadata2.put(localUpdateId, BdfDictionary.of(
+		messageMetadata.put(localUpdateId, BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
 				new BdfEntry("version", 1),
 				new BdfEntry("local", true)
 		));
 		// A remote update for the right transport should be returned
 		MessageId fooUpdateId = new MessageId(getRandomId());
-		messageMetadata2.put(fooUpdateId, BdfDictionary.of(
+		messageMetadata.put(fooUpdateId, BdfDictionary.of(
 				new BdfEntry("transportId", "foo"),
 				new BdfEntry("version", 1),
 				new BdfEntry("local", false)
@@ -440,19 +440,25 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contactGroup1));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup1.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup1.getId());
+			will(returnValue(new BdfDictionary()));
 			// Second contact: returns an update
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact2);
 			will(returnValue(contactGroup2));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup2.getId());
-			will(returnValue(messageMetadata2));
+			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getMessageAsList(txn, fooUpdateId);
 			will(returnValue(fooUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
 			will(returnValue(fooProperties));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup2.getId());
+			will(returnValue(new BdfDictionary()));
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -461,6 +467,61 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		assertEquals(2, properties.size());
 		assertEquals(0, properties.get(contact1.getId()).size());
 		assertEquals(fooProperties, properties.get(contact2.getId()));
+	}
+
+	@Test
+	public void testReceivePropertiesOverrideDiscoveredProperties()
+			throws Exception {
+		Transaction txn = new Transaction(null, true);
+		Contact contact = getContact();
+		List<Contact> contacts = singletonList(contact);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+		MessageId updateId = new MessageId(getRandomId());
+		Map<MessageId, BdfDictionary> messageMetadata = singletonMap(updateId,
+				BdfDictionary.of(
+						new BdfEntry("transportId", "foo"),
+						new BdfEntry("version", 1),
+						new BdfEntry("local", false)
+				));
+		BdfList update = BdfList.of("foo", 1, fooPropertiesDict);
+		TransportProperties discovered = new TransportProperties();
+		discovered.put("fooKey1", "overridden");
+		discovered.put("fooKey3", "fooValue3");
+		BdfDictionary discoveredDict = new BdfDictionary(discovered);
+		BdfDictionary groupMeta =
+				BdfDictionary.of(new BdfEntry("discovered", discoveredDict));
+		TransportProperties merged = new TransportProperties();
+		merged.putAll(fooProperties);
+		merged.put("fooKey3", "fooValue3");
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(db).getContacts(txn);
+			will(returnValue(contacts));
+			// One update
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, updateId);
+			will(returnValue(update));
+			oneOf(clientHelper).parseAndValidateTransportProperties(
+					fooPropertiesDict);
+			will(returnValue(fooProperties));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(groupMeta));
+			oneOf(clientHelper).parseAndValidateTransportProperties(
+					discoveredDict);
+			will(returnValue(discovered));
+		}});
+
+		TransportPropertyManagerImpl t = createInstance();
+		Map<ContactId, TransportProperties> properties =
+				t.getRemoteProperties(new TransportId("foo"));
+		assertEquals(merged, properties.get(contact.getId()));
 	}
 
 	@Test
@@ -505,7 +566,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// There are no existing properties to merge with
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			// Store the new properties in the local group, version 1
 			expectStoreMessage(txn, localGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, false);
@@ -517,7 +578,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			expectStoreMessage(txn, contactGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, true);
 		}});

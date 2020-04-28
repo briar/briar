@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
+import org.briarproject.bramble.api.properties.TransportProperties;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @NotNullByDefault
 public abstract class AbstractDuplexTransportConnection
 		implements DuplexTransportConnection {
+
+	protected final TransportProperties remote = new TransportProperties();
 
 	private final Plugin plugin;
 	private final Reader reader;
@@ -42,6 +45,11 @@ public abstract class AbstractDuplexTransportConnection
 	@Override
 	public TransportConnectionWriter getWriter() {
 		return writer;
+	}
+
+	@Override
+	public TransportProperties getRemoteProperties() {
+		return remote;
 	}
 
 	private class Reader implements TransportConnectionReader {

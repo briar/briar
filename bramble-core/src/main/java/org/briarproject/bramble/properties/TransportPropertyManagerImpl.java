@@ -141,6 +141,27 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 	}
 
 	@Override
+	public void addRemotePropertiesFromConnection(ContactId c, TransportId t,
+			TransportProperties props) throws DbException {
+		if (props.isEmpty()) return;
+		try {
+			db.transaction(false, txn -> {
+				Group g = getContactGroup(db.getContact(txn, c));
+				BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(
+						txn, g.getId());
+				BdfDictionary discovered =
+						meta.getOptionalDictionary("discovered");
+				if (discovered == null) discovered = new BdfDictionary();
+				discovered.putAll(props);
+				meta.put("discovered", discovered);
+				clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
+			});
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public Map<TransportId, TransportProperties> getLocalProperties()
 			throws DbException {
 		return db.transactionWithResult(true, this::getLocalProperties);
@@ -203,12 +224,26 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		Group g = getContactGroup(c);
 		try {
 			// Find the latest remote update
+			TransportProperties remote;
 			LatestUpdate latest = findLatest(txn, g.getId(), t, false);
-			if (latest == null) return new TransportProperties();
-			// Retrieve and parse the latest remote properties
-			BdfList message =
-					clientHelper.getMessageAsList(txn, latest.messageId);
-			return parseProperties(message);
+			if (latest == null) {
+				remote = new TransportProperties();
+			} else {
+				// Retrieve and parse the latest remote properties
+				BdfList message =
+						clientHelper.getMessageAsList(txn, latest.messageId);
+				remote = parseProperties(message);
+			}
+			// Merge in any discovered properties
+			BdfDictionary meta =
+					clientHelper.getGroupMetadataAsDictionary(txn, g.getId());
+			BdfDictionary d = meta.getOptionalDictionary("discovered");
+			if (d == null) return remote;
+			TransportProperties merged =
+					clientHelper.parseAndValidateTransportProperties(d);
+			// Received properties override discovered properties
+			merged.putAll(remote);
+			return merged;
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

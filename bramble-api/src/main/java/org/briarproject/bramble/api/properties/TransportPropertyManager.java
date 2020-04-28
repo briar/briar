@@ -35,6 +35,14 @@ public interface TransportPropertyManager {
 			Map<TransportId, TransportProperties> props) throws DbException;
 
 	/**
+	 * Stores the given properties discovered from an incoming transport
+	 * connection. They will be overridden by any properties received while
+	 * adding the contact or synced from the contact.
+	 */
+	void addRemotePropertiesFromConnection(ContactId c, TransportId t,
+			TransportProperties props) throws DbException;
+
+	/**
 	 * Returns the local transport properties for all transports.
 	 */
 	Map<TransportId, TransportProperties> getLocalProperties()

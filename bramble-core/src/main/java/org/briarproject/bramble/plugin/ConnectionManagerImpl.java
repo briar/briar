@@ -15,6 +15,8 @@ import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
@@ -52,6 +54,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private final HandshakeManager handshakeManager;
 	private final ContactExchangeManager contactExchangeManager;
 	private final ConnectionRegistry connectionRegistry;
+	private final TransportPropertyManager transportPropertyManager;
 
 	@Inject
 	ConnectionManagerImpl(@IoExecutor Executor ioExecutor,
@@ -60,7 +63,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			SyncSessionFactory syncSessionFactory,
 			HandshakeManager handshakeManager,
 			ContactExchangeManager contactExchangeManager,
-			ConnectionRegistry connectionRegistry) {
+			ConnectionRegistry connectionRegistry,
+			TransportPropertyManager transportPropertyManager) {
 		this.ioExecutor = ioExecutor;
 		this.keyManager = keyManager;
 		this.streamReaderFactory = streamReaderFactory;
@@ -69,6 +73,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		this.handshakeManager = handshakeManager;
 		this.contactExchangeManager = contactExchangeManager;
 		this.connectionRegistry = connectionRegistry;
+		this.transportPropertyManager = transportPropertyManager;
 	}
 
 	@Override
@@ -269,6 +274,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private final TransportId transportId;
 		private final TransportConnectionReader reader;
 		private final TransportConnectionWriter writer;
+		private final TransportProperties remote;
 
 		@Nullable
 		private volatile SyncSession outgoingSession = null;
@@ -278,6 +284,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			this.transportId = transportId;
 			reader = connection.getReader();
 			writer = connection.getWriter();
+			remote = connection.getRemoteProperties();
 		}
 
 		@Override
@@ -313,13 +320,16 @@ class ConnectionManagerImpl implements ConnectionManager {
 			// Start the outgoing session on another thread
 			ioExecutor.execute(() -> runOutgoingSession(contactId));
 			try {
+				// Store any transport properties discovered from the connection
+				transportPropertyManager.addRemotePropertiesFromConnection(
+						contactId, transportId, remote);
 				// Create and run the incoming session
 				createIncomingSession(ctx, reader).run();
 				reader.dispose(false, true);
 				// Interrupt the outgoing session so it finishes cleanly
 				SyncSession out = outgoingSession;
 				if (out != null) out.interrupt();
-			} catch (IOException e) {
+			} catch (DbException | IOException e) {
 				logException(LOG, WARNING, e);
 				onReadError(true);
 			} finally {

@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.plugin.duplex;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
+import org.briarproject.bramble.api.properties.TransportProperties;
 
 /**
  * An interface for reading and writing data over a duplex transport. The
@@ -23,4 +24,10 @@ public interface DuplexTransportConnection {
 	 * for writing to the connection.
 	 */
 	TransportConnectionWriter getWriter();
+
+	/**
+	 * Returns a possibly empty set of {@link TransportProperties} describing
+	 * the remote peer.
+	 */
+	TransportProperties getRemoteProperties();
 }

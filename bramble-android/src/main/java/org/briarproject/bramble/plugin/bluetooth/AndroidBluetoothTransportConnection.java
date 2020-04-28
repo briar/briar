@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
+
 @NotNullByDefault
 class AndroidBluetoothTransportConnection
 		extends AbstractDuplexTransportConnection {
@@ -23,6 +25,7 @@ class AndroidBluetoothTransportConnection
 		super(plugin);
 		this.connectionManager = connectionManager;
 		this.socket = socket;
+		remote.put(PROP_ADDRESS, socket.getRemoteDevice().getAddress());
 	}
 
 	@Override
