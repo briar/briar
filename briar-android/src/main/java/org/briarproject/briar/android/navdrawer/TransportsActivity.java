@@ -41,6 +41,8 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
@@ -155,8 +157,9 @@ public class TransportsActivity extends BriarActivity {
 				TextView deviceStatus = view.findViewById(R.id.deviceStatus);
 				deviceStatus.setText(getBulletString(t.deviceStatus));
 
-				TextView appStatus = view.findViewById(R.id.appStatus);
-				appStatus.setText(getBulletString(t.pluginStatus));
+				TextView pluginStatus = view.findViewById(R.id.appStatus);
+				pluginStatus.setText(getBulletString(t.pluginStatus));
+				pluginStatus.setVisibility(t.showPluginStatus ? VISIBLE : GONE);
 
 				return view;
 			}
@@ -181,13 +184,13 @@ public class TransportsActivity extends BriarActivity {
 		transports.add(bt);
 
 		viewModel.getNetworkStatus().observe(this, status -> {
-			tor.deviceStatus = getTorDeviceStatus(status);
-			wifi.deviceStatus = getWifiDeviceStatus(status);
+			updateTorResources(tor, status);
+			updateWifiResources(wifi, status);
 			transportsAdapter.notifyDataSetChanged();
 		});
 
 		viewModel.getBluetoothTurnedOn().observe(this, on -> {
-			bt.deviceStatus = getBtDeviceStatus(on);
+			updateBtResources(bt, on);
 			transportsAdapter.notifyDataSetChanged();
 		});
 	}
@@ -203,23 +206,38 @@ public class TransportsActivity extends BriarActivity {
 		else return android.R.color.tertiary_text_light;
 	}
 
-	@StringRes
-	private int getTorDeviceStatus(NetworkStatus status) {
-		if (!status.isConnected()) return R.string.tor_device_status_offline;
-		if (status.isWifi()) return R.string.tor_device_status_online_wifi;
-		else return R.string.tor_device_status_online_mobile_data;
+	private void updateTorResources(Transport tor, NetworkStatus status) {
+		if (status.isConnected()) {
+			if (status.isWifi()) {
+				tor.deviceStatus = R.string.tor_device_status_online_wifi;
+			} else {
+				tor.deviceStatus = R.string.tor_device_status_online_mobile;
+			}
+			tor.showPluginStatus = true;
+		} else {
+			tor.deviceStatus = R.string.tor_device_status_offline;
+			tor.showPluginStatus = false;
+		}
 	}
 
-	@StringRes
-	private int getWifiDeviceStatus(NetworkStatus status) {
-		if (status.isWifi()) return R.string.lan_device_status_on;
-		else return R.string.lan_device_status_off;
+	private void updateWifiResources(Transport wifi, NetworkStatus status) {
+		if (status.isWifi()) {
+			wifi.deviceStatus = R.string.lan_device_status_on;
+			wifi.showPluginStatus = true;
+		} else {
+			wifi.deviceStatus = R.string.lan_device_status_off;
+			wifi.showPluginStatus = false;
+		}
 	}
 
-	@StringRes
-	private int getBtDeviceStatus(boolean on) {
-		if (on) return R.string.bt_device_status_on;
-		else return R.string.bt_device_status_off;
+	private void updateBtResources(Transport bt, boolean on) {
+		if (on) {
+			bt.deviceStatus = R.string.bt_device_status_on;
+			bt.showPluginStatus = true;
+		} else {
+			bt.deviceStatus = R.string.bt_device_status_off;
+			bt.showPluginStatus = false;
+		}
 	}
 
 	@StringRes
@@ -263,7 +281,7 @@ public class TransportsActivity extends BriarActivity {
 			@StringRes int pluginStatus) {
 		int iconColor = getIconColor(STARTING_STOPPING);
 		Transport transport = new Transport(id, iconDrawable, iconColor, title,
-				switchLabel, false, deviceStatus, pluginStatus);
+				switchLabel, false, deviceStatus, pluginStatus, false);
 		viewModel.getPluginState(id).observe(this, state -> {
 			transport.iconColor = getIconColor(state);
 			transport.pluginStatus = getPluginStatus(transport.id, state);
@@ -289,12 +307,13 @@ public class TransportsActivity extends BriarActivity {
 		private int iconColor;
 		@StringRes
 		private int deviceStatus, pluginStatus;
-		private boolean isSwitchChecked;
+		private boolean isSwitchChecked, showPluginStatus;
 
 		private Transport(TransportId id, @DrawableRes int iconDrawable,
 				@ColorRes int iconColor, @StringRes int title,
 				@StringRes int switchLabel, boolean isSwitchChecked,
-				@StringRes int deviceStatus, @StringRes int pluginStatus) {
+				@StringRes int deviceStatus, @StringRes int pluginStatus,
+				boolean showPluginStatus) {
 			this.id = id;
 			this.iconDrawable = iconDrawable;
 			this.iconColor = iconColor;
@@ -303,6 +322,7 @@ public class TransportsActivity extends BriarActivity {
 			this.isSwitchChecked = isSwitchChecked;
 			this.deviceStatus = deviceStatus;
 			this.pluginStatus = pluginStatus;
+			this.showPluginStatus = showPluginStatus;
 		}
 	}
 }

@@ -73,7 +73,7 @@
 	<string name="transport_tor">Internet</string>
 	<string name="tor_status">Internet status:</string>
 	<string name="tor_device_status_online_wifi">Your phone has Internet access via Wi-Fi</string>
-	<string name="tor_device_status_online_mobile_data">Your phone has Internet access via mobile data</string>
+	<string name="tor_device_status_online_mobile">Your phone has Internet access via mobile data</string>
 	<string name="tor_device_status_offline">Your phone does not have Internet access</string>
 	<string name="tor_plugin_status_enabling">Briar is connecting to the Internet</string>
 	<string name="tor_plugin_status_active">Briar is connected to the Internet</string>
