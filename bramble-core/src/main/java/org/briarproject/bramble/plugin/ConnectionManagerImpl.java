@@ -385,6 +385,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		private final TransportId transportId;
 		private final TransportConnectionReader reader;
 		private final TransportConnectionWriter writer;
+		private final TransportProperties remote;
 
 		@Nullable
 		private volatile SyncSession outgoingSession = null;
@@ -395,6 +396,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			this.transportId = transportId;
 			reader = connection.getReader();
 			writer = connection.getWriter();
+			remote = connection.getRemoteProperties();
 		}
 
 		@Override
@@ -471,13 +473,16 @@ class ConnectionManagerImpl implements ConnectionManager {
 			connectionRegistry.registerConnection(contactId, transportId,
 					false);
 			try {
+				// Store any transport properties discovered from the connection
+				transportPropertyManager.addRemotePropertiesFromConnection(
+						contactId, transportId, remote);
 				// Create and run the incoming session
 				createIncomingSession(ctx, reader).run();
 				reader.dispose(false, true);
 				// Interrupt the outgoing session so it finishes cleanly
 				SyncSession out = outgoingSession;
 				if (out != null) out.interrupt();
-			} catch (IOException e) {
+			} catch (DbException | IOException e) {
 				logException(LOG, WARNING, e);
 				onReadError();
 			} finally {
