@@ -1,7 +1,10 @@
 package org.briarproject.briar.android.navdrawer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +24,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.settings.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,8 +89,18 @@ public class TransportsActivity extends BriarActivity {
 		if (item.getItemId() == android.R.id.home) {
 			onBackPressed();
 			return true;
+		} else if (item.getItemId() == R.id.action_open_settings) {
+			startActivity(new Intent(this, SettingsActivity.class));
+			return true;
 		}
 		return false;
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getMenuInflater();
+		inflater.inflate(R.menu.transports_actions, menu);
+		return super.onCreateOptionsMenu(menu);
 	}
 
 	private void initializeCards() {
