@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
+import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
@@ -109,7 +110,9 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof SettingsUpdatedEvent) {
+		if (e instanceof NetworkStatusEvent) {
+			networkStatus.setValue(((NetworkStatusEvent) e).getStatus());
+		} else if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(TorConstants.ID.getString())) {
 				boolean enable =
