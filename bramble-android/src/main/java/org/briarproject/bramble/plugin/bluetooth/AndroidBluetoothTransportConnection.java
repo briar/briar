@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
+import static org.briarproject.bramble.util.AndroidUtils.isValidBluetoothAddress;
 
 @NotNullByDefault
 class AndroidBluetoothTransportConnection
@@ -25,7 +26,8 @@ class AndroidBluetoothTransportConnection
 		super(plugin);
 		this.connectionManager = connectionManager;
 		this.socket = socket;
-		remote.put(PROP_ADDRESS, socket.getRemoteDevice().getAddress());
+		String address = socket.getRemoteDevice().getAddress();
+		if (isValidBluetoothAddress(address)) remote.put(PROP_ADDRESS, address);
 	}
 
 	@Override

@@ -71,7 +71,7 @@ public class AndroidUtils {
 		return new Pair<>("", "");
 	}
 
-	private static boolean isValidBluetoothAddress(@Nullable String address) {
+	public static boolean isValidBluetoothAddress(@Nullable String address) {
 		return !StringUtils.isNullOrEmpty(address)
 				&& BluetoothAdapter.checkBluetoothAddress(address)
 				&& !address.equals(FAKE_BLUETOOTH_ADDRESS);
