@@ -37,6 +37,11 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_DISCOVERED;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_LOCAL;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_TRANSPORT_ID;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_VERSION;
+
 @Immutable
 @NotNullByDefault
 class TransportPropertyManagerImpl implements TransportPropertyManager,
@@ -111,10 +116,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		try {
 			// Find the latest update for this transport, if any
 			BdfDictionary d = metadataParser.parse(meta);
-			TransportId t = new TransportId(d.getString("transportId"));
+			TransportId t = new TransportId(d.getString(MSG_KEY_TRANSPORT_ID));
 			LatestUpdate latest = findLatest(txn, m.getGroupId(), t, false);
 			if (latest != null) {
-				if (d.getLong("version") > latest.version) {
+				if (d.getLong(MSG_KEY_VERSION) > latest.version) {
 					// This update is newer - delete the previous update
 					db.deleteMessage(txn, latest.messageId);
 					db.deleteMessageMetadata(txn, latest.messageId);
@@ -150,10 +155,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(
 						txn, g.getId());
 				BdfDictionary discovered =
-						meta.getOptionalDictionary("discovered");
+						meta.getOptionalDictionary(GROUP_KEY_DISCOVERED);
 				if (discovered == null) discovered = new BdfDictionary();
 				discovered.putAll(props);
-				meta.put("discovered", discovered);
+				meta.put(GROUP_KEY_DISCOVERED, discovered);
 				clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
 			});
 		} catch (FormatException e) {
@@ -237,7 +242,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			// Merge in any discovered properties
 			BdfDictionary meta =
 					clientHelper.getGroupMetadataAsDictionary(txn, g.getId());
-			BdfDictionary d = meta.getOptionalDictionary("discovered");
+			BdfDictionary d = meta.getOptionalDictionary(GROUP_KEY_DISCOVERED);
 			if (d == null) return remote;
 			TransportProperties merged =
 					clientHelper.parseAndValidateTransportProperties(d);
@@ -316,9 +321,9 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			long now = clock.currentTimeMillis();
 			Message m = clientHelper.createMessage(g, now, body);
 			BdfDictionary meta = new BdfDictionary();
-			meta.put("transportId", t.getString());
-			meta.put("version", version);
-			meta.put("local", local);
+			meta.put(MSG_KEY_TRANSPORT_ID, t.getString());
+			meta.put(MSG_KEY_VERSION, version);
+			meta.put(MSG_KEY_LOCAL, local);
 			clientHelper.addLocalMessage(txn, m, meta, shared, false);
 		} catch (FormatException e) {
 			throw new RuntimeException(e);
@@ -337,8 +342,9 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				.getMessageMetadataAsDictionary(txn, localGroup.getId());
 		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {
 			BdfDictionary meta = e.getValue();
-			TransportId t = new TransportId(meta.getString("transportId"));
-			long version = meta.getLong("version");
+			TransportId t =
+					new TransportId(meta.getString(MSG_KEY_TRANSPORT_ID));
+			long version = meta.getLong(MSG_KEY_VERSION);
 			latestUpdates.put(t, new LatestUpdate(e.getKey(), version));
 		}
 		return latestUpdates;
@@ -351,9 +357,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				clientHelper.getMessageMetadataAsDictionary(txn, g);
 		for (Entry<MessageId, BdfDictionary> e : metadata.entrySet()) {
 			BdfDictionary meta = e.getValue();
-			if (meta.getString("transportId").equals(t.getString())
-					&& meta.getBoolean("local") == local) {
-				return new LatestUpdate(e.getKey(), meta.getLong("version"));
+			if (meta.getString(MSG_KEY_TRANSPORT_ID).equals(t.getString())
+					&& meta.getBoolean(MSG_KEY_LOCAL) == local) {
+				return new LatestUpdate(e.getKey(),
+						meta.getLong(MSG_KEY_VERSION));
 			}
 		}
 		return null;
