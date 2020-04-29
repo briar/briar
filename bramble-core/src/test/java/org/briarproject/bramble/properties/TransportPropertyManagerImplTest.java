@@ -24,14 +24,18 @@ import org.briarproject.bramble.test.DbExpectations;
 import org.jmock.Expectations;
 import org.junit.Test;
 
-import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_DISCOVERED;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_LOCAL;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_TRANSPORT_ID;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_VERSION;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.CLIENT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyManager.MAJOR_VERSION;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
@@ -186,25 +190,25 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Message message = getMessage(contactGroupId);
 		Metadata meta = new Metadata();
 		BdfDictionary metaDictionary = BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 2),
-				new BdfEntry("local", false)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 2),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		);
 		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
 		// A remote update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(barUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "bar"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", false)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "bar"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		));
 		// A local update for the same transport should be ignored
 		MessageId localUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(localUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", true)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		));
 
 		context.checking(new Expectations() {{
@@ -228,18 +232,18 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Metadata meta = new Metadata();
 		// Version 4 is being delivered
 		BdfDictionary metaDictionary = BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 4),
-				new BdfEntry("local", false)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 4),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		);
 		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
 		// An older remote update for the same transport should be deleted
 		MessageId fooVersion3 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion3, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 3),
-				new BdfEntry("local", false)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 3),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		));
 
 		context.checking(new Expectations() {{
@@ -265,18 +269,18 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Metadata meta = new Metadata();
 		// Version 3 is being delivered
 		BdfDictionary metaDictionary = BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 3),
-				new BdfEntry("local", false)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 3),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		);
 		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
 		// A newer remote update for the same transport should not be deleted
 		MessageId fooVersion4 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion4, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 4),
-				new BdfEntry("local", false)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 4),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		));
 
 		context.checking(new Expectations() {{
@@ -342,9 +346,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		// A local update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(barUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "bar"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", true)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "bar"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		));
 
 		context.checking(new DbExpectations() {{
@@ -366,16 +370,16 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		// A local update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(barUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "bar"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", true)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "bar"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		));
 		// A local update for the right transport should be returned
 		MessageId fooUpdateId = new MessageId(getRandomId());
 		messageMetadata.put(fooUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", true)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		));
 		BdfList fooUpdate = BdfList.of("foo", 1, fooPropertiesDict);
 
@@ -405,28 +409,28 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		List<Contact> contacts = asList(contact1, contact2);
 		Group contactGroup1 = getGroup(CLIENT_ID, MAJOR_VERSION);
 		Group contactGroup2 = getGroup(CLIENT_ID, MAJOR_VERSION);
-		Map<MessageId, BdfDictionary> messageMetadata2 =
+		Map<MessageId, BdfDictionary> messageMetadata =
 				new LinkedHashMap<>();
 		// A remote update for another transport should be ignored
 		MessageId barUpdateId = new MessageId(getRandomId());
-		messageMetadata2.put(barUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "bar"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", false)
+		messageMetadata.put(barUpdateId, BdfDictionary.of(
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "bar"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		));
 		// A local update for the right transport should be ignored
 		MessageId localUpdateId = new MessageId(getRandomId());
-		messageMetadata2.put(localUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", true)
+		messageMetadata.put(localUpdateId, BdfDictionary.of(
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		));
 		// A remote update for the right transport should be returned
 		MessageId fooUpdateId = new MessageId(getRandomId());
-		messageMetadata2.put(fooUpdateId, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", false)
+		messageMetadata.put(fooUpdateId, BdfDictionary.of(
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, false)
 		));
 		BdfList fooUpdate = BdfList.of("foo", 1, fooPropertiesDict);
 
@@ -440,19 +444,25 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contactGroup1));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup1.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup1.getId());
+			will(returnValue(new BdfDictionary()));
 			// Second contact: returns an update
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, contact2);
 			will(returnValue(contactGroup2));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup2.getId());
-			will(returnValue(messageMetadata2));
+			will(returnValue(messageMetadata));
 			oneOf(clientHelper).getMessageAsList(txn, fooUpdateId);
 			will(returnValue(fooUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
 			will(returnValue(fooProperties));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup2.getId());
+			will(returnValue(new BdfDictionary()));
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -464,15 +474,71 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
+	public void testReceivePropertiesOverrideDiscoveredProperties()
+			throws Exception {
+		Transaction txn = new Transaction(null, true);
+		Contact contact = getContact();
+		List<Contact> contacts = singletonList(contact);
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+		MessageId updateId = new MessageId(getRandomId());
+		Map<MessageId, BdfDictionary> messageMetadata = singletonMap(updateId,
+				BdfDictionary.of(
+						new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+						new BdfEntry(MSG_KEY_VERSION, 1),
+						new BdfEntry(MSG_KEY_LOCAL, false)
+				));
+		BdfList update = BdfList.of("foo", 1, fooPropertiesDict);
+		TransportProperties discovered = new TransportProperties();
+		discovered.put("fooKey1", "overridden");
+		discovered.put("fooKey3", "fooValue3");
+		BdfDictionary discoveredDict = new BdfDictionary(discovered);
+		BdfDictionary groupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_DISCOVERED, discoveredDict)
+		);
+		TransportProperties merged = new TransportProperties();
+		merged.putAll(fooProperties);
+		merged.put("fooKey3", "fooValue3");
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
+			oneOf(db).getContacts(txn);
+			will(returnValue(contacts));
+			// One update
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(messageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, updateId);
+			will(returnValue(update));
+			oneOf(clientHelper).parseAndValidateTransportProperties(
+					fooPropertiesDict);
+			will(returnValue(fooProperties));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(groupMeta));
+			oneOf(clientHelper).parseAndValidateTransportProperties(
+					discoveredDict);
+			will(returnValue(discovered));
+		}});
+
+		TransportPropertyManagerImpl t = createInstance();
+		Map<ContactId, TransportProperties> properties =
+				t.getRemoteProperties(new TransportId("foo"));
+		assertEquals(merged, properties.get(contact.getId()));
+	}
+
+	@Test
 	public void testMergingUnchangedPropertiesDoesNotCreateUpdate()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
 		MessageId updateId = new MessageId(getRandomId());
 		Map<MessageId, BdfDictionary> messageMetadata = singletonMap(updateId,
 				BdfDictionary.of(
-						new BdfEntry("transportId", "foo"),
-						new BdfEntry("version", 1),
-						new BdfEntry("local", true)
+						new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+						new BdfEntry(MSG_KEY_VERSION, 1),
+						new BdfEntry(MSG_KEY_LOCAL, true)
 				));
 		BdfList update = BdfList.of("foo", 1, fooPropertiesDict);
 
@@ -505,7 +571,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// There are no existing properties to merge with
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			// Store the new properties in the local group, version 1
 			expectStoreMessage(txn, localGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, false);
@@ -517,7 +583,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(contactGroup));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
-			will(returnValue(Collections.emptyMap()));
+			will(returnValue(emptyMap()));
 			expectStoreMessage(txn, contactGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, true);
 		}});
@@ -532,9 +598,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Contact contact = getContact();
 		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 		BdfDictionary oldMetadata = BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 1),
-				new BdfEntry("local", true)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
 		);
 		MessageId localGroupUpdateId = new MessageId(getRandomId());
 		Map<MessageId, BdfDictionary> localGroupMessageMetadata =
@@ -589,14 +655,14 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		// The latest update for transport "foo" should be returned
 		MessageId fooVersion999 = new MessageId(getRandomId());
 		messageMetadata.put(fooVersion999, BdfDictionary.of(
-				new BdfEntry("transportId", "foo"),
-				new BdfEntry("version", 999)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 999)
 		));
 		// The latest update for transport "bar" should be returned
 		MessageId barVersion3 = new MessageId(getRandomId());
 		messageMetadata.put(barVersion3, BdfDictionary.of(
-				new BdfEntry("transportId", "bar"),
-				new BdfEntry("version", 3)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "bar"),
+				new BdfEntry(MSG_KEY_VERSION, 3)
 		));
 		BdfList fooUpdate = BdfList.of("foo", 999, fooPropertiesDict);
 		BdfList barUpdate = BdfList.of("bar", 3, barPropertiesDict);
@@ -627,9 +693,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Message message = getMessage(g);
 		long timestamp = message.getTimestamp();
 		BdfDictionary meta = BdfDictionary.of(
-				new BdfEntry("transportId", transportId),
-				new BdfEntry("version", version),
-				new BdfEntry("local", local)
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, transportId),
+				new BdfEntry(MSG_KEY_VERSION, version),
+				new BdfEntry(MSG_KEY_LOCAL, local)
 		);
 
 		context.checking(new Expectations() {{
