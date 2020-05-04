@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.briar.R;
@@ -104,7 +105,7 @@ abstract class SharingStatusActivity extends BriarActivity
 				supportFinishAfterTransition();
 			}
 		}
-		// TODO ContactConnectedEvent and ContactDisconnectedEvent
+		// TODO ConnectionStatusChangedEvent
 	}
 
 	@Override
@@ -134,8 +135,9 @@ abstract class SharingStatusActivity extends BriarActivity
 			try {
 				List<ContactItem> contactItems = new ArrayList<>();
 				for (Contact c : getSharedWith()) {
-					boolean online = connectionRegistry.isConnected(c.getId());
-					ContactItem item = new ContactItem(c, online);
+					ConnectionStatus status =
+							connectionRegistry.getConnectionStatus(c.getId());
+					ContactItem item = new ContactItem(c, status);
 					contactItems.add(item);
 				}
 				displaySharedWith(contactItems);

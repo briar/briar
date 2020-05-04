@@ -7,18 +7,20 @@ import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
-import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
-import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.plugin.event.ConnectionStatusChangedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
 
 import java.util.Collection;
+import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
@@ -30,6 +32,9 @@ import static org.junit.Assert.fail;
 public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 	private final EventBus eventBus = context.mock(EventBus.class);
+	private final Clock clock = context.mock(Clock.class);
+	private final ScheduledExecutorService scheduler =
+			context.mock(ScheduledExecutorService.class);
 
 	private final ContactId contactId = getContactId();
 	private final ContactId contactId1 = getContactId();
@@ -40,17 +45,25 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRegisterAndUnregister() {
-		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
+		context.checking(new Expectations() {{
+			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
+					with(10_000L), with(10_000L), with(MILLISECONDS));
+		}});
+
+		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus, clock,
+				scheduler);
+		context.assertIsSatisfied();
 
 		// The registry should be empty
 		assertEquals(emptyList(), c.getConnectedContacts(transportId));
 		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
 
 		// Check that a registered connection shows up - this should
-		// broadcast a ConnectionOpenedEvent and a ContactConnectedEvent
+		// broadcast a ConnectionOpenedEvent and a ConnectionStatusChangedEvent
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
-			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(
+					ConnectionStatusChangedEvent.class)));
 		}});
 		c.registerConnection(contactId, transportId, true);
 		assertEquals(singletonList(contactId),
@@ -81,11 +94,13 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.assertIsSatisfied();
 
 		// Unregister the other connection - this should broadcast a
-		// ConnectionClosedEvent and a ContactDisconnectedEvent
+		// ConnectionClosedEvent and a ConnectionStatusChangedEvent
 		context.checking(new Expectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(System.currentTimeMillis()));
 			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(
-					ContactDisconnectedEvent.class)));
+					ConnectionStatusChangedEvent.class)));
 		}});
 		c.unregisterConnection(contactId, transportId, true);
 		assertEquals(emptyList(), c.getConnectedContacts(transportId));
@@ -102,12 +117,12 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 		// Register both contacts with one transport, one contact with both -
 		// this should broadcast three ConnectionOpenedEvents and two
-		// ContactConnectedEvents
+		// ConnectionStatusChangedEvents
 		context.checking(new Expectations() {{
 			exactly(3).of(eventBus).broadcast(with(any(
 					ConnectionOpenedEvent.class)));
 			exactly(2).of(eventBus).broadcast(with(any(
-					ContactConnectedEvent.class)));
+					ConnectionStatusChangedEvent.class)));
 		}});
 		c.registerConnection(contactId, transportId, true);
 		c.registerConnection(contactId1, transportId, true);
@@ -122,7 +137,14 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRegisterAndUnregisterPendingContacts() {
-		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
+		context.checking(new Expectations() {{
+			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
+					with(10_000L), with(10_000L), with(MILLISECONDS));
+		}});
+
+		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus, clock,
+				scheduler);
+		context.assertIsSatisfied();
 
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(

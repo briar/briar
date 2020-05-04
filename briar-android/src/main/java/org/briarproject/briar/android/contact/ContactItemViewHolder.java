@@ -7,6 +7,7 @@ import android.widget.TextView;
 
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
 
@@ -16,6 +17,8 @@ import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView;
 import im.delight.android.identicons.IdenticonDrawable;
 
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.CONNECTED;
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.RECENTLY_CONNECTED;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
@@ -27,7 +30,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 	protected final ImageView avatar;
 	protected final TextView name;
 	@Nullable
-	protected final ImageView bulb;
+	private final ImageView bulb;
 
 	public ContactItemViewHolder(View v) {
 		super(v);
@@ -47,10 +50,13 @@ public class ContactItemViewHolder<I extends ContactItem>
 
 		if (bulb != null) {
 			// online/offline
-			if (item.isConnected()) {
-				bulb.setImageResource(R.drawable.contact_connected);
+			ConnectionStatus status = item.getConnectionStatus();
+			if (status == CONNECTED) {
+				bulb.setImageResource(R.drawable.ic_connected);
+			} else if (status == RECENTLY_CONNECTED) {
+				bulb.setImageResource(R.drawable.ic_recently_connected);
 			} else {
-				bulb.setImageResource(R.drawable.contact_disconnected);
+				bulb.setImageResource(R.drawable.ic_disconnected);
 			}
 		}
 

@@ -6,8 +6,7 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
-import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
-import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.plugin.event.ConnectionStatusChangedEvent;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -17,6 +16,8 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
+
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.CONNECTED;
 
 @NotNullByDefault
 public class SharingControllerImpl implements SharingController, EventListener {
@@ -60,15 +61,14 @@ public class SharingControllerImpl implements SharingController, EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof ContactConnectedEvent) {
-			setConnected(((ContactConnectedEvent) e).getContactId());
-		} else if (e instanceof ContactDisconnectedEvent) {
-			setConnected(((ContactDisconnectedEvent) e).getContactId());
+		if (e instanceof ConnectionStatusChangedEvent) {
+			ConnectionStatusChangedEvent c = (ConnectionStatusChangedEvent) e;
+			setConnectionStatus(c.getContactId());
 		}
 	}
 
 	@UiThread
-	private void setConnected(ContactId c) {
+	private void setConnectionStatus(ContactId c) {
 		if (listener == null) throw new IllegalStateException();
 		if (contacts.contains(c)) {
 			int online = getOnlineCount();
@@ -95,7 +95,9 @@ public class SharingControllerImpl implements SharingController, EventListener {
 	public int getOnlineCount() {
 		int online = 0;
 		for (ContactId c : contacts) {
-			if (connectionRegistry.isConnected(c)) online++;
+			if (connectionRegistry.getConnectionStatus(c) == CONNECTED) {
+				online++;
+			}
 		}
 		return online;
 	}

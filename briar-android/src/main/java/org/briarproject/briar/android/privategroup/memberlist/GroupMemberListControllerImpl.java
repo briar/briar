@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
@@ -19,6 +20,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.DISCONNECTED;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 class GroupMemberListControllerImpl extends DbControllerImpl
@@ -50,10 +52,11 @@ class GroupMemberListControllerImpl extends DbControllerImpl
 						privateGroupManager.getMembers(groupId);
 				for (GroupMember m : members) {
 					ContactId c = m.getContactId();
-					boolean online = false;
-					if (c != null)
-						online = connectionRegistry.isConnected(c);
-					items.add(new MemberListItem(m, online));
+					ConnectionStatus status = DISCONNECTED;
+					if (c != null) {
+						status = connectionRegistry.getConnectionStatus(c);
+					}
+					items.add(new MemberListItem(m, status));
 				}
 				handler.onResult(items);
 			} catch (DbException e) {

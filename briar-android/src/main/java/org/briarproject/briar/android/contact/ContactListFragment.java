@@ -25,8 +25,8 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
-import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
-import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
+import org.briarproject.bramble.api.plugin.event.ConnectionStatusChangedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
@@ -53,7 +53,6 @@ import javax.inject.Inject;
 import androidx.annotation.UiThread;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.core.util.Pair;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial;
 import io.github.kobakei.materialfabspeeddial.FabSpeedDial.OnMenuItemClickListener;
@@ -137,26 +136,15 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 					ContactId contactId = item.getContact().getId();
 					i.putExtra(CONTACT_ID, contactId.getInt());
 
+					Bundle options = null;
+					// work-around for android bug #224270
 					if (SDK_INT >= 23 && !isSamsung7()) {
-						ContactListItemViewHolder holder =
-								(ContactListItemViewHolder) list
-										.getRecyclerView()
-										.findViewHolderForAdapterPosition(
-												adapter.findItemPosition(item));
-						Pair<View, String> avatar =
-								Pair.create(holder.avatar,
-										getTransitionName(holder.avatar));
-						Pair<View, String> bulb =
-								Pair.create(holder.bulb,
-										getTransitionName(holder.bulb));
-						ActivityOptionsCompat options =
-								makeSceneTransitionAnimation(getActivity(),
-										avatar, bulb);
-						ActivityCompat.startActivity(getActivity(), i,
-								options.toBundle());
-					} else {
-						// work-around for android bug #224270
+						options = makeTransitionOptions(view);
+					}
+					if (options == null) {
 						startActivity(i);
+					} else {
+						ActivityCompat.startActivity(getActivity(), i, options);
 					}
 				};
 		adapter = new ContactListAdapter(requireContext(),
@@ -169,6 +157,15 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		list.setEmptyAction(getString(R.string.no_contacts_action));
 
 		return contentView;
+	}
+
+	@Nullable
+	private Bundle makeTransitionOptions(View view) {
+		View avatar = view.findViewById(R.id.avatarView);
+		String name = requireNonNull(getTransitionName(avatar));
+		ActivityOptionsCompat options = makeSceneTransitionAnimation(
+				requireActivity(), view, name);
+		return options.toBundle();
 	}
 
 	@Override
@@ -232,9 +229,9 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 						ContactId id = c.getId();
 						GroupCount count =
 								conversationManager.getGroupCount(id);
-						boolean connected =
-								connectionRegistry.isConnected(c.getId());
-						contacts.add(new ContactListItem(c, connected, count));
+						ConnectionStatus status = connectionRegistry
+								.getConnectionStatus(c.getId());
+						contacts.add(new ContactListItem(c, status, count));
 					} catch (NoSuchContactException e) {
 						// Continue
 					}
@@ -265,10 +262,9 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 		if (e instanceof ContactAddedEvent) {
 			LOG.info("Contact added, reloading");
 			loadContacts();
-		} else if (e instanceof ContactConnectedEvent) {
-			setConnected(((ContactConnectedEvent) e).getContactId(), true);
-		} else if (e instanceof ContactDisconnectedEvent) {
-			setConnected(((ContactDisconnectedEvent) e).getContactId(), false);
+		} else if (e instanceof ConnectionStatusChangedEvent) {
+			ConnectionStatusChangedEvent c = (ConnectionStatusChangedEvent) e;
+			setConnectionStatus(c.getContactId(), c.getConnectionStatus());
 		} else if (e instanceof ContactRemovedEvent) {
 			LOG.info("Contact removed, removing item");
 			removeItem(((ContactRemovedEvent) e).getContactId());
@@ -304,12 +300,12 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	}
 
 	@UiThread
-	private void setConnected(ContactId c, boolean connected) {
+	private void setConnectionStatus(ContactId c, ConnectionStatus status) {
 		adapter.incrementRevision();
 		int position = adapter.findItemPosition(c);
 		ContactListItem item = adapter.getItemAt(position);
 		if (item != null) {
-			item.setConnected(connected);
+			item.setConnectionStatus(status);
 			adapter.updateItemAt(position, item);
 		}
 	}

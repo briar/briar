@@ -2,35 +2,38 @@ package org.briarproject.briar.android.contact;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 
 import javax.annotation.concurrent.NotThreadSafe;
+
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.DISCONNECTED;
 
 @NotThreadSafe
 @NotNullByDefault
 public class ContactItem {
 
 	private final Contact contact;
-	private boolean connected;
+	private ConnectionStatus status;
 
 	public ContactItem(Contact contact) {
-		this(contact, false);
+		this(contact, DISCONNECTED);
 	}
 
-	public ContactItem(Contact contact, boolean connected) {
+	public ContactItem(Contact contact, ConnectionStatus status) {
 		this.contact = contact;
-		this.connected = connected;
+		this.status = status;
 	}
 
 	public Contact getContact() {
 		return contact;
 	}
 
-	boolean isConnected() {
-		return connected;
+	ConnectionStatus getConnectionStatus() {
+		return status;
 	}
 
-	void setConnected(boolean connected) {
-		this.connected = connected;
+	void setConnectionStatus(ConnectionStatus status) {
+		this.status = status;
 	}
 
 }

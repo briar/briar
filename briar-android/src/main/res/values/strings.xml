@@ -110,6 +110,7 @@
 	<string name="decline">Decline</string>
 	<string name="options">Options</string>
 	<string name="online">Online</string>
+	<string name="recently_online">Recently online</string>
 	<string name="offline">Offline</string>
 	<string name="send">Send</string>
 	<string name="allow">Allow</string>

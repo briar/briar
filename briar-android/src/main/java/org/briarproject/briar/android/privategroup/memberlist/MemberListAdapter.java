@@ -45,7 +45,7 @@ class MemberListAdapter extends
 
 	@Override
 	public boolean areContentsTheSame(MemberListItem m1, MemberListItem m2) {
-		if (m1.isOnline() != m2.isOnline()) return false;
+		if (m1.getConnectionStatus() != m2.getConnectionStatus()) return false;
 		if (m1.getContactId() != m2.getContactId()) return false;
 		if (m1.getStatus() != m2.getStatus()) return false;
 		return true;

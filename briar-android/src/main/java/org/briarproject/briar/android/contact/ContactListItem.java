@@ -2,6 +2,7 @@ package org.briarproject.briar.android.contact;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 
@@ -15,9 +16,9 @@ public class ContactListItem extends ContactItem {
 	private long timestamp;
 	private int unread;
 
-	public ContactListItem(Contact contact, boolean connected,
+	public ContactListItem(Contact contact, ConnectionStatus status,
 			GroupCount count) {
-		super(contact, connected);
+		super(contact, status);
 		this.empty = count.getMsgCount() == 0;
 		this.unread = count.getUnreadCount();
 		this.timestamp = count.getLatestMsgTime();

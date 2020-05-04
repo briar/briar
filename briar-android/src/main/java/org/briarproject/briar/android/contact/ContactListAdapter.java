@@ -39,7 +39,7 @@ public class ContactListAdapter extends
 		if (c1.getTimestamp() != c2.getTimestamp()) {
 			return false;
 		}
-		return c1.isConnected() == c2.isConnected();
+		return c1.getConnectionStatus() == c2.getConnectionStatus();
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.AuthorView;
 
@@ -14,6 +15,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.CONNECTED;
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.RECENTLY_CONNECTED;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 
 @UiThread
@@ -38,10 +41,13 @@ class MemberListItemHolder extends RecyclerView.ViewHolder {
 		// online status of visible contacts
 		if (item.getContactId() != null) {
 			bulb.setVisibility(VISIBLE);
-			if (item.isOnline()) {
-				bulb.setImageResource(R.drawable.contact_connected);
+			ConnectionStatus status = item.getConnectionStatus();
+			if (status == CONNECTED) {
+				bulb.setImageResource(R.drawable.ic_connected);
+			} else if (status == RECENTLY_CONNECTED) {
+				bulb.setImageResource(R.drawable.ic_recently_connected);
 			} else {
-				bulb.setImageResource(R.drawable.contact_disconnected);
+				bulb.setImageResource(R.drawable.ic_disconnected);
 			}
 		} else {
 			bulb.setVisibility(GONE);

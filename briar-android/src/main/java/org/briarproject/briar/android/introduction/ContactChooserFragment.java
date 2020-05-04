@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
@@ -73,7 +74,8 @@ public class ContactChooserFragment extends BaseFragment {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container,
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
 		View contentView = inflater.inflate(R.layout.list, container, false);
@@ -127,9 +129,9 @@ public class ContactChooserFragment extends BaseFragment {
 						ContactId id = c.getId();
 						GroupCount count =
 								conversationManager.getGroupCount(id);
-						boolean connected =
-								connectionRegistry.isConnected(c.getId());
-						contacts.add(new ContactListItem(c, connected, count));
+						ConnectionStatus status = connectionRegistry
+								.getConnectionStatus(c.getId());
+						contacts.add(new ContactListItem(c, status, count));
 					}
 				}
 				displayContacts(contacts);

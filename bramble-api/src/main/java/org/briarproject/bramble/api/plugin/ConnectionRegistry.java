@@ -5,8 +5,7 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
-import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
-import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.plugin.event.ConnectionStatusChangedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
 
@@ -21,15 +20,15 @@ public interface ConnectionRegistry {
 	/**
 	 * Registers a connection with the given contact over the given transport.
 	 * Broadcasts {@link ConnectionOpenedEvent}. Also broadcasts
-	 * {@link ContactConnectedEvent} if this is the only connection with the
-	 * contact.
+	 * {@link ConnectionStatusChangedEvent} if this is the only connection with
+	 * the contact.
 	 */
 	void registerConnection(ContactId c, TransportId t, boolean incoming);
 
 	/**
 	 * Unregisters a connection with the given contact over the given transport.
 	 * Broadcasts {@link ConnectionClosedEvent}. Also broadcasts
-	 * {@link ContactDisconnectedEvent} if this is the only connection with
+	 * {@link ConnectionStatusChangedEvent} if this is the only connection with
 	 * the contact.
 	 */
 	void unregisterConnection(ContactId c, TransportId t, boolean incoming);
@@ -45,9 +44,9 @@ public interface ConnectionRegistry {
 	boolean isConnected(ContactId c, TransportId t);
 
 	/**
-	 * Returns true if the given contact is connected via any transport.
+	 * Returns the connection status of the given contact via all transports.
 	 */
-	boolean isConnected(ContactId c);
+	ConnectionStatus getConnectionStatus(ContactId c);
 
 	/**
 	 * Registers a connection with the given pending contact. Broadcasts

@@ -99,7 +99,7 @@ public class GroupMemberListActivity extends BriarActivity
 				supportFinishAfterTransition();
 			}
 		}
-		// TODO ContactConnectedEvent and ContactDisconnectedEvent
+		// TODO ConnectionStatusChangedEvent
 	}
 
 	@Override

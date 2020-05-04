@@ -18,27 +18,50 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content">
 
-			<LinearLayout
-				android:layout_width="wrap_content"
-				android:layout_height="match_parent"
-				android:orientation="horizontal">
+			<RelativeLayout
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content">
 
-				<include layout="@layout/contact_avatar_status" />
+				<de.hdodenhof.circleimageview.CircleImageView
+					android:id="@+id/contactAvatar"
+					style="@style/BriarAvatar"
+					android:layout_width="40dp"
+					android:layout_height="40dp"
+					android:layout_alignParentStart="true"
+					android:layout_alignParentLeft="true"
+					android:layout_margin="4dp"
+					app:civ_border_color="@color/action_bar_text"
+					tools:src="@mipmap/ic_launcher_round" />
 
 				<com.vanniktech.emoji.EmojiTextView
 					android:id="@+id/contactName"
 					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title.Inverse"
 					android:layout_width="wrap_content"
-					android:layout_height="match_parent"
+					android:layout_height="wrap_content"
+					android:layout_alignParentTop="true"
 					android:layout_marginStart="@dimen/margin_medium"
 					android:layout_marginLeft="@dimen/margin_medium"
+					android:layout_toEndOf="@id/contactAvatar"
+					android:layout_toRightOf="@id/contactAvatar"
 					android:ellipsize="end"
-					android:gravity="center_vertical"
 					android:maxLines="1"
 					android:textColor="@color/action_bar_text"
 					tools:text="Contact Name of someone who chose a long name" />
 
-			</LinearLayout>
+				<TextView
+					android:id="@+id/contactStatus"
+					style="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle.Inverse"
+					android:layout_width="wrap_content"
+					android:layout_height="wrap_content"
+					android:layout_below="@id/contactName"
+					android:layout_marginStart="8dp"
+					android:layout_marginLeft="8dp"
+					android:layout_toEndOf="@id/contactAvatar"
+					android:layout_toRightOf="@id/contactAvatar"
+					android:textColor="@color/briar_text_secondary_inverse"
+					tools:text="Recently online" />
+
+			</RelativeLayout>
 
 		</androidx.appcompat.widget.Toolbar>
 

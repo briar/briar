@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.AuthorInfo.Status;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
 import org.briarproject.briar.api.privategroup.GroupMember;
 
 import javax.annotation.Nullable;
@@ -15,11 +16,11 @@ import javax.annotation.concurrent.NotThreadSafe;
 class MemberListItem {
 
 	private final GroupMember groupMember;
-	private boolean online;
+	private ConnectionStatus status;
 
-	MemberListItem(GroupMember groupMember, boolean online) {
+	MemberListItem(GroupMember groupMember, ConnectionStatus status) {
 		this.groupMember = groupMember;
-		this.online = online;
+		this.status = status;
 	}
 
 	Author getMember() {
@@ -43,12 +44,12 @@ class MemberListItem {
 		return groupMember.getContactId();
 	}
 
-	boolean isOnline() {
-		return online;
+	ConnectionStatus getConnectionStatus() {
+		return status;
 	}
 
-	void setOnline(boolean online) {
-		this.online = online;
+	void setConnectionStatus(ConnectionStatus status) {
+		this.status = status;
 	}
 
 }

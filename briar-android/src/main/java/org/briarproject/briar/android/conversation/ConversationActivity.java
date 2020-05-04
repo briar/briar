@@ -13,7 +13,6 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,8 +33,8 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
-import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
-import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.plugin.ConnectionStatus;
+import org.briarproject.bramble.api.plugin.event.ConnectionStatusChangedEvent;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent;
@@ -125,6 +124,8 @@ import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.CONNECTED;
+import static org.briarproject.bramble.api.plugin.ConnectionStatus.RECENTLY_CONNECTED;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -138,7 +139,6 @@ import static org.briarproject.briar.android.conversation.ImageActivity.ATTACHME
 import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
 import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
-import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
@@ -198,8 +198,8 @@ public class ConversationActivity extends BriarActivity
 	private ConversationAdapter adapter;
 	private Toolbar toolbar;
 	private CircleImageView toolbarAvatar;
-	private ImageView toolbarStatus;
 	private TextView toolbarTitle;
+	private TextView toolbarStatus;
 	private BriarRecyclerView list;
 	private LinearLayoutManager layoutManager;
 	private TextInputView textInputView;
@@ -237,8 +237,8 @@ public class ConversationActivity extends BriarActivity
 		// Custom Toolbar
 		toolbar = requireNonNull(setUpCustomToolbar(true));
 		toolbarAvatar = toolbar.findViewById(R.id.contactAvatar);
-		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
 		toolbarTitle = toolbar.findViewById(R.id.contactName);
+		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
 
 		observeOnce(viewModel.getContactAuthorId(), this, authorId -> {
 			requireNonNull(authorId);
@@ -257,7 +257,6 @@ public class ConversationActivity extends BriarActivity
 				this::onAddedPrivateMessage);
 
 		setTransitionName(toolbarAvatar, getAvatarTransitionName(contactId));
-		setTransitionName(toolbarStatus, getBulbTransitionName(contactId));
 
 		visitor = new ConversationVisitor(this, this, this,
 				viewModel.getContactDisplayName());
@@ -499,14 +498,14 @@ public class ConversationActivity extends BriarActivity
 
 	@UiThread
 	private void displayContactOnlineStatus() {
-		if (connectionRegistry.isConnected(contactId)) {
-			toolbarStatus.setImageDrawable(ContextCompat.getDrawable(
-					ConversationActivity.this, R.drawable.contact_online));
-			toolbarStatus.setContentDescription(getString(R.string.online));
+		ConnectionStatus status =
+				connectionRegistry.getConnectionStatus(contactId);
+		if (status == CONNECTED) {
+			toolbarStatus.setText(R.string.online);
+		} else if (status == RECENTLY_CONNECTED) {
+			toolbarStatus.setText(R.string.recently_online);
 		} else {
-			toolbarStatus.setImageDrawable(ContextCompat.getDrawable(
-					ConversationActivity.this, R.drawable.contact_offline));
-			toolbarStatus.setContentDescription(getString(R.string.offline));
+			toolbarStatus.setText(R.string.offline);
 		}
 	}
 
@@ -729,16 +728,10 @@ public class ConversationActivity extends BriarActivity
 				LOG.info("Messages acked");
 				markMessages(m.getMessageIds(), true, true);
 			}
-		} else if (e instanceof ContactConnectedEvent) {
-			ContactConnectedEvent c = (ContactConnectedEvent) e;
+		} else if (e instanceof ConnectionStatusChangedEvent) {
+			ConnectionStatusChangedEvent c = (ConnectionStatusChangedEvent) e;
 			if (c.getContactId().equals(contactId)) {
-				LOG.info("Contact connected");
-				displayContactOnlineStatus();
-			}
-		} else if (e instanceof ContactDisconnectedEvent) {
-			ContactDisconnectedEvent c = (ContactDisconnectedEvent) e;
-			if (c.getContactId().equals(contactId)) {
-				LOG.info("Contact disconnected");
+				LOG.info("Connection status changed");
 				displayContactOnlineStatus();
 			}
 		} else if (e instanceof ClientVersionUpdatedEvent) {

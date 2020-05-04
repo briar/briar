@@ -238,10 +238,6 @@ public class UiUtils {
 		return "avatar" + c.getInt();
 	}
 
-	public static String getBulbTransitionName(ContactId c) {
-		return "bulb" + c.getInt();
-	}
-
 	public static OnClickListener getGoToSettingsListener(Context context) {
 		return (dialog, which) -> {
 			Intent i = new Intent();

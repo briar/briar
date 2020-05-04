@@ -24,7 +24,7 @@
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintTop_toTopOf="parent"
 		tools:ignore="ContentDescription"
-		tools:src="@drawable/contact_connected" />
+		tools:src="@drawable/ic_connected" />
 
 	<TextView
 		android:id="@+id/creatorView"

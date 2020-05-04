@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
-import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.Locale;
 
@@ -15,8 +14,11 @@ import javax.annotation.Nullable;
 
 import androidx.annotation.UiThread;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 import static androidx.core.view.ViewCompat.setTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
+import static org.briarproject.briar.android.util.UiUtils.getAvatarTransitionName;
 
 @UiThread
 @NotNullByDefault
@@ -39,10 +41,11 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 		// unread count
 		int unreadCount = item.getUnreadCount();
 		if (unreadCount > 0) {
-			unread.setText(String.format(Locale.getDefault(), "%d", unreadCount));
-			unread.setVisibility(View.VISIBLE);
+			unread.setText(String.format(Locale.getDefault(), "%d",
+					unreadCount));
+			unread.setVisibility(VISIBLE);
 		} else {
-			unread.setVisibility(View.INVISIBLE);
+			unread.setVisibility(INVISIBLE);
 		}
 
 		// date of last message
@@ -54,8 +57,7 @@ class ContactListItemViewHolder extends ContactItemViewHolder<ContactListItem> {
 		}
 
 		ContactId c = item.getContact().getId();
-		setTransitionName(avatar, UiUtils.getAvatarTransitionName(c));
-		setTransitionName(bulb, UiUtils.getBulbTransitionName(c));
+		setTransitionName(avatar, getAvatarTransitionName(c));
 	}
 
 }
