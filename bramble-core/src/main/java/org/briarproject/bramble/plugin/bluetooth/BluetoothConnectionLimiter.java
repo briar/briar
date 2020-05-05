@@ -23,17 +23,9 @@ interface BluetoothConnectionLimiter {
 	boolean canOpenContactConnection();
 
 	/**
-	 * Informs the limiter that a contact connection has been opened. The
-	 * limiter may close the new connection if key agreement is in progress.
-	 * <p/>
-	 * Returns false if the limiter has closed the new connection.
+	 * Informs the limiter that the given connection has been opened.
 	 */
-	boolean contactConnectionOpened(DuplexTransportConnection conn);
-
-	/**
-	 * Informs the limiter that a key agreement connection has been opened.
-	 */
-	void keyAgreementConnectionOpened(DuplexTransportConnection conn);
+	void connectionOpened(DuplexTransportConnection conn);
 
 	/**
 	 * Informs the limiter that the given connection has been closed.

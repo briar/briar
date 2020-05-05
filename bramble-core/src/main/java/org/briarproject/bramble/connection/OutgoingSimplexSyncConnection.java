@@ -72,7 +72,7 @@ class OutgoingSimplexSyncConnection extends SyncConnection implements Runnable {
 				w.getOutputStream(), ctx);
 		ContactId c = requireNonNull(ctx.getContactId());
 		return syncSessionFactory.createSimplexOutgoingSession(c,
-				w.getMaxLatency(), streamWriter);
+				ctx.getTransportId(), w.getMaxLatency(), streamWriter);
 	}
 }
 

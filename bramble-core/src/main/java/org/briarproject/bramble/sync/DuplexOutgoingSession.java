@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.Offer;
@@ -19,6 +20,7 @@ import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.Versions;
+import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.sync.event.GroupVisibilityUpdatedEvent;
 import org.briarproject.bramble.api.sync.event.MessageRequestedEvent;
 import org.briarproject.bramble.api.sync.event.MessageSharedEvent;
@@ -73,6 +75,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final Clock clock;
 	private final ContactId contactId;
+	private final TransportId transportId;
 	private final int maxLatency, maxIdleTime;
 	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
@@ -90,14 +93,16 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private volatile boolean interrupted = false;
 
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
-			EventBus eventBus, Clock clock, ContactId contactId, int maxLatency,
-			int maxIdleTime, StreamWriter streamWriter,
-			SyncRecordWriter recordWriter, @Nullable Priority priority) {
+			EventBus eventBus, Clock clock, ContactId contactId,
+			TransportId transportId, int maxLatency, int maxIdleTime,
+			StreamWriter streamWriter, SyncRecordWriter recordWriter,
+			@Nullable Priority priority) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.clock = clock;
 		this.contactId = contactId;
+		this.transportId = transportId;
 		this.maxLatency = maxLatency;
 		this.maxIdleTime = maxIdleTime;
 		this.streamWriter = streamWriter;
@@ -230,6 +235,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof LifecycleEvent) {
 			LifecycleEvent l = (LifecycleEvent) e;
 			if (l.getLifecycleState() == STOPPING) interrupt();
+		} else if (e instanceof CloseSyncConnectionsEvent) {
+			CloseSyncConnectionsEvent c = (CloseSyncConnectionsEvent) e;
+			if (c.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 

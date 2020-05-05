@@ -1,46 +1,48 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logException;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 
 @NotNullByDefault
 @ThreadSafe
 class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 
 	private static final Logger LOG =
-			Logger.getLogger(BluetoothConnectionLimiterImpl.class.getName());
+			getLogger(BluetoothConnectionLimiterImpl.class.getName());
+
+	private final EventBus eventBus;
 
 	private final Object lock = new Object();
-	// The following are locking: lock
-	private final LinkedList<DuplexTransportConnection> connections =
+	@GuardedBy("lock")
+	private final List<DuplexTransportConnection> connections =
 			new LinkedList<>();
+	@GuardedBy("lock")
 	private boolean keyAgreementInProgress = false;
+
+	BluetoothConnectionLimiterImpl(EventBus eventBus) {
+		this.eventBus = eventBus;
+	}
 
 	@Override
 	public void keyAgreementStarted() {
-		List<DuplexTransportConnection> close;
 		synchronized (lock) {
 			keyAgreementInProgress = true;
-			close = new ArrayList<>(connections);
-			connections.clear();
 		}
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Key agreement started, closing " + close.size() +
-					" connections");
-		}
-		for (DuplexTransportConnection conn : close) tryToClose(conn);
+		LOG.info("Key agreement started");
+		eventBus.broadcast(new CloseSyncConnectionsEvent(ID));
 	}
 
 	@Override
@@ -65,35 +67,12 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@Override
-	public boolean contactConnectionOpened(DuplexTransportConnection conn) {
-		boolean accept = true;
+	public void connectionOpened(DuplexTransportConnection conn) {
 		synchronized (lock) {
-			if (keyAgreementInProgress) {
-				LOG.info("Refusing contact connection during key agreement");
-				accept = false;
-			} else {
-				LOG.info("Accepting contact connection");
-				connections.add(conn);
-			}
-		}
-		if (!accept) tryToClose(conn);
-		return accept;
-	}
-
-	@Override
-	public void keyAgreementConnectionOpened(DuplexTransportConnection conn) {
-		synchronized (lock) {
-			LOG.info("Accepting key agreement connection");
 			connections.add(conn);
-		}
-	}
-
-	private void tryToClose(DuplexTransportConnection conn) {
-		try {
-			conn.getWriter().dispose(false);
-			conn.getReader().dispose(false, false);
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Connection opened, " + connections.size() + " open");
+			}
 		}
 	}
 
@@ -101,8 +80,9 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	public void connectionClosed(DuplexTransportConnection conn) {
 		synchronized (lock) {
 			connections.remove(conn);
-			if (LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO)) {
 				LOG.info("Connection closed, " + connections.size() + " open");
+			}
 		}
 	}
 
