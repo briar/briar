@@ -2,15 +2,18 @@ package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.system.Clock;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+import javax.inject.Inject;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -24,21 +27,28 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	private static final Logger LOG =
 			getLogger(BluetoothConnectionLimiterImpl.class.getName());
 
+	private final Clock clock;
+
 	private final Object lock = new Object();
 	@GuardedBy("lock")
-	private final LinkedList<DuplexTransportConnection> connections =
-			new LinkedList<>();
+	private final List<ConnectionRecord> connections = new LinkedList<>();
 	@GuardedBy("lock")
 	private boolean keyAgreementInProgress = false;
 	@GuardedBy("lock")
 	private int connectionLimit = 1;
+
+	@Inject
+	BluetoothConnectionLimiterImpl(Clock clock) {
+		this.clock = clock;
+	}
 
 	@Override
 	public void keyAgreementStarted() {
 		List<DuplexTransportConnection> close;
 		synchronized (lock) {
 			keyAgreementInProgress = true;
-			close = new ArrayList<>(connections);
+			close = new ArrayList<>(connections.size());
+			for (ConnectionRecord rec : connections) close.add(rec.connection);
 			connections.clear();
 		}
 		if (LOG.isLoggable(INFO)) {
@@ -62,7 +72,9 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			if (keyAgreementInProgress) {
 				LOG.info("Can't open contact connection during key agreement");
 				return false;
-			} else if (connections.size() >= connectionLimit) {
+			}
+			considerRaisingConnectionLimit(clock.currentTimeMillis());
+			if (connections.size() >= connectionLimit) {
 				LOG.info("Can't open contact connection due to limit");
 				return false;
 			} else {
@@ -79,12 +91,16 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			if (keyAgreementInProgress) {
 				LOG.info("Refusing contact connection during key agreement");
 				accept = false;
-			} else if (connections.size() > connectionLimit) {
-				LOG.info("Refusing contact connection due to limit");
-				accept = false;
 			} else {
-				LOG.info("Accepting contact connection");
-				connections.add(conn);
+				long now = clock.currentTimeMillis();
+				considerRaisingConnectionLimit(now);
+				if (connections.size() > connectionLimit) {
+					LOG.info("Refusing contact connection due to limit");
+					accept = false;
+				} else {
+					LOG.info("Accepting contact connection");
+					connections.add(new ConnectionRecord(conn, now));
+				}
 			}
 		}
 		if (!accept) tryToClose(conn);
@@ -95,7 +111,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	public void keyAgreementConnectionOpened(DuplexTransportConnection conn) {
 		synchronized (lock) {
 			LOG.info("Accepting key agreement connection");
-			connections.add(conn);
+			connections.add(
+					new ConnectionRecord(conn, clock.currentTimeMillis()));
 		}
 	}
 
@@ -111,7 +128,13 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	@Override
 	public void connectionClosed(DuplexTransportConnection conn) {
 		synchronized (lock) {
-			connections.remove(conn);
+			Iterator<ConnectionRecord> it = connections.iterator();
+			while (it.hasNext()) {
+				if (it.next().connection == conn) {
+					it.remove();
+					break;
+				}
+			}
 			if (LOG.isLoggable(INFO))
 				LOG.info("Connection closed, " + connections.size() + " open");
 		}
@@ -122,6 +145,34 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		synchronized (lock) {
 			connections.clear();
 			LOG.info("All connections closed");
+		}
+	}
+
+	@GuardedBy("lock")
+	private void considerRaisingConnectionLimit(long now) {
+		int stable = 0;
+		for (ConnectionRecord rec : connections) {
+			if (now - rec.timeOpened >= STABILITY_PERIOD_MS) stable++;
+		}
+		if (stable >= connectionLimit) {
+			LOG.info("Raising connection limit");
+			connectionLimit++;
+		}
+		if (LOG.isLoggable(INFO)) {
+			LOG.info(stable + " connections are stable, limit is "
+					+ connectionLimit);
+		}
+	}
+
+	private static final class ConnectionRecord {
+
+		private final DuplexTransportConnection connection;
+		private final long timeOpened;
+
+		private ConnectionRecord(DuplexTransportConnection connection,
+				long timeOpened) {
+			this.connection = connection;
+			this.timeOpened = timeOpened;
 		}
 	}
 }
