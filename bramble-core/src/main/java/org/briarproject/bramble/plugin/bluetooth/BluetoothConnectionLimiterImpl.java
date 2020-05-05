@@ -9,10 +9,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -20,13 +22,16 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 
 	private static final Logger LOG =
-			Logger.getLogger(BluetoothConnectionLimiterImpl.class.getName());
+			getLogger(BluetoothConnectionLimiterImpl.class.getName());
 
 	private final Object lock = new Object();
-	// The following are locking: lock
+	@GuardedBy("lock")
 	private final LinkedList<DuplexTransportConnection> connections =
 			new LinkedList<>();
+	@GuardedBy("lock")
 	private boolean keyAgreementInProgress = false;
+	@GuardedBy("lock")
+	private int connectionLimit = 1;
 
 	@Override
 	public void keyAgreementStarted() {
@@ -57,6 +62,9 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			if (keyAgreementInProgress) {
 				LOG.info("Can't open contact connection during key agreement");
 				return false;
+			} else if (connections.size() >= connectionLimit) {
+				LOG.info("Can't open contact connection due to limit");
+				return false;
 			} else {
 				LOG.info("Can open contact connection");
 				return true;
@@ -70,6 +78,9 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		synchronized (lock) {
 			if (keyAgreementInProgress) {
 				LOG.info("Refusing contact connection during key agreement");
+				accept = false;
+			} else if (connections.size() > connectionLimit) {
+				LOG.info("Refusing contact connection due to limit");
 				accept = false;
 			} else {
 				LOG.info("Accepting contact connection");
