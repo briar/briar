@@ -39,6 +39,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	private boolean keyAgreementInProgress = false;
 	@GuardedBy("lock")
 	private int connectionLimit = 1;
+	@GuardedBy("lock")
+	private long timeOfLastAttempt = 0;
 
 	@Inject
 	BluetoothConnectionLimiterImpl(EventBus eventBus, Clock clock) {
@@ -67,36 +69,31 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	public boolean canOpenContactConnection() {
 		synchronized (lock) {
 			if (keyAgreementInProgress) {
-				LOG.info("Can't open contact connection during key agreement");
-				return false;
-			}
-			considerRaisingConnectionLimit(clock.currentTimeMillis());
-			if (connections.size() >= connectionLimit) {
-				LOG.info("Can't open contact connection due to limit");
+				LOG.info("Refusing contact connection during key agreement");
 				return false;
 			} else {
-				LOG.info("Can open contact connection");
-				return true;
+				long now = clock.currentTimeMillis();
+				return isContactConnectionAllowedByLimit(now);
 			}
 		}
 	}
 
 	@Override
 	public boolean contactConnectionOpened(DuplexTransportConnection conn) {
-		boolean accept = true;
+		boolean accept;
 		synchronized (lock) {
 			if (keyAgreementInProgress) {
 				LOG.info("Refusing contact connection during key agreement");
 				accept = false;
 			} else {
 				long now = clock.currentTimeMillis();
-				considerRaisingConnectionLimit(now);
-				if (connections.size() > connectionLimit) {
-					LOG.info("Refusing contact connection due to limit");
-					accept = false;
-				} else {
-					LOG.info("Accepting contact connection");
+				accept = isContactConnectionAllowedByLimit(now);
+				if (accept) {
 					connections.add(new ConnectionRecord(conn, now));
+					if (connections.size() > connectionLimit) {
+						LOG.info("Attempting to raise connection limit");
+						timeOfLastAttempt = now;
+					}
 				}
 			}
 		}
@@ -147,12 +144,30 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@GuardedBy("lock")
+	private boolean isContactConnectionAllowedByLimit(long now) {
+		considerRaisingConnectionLimit(now);
+		if (connections.size() > connectionLimit) {
+			LOG.info("Refusing contact connection, above limit");
+			return false;
+		} else if (connections.size() < connectionLimit) {
+			LOG.info("Allowing contact connection, below limit");
+			return true;
+		} else if (canAttemptToRaiseLimit(now)) {
+			LOG.info("Allowing contact connection, at limit");
+			return true;
+		} else {
+			LOG.info("Refusing contact connection, at limit");
+			return false;
+		}
+	}
+
+	@GuardedBy("lock")
 	private void considerRaisingConnectionLimit(long now) {
 		int stable = 0;
 		for (ConnectionRecord rec : connections) {
 			if (now - rec.timeOpened >= STABILITY_PERIOD_MS) stable++;
 		}
-		if (stable >= connectionLimit) {
+		if (stable > connectionLimit) {
 			LOG.info("Raising connection limit");
 			connectionLimit++;
 		}
@@ -160,6 +175,11 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			LOG.info(stable + " connections are stable, limit is "
 					+ connectionLimit);
 		}
+	}
+
+	@GuardedBy("lock")
+	private boolean canAttemptToRaiseLimit(long now) {
+		return now - timeOfLastAttempt >= MIN_ATTEMPT_INTERVAL_MS;
 	}
 
 	private static final class ConnectionRecord {

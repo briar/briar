@@ -18,8 +18,13 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 
 	private final EventBus eventBus = context.mock(EventBus.class);
 	private final Clock clock = context.mock(Clock.class);
-	private final DuplexTransportConnection conn =
-			context.mock(DuplexTransportConnection.class);
+
+	private final DuplexTransportConnection conn1 =
+			context.mock(DuplexTransportConnection.class, "conn1");
+	private final DuplexTransportConnection conn2 =
+			context.mock(DuplexTransportConnection.class, "conn2");
+	private final DuplexTransportConnection conn3 =
+			context.mock(DuplexTransportConnection.class, "conn3");
 	private final TransportConnectionReader reader =
 			context.mock(TransportConnectionReader.class);
 	private final TransportConnectionWriter writer =
@@ -35,79 +40,103 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testLimiterAllowsOneOutgoingConnection() {
-		expectGetCurrentTime(now);
-		assertTrue(limiter.canOpenContactConnection());
-
-		expectGetCurrentTime(now);
-		assertTrue(limiter.contactConnectionOpened(conn));
-
-		expectGetCurrentTime(now);
-		assertFalse(limiter.canOpenContactConnection());
-	}
-
-	@Test
-	public void testLimiterAllowsSecondIncomingConnection() throws Exception {
-		expectGetCurrentTime(now);
-		assertTrue(limiter.canOpenContactConnection());
-
-		expectGetCurrentTime(now);
-		assertTrue(limiter.contactConnectionOpened(conn));
-
-		expectGetCurrentTime(now);
-		assertFalse(limiter.canOpenContactConnection());
-
-		// The limiter allows a second incoming connection
-		expectGetCurrentTime(now);
-		assertTrue(limiter.contactConnectionOpened(conn));
-
-		// The limiter does not allow a third incoming connection
-		expectGetCurrentTime(now);
-		expectCloseConnection();
-		assertFalse(limiter.contactConnectionOpened(conn));
-	}
-
-	@Test
-	public void testLimiterAllowsSecondOutgoingConnectionWhenFirstIsStable() {
-		expectGetCurrentTime(now);
-		assertTrue(limiter.canOpenContactConnection());
-
-		expectGetCurrentTime(now);
-		assertTrue(limiter.contactConnectionOpened(conn));
-
-		// The first connection is not yet stable
-		expectGetCurrentTime(now + STABILITY_PERIOD_MS - 1);
-		assertFalse(limiter.canOpenContactConnection());
-
-		// The first connection is stable, so the limit is raised
-		expectGetCurrentTime(now + STABILITY_PERIOD_MS);
-		assertTrue(limiter.canOpenContactConnection());
-	}
-
-	@Test
-	public void testLimiterAllowsThirdIncomingConnectionWhenFirstTwoAreStable()
+	public void testLimiterAllowsAttemptToRaiseLimitAtStartup()
 			throws Exception {
+		// First outgoing connection is allowed - we're below the limit
 		expectGetCurrentTime(now);
 		assertTrue(limiter.canOpenContactConnection());
-
 		expectGetCurrentTime(now);
-		assertTrue(limiter.contactConnectionOpened(conn));
+		assertTrue(limiter.contactConnectionOpened(conn1));
 
+		// Second outgoing connection is allowed - it's time to try raising
+		// the limit
+		expectGetCurrentTime(now);
+		assertTrue(limiter.canOpenContactConnection());
+		expectGetCurrentTime(now);
+		assertTrue(limiter.contactConnectionOpened(conn2));
+
+		// Third outgoing connection is not allowed - we're above the limit
 		expectGetCurrentTime(now);
 		assertFalse(limiter.canOpenContactConnection());
 
-		// The limiter allows a second incoming connection
+		// Third incoming connection is not allowed - we're above the limit
 		expectGetCurrentTime(now);
-		assertTrue(limiter.contactConnectionOpened(conn));
+		expectCloseConnection(conn3);
+		assertFalse(limiter.contactConnectionOpened(conn3));
+	}
 
-		// The limiter does not allow a third incoming connection
-		expectGetCurrentTime(now + STABILITY_PERIOD_MS - 1);
-		expectCloseConnection();
-		assertFalse(limiter.contactConnectionOpened(conn));
+	@Test
+	public void testLimiterAllowsThirdConnectionAfterFirstTwoAreClosed() {
+		// First outgoing connection is allowed - we're below the limit
+		expectGetCurrentTime(now);
+		assertTrue(limiter.canOpenContactConnection());
+		expectGetCurrentTime(now);
+		assertTrue(limiter.contactConnectionOpened(conn1));
 
-		// The first two connections are stable, so the limit is raised
+		// Second outgoing connection is allowed - it's time to try raising
+		// the limit
+		expectGetCurrentTime(now);
+		assertTrue(limiter.canOpenContactConnection());
+		expectGetCurrentTime(now);
+		assertTrue(limiter.contactConnectionOpened(conn2));
+
+		// Third outgoing connection is not allowed - we're above the limit
+		expectGetCurrentTime(now);
+		assertFalse(limiter.canOpenContactConnection());
+
+		// Close the first connection
+		limiter.connectionClosed(conn1, false);
+
+		// Third outgoing connection is not allowed - we're at the limit
+		expectGetCurrentTime(now);
+		assertFalse(limiter.canOpenContactConnection());
+
+		// Close the second connection
+		limiter.connectionClosed(conn2, false);
+
+		// Third outgoing connection is allowed - we're below the limit
+		expectGetCurrentTime(now);
+		assertTrue(limiter.canOpenContactConnection());
+		expectGetCurrentTime(now);
+		assertTrue(limiter.contactConnectionOpened(conn3));
+	}
+
+	@Test
+	public void testLimiterRaisesLimitWhenConnectionsAreStable() {
+		// First outgoing connection is allowed - we're below the limit
+		expectGetCurrentTime(now);
+		assertTrue(limiter.canOpenContactConnection());
+		expectGetCurrentTime(now);
+		assertTrue(limiter.contactConnectionOpened(conn1));
+
+		// Second outgoing connection is allowed - it's time to try raising
+		// the limit
+		expectGetCurrentTime(now);
+		assertTrue(limiter.canOpenContactConnection());
+		expectGetCurrentTime(now);
+		assertTrue(limiter.contactConnectionOpened(conn2));
+
+		// Third outgoing connection is not allowed - we're above the limit
+		expectGetCurrentTime(now);
+		assertFalse(limiter.canOpenContactConnection());
+
+		// Third outgoing connection is still not allowed - first two are
+		// stable but we're still at the limit
 		expectGetCurrentTime(now + STABILITY_PERIOD_MS);
-		assertTrue(limiter.contactConnectionOpened(conn));
+		assertFalse(limiter.canOpenContactConnection());
+
+		// Close the first connection
+		limiter.connectionClosed(conn1, false);
+
+		// Third outgoing connection is allowed - we're below the new limit
+		expectGetCurrentTime(now + STABILITY_PERIOD_MS);
+		assertTrue(limiter.canOpenContactConnection());
+		expectGetCurrentTime(now + STABILITY_PERIOD_MS);
+		assertTrue(limiter.contactConnectionOpened(conn3));
+
+		// Fourth outgoing connection is not allowed
+		expectGetCurrentTime(now + STABILITY_PERIOD_MS);
+		assertFalse(limiter.canOpenContactConnection());
 	}
 
 	private void expectGetCurrentTime(long now) {
@@ -117,7 +146,8 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void expectCloseConnection() throws Exception {
+	private void expectCloseConnection(DuplexTransportConnection conn)
+			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(conn).getReader();
 			will(returnValue(reader));

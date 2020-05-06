@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.bluetooth;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 
+import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
 @NotNullByDefault
@@ -12,6 +13,13 @@ interface BluetoothConnectionLimiter {
 	 * How long a connection must remain open before it's considered stable.
 	 */
 	long STABILITY_PERIOD_MS = SECONDS.toMillis(90);
+
+	/**
+	 * The minimum interval between attempts to raise the connection limit.
+	 * This is longer than {@link #STABILITY_PERIOD_MS} so we don't start
+	 * another attempt before knowing the outcome of the last one.
+	 */
+	long MIN_ATTEMPT_INTERVAL_MS = MINUTES.toMillis(5);
 
 	/**
 	 * Informs the limiter that key agreement has started.
