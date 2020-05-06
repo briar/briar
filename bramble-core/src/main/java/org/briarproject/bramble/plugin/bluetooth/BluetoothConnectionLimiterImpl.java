@@ -126,7 +126,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@Override
-	public void connectionClosed(DuplexTransportConnection conn) {
+	public void connectionClosed(DuplexTransportConnection conn,
+			boolean exception) {
 		synchronized (lock) {
 			Iterator<ConnectionRecord> it = connections.iterator();
 			while (it.hasNext()) {
@@ -141,10 +142,10 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@Override
-	public void allConnectionsClosed() {
+	public void bluetoothDisabled() {
 		synchronized (lock) {
 			connections.clear();
-			LOG.info("All connections closed");
+			LOG.info("Bluetooth disabled");
 		}
 	}
 

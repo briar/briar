@@ -45,11 +45,13 @@ interface BluetoothConnectionLimiter {
 
 	/**
 	 * Informs the limiter that the given connection has been closed.
+	 *
+	 * @param exception True if the connection was closed due to an exception.
 	 */
-	void connectionClosed(DuplexTransportConnection conn);
+	void connectionClosed(DuplexTransportConnection conn, boolean exception);
 
 	/**
-	 * Informs the limiter that all connections have been closed.
+	 * Informs the limiter that the Bluetooth adapter has been disabled.
 	 */
-	void allConnectionsClosed();
+	void bluetoothDisabled();
 }

@@ -130,7 +130,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	void onAdapterDisabled() {
 		LOG.info("Bluetooth disabled");
 		tryToClose(socket);
-		connectionLimiter.allConnectionsClosed();
+		connectionLimiter.bluetoothDisabled();
 		callback.transportDisabled();
 	}
 
