@@ -1,11 +1,12 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.system.Clock;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,6 +19,7 @@ import javax.inject.Inject;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
@@ -27,6 +29,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	private static final Logger LOG =
 			getLogger(BluetoothConnectionLimiterImpl.class.getName());
 
+	private final EventBus eventBus;
 	private final Clock clock;
 
 	private final Object lock = new Object();
@@ -38,24 +41,18 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	private int connectionLimit = 1;
 
 	@Inject
-	BluetoothConnectionLimiterImpl(Clock clock) {
+	BluetoothConnectionLimiterImpl(EventBus eventBus, Clock clock) {
+		this.eventBus = eventBus;
 		this.clock = clock;
 	}
 
 	@Override
 	public void keyAgreementStarted() {
-		List<DuplexTransportConnection> close;
 		synchronized (lock) {
 			keyAgreementInProgress = true;
-			close = new ArrayList<>(connections.size());
-			for (ConnectionRecord rec : connections) close.add(rec.connection);
-			connections.clear();
 		}
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Key agreement started, closing " + close.size() +
-					" connections");
-		}
-		for (DuplexTransportConnection conn : close) tryToClose(conn);
+		LOG.info("Key agreement started");
+		eventBus.broadcast(new CloseSyncConnectionsEvent(ID));
 	}
 
 	@Override

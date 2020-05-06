@@ -130,8 +130,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionWriter w) throws IOException {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
-		ContactId c = requireNonNull(ctx.getContactId());
-		return syncSessionFactory.createSimplexOutgoingSession(c,
+		return syncSessionFactory.createSimplexOutgoingSession(
+				requireNonNull(ctx.getContactId()), ctx.getTransportId(),
 				w.getMaxLatency(), streamWriter);
 	}
 
@@ -139,8 +139,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			TransportConnectionWriter w) throws IOException {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
-		ContactId c = requireNonNull(ctx.getContactId());
-		return syncSessionFactory.createDuplexOutgoingSession(c,
+		return syncSessionFactory.createDuplexOutgoingSession(
+				requireNonNull(ctx.getContactId()), ctx.getTransportId(),
 				w.getMaxLatency(), w.getMaxIdleTime(), streamWriter);
 	}
 

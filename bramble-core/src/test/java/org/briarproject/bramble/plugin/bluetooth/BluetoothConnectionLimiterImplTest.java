@@ -1,11 +1,13 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
+import org.junit.Before;
 import org.junit.Test;
 
 import static org.briarproject.bramble.plugin.bluetooth.BluetoothConnectionLimiter.STABILITY_PERIOD_MS;
@@ -14,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 
+	private final EventBus eventBus = context.mock(EventBus.class);
 	private final Clock clock = context.mock(Clock.class);
 	private final DuplexTransportConnection conn =
 			context.mock(DuplexTransportConnection.class);
@@ -24,11 +27,15 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 
 	private final long now = System.currentTimeMillis();
 
+	private BluetoothConnectionLimiter limiter;
+
+	@Before
+	public void setUp() {
+		limiter = new BluetoothConnectionLimiterImpl(eventBus, clock);
+	}
+
 	@Test
 	public void testLimiterAllowsOneOutgoingConnection() {
-		BluetoothConnectionLimiter limiter =
-				new BluetoothConnectionLimiterImpl(clock);
-
 		expectGetCurrentTime(now);
 		assertTrue(limiter.canOpenContactConnection());
 
@@ -41,9 +48,6 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testLimiterAllowsSecondIncomingConnection() throws Exception {
-		BluetoothConnectionLimiter limiter =
-				new BluetoothConnectionLimiterImpl(clock);
-
 		expectGetCurrentTime(now);
 		assertTrue(limiter.canOpenContactConnection());
 
@@ -64,11 +68,7 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testLimiterAllowsSecondOutgoingConnectionWhenFirstIsStable()
-			throws Exception {
-		BluetoothConnectionLimiter limiter =
-				new BluetoothConnectionLimiterImpl(clock);
-
+	public void testLimiterAllowsSecondOutgoingConnectionWhenFirstIsStable() {
 		expectGetCurrentTime(now);
 		assertTrue(limiter.canOpenContactConnection());
 
@@ -87,9 +87,6 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 	@Test
 	public void testLimiterAllowsThirdIncomingConnectionWhenFirstTwoAreStable()
 			throws Exception {
-		BluetoothConnectionLimiter limiter =
-				new BluetoothConnectionLimiterImpl(clock);
-
 		expectGetCurrentTime(now);
 		assertTrue(limiter.canOpenContactConnection());
 
