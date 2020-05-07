@@ -65,7 +65,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
 	private final PluginCallback callback;
-	private final int maxLatency;
+	private final int maxLatency, maxIdleTime;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	private volatile boolean running = false, contactConnections = false;
@@ -106,13 +106,15 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, SecureRandom secureRandom,
-			Backoff backoff, PluginCallback callback, int maxLatency) {
+			Backoff backoff, PluginCallback callback, int maxLatency,
+			int maxIdleTime) {
 		this.connectionLimiter = connectionLimiter;
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
+		this.maxIdleTime = maxIdleTime;
 	}
 
 	void onAdapterEnabled() {
@@ -141,8 +143,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public int getMaxIdleTime() {
-		// Bluetooth detects dead connections so we don't need keepalives
-		return Integer.MAX_VALUE;
+		return maxIdleTime;
 	}
 
 	@Override

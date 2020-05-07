@@ -35,9 +35,10 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 
 	JavaBluetoothPlugin(BluetoothConnectionLimiter connectionManager,
 			Executor ioExecutor, SecureRandom secureRandom,
-			Backoff backoff, PluginCallback callback, int maxLatency) {
+			Backoff backoff, PluginCallback callback, int maxLatency,
+			int maxIdleTime) {
 		super(connectionManager, ioExecutor, secureRandom, backoff, callback,
-				maxLatency);
+				maxLatency, maxIdleTime);
 	}
 
 	@Override
