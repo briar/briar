@@ -78,9 +78,10 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			Executor ioExecutor, AndroidExecutor androidExecutor,
 			Context appContext, SecureRandom secureRandom, Clock clock,
-			Backoff backoff, PluginCallback callback, int maxLatency) {
+			Backoff backoff, PluginCallback callback, int maxLatency,
+			int maxIdleTime) {
 		super(connectionLimiter, ioExecutor, secureRandom, backoff, callback,
-				maxLatency);
+				maxLatency, maxIdleTime);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.clock = clock;
