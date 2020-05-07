@@ -19,7 +19,14 @@ interface BluetoothConnectionLimiter {
 	 * This is longer than {@link #STABILITY_PERIOD_MS} so we don't start
 	 * another attempt before knowing the outcome of the last one.
 	 */
-	long MIN_ATTEMPT_INTERVAL_MS = MINUTES.toMillis(5);
+	long MIN_ATTEMPT_INTERVAL_MS = MINUTES.toMillis(2);
+
+	/**
+	 * The maximum exponent to use when backing off between attempts to raise
+	 * the connection limit. The maximum interval between attempts is
+	 * MIN_ATTEMPT_INTERVAL_MS * (1L << MAX_ATTEMPT_BACKOFF) =~ 34 hours.
+	 */
+	int MAX_ATTEMPT_BACKOFF = 10;
 
 	/**
 	 * Informs the limiter that key agreement has started.

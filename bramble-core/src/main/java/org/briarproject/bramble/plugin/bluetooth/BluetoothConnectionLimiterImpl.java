@@ -16,6 +16,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.lang.Math.min;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -38,9 +39,10 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	@GuardedBy("lock")
 	private boolean keyAgreementInProgress = false;
 	@GuardedBy("lock")
-	private int connectionLimit = 1;
+	private int connectionLimit = 1, attemptBackoff = 0;
 	@GuardedBy("lock")
-	private long timeOfLastAttempt = 0;
+	private long timeOfLastAttempt = 0,
+			attemptInterval = MIN_ATTEMPT_INTERVAL_MS;
 
 	@Inject
 	BluetoothConnectionLimiterImpl(EventBus eventBus, Clock clock) {
@@ -123,10 +125,14 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	public void connectionClosed(DuplexTransportConnection conn,
 			boolean exception) {
 		synchronized (lock) {
+			int numConnections = connections.size();
 			Iterator<ConnectionRecord> it = connections.iterator();
 			while (it.hasNext()) {
 				if (it.next().connection == conn) {
 					it.remove();
+					if (exception && numConnections > connectionLimit) {
+						connectionFailedAboveLimit();
+					}
 					break;
 				}
 			}
@@ -152,7 +158,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		} else if (connections.size() < connectionLimit) {
 			LOG.info("Allowing contact connection, below limit");
 			return true;
-		} else if (canAttemptToRaiseLimit(now)) {
+		} else if (now - timeOfLastAttempt >= attemptInterval) {
 			LOG.info("Allowing contact connection, at limit");
 			return true;
 		} else {
@@ -170,6 +176,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		if (stable > connectionLimit) {
 			LOG.info("Raising connection limit");
 			connectionLimit++;
+			attemptBackoff = 0;
+			attemptInterval = MIN_ATTEMPT_INTERVAL_MS;
 		}
 		if (LOG.isLoggable(INFO)) {
 			LOG.info(stable + " connections are stable, limit is "
@@ -178,8 +186,13 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@GuardedBy("lock")
-	private boolean canAttemptToRaiseLimit(long now) {
-		return now - timeOfLastAttempt >= MIN_ATTEMPT_INTERVAL_MS;
+	private void connectionFailedAboveLimit() {
+		long now = clock.currentTimeMillis();
+		if (now - timeOfLastAttempt < STABILITY_PERIOD_MS) {
+			LOG.info("Connection failed above limit, increasing interval");
+			attemptBackoff = min(attemptBackoff + 1, MAX_ATTEMPT_BACKOFF);
+			attemptInterval = MIN_ATTEMPT_INTERVAL_MS * (1L << attemptBackoff);
+		}
 	}
 
 	private static final class ConnectionRecord {
