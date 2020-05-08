@@ -88,7 +88,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 				long now = clock.currentTimeMillis();
 				if (incoming || isContactConnectionAllowedByLimit(now)) {
 					connections.add(new ConnectionRecord(conn, now));
-					if (connections.size() > connectionLimit) {
+					if (!incoming && connections.size() > connectionLimit) {
 						LOG.info("Attempting to raise connection limit");
 						timeOfLastAttempt = now;
 					}
@@ -117,13 +117,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			while (it.hasNext()) {
 				if (it.next().connection == conn) {
 					long now = clock.currentTimeMillis();
-					if (exception) {
-						if (connections.size() > connectionLimit) {
-							connectionFailedAboveLimit(now);
-						}
-					} else {
-						considerRaisingConnectionLimit(now);
-					}
+					if (exception) connectionFailed(now);
+					else considerRaisingConnectionLimit(now);
 					it.remove();
 					break;
 				}
@@ -136,9 +131,9 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	@Override
 	public void bluetoothDisabled() {
 		synchronized (lock) {
+			LOG.info("Bluetooth disabled");
 			considerRaisingConnectionLimit(clock.currentTimeMillis());
 			connections.clear();
-			LOG.info("Bluetooth disabled");
 		}
 	}
 
@@ -168,7 +163,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		}
 		if (stable > connectionLimit) {
 			LOG.info("Raising connection limit");
-			connectionLimit++;
+			connectionLimit = stable;
 			attemptInterval = MIN_ATTEMPT_INTERVAL_MS;
 		}
 		if (LOG.isLoggable(INFO)) {
@@ -178,8 +173,9 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@GuardedBy("lock")
-	private void connectionFailedAboveLimit(long now) {
-		if (now - timeOfLastAttempt < STABILITY_PERIOD_MS) {
+	private void connectionFailed(long now) {
+		if (connections.size() > connectionLimit &&
+				now - timeOfLastAttempt < STABILITY_PERIOD_MS) {
 			LOG.info("Connection failed above limit, increasing interval");
 			attemptInterval = min(attemptInterval * 2, MAX_ATTEMPT_INTERVAL_MS);
 		}
