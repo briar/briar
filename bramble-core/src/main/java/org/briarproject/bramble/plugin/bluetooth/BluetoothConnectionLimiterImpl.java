@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.system.Clock;
 
-import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,10 +17,8 @@ import javax.inject.Inject;
 
 import static java.lang.Math.min;
 import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 @ThreadSafe
@@ -83,25 +80,24 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	@Override
 	public boolean contactConnectionOpened(DuplexTransportConnection conn,
 			boolean incoming) {
-		boolean accept;
 		synchronized (lock) {
 			if (keyAgreementInProgress) {
 				LOG.info("Refusing contact connection during key agreement");
-				accept = false;
+				return false;
 			} else {
 				long now = clock.currentTimeMillis();
-				accept = incoming || isContactConnectionAllowedByLimit(now);
-				if (accept) {
+				if (incoming || isContactConnectionAllowedByLimit(now)) {
 					connections.add(new ConnectionRecord(conn, now));
 					if (connections.size() > connectionLimit) {
 						LOG.info("Attempting to raise connection limit");
 						timeOfLastAttempt = now;
 					}
+					return true;
+				} else {
+					return false;
 				}
 			}
 		}
-		if (!accept) tryToClose(conn);
-		return accept;
 	}
 
 	@Override
@@ -110,15 +106,6 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			LOG.info("Accepting key agreement connection");
 			connections.add(
 					new ConnectionRecord(conn, clock.currentTimeMillis()));
-		}
-	}
-
-	private void tryToClose(DuplexTransportConnection conn) {
-		try {
-			conn.getWriter().dispose(false);
-			conn.getReader().dispose(false, false);
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
 		}
 	}
 

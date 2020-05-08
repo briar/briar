@@ -235,8 +235,19 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			if (connectionLimiter.contactConnectionOpened(conn, true)) {
 				backoff.reset();
 				callback.handleConnection(conn);
+			} else {
+				tryToClose(conn);
 			}
 			if (!running) return;
+		}
+	}
+
+	private void tryToClose(DuplexTransportConnection conn) {
+		try {
+			conn.getWriter().dispose(false);
+			conn.getReader().dispose(false, false);
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
 		}
 	}
 
@@ -328,8 +339,12 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		if (isNullOrEmpty(uuid)) return null;
 		DuplexTransportConnection conn = connect(address, uuid);
 		if (conn == null) return null;
-		if (connectionLimiter.contactConnectionOpened(conn, false)) return conn;
-		return null;
+		if (connectionLimiter.contactConnectionOpened(conn, false)) {
+			return conn;
+		} else {
+			tryToClose(conn);
+			return null;
+		}
 	}
 
 	@Override
