@@ -113,14 +113,18 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	public void connectionClosed(DuplexTransportConnection conn,
 			boolean exception) {
 		synchronized (lock) {
-			int numConnections = connections.size();
 			Iterator<ConnectionRecord> it = connections.iterator();
 			while (it.hasNext()) {
 				if (it.next().connection == conn) {
-					it.remove();
-					if (exception && numConnections > connectionLimit) {
-						connectionFailedAboveLimit();
+					long now = clock.currentTimeMillis();
+					if (exception) {
+						if (connections.size() > connectionLimit) {
+							connectionFailedAboveLimit(now);
+						}
+					} else {
+						considerRaisingConnectionLimit(now);
 					}
+					it.remove();
 					break;
 				}
 			}
@@ -132,6 +136,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	@Override
 	public void bluetoothDisabled() {
 		synchronized (lock) {
+			considerRaisingConnectionLimit(clock.currentTimeMillis());
 			connections.clear();
 			LOG.info("Bluetooth disabled");
 		}
@@ -173,8 +178,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@GuardedBy("lock")
-	private void connectionFailedAboveLimit() {
-		long now = clock.currentTimeMillis();
+	private void connectionFailedAboveLimit(long now) {
 		if (now - timeOfLastAttempt < STABILITY_PERIOD_MS) {
 			LOG.info("Connection failed above limit, increasing interval");
 			attemptInterval = min(attemptInterval * 2, MAX_ATTEMPT_INTERVAL_MS);
