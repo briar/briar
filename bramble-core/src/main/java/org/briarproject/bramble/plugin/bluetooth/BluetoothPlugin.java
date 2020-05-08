@@ -232,7 +232,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				return;
 			}
 			LOG.info("Connection received");
-			if (connectionLimiter.contactConnectionOpened(conn)) {
+			if (connectionLimiter.contactConnectionOpened(conn, true)) {
 				backoff.reset();
 				callback.handleConnection(conn);
 			}
@@ -328,7 +328,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		if (isNullOrEmpty(uuid)) return null;
 		DuplexTransportConnection conn = connect(address, uuid);
 		if (conn == null) return null;
-		return connectionLimiter.contactConnectionOpened(conn) ? conn : null;
+		if (connectionLimiter.contactConnectionOpened(conn, false)) return conn;
+		return null;
 	}
 
 	@Override

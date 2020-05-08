@@ -81,7 +81,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	}
 
 	@Override
-	public boolean contactConnectionOpened(DuplexTransportConnection conn) {
+	public boolean contactConnectionOpened(DuplexTransportConnection conn,
+			boolean incoming) {
 		boolean accept;
 		synchronized (lock) {
 			if (keyAgreementInProgress) {
@@ -89,7 +90,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 				accept = false;
 			} else {
 				long now = clock.currentTimeMillis();
-				accept = isContactConnectionAllowedByLimit(now);
+				accept = incoming || isContactConnectionAllowedByLimit(now);
 				if (accept) {
 					connections.add(new ConnectionRecord(conn, now));
 					if (connections.size() > connectionLimit) {

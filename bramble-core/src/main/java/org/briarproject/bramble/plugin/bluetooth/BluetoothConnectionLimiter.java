@@ -42,7 +42,6 @@ interface BluetoothConnectionLimiter {
 	 * Returns true if a contact connection can be opened. This method does not
 	 * need to be called for key agreement connections.
 	 */
-	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	boolean canOpenContactConnection();
 
 	/**
@@ -51,7 +50,8 @@ interface BluetoothConnectionLimiter {
 	 * <p/>
 	 * Returns false if the limiter has closed the new connection.
 	 */
-	boolean contactConnectionOpened(DuplexTransportConnection conn);
+	boolean contactConnectionOpened(DuplexTransportConnection conn,
+			boolean incoming);
 
 	/**
 	 * Informs the limiter that a key agreement connection has been opened.

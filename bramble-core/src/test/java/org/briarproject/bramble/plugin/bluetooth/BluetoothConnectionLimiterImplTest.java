@@ -1,8 +1,6 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.plugin.TransportConnectionReader;
-import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.system.Clock;
@@ -29,10 +27,6 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 			context.mock(DuplexTransportConnection.class, "conn2");
 	private final DuplexTransportConnection conn3 =
 			context.mock(DuplexTransportConnection.class, "conn3");
-	private final TransportConnectionReader reader =
-			context.mock(TransportConnectionReader.class);
-	private final TransportConnectionWriter writer =
-			context.mock(TransportConnectionWriter.class);
 
 	private final long now = System.currentTimeMillis();
 
@@ -61,35 +55,30 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testLimiterAllowsAttemptToRaiseLimitAtStartup()
-			throws Exception {
+	public void testLimiterAllowsAttemptToRaiseLimitAtStartup() {
 		// First outgoing connection is allowed - we're below the limit of 1
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn1));
+		assertTrue(limiter.contactConnectionOpened(conn1, false));
 
 		// Second outgoing connection is allowed - it's time to try raising
 		// the limit to 2
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn2));
+		assertTrue(limiter.contactConnectionOpened(conn2, false));
 
 		// Third outgoing connection is not allowed - we're above the limit of 1
 		assertFalse(limiter.canOpenContactConnection());
-
-		// Third incoming connection is not allowed - we're above the limit of 1
-		expectCloseConnection(conn3);
-		assertFalse(limiter.contactConnectionOpened(conn3));
 	}
 
 	@Test
 	public void testLimiterAllowsThirdConnectionAfterFirstTwoAreClosed() {
 		// First outgoing connection is allowed - we're below the limit of 1
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn1));
+		assertTrue(limiter.contactConnectionOpened(conn1, false));
 
 		// Second outgoing connection is allowed - it's time to try raising
 		// the limit to 2
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn2));
+		assertTrue(limiter.contactConnectionOpened(conn2, false));
 
 		// Third outgoing connection is not allowed - we're above the limit of 1
 		assertFalse(limiter.canOpenContactConnection());
@@ -105,19 +94,19 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 
 		// Third outgoing connection is allowed - we're below the limit of 1
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn3));
+		assertTrue(limiter.contactConnectionOpened(conn3, false));
 	}
 
 	@Test
 	public void testLimiterRaisesLimitWhenConnectionsAreStable() {
 		// First outgoing connection is allowed - we're below the limit of 1
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn1));
+		assertTrue(limiter.contactConnectionOpened(conn1, false));
 
 		// Second outgoing connection is allowed - it's time to try raising
 		// the limit to 2
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn2));
+		assertTrue(limiter.contactConnectionOpened(conn2, false));
 
 		// Third outgoing connection is not allowed - we're above the limit of 1
 		assertFalse(limiter.canOpenContactConnection());
@@ -135,7 +124,7 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 		// Third outgoing connection is allowed - it's time to try raising
 		// the limit to 3
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn3));
+		assertTrue(limiter.contactConnectionOpened(conn3, false));
 
 		// Fourth outgoing connection is not allowed - we're above the limit
 		// of 2
@@ -146,7 +135,7 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 	public void testLimiterIncreasesIntervalWhenConnectionFailsAboveLimit() {
 		// First outgoing connection is allowed - we're below the limit of 1
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn1));
+		assertTrue(limiter.contactConnectionOpened(conn1, false));
 
 		// Time passes
 		time.set(now + 1);
@@ -154,7 +143,7 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 		// Second outgoing connection is allowed - it's time to try raising
 		// the limit to 2
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn2));
+		assertTrue(limiter.contactConnectionOpened(conn2, false));
 
 		// Time passes - the first connection is stable, the second isn't
 		time.set(now + STABILITY_PERIOD_MS);
@@ -181,25 +170,13 @@ public class BluetoothConnectionLimiterImplTest extends BrambleMockTestCase {
 		// Third outgoing connection is allowed - it's time to try raising the
 		// limit to 2 again
 		assertTrue(limiter.canOpenContactConnection());
-		assertTrue(limiter.contactConnectionOpened(conn3));
+		assertTrue(limiter.contactConnectionOpened(conn3, false));
 	}
 
 	private void expectCloseSyncConnectionsEvent() {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(
 					CloseSyncConnectionsEvent.class)));
-		}});
-	}
-
-	private void expectCloseConnection(DuplexTransportConnection conn)
-			throws Exception {
-		context.checking(new Expectations() {{
-			oneOf(conn).getReader();
-			will(returnValue(reader));
-			oneOf(reader).dispose(false, false);
-			oneOf(conn).getWriter();
-			will(returnValue(writer));
-			oneOf(writer).dispose(false);
 		}});
 	}
 }
