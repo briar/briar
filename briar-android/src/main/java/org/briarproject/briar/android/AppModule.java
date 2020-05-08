@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.network.NetworkManager;
@@ -122,11 +123,12 @@ public class AppModule {
 			LocationUtils locationUtils, EventBus eventBus,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Clock clock) {
+			BatteryManager batteryManager, Clock clock,
+			TimeoutMonitor timeoutMonitor) {
 		Context appContext = app.getApplicationContext();
-		DuplexPluginFactory bluetooth =
-				new AndroidBluetoothPluginFactory(ioExecutor, androidExecutor,
-						appContext, random, eventBus, clock, backoffFactory);
+		DuplexPluginFactory bluetooth = new AndroidBluetoothPluginFactory(
+				ioExecutor, androidExecutor, appContext, random, eventBus,
+				clock, timeoutMonitor, backoffFactory);
 		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
 				scheduler, appContext, networkManager, locationUtils, eventBus,
 				torSocketFactory, backoffFactory, resourceProvider,

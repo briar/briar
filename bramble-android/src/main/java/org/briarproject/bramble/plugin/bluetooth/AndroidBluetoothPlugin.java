@@ -9,6 +9,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
+import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -76,12 +77,12 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private volatile BluetoothAdapter adapter = null;
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
-			Executor ioExecutor, AndroidExecutor androidExecutor,
-			Context appContext, SecureRandom secureRandom, Clock clock,
-			Backoff backoff, PluginCallback callback, int maxLatency,
-			int maxIdleTime) {
-		super(connectionLimiter, ioExecutor, secureRandom, backoff, callback,
-				maxLatency, maxIdleTime);
+			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
+			SecureRandom secureRandom, AndroidExecutor androidExecutor,
+			Context appContext, Clock clock, Backoff backoff,
+			PluginCallback callback, int maxLatency, int maxIdleTime) {
+		super(connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
+				backoff, callback, maxLatency, maxIdleTime);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.clock = clock;
@@ -173,9 +174,10 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		return wrapSocket(ss.accept());
 	}
 
-	private DuplexTransportConnection wrapSocket(BluetoothSocket s) {
-		return new AndroidBluetoothTransportConnection(this,
-				connectionLimiter, s);
+	private DuplexTransportConnection wrapSocket(BluetoothSocket s)
+			throws IOException {
+		return new AndroidBluetoothTransportConnection(this, connectionLimiter,
+				timeoutMonitor, s);
 	}
 
 	@Override

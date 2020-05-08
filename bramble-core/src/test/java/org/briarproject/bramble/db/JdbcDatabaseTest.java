@@ -2421,6 +2421,11 @@ public abstract class JdbcDatabaseTest extends BrambleTestCase {
 		}
 
 		@Override
+		public long nanoTime() {
+			return time * 1_000_000;
+		}
+
+		@Override
 		public void sleep(long milliseconds) throws InterruptedException {
 			Thread.sleep(milliseconds);
 		}

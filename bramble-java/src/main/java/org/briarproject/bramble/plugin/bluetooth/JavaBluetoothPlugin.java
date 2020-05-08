@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -34,11 +35,11 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 	private volatile LocalDevice localDevice = null;
 
 	JavaBluetoothPlugin(BluetoothConnectionLimiter connectionManager,
-			Executor ioExecutor, SecureRandom secureRandom,
-			Backoff backoff, PluginCallback callback, int maxLatency,
-			int maxIdleTime) {
-		super(connectionManager, ioExecutor, secureRandom, backoff, callback,
-				maxLatency, maxIdleTime);
+			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
+			SecureRandom secureRandom, Backoff backoff,
+			PluginCallback callback, int maxLatency, int maxIdleTime) {
+		super(connectionManager, timeoutMonitor, ioExecutor, secureRandom,
+				backoff, callback, maxLatency, maxIdleTime);
 	}
 
 	@Override
@@ -120,7 +121,9 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 		return "btspp://" + address + ":" + uuid + ";name=RFCOMM";
 	}
 
-	private DuplexTransportConnection wrapSocket(StreamConnection s) {
-		return new JavaBluetoothTransportConnection(this, connectionLimiter, s);
+	private DuplexTransportConnection wrapSocket(StreamConnection s)
+			throws IOException {
+		return new JavaBluetoothTransportConnection(this, connectionLimiter,
+				timeoutMonitor, s);
 	}
 }

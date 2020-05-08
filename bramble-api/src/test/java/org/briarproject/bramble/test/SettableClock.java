@@ -18,6 +18,11 @@ public class SettableClock implements Clock {
 	}
 
 	@Override
+	public long nanoTime() {
+		return time.get() * 1_000_000;
+	}
+
+	@Override
 	public void sleep(long milliseconds) throws InterruptedException {
 		Thread.sleep(milliseconds);
 	}

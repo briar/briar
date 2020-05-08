@@ -13,6 +13,11 @@ public class SystemClock implements Clock {
 	}
 
 	@Override
+	public long nanoTime() {
+		return System.nanoTime();
+	}
+
+	@Override
 	public void sleep(long milliseconds) throws InterruptedException {
 		Thread.sleep(milliseconds);
 	}
