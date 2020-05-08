@@ -65,6 +65,31 @@ class TimeoutInputStream extends InputStream {
 		}
 	}
 
+	@Override
+	public int available() throws IOException {
+		return in.available();
+	}
+
+	@Override
+	public void mark(int readlimit) {
+		in.mark(readlimit);
+	}
+
+	@Override
+	public boolean markSupported() {
+		return in.markSupported();
+	}
+
+	@Override
+	public void reset() throws IOException {
+		in.reset();
+	}
+
+	@Override
+	public long skip(long n) throws IOException {
+		return in.skip(n);
+	}
+
 	boolean hasTimedOut() {
 		synchronized (lock) {
 			return readStartedNs != -1 &&
