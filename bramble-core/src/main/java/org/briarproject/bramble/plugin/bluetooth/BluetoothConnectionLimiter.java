@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin.bluetooth;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
@@ -22,11 +23,9 @@ interface BluetoothConnectionLimiter {
 	long MIN_ATTEMPT_INTERVAL_MS = MINUTES.toMillis(2);
 
 	/**
-	 * The maximum exponent to use when backing off between attempts to raise
-	 * the connection limit. The maximum interval between attempts is
-	 * MIN_ATTEMPT_INTERVAL_MS * (1L << MAX_ATTEMPT_BACKOFF) =~ 34 hours.
+	 * The maximum interval between attempts to raise the connection limit.
 	 */
-	int MAX_ATTEMPT_BACKOFF = 10;
+	long MAX_ATTEMPT_INTERVAL_MS = DAYS.toMillis(2);
 
 	/**
 	 * Informs the limiter that key agreement has started.
