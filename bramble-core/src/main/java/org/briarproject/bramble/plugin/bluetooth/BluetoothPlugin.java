@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEvent;
@@ -60,6 +61,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			getLogger(BluetoothPlugin.class.getName());
 
 	final BluetoothConnectionLimiter connectionLimiter;
+	final TimeoutMonitor timeoutMonitor;
 
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
@@ -105,10 +107,11 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	abstract DuplexTransportConnection discoverAndConnect(String uuid);
 
 	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
-			Executor ioExecutor, SecureRandom secureRandom,
-			Backoff backoff, PluginCallback callback, int maxLatency,
-			int maxIdleTime) {
+			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
+			SecureRandom secureRandom, Backoff backoff,
+			PluginCallback callback, int maxLatency, int maxIdleTime) {
 		this.connectionLimiter = connectionLimiter;
+		this.timeoutMonitor = timeoutMonitor;
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		this.backoff = backoff;

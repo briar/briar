@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.bluetooth;
 
 import android.bluetooth.BluetoothSocket;
 
+import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.duplex.AbstractDuplexTransportConnection;
@@ -17,22 +18,26 @@ import static org.briarproject.bramble.util.AndroidUtils.isValidBluetoothAddress
 class AndroidBluetoothTransportConnection
 		extends AbstractDuplexTransportConnection {
 
-	private final BluetoothConnectionLimiter connectionManager;
+	private final BluetoothConnectionLimiter connectionLimiter;
 	private final BluetoothSocket socket;
+	private final InputStream in;
 
 	AndroidBluetoothTransportConnection(Plugin plugin,
-			BluetoothConnectionLimiter connectionManager,
-			BluetoothSocket socket) {
+			BluetoothConnectionLimiter connectionLimiter,
+			TimeoutMonitor timeoutMonitor, BluetoothSocket socket)
+			throws IOException {
 		super(plugin);
-		this.connectionManager = connectionManager;
+		this.connectionLimiter = connectionLimiter;
 		this.socket = socket;
+		in = timeoutMonitor.createTimeoutInputStream(
+				socket.getInputStream(), plugin.getMaxIdleTime() * 2);
 		String address = socket.getRemoteDevice().getAddress();
 		if (isValidBluetoothAddress(address)) remote.put(PROP_ADDRESS, address);
 	}
 
 	@Override
-	protected InputStream getInputStream() throws IOException {
-		return socket.getInputStream();
+	protected InputStream getInputStream() {
+		return in;
 	}
 
 	@Override
@@ -45,7 +50,7 @@ class AndroidBluetoothTransportConnection
 		try {
 			socket.close();
 		} finally {
-			connectionManager.connectionClosed(this);
+			connectionLimiter.connectionClosed(this);
 		}
 	}
 }

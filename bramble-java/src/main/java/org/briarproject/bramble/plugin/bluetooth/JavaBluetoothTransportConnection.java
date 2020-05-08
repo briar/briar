@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.duplex.AbstractDuplexTransportConnection;
@@ -14,20 +15,24 @@ import javax.microedition.io.StreamConnection;
 class JavaBluetoothTransportConnection
 		extends AbstractDuplexTransportConnection {
 
-	private final BluetoothConnectionLimiter connectionManager;
+	private final BluetoothConnectionLimiter connectionLimiter;
 	private final StreamConnection stream;
+	private final InputStream in;
 
 	JavaBluetoothTransportConnection(Plugin plugin,
-			BluetoothConnectionLimiter connectionManager,
-			StreamConnection stream) {
+			BluetoothConnectionLimiter connectionLimiter,
+			TimeoutMonitor timeoutMonitor,
+			StreamConnection stream) throws IOException {
 		super(plugin);
+		this.connectionLimiter = connectionLimiter;
 		this.stream = stream;
-		this.connectionManager = connectionManager;
+		in = timeoutMonitor.createTimeoutInputStream(
+				stream.openInputStream(), plugin.getMaxIdleTime() * 2);
 	}
 
 	@Override
-	protected InputStream getInputStream() throws IOException {
-		return stream.openInputStream();
+	protected InputStream getInputStream() {
+		return in;
 	}
 
 	@Override
@@ -40,7 +45,7 @@ class JavaBluetoothTransportConnection
 		try {
 			stream.close();
 		} finally {
-			connectionManager.connectionClosed(this);
+			connectionLimiter.connectionClosed(this);
 		}
 	}
 }
