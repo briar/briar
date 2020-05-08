@@ -127,8 +127,8 @@ public class AppModule {
 			TimeoutMonitor timeoutMonitor) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new AndroidBluetoothPluginFactory(
-				ioExecutor, androidExecutor, appContext, random, eventBus,
-				clock, timeoutMonitor, backoffFactory);
+				ioExecutor, scheduler, androidExecutor, appContext, random,
+				eventBus, clock, timeoutMonitor, backoffFactory);
 		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
 				scheduler, appContext, networkManager, locationUtils, eventBus,
 				torSocketFactory, backoffFactory, resourceProvider,

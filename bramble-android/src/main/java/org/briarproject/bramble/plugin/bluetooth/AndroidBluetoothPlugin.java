@@ -31,6 +31,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -78,11 +79,12 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
-			SecureRandom secureRandom, AndroidExecutor androidExecutor,
-			Context appContext, Clock clock, Backoff backoff,
-			PluginCallback callback, int maxLatency, int maxIdleTime) {
-		super(connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
-				backoff, callback, maxLatency, maxIdleTime);
+			ScheduledExecutorService scheduler, SecureRandom secureRandom,
+			AndroidExecutor androidExecutor, Context appContext, Clock clock,
+			Backoff backoff, PluginCallback callback, int maxLatency,
+			int maxIdleTime) {
+		super(connectionLimiter, timeoutMonitor, ioExecutor, scheduler,
+				secureRandom, backoff, callback, maxLatency, maxIdleTime);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.clock = clock;

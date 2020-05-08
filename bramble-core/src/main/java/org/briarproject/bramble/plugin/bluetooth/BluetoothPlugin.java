@@ -31,13 +31,17 @@ import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.UUID;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -60,10 +64,18 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private static final Logger LOG =
 			getLogger(BluetoothPlugin.class.getName());
 
+	/**
+	 * The delay between connection attempts when polling. This reduces
+	 * interference between Bluetooth and wifi.
+	 */
+	private static final long CONNECTION_ATTEMPT_INTERVAL_MS =
+			SECONDS.toMillis(5);
+
 	final BluetoothConnectionLimiter connectionLimiter;
 	final TimeoutMonitor timeoutMonitor;
 
 	private final Executor ioExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
 	private final PluginCallback callback;
@@ -108,11 +120,13 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
-			SecureRandom secureRandom, Backoff backoff,
-			PluginCallback callback, int maxLatency, int maxIdleTime) {
+			ScheduledExecutorService scheduler, SecureRandom secureRandom,
+			Backoff backoff, PluginCallback callback, int maxLatency,
+			int maxIdleTime) {
 		this.connectionLimiter = connectionLimiter;
 		this.timeoutMonitor = timeoutMonitor;
 		this.ioExecutor = ioExecutor;
+		this.scheduler = scheduler;
 		this.secureRandom = secureRandom;
 		this.backoff = backoff;
 		this.callback = callback;
@@ -268,21 +282,31 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			properties) {
 		if (!isRunning() || !shouldAllowContactConnections()) return;
 		backoff.increment();
-		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
-			connect(p.getFirst(), p.getSecond());
+		LinkedList<Pair<TransportProperties, ConnectionHandler>> connectable =
+				new LinkedList<>();
+		for (Pair<TransportProperties, ConnectionHandler> pair : properties) {
+			TransportProperties p = pair.getFirst();
+			if (isNullOrEmpty(p.get(PROP_ADDRESS))) continue;
+			if (isNullOrEmpty(p.get(PROP_UUID))) continue;
+			connectable.add(pair);
 		}
+		if (!connectable.isEmpty()) poll(connectable);
 	}
 
-	private void connect(TransportProperties p, ConnectionHandler h) {
-		String address = p.get(PROP_ADDRESS);
-		if (isNullOrEmpty(address)) return;
-		String uuid = p.get(PROP_UUID);
-		if (isNullOrEmpty(uuid)) return;
+	private void poll(LinkedList<Pair<TransportProperties, ConnectionHandler>>
+			connectable) {
 		ioExecutor.execute(() -> {
-			DuplexTransportConnection d = createConnection(p);
+			if (!isRunning() || !shouldAllowContactConnections()) return;
+			Pair<TransportProperties, ConnectionHandler> pair =
+					connectable.removeFirst();
+			DuplexTransportConnection d = createConnection(pair.getFirst());
 			if (d != null) {
 				backoff.reset();
-				h.handleConnection(d);
+				pair.getSecond().handleConnection(d);
+			}
+			if (!connectable.isEmpty()) {
+				scheduler.schedule(() -> poll(connectable),
+						CONNECTION_ATTEMPT_INTERVAL_MS, MILLISECONDS);
 			}
 		});
 	}

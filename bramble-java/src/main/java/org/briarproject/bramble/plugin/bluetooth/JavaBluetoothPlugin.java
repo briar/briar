@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import java.io.IOException;
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -36,10 +37,11 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 
 	JavaBluetoothPlugin(BluetoothConnectionLimiter connectionManager,
 			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
-			SecureRandom secureRandom, Backoff backoff,
-			PluginCallback callback, int maxLatency, int maxIdleTime) {
-		super(connectionManager, timeoutMonitor, ioExecutor, secureRandom,
-				backoff, callback, maxLatency, maxIdleTime);
+			ScheduledExecutorService scheduler, SecureRandom secureRandom,
+			Backoff backoff, PluginCallback callback, int maxLatency,
+			int maxIdleTime) {
+		super(connectionManager, timeoutMonitor, ioExecutor, scheduler,
+				secureRandom, backoff, callback, maxLatency, maxIdleTime);
 	}
 
 	@Override

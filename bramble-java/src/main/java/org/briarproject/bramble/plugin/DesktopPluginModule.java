@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reliability.ReliabilityLayerFactory;
+import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.plugin.bluetooth.JavaBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.modem.ModemPluginFactory;
 import org.briarproject.bramble.plugin.tcp.LanTcpPluginFactory;
@@ -18,6 +19,7 @@ import org.briarproject.bramble.plugin.tcp.WanTcpPluginFactory;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import dagger.Module;
 import dagger.Provides;
@@ -30,12 +32,14 @@ public class DesktopPluginModule extends PluginModule {
 
 	@Provides
 	PluginConfig getPluginConfig(@IoExecutor Executor ioExecutor,
+			@Scheduler ScheduledExecutorService scheduler,
 			SecureRandom random, BackoffFactory backoffFactory,
 			ReliabilityLayerFactory reliabilityFactory,
 			ShutdownManager shutdownManager, EventBus eventBus,
 			TimeoutMonitor timeoutMonitor) {
 		DuplexPluginFactory bluetooth = new JavaBluetoothPluginFactory(
-				ioExecutor, random, eventBus, timeoutMonitor, backoffFactory);
+				ioExecutor, scheduler, random, eventBus, timeoutMonitor,
+				backoffFactory);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
 		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor,
