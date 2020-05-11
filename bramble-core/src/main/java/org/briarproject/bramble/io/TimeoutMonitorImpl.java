@@ -52,7 +52,7 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 	public InputStream createTimeoutInputStream(InputStream in,
 			long timeoutMs) {
 		TimeoutInputStream stream = new TimeoutInputStream(clock, in,
-				timeoutMs * 1_000_000, this::removeStream);
+				timeoutMs, this::removeStream);
 		synchronized (lock) {
 			if (streams.isEmpty()) {
 				task = scheduler.scheduleWithFixedDelay(this::checkTimeouts,

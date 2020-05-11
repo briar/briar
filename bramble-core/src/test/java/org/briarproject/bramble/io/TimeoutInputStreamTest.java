@@ -36,7 +36,7 @@ public class TimeoutInputStreamTest extends BrambleTestCase {
 		in = new UnresponsiveInputStream();
 		listenerCalled = new AtomicBoolean(false);
 		stream = new TimeoutInputStream(new SettableClock(time), in,
-				TIMEOUT_MS * 1_000_000, stream -> listenerCalled.set(true));
+				TIMEOUT_MS, stream -> listenerCalled.set(true));
 		readReturned = new CountDownLatch(1);
 	}
 

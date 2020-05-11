@@ -17,11 +17,6 @@ public class ArrayClock implements Clock {
 	}
 
 	@Override
-	public long nanoTime() {
-		return times[index++] * 1_000_000;
-	}
-
-	@Override
 	public void sleep(long milliseconds) throws InterruptedException {
 		Thread.sleep(milliseconds);
 	}

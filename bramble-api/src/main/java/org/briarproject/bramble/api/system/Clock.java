@@ -12,11 +12,6 @@ public interface Clock {
 	long currentTimeMillis();
 
 	/**
-	 * @see System#nanoTime()
-	 */
-	long nanoTime();
-
-	/**
 	 * @see Thread#sleep(long)
 	 */
 	void sleep(long milliseconds) throws InterruptedException;

@@ -13,28 +13,28 @@ class TimeoutInputStream extends InputStream {
 
 	private final Clock clock;
 	private final InputStream in;
-	private final long timeoutNs;
+	private final long timeoutMs;
 	private final CloseListener listener;
 	private final Object lock = new Object();
 	@GuardedBy("lock")
-	private long readStartedNs = -1;
+	private long readStartedMs = -1;
 
-	TimeoutInputStream(Clock clock, InputStream in, long timeoutNs,
+	TimeoutInputStream(Clock clock, InputStream in, long timeoutMs,
 			CloseListener listener) {
 		this.clock = clock;
 		this.in = in;
-		this.timeoutNs = timeoutNs;
+		this.timeoutMs = timeoutMs;
 		this.listener = listener;
 	}
 
 	@Override
 	public int read() throws IOException {
 		synchronized (lock) {
-			readStartedNs = clock.nanoTime();
+			readStartedMs = clock.currentTimeMillis();
 		}
 		int input = in.read();
 		synchronized (lock) {
-			readStartedNs = -1;
+			readStartedMs = -1;
 		}
 		return input;
 	}
@@ -47,11 +47,11 @@ class TimeoutInputStream extends InputStream {
 	@Override
 	public int read(byte[] b, int off, int len) throws IOException {
 		synchronized (lock) {
-			readStartedNs = clock.nanoTime();
+			readStartedMs = clock.currentTimeMillis();
 		}
 		int read = in.read(b, off, len);
 		synchronized (lock) {
-			readStartedNs = -1;
+			readStartedMs = -1;
 		}
 		return read;
 	}
@@ -92,8 +92,8 @@ class TimeoutInputStream extends InputStream {
 
 	boolean hasTimedOut() {
 		synchronized (lock) {
-			return readStartedNs != -1 &&
-					clock.nanoTime() - readStartedNs > timeoutNs;
+			return readStartedMs != -1 &&
+					clock.currentTimeMillis() - readStartedMs > timeoutMs;
 		}
 	}
 
