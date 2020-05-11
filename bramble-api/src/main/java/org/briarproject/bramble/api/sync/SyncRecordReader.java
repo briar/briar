@@ -28,4 +28,8 @@ public interface SyncRecordReader {
 	boolean hasVersions() throws IOException;
 
 	Versions readVersions() throws IOException;
+
+	boolean hasPriority() throws IOException;
+
+	Priority readPriority() throws IOException;
 }

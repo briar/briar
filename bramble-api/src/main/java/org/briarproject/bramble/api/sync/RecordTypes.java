@@ -10,4 +10,5 @@ public interface RecordTypes {
 	byte OFFER = 2;
 	byte REQUEST = 3;
 	byte VERSIONS = 4;
+	byte PRIORITY = 5;
 }
