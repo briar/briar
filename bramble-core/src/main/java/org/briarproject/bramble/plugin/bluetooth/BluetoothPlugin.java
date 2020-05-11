@@ -227,9 +227,11 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
 				return;
 			}
-			backoff.reset();
-			if (connectionLimiter.contactConnectionOpened(conn))
+			LOG.info("Connection received");
+			if (connectionLimiter.contactConnectionOpened(conn)) {
+				backoff.reset();
 				callback.handleConnection(conn);
+			}
 			if (!running) return;
 		}
 	}
@@ -273,13 +275,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		String uuid = p.get(PROP_UUID);
 		if (isNullOrEmpty(uuid)) return;
 		ioExecutor.execute(() -> {
-			if (!isRunning() || !shouldAllowContactConnections()) return;
-			if (!connectionLimiter.canOpenContactConnection()) return;
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();
-				if (connectionLimiter.contactConnectionOpened(d))
-					h.handleConnection(d);
+				h.handleConnection(d);
 			}
 		});
 	}
@@ -325,7 +324,6 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		if (isNullOrEmpty(uuid)) return null;
 		DuplexTransportConnection conn = connect(address, uuid);
 		if (conn == null) return null;
-		// TODO: Why don't we reset the backoff here?
 		return connectionLimiter.contactConnectionOpened(conn) ? conn : null;
 	}
 
