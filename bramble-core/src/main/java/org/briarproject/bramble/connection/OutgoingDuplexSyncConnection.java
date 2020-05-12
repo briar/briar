@@ -60,7 +60,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 		try {
 			// Create and run the outgoing session
 			SyncSession out = createDuplexOutgoingSession(ctx, writer);
-			outgoingSession = out;
+			setOutgoingSession(out);
 			out.run();
 			writer.dispose(false);
 		} catch (IOException e) {
@@ -104,9 +104,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			// Create and run the incoming session
 			createIncomingSession(ctx, reader).run();
 			reader.dispose(false, true);
-			// Interrupt the outgoing session so it finishes cleanly
-			SyncSession out = outgoingSession;
-			if (out != null) out.interrupt();
+			interruptOutgoingSession();
 		} catch (DbException | IOException e) {
 			logException(LOG, WARNING, e);
 			onReadError();

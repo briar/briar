@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
@@ -33,8 +34,30 @@ abstract class DuplexSyncConnection extends SyncConnection {
 	final TransportConnectionWriter writer;
 	final TransportProperties remote;
 
+	private final Object interruptLock = new Object();
+
+	@GuardedBy("interruptLock")
 	@Nullable
-	volatile SyncSession outgoingSession = null;
+	private SyncSession outgoingSession = null;
+	@GuardedBy("interruptLock")
+	private boolean interruptWaiting = false;
+
+	void interruptOutgoingSession() {
+		synchronized (interruptLock) {
+			if (outgoingSession == null) interruptWaiting = true;
+			else outgoingSession.interrupt();
+		}
+	}
+
+	void setOutgoingSession(SyncSession outgoingSession) {
+		synchronized (interruptLock) {
+			this.outgoingSession = outgoingSession;
+			if (interruptWaiting) {
+				outgoingSession.interrupt();
+				interruptWaiting = false;
+			}
+		}
+	}
 
 	DuplexSyncConnection(KeyManager keyManager,
 			ConnectionRegistry connectionRegistry,
@@ -57,9 +80,7 @@ abstract class DuplexSyncConnection extends SyncConnection {
 	void onReadError(boolean recognised) {
 		disposeOnError(reader, recognised);
 		disposeOnError(writer);
-		// Interrupt the outgoing session so it finishes
-		SyncSession out = outgoingSession;
-		if (out != null) out.interrupt();
+		interruptOutgoingSession();
 	}
 
 	void onWriteError() {
