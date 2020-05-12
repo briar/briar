@@ -37,6 +37,12 @@ public class PluginModule {
 	}
 
 	@Provides
+	ConnectionFactory provideConnectionFactory(
+			ConnectionFactoryImpl connectionFactory) {
+		return connectionFactory;
+	}
+
+	@Provides
 	@Singleton
 	ConnectionRegistry provideConnectionRegistry(
 			ConnectionRegistryImpl connectionRegistry) {
