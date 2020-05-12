@@ -1,7 +1,6 @@
 package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
@@ -47,14 +46,7 @@ class OutgoingSimplexSyncConnection extends SyncConnection implements Runnable {
 	@Override
 	public void run() {
 		// Allocate a stream context
-		StreamContext ctx;
-		try {
-			ctx = keyManager.getStreamContext(contactId, transportId);
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-			onError();
-			return;
-		}
+		StreamContext ctx = allocateStreamContext(contactId, transportId);
 		if (ctx == null) {
 			LOG.warning("Could not allocate stream context");
 			onError();

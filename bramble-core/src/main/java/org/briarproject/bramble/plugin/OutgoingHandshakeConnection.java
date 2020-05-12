@@ -44,14 +44,8 @@ class OutgoingHandshakeConnection extends HandshakeConnection
 	@Override
 	public void run() {
 		// Allocate the outgoing stream context
-		StreamContext ctxOut;
-		try {
-			ctxOut = keyManager.getStreamContext(pendingContactId, transportId);
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-			onError();
-			return;
-		}
+		StreamContext ctxOut =
+				allocateStreamContext(pendingContactId, transportId);
 		if (ctxOut == null) {
 			LOG.warning("Could not allocate stream context");
 			onError();
@@ -69,15 +63,7 @@ class OutgoingHandshakeConnection extends HandshakeConnection
 			return;
 		}
 		// Read and recognise the tag
-		StreamContext ctxIn;
-		try {
-			byte[] tag = readTag(reader.getInputStream());
-			ctxIn = keyManager.getStreamContext(transportId, tag);
-		} catch (IOException | DbException e) {
-			logException(LOG, WARNING, e);
-			onError();
-			return;
-		}
+		StreamContext ctxIn = recogniseTag(reader, transportId);
 		// Unrecognised tags are suspicious in this case
 		if (ctxIn == null) {
 			LOG.warning("Unrecognised tag for returning stream");

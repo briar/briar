@@ -1,7 +1,6 @@
 package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
@@ -41,15 +40,7 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 	@Override
 	public void run() {
 		// Read and recognise the tag
-		StreamContext ctx;
-		try {
-			byte[] tag = readTag(reader.getInputStream());
-			ctx = keyManager.getStreamContext(transportId, tag);
-		} catch (IOException | DbException e) {
-			logException(LOG, WARNING, e);
-			onError(false);
-			return;
-		}
+		StreamContext ctx = recogniseTag(reader, transportId);
 		if (ctx == null) {
 			LOG.info("Unrecognised tag");
 			onError(false);

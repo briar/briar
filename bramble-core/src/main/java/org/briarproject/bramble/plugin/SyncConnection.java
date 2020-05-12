@@ -1,9 +1,11 @@
 package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
@@ -15,7 +17,11 @@ import org.briarproject.bramble.api.transport.StreamWriterFactory;
 import java.io.IOException;
 import java.io.InputStream;
 
+import javax.annotation.Nullable;
+
+import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class SyncConnection extends Connection {
@@ -32,6 +38,17 @@ class SyncConnection extends Connection {
 				streamWriterFactory);
 		this.syncSessionFactory = syncSessionFactory;
 		this.transportPropertyManager = transportPropertyManager;
+	}
+
+	@Nullable
+	StreamContext allocateStreamContext(ContactId contactId,
+			TransportId transportId) {
+		try {
+			return keyManager.getStreamContext(contactId, transportId);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			return null;
+		}
 	}
 
 	SyncSession createIncomingSession(StreamContext ctx,

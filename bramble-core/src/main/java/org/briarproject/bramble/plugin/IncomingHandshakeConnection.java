@@ -41,15 +41,7 @@ class IncomingHandshakeConnection extends HandshakeConnection
 	@Override
 	public void run() {
 		// Read and recognise the tag
-		StreamContext ctxIn;
-		try {
-			byte[] tag = readTag(reader.getInputStream());
-			ctxIn = keyManager.getStreamContext(transportId, tag);
-		} catch (IOException | DbException e) {
-			logException(LOG, WARNING, e);
-			onError(false);
-			return;
-		}
+		StreamContext ctxIn = recogniseTag(reader, transportId);
 		if (ctxIn == null) {
 			LOG.info("Unrecognised tag");
 			onError(false);
@@ -62,14 +54,8 @@ class IncomingHandshakeConnection extends HandshakeConnection
 			return;
 		}
 		// Allocate the outgoing stream context
-		StreamContext ctxOut;
-		try {
-			ctxOut = keyManager.getStreamContext(pendingContactId, transportId);
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-			onError(true);
-			return;
-		}
+		StreamContext ctxOut =
+				allocateStreamContext(pendingContactId, transportId);
 		if (ctxOut == null) {
 			LOG.warning("Could not allocate stream context");
 			onError(true);

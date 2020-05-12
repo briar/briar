@@ -3,6 +3,7 @@ package org.briarproject.bramble.plugin;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.contact.HandshakeManager;
 import org.briarproject.bramble.api.contact.PendingContactId;
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
@@ -10,8 +11,14 @@ import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
+
+import javax.annotation.Nullable;
+
+import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.util.LogUtils.logException;
 
 abstract class HandshakeConnection extends Connection {
 
@@ -43,6 +50,17 @@ abstract class HandshakeConnection extends Connection {
 		this.connection = connection;
 		reader = connection.getReader();
 		writer = connection.getWriter();
+	}
+
+	@Nullable
+	StreamContext allocateStreamContext(PendingContactId pendingContactId,
+			TransportId transportId) {
+		try {
+			return keyManager.getStreamContext(pendingContactId, transportId);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+			return null;
+		}
 	}
 
 	void onError(boolean recognised) {

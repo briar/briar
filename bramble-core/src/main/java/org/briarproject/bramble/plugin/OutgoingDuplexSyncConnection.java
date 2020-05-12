@@ -41,14 +41,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 	@Override
 	public void run() {
 		// Allocate a stream context
-		StreamContext ctx;
-		try {
-			ctx = keyManager.getStreamContext(contactId, transportId);
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-			onWriteError();
-			return;
-		}
+		StreamContext ctx = allocateStreamContext(contactId, transportId);
 		if (ctx == null) {
 			LOG.warning("Could not allocate stream context");
 			onWriteError();
@@ -76,15 +69,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 
 	private void runIncomingSession() {
 		// Read and recognise the tag
-		StreamContext ctx;
-		try {
-			byte[] tag = readTag(reader.getInputStream());
-			ctx = keyManager.getStreamContext(transportId, tag);
-		} catch (IOException | DbException e) {
-			logException(LOG, WARNING, e);
-			onReadError();
-			return;
-		}
+		StreamContext ctx = recogniseTag(reader, transportId);
 		// Unrecognised tags are suspicious in this case
 		if (ctx == null) {
 			LOG.warning("Unrecognised tag for returning stream");
@@ -109,8 +94,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError();
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId,
-				false);
+		connectionRegistry.registerConnection(contactId, transportId, false);
 		try {
 			// Store any transport properties discovered from the connection
 			transportPropertyManager.addRemotePropertiesFromConnection(

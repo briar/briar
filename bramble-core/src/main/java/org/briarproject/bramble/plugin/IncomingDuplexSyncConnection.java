@@ -38,15 +38,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 	@Override
 	public void run() {
 		// Read and recognise the tag
-		StreamContext ctx;
-		try {
-			byte[] tag = readTag(reader.getInputStream());
-			ctx = keyManager.getStreamContext(transportId, tag);
-		} catch (IOException | DbException e) {
-			logException(LOG, WARNING, e);
-			onReadError(false);
-			return;
-		}
+		StreamContext ctx = recogniseTag(reader, transportId);
 		if (ctx == null) {
 			LOG.info("Unrecognised tag");
 			onReadError(false);
@@ -88,14 +80,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 
 	private void runOutgoingSession(ContactId contactId) {
 		// Allocate a stream context
-		StreamContext ctx;
-		try {
-			ctx = keyManager.getStreamContext(contactId, transportId);
-		} catch (DbException e) {
-			logException(LOG, WARNING, e);
-			onWriteError();
-			return;
-		}
+		StreamContext ctx = allocateStreamContext(contactId, transportId);
 		if (ctx == null) {
 			LOG.warning("Could not allocate stream context");
 			onWriteError();

@@ -1,16 +1,21 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.transport.KeyManager;
+import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -37,7 +42,20 @@ abstract class Connection {
 		this.streamWriterFactory = streamWriterFactory;
 	}
 
-	byte[] readTag(InputStream in) throws IOException {
+	@Nullable
+	StreamContext recogniseTag(TransportConnectionReader reader,
+			TransportId transportId) {
+		StreamContext ctx;
+		try {
+			byte[] tag = readTag(reader.getInputStream());
+			return keyManager.getStreamContext(transportId, tag);
+		} catch (IOException | DbException e) {
+			logException(LOG, WARNING, e);
+			return null;
+		}
+	}
+
+	private byte[] readTag(InputStream in) throws IOException {
 		byte[] tag = new byte[TAG_LENGTH];
 		read(in, tag);
 		return tag;
