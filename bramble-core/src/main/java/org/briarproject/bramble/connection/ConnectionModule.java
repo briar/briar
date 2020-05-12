@@ -12,16 +12,9 @@ import dagger.Provides;
 public class ConnectionModule {
 
 	@Provides
-	@Singleton
 	ConnectionManager provideConnectionManager(
 			ConnectionManagerImpl connectionManager) {
 		return connectionManager;
-	}
-
-	@Provides
-	ConnectionFactory provideConnectionFactory(
-			ConnectionFactoryImpl connectionFactory) {
-		return connectionFactory;
 	}
 
 	@Provides
