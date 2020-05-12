@@ -1,8 +1,9 @@
-package org.briarproject.bramble.api.plugin;
+package org.briarproject.bramble.api.connection;
 
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;

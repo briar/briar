@@ -1,10 +1,13 @@
-package org.briarproject.bramble.plugin;
+package org.briarproject.bramble.connection;
 
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
@@ -15,68 +18,61 @@ import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
 import java.io.IOException;
+import java.util.concurrent.Executor;
 
-import static java.util.logging.Level.WARNING;
+import javax.annotation.Nullable;
+
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
-import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-class OutgoingSimplexSyncConnection extends SyncConnection implements Runnable {
+abstract class DuplexSyncConnection extends SyncConnection {
 
-	private final ContactId contactId;
-	private final TransportId transportId;
-	private final TransportConnectionWriter writer;
+	final Executor ioExecutor;
+	final TransportId transportId;
+	final TransportConnectionReader reader;
+	final TransportConnectionWriter writer;
+	final TransportProperties remote;
 
-	OutgoingSimplexSyncConnection(KeyManager keyManager,
+	@Nullable
+	volatile SyncSession outgoingSession = null;
+
+	DuplexSyncConnection(KeyManager keyManager,
 			ConnectionRegistry connectionRegistry,
 			StreamReaderFactory streamReaderFactory,
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			ContactId contactId, TransportId transportId,
-			TransportConnectionWriter writer) {
+			Executor ioExecutor, TransportId transportId,
+			DuplexTransportConnection connection) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
 				transportPropertyManager);
-		this.contactId = contactId;
+		this.ioExecutor = ioExecutor;
 		this.transportId = transportId;
-		this.writer = writer;
+		reader = connection.getReader();
+		writer = connection.getWriter();
+		remote = connection.getRemoteProperties();
 	}
 
-	@Override
-	public void run() {
-		// Allocate a stream context
-		StreamContext ctx = allocateStreamContext(contactId, transportId);
-		if (ctx == null) {
-			LOG.warning("Could not allocate stream context");
-			onError();
-			return;
-		}
-		connectionRegistry.registerConnection(contactId, transportId, false);
-		try {
-			// Create and run the outgoing session
-			createSimplexOutgoingSession(ctx, writer).run();
-			writer.dispose(false);
-		} catch (IOException e) {
-			logException(LOG, WARNING, e);
-			onError();
-		} finally {
-			connectionRegistry.unregisterConnection(contactId, transportId,
-					false);
-		}
+	void onReadError(boolean recognised) {
+		disposeOnError(reader, recognised);
+		disposeOnError(writer);
+		// Interrupt the outgoing session so it finishes
+		SyncSession out = outgoingSession;
+		if (out != null) out.interrupt();
 	}
 
-	private void onError() {
+	void onWriteError() {
+		disposeOnError(reader, true);
 		disposeOnError(writer);
 	}
 
-	private SyncSession createSimplexOutgoingSession(StreamContext ctx,
+	SyncSession createDuplexOutgoingSession(StreamContext ctx,
 			TransportConnectionWriter w) throws IOException {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		ContactId c = requireNonNull(ctx.getContactId());
-		return syncSessionFactory.createSimplexOutgoingSession(c,
-				w.getMaxLatency(), streamWriter);
+		return syncSessionFactory.createDuplexOutgoingSession(c,
+				w.getMaxLatency(), w.getMaxIdleTime(), streamWriter);
 	}
 }
-

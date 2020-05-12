@@ -1,5 +1,6 @@
 package org.briarproject.bramble.rendezvous;
 
+import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactState;
 import org.briarproject.bramble.api.contact.event.PendingContactAddedEvent;
@@ -13,7 +14,6 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;

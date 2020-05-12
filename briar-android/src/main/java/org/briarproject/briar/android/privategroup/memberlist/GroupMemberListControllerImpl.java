@@ -1,10 +1,10 @@
 package org.briarproject.briar.android.privategroup.memberlist;
 
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;

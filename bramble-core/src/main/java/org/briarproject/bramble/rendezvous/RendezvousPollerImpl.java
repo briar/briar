@@ -2,6 +2,7 @@ package org.briarproject.bramble.rendezvous;
 
 import org.briarproject.bramble.PoliteExecutor;
 import org.briarproject.bramble.api.Pair;
+import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.PendingContact;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.contact.PendingContactState;
@@ -23,7 +24,6 @@ import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.lifecycle.ServiceException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;

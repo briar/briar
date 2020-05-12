@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.PluginException;
