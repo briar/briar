@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.PriorityHandler;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
@@ -30,11 +31,12 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			Executor ioExecutor, TransportId transportId,
-			DuplexTransportConnection connection) {
+			Executor ioExecutor, ConnectionChooser connectionChooser,
+			TransportId transportId, DuplexTransportConnection connection) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
-				transportPropertyManager, ioExecutor, transportId, connection);
+				transportPropertyManager, ioExecutor, connectionChooser,
+				transportId, connection);
 	}
 
 	@Override
@@ -65,8 +67,11 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			// Store any transport properties discovered from the connection
 			transportPropertyManager.addRemotePropertiesFromConnection(
 					contactId, transportId, remote);
+			// Add the connection to the chooser when we receive its priority
+			PriorityHandler handler = p -> connectionChooser.addConnection(
+					contactId, transportId, this, p);
 			// Create and run the incoming session
-			createIncomingSession(ctx, reader).run();
+			createIncomingSession(ctx, reader, handler).run();
 			reader.dispose(false, true);
 			interruptOutgoingSession();
 		} catch (DbException | IOException e) {
@@ -75,6 +80,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 		} finally {
 			connectionRegistry.unregisterConnection(contactId, transportId,
 					true);
+			connectionChooser.removeConnection(contactId, transportId, this);
 		}
 	}
 
@@ -88,7 +94,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 		}
 		try {
 			// Create and run the outgoing session
-			SyncSession out = createDuplexOutgoingSession(ctx, writer);
+			SyncSession out = createDuplexOutgoingSession(ctx, writer, null);
 			setOutgoingSession(out);
 			out.run();
 			writer.dispose(false);

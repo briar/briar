@@ -5,6 +5,8 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.sync.Priority;
+import org.briarproject.bramble.api.sync.PriorityHandler;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.SyncRecordReaderFactory;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
@@ -18,6 +20,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.concurrent.Executor;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
@@ -46,10 +49,12 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 	}
 
 	@Override
-	public SyncSession createIncomingSession(ContactId c, InputStream in) {
+	public SyncSession createIncomingSession(ContactId c, InputStream in,
+			PriorityHandler handler) {
 		SyncRecordReader recordReader =
 				recordReaderFactory.createRecordReader(in);
-		return new IncomingSession(db, dbExecutor, eventBus, c, recordReader);
+		return new IncomingSession(db, dbExecutor, eventBus, c, recordReader,
+				handler);
 	}
 
 	@Override
@@ -64,11 +69,12 @@ class SyncSessionFactoryImpl implements SyncSessionFactory {
 
 	@Override
 	public SyncSession createDuplexOutgoingSession(ContactId c, int maxLatency,
-			int maxIdleTime, StreamWriter streamWriter) {
+			int maxIdleTime, StreamWriter streamWriter,
+			@Nullable Priority priority) {
 		OutputStream out = streamWriter.getOutputStream();
 		SyncRecordWriter recordWriter =
 				recordWriterFactory.createRecordWriter(out);
 		return new DuplexOutgoingSession(db, dbExecutor, eventBus, clock, c,
-				maxLatency, maxIdleTime, streamWriter, recordWriter);
+				maxLatency, maxIdleTime, streamWriter, recordWriter, priority);
 	}
 }

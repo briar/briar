@@ -15,6 +15,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.Offer;
+import org.briarproject.bramble.api.sync.Priority;
+import org.briarproject.bramble.api.sync.PriorityHandler;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.SyncSession;
@@ -47,17 +49,19 @@ class IncomingSession implements SyncSession, EventListener {
 	private final EventBus eventBus;
 	private final ContactId contactId;
 	private final SyncRecordReader recordReader;
+	private final PriorityHandler priorityHandler;
 
 	private volatile boolean interrupted = false;
 
 	IncomingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, ContactId contactId,
-			SyncRecordReader recordReader) {
+			SyncRecordReader recordReader, PriorityHandler priorityHandler) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
 		this.contactId = contactId;
 		this.recordReader = recordReader;
+		this.priorityHandler = priorityHandler;
 	}
 
 	@IoExecutor
@@ -86,6 +90,9 @@ class IncomingSession implements SyncSession, EventListener {
 				} else if (recordReader.hasVersions()) {
 					Versions v = recordReader.readVersions();
 					dbExecutor.execute(new ReceiveVersions(v));
+				} else if (recordReader.hasPriority()) {
+					Priority p = recordReader.readPriority();
+					priorityHandler.handle(p);
 				} else {
 					// unknown records are ignored in RecordReader#eof()
 					throw new FormatException();

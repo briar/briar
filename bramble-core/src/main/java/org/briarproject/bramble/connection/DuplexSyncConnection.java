@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
@@ -29,6 +30,7 @@ import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 abstract class DuplexSyncConnection extends SyncConnection {
 
 	final Executor ioExecutor;
+	final ConnectionChooser connectionChooser;
 	final TransportId transportId;
 	final TransportConnectionReader reader;
 	final TransportConnectionWriter writer;
@@ -65,12 +67,13 @@ abstract class DuplexSyncConnection extends SyncConnection {
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			Executor ioExecutor, TransportId transportId,
-			DuplexTransportConnection connection) {
+			Executor ioExecutor, ConnectionChooser connectionChooser,
+			TransportId transportId, DuplexTransportConnection connection) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
 				transportPropertyManager);
 		this.ioExecutor = ioExecutor;
+		this.connectionChooser = connectionChooser;
 		this.transportId = transportId;
 		reader = connection.getReader();
 		writer = connection.getWriter();
@@ -89,11 +92,12 @@ abstract class DuplexSyncConnection extends SyncConnection {
 	}
 
 	SyncSession createDuplexOutgoingSession(StreamContext ctx,
-			TransportConnectionWriter w) throws IOException {
+			TransportConnectionWriter w, @Nullable Priority priority)
+			throws IOException {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		ContactId c = requireNonNull(ctx.getContactId());
 		return syncSessionFactory.createDuplexOutgoingSession(c,
-				w.getMaxLatency(), w.getMaxIdleTime(), streamWriter);
+				w.getMaxLatency(), w.getMaxIdleTime(), streamWriter, priority);
 	}
 }

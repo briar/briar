@@ -23,4 +23,11 @@ public class ConnectionModule {
 			ConnectionRegistryImpl connectionRegistry) {
 		return connectionRegistry;
 	}
+
+	@Provides
+	@Singleton
+	ConnectionChooser provideConnectionChooser(
+			ConnectionChooserImpl connectionChooser) {
+		return connectionChooser;
+	}
 }
