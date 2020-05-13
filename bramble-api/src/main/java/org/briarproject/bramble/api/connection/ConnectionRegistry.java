@@ -41,6 +41,12 @@ public interface ConnectionRegistry {
 	Collection<ContactId> getConnectedContacts(TransportId t);
 
 	/**
+	 * Returns any contacts that are connected via the given transport, or via
+	 * any transport that's preferred to the given transport.
+	 */
+	Collection<ContactId> getConnectedOrPreferredContacts(TransportId t);
+
+	/**
 	 * Returns true if the given contact is connected via the given transport.
 	 */
 	boolean isConnected(ContactId c, TransportId t);

@@ -1,12 +1,16 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
+import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reliability.ReliabilityLayerFactory;
@@ -17,6 +21,7 @@ import org.briarproject.bramble.plugin.tcp.WanTcpPluginFactory;
 
 import java.security.SecureRandom;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import dagger.Module;
@@ -24,6 +29,7 @@ import dagger.Provides;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
 
 @Module
 public class DesktopPluginModule extends PluginModule {
@@ -60,6 +66,13 @@ public class DesktopPluginModule extends PluginModule {
 			@Override
 			public boolean shouldPoll() {
 				return true;
+			}
+
+			@Override
+			public List<Pair<TransportId, TransportId>> getTransportPreferences() {
+				// Prefer LAN to Bluetooth
+				return singletonList(
+						new Pair<>(LanTcpConstants.ID, BluetoothConstants.ID));
 			}
 		};
 		return pluginConfig;

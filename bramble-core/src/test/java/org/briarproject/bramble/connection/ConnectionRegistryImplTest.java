@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import java.util.Collection;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -30,6 +32,7 @@ import static org.junit.Assert.fail;
 public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 	private final EventBus eventBus = context.mock(EventBus.class);
+	private final PluginConfig pluginConfig = context.mock(PluginConfig.class);
 
 	private final ContactId contactId = getContactId();
 	private final ContactId contactId1 = getContactId();
@@ -40,7 +43,13 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRegisterAndUnregister() {
-		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(emptyMap()));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
 
 		// The registry should be empty
 		assertEquals(emptyList(), c.getConnectedContacts(transportId));
@@ -122,7 +131,13 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testRegisterAndUnregisterPendingContacts() {
-		ConnectionRegistry c = new ConnectionRegistryImpl(eventBus);
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(emptyMap()));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
 
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(

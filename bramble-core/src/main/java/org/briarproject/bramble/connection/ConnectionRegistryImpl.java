@@ -1,11 +1,13 @@
 package org.briarproject.bramble.connection;
 
 import org.briarproject.bramble.api.Multiset;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
@@ -16,7 +18,6 @@ import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedE
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +29,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 
@@ -39,6 +41,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			getLogger(ConnectionRegistryImpl.class.getName());
 
 	private final EventBus eventBus;
+	private final List<Pair<TransportId, TransportId>> preferences;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -49,8 +52,9 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	private final Set<PendingContactId> connectedPendingContacts;
 
 	@Inject
-	ConnectionRegistryImpl(EventBus eventBus) {
+	ConnectionRegistryImpl(EventBus eventBus, PluginConfig pluginConfig) {
 		this.eventBus = eventBus;
+		preferences = pluginConfig.getTransportPreferences();
 		contactConnections = new HashMap<>();
 		contactCounts = new Multiset<>();
 		connectedPendingContacts = new HashSet<>();
@@ -106,10 +110,30 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public Collection<ContactId> getConnectedContacts(TransportId t) {
 		synchronized (lock) {
 			Multiset<ContactId> m = contactConnections.get(t);
-			if (m == null) return Collections.emptyList();
+			if (m == null) return emptyList();
 			List<ContactId> ids = new ArrayList<>(m.keySet());
 			if (LOG.isLoggable(INFO))
 				LOG.info(ids.size() + " contacts connected: " + t);
+			return ids;
+		}
+	}
+
+	@Override
+	public Collection<ContactId> getConnectedOrPreferredContacts(
+			TransportId t) {
+		synchronized (lock) {
+			Multiset<ContactId> m = contactConnections.get(t);
+			if (m == null) return emptyList();
+			Set<ContactId> ids = new HashSet<>(m.keySet());
+			for (Pair<TransportId, TransportId> pair : preferences) {
+				if (pair.getSecond().equals(t)) {
+					TransportId better = pair.getFirst();
+					Multiset<ContactId> m1 = contactConnections.get(better);
+					if (m1 != null) ids.addAll(m1.keySet());
+				}
+			}
+			if (LOG.isLoggable(INFO))
+				LOG.info(ids.size() + " contacts connected or preferred: " + t);
 			return ids;
 		}
 	}

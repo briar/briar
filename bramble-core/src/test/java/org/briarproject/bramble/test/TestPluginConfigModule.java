@@ -1,5 +1,6 @@
 package org.briarproject.bramble.test;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.PluginConfig;
@@ -10,12 +11,14 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
 import dagger.Module;
 import dagger.Provides;
 
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
@@ -84,6 +87,12 @@ public class TestPluginConfigModule {
 			@Override
 			public boolean shouldPoll() {
 				return false;
+			}
+
+
+			@Override
+			public List<Pair<TransportId, TransportId>> getTransportPreferences() {
+				return emptyList();
 			}
 		};
 		return pluginConfig;
