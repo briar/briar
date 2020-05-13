@@ -31,8 +31,8 @@ class ConnectionChooserImpl implements ConnectionChooser {
 
 	@Override
 	public void addConnection(ContactId c, TransportId t,
-			DuplexSyncConnection conn, Priority p) {
-		DuplexSyncConnection close = null;
+			InterruptibleConnection conn, Priority p) {
+		InterruptibleConnection close = null;
 		synchronized (lock) {
 			Key k = new Key(c, t);
 			Value best = bestConnections.get(k);
@@ -52,7 +52,7 @@ class ConnectionChooserImpl implements ConnectionChooser {
 
 	@Override
 	public void removeConnection(ContactId c, TransportId t,
-			DuplexSyncConnection conn) {
+			InterruptibleConnection conn) {
 		synchronized (lock) {
 			Key k = new Key(c, t);
 			Value best = bestConnections.get(k);
@@ -89,10 +89,10 @@ class ConnectionChooserImpl implements ConnectionChooser {
 
 	private static class Value {
 
-		private final DuplexSyncConnection connection;
+		private final InterruptibleConnection connection;
 		private final Priority priority;
 
-		private Value(DuplexSyncConnection connection, Priority priority) {
+		private Value(InterruptibleConnection connection, Priority priority) {
 			this.connection = connection;
 			this.priority = priority;
 		}

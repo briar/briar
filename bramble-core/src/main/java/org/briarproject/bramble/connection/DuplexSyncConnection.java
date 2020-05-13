@@ -27,7 +27,8 @@ import javax.annotation.concurrent.GuardedBy;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
-abstract class DuplexSyncConnection extends SyncConnection {
+abstract class DuplexSyncConnection extends SyncConnection
+		implements InterruptibleConnection {
 
 	final Executor ioExecutor;
 	final ConnectionChooser connectionChooser;
@@ -44,7 +45,8 @@ abstract class DuplexSyncConnection extends SyncConnection {
 	@GuardedBy("interruptLock")
 	private boolean interruptWaiting = false;
 
-	void interruptOutgoingSession() {
+	@Override
+	public void interruptOutgoingSession() {
 		synchronized (interruptLock) {
 			if (outgoingSession == null) interruptWaiting = true;
 			else outgoingSession.interrupt();
