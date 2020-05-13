@@ -32,6 +32,7 @@ class ConnectionChooserImpl implements ConnectionChooser {
 	@Override
 	public void addConnection(ContactId c, TransportId t,
 			DuplexSyncConnection conn, Priority p) {
+		DuplexSyncConnection close = null;
 		synchronized (lock) {
 			Key k = new Key(c, t);
 			Value best = bestConnections.get(k);
@@ -39,12 +40,14 @@ class ConnectionChooserImpl implements ConnectionChooser {
 				bestConnections.put(k, new Value(conn, p));
 			} else if (compare(p.getNonce(), best.priority.getNonce()) > 0) {
 				LOG.info("Found a better connection");
+				close = best.connection;
 				bestConnections.put(k, new Value(conn, p));
-				best.connection.interruptOutgoingSession();
+			} else {
+				LOG.info("Already have a better connection");
+				close = conn;
 			}
-			LOG.info("Already have a better connection");
-			conn.interruptOutgoingSession();
 		}
+		if (close != null) close.interruptOutgoingSession();
 	}
 
 	@Override
