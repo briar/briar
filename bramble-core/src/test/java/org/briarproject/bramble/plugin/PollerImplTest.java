@@ -157,7 +157,21 @@ public class PollerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testRescheduleAndReconnectOnConnectionClosed()
+	public void testRescheduleOnOutgoingConnectionClosed() {
+		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+
+		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+		}});
+		expectReschedule(plugin);
+
+		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
+				false, false));
+	}
+
+	@Test
+	public void testRescheduleAndReconnectOnOutgoingConnectionFailed()
 			throws Exception {
 		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
 		DuplexTransportConnection duplexConnection =
@@ -166,45 +180,40 @@ public class PollerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			allowing(plugin).getId();
 			will(returnValue(transportId));
-			// reschedule()
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Get the plugin
-			oneOf(pluginManager).getPlugin(transportId);
-			will(returnValue(plugin));
-			// The plugin supports polling
-			oneOf(plugin).shouldPoll();
-			will(returnValue(true));
-			// Schedule the next poll
-			oneOf(plugin).getPollingInterval();
-			will(returnValue(pollingInterval));
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with((long) pollingInterval), with(MILLISECONDS));
-			will(returnValue(future));
-			// connectToContact()
-			// Check whether the contact is already connected
-			oneOf(connectionRegistry).isConnected(contactId, transportId);
-			will(returnValue(false));
-			// Get the transport properties
-			oneOf(transportPropertyManager).getRemoteProperties(contactId,
-					transportId);
-			will(returnValue(properties));
-			// Connect to the contact
-			oneOf(plugin).createConnection(properties);
-			will(returnValue(duplexConnection));
-			// Pass the connection to the connection manager
-			oneOf(connectionManager).manageOutgoingConnection(contactId,
-					transportId, duplexConnection);
 		}});
+		expectReschedule(plugin);
+		expectReconnect(plugin, duplexConnection);
 
 		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
-				false));
+				false, true));
+	}
+
+	@Test
+	public void testRescheduleOnIncomingConnectionClosed() {
+		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+
+		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+		}});
+		expectReschedule(plugin);
+
+		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
+				true, false));
+	}
+
+	@Test
+	public void testRescheduleOnIncomingConnectionFailed() {
+		DuplexPlugin plugin = context.mock(DuplexPlugin.class);
+
+		context.checking(new Expectations() {{
+			allowing(plugin).getId();
+			will(returnValue(transportId));
+		}});
+		expectReschedule(plugin);
+
+		poller.eventOccurred(new ConnectionClosedEvent(contactId, transportId,
+				true, false));
 	}
 
 	@Test
@@ -430,5 +439,49 @@ public class PollerImplTest extends BrambleMockTestCase {
 
 		poller.eventOccurred(new TransportEnabledEvent(transportId));
 		poller.eventOccurred(new TransportDisabledEvent(transportId));
+	}
+
+	private void expectReschedule(Plugin plugin) {
+		context.checking(new Expectations() {{
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Schedule the next poll
+			oneOf(plugin).getPollingInterval();
+			will(returnValue(pollingInterval));
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(now));
+			oneOf(scheduler).schedule(with(any(Runnable.class)),
+					with((long) pollingInterval), with(MILLISECONDS));
+			will(returnValue(future));
+		}});
+	}
+
+	private void expectReconnect(DuplexPlugin plugin,
+			DuplexTransportConnection duplexConnection) throws Exception {
+		context.checking(new Expectations() {{
+			// Get the plugin
+			oneOf(pluginManager).getPlugin(transportId);
+			will(returnValue(plugin));
+			// The plugin supports polling
+			oneOf(plugin).shouldPoll();
+			will(returnValue(true));
+			// Check whether the contact is already connected
+			oneOf(connectionRegistry).isConnected(contactId, transportId);
+			will(returnValue(false));
+			// Get the transport properties
+			oneOf(transportPropertyManager).getRemoteProperties(contactId,
+					transportId);
+			will(returnValue(properties));
+			// Connect to the contact
+			oneOf(plugin).createConnection(properties);
+			will(returnValue(duplexConnection));
+			// Pass the connection to the connection manager
+			oneOf(connectionManager).manageOutgoingConnection(contactId,
+					transportId, duplexConnection);
+		}});
 	}
 }

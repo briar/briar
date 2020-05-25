@@ -108,7 +108,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
 		}});
-		c.unregisterConnection(contactId1, transportId1, conn1, true);
+		c.unregisterConnection(contactId1, transportId1, conn1, true, false);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -123,7 +123,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(
 					ContactDisconnectedEvent.class)));
 		}});
-		c.unregisterConnection(contactId1, transportId1, conn2, true);
+		c.unregisterConnection(contactId1, transportId1, conn2, true, false);
 		context.assertIsSatisfied();
 
 		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
@@ -131,7 +131,8 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 		// Try to unregister the connection again - exception should be thrown
 		try {
-			c.unregisterConnection(contactId1, transportId1, conn2, true);
+			c.unregisterConnection(contactId1, transportId1, conn2,
+					true, false);
 			fail();
 		} catch (IllegalArgumentException expected) {
 			// Expected
@@ -332,7 +333,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
 		}});
-		c.unregisterConnection(contactId1, transportId2, conn2, true);
+		c.unregisterConnection(contactId1, transportId2, conn2, true, false);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -429,7 +430,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
 		}});
-		c.unregisterConnection(contactId1, transportId1, conn1, true);
+		c.unregisterConnection(contactId1, transportId1, conn1, true, false);
 		context.assertIsSatisfied();
 
 		// The contact is not connected via transport 1 but is connected via a

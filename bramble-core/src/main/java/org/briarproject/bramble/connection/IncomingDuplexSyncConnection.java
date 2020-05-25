@@ -74,12 +74,13 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			createIncomingSession(ctx, reader, handler).run();
 			reader.dispose(false, true);
 			interruptOutgoingSession();
+			connectionRegistry.unregisterConnection(contactId, transportId,
+					this, true, false);
 		} catch (DbException | IOException e) {
 			logException(LOG, WARNING, e);
 			onReadError(true);
-		} finally {
 			connectionRegistry.unregisterConnection(contactId, transportId,
-					this, true);
+					this, true, true);
 		}
 	}
 

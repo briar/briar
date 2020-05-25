@@ -47,7 +47,7 @@ public interface ConnectionRegistry {
 	 * the contact.
 	 */
 	void unregisterConnection(ContactId c, TransportId t,
-			InterruptibleConnection conn, boolean incoming);
+			InterruptibleConnection conn, boolean incoming, boolean exception);
 
 	/**
 	 * Sets the {@link Priority priority} of a connection that was previously

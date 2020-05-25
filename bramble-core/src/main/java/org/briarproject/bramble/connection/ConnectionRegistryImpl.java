@@ -136,7 +136,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	@Override
 	public void unregisterConnection(ContactId c, TransportId t,
-			InterruptibleConnection conn, boolean incoming) {
+			InterruptibleConnection conn, boolean incoming, boolean exception) {
 		if (LOG.isLoggable(INFO)) {
 			if (incoming) LOG.info("Incoming connection unregistered: " + t);
 			else LOG.info("Outgoing connection unregistered: " + t);
@@ -148,7 +148,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 				throw new IllegalArgumentException();
 			lastConnection = recs.isEmpty();
 		}
-		eventBus.broadcast(new ConnectionClosedEvent(c, t, incoming));
+		eventBus.broadcast(
+				new ConnectionClosedEvent(c, t, incoming, exception));
 		if (lastConnection) {
 			LOG.info("Contact disconnected");
 			eventBus.broadcast(new ContactDisconnectedEvent(c));
@@ -178,8 +179,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	@Override
 	public Collection<ContactId> getConnectedOrBetterContacts(TransportId t) {
 		synchronized (lock) {
-			List<TransportId> better = betterTransports.get(t);
-			if (better == null) better = emptyList();
+			List<TransportId> better = getBetterTransports(t);
 			List<ContactId> contactIds = new ArrayList<>();
 			for (Entry<ContactId, List<ConnectionRecord>> e :
 					contactConnections.entrySet()) {

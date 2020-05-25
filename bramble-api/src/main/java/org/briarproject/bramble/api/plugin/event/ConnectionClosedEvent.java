@@ -13,13 +13,14 @@ public class ConnectionClosedEvent extends Event {
 
 	private final ContactId contactId;
 	private final TransportId transportId;
-	private final boolean incoming;
+	private final boolean incoming, exception;
 
 	public ConnectionClosedEvent(ContactId contactId, TransportId transportId,
-			boolean incoming) {
+			boolean incoming, boolean exception) {
 		this.contactId = contactId;
 		this.transportId = transportId;
 		this.incoming = incoming;
+		this.exception = exception;
 	}
 
 	public ContactId getContactId() {
@@ -32,5 +33,9 @@ public class ConnectionClosedEvent extends Event {
 
 	public boolean isIncoming() {
 		return incoming;
+	}
+
+	public boolean isException() {
+		return exception;
 	}
 }
