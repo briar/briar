@@ -42,6 +42,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	private final EventBus eventBus;
 	private final Map<TransportId, List<TransportId>> betterTransports;
+	private final Map<TransportId, List<TransportId>> worseTransports;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -53,19 +54,30 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	ConnectionRegistryImpl(EventBus eventBus, PluginConfig pluginConfig) {
 		this.eventBus = eventBus;
 		betterTransports = new HashMap<>();
-		for (Pair<TransportId, TransportId> pair :
-				pluginConfig.getTransportPreferences()) {
-			TransportId better = pair.getFirst();
-			TransportId worse = pair.getSecond();
-			List<TransportId> list = betterTransports.get(worse);
-			if (list == null) {
-				list = new ArrayList<>();
-				betterTransports.put(worse, list);
-			}
-			list.add(better);
-		}
+		worseTransports = new HashMap<>();
+		initTransportPreferences(pluginConfig.getTransportPreferences());
 		contactConnections = new HashMap<>();
 		connectedPendingContacts = new HashSet<>();
+	}
+
+	private void initTransportPreferences(
+			List<Pair<TransportId, TransportId>> prefs) {
+		for (Pair<TransportId, TransportId> pair : prefs) {
+			TransportId better = pair.getFirst();
+			TransportId worse = pair.getSecond();
+			List<TransportId> betterList = betterTransports.get(worse);
+			if (betterList == null) {
+				betterList = new ArrayList<>();
+				betterTransports.put(worse, betterList);
+			}
+			betterList.add(better);
+			List<TransportId> worseList = worseTransports.get(better);
+			if (worseList == null) {
+				worseList = new ArrayList<>();
+				worseTransports.put(better, worseList);
+			}
+			worseList.add(worse);
+		}
 	}
 
 	@Override
