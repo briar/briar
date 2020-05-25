@@ -215,7 +215,7 @@ class PollerImpl implements Poller, EventListener {
 			Map<ContactId, TransportProperties> remote =
 					transportPropertyManager.getRemoteProperties(t);
 			Collection<ContactId> connected =
-					connectionRegistry.getConnectedContacts(t);
+					connectionRegistry.getConnectedOrBetterContacts(t);
 			Collection<Pair<TransportProperties, ConnectionHandler>>
 					properties = new ArrayList<>();
 			for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {

@@ -354,7 +354,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			// Get the transport properties and connected contacts
 			oneOf(transportPropertyManager).getRemoteProperties(transportId);
 			will(returnValue(singletonMap(contactId, properties)));
-			oneOf(connectionRegistry).getConnectedContacts(transportId);
+			oneOf(connectionRegistry).getConnectedOrBetterContacts(transportId);
 			will(returnValue(emptyList()));
 			// Poll the plugin
 			oneOf(plugin).poll(with(collectionOf(
@@ -397,7 +397,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			// Get the transport properties and connected contacts
 			oneOf(transportPropertyManager).getRemoteProperties(transportId);
 			will(returnValue(singletonMap(contactId, properties)));
-			oneOf(connectionRegistry).getConnectedContacts(transportId);
+			oneOf(connectionRegistry).getConnectedOrBetterContacts(transportId);
 			will(returnValue(singletonList(contactId)));
 			// All contacts are connected, so don't poll the plugin
 		}});
