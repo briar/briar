@@ -1,6 +1,5 @@
 package org.briarproject.bramble.connection;
 
-import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -22,6 +21,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
@@ -41,22 +41,30 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			getLogger(ConnectionRegistryImpl.class.getName());
 
 	private final EventBus eventBus;
-	private final List<Pair<TransportId, TransportId>> preferences;
+	private final Map<TransportId, List<TransportId>> betterTransports;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
-	private final Map<TransportId, Multiset<ContactId>> contactConnections;
-	@GuardedBy("lock")
-	private final Multiset<ContactId> contactCounts;
+	private final Map<ContactId, List<ConnectionRecord>> contactConnections;
 	@GuardedBy("lock")
 	private final Set<PendingContactId> connectedPendingContacts;
 
 	@Inject
 	ConnectionRegistryImpl(EventBus eventBus, PluginConfig pluginConfig) {
 		this.eventBus = eventBus;
-		preferences = pluginConfig.getTransportPreferences();
+		betterTransports = new HashMap<>();
+		for (Pair<TransportId, TransportId> pair :
+				pluginConfig.getTransportPreferences()) {
+			TransportId better = pair.getFirst();
+			TransportId worse = pair.getSecond();
+			List<TransportId> list = betterTransports.get(worse);
+			if (list == null) {
+				list = new ArrayList<>();
+				betterTransports.put(worse, list);
+			}
+			list.add(better);
+		}
 		contactConnections = new HashMap<>();
-		contactCounts = new Multiset<>();
 		connectedPendingContacts = new HashSet<>();
 	}
 
@@ -69,13 +77,13 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 		boolean firstConnection = false;
 		synchronized (lock) {
-			Multiset<ContactId> m = contactConnections.get(t);
-			if (m == null) {
-				m = new Multiset<>();
-				contactConnections.put(t, m);
+			List<ConnectionRecord> recs = contactConnections.get(c);
+			if (recs == null) {
+				recs = new ArrayList<>();
+				contactConnections.put(c, recs);
 			}
-			m.add(c);
-			if (contactCounts.add(c) == 1) firstConnection = true;
+			if (recs.isEmpty()) firstConnection = true;
+			recs.add(new ConnectionRecord(t));
 		}
 		eventBus.broadcast(new ConnectionOpenedEvent(c, t, incoming));
 		if (firstConnection) {
@@ -93,11 +101,10 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 		boolean lastConnection = false;
 		synchronized (lock) {
-			Multiset<ContactId> m = contactConnections.get(t);
-			if (m == null || !m.contains(c))
+			List<ConnectionRecord> recs = contactConnections.get(c);
+			if (recs == null || !recs.remove(new ConnectionRecord(t)))
 				throw new IllegalArgumentException();
-			m.remove(c);
-			if (contactCounts.remove(c) == 0) lastConnection = true;
+			if (recs.isEmpty()) lastConnection = true;
 		}
 		eventBus.broadcast(new ConnectionClosedEvent(c, t, incoming));
 		if (lastConnection) {
@@ -109,12 +116,20 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	@Override
 	public Collection<ContactId> getConnectedContacts(TransportId t) {
 		synchronized (lock) {
-			Multiset<ContactId> m = contactConnections.get(t);
-			if (m == null) return emptyList();
-			List<ContactId> ids = new ArrayList<>(m.keySet());
-			if (LOG.isLoggable(INFO))
-				LOG.info(ids.size() + " contacts connected: " + t);
-			return ids;
+			List<ContactId> contactIds = new ArrayList<>();
+			for (Entry<ContactId, List<ConnectionRecord>> e :
+					contactConnections.entrySet()) {
+				for (ConnectionRecord rec : e.getValue()) {
+					if (rec.transportId.equals(t)) {
+						contactIds.add(e.getKey());
+						break;
+					}
+				}
+			}
+			if (LOG.isLoggable(INFO)) {
+				LOG.info(contactIds.size() + " contacts connected: " + t);
+			}
+			return contactIds;
 		}
 	}
 
@@ -122,34 +137,43 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	public Collection<ContactId> getConnectedOrPreferredContacts(
 			TransportId t) {
 		synchronized (lock) {
-			Multiset<ContactId> m = contactConnections.get(t);
-			if (m == null) return emptyList();
-			Set<ContactId> ids = new HashSet<>(m.keySet());
-			for (Pair<TransportId, TransportId> pair : preferences) {
-				if (pair.getSecond().equals(t)) {
-					TransportId better = pair.getFirst();
-					Multiset<ContactId> m1 = contactConnections.get(better);
-					if (m1 != null) ids.addAll(m1.keySet());
+			List<TransportId> better = betterTransports.get(t);
+			if (better == null) better = emptyList();
+			List<ContactId> contactIds = new ArrayList<>();
+			for (Entry<ContactId, List<ConnectionRecord>> e :
+					contactConnections.entrySet()) {
+				for (ConnectionRecord rec : e.getValue()) {
+					if (rec.transportId.equals(t) ||
+							better.contains(rec.transportId)) {
+						contactIds.add(e.getKey());
+						break;
+					}
 				}
 			}
-			if (LOG.isLoggable(INFO))
-				LOG.info(ids.size() + " contacts connected or preferred: " + t);
-			return ids;
+			if (LOG.isLoggable(INFO)) {
+				LOG.info(contactIds.size()
+						+ " contacts connected or preferred: " + t);
+			}
+			return contactIds;
 		}
 	}
 
 	@Override
 	public boolean isConnected(ContactId c, TransportId t) {
 		synchronized (lock) {
-			Multiset<ContactId> m = contactConnections.get(t);
-			return m != null && m.contains(c);
+			List<ConnectionRecord> recs = contactConnections.get(c);
+			if (recs == null) return false;
+			for (ConnectionRecord rec : recs) {
+				if (rec.transportId.equals(t)) return true;
+			}
+			return false;
 		}
 	}
 
 	@Override
 	public boolean isConnected(ContactId c) {
 		synchronized (lock) {
-			return contactCounts.contains(c);
+			return contactConnections.containsKey(c);
 		}
 	}
 
@@ -170,5 +194,28 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 				throw new IllegalArgumentException();
 		}
 		eventBus.broadcast(new RendezvousConnectionClosedEvent(p, success));
+	}
+
+	private static class ConnectionRecord {
+
+		private final TransportId transportId;
+
+		private ConnectionRecord(TransportId transportId) {
+			this.transportId = transportId;
+		}
+
+		@Override
+		public boolean equals(Object o) {
+			if (o instanceof ConnectionRecord) {
+				ConnectionRecord rec = (ConnectionRecord) o;
+				return transportId.equals(rec.transportId);
+			}
+			return false;
+		}
+
+		@Override
+		public int hashCode() {
+			return transportId.hashCode();
+		}
 	}
 }

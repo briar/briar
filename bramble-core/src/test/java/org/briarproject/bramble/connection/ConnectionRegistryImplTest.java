@@ -19,7 +19,6 @@ import org.junit.Test;
 import java.util.Collection;
 
 import static java.util.Collections.emptyList;
-import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -45,7 +44,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	public void testRegisterAndUnregister() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
-			will(returnValue(emptyMap()));
+			will(returnValue(emptyList()));
 		}});
 
 		ConnectionRegistry c =
@@ -133,7 +132,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	public void testRegisterAndUnregisterPendingContacts() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
-			will(returnValue(emptyMap()));
+			will(returnValue(emptyList()));
 		}});
 
 		ConnectionRegistry c =
