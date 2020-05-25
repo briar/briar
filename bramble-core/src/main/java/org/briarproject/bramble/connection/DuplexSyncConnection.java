@@ -1,6 +1,7 @@
 package org.briarproject.bramble.connection;
 
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
+import org.briarproject.bramble.api.connection.InterruptibleConnection;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
@@ -31,7 +32,6 @@ abstract class DuplexSyncConnection extends SyncConnection
 		implements InterruptibleConnection {
 
 	final Executor ioExecutor;
-	final ConnectionChooser connectionChooser;
 	final TransportId transportId;
 	final TransportConnectionReader reader;
 	final TransportConnectionWriter writer;
@@ -69,13 +69,12 @@ abstract class DuplexSyncConnection extends SyncConnection
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			Executor ioExecutor, ConnectionChooser connectionChooser,
-			TransportId transportId, DuplexTransportConnection connection) {
+			Executor ioExecutor, TransportId transportId,
+			DuplexTransportConnection connection) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
 				transportPropertyManager);
 		this.ioExecutor = ioExecutor;
-		this.connectionChooser = connectionChooser;
 		this.transportId = transportId;
 		reader = connection.getReader();
 		writer = connection.getWriter();

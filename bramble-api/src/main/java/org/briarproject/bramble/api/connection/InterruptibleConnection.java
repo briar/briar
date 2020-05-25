@@ -1,4 +1,4 @@
-package org.briarproject.bramble.connection;
+package org.briarproject.bramble.api.connection;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
  * sync session.
  */
 @NotNullByDefault
-interface InterruptibleConnection {
+public interface InterruptibleConnection {
 
 	/**
 	 * Interrupts the connection's outgoing sync session. If the underlying

@@ -37,13 +37,11 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			Executor ioExecutor, ConnectionChooser connectionChooser,
-			SecureRandom secureRandom, ContactId contactId,
+			Executor ioExecutor, SecureRandom secureRandom, ContactId contactId,
 			TransportId transportId, DuplexTransportConnection connection) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
-				transportPropertyManager, ioExecutor, connectionChooser,
-				transportId, connection);
+				transportPropertyManager, ioExecutor, transportId, connection);
 		this.secureRandom = secureRandom;
 		this.contactId = contactId;
 	}
@@ -106,8 +104,9 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError();
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId, false);
-		connectionChooser.addConnection(contactId, transportId, this, priority);
+		connectionRegistry.registerConnection(contactId, transportId,
+				this, false);
+		connectionRegistry.setPriority(contactId, transportId, this, priority);
 		try {
 			// Store any transport properties discovered from the connection
 			transportPropertyManager.addRemotePropertiesFromConnection(
@@ -124,8 +123,7 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError();
 		} finally {
 			connectionRegistry.unregisterConnection(contactId, transportId,
-					false);
-			connectionChooser.removeConnection(contactId, transportId, this);
+					this, false);
 		}
 	}
 

@@ -52,7 +52,6 @@ class OutgoingSimplexSyncConnection extends SyncConnection implements Runnable {
 			onError();
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId, false);
 		try {
 			// Create and run the outgoing session
 			createSimplexOutgoingSession(ctx, writer).run();
@@ -60,9 +59,6 @@ class OutgoingSimplexSyncConnection extends SyncConnection implements Runnable {
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			onError();
-		} finally {
-			connectionRegistry.unregisterConnection(contactId, transportId,
-					false);
 		}
 	}
 

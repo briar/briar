@@ -3,6 +3,7 @@ package org.briarproject.bramble.api.connection;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.event.ConnectionClosedEvent;
 import org.briarproject.bramble.api.plugin.event.ConnectionOpenedEvent;
@@ -10,6 +11,7 @@ import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.sync.Priority;
 
 import java.util.Collection;
 
@@ -21,19 +23,46 @@ public interface ConnectionRegistry {
 
 	/**
 	 * Registers a connection with the given contact over the given transport.
+	 * <p>
+	 * If the registry has any connections with the same contact and a
+	 * {@link PluginConfig#getTransportPreferences() worse} transport, those
+	 * connections will be
+	 * {@link InterruptibleConnection#interruptOutgoingSession() interrupted}.
+	 * <p>
+	 * If the registry has any connections with the same contact and a better
+	 * transport, the given connection will be interrupted.
+	 * <p>
 	 * Broadcasts {@link ConnectionOpenedEvent}. Also broadcasts
 	 * {@link ContactConnectedEvent} if this is the only connection with the
 	 * contact.
 	 */
-	void registerConnection(ContactId c, TransportId t, boolean incoming);
+	void registerConnection(ContactId c, TransportId t,
+			InterruptibleConnection conn, boolean incoming);
 
 	/**
 	 * Unregisters a connection with the given contact over the given transport.
+	 * <p>
 	 * Broadcasts {@link ConnectionClosedEvent}. Also broadcasts
 	 * {@link ContactDisconnectedEvent} if this is the only connection with
 	 * the contact.
 	 */
-	void unregisterConnection(ContactId c, TransportId t, boolean incoming);
+	void unregisterConnection(ContactId c, TransportId t,
+			InterruptibleConnection conn, boolean incoming);
+
+	/**
+	 * Sets the {@link Priority priority} of a connection that was previously
+	 * registered via {@link #registerConnection(ContactId, TransportId,
+	 * InterruptibleConnection, boolean)}.
+	 * <p>
+	 * If the registry has any connections with the same contact and transport
+	 * and a lower {@link Priority priority}, those connections will be
+	 * {@link InterruptibleConnection#interruptOutgoingSession() interrupted}.
+	 * <p>
+	 * If the registry has any connections with the same contact and transport
+	 * and a higher priority, the given connection will be interrupted.
+	 */
+	void setPriority(ContactId c, TransportId t, InterruptibleConnection conn,
+			Priority priority);
 
 	/**
 	 * Returns any contacts that are connected via the given transport.
@@ -41,10 +70,10 @@ public interface ConnectionRegistry {
 	Collection<ContactId> getConnectedContacts(TransportId t);
 
 	/**
-	 * Returns any contacts that are connected via the given transport, or via
-	 * any transport that's preferred to the given transport.
+	 * Returns any contacts that are connected via the given transport or any
+	 * {@link PluginConfig#getTransportPreferences() better} transport.
 	 */
-	Collection<ContactId> getConnectedOrPreferredContacts(TransportId t);
+	Collection<ContactId> getConnectedOrBetterContacts(TransportId t);
 
 	/**
 	 * Returns true if the given contact is connected via the given transport.

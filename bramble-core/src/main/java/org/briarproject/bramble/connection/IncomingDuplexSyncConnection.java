@@ -31,12 +31,11 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			StreamWriterFactory streamWriterFactory,
 			SyncSessionFactory syncSessionFactory,
 			TransportPropertyManager transportPropertyManager,
-			Executor ioExecutor, ConnectionChooser connectionChooser,
-			TransportId transportId, DuplexTransportConnection connection) {
+			Executor ioExecutor, TransportId transportId,
+			DuplexTransportConnection connection) {
 		super(keyManager, connectionRegistry, streamReaderFactory,
 				streamWriterFactory, syncSessionFactory,
-				transportPropertyManager, ioExecutor, connectionChooser,
-				transportId, connection);
+				transportPropertyManager, ioExecutor, transportId, connection);
 	}
 
 	@Override
@@ -60,15 +59,16 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError(true);
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId, true);
+		connectionRegistry.registerConnection(contactId, transportId,
+				this, true);
 		// Start the outgoing session on another thread
 		ioExecutor.execute(() -> runOutgoingSession(contactId));
 		try {
 			// Store any transport properties discovered from the connection
 			transportPropertyManager.addRemotePropertiesFromConnection(
 					contactId, transportId, remote);
-			// Add the connection to the chooser when we receive its priority
-			PriorityHandler handler = p -> connectionChooser.addConnection(
+			// Update the connection registry when we receive our priority
+			PriorityHandler handler = p -> connectionRegistry.setPriority(
 					contactId, transportId, this, p);
 			// Create and run the incoming session
 			createIncomingSession(ctx, reader, handler).run();
@@ -79,8 +79,7 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError(true);
 		} finally {
 			connectionRegistry.unregisterConnection(contactId, transportId,
-					true);
-			connectionChooser.removeConnection(contactId, transportId, this);
+					this, true);
 		}
 	}
 

@@ -1,7 +1,9 @@
 package org.briarproject.bramble.connection;
 
+import org.briarproject.bramble.api.Bytes;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
+import org.briarproject.bramble.api.connection.InterruptibleConnection;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.event.EventBus;
@@ -14,6 +16,7 @@ import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.sync.Priority;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +28,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
@@ -42,7 +46,6 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 
 	private final EventBus eventBus;
 	private final Map<TransportId, List<TransportId>> betterTransports;
-	private final Map<TransportId, List<TransportId>> worseTransports;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -54,7 +57,6 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	ConnectionRegistryImpl(EventBus eventBus, PluginConfig pluginConfig) {
 		this.eventBus = eventBus;
 		betterTransports = new HashMap<>();
-		worseTransports = new HashMap<>();
 		initTransportPreferences(pluginConfig.getTransportPreferences());
 		contactConnections = new HashMap<>();
 		connectedPendingContacts = new HashSet<>();
@@ -71,31 +73,50 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 				betterTransports.put(worse, betterList);
 			}
 			betterList.add(better);
-			List<TransportId> worseList = worseTransports.get(better);
-			if (worseList == null) {
-				worseList = new ArrayList<>();
-				worseTransports.put(better, worseList);
-			}
-			worseList.add(worse);
 		}
 	}
 
 	@Override
 	public void registerConnection(ContactId c, TransportId t,
-			boolean incoming) {
+			InterruptibleConnection conn, boolean incoming) {
 		if (LOG.isLoggable(INFO)) {
 			if (incoming) LOG.info("Incoming connection registered: " + t);
 			else LOG.info("Outgoing connection registered: " + t);
 		}
-		boolean firstConnection = false;
+		List<InterruptibleConnection> toInterrupt;
+		boolean firstConnection = false, interruptNewConnection = false;
 		synchronized (lock) {
 			List<ConnectionRecord> recs = contactConnections.get(c);
 			if (recs == null) {
 				recs = new ArrayList<>();
 				contactConnections.put(c, recs);
 			}
-			if (recs.isEmpty()) firstConnection = true;
-			recs.add(new ConnectionRecord(t));
+			if (recs.isEmpty()) {
+				toInterrupt = emptyList();
+				firstConnection = true;
+			} else {
+				toInterrupt = new ArrayList<>(recs.size());
+				for (ConnectionRecord rec : recs) {
+					int compare = compare(t, rec.transportId);
+					if (compare == -1) {
+						// The old connection is better than the new one
+						interruptNewConnection = true;
+					} else if (compare == 1 && !rec.interrupted) {
+						// The new connection is better than the old one
+						toInterrupt.add(rec.conn);
+						rec.interrupted = true;
+					}
+				}
+			}
+			recs.add(new ConnectionRecord(t, conn));
+		}
+		if (interruptNewConnection) {
+			LOG.info("Interrupting new connection");
+			conn.interruptOutgoingSession();
+		}
+		for (InterruptibleConnection old : toInterrupt) {
+			LOG.info("Interrupting old connection");
+			old.interruptOutgoingSession();
 		}
 		eventBus.broadcast(new ConnectionOpenedEvent(c, t, incoming));
 		if (firstConnection) {
@@ -104,9 +125,61 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		}
 	}
 
+	private int compare(TransportId a, TransportId b) {
+		if (getBetterTransports(a).contains(b)) return -1;
+		else if (getBetterTransports(b).contains(a)) return 1;
+		else return 0;
+	}
+
+	private List<TransportId> getBetterTransports(TransportId t) {
+		List<TransportId> better = betterTransports.get(t);
+		return better == null ? emptyList() : better;
+	}
+
+	@Override
+	public void setPriority(ContactId c, TransportId t,
+			InterruptibleConnection conn, Priority priority) {
+		if (LOG.isLoggable(INFO)) LOG.info("Setting connection priority: " + t);
+		List<InterruptibleConnection> toInterrupt;
+		boolean interruptNewConnection = false;
+		synchronized (lock) {
+			List<ConnectionRecord> recs = contactConnections.get(c);
+			if (recs == null) throw new IllegalArgumentException();
+			toInterrupt = new ArrayList<>(recs.size());
+			for (ConnectionRecord rec : recs) {
+				if (rec.conn == conn) {
+					// Store the priority of this connection
+					rec.priority = priority;
+				} else if (rec.transportId.equals(t)) {
+					int compare = compare(priority, rec.priority);
+					if (compare == -1) {
+						// The old connection is better than the new one
+						interruptNewConnection = true;
+					} else if (compare == 1 && !rec.interrupted) {
+						// The new connection is better than the old one
+						toInterrupt.add(rec.conn);
+						rec.interrupted = true;
+					}
+				}
+			}
+		}
+		if (interruptNewConnection) {
+			LOG.info("Interrupting new connection");
+			conn.interruptOutgoingSession();
+		}
+		for (InterruptibleConnection old : toInterrupt) {
+			LOG.info("Interrupting old connection");
+			old.interruptOutgoingSession();
+		}
+	}
+
+	private int compare(Priority a, @Nullable Priority b) {
+		return b == null ? 0 : Bytes.compare(a.getNonce(), b.getNonce());
+	}
+
 	@Override
 	public void unregisterConnection(ContactId c, TransportId t,
-			boolean incoming) {
+			InterruptibleConnection conn, boolean incoming) {
 		if (LOG.isLoggable(INFO)) {
 			if (incoming) LOG.info("Incoming connection unregistered: " + t);
 			else LOG.info("Outgoing connection unregistered: " + t);
@@ -114,7 +187,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		boolean lastConnection = false;
 		synchronized (lock) {
 			List<ConnectionRecord> recs = contactConnections.get(c);
-			if (recs == null || !recs.remove(new ConnectionRecord(t)))
+			if (recs == null || !recs.remove(new ConnectionRecord(t, conn)))
 				throw new IllegalArgumentException();
 			if (recs.isEmpty()) lastConnection = true;
 		}
@@ -146,8 +219,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	}
 
 	@Override
-	public Collection<ContactId> getConnectedOrPreferredContacts(
-			TransportId t) {
+	public Collection<ContactId> getConnectedOrBetterContacts(TransportId t) {
 		synchronized (lock) {
 			List<TransportId> better = betterTransports.get(t);
 			if (better == null) better = emptyList();
@@ -164,7 +236,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			}
 			if (LOG.isLoggable(INFO)) {
 				LOG.info(contactIds.size()
-						+ " contacts connected or preferred: " + t);
+						+ " contacts connected or better: " + t);
 			}
 			return contactIds;
 		}
@@ -208,26 +280,34 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		eventBus.broadcast(new RendezvousConnectionClosedEvent(p, success));
 	}
 
-	private static class ConnectionRecord {
+	private class ConnectionRecord {
 
 		private final TransportId transportId;
+		private final InterruptibleConnection conn;
+		@GuardedBy("lock")
+		@Nullable
+		private Priority priority = null;
+		@GuardedBy("lock")
+		private boolean interrupted = false;
 
-		private ConnectionRecord(TransportId transportId) {
+		private ConnectionRecord(TransportId transportId,
+				InterruptibleConnection conn) {
 			this.transportId = transportId;
+			this.conn = conn;
 		}
 
 		@Override
 		public boolean equals(Object o) {
 			if (o instanceof ConnectionRecord) {
-				ConnectionRecord rec = (ConnectionRecord) o;
-				return transportId.equals(rec.transportId);
+				return conn == ((ConnectionRecord) o).conn;
+			} else {
+				return false;
 			}
-			return false;
 		}
 
 		@Override
 		public int hashCode() {
-			return transportId.hashCode();
+			return conn.hashCode();
 		}
 	}
 }

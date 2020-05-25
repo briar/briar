@@ -1,6 +1,8 @@
 package org.briarproject.bramble.connection;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
+import org.briarproject.bramble.api.connection.InterruptibleConnection;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.event.EventBus;
@@ -12,6 +14,7 @@ import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
+import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.jmock.Expectations;
 import org.junit.Test;
@@ -23,6 +26,7 @@ import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
+import static org.briarproject.bramble.util.StringUtils.fromHexString;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -32,16 +36,28 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 	private final EventBus eventBus = context.mock(EventBus.class);
 	private final PluginConfig pluginConfig = context.mock(PluginConfig.class);
+	private final InterruptibleConnection conn1 =
+			context.mock(InterruptibleConnection.class, "conn1");
+	private final InterruptibleConnection conn2 =
+			context.mock(InterruptibleConnection.class, "conn2");
+	private final InterruptibleConnection conn3 =
+			context.mock(InterruptibleConnection.class, "conn3");
 
-	private final ContactId contactId = getContactId();
 	private final ContactId contactId1 = getContactId();
-	private final TransportId transportId = getTransportId();
+	private final ContactId contactId2 = getContactId();
 	private final TransportId transportId1 = getTransportId();
+	private final TransportId transportId2 = getTransportId();
+	private final TransportId transportId3 = getTransportId();
 	private final PendingContactId pendingContactId =
 			new PendingContactId(getRandomId());
 
+	private final Priority low =
+			new Priority(fromHexString("00000000000000000000000000000000"));
+	private final Priority high =
+			new Priority(fromHexString("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF"));
+
 	@Test
-	public void testRegisterAndUnregister() {
+	public void testRegisterMultipleConnections() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
 			will(returnValue(emptyList()));
@@ -51,8 +67,12 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 				new ConnectionRegistryImpl(eventBus, pluginConfig);
 
 		// The registry should be empty
-		assertEquals(emptyList(), c.getConnectedContacts(transportId));
 		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId2));
+		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId2));
+		assertEquals(emptyList(), c.getConnectedContacts(transportId3));
+		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId3));
 
 		// Check that a registered connection shows up - this should
 		// broadcast a ConnectionOpenedEvent and a ContactConnectedEvent
@@ -60,33 +80,40 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId, transportId, true);
-		assertEquals(singletonList(contactId),
-				c.getConnectedContacts(transportId));
-		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		c.registerConnection(contactId1, transportId1, conn1, true);
 		context.assertIsSatisfied();
 
-		// Register an identical connection - this should broadcast a
-		// ConnectionOpenedEvent and lookup should be unaffected
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// Register another connection with the same contact and transport -
+		// this should broadcast a ConnectionOpenedEvent and lookup should be
+		// unaffected
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId, transportId, true);
-		assertEquals(singletonList(contactId),
-				c.getConnectedContacts(transportId));
-		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		c.registerConnection(contactId1, transportId1, conn2, true);
 		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
 
 		// Unregister one of the connections - this should broadcast a
 		// ConnectionClosedEvent and lookup should be unaffected
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
 		}});
-		c.unregisterConnection(contactId, transportId, true);
-		assertEquals(singletonList(contactId),
-				c.getConnectedContacts(transportId));
-		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		c.unregisterConnection(contactId1, transportId1, conn1, true);
 		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
 
 		// Unregister the other connection - this should broadcast a
 		// ConnectionClosedEvent and a ContactDisconnectedEvent
@@ -95,37 +122,363 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(
 					ContactDisconnectedEvent.class)));
 		}});
-		c.unregisterConnection(contactId, transportId, true);
-		assertEquals(emptyList(), c.getConnectedContacts(transportId));
-		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		c.unregisterConnection(contactId1, transportId1, conn2, true);
 		context.assertIsSatisfied();
+
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId1));
 
 		// Try to unregister the connection again - exception should be thrown
 		try {
-			c.unregisterConnection(contactId, transportId, true);
+			c.unregisterConnection(contactId1, transportId1, conn2, true);
 			fail();
 		} catch (IllegalArgumentException expected) {
 			// Expected
 		}
+	}
 
-		// Register both contacts with one transport, one contact with both -
-		// this should broadcast three ConnectionOpenedEvents and two
-		// ContactConnectedEvents
+	@Test
+	public void testRegisterMultipleContacts() {
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(emptyList()));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
+
+		// Register two contacts with one transport, then one of the contacts
+		// with a second transport - this should broadcast three
+		// ConnectionOpenedEvents and two ContactConnectedEvents
 		context.checking(new Expectations() {{
 			exactly(3).of(eventBus).broadcast(with(any(
 					ConnectionOpenedEvent.class)));
 			exactly(2).of(eventBus).broadcast(with(any(
 					ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId, transportId, true);
-		c.registerConnection(contactId1, transportId, true);
-		c.registerConnection(contactId1, transportId1, true);
-		Collection<ContactId> connected = c.getConnectedContacts(transportId);
+		c.registerConnection(contactId1, transportId1, conn1, true);
+		c.registerConnection(contactId2, transportId1, conn2, true);
+		c.registerConnection(contactId2, transportId2, conn3, true);
+		context.assertIsSatisfied();
+
+		Collection<ContactId> connected = c.getConnectedContacts(transportId1);
 		assertEquals(2, connected.size());
-		assertTrue(connected.contains(contactId));
 		assertTrue(connected.contains(contactId1));
+		assertTrue(connected.contains(contactId2));
+
+		connected = c.getConnectedOrBetterContacts(transportId1);
+		assertEquals(2, connected.size());
+		assertTrue(connected.contains(contactId1));
+		assertTrue(connected.contains(contactId2));
+
+		assertEquals(singletonList(contactId2),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId2),
+				c.getConnectedOrBetterContacts(transportId2));
+	}
+
+	@Test
+	public void testNewConnectionIsInterruptedIfOldConnectionUsesBetterTransport() {
+		// Prefer transport 1 to transport 2
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(
+					singletonList(new Pair<>(transportId1, transportId2))));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
+
+		// Connect via transport 1 (better than 2)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn1, true);
+		context.assertIsSatisfied();
+
 		assertEquals(singletonList(contactId1),
 				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// The contact is not connected via transport 2 but is connected via a
+		// better transport
+		assertEquals(emptyList(), c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		// Connect via transport 2 (worse than 1) - the new connection should
+		// be interrupted
+		context.checking(new Expectations() {{
+			oneOf(conn2).interruptOutgoingSession();
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId2, conn2, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		// Connect via transport 3 (no preference)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId3, conn3, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId3));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId3));
+
+		// Unregister the interrupted connection (transport 2)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
+		}});
+		c.unregisterConnection(contactId1, transportId2, conn2, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// The contact is not connected via transport 2 but is connected via a
+		// better transport
+		assertEquals(emptyList(), c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId3));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId3));
+	}
+
+	@Test
+	public void testOldConnectionIsInterruptedIfNewConnectionUsesBetterTransport() {
+		// Prefer transport 2 to transport 1
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(
+					singletonList(new Pair<>(transportId2, transportId1))));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
+
+		// Connect via transport 1 (worse than 2)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn1, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(emptyList(), c.getConnectedContacts(transportId2));
+		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId2));
+
+		// Connect via transport 2 (better than 1) - the old connection should
+		// be interrupted
+		context.checking(new Expectations() {{
+			oneOf(conn1).interruptOutgoingSession();
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId2, conn2, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		// Connect via transport 3 (no preference)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId3, conn3, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId3));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId3));
+
+		// Unregister the interrupted connection (transport 1)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionClosedEvent.class)));
+		}});
+		c.unregisterConnection(contactId1, transportId1, conn1, true);
+		context.assertIsSatisfied();
+
+		// The contact is not connected via transport 1 but is connected via a
+		// better transport
+		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId3));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId3));
+	}
+
+	@Test
+	public void testNewConnectionIsInterruptedIfOldConnectionHasHigherPriority() {
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(emptyList()));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
+
+		// Register a connection with high priority
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn1, true);
+		c.setPriority(contactId1, transportId1, conn1, high);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// Register another connection via the same transport (no priority yet)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn2, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// Set the priority of the second connection to low - the second
+		// connection should be interrupted
+		context.checking(new Expectations() {{
+			oneOf(conn2).interruptOutgoingSession();
+		}});
+		c.setPriority(contactId1, transportId1, conn2, low);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// Register a third connection with low priority - it should also be
+		// interrupted
+		context.checking(new Expectations() {{
+			oneOf(conn3).interruptOutgoingSession();
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn3, true);
+		c.setPriority(contactId1, transportId1, conn3, low);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+	}
+
+	@Test
+	public void testOldConnectionIsInterruptedIfNewConnectionHasHigherPriority() {
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(emptyList()));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
+
+		// Register a connection with low priority
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn1, true);
+		c.setPriority(contactId1, transportId1, conn1, low);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// Register another connection via the same transport (no priority yet)
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn2, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		// Set the priority of the second connection to high - the first
+		// connection should be interrupted
+		context.checking(new Expectations() {{
+			oneOf(conn1).interruptOutgoingSession();
+		}});
+		c.setPriority(contactId1, transportId1, conn2, high);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
 	}
 
 	@Test

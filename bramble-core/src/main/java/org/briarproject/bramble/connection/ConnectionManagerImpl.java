@@ -37,7 +37,6 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private final ContactExchangeManager contactExchangeManager;
 	private final ConnectionRegistry connectionRegistry;
 	private final TransportPropertyManager transportPropertyManager;
-	private final ConnectionChooser connectionChooser;
 	private final SecureRandom secureRandom;
 
 	@Inject
@@ -49,7 +48,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 			ContactExchangeManager contactExchangeManager,
 			ConnectionRegistry connectionRegistry,
 			TransportPropertyManager transportPropertyManager,
-			ConnectionChooser connectionChooser, SecureRandom secureRandom) {
+			SecureRandom secureRandom) {
 		this.ioExecutor = ioExecutor;
 		this.keyManager = keyManager;
 		this.streamReaderFactory = streamReaderFactory;
@@ -59,7 +58,6 @@ class ConnectionManagerImpl implements ConnectionManager {
 		this.contactExchangeManager = contactExchangeManager;
 		this.connectionRegistry = connectionRegistry;
 		this.transportPropertyManager = transportPropertyManager;
-		this.connectionChooser = connectionChooser;
 		this.secureRandom = secureRandom;
 	}
 
@@ -78,7 +76,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		ioExecutor.execute(new IncomingDuplexSyncConnection(keyManager,
 				connectionRegistry, streamReaderFactory, streamWriterFactory,
 				syncSessionFactory, transportPropertyManager, ioExecutor,
-				connectionChooser, t, d));
+				t, d));
 	}
 
 	@Override
@@ -103,7 +101,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		ioExecutor.execute(new OutgoingDuplexSyncConnection(keyManager,
 				connectionRegistry, streamReaderFactory, streamWriterFactory,
 				syncSessionFactory, transportPropertyManager, ioExecutor,
-				connectionChooser, secureRandom, c, t, d));
+				secureRandom, c, t, d));
 	}
 
 	@Override

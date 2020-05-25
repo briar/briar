@@ -59,7 +59,6 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 			onError(true);
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId, true);
 		try {
 			// We don't expect to receive a priority for this connection
 			PriorityHandler handler = p ->
@@ -70,9 +69,6 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			onError(true);
-		} finally {
-			connectionRegistry.unregisterConnection(contactId, transportId,
-					true);
 		}
 	}
 
