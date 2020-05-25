@@ -166,6 +166,9 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 						dataToFlush = true;
 					}
 				}
+				// Write any records that were already in the queue
+				ThrowingRunnable<IOException> task;
+				while ((task = writerTasks.poll()) != null) task.run();
 				streamWriter.sendEndOfStream();
 			} catch (InterruptedException e) {
 				LOG.info("Interrupted while waiting for a record to write");
