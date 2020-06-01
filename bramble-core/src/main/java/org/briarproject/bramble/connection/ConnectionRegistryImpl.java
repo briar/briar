@@ -253,7 +253,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 		eventBus.broadcast(new RendezvousConnectionClosedEvent(p, success));
 	}
 
-	private class ConnectionRecord {
+	private static class ConnectionRecord {
 
 		private final TransportId transportId;
 		private final InterruptibleConnection conn;
