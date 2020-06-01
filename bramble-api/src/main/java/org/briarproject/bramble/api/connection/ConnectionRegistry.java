@@ -24,14 +24,6 @@ public interface ConnectionRegistry {
 	/**
 	 * Registers a connection with the given contact over the given transport.
 	 * <p>
-	 * If the registry has any connections with the same contact and a
-	 * {@link PluginConfig#getTransportPreferences() worse} transport, those
-	 * connections will be
-	 * {@link InterruptibleConnection#interruptOutgoingSession() interrupted}.
-	 * <p>
-	 * If the registry has any connections with the same contact and a better
-	 * transport, the given connection will be interrupted.
-	 * <p>
 	 * Broadcasts {@link ConnectionOpenedEvent}. Also broadcasts
 	 * {@link ContactConnectedEvent} if this is the only connection with the
 	 * contact.
@@ -54,12 +46,19 @@ public interface ConnectionRegistry {
 	 * registered via {@link #registerConnection(ContactId, TransportId,
 	 * InterruptibleConnection, boolean)}.
 	 * <p>
-	 * If the registry has any connections with the same contact and transport
-	 * and a lower {@link Priority priority}, those connections will be
-	 * {@link InterruptibleConnection#interruptOutgoingSession() interrupted}.
+	 * If the registry has any "better" connections with the given contact, the
+	 * given connection will be interrupted. If the registry has any "worse"
+	 * connections with the given contact, those connections will be
+	 * interrupted.
 	 * <p>
-	 * If the registry has any connections with the same contact and transport
-	 * and a higher priority, the given connection will be interrupted.
+	 * Connection A is considered "better" than connection B if both
+	 * connections have had their priorities set, and either A's transport is
+	 * {@link PluginConfig#getTransportPreferences() preferred} to B's, or
+	 * they use the same transport and A has higher {@link Priority priority}
+	 * than B.
+	 * <p>
+	 * For backward compatibility, connections without priorities are not
+	 * considered better or worse than other connections.
 	 */
 	void setPriority(ContactId c, TransportId t, InterruptibleConnection conn,
 			Priority priority);
