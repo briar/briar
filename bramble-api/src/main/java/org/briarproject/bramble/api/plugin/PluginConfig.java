@@ -1,12 +1,12 @@
 package org.briarproject.bramble.api.plugin;
 
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 @NotNullByDefault
 public interface PluginConfig {
@@ -18,8 +18,9 @@ public interface PluginConfig {
 	boolean shouldPoll();
 
 	/**
-	 * Returns a list of transport preferences. For each pair in the list,
-	 * the first transport is preferred to the second.
+	 * Returns a map representing transport preferences. For each entry in the
+	 * map, connections via the transports identified by the value are
+	 * preferred to connections via the transport identified by the key.
 	 */
-	List<Pair<TransportId, TransportId>> getTransportPreferences();
+	Map<TransportId, List<TransportId>> getTransportPreferences();
 }

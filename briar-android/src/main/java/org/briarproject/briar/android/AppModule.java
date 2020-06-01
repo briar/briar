@@ -8,7 +8,6 @@ import android.os.StrictMode;
 import com.vanniktech.emoji.RecentEmoji;
 
 import org.briarproject.bramble.api.FeatureFlags;
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyStrengthener;
@@ -53,6 +52,7 @@ import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -68,6 +68,7 @@ import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -160,12 +161,11 @@ public class AppModule {
 				return true;
 			}
 
-
 			@Override
-			public List<Pair<TransportId, TransportId>> getTransportPreferences() {
+			public Map<TransportId, List<TransportId>> getTransportPreferences() {
 				// Prefer LAN to Bluetooth
-				return singletonList(
-						new Pair<>(LanTcpConstants.ID, BluetoothConstants.ID));
+				return singletonMap(BluetoothConstants.ID,
+						singletonList(LanTcpConstants.ID));
 			}
 		};
 		return pluginConfig;

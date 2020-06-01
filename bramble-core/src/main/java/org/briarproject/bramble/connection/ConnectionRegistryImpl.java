@@ -1,7 +1,6 @@
 package org.briarproject.bramble.connection;
 
 import org.briarproject.bramble.api.Bytes;
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.connection.InterruptibleConnection;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -45,7 +44,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 			getLogger(ConnectionRegistryImpl.class.getName());
 
 	private final EventBus eventBus;
-	private final Map<TransportId, List<TransportId>> betterTransports;
+	private final Map<TransportId, List<TransportId>> transportPrefs;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -56,24 +55,9 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	@Inject
 	ConnectionRegistryImpl(EventBus eventBus, PluginConfig pluginConfig) {
 		this.eventBus = eventBus;
-		betterTransports = new HashMap<>();
-		initTransportPreferences(pluginConfig.getTransportPreferences());
+		transportPrefs = pluginConfig.getTransportPreferences();
 		contactConnections = new HashMap<>();
 		connectedPendingContacts = new HashSet<>();
-	}
-
-	private void initTransportPreferences(
-			List<Pair<TransportId, TransportId>> prefs) {
-		for (Pair<TransportId, TransportId> pair : prefs) {
-			TransportId better = pair.getFirst();
-			TransportId worse = pair.getSecond();
-			List<TransportId> betterList = betterTransports.get(worse);
-			if (betterList == null) {
-				betterList = new ArrayList<>();
-				betterTransports.put(worse, betterList);
-			}
-			betterList.add(better);
-		}
 	}
 
 	@Override
@@ -146,7 +130,7 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	}
 
 	private List<TransportId> getBetterTransports(TransportId t) {
-		List<TransportId> better = betterTransports.get(t);
+		List<TransportId> better = transportPrefs.get(t);
 		return better == null ? emptyList() : better;
 	}
 

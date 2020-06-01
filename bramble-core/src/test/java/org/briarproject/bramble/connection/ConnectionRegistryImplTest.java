@@ -1,6 +1,5 @@
 package org.briarproject.bramble.connection;
 
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.connection.InterruptibleConnection;
 import org.briarproject.bramble.api.contact.ContactId;
@@ -22,7 +21,9 @@ import org.junit.Test;
 import java.util.Collection;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
@@ -60,7 +61,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	public void testRegisterMultipleConnections() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
-			will(returnValue(emptyList()));
+			will(returnValue(emptyMap()));
 		}});
 
 		ConnectionRegistry c =
@@ -141,7 +142,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	public void testRegisterMultipleContacts() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
-			will(returnValue(emptyList()));
+			will(returnValue(emptyMap()));
 		}});
 
 		ConnectionRegistry c =
@@ -183,7 +184,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
 			will(returnValue(
-					singletonList(new Pair<>(transportId2, transportId1))));
+					singletonMap(transportId1, singletonList(transportId2))));
 		}});
 
 		ConnectionRegistry c =
@@ -256,7 +257,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
 			will(returnValue(
-					singletonList(new Pair<>(transportId1, transportId2))));
+					singletonMap(transportId2, singletonList(transportId1))));
 		}});
 
 		ConnectionRegistry c =
@@ -357,7 +358,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
 			will(returnValue(
-					singletonList(new Pair<>(transportId2, transportId1))));
+					singletonMap(transportId1, singletonList(transportId2))));
 		}});
 
 		ConnectionRegistry c =
@@ -452,7 +453,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	public void testNewConnectionIsInterruptedIfOldConnectionHasHigherPriority() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
-			will(returnValue(emptyList()));
+			will(returnValue(emptyMap()));
 		}});
 
 		ConnectionRegistry c =
@@ -517,7 +518,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	public void testOldConnectionIsInterruptedIfNewConnectionHasHigherPriority() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
-			will(returnValue(emptyList()));
+			will(returnValue(emptyMap()));
 		}});
 
 		ConnectionRegistry c =
@@ -567,7 +568,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	public void testRegisterAndUnregisterPendingContacts() {
 		context.checking(new Expectations() {{
 			allowing(pluginConfig).getTransportPreferences();
-			will(returnValue(emptyList()));
+			will(returnValue(emptyMap()));
 		}});
 
 		ConnectionRegistry c =

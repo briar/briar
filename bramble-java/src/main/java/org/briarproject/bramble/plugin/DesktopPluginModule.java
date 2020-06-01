@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin;
 
-import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -22,6 +21,7 @@ import org.briarproject.bramble.plugin.tcp.WanTcpPluginFactory;
 import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 
 import dagger.Module;
@@ -30,6 +30,7 @@ import dagger.Provides;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 
 @Module
 public class DesktopPluginModule extends PluginModule {
@@ -69,10 +70,10 @@ public class DesktopPluginModule extends PluginModule {
 			}
 
 			@Override
-			public List<Pair<TransportId, TransportId>> getTransportPreferences() {
+			public Map<TransportId, List<TransportId>> getTransportPreferences() {
 				// Prefer LAN to Bluetooth
-				return singletonList(
-						new Pair<>(LanTcpConstants.ID, BluetoothConstants.ID));
+				return singletonMap(BluetoothConstants.ID,
+						singletonList(LanTcpConstants.ID));
 			}
 		};
 		return pluginConfig;

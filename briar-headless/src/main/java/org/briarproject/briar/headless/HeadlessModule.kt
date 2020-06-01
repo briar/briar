@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
 import org.briarproject.bramble.api.FeatureFlags
-import org.briarproject.bramble.api.Pair
 import org.briarproject.bramble.api.battery.BatteryManager
 import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.event.EventBus
@@ -33,7 +32,7 @@ import org.briarproject.briar.headless.forums.HeadlessForumModule
 import org.briarproject.briar.headless.messaging.HeadlessMessagingModule
 import java.io.File
 import java.util.Collections.emptyList
-import java.util.Collections.singletonList
+import java.util.Collections.singletonMap
 import java.util.concurrent.Executor
 import javax.inject.Singleton
 import javax.net.SocketFactory
@@ -89,8 +88,9 @@ internal class HeadlessModule(private val appDir: File) {
             override fun getDuplexFactories(): Collection<DuplexPluginFactory> = duplex
             override fun getSimplexFactories(): Collection<SimplexPluginFactory> = emptyList()
             override fun shouldPoll(): Boolean = true
-            override fun getTransportPreferences(): List<Pair<TransportId, TransportId>> =
-                singletonList(Pair(LanTcpConstants.ID, BluetoothConstants.ID))
+            // Prefer LAN to Bluetooth
+            override fun getTransportPreferences(): Map<TransportId, List<TransportId>> =
+                singletonMap(BluetoothConstants.ID, listOf(LanTcpConstants.ID))
         }
     }
 
