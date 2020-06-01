@@ -178,6 +178,79 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
+	public void testConnectionsAreNotInterruptedUnlessPriorityIsSet() {
+		// Prefer transport 2 to transport 1
+		context.checking(new Expectations() {{
+			allowing(pluginConfig).getTransportPreferences();
+			will(returnValue(
+					singletonList(new Pair<>(transportId2, transportId1))));
+		}});
+
+		ConnectionRegistry c =
+				new ConnectionRegistryImpl(eventBus, pluginConfig);
+
+		// Connect via transport 1 (worse than 2) and set priority to low
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId1, conn1, true);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(emptyList(), c.getConnectedContacts(transportId2));
+		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId2));
+
+		// Connect via transport 2 (better than 1) and set priority to high -
+		// the old connection should not be interrupted, despite using a worse
+		// transport, to remain compatible with old peers
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId2, conn2, true);
+		c.setPriority(contactId1, transportId2, conn2, high);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		// Connect via transport 3 (no preference) and set priority to high -
+		// again, no interruptions are expected
+		context.checking(new Expectations() {{
+			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
+		}});
+		c.registerConnection(contactId1, transportId3, conn3, true);
+		c.setPriority(contactId1, transportId3, conn3, high);
+		context.assertIsSatisfied();
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId1));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId1));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId2));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId2));
+
+		assertEquals(singletonList(contactId1),
+				c.getConnectedContacts(transportId3));
+		assertEquals(singletonList(contactId1),
+				c.getConnectedOrBetterContacts(transportId3));
+	}
+
+	@Test
 	public void testNewConnectionIsInterruptedIfOldConnectionUsesBetterTransport() {
 		// Prefer transport 1 to transport 2
 		context.checking(new Expectations() {{
@@ -189,12 +262,13 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		ConnectionRegistry c =
 				new ConnectionRegistryImpl(eventBus, pluginConfig);
 
-		// Connect via transport 1 (better than 2)
+		// Connect via transport 1 (better than 2) and set priority to low
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
 		c.registerConnection(contactId1, transportId1, conn1, true);
+		c.setPriority(contactId1, transportId1, conn1, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -208,13 +282,15 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		assertEquals(singletonList(contactId1),
 				c.getConnectedOrBetterContacts(transportId2));
 
-		// Connect via transport 2 (worse than 1) - the new connection should
-		// be interrupted
+		// Connect via transport 2 (worse than 1) and set priority to high -
+		// the new connection should be interrupted because it uses a worse
+		// transport
 		context.checking(new Expectations() {{
 			oneOf(conn2).interruptOutgoingSession();
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
 		c.registerConnection(contactId1, transportId2, conn2, true);
+		c.setPriority(contactId1, transportId2, conn2, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -227,11 +303,13 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		assertEquals(singletonList(contactId1),
 				c.getConnectedOrBetterContacts(transportId2));
 
-		// Connect via transport 3 (no preference)
+		// Connect via transport 3 (no preference) and set priority to low -
+		// no further interruptions
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
 		c.registerConnection(contactId1, transportId3, conn3, true);
+		c.setPriority(contactId1, transportId3, conn3, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -285,12 +363,13 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		ConnectionRegistry c =
 				new ConnectionRegistryImpl(eventBus, pluginConfig);
 
-		// Connect via transport 1 (worse than 2)
+		// Connect via transport 1 (worse than 2) and set priority to high
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
 		c.registerConnection(contactId1, transportId1, conn1, true);
+		c.setPriority(contactId1, transportId1, conn1, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -301,13 +380,15 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		assertEquals(emptyList(), c.getConnectedContacts(transportId2));
 		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId2));
 
-		// Connect via transport 2 (better than 1) - the old connection should
-		// be interrupted
+		// Connect via transport 2 (better than 1) and set priority to low -
+		// the old connection should be interrupted because it uses a worse
+		// transport
 		context.checking(new Expectations() {{
 			oneOf(conn1).interruptOutgoingSession();
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
 		c.registerConnection(contactId1, transportId2, conn2, true);
+		c.setPriority(contactId1, transportId2, conn2, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -320,7 +401,8 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		assertEquals(singletonList(contactId1),
 				c.getConnectedOrBetterContacts(transportId2));
 
-		// Connect via transport 3 (no preference)
+		// Connect via transport 3 (no preference) and set priority to high -
+		// no further interruptions
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
