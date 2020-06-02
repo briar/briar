@@ -74,6 +74,10 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId2));
 		assertEquals(emptyList(), c.getConnectedContacts(transportId3));
 		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId3));
+		assertFalse(c.isConnected(contactId1));
+		assertFalse(c.isConnected(contactId1, transportId1));
+		assertFalse(c.isConnected(contactId1, transportId2));
+		assertFalse(c.isConnected(contactId1, transportId3));
 
 		// Check that a registered connection shows up - this should
 		// broadcast a ConnectionOpenedEvent and a ContactConnectedEvent
@@ -88,6 +92,8 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 				c.getConnectedContacts(transportId1));
 		assertEquals(singletonList(contactId1),
 				c.getConnectedOrBetterContacts(transportId1));
+		assertTrue(c.isConnected(contactId1));
+		assertTrue(c.isConnected(contactId1, transportId1));
 
 		// Register another connection with the same contact and transport -
 		// this should broadcast a ConnectionOpenedEvent and lookup should be
@@ -102,6 +108,8 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 				c.getConnectedContacts(transportId1));
 		assertEquals(singletonList(contactId1),
 				c.getConnectedOrBetterContacts(transportId1));
+		assertTrue(c.isConnected(contactId1));
+		assertTrue(c.isConnected(contactId1, transportId1));
 
 		// Unregister one of the connections - this should broadcast a
 		// ConnectionClosedEvent and lookup should be unaffected
@@ -115,6 +123,8 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 				c.getConnectedContacts(transportId1));
 		assertEquals(singletonList(contactId1),
 				c.getConnectedOrBetterContacts(transportId1));
+		assertTrue(c.isConnected(contactId1));
+		assertTrue(c.isConnected(contactId1, transportId1));
 
 		// Unregister the other connection - this should broadcast a
 		// ConnectionClosedEvent and a ContactDisconnectedEvent
@@ -128,6 +138,8 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 
 		assertEquals(emptyList(), c.getConnectedContacts(transportId1));
 		assertEquals(emptyList(), c.getConnectedOrBetterContacts(transportId1));
+		assertFalse(c.isConnected(contactId1));
+		assertFalse(c.isConnected(contactId1, transportId1));
 
 		// Try to unregister the connection again - exception should be thrown
 		try {
@@ -162,6 +174,15 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		c.registerConnection(contactId2, transportId1, conn2, true);
 		c.registerConnection(contactId2, transportId2, conn3, true);
 		context.assertIsSatisfied();
+
+		assertTrue(c.isConnected(contactId1));
+		assertTrue(c.isConnected(contactId2));
+
+		assertTrue(c.isConnected(contactId1, transportId1));
+		assertFalse(c.isConnected(contactId1, transportId2));
+
+		assertTrue(c.isConnected(contactId2, transportId1));
+		assertTrue(c.isConnected(contactId2, transportId2));
 
 		Collection<ContactId> connected = c.getConnectedContacts(transportId1);
 		assertEquals(2, connected.size());

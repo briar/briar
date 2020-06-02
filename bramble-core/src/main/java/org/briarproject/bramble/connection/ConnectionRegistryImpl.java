@@ -214,7 +214,8 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	@Override
 	public boolean isConnected(ContactId c) {
 		synchronized (lock) {
-			return contactConnections.containsKey(c);
+			List<ConnectionRecord> recs = contactConnections.get(c);
+			return recs != null && !recs.isEmpty();
 		}
 	}
 
