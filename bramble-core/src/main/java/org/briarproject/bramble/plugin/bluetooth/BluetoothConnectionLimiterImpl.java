@@ -34,6 +34,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	@GuardedBy("lock")
 	private boolean keyAgreementInProgress = false;
 	@GuardedBy("lock")
+	private int connectionLimit = 2;
+	@GuardedBy("lock")
 	private long timeOfLastChange = 0;
 
 	BluetoothConnectionLimiterImpl(EventBus eventBus, Clock clock) {
@@ -64,9 +66,15 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			if (keyAgreementInProgress) {
 				LOG.info("Can't open contact connection during key agreement");
 				return false;
-			} else {
+			}
+			long now = clock.currentTimeMillis();
+			countStableConnections(now);
+			if (connections.size() < connectionLimit) {
 				LOG.info("Can open contact connection");
 				return true;
+			} else {
+				LOG.info("Can't open contact connection due to limit");
+				return false;
 			}
 		}
 	}
@@ -89,7 +97,8 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			boolean exception) {
 		synchronized (lock) {
 			long now = clock.currentTimeMillis();
-			if (!exception) countStableConnections(now);
+			if (exception) LOG.info("Connection failed");
+			else countStableConnections(now);
 			connections.remove(conn);
 			timeOfLastChange = now;
 			if (LOG.isLoggable(INFO)) {
@@ -109,10 +118,13 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		}
 	}
 
+	@GuardedBy("lock")
 	private void countStableConnections(long now) {
-		if (now - timeOfLastChange >= STABILITY_PERIOD_MS) {
+		if (now - timeOfLastChange >= STABILITY_PERIOD_MS &&
+				connections.size() > connectionLimit) {
+			connectionLimit = connections.size();
 			if (LOG.isLoggable(INFO)) {
-				LOG.info(connections.size() + " connections are stable");
+				LOG.info("Raising connection limit to " + connectionLimit);
 			}
 		}
 	}
