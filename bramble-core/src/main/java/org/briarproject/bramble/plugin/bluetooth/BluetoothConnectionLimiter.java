@@ -3,8 +3,15 @@ package org.briarproject.bramble.plugin.bluetooth;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 @NotNullByDefault
 interface BluetoothConnectionLimiter {
+
+	/**
+	 * How long a connection must remain open before it's considered stable.
+	 */
+	long STABILITY_PERIOD_MS = SECONDS.toMillis(90);
 
 	/**
 	 * Informs the limiter that key agreement has started.
@@ -29,8 +36,10 @@ interface BluetoothConnectionLimiter {
 
 	/**
 	 * Informs the limiter that the given connection has been closed.
+	 *
+	 * @param exception True if the connection was closed due to an exception.
 	 */
-	void connectionClosed(DuplexTransportConnection conn);
+	void connectionClosed(DuplexTransportConnection conn, boolean exception);
 
 	/**
 	 * Informs the limiter that all connections have been closed.

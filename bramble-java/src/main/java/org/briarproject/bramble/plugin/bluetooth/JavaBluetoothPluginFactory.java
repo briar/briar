@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
+import org.briarproject.bramble.api.system.Clock;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
@@ -30,15 +31,17 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	private final Executor ioExecutor;
 	private final SecureRandom secureRandom;
 	private final EventBus eventBus;
+	private final Clock clock;
 	private final TimeoutMonitor timeoutMonitor;
 	private final BackoffFactory backoffFactory;
 
 	public JavaBluetoothPluginFactory(Executor ioExecutor,
-			SecureRandom secureRandom, EventBus eventBus,
+			SecureRandom secureRandom, EventBus eventBus, Clock clock,
 			TimeoutMonitor timeoutMonitor, BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
 		this.secureRandom = secureRandom;
 		this.eventBus = eventBus;
+		this.clock = clock;
 		this.timeoutMonitor = timeoutMonitor;
 		this.backoffFactory = backoffFactory;
 	}
@@ -56,7 +59,7 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		BluetoothConnectionLimiter connectionLimiter =
-				new BluetoothConnectionLimiterImpl(eventBus);
+				new BluetoothConnectionLimiterImpl(eventBus, clock);
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		JavaBluetoothPlugin plugin = new JavaBluetoothPlugin(connectionLimiter,
