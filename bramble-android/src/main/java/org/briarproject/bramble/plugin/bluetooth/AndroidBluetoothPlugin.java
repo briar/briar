@@ -177,7 +177,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private DuplexTransportConnection wrapSocket(BluetoothSocket s)
 			throws IOException {
 		return new AndroidBluetoothTransportConnection(this, connectionLimiter,
-				timeoutMonitor, s);
+				timeoutMonitor, appContext, s);
 	}
 
 	@Override
