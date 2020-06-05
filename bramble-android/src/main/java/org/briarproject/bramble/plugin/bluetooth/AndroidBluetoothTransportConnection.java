@@ -50,7 +50,7 @@ class AndroidBluetoothTransportConnection
 		try {
 			socket.close();
 		} finally {
-			connectionLimiter.connectionClosed(this, exception);
+			connectionLimiter.connectionClosed(this);
 		}
 	}
 }
