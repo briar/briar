@@ -98,7 +98,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		synchronized (lock) {
 			long now = clock.currentTimeMillis();
 			if (exception) LOG.info("Connection failed");
-			else countStableConnections(now);
+			countStableConnections(now);
 			connections.remove(conn);
 			timeOfLastChange = now;
 			if (LOG.isLoggable(INFO)) {
