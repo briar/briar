@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.sync.event.CloseSyncConnectionsEvent;
 import org.briarproject.bramble.api.system.Clock;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -29,14 +30,11 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
-	private final List<DuplexTransportConnection> connections =
-			new LinkedList<>();
+	private final List<ConnectionRecord> connections = new LinkedList<>();
 	@GuardedBy("lock")
 	private boolean keyAgreementInProgress = false;
 	@GuardedBy("lock")
 	private int connectionLimit = 2;
-	@GuardedBy("lock")
-	private long timeOfLastChange = 0;
 
 	BluetoothConnectionLimiterImpl(EventBus eventBus, Clock clock) {
 		this.eventBus = eventBus;
@@ -84,8 +82,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 		synchronized (lock) {
 			long now = clock.currentTimeMillis();
 			countStableConnections(now);
-			connections.add(conn);
-			timeOfLastChange = now;
+			connections.add(new ConnectionRecord(conn, now));
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Connection opened, " + connections.size() + " open");
 			}
@@ -96,11 +93,15 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	public void connectionClosed(DuplexTransportConnection conn,
 			boolean exception) {
 		synchronized (lock) {
-			long now = clock.currentTimeMillis();
 			if (exception) LOG.info("Connection failed");
-			countStableConnections(now);
-			connections.remove(conn);
-			timeOfLastChange = now;
+			countStableConnections(clock.currentTimeMillis());
+			Iterator<ConnectionRecord> it = connections.iterator();
+			while (it.hasNext()) {
+				if (it.next().conn == conn) {
+					it.remove();
+					break;
+				}
+			}
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Connection closed, " + connections.size() + " open");
 			}
@@ -113,19 +114,33 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			long now = clock.currentTimeMillis();
 			countStableConnections(now);
 			connections.clear();
-			timeOfLastChange = now;
 			LOG.info("All connections closed");
 		}
 	}
 
 	@GuardedBy("lock")
 	private void countStableConnections(long now) {
-		if (now - timeOfLastChange >= STABILITY_PERIOD_MS &&
-				connections.size() > connectionLimit) {
-			connectionLimit = connections.size();
+		int stable = 0;
+		for (ConnectionRecord rec : connections) {
+			if (now - rec.timeOpened >= STABILITY_PERIOD_MS) stable++;
+		}
+		if (stable > connectionLimit) {
+			connectionLimit = stable;
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Raising connection limit to " + connectionLimit);
 			}
+		}
+	}
+
+	private static class ConnectionRecord {
+
+		private final DuplexTransportConnection conn;
+		private final long timeOpened;
+
+		private ConnectionRecord(DuplexTransportConnection conn,
+				long timeOpened) {
+			this.conn = conn;
+			this.timeOpened = timeOpened;
 		}
 	}
 }
