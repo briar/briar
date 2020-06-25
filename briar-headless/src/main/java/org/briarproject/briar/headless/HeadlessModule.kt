@@ -9,7 +9,9 @@ import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.event.EventBus
 import org.briarproject.bramble.api.lifecycle.IoExecutor
 import org.briarproject.bramble.api.network.NetworkManager
-import org.briarproject.bramble.api.plugin.*
+import org.briarproject.bramble.api.plugin.BackoffFactory
+import org.briarproject.bramble.api.plugin.PluginConfig
+import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.api.system.Clock
@@ -32,7 +34,6 @@ import org.briarproject.briar.headless.forums.HeadlessForumModule
 import org.briarproject.briar.headless.messaging.HeadlessMessagingModule
 import java.io.File
 import java.util.Collections.emptyList
-import java.util.Collections.singletonMap
 import java.util.concurrent.Executor
 import javax.inject.Singleton
 import javax.net.SocketFactory
@@ -88,9 +89,7 @@ internal class HeadlessModule(private val appDir: File) {
             override fun getDuplexFactories(): Collection<DuplexPluginFactory> = duplex
             override fun getSimplexFactories(): Collection<SimplexPluginFactory> = emptyList()
             override fun shouldPoll(): Boolean = true
-            // Prefer LAN to Bluetooth
-            override fun getTransportPreferences(): Map<TransportId, List<TransportId>> =
-                singletonMap(BluetoothConstants.ID, listOf(LanTcpConstants.ID))
+            override fun getTransportPreferences(): Map<TransportId, List<TransportId>> = emptyMap()
         }
     }
 
