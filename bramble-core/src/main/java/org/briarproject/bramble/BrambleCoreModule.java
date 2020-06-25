@@ -1,6 +1,7 @@
 package org.briarproject.bramble;
 
 import org.briarproject.bramble.client.ClientModule;
+import org.briarproject.bramble.connection.ConnectionModule;
 import org.briarproject.bramble.contact.ContactModule;
 import org.briarproject.bramble.crypto.CryptoExecutorModule;
 import org.briarproject.bramble.crypto.CryptoModule;
@@ -28,6 +29,7 @@ import dagger.Module;
 
 @Module(includes = {
 		ClientModule.class,
+		ConnectionModule.class,
 		ContactModule.class,
 		CryptoModule.class,
 		CryptoExecutorModule.class,

@@ -3,7 +3,7 @@ package org.briarproject.briar.android;
 import android.app.Activity;
 import android.util.Log;
 
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.test.TestDataCreator;
 import org.junit.ClassRule;

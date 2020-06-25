@@ -2,6 +2,7 @@ package org.briarproject.briar.android.keyagreement;
 
 import android.app.Application;
 
+import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -10,7 +11,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 

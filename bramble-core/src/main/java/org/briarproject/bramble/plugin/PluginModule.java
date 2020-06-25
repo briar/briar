@@ -3,8 +3,6 @@ package org.briarproject.bramble.plugin;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.PluginConfig;
 import org.briarproject.bramble.api.plugin.PluginManager;
 
@@ -27,20 +25,6 @@ public class PluginModule {
 	@Provides
 	BackoffFactory provideBackoffFactory() {
 		return new BackoffFactoryImpl();
-	}
-
-	@Provides
-	@Singleton
-	ConnectionManager provideConnectionManager(
-			ConnectionManagerImpl connectionManager) {
-		return connectionManager;
-	}
-
-	@Provides
-	@Singleton
-	ConnectionRegistry provideConnectionRegistry(
-			ConnectionRegistryImpl connectionRegistry) {
-		return connectionRegistry;
 	}
 
 	@Provides

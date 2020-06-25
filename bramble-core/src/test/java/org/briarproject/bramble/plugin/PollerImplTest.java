@@ -1,10 +1,10 @@
 package org.briarproject.bramble.plugin;
 
+import org.briarproject.bramble.api.connection.ConnectionManager;
+import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.event.ContactAddedEvent;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
-import org.briarproject.bramble.api.plugin.ConnectionRegistry;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;

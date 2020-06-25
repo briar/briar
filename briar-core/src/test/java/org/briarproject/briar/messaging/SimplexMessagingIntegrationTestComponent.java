@@ -2,11 +2,11 @@ package org.briarproject.briar.messaging;
 
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
+import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.plugin.ConnectionManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
