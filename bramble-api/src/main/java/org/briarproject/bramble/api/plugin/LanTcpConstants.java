@@ -14,5 +14,5 @@ public interface LanTcpConstants {
 	String PREF_IPV6 = "ipv6";
 
 	// Default value for PREF_PLUGIN_ENABLE
-	boolean DEFAULT_PREF_PLUGIN_ENABLE = false;
+	boolean DEFAULT_PREF_PLUGIN_ENABLE = true;
 }
