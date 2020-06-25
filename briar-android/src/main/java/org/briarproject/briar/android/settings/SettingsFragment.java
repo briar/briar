@@ -75,6 +75,9 @@ import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK_AUTOMATIC;
@@ -372,9 +375,9 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
 	// TODO: Remove after a reasonable migration period (added 2020-06-25)
 	private Settings migrateTorSettings(Settings s) {
-		int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+		int network = s.getInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
 		if (network == PREF_TOR_NETWORK_NEVER) {
-			s.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+			s.putInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
 			s.putBoolean(PREF_PLUGIN_ENABLE, false);
 			// We don't need to save the migrated settings - the Tor plugin is
 			// responsible for that. This code just handles the case where the
@@ -388,29 +391,32 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			// due to events, we might try to display before a load completed
 			if (!settingsLoaded) return;
 
-			boolean btEnabledSetting =
-					btSettings.getBoolean(PREF_PLUGIN_ENABLE, false);
+			boolean btEnabledSetting = btSettings.getBoolean(PREF_PLUGIN_ENABLE,
+					BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 			enableBluetooth.setChecked(btEnabledSetting);
 
 			boolean wifiEnabledSetting =
-					wifiSettings.getBoolean(PREF_PLUGIN_ENABLE, false);
+					wifiSettings.getBoolean(PREF_PLUGIN_ENABLE,
+							LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 			enableWifi.setChecked(wifiEnabledSetting);
 
 			boolean torEnabledSetting =
-					torSettings.getBoolean(PREF_PLUGIN_ENABLE, true);
+					torSettings.getBoolean(PREF_PLUGIN_ENABLE,
+							TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 			enableTor.setChecked(torEnabledSetting);
 
 			int torNetworkSetting = torSettings.getInt(PREF_TOR_NETWORK,
-					PREF_TOR_NETWORK_AUTOMATIC);
+					DEFAULT_PREF_TOR_NETWORK);
 			torNetwork.setValue(Integer.toString(torNetworkSetting));
 			setTorNetworkSummary(torNetworkSetting);
 
-			boolean torMobileSetting =
-					torSettings.getBoolean(PREF_TOR_MOBILE, true);
+			boolean torMobileSetting = torSettings.getBoolean(PREF_TOR_MOBILE,
+					DEFAULT_PREF_TOR_MOBILE);
 			torMobile.setChecked(torMobileSetting);
 
 			boolean torChargingSetting =
-					torSettings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
+					torSettings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING,
+							DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING);
 			torOnlyWhenCharging.setChecked(torChargingSetting);
 
 			displayScreenLockSetting();

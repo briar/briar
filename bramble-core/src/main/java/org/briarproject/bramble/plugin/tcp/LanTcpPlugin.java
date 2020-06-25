@@ -38,6 +38,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
+import static org.briarproject.bramble.api.plugin.LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_IPV6;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.PREF_LAN_IP_PORTS;
@@ -103,7 +104,8 @@ class LanTcpPlugin extends TcpPlugin {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		initialisePortProperty();
 		Settings settings = callback.getSettings();
-		state.setStarted(settings.getBoolean(PREF_PLUGIN_ENABLE, false));
+		state.setStarted(settings.getBoolean(PREF_PLUGIN_ENABLE,
+				DEFAULT_PREF_PLUGIN_ENABLE));
 		bind();
 	}
 
@@ -114,6 +116,11 @@ class LanTcpPlugin extends TcpPlugin {
 			p.put(PROP_PORT, String.valueOf(port));
 			callback.mergeLocalProperties(p);
 		}
+	}
+
+	@Override
+	protected boolean isEnabledByDefault() {
+		return DEFAULT_PREF_PLUGIN_ENABLE;
 	}
 
 	@Override

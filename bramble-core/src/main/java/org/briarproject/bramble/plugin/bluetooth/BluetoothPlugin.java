@@ -46,6 +46,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
@@ -164,7 +165,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		Settings settings = callback.getSettings();
-		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
+		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE,
+				DEFAULT_PREF_PLUGIN_ENABLE);
 		state.setStarted(enabledByUser);
 		try {
 			initialiseAdapter();
@@ -432,7 +434,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@IoExecutor
 	private void onSettingsUpdated(Settings settings) {
-		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
+		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE,
+				DEFAULT_PREF_PLUGIN_ENABLE);
 		SS ss = state.setEnabledByUser(enabledByUser);
 		State s = getState();
 		if (ss != null) {

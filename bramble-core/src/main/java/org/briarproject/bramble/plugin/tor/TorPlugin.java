@@ -75,6 +75,10 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_PLUGIN_ENABLE;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
+import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
@@ -290,9 +294,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	// TODO: Remove after a reasonable migration period (added 2020-06-25)
 	private Settings migrateSettings(Settings settings) {
 		int network = settings.getInt(PREF_TOR_NETWORK,
-				PREF_TOR_NETWORK_AUTOMATIC);
+				DEFAULT_PREF_TOR_NETWORK);
 		if (network == PREF_TOR_NETWORK_NEVER) {
-			settings.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+			settings.putInt(PREF_TOR_NETWORK, DEFAULT_PREF_TOR_NETWORK);
 			settings.putBoolean(PREF_PLUGIN_ENABLE, false);
 			callback.mergeSettings(settings);
 		}
@@ -774,13 +778,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
-			boolean enabledByUser =
-					settings.getBoolean(PREF_PLUGIN_ENABLE, true);
+			boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE,
+					DEFAULT_PREF_PLUGIN_ENABLE);
 			int network = settings.getInt(PREF_TOR_NETWORK,
-					PREF_TOR_NETWORK_AUTOMATIC);
-			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
+					DEFAULT_PREF_TOR_NETWORK);
+			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE,
+					DEFAULT_PREF_TOR_MOBILE);
 			boolean onlyWhenCharging =
-					settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING, false);
+					settings.getBoolean(PREF_TOR_ONLY_WHEN_CHARGING,
+							DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING);
 			boolean bridgesWork = circumventionProvider.doBridgesWork(country);
 			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
 
