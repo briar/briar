@@ -287,7 +287,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		bind();
 	}
 
-	// TODO: Remove after a reasonable migration period (added 2020-01-16)
+	// TODO: Remove after a reasonable migration period (added 2020-06-25)
 	private Settings migrateSettings(Settings settings) {
 		int network = settings.getInt(PREF_TOR_NETWORK,
 				PREF_TOR_NETWORK_AUTOMATIC);

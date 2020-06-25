@@ -370,7 +370,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		});
 	}
 
-	// TODO: Remove after a reasonable migration period (added 2020-01-29)
+	// TODO: Remove after a reasonable migration period (added 2020-06-25)
 	private Settings migrateTorSettings(Settings s) {
 		int network = s.getInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
 		if (network == PREF_TOR_NETWORK_NEVER) {
