@@ -31,6 +31,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -66,6 +67,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	private static final int MAX_DISCOVERY_MS = 10_000;
 
+	private final ScheduledExecutorService scheduler;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final Clock clock;
@@ -78,11 +80,13 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
-			SecureRandom secureRandom, AndroidExecutor androidExecutor,
-			Context appContext, Clock clock, Backoff backoff,
-			PluginCallback callback, int maxLatency, int maxIdleTime) {
+			SecureRandom secureRandom, ScheduledExecutorService scheduler,
+			AndroidExecutor androidExecutor, Context appContext, Clock clock,
+			Backoff backoff, PluginCallback callback, int maxLatency,
+			int maxIdleTime) {
 		super(connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
 				backoff, callback, maxLatency, maxIdleTime);
+		this.scheduler = scheduler;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.clock = clock;
@@ -177,7 +181,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private DuplexTransportConnection wrapSocket(BluetoothSocket s)
 			throws IOException {
 		return new AndroidBluetoothTransportConnection(this, connectionLimiter,
-				timeoutMonitor, s);
+				timeoutMonitor, appContext, scheduler, s);
 	}
 
 	@Override
