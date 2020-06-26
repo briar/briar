@@ -49,4 +49,10 @@ public interface SyncConstants {
 	 * simultaneously.
 	 */
 	int MAX_SUPPORTED_VERSIONS = 10;
+
+	/**
+	 * The length of the priority nonce used for choosing between redundant
+	 * connections.
+	 */
+	int PRIORITY_NONCE_BYTES = 16;
 }

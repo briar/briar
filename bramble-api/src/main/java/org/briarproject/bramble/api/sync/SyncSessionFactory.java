@@ -6,14 +6,18 @@ import org.briarproject.bramble.api.transport.StreamWriter;
 
 import java.io.InputStream;
 
+import javax.annotation.Nullable;
+
 @NotNullByDefault
 public interface SyncSessionFactory {
 
-	SyncSession createIncomingSession(ContactId c, InputStream in);
+	SyncSession createIncomingSession(ContactId c, InputStream in,
+			PriorityHandler handler);
 
 	SyncSession createSimplexOutgoingSession(ContactId c, int maxLatency,
 			StreamWriter streamWriter);
 
 	SyncSession createDuplexOutgoingSession(ContactId c, int maxLatency,
-			int maxIdleTime, StreamWriter streamWriter);
+			int maxIdleTime, StreamWriter streamWriter,
+			@Nullable Priority priority);
 }

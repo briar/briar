@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.Offer;
+import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.SyncSession;
@@ -35,6 +36,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
@@ -74,6 +76,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	private final int maxLatency, maxIdleTime;
 	private final StreamWriter streamWriter;
 	private final SyncRecordWriter recordWriter;
+	@Nullable
+	private final Priority priority;
 	private final BlockingQueue<ThrowingRunnable<IOException>> writerTasks;
 
 	private final AtomicBoolean generateAckQueued = new AtomicBoolean(false);
@@ -88,7 +92,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 	DuplexOutgoingSession(DatabaseComponent db, Executor dbExecutor,
 			EventBus eventBus, Clock clock, ContactId contactId, int maxLatency,
 			int maxIdleTime, StreamWriter streamWriter,
-			SyncRecordWriter recordWriter) {
+			SyncRecordWriter recordWriter, @Nullable Priority priority) {
 		this.db = db;
 		this.dbExecutor = dbExecutor;
 		this.eventBus = eventBus;
@@ -98,6 +102,7 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		this.maxIdleTime = maxIdleTime;
 		this.streamWriter = streamWriter;
 		this.recordWriter = recordWriter;
+		this.priority = priority;
 		writerTasks = new LinkedBlockingQueue<>();
 	}
 
@@ -108,6 +113,8 @@ class DuplexOutgoingSession implements SyncSession, EventListener {
 		try {
 			// Send our supported protocol versions
 			recordWriter.writeVersions(new Versions(SUPPORTED_VERSIONS));
+			// Send our connection priority, if this is an outgoing connection
+			if (priority != null) recordWriter.writePriority(priority);
 			// Start a query for each type of record
 			generateAck();
 			generateBatch();

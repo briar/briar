@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.PriorityHandler;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
@@ -58,25 +59,28 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError(true);
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId, true);
+		connectionRegistry.registerIncomingConnection(contactId, transportId,
+				this);
 		// Start the outgoing session on another thread
 		ioExecutor.execute(() -> runOutgoingSession(contactId));
 		try {
 			// Store any transport properties discovered from the connection
 			transportPropertyManager.addRemotePropertiesFromConnection(
 					contactId, transportId, remote);
+			// Update the connection registry when we receive our priority
+			PriorityHandler handler = p -> connectionRegistry.setPriority(
+					contactId, transportId, this, p);
 			// Create and run the incoming session
-			createIncomingSession(ctx, reader).run();
+			createIncomingSession(ctx, reader, handler).run();
 			reader.dispose(false, true);
-			// Interrupt the outgoing session so it finishes cleanly
-			SyncSession out = outgoingSession;
-			if (out != null) out.interrupt();
+			interruptOutgoingSession();
+			connectionRegistry.unregisterConnection(contactId, transportId,
+					this, true, false);
 		} catch (DbException | IOException e) {
 			logException(LOG, WARNING, e);
 			onReadError(true);
-		} finally {
 			connectionRegistry.unregisterConnection(contactId, transportId,
-					true);
+					this, true, true);
 		}
 	}
 
@@ -90,8 +94,8 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 		}
 		try {
 			// Create and run the outgoing session
-			SyncSession out = createDuplexOutgoingSession(ctx, writer);
-			outgoingSession = out;
+			SyncSession out = createDuplexOutgoingSession(ctx, writer, null);
+			setOutgoingSession(out);
 			out.run();
 			writer.dispose(false);
 		} catch (IOException e) {

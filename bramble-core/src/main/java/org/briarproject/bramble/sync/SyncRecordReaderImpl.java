@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
+import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.Versions;
@@ -26,10 +27,12 @@ import javax.annotation.concurrent.NotThreadSafe;
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.MESSAGE;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
+import static org.briarproject.bramble.api.sync.RecordTypes.PRIORITY;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
 import static org.briarproject.bramble.api.sync.RecordTypes.VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_SUPPORTED_VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MESSAGE_HEADER_LENGTH;
+import static org.briarproject.bramble.api.sync.SyncConstants.PRIORITY_NONCE_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
 
 @NotThreadSafe
@@ -48,7 +51,7 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 
 	private static boolean isKnownRecordType(byte type) {
 		return type == ACK || type == MESSAGE || type == OFFER ||
-				type == REQUEST || type == VERSIONS;
+				type == REQUEST || type == VERSIONS || type == PRIORITY;
 	}
 
 	private final MessageFactory messageFactory;
@@ -173,5 +176,24 @@ class SyncRecordReaderImpl implements SyncRecordReader {
 		for (byte b : payload) supported.add(b);
 		nextRecord = null;
 		return supported;
+	}
+
+	@Override
+	public boolean hasPriority() throws IOException {
+		return !eof() && getNextRecordType() == PRIORITY;
+	}
+
+	@Override
+	public Priority readPriority() throws IOException {
+		if (!hasPriority()) throw new FormatException();
+		return new Priority(readNonce());
+	}
+
+	private byte[] readNonce() throws IOException {
+		if (nextRecord == null) throw new AssertionError();
+		byte[] payload = nextRecord.getPayload();
+		if (payload.length != PRIORITY_NONCE_BYTES) throw new FormatException();
+		nextRecord = null;
+		return payload;
 	}
 }

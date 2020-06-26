@@ -20,7 +20,10 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
+import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
@@ -48,6 +51,8 @@ import java.io.File;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
 
@@ -62,6 +67,8 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static java.util.Collections.singletonMap;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_ONION_ADDRESS;
 import static org.briarproject.bramble.api.reporting.ReportingConstants.DEV_PUBLIC_KEY_HEX;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
@@ -152,6 +159,13 @@ public class AppModule {
 			@Override
 			public boolean shouldPoll() {
 				return true;
+			}
+
+			@Override
+			public Map<TransportId, List<TransportId>> getTransportPreferences() {
+				// Prefer LAN to Bluetooth
+				return singletonMap(BluetoothConstants.ID,
+						singletonList(LanTcpConstants.ID));
 			}
 		};
 		return pluginConfig;

@@ -6,6 +6,7 @@ import dagger.Provides
 import org.briarproject.bramble.api.FeatureFlags
 import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.plugin.PluginConfig
+import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.network.JavaNetworkModule
@@ -55,6 +56,7 @@ internal class HeadlessTestModule(private val appDir: File) {
             override fun getDuplexFactories(): Collection<DuplexPluginFactory> = emptyList()
             override fun getSimplexFactories(): Collection<SimplexPluginFactory> = emptyList()
             override fun shouldPoll(): Boolean = false
+            override fun getTransportPreferences(): Map<TransportId, List<TransportId>> = emptyMap()
         }
     }
 

@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.Offer;
+import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
 import org.briarproject.bramble.api.sync.Versions;
@@ -20,6 +21,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.MESSAGE;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
+import static org.briarproject.bramble.api.sync.RecordTypes.PRIORITY;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
 import static org.briarproject.bramble.api.sync.RecordTypes.VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
@@ -71,6 +73,12 @@ class SyncRecordWriterImpl implements SyncRecordWriter {
 	public void writeVersions(Versions v) throws IOException {
 		for (byte b : v.getSupportedVersions()) payload.write(b);
 		writeRecord(VERSIONS);
+	}
+
+	@Override
+	public void writePriority(Priority p) throws IOException {
+		writer.writeRecord(
+				new Record(PROTOCOL_VERSION, PRIORITY, p.getNonce()));
 	}
 
 	@Override

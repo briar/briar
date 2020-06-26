@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.record.RecordReader;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.MessageFactory;
 import org.briarproject.bramble.api.sync.Offer;
+import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.Request;
 import org.briarproject.bramble.api.sync.SyncRecordReader;
 import org.briarproject.bramble.api.sync.Versions;
@@ -24,11 +25,14 @@ import javax.annotation.Nullable;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.api.sync.RecordTypes.ACK;
 import static org.briarproject.bramble.api.sync.RecordTypes.OFFER;
+import static org.briarproject.bramble.api.sync.RecordTypes.PRIORITY;
 import static org.briarproject.bramble.api.sync.RecordTypes.REQUEST;
 import static org.briarproject.bramble.api.sync.RecordTypes.VERSIONS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_SUPPORTED_VERSIONS;
+import static org.briarproject.bramble.api.sync.SyncConstants.PRIORITY_NONCE_BYTES;
 import static org.briarproject.bramble.api.sync.SyncConstants.PROTOCOL_VERSION;
+import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -119,6 +123,31 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 		reader.readVersions();
 	}
 
+	@Test(expected = FormatException.class)
+	public void testFormatExceptionIfPriorityNonceIsTooSmall()
+			throws Exception {
+		expectReadRecord(createPriority(PRIORITY_NONCE_BYTES - 1));
+
+		reader.readPriority();
+	}
+
+	@Test(expected = FormatException.class)
+	public void testFormatExceptionIfPriorityNonceIsTooLarge()
+			throws Exception {
+		expectReadRecord(createPriority(PRIORITY_NONCE_BYTES + 1));
+
+		reader.readPriority();
+	}
+
+	@Test
+	public void testNoFormatExceptionIfPriorityNonceIsCorrectSize()
+			throws Exception {
+		expectReadRecord(createPriority(PRIORITY_NONCE_BYTES));
+
+		Priority priority = reader.readPriority();
+		assertEquals(PRIORITY_NONCE_BYTES, priority.getNonce().length);
+	}
+
 	@Test
 	public void testEofReturnsTrueWhenAtEndOfStream() throws Exception {
 		expectReadRecord(createAck());
@@ -171,6 +200,11 @@ public class SyncRecordReaderImplTest extends BrambleMockTestCase {
 		byte[] payload = new byte[numVersions];
 		for (int i = 0; i < payload.length; i++) payload[i] = (byte) i;
 		return new Record(PROTOCOL_VERSION, VERSIONS, payload);
+	}
+
+	private Record createPriority(int nonceBytes) {
+		byte[] payload = getRandomBytes(nonceBytes);
+		return new Record(PROTOCOL_VERSION, PRIORITY, payload);
 	}
 
 	private byte[] createPayload() throws Exception {

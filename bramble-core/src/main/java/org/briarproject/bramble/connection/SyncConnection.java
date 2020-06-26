@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.PriorityHandler;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
@@ -52,10 +53,12 @@ class SyncConnection extends Connection {
 	}
 
 	SyncSession createIncomingSession(StreamContext ctx,
-			TransportConnectionReader r) throws IOException {
+			TransportConnectionReader r, PriorityHandler handler)
+			throws IOException {
 		InputStream streamReader = streamReaderFactory.createStreamReader(
 				r.getInputStream(), ctx);
 		ContactId c = requireNonNull(ctx.getContactId());
-		return syncSessionFactory.createIncomingSession(c, streamReader);
+		return syncSessionFactory
+				.createIncomingSession(c, streamReader, handler);
 	}
 }

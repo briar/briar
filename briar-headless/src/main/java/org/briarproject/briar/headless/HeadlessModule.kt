@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor
 import org.briarproject.bramble.api.network.NetworkManager
 import org.briarproject.bramble.api.plugin.BackoffFactory
 import org.briarproject.bramble.api.plugin.PluginConfig
+import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.api.system.Clock
@@ -88,6 +89,7 @@ internal class HeadlessModule(private val appDir: File) {
             override fun getDuplexFactories(): Collection<DuplexPluginFactory> = duplex
             override fun getSimplexFactories(): Collection<SimplexPluginFactory> = emptyList()
             override fun shouldPoll(): Boolean = true
+            override fun getTransportPreferences(): Map<TransportId, List<TransportId>> = emptyMap()
         }
     }
 

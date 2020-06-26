@@ -1,6 +1,7 @@
 package org.briarproject.bramble.connection;
 
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
+import org.briarproject.bramble.api.connection.InterruptibleConnection;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
@@ -9,6 +10,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.Priority;
 import org.briarproject.bramble.api.sync.SyncSession;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
@@ -21,11 +23,13 @@ import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
-abstract class DuplexSyncConnection extends SyncConnection {
+abstract class DuplexSyncConnection extends SyncConnection
+		implements InterruptibleConnection {
 
 	final Executor ioExecutor;
 	final TransportId transportId;
@@ -33,8 +37,31 @@ abstract class DuplexSyncConnection extends SyncConnection {
 	final TransportConnectionWriter writer;
 	final TransportProperties remote;
 
+	private final Object interruptLock = new Object();
+
+	@GuardedBy("interruptLock")
 	@Nullable
-	volatile SyncSession outgoingSession = null;
+	private SyncSession outgoingSession = null;
+	@GuardedBy("interruptLock")
+	private boolean interruptWaiting = false;
+
+	@Override
+	public void interruptOutgoingSession() {
+		synchronized (interruptLock) {
+			if (outgoingSession == null) interruptWaiting = true;
+			else outgoingSession.interrupt();
+		}
+	}
+
+	void setOutgoingSession(SyncSession outgoingSession) {
+		synchronized (interruptLock) {
+			this.outgoingSession = outgoingSession;
+			if (interruptWaiting) {
+				outgoingSession.interrupt();
+				interruptWaiting = false;
+			}
+		}
+	}
 
 	DuplexSyncConnection(KeyManager keyManager,
 			ConnectionRegistry connectionRegistry,
@@ -57,9 +84,7 @@ abstract class DuplexSyncConnection extends SyncConnection {
 	void onReadError(boolean recognised) {
 		disposeOnError(reader, recognised);
 		disposeOnError(writer);
-		// Interrupt the outgoing session so it finishes
-		SyncSession out = outgoingSession;
-		if (out != null) out.interrupt();
+		interruptOutgoingSession();
 	}
 
 	void onWriteError() {
@@ -68,11 +93,12 @@ abstract class DuplexSyncConnection extends SyncConnection {
 	}
 
 	SyncSession createDuplexOutgoingSession(StreamContext ctx,
-			TransportConnectionWriter w) throws IOException {
+			TransportConnectionWriter w, @Nullable Priority priority)
+			throws IOException {
 		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
 				w.getOutputStream(), ctx);
 		ContactId c = requireNonNull(ctx.getContactId());
 		return syncSessionFactory.createDuplexOutgoingSession(c,
-				w.getMaxLatency(), w.getMaxIdleTime(), streamWriter);
+				w.getMaxLatency(), w.getMaxIdleTime(), streamWriter, priority);
 	}
 }

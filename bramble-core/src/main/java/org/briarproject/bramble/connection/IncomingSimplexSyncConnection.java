@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.sync.PriorityHandler;
 import org.briarproject.bramble.api.sync.SyncSessionFactory;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamContext;
@@ -58,17 +59,16 @@ class IncomingSimplexSyncConnection extends SyncConnection implements Runnable {
 			onError(true);
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId, true);
 		try {
+			// We don't expect to receive a priority for this connection
+			PriorityHandler handler = p ->
+					LOG.info("Ignoring priority for simplex connection");
 			// Create and run the incoming session
-			createIncomingSession(ctx, reader).run();
+			createIncomingSession(ctx, reader, handler).run();
 			reader.dispose(false, true);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			onError(true);
-		} finally {
-			connectionRegistry.unregisterConnection(contactId, transportId,
-					true);
 		}
 	}
 

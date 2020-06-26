@@ -98,8 +98,8 @@ class PollerImpl implements Poller, EventListener {
 			ConnectionClosedEvent c = (ConnectionClosedEvent) e;
 			// Reschedule polling, the polling interval may have decreased
 			reschedule(c.getTransportId());
-			if (!c.isIncoming()) {
-				// Connect to the disconnected contact
+			// If an outgoing connection failed, try to reconnect
+			if (!c.isIncoming() && c.isException()) {
 				connectToContact(c.getContactId(), c.getTransportId());
 			}
 		} else if (e instanceof ConnectionOpenedEvent) {
@@ -215,7 +215,7 @@ class PollerImpl implements Poller, EventListener {
 			Map<ContactId, TransportProperties> remote =
 					transportPropertyManager.getRemoteProperties(t);
 			Collection<ContactId> connected =
-					connectionRegistry.getConnectedContacts(t);
+					connectionRegistry.getConnectedOrBetterContacts(t);
 			Collection<Pair<TransportProperties, ConnectionHandler>>
 					properties = new ArrayList<>();
 			for (Entry<ContactId, TransportProperties> e : remote.entrySet()) {

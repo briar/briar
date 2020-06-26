@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
+import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
@@ -36,6 +37,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 	private final ContactExchangeManager contactExchangeManager;
 	private final ConnectionRegistry connectionRegistry;
 	private final TransportPropertyManager transportPropertyManager;
+	private final SecureRandom secureRandom;
 
 	@Inject
 	ConnectionManagerImpl(@IoExecutor Executor ioExecutor,
@@ -45,7 +47,8 @@ class ConnectionManagerImpl implements ConnectionManager {
 			HandshakeManager handshakeManager,
 			ContactExchangeManager contactExchangeManager,
 			ConnectionRegistry connectionRegistry,
-			TransportPropertyManager transportPropertyManager) {
+			TransportPropertyManager transportPropertyManager,
+			SecureRandom secureRandom) {
 		this.ioExecutor = ioExecutor;
 		this.keyManager = keyManager;
 		this.streamReaderFactory = streamReaderFactory;
@@ -55,6 +58,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		this.contactExchangeManager = contactExchangeManager;
 		this.connectionRegistry = connectionRegistry;
 		this.transportPropertyManager = transportPropertyManager;
+		this.secureRandom = secureRandom;
 	}
 
 
@@ -97,7 +101,7 @@ class ConnectionManagerImpl implements ConnectionManager {
 		ioExecutor.execute(new OutgoingDuplexSyncConnection(keyManager,
 				connectionRegistry, streamReaderFactory, streamWriterFactory,
 				syncSessionFactory, transportPropertyManager, ioExecutor,
-				c, t, d));
+				secureRandom, c, t, d));
 	}
 
 	@Override

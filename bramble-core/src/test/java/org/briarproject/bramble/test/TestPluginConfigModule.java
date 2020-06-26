@@ -10,12 +10,15 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 import javax.annotation.Nullable;
 
 import dagger.Module;
 import dagger.Provides;
 
+import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
@@ -85,6 +88,12 @@ public class TestPluginConfigModule {
 			public boolean shouldPoll() {
 				return false;
 			}
+
+			@Override
+			public Map<TransportId, List<TransportId>> getTransportPreferences() {
+				return emptyMap();
+			}
+
 		};
 		return pluginConfig;
 	}
