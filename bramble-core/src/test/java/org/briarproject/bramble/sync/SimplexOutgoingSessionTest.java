@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -23,6 +24,7 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_IDS;
 import static org.briarproject.bramble.test.TestUtils.getContactId;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
 public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 
@@ -36,14 +38,15 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 
 	private final Executor dbExecutor = new ImmediateExecutor();
 	private final ContactId contactId = getContactId();
+	private final TransportId transportId = getTransportId();
 	private final Message message = getMessage(new GroupId(getRandomId()));
 	private final MessageId messageId = message.getId();
 
 	@Test
 	public void testNothingToSend() throws Exception {
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, MAX_LATENCY, streamWriter,
-				recordWriter);
+				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
+				streamWriter, recordWriter);
 		Transaction noAckTxn = new Transaction(null, false);
 		Transaction noMsgTxn = new Transaction(null, false);
 
@@ -76,8 +79,8 @@ public class SimplexOutgoingSessionTest extends BrambleMockTestCase {
 	public void testSomethingToSend() throws Exception {
 		Ack ack = new Ack(singletonList(messageId));
 		SimplexOutgoingSession session = new SimplexOutgoingSession(db,
-				dbExecutor, eventBus, contactId, MAX_LATENCY, streamWriter,
-				recordWriter);
+				dbExecutor, eventBus, contactId, transportId, MAX_LATENCY,
+				streamWriter, recordWriter);
 		Transaction ackTxn = new Transaction(null, false);
 		Transaction noAckTxn = new Transaction(null, false);
 		Transaction msgTxn = new Transaction(null, false);

@@ -56,7 +56,7 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		BluetoothConnectionLimiter connectionLimiter =
-				new BluetoothConnectionLimiterImpl();
+				new BluetoothConnectionLimiterImpl(eventBus);
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		JavaBluetoothPlugin plugin = new JavaBluetoothPlugin(connectionLimiter,

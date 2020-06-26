@@ -47,20 +47,24 @@ abstract class DuplexSyncConnection extends SyncConnection
 
 	@Override
 	public void interruptOutgoingSession() {
+		SyncSession out = null;
 		synchronized (interruptLock) {
 			if (outgoingSession == null) interruptWaiting = true;
-			else outgoingSession.interrupt();
+			else out = outgoingSession;
 		}
+		if (out != null) out.interrupt();
 	}
 
 	void setOutgoingSession(SyncSession outgoingSession) {
+		boolean interruptWasWaiting = false;
 		synchronized (interruptLock) {
 			this.outgoingSession = outgoingSession;
 			if (interruptWaiting) {
-				outgoingSession.interrupt();
+				interruptWasWaiting = true;
 				interruptWaiting = false;
 			}
 		}
+		if (interruptWasWaiting) outgoingSession.interrupt();
 	}
 
 	DuplexSyncConnection(KeyManager keyManager,
@@ -99,6 +103,7 @@ abstract class DuplexSyncConnection extends SyncConnection
 				w.getOutputStream(), ctx);
 		ContactId c = requireNonNull(ctx.getContactId());
 		return syncSessionFactory.createDuplexOutgoingSession(c,
-				w.getMaxLatency(), w.getMaxIdleTime(), streamWriter, priority);
+				ctx.getTransportId(), w.getMaxLatency(), w.getMaxIdleTime(),
+				streamWriter, priority);
 	}
 }

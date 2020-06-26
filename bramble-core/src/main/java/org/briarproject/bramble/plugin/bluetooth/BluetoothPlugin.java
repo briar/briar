@@ -232,10 +232,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				return;
 			}
 			LOG.info("Connection received");
-			if (connectionLimiter.contactConnectionOpened(conn)) {
-				backoff.reset();
-				callback.handleConnection(conn);
-			}
+			connectionLimiter.connectionOpened(conn);
+			backoff.reset();
+			callback.handleConnection(conn);
 			if (!running) return;
 		}
 	}
@@ -327,8 +326,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		String uuid = p.get(PROP_UUID);
 		if (isNullOrEmpty(uuid)) return null;
 		DuplexTransportConnection conn = connect(address, uuid);
-		if (conn == null) return null;
-		return connectionLimiter.contactConnectionOpened(conn) ? conn : null;
+		if (conn != null) connectionLimiter.connectionOpened(conn);
+		return conn;
 	}
 
 	@Override
@@ -384,7 +383,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				LOG.info("Connecting to key agreement UUID " + uuid);
 			conn = connect(address, uuid);
 		}
-		if (conn != null) connectionLimiter.keyAgreementConnectionOpened(conn);
+		if (conn != null) connectionLimiter.connectionOpened(conn);
 		return conn;
 	}
 
@@ -453,7 +452,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		public KeyAgreementConnection accept() throws IOException {
 			DuplexTransportConnection conn = acceptConnection(ss);
 			if (LOG.isLoggable(INFO)) LOG.info(ID + ": Incoming connection");
-			connectionLimiter.keyAgreementConnectionOpened(conn);
+			connectionLimiter.connectionOpened(conn);
 			return new KeyAgreementConnection(conn, ID);
 		}
 
