@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.system.Clock;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -32,6 +33,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
+	private final ScheduledExecutorService scheduler;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
@@ -41,10 +43,12 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 
 	public AndroidBluetoothPluginFactory(Executor ioExecutor,
+			ScheduledExecutorService scheduler,
 			AndroidExecutor androidExecutor, Context appContext,
 			SecureRandom secureRandom, EventBus eventBus, Clock clock,
 			TimeoutMonitor timeoutMonitor, BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
+		this.scheduler = scheduler;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
@@ -72,7 +76,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(
 				connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
-				androidExecutor, appContext, clock, backoff,
+				scheduler, androidExecutor, appContext, clock, backoff,
 				callback, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;

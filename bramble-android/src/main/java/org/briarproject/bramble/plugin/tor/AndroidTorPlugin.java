@@ -27,6 +27,7 @@ import static android.content.Context.MODE_PRIVATE;
 import static android.content.Context.POWER_SERVICE;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MINUTES;
+import static org.briarproject.bramble.util.AndroidUtils.getWakeLockTag;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -53,7 +54,7 @@ class AndroidTorPlugin extends TorPlugin {
 				appContext.getSystemService(POWER_SERVICE);
 		if (pm == null) throw new AssertionError();
 		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
-				getWakeLockTag(), 1, MINUTES);
+				getWakeLockTag(appContext), 1, MINUTES);
 	}
 
 	@Override
@@ -84,18 +85,5 @@ class AndroidTorPlugin extends TorPlugin {
 	public void stop() {
 		super.stop();
 		wakeLock.release();
-	}
-
-	private String getWakeLockTag() {
-		PackageManager pm = appContext.getPackageManager();
-		for (PackageInfo info : pm.getInstalledPackages(0)) {
-			String name = info.packageName.toLowerCase();
-			if (name.startsWith("com.huawei.powergenie")) {
-				return "LocationManagerService";
-			} else if (name.startsWith("com.evenwell.powermonitor")) {
-				return "AudioIn";
-			}
-		}
-		return getClass().getSimpleName();
 	}
 }

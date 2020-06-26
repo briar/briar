@@ -3,6 +3,8 @@ package org.briarproject.bramble.util;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.provider.Settings;
 
@@ -116,5 +118,18 @@ public class AndroidUtils {
 	public static String[] getSupportedImageContentTypes() {
 		if (SDK_INT < 24) return new String[] {"image/jpeg", "image/png"};
 		else return new String[] {"image/jpeg", "image/png", "image/gif"};
+	}
+
+	public static String getWakeLockTag(Context ctx) {
+		PackageManager pm = ctx.getPackageManager();
+		for (PackageInfo info : pm.getInstalledPackages(0)) {
+			String name = info.packageName.toLowerCase();
+			if (name.startsWith("com.huawei.powergenie")) {
+				return "LocationManagerService";
+			} else if (name.startsWith("com.evenwell.powermonitor")) {
+				return "AudioIn";
+			}
+		}
+		return ctx.getPackageName();
 	}
 }
