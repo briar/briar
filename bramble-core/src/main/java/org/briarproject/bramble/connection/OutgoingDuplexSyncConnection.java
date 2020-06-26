@@ -104,9 +104,8 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError();
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId,
-				this, false);
-		connectionRegistry.setPriority(contactId, transportId, this, priority);
+		connectionRegistry.registerOutgoingConnection(contactId, transportId,
+				this, priority);
 		try {
 			// Store any transport properties discovered from the connection
 			transportPropertyManager.addRemotePropertiesFromConnection(

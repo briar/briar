@@ -22,14 +22,42 @@ import java.util.Collection;
 public interface ConnectionRegistry {
 
 	/**
-	 * Registers a connection with the given contact over the given transport.
+	 * Registers an incoming connection from the given contact over the given
+	 * transport. The connection's {@link Priority priority} can be set later
+	 * via {@link #setPriority(ContactId, TransportId, InterruptibleConnection,
+	 * Priority)} if a priority record is received from the contact.
 	 * <p>
 	 * Broadcasts {@link ConnectionOpenedEvent}. Also broadcasts
 	 * {@link ContactConnectedEvent} if this is the only connection with the
 	 * contact.
 	 */
-	void registerConnection(ContactId c, TransportId t,
-			InterruptibleConnection conn, boolean incoming);
+	void registerIncomingConnection(ContactId c, TransportId t,
+			InterruptibleConnection conn);
+
+	/**
+	 * Registers an outgoing connection to the given contact over the given
+	 * transport.
+	 * <p>
+	 * Broadcasts {@link ConnectionOpenedEvent}. Also broadcasts
+	 * {@link ContactConnectedEvent} if this is the only connection with the
+	 * contact.
+	 * <p>
+	 * If the registry has any "better" connections with the given contact, the
+	 * given connection will be interrupted. If the registry has any "worse"
+	 * connections with the given contact, those connections will be
+	 * interrupted.
+	 * <p>
+	 * Connection A is considered "better" than connection B if both
+	 * connections have had their priorities set, and either A's transport is
+	 * {@link PluginConfig#getTransportPreferences() preferred} to B's, or
+	 * they use the same transport and A has higher {@link Priority priority}
+	 * than B.
+	 * <p>
+	 * For backward compatibility, connections without priorities are not
+	 * considered better or worse than other connections.
+	 */
+	void registerOutgoingConnection(ContactId c, TransportId t,
+			InterruptibleConnection conn, Priority priority);
 
 	/**
 	 * Unregisters a connection with the given contact over the given transport.
@@ -43,8 +71,8 @@ public interface ConnectionRegistry {
 
 	/**
 	 * Sets the {@link Priority priority} of a connection that was previously
-	 * registered via {@link #registerConnection(ContactId, TransportId,
-	 * InterruptibleConnection, boolean)}.
+	 * registered via {@link #registerIncomingConnection(ContactId, TransportId,
+	 * InterruptibleConnection)}.
 	 * <p>
 	 * If the registry has any "better" connections with the given contact, the
 	 * given connection will be interrupted. If the registry has any "worse"

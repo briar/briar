@@ -59,8 +59,8 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			onReadError(true);
 			return;
 		}
-		connectionRegistry.registerConnection(contactId, transportId,
-				this, true);
+		connectionRegistry.registerIncomingConnection(contactId, transportId,
+				this);
 		// Start the outgoing session on another thread
 		ioExecutor.execute(() -> runOutgoingSession(contactId));
 		try {

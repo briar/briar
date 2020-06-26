@@ -85,7 +85,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn1, true);
+		c.registerIncomingConnection(contactId1, transportId1, conn1);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -101,7 +101,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn2, true);
+		c.registerIncomingConnection(contactId1, transportId1, conn2);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -170,9 +170,9 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			exactly(2).of(eventBus).broadcast(with(any(
 					ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn1, true);
-		c.registerConnection(contactId2, transportId1, conn2, true);
-		c.registerConnection(contactId2, transportId2, conn3, true);
+		c.registerIncomingConnection(contactId1, transportId1, conn1);
+		c.registerIncomingConnection(contactId2, transportId1, conn2);
+		c.registerIncomingConnection(contactId2, transportId2, conn3);
 		context.assertIsSatisfied();
 
 		assertTrue(c.isConnected(contactId1));
@@ -212,12 +212,12 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		ConnectionRegistry c =
 				new ConnectionRegistryImpl(eventBus, pluginConfig);
 
-		// Connect via transport 1 (worse than 2) and set priority to low
+		// Connect via transport 1 (worse than 2) with no priority set
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn1, true);
+		c.registerIncomingConnection(contactId1, transportId1, conn1);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -234,8 +234,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId2, conn2, true);
-		c.setPriority(contactId1, transportId2, conn2, high);
+		c.registerOutgoingConnection(contactId1, transportId2, conn2, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -253,8 +252,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId3, conn3, true);
-		c.setPriority(contactId1, transportId3, conn3, high);
+		c.registerOutgoingConnection(contactId1, transportId3, conn3, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -290,8 +288,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn1, true);
-		c.setPriority(contactId1, transportId1, conn1, low);
+		c.registerOutgoingConnection(contactId1, transportId1, conn1, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -312,8 +309,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(conn2).interruptOutgoingSession();
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId2, conn2, true);
-		c.setPriority(contactId1, transportId2, conn2, high);
+		c.registerOutgoingConnection(contactId1, transportId2, conn2, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -331,8 +327,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId3, conn3, true);
-		c.setPriority(contactId1, transportId3, conn3, low);
+		c.registerOutgoingConnection(contactId1, transportId3, conn3, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -391,8 +386,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn1, true);
-		c.setPriority(contactId1, transportId1, conn1, high);
+		c.registerOutgoingConnection(contactId1, transportId1, conn1, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -410,8 +404,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(conn1).interruptOutgoingSession();
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId2, conn2, true);
-		c.setPriority(contactId1, transportId2, conn2, low);
+		c.registerOutgoingConnection(contactId1, transportId2, conn2, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -429,7 +422,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId3, conn3, true);
+		c.registerOutgoingConnection(contactId1, transportId3, conn3, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -486,8 +479,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn1, true);
-		c.setPriority(contactId1, transportId1, conn1, high);
+		c.registerOutgoingConnection(contactId1, transportId1, conn1, high);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -499,7 +491,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn2, true);
+		c.registerIncomingConnection(contactId1, transportId1, conn2);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -526,8 +518,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(conn3).interruptOutgoingSession();
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn3, true);
-		c.setPriority(contactId1, transportId1, conn3, low);
+		c.registerOutgoingConnection(contactId1, transportId1, conn3, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -551,8 +542,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 			oneOf(eventBus).broadcast(with(any(ContactConnectedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn1, true);
-		c.setPriority(contactId1, transportId1, conn1, low);
+		c.registerOutgoingConnection(contactId1, transportId1, conn1, low);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
@@ -564,7 +554,7 @@ public class ConnectionRegistryImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(eventBus).broadcast(with(any(ConnectionOpenedEvent.class)));
 		}});
-		c.registerConnection(contactId1, transportId1, conn2, true);
+		c.registerIncomingConnection(contactId1, transportId1, conn2);
 		context.assertIsSatisfied();
 
 		assertEquals(singletonList(contactId1),
