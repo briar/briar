@@ -120,8 +120,8 @@ public class SetupDataTest extends ScreenshotTest {
 
 		// TODO add messages
 
-		connectionRegistry.registerConnection(bob.getId(), ID, () -> {
-		}, true);
+		connectionRegistry.registerIncomingConnection(bob.getId(), ID, () -> {
+		});
 	}
 
 }
