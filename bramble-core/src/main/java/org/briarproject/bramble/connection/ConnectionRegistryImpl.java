@@ -63,18 +63,12 @@ class ConnectionRegistryImpl implements ConnectionRegistry {
 	@Override
 	public void registerIncomingConnection(ContactId c, TransportId t,
 			InterruptibleConnection conn) {
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Incoming connection registered: " + t);
-		}
 		registerConnection(c, t, conn, true);
 	}
 
 	@Override
 	public void registerOutgoingConnection(ContactId c, TransportId t,
 			InterruptibleConnection conn, Priority priority) {
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Outgoing connection registered: " + t);
-		}
 		registerConnection(c, t, conn, false);
 		setPriority(c, t, conn, priority);
 	}
