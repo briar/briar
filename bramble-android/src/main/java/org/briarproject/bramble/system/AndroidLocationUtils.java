@@ -61,12 +61,12 @@ class AndroidLocationUtils implements LocationUtils {
 	private String getCountryFromPhoneNetwork() {
 		Object o = appContext.getSystemService(TELEPHONY_SERVICE);
 		TelephonyManager tm = (TelephonyManager) o;
-		return tm.getNetworkCountryIso();
+		return tm == null ? "" : tm.getNetworkCountryIso();
 	}
 
 	private String getCountryFromSimCard() {
 		Object o = appContext.getSystemService(TELEPHONY_SERVICE);
 		TelephonyManager tm = (TelephonyManager) o;
-		return tm.getSimCountryIso();
+		return tm == null ? "" : tm.getSimCountryIso();
 	}
 }

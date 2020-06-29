@@ -54,11 +54,13 @@ class PortMapperImpl implements PortMapper {
 				shutdownManager.addShutdownHook(() -> deleteMapping(port));
 			}
 			String externalString = gateway.getExternalIPAddress();
-			if (LOG.isLoggable(INFO))
-				LOG.info(
-						"External address " + scrubInetAddress(externalString));
-			if (externalString != null)
+			if (externalString == null) {
+				LOG.info("External address not available");
+			} else {
 				external = InetAddress.getByName(externalString);
+				if (LOG.isLoggable(INFO))
+					LOG.info("External address " + scrubInetAddress(external));
+			}
 		} catch (IOException | SAXException e) {
 			logException(LOG, WARNING, e);
 		}

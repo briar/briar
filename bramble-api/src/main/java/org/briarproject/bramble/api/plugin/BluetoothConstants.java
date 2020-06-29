@@ -8,6 +8,4 @@ public interface BluetoothConstants {
 
 	String PROP_ADDRESS = "address";
 	String PROP_UUID = "uuid";
-
-	String PREF_BT_ENABLE = "enable";
 }

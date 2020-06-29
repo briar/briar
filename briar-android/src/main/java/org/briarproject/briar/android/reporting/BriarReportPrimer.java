@@ -21,6 +21,8 @@ import org.briarproject.briar.android.logging.BriefLogFormatter;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -185,12 +187,18 @@ public class BriarReportPrimer implements ReportPrimer {
 				WifiInfo wifiInfo = wm.getConnectionInfo();
 				if (wifiInfo != null) {
 					int ip = wifiInfo.getIpAddress(); // Nice API, Google
-					int ip1 = ip & 0xFF;
-					int ip2 = (ip >> 8) & 0xFF;
-					int ip3 = (ip >> 16) & 0xFF;
-					int ip4 = (ip >> 24) & 0xFF;
-					String address = ip1 + "." + ip2 + "." + ip3 + "." + ip4;
-					customData.put("Wi-Fi address", scrubInetAddress(address));
+					byte[] ipBytes = new byte[4];
+					ipBytes[0] = (byte) (ip & 0xFF);
+					ipBytes[1] = (byte) ((ip >> 8) & 0xFF);
+					ipBytes[2] = (byte) ((ip >> 16) & 0xFF);
+					ipBytes[3] = (byte) ((ip >> 24) & 0xFF);
+					try {
+						InetAddress address = InetAddress.getByAddress(ipBytes);
+						customData.put("Wi-Fi address",
+								scrubInetAddress(address));
+					} catch (UnknownHostException ignored) {
+						// Should only be thrown if address has illegal length
+					}
 				}
 			}
 

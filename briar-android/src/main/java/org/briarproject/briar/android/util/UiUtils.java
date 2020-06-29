@@ -6,6 +6,7 @@ import android.app.KeyguardManager;
 import android.content.Context;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.text.Html;
@@ -38,9 +39,12 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 
+import java.util.Locale;
+
 import androidx.annotation.AttrRes;
 import androidx.annotation.ColorInt;
 import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.annotation.UiThread;
@@ -79,7 +83,10 @@ import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
 import static androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;
 import static androidx.appcompat.app.AppCompatDelegate.setDefaultNightMode;
+import static androidx.core.content.ContextCompat.getColor;
+import static androidx.core.content.ContextCompat.getDrawable;
 import static androidx.core.content.ContextCompat.getSystemService;
+import static androidx.core.graphics.drawable.DrawableCompat.setTint;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_RTL;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
@@ -400,5 +407,21 @@ public class UiUtils {
 		if (SDK_INT < 17) return false;
 		return ctx.getResources().getConfiguration().getLayoutDirection() ==
 				LAYOUT_DIRECTION_RTL;
+	}
+
+	public static String getCountryDisplayName(String isoCode) {
+		for (Locale locale : Locale.getAvailableLocales()) {
+			if (locale.getCountry().equalsIgnoreCase(isoCode)) {
+				return locale.getDisplayCountry();
+			}
+		}
+		// Name is unknown
+		return isoCode;
+	}
+
+	public static Drawable getDialogIcon(Context ctx, @DrawableRes int resId) {
+		Drawable icon = getDrawable(ctx, resId);
+		setTint(requireNonNull(icon), getColor(ctx, R.color.color_primary));
+		return icon;
 	}
 }

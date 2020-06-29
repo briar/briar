@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
@@ -54,6 +55,9 @@ import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.zip.ZipInputStream;
 
+import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 import javax.net.SocketFactory;
 
 import static java.util.Arrays.asList;
@@ -65,6 +69,11 @@ import static java.util.logging.Logger.getLogger;
 import static net.freehaven.tor.control.TorControlCommands.HS_ADDRESS;
 import static net.freehaven.tor.control.TorControlCommands.HS_PRIVKEY;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.api.plugin.TorConstants.CONTROL_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
@@ -76,6 +85,9 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_ONLY_WHE
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_PORT;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V2;
 import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
+import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -113,15 +125,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private final int maxLatency, maxIdleTime, socketTimeout;
 	private final File torDirectory, torFile, geoIpFile, obfs4File, configFile;
 	private final File doneFile, cookieFile;
-	private final ConnectionStatus connectionStatus;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	private volatile ServerSocket socket = null;
+	protected final PluginState state = new PluginState();
+
 	private volatile Socket controlSocket = null;
 	private volatile TorControlConnection controlConnection = null;
 	private volatile Settings settings = null;
-
-	protected volatile boolean running = false;
 
 	protected abstract int getProcessId();
 
@@ -159,7 +169,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		configFile = new File(torDirectory, "torrc");
 		doneFile = new File(torDirectory, "done");
 		cookieFile = new File(torDirectory, ".tor/control_auth_cookie");
-		connectionStatus = new ConnectionStatus();
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("TorPlugin", ioExecutor, 1);
@@ -190,7 +199,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			}
 		}
 		// Load the settings
-		settings = callback.getSettings();
+		settings = migrateSettings(callback.getSettings());
 		// Install or update the assets if necessary
 		if (!assetsAreUpToDate()) installAssets();
 		if (cookieFile.exists() && !cookieFile.delete())
@@ -258,7 +267,6 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			// Tell Tor to exit when the control connection is closed
 			controlConnection.takeOwnership();
 			controlConnection.resetConf(singletonList(OWNER));
-			running = true;
 			// Register to receive events from the Tor process
 			controlConnection.setEventHandler(this);
 			controlConnection.setEvents(asList(EVENTS));
@@ -266,16 +274,29 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			String phase = controlConnection.getInfo("status/bootstrap-phase");
 			if (phase != null && phase.contains("PROGRESS=100")) {
 				LOG.info("Tor has already bootstrapped");
-				connectionStatus.setBootstrapped();
+				state.setBootstrapped();
 			}
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
+		state.setStarted();
 		// Check whether we're online
 		updateConnectionStatus(networkManager.getNetworkStatus(),
 				batteryManager.isCharging());
 		// Bind a server socket to receive incoming hidden service connections
 		bind();
+	}
+
+	// TODO: Remove after a reasonable migration period (added 2020-06-25)
+	private Settings migrateSettings(Settings settings) {
+		int network = settings.getInt(PREF_TOR_NETWORK,
+				PREF_TOR_NETWORK_AUTOMATIC);
+		if (network == PREF_TOR_NETWORK_NEVER) {
+			settings.putInt(PREF_TOR_NETWORK, PREF_TOR_NETWORK_AUTOMATIC);
+			settings.putBoolean(PREF_PLUGIN_ENABLE, false);
+			callback.mergeSettings(settings);
+		}
+		return settings;
 	}
 
 	private boolean assetsAreUpToDate() {
@@ -393,11 +414,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				tryToClose(ss, LOG, WARNING);
 				return;
 			}
-			if (!running) {
+			if (!state.setServerSocket(ss)) {
+				LOG.info("Closing redundant server socket");
 				tryToClose(ss, LOG, WARNING);
 				return;
 			}
-			socket = ss;
 			// Store the port number
 			String localPort = String.valueOf(ss.getLocalPort());
 			Settings s = new Settings();
@@ -412,7 +433,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void publishHiddenService(String port) {
-		if (!running) return;
+		if (!state.isTorRunning()) return;
 		LOG.info("Creating hidden service");
 		String privKey = settings.get(HS_PRIVKEY);
 		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
@@ -450,14 +471,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void acceptContactConnections(ServerSocket ss) {
-		while (running) {
+		while (true) {
 			Socket s;
 			try {
 				s = ss.accept();
 				s.setSoTimeout(socketTimeout);
 			} catch (IOException e) {
-				// This is expected when the socket is closed
-				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+				// This is expected when the server socket is closed
+				LOG.info("Server socket closed");
+				state.clearServerSocket(ss);
 				return;
 			}
 			LOG.info("Connection received");
@@ -467,10 +489,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	protected void enableNetwork(boolean enable) throws IOException {
-		if (!running) return;
-		connectionStatus.enableNetwork(enable);
+		state.enableNetwork(enable);
 		controlConnection.setConf("DisableNetwork", enable ? "0" : "1");
-		if (!enable) callback.transportDisabled();
 	}
 
 	private void enableBridges(boolean enable, boolean needsMeek)
@@ -494,9 +514,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public void stop() {
-		running = false;
-		tryToClose(socket, LOG, WARNING);
-		callback.transportDisabled();
+		ServerSocket ss = state.setStopped();
+		tryToClose(ss, LOG, WARNING);
 		if (controlSocket != null && controlConnection != null) {
 			try {
 				LOG.info("Stopping Tor");
@@ -510,8 +529,13 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running && connectionStatus.isConnected();
+	public State getState() {
+		return state.getState();
+	}
+
+	@Override
+	public int getReasonsDisabled() {
+		return state.getReasonsDisabled();
 	}
 
 	@Override
@@ -527,7 +551,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (!isRunning()) return;
+		if (getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
@@ -546,7 +570,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (!isRunning()) return null;
+		if (getState() != ACTIVE) return null;
 		String bestOnion = null;
 		String onion2 = p.get(PROP_ONION_V2);
 		String onion3 = p.get(PROP_ONION_V3);
@@ -634,8 +658,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 								new TorTransportConnection(this, s));
 					}
 				} catch (IOException e) {
-					// This is expected when the socket is closed
-					if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+					// This is expected when the server socket is closed
+					LOG.info("Rendezvous server socket closed");
 				}
 			});
 			Map<Integer, String> portLines =
@@ -663,10 +687,9 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public void circuitStatus(String status, String id, String path) {
 		if (status.equals("BUILT") &&
-				connectionStatus.getAndSetCircuitBuilt()) {
+				state.getAndSetCircuitBuilt()) {
 			LOG.info("First circuit built");
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
@@ -697,9 +720,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	public void message(String severity, String msg) {
 		if (LOG.isLoggable(INFO)) LOG.info(severity + " " + msg);
 		if (severity.equals("NOTICE") && msg.startsWith("Bootstrapped 100%")) {
-			connectionStatus.setBootstrapped();
+			state.setBootstrapped();
 			backoff.reset();
-			if (isRunning()) callback.transportEnabled();
 		}
 	}
 
@@ -736,7 +758,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void disableNetwork() {
 		connectionStatusExecutor.execute(() -> {
 			try {
-				enableNetwork(false);
+				if (state.isTorRunning()) enableNetwork(false);
 			} catch (IOException ex) {
 				logException(LOG, WARNING, ex);
 			}
@@ -746,12 +768,14 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private void updateConnectionStatus(NetworkStatus status,
 			boolean charging) {
 		connectionStatusExecutor.execute(() -> {
-			if (!running) return;
+			if (!state.isTorRunning()) return;
 			boolean online = status.isConnected();
 			boolean wifi = status.isWifi();
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
+			boolean enabledByUser =
+					settings.getBoolean(PREF_PLUGIN_ENABLE, true);
 			int network = settings.getInt(PREF_TOR_NETWORK,
 					PREF_TOR_NETWORK_AUTOMATIC);
 			boolean useMobile = settings.getBoolean(PREF_TOR_MOBILE, true);
@@ -762,47 +786,70 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Online: " + online + ", wifi: " + wifi);
-				if ("".equals(country)) LOG.info("Country code unknown");
+				if (country.isEmpty()) LOG.info("Country code unknown");
 				else LOG.info("Country code: " + country);
 				LOG.info("Charging: " + charging);
 			}
 
-			try {
-				if (!online) {
-					LOG.info("Disabling network, device is offline");
-					enableNetwork(false);
-				} else if (!charging && onlyWhenCharging) {
-					LOG.info("Disabling network, device is on battery");
-					enableNetwork(false);
-				} else if (network == PREF_TOR_NETWORK_NEVER ||
-						(!useMobile && !wifi)) {
-					LOG.info("Disabling network, device is using mobile data");
-					enableNetwork(false);
-				} else if (automatic && blocked && !bridgesWork) {
-					LOG.info("Disabling network, country is blocked");
-					enableNetwork(false);
-				} else if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
-						(automatic && bridgesWork)) {
-					if (circumventionProvider.needsMeek(country)) {
-						LOG.info("Enabling network, using meek bridges");
-						enableBridges(true, true);
+			int reasonsDisabled = 0;
+			boolean enableNetwork = false, enableBridges = false;
+			boolean useMeek = false, enableConnectionPadding = false;
+
+			if (!online) {
+				LOG.info("Disabling network, device is offline");
+			} else {
+				if (!enabledByUser) {
+					LOG.info("User has disabled Tor");
+					reasonsDisabled |= REASON_USER;
+				}
+				if (!charging && onlyWhenCharging) {
+					LOG.info("Configured not to use battery");
+					reasonsDisabled |= REASON_BATTERY;
+				}
+				if (!useMobile && !wifi) {
+					LOG.info("Configured not to use mobile data");
+					reasonsDisabled |= REASON_MOBILE_DATA;
+				}
+				if (automatic && blocked && !bridgesWork) {
+					LOG.info("Country is blocked");
+					reasonsDisabled |= REASON_COUNTRY_BLOCKED;
+				}
+
+				if (reasonsDisabled != 0) {
+					LOG.info("Disabling network due to settings");
+				} else {
+					LOG.info("Enabling network");
+					enableNetwork = true;
+					if (network == PREF_TOR_NETWORK_WITH_BRIDGES ||
+							(automatic && bridgesWork)) {
+						if (circumventionProvider.needsMeek(country)) {
+							LOG.info("Using meek bridges");
+							enableBridges = true;
+							useMeek = true;
+						} else {
+							LOG.info("Using obfs4 bridges");
+							enableBridges = true;
+						}
 					} else {
-						LOG.info("Enabling network, using obfs4 bridges");
-						enableBridges(true, false);
+						LOG.info("Not using bridges");
 					}
-					enableNetwork(true);
-				} else {
-					LOG.info("Enabling network, not using bridges");
-					enableBridges(false, false);
-					enableNetwork(true);
+					if (wifi && charging) {
+						LOG.info("Enabling connection padding");
+						enableConnectionPadding = true;
+					} else {
+						LOG.info("Disabling connection padding");
+					}
 				}
-				if (online && wifi && charging) {
-					LOG.info("Enabling connection padding");
-					enableConnectionPadding(true);
-				} else {
-					LOG.info("Disabling connection padding");
-					enableConnectionPadding(false);
+			}
+
+			state.setReasonsDisabled(reasonsDisabled);
+
+			try {
+				if (enableNetwork) {
+					enableBridges(enableBridges, useMeek);
+					enableConnectionPadding(enableConnectionPadding);
 				}
+				enableNetwork(enableNetwork);
 			} catch (IOException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -810,33 +857,96 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
-		if (!running) return;
 		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
 	}
 
-	private static class ConnectionStatus {
+	@ThreadSafe
+	@NotNullByDefault
+	protected class PluginState {
 
-		// All of the following are locking: this
-		private boolean networkEnabled = false;
-		private boolean bootstrapped = false, circuitBuilt = false;
+		@GuardedBy("this")
+		private boolean started = false,
+				stopped = false,
+				networkInitialised = false,
+				networkEnabled = false,
+				bootstrapped = false,
+				circuitBuilt = false,
+				settingsChecked = false;
 
-		private synchronized void setBootstrapped() {
-			bootstrapped = true;
+		@GuardedBy("this")
+		private int reasonsDisabled = 0;
+
+		@GuardedBy("this")
+		@Nullable
+		private ServerSocket serverSocket = null;
+
+		synchronized void setStarted() {
+			started = true;
+			callback.pluginStateChanged(getState());
 		}
 
-		private synchronized boolean getAndSetCircuitBuilt() {
+		synchronized boolean isTorRunning() {
+			return started && !stopped;
+		}
+
+		@Nullable
+		synchronized ServerSocket setStopped() {
+			stopped = true;
+			ServerSocket ss = serverSocket;
+			serverSocket = null;
+			callback.pluginStateChanged(getState());
+			return ss;
+		}
+
+		synchronized void setBootstrapped() {
+			bootstrapped = true;
+			callback.pluginStateChanged(getState());
+		}
+
+		synchronized boolean getAndSetCircuitBuilt() {
 			boolean firstCircuit = !circuitBuilt;
 			circuitBuilt = true;
+			callback.pluginStateChanged(getState());
 			return firstCircuit;
 		}
 
-		private synchronized void enableNetwork(boolean enable) {
+		synchronized void enableNetwork(boolean enable) {
+			networkInitialised = true;
 			networkEnabled = enable;
 			if (!enable) circuitBuilt = false;
+			callback.pluginStateChanged(getState());
 		}
 
-		private synchronized boolean isConnected() {
-			return networkEnabled && bootstrapped && circuitBuilt;
+		synchronized void setReasonsDisabled(int reasonsDisabled) {
+			settingsChecked = true;
+			this.reasonsDisabled = reasonsDisabled;
+			callback.pluginStateChanged(getState());
+		}
+
+		// Doesn't affect getState()
+		synchronized boolean setServerSocket(ServerSocket ss) {
+			if (stopped || serverSocket != null) return false;
+			serverSocket = ss;
+			return true;
+		}
+
+		// Doesn't affect getState()
+		synchronized void clearServerSocket(ServerSocket ss) {
+			if (serverSocket == ss) serverSocket = null;
+		}
+
+		synchronized State getState() {
+			if (!started || stopped || !settingsChecked) {
+				return STARTING_STOPPING;
+			}
+			if (reasonsDisabled != 0) return DISABLED;
+			if (!networkInitialised) return ENABLING;
+			if (!networkEnabled) return INACTIVE;
+			return bootstrapped && circuitBuilt ? ACTIVE : ENABLING;
+		}
+
+		synchronized int getReasonsDisabled() {
+			return getState() == DISABLED ? reasonsDisabled : 0;
 		}
 	}
 }

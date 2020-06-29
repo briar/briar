@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.event.LifecycleEvent;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.sync.Ack;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.SyncRecordWriter;
@@ -131,6 +132,9 @@ class SimplexOutgoingSession implements SyncSession, EventListener {
 		} else if (e instanceof CloseSyncConnectionsEvent) {
 			CloseSyncConnectionsEvent c = (CloseSyncConnectionsEvent) e;
 			if (c.getTransportId().equals(transportId)) interrupt();
+		} else if (e instanceof TransportInactiveEvent) {
+			TransportInactiveEvent t = (TransportInactiveEvent) e;
+			if (t.getTransportId().equals(transportId)) interrupt();
 		}
 	}
 

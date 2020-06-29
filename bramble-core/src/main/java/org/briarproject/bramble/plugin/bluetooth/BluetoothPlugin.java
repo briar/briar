@@ -10,7 +10,9 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementConnection;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementListeningEvent;
 import org.briarproject.bramble.api.keyagreement.event.KeyAgreementStoppedListeningEvent;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.ConnectionHandler;
@@ -37,16 +39,21 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
+import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
-import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_BT_ENABLE;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
+import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -70,9 +77,9 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private final int maxLatency, maxIdleTime;
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
-	private volatile boolean running = false, contactConnections = false;
+	protected final PluginState state = new PluginState();
+
 	private volatile String contactConnectionsUuid = null;
-	private volatile SS socket = null;
 
 	abstract void initialiseAdapter() throws IOException;
 
@@ -124,14 +131,18 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		LOG.info("Bluetooth enabled");
 		// We may not have been able to get the local address before
 		ioExecutor.execute(this::updateProperties);
-		if (shouldAllowContactConnections()) bind();
+		if (getState() == INACTIVE) bind();
 	}
 
 	void onAdapterDisabled() {
 		LOG.info("Bluetooth disabled");
-		tryToClose(socket);
 		connectionLimiter.allConnectionsClosed();
-		callback.transportDisabled();
+		// The server socket may not have been closed automatically
+		SS ss = state.clearServerSocket();
+		if (ss != null) {
+			LOG.info("Closing server socket");
+			tryToClose(ss);
+		}
 	}
 
 	@Override
@@ -152,31 +163,24 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public void start() throws PluginException {
 		if (used.getAndSet(true)) throw new IllegalStateException();
+		Settings settings = callback.getSettings();
+		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
+		state.setStarted(enabledByUser);
 		try {
 			initialiseAdapter();
 		} catch (IOException e) {
 			throw new PluginException(e);
 		}
 		updateProperties();
-		running = true;
-		loadSettings(callback.getSettings());
-		if (shouldAllowContactConnections()) {
+		if (enabledByUser) {
 			if (isAdapterEnabled()) bind();
 			else enableAdapter();
 		}
 	}
 
-	private void loadSettings(Settings settings) {
-		contactConnections = settings.getBoolean(PREF_BT_ENABLE, false);
-	}
-
-	private boolean shouldAllowContactConnections() {
-		return contactConnections;
-	}
-
 	private void bind() {
 		ioExecutor.execute(() -> {
-			if (!isRunning() || !shouldAllowContactConnections()) return;
+			if (getState() != INACTIVE) return;
 			// Bind a server socket to accept connections from contacts
 			SS ss;
 			try {
@@ -185,14 +189,13 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				logException(LOG, WARNING, e);
 				return;
 			}
-			if (!isRunning() || !shouldAllowContactConnections()) {
+			if (!state.setServerSocket(ss)) {
+				LOG.info("Closing redundant server socket");
 				tryToClose(ss);
 				return;
 			}
-			socket = ss;
 			backoff.reset();
-			callback.transportEnabled();
-			acceptContactConnections();
+			acceptContactConnections(ss);
 		});
 	}
 
@@ -221,35 +224,39 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		if (changed) callback.mergeLocalProperties(p);
 	}
 
-	private void acceptContactConnections() {
+	private void acceptContactConnections(SS ss) {
 		while (true) {
 			DuplexTransportConnection conn;
 			try {
-				conn = acceptConnection(socket);
+				conn = acceptConnection(ss);
 			} catch (IOException e) {
-				// This is expected when the socket is closed
-				if (LOG.isLoggable(INFO)) LOG.info(e.toString());
+				// This is expected when the server socket is closed
+				LOG.info("Server socket closed");
+				state.clearServerSocket();
 				return;
 			}
 			LOG.info("Connection received");
 			connectionLimiter.connectionOpened(conn);
 			backoff.reset();
 			callback.handleConnection(conn);
-			if (!running) return;
 		}
 	}
 
 	@Override
 	public void stop() {
-		running = false;
-		tryToClose(socket);
-		callback.transportDisabled();
+		SS ss = state.setStopped();
+		tryToClose(ss);
 		disableAdapterIfEnabledByUs();
 	}
 
 	@Override
-	public boolean isRunning() {
-		return running && isAdapterEnabled();
+	public State getState() {
+		return state.getState();
+	}
+
+	@Override
+	public int getReasonsDisabled() {
+		return state.getReasonsDisabled();
 	}
 
 	@Override
@@ -265,7 +272,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties) {
-		if (!isRunning() || !shouldAllowContactConnections()) return;
+		if (getState() != ACTIVE) return;
 		backoff.increment();
 		for (Pair<TransportProperties, ConnectionHandler> p : properties) {
 			connect(p.getFirst(), p.getSecond());
@@ -319,7 +326,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
-		if (!isRunning() || !shouldAllowContactConnections()) return null;
+		if (getState() != ACTIVE) return null;
 		if (!connectionLimiter.canOpenContactConnection()) return null;
 		String address = p.get(PROP_ADDRESS);
 		if (isNullOrEmpty(address)) return null;
@@ -337,7 +344,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public KeyAgreementListener createKeyAgreementListener(byte[] commitment) {
-		if (!isRunning()) return null;
+		if (getState() != ACTIVE) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		if (LOG.isLoggable(INFO)) LOG.info("Key agreement UUID " + uuid);
@@ -349,7 +356,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			logException(LOG, WARNING, e);
 			return null;
 		}
-		if (!isRunning()) {
+		if (getState() != ACTIVE) {
 			tryToClose(ss);
 			return null;
 		}
@@ -363,7 +370,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
 			byte[] commitment, BdfList descriptor) {
-		if (!isRunning()) return null;
+		if (getState() != ACTIVE) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		DuplexTransportConnection conn;
@@ -423,17 +430,17 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		}
 	}
 
+	@IoExecutor
 	private void onSettingsUpdated(Settings settings) {
-		boolean wasAllowed = shouldAllowContactConnections();
-		loadSettings(settings);
-		boolean isAllowed = shouldAllowContactConnections();
-		if (wasAllowed && !isAllowed) {
-			LOG.info("Contact connections disabled");
-			tryToClose(socket);
-			callback.transportDisabled();
+		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
+		SS ss = state.setEnabledByUser(enabledByUser);
+		State s = getState();
+		if (ss != null) {
+			LOG.info("Disabled by user, closing server socket");
+			tryToClose(ss);
 			disableAdapterIfEnabledByUs();
-		} else if (!wasAllowed && isAllowed) {
-			LOG.info("Contact connections enabled");
+		} else if (s == INACTIVE) {
+			LOG.info("Enabled by user, opening server socket");
 			if (isAdapterEnabled()) bind();
 			else enableAdapter();
 		}
@@ -459,6 +466,72 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		@Override
 		public void close() {
 			tryToClose(ss);
+		}
+	}
+
+	@ThreadSafe
+	@NotNullByDefault
+	protected class PluginState {
+
+		@GuardedBy("this")
+		private boolean started = false,
+				stopped = false,
+				enabledByUser = false;
+
+		@GuardedBy("this")
+		@Nullable
+		private SS serverSocket = null;
+
+		synchronized void setStarted(boolean enabledByUser) {
+			started = true;
+			this.enabledByUser = enabledByUser;
+			callback.pluginStateChanged(getState());
+		}
+
+		@Nullable
+		synchronized SS setStopped() {
+			stopped = true;
+			SS ss = serverSocket;
+			serverSocket = null;
+			callback.pluginStateChanged(getState());
+			return ss;
+		}
+
+		@Nullable
+		synchronized SS setEnabledByUser(boolean enabledByUser) {
+			this.enabledByUser = enabledByUser;
+			SS ss = null;
+			if (!enabledByUser) {
+				ss = serverSocket;
+				serverSocket = null;
+			}
+			callback.pluginStateChanged(getState());
+			return ss;
+		}
+
+		synchronized boolean setServerSocket(SS ss) {
+			if (stopped || serverSocket != null) return false;
+			serverSocket = ss;
+			callback.pluginStateChanged(getState());
+			return true;
+		}
+
+		@Nullable
+		synchronized SS clearServerSocket() {
+			SS ss = serverSocket;
+			serverSocket = null;
+			callback.pluginStateChanged(getState());
+			return ss;
+		}
+
+		synchronized State getState() {
+			if (!started || stopped) return STARTING_STOPPING;
+			if (!enabledByUser) return DISABLED;
+			return serverSocket == null ? INACTIVE : ACTIVE;
+		}
+
+		synchronized int getReasonsDisabled() {
+			return getState() == DISABLED ? REASON_USER : 0;
 		}
 	}
 }

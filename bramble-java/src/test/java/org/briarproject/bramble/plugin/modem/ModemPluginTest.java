@@ -9,6 +9,8 @@ import org.junit.Test;
 
 import java.io.IOException;
 
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
@@ -33,6 +35,7 @@ public class ModemPluginTest extends BrambleMockTestCase {
 	@Test
 	public void testModemCreation() throws Exception {
 		context.checking(new Expectations() {{
+			oneOf(callback).pluginStateChanged(ENABLING);
 			oneOf(serialPortList).getPortNames();
 			will(returnValue(new String[] {"foo", "bar", "baz"}));
 			// First call to createModem() returns false
@@ -50,6 +53,7 @@ public class ModemPluginTest extends BrambleMockTestCase {
 			will(returnValue(modem));
 			oneOf(modem).start();
 			will(returnValue(true));
+			oneOf(callback).pluginStateChanged(ACTIVE);
 		}});
 
 		plugin.start();
@@ -65,12 +69,14 @@ public class ModemPluginTest extends BrambleMockTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
+			oneOf(callback).pluginStateChanged(ENABLING);
 			oneOf(serialPortList).getPortNames();
 			will(returnValue(new String[] {"foo"}));
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
 			oneOf(modem).start();
 			will(returnValue(true));
+			oneOf(callback).pluginStateChanged(ACTIVE);
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
@@ -93,12 +99,14 @@ public class ModemPluginTest extends BrambleMockTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
+			oneOf(callback).pluginStateChanged(ENABLING);
 			oneOf(serialPortList).getPortNames();
 			will(returnValue(new String[] {"foo"}));
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
 			oneOf(modem).start();
 			will(returnValue(true));
+			oneOf(callback).pluginStateChanged(ACTIVE);
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));
@@ -121,12 +129,14 @@ public class ModemPluginTest extends BrambleMockTestCase {
 
 		context.checking(new Expectations() {{
 			// start()
+			oneOf(callback).pluginStateChanged(ENABLING);
 			oneOf(serialPortList).getPortNames();
 			will(returnValue(new String[] {"foo"}));
 			oneOf(modemFactory).createModem(plugin, "foo");
 			will(returnValue(modem));
 			oneOf(modem).start();
 			will(returnValue(true));
+			oneOf(callback).pluginStateChanged(ACTIVE);
 			// createConnection()
 			oneOf(callback).getLocalProperties();
 			will(returnValue(local));

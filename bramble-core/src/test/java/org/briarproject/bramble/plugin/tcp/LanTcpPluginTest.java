@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
@@ -31,6 +32,7 @@ import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.COMMIT_LENGTH;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_LAN;
+import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.plugin.tcp.LanTcpPlugin.areAddressesInSameNetwork;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -302,10 +304,15 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		private final CountDownLatch propertiesLatch = new CountDownLatch(2);
 		private final CountDownLatch connectionsLatch = new CountDownLatch(1);
 		private final TransportProperties local = new TransportProperties();
+		private final Settings settings = new Settings();
+
+		private Callback() {
+			settings.putBoolean(PREF_PLUGIN_ENABLE, true);
+		}
 
 		@Override
 		public Settings getSettings() {
-			return new Settings();
+			return settings;
 		}
 
 		@Override
@@ -324,11 +331,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		}
 
 		@Override
-		public void transportEnabled() {
-		}
-
-		@Override
-		public void transportDisabled() {
+		public void pluginStateChanged(State newState) {
 		}
 
 		@Override

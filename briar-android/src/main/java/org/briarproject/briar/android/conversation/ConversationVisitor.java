@@ -230,7 +230,11 @@ class ConversationVisitor implements
 					R.layout.list_item_conversation_notice_out, text, r);
 		} else {
 			String text;
-			if (r.isContact()) {
+			if (r.wasAnswered()) {
+				text = ctx.getString(
+						R.string.introduction_request_answered_received,
+						contactName.getValue(), name);
+			} else if (r.isContact()) {
 				text = ctx.getString(
 						R.string.introduction_request_exists_received,
 						contactName.getValue(), name);

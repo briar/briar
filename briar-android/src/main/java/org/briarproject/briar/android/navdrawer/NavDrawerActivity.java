@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.navdrawer;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.net.Uri;
@@ -23,6 +22,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
+import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
@@ -30,7 +30,6 @@ import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.blog.FeedFragment;
 import org.briarproject.briar.android.contact.ContactListFragment;
-import org.briarproject.briar.android.controller.handler.UiResultHandler;
 import org.briarproject.briar.android.forum.ForumListFragment;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
@@ -44,9 +43,11 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
+import androidx.annotation.ColorRes;
+import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.UiThread;
+import androidx.annotation.StringRes;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -55,6 +56,8 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -64,6 +67,9 @@ import static androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.RUNNING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
+import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
+import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
@@ -72,8 +78,7 @@ import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class NavDrawerActivity extends BriarActivity implements
-		BaseFragmentListener, TransportStateListener,
-		OnNavigationItemSelectedListener {
+		BaseFragmentListener, OnNavigationItemSelectedListener {
 
 	private static final Logger LOG =
 			getLogger(NavDrawerActivity.class.getName());
@@ -91,10 +96,13 @@ public class NavDrawerActivity extends BriarActivity implements
 	public static Uri SIGN_OUT_URI =
 			Uri.parse("briar-content://org.briarproject.briar/sign-out");
 
+	private NavDrawerViewModel navDrawerViewModel;
+	private PluginViewModel pluginViewModel;
 	private ActionBarDrawerToggle drawerToggle;
 
 	@Inject
-	NavDrawerController controller;
+	ViewModelProvider.Factory viewModelFactory;
+
 	@Inject
 	LifecycleManager lifecycleManager;
 
@@ -115,6 +123,17 @@ public class NavDrawerActivity extends BriarActivity implements
 		exitIfStartupFailed(getIntent());
 		setContentView(R.layout.activity_nav_drawer);
 
+		ViewModelProvider provider =
+				ViewModelProviders.of(this, viewModelFactory);
+		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
+		pluginViewModel = provider.get(PluginViewModel.class);
+
+		navDrawerViewModel.showExpiryWarning()
+				.observe(this, this::showExpiryWarning);
+		navDrawerViewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
+			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
+		});
+
 		Toolbar toolbar = findViewById(R.id.toolbar);
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = findViewById(R.id.navigation);
@@ -131,7 +150,7 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
 
-		initializeTransports(getLayoutInflater());
+		initializeTransports();
 		transportsView.setAdapter(transportsAdapter);
 
 		lockManager.isLockable().observe(this, this::setLockVisible);
@@ -149,17 +168,10 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@Override
-	@SuppressLint("NewApi")
 	public void onStart() {
 		super.onStart();
-		updateTransports();
 		lockManager.checkIfLockable();
-		controller.showExpiryWarning(new UiResultHandler<Boolean>(this) {
-			@Override
-			public void onResultUi(Boolean expiry) {
-				if (expiry) showExpiryWarning();
-			}
-		});
+		navDrawerViewModel.checkExpiryWarning();
 	}
 
 	@Override
@@ -167,16 +179,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_PASSWORD && result == RESULT_OK) {
-			controller.shouldAskForDozeWhitelisting(this,
-					new UiResultHandler<Boolean>(this) {
-						@Override
-						public void onResultUi(Boolean ask) {
-							if (ask) {
-								showDozeDialog(
-										getString(R.string.setup_doze_intro));
-							}
-						}
-					});
+			navDrawerViewModel.checkDozeWhitelisting();
 		}
 	}
 
@@ -346,55 +349,37 @@ public class NavDrawerActivity extends BriarActivity implements
 		if (item != null) item.setVisible(visible);
 	}
 
-	private void showExpiryWarning() {
+	private void showExpiryWarning(boolean show) {
 		int daysUntilExpiry = getDaysUntilExpiry();
-		if (daysUntilExpiry < 0) signOut();
+		if (daysUntilExpiry < 0) {
+			signOut();
+			return;
+		}
 
-		// show expiry warning text
 		ViewGroup expiryWarning = findViewById(R.id.expiryWarning);
-		TextView expiryWarningText =
-				expiryWarning.findViewById(R.id.expiryWarningText);
-		// make close button functional
-		ImageView expiryWarningClose =
-				expiryWarning.findViewById(R.id.expiryWarningClose);
-
-		expiryWarningText.setText(getResources()
-				.getQuantityString(R.plurals.expiry_warning,
-						daysUntilExpiry, daysUntilExpiry));
-
-		expiryWarningClose.setOnClickListener(v -> {
-			controller.expiryWarningDismissed();
+		if (show) {
+			// show expiry warning text
+			TextView expiryWarningText =
+					expiryWarning.findViewById(R.id.expiryWarningText);
+			String text = getResources().getQuantityString(
+					R.plurals.expiry_warning, daysUntilExpiry, daysUntilExpiry);
+			expiryWarningText.setText(text);
+			// make close button functional
+			ImageView expiryWarningClose =
+					expiryWarning.findViewById(R.id.expiryWarningClose);
+			expiryWarningClose.setOnClickListener(v ->
+					navDrawerViewModel.expiryWarningDismissed());
+			expiryWarning.setVisibility(VISIBLE);
+		} else {
 			expiryWarning.setVisibility(GONE);
-		});
-
-		expiryWarning.setVisibility(VISIBLE);
+		}
 	}
 
-	private void initializeTransports(LayoutInflater inflater) {
+	private void initializeTransports() {
 		transports = new ArrayList<>(3);
 
-		Transport tor = new Transport();
-		tor.id = TorConstants.ID;
-		tor.enabled = controller.isTransportRunning(tor.id);
-		tor.iconId = R.drawable.transport_tor;
-		tor.textId = R.string.transport_tor;
-		transports.add(tor);
-
-		Transport bt = new Transport();
-		bt.id = BluetoothConstants.ID;
-		bt.enabled = controller.isTransportRunning(bt.id);
-		bt.iconId = R.drawable.transport_bt;
-		bt.textId = R.string.transport_bt;
-		transports.add(bt);
-
-		Transport lan = new Transport();
-		lan.id = LanTcpConstants.ID;
-		lan.enabled = controller.isTransportRunning(lan.id);
-		lan.iconId = R.drawable.transport_lan;
-		lan.textId = R.string.transport_lan;
-		transports.add(lan);
-
 		transportsAdapter = new BaseAdapter() {
+
 			@Override
 			public int getCount() {
 				return transports.size();
@@ -417,63 +402,67 @@ public class NavDrawerActivity extends BriarActivity implements
 				if (convertView != null) {
 					view = convertView;
 				} else {
+					LayoutInflater inflater = getLayoutInflater();
 					view = inflater.inflate(R.layout.list_item_transport,
 							parent, false);
 				}
 
 				Transport t = getItem(position);
-				int c;
-				if (t.enabled) {
-					c = ContextCompat.getColor(NavDrawerActivity.this,
-							R.color.briar_green_light);
-				} else {
-					c = ContextCompat.getColor(NavDrawerActivity.this,
-							android.R.color.tertiary_text_light);
-				}
 
 				ImageView icon = view.findViewById(R.id.imageView);
-				icon.setImageDrawable(ContextCompat
-						.getDrawable(NavDrawerActivity.this, t.iconId));
-				icon.setColorFilter(c);
+				icon.setImageDrawable(ContextCompat.getDrawable(
+						NavDrawerActivity.this, t.iconDrawable));
+				icon.setColorFilter(ContextCompat.getColor(
+						NavDrawerActivity.this, t.iconColor));
 
 				TextView text = view.findViewById(R.id.textView);
-				text.setText(getString(t.textId));
+				text.setText(getString(t.label));
 
 				return view;
 			}
 		};
+
+		transports.add(createTransport(TorConstants.ID,
+				R.drawable.transport_tor, R.string.transport_tor));
+		transports.add(createTransport(LanTcpConstants.ID,
+				R.drawable.transport_lan, R.string.transport_lan));
+		transports.add(createTransport(BluetoothConstants.ID,
+				R.drawable.transport_bt, R.string.transport_bt));
 	}
 
-	@UiThread
-	private void setTransport(TransportId id, boolean enabled) {
-		if (transports == null || transportsAdapter == null) return;
-		for (Transport t : transports) {
-			if (t.id.equals(id)) {
-				t.enabled = enabled;
-				transportsAdapter.notifyDataSetChanged();
-				break;
-			}
-		}
+	@ColorRes
+	private int getIconColor(State state) {
+		if (state == ACTIVE) return R.color.briar_green_light;
+		else if (state == ENABLING) return R.color.briar_yellow;
+		else return android.R.color.tertiary_text_light;
 	}
 
-	private void updateTransports() {
-		if (transports == null || transportsAdapter == null) return;
-		for (Transport t : transports) {
-			t.enabled = controller.isTransportRunning(t.id);
-		}
-		transportsAdapter.notifyDataSetChanged();
-	}
-
-	@Override
-	public void stateUpdate(TransportId id, boolean enabled) {
-		setTransport(id, enabled);
+	private Transport createTransport(TransportId id,
+			@DrawableRes int iconDrawable, @StringRes int label) {
+		int iconColor = getIconColor(STARTING_STOPPING);
+		Transport transport = new Transport(iconDrawable, label, iconColor);
+		pluginViewModel.getPluginState(id).observe(this, state -> {
+			transport.iconColor = getIconColor(state);
+			transportsAdapter.notifyDataSetChanged();
+		});
+		return transport;
 	}
 
 	private static class Transport {
 
-		private TransportId id;
-		private boolean enabled;
-		private int iconId;
-		private int textId;
+		@DrawableRes
+		private final int iconDrawable;
+		@StringRes
+		private final int label;
+
+		@ColorRes
+		private int iconColor;
+
+		private Transport(@DrawableRes int iconDrawable, @StringRes int label,
+				@ColorRes int iconColor) {
+			this.iconDrawable = iconDrawable;
+			this.label = label;
+			this.iconColor = iconColor;
+		}
 	}
 }
