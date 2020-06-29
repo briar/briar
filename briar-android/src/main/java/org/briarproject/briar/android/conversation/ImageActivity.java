@@ -299,7 +299,7 @@ public class ImageActivity extends BriarActivity
 		int stringRes = error ?
 				R.string.save_image_error : R.string.save_image_success;
 		int colorRes = error ?
-				R.color.briar_red : R.color.briar_primary;
+				R.color.briar_red_500 : R.color.briar_primary;
 		new BriarSnackbarBuilder()
 				.setBackgroundColor(colorRes)
 				.make(layout, stringRes, LENGTH_LONG)

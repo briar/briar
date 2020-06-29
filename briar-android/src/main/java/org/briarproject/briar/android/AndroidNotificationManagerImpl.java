@@ -164,7 +164,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		nc.setLockscreenVisibility(VISIBILITY_SECRET);
 		nc.enableVibration(true);
 		nc.enableLights(true);
-		nc.setLightColor(getColor(appContext, R.color.briar_green_light));
+		nc.setLightColor(getColor(appContext, R.color.briar_lime_400));
 		notificationManager.createNotificationChannel(nc);
 	}
 

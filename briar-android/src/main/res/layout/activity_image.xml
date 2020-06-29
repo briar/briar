@@ -4,14 +4,13 @@
 	android:id="@+id/layout"
 	android:layout_width="match_parent"
 	android:layout_height="match_parent"
-	android:background="@color/briar_black"
+	android:background="@android:color/black"
 	tools:context=".android.conversation.ImageActivity">
 
 	<androidx.viewpager.widget.ViewPager
 		android:id="@+id/viewPager"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
-		tools:background="@color/briar_green_light" />
+		android:layout_height="match_parent" />
 
 	<com.google.android.material.appbar.AppBarLayout
 		android:id="@+id/appBarLayout"

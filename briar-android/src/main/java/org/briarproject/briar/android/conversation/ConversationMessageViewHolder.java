@@ -41,7 +41,8 @@ class ConversationMessageViewHolder extends ConversationItemViewHolder {
 
 		// remember original status text color
 		timeColor = time.getCurrentTextColor();
-		timeColorBubble = getColor(v.getContext(), R.color.briar_white);
+		timeColorBubble =
+				getColor(v.getContext(), R.color.msg_status_bubble_foreground);
 
 		// clone constraint sets from layout files
 		textConstraints.clone(v.getContext(),
