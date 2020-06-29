@@ -115,18 +115,18 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 		} else if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(TorConstants.ID.getString())) {
-				boolean enable =
-						s.getSettings().getBoolean(PREF_PLUGIN_ENABLE, true);
+				boolean enable = s.getSettings().getBoolean(PREF_PLUGIN_ENABLE,
+						TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				torEnabledSetting.setValue(enable);
-			} else if (s.getNamespace()
-					.equals(LanTcpConstants.ID.getString())) {
-				boolean enable =
-						s.getSettings().getBoolean(PREF_PLUGIN_ENABLE, false);
+			} else if (s.getNamespace().equals(
+					LanTcpConstants.ID.getString())) {
+				boolean enable = s.getSettings().getBoolean(PREF_PLUGIN_ENABLE,
+						LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				wifiEnabledSetting.setValue(enable);
 			} else if (s.getNamespace().equals(
 					BluetoothConstants.ID.getString())) {
-				boolean enable =
-						s.getSettings().getBoolean(PREF_PLUGIN_ENABLE, false);
+				boolean enable = s.getSettings().getBoolean(PREF_PLUGIN_ENABLE,
+						BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				btEnabledSetting.setValue(enable);
 			}
 		} else if (e instanceof TransportStateEvent) {
@@ -176,11 +176,14 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 	private void loadSettings() {
 		dbExecutor.execute(() -> {
 			try {
-				boolean tor = isPluginEnabled(TorConstants.ID, true);
+				boolean tor = isPluginEnabled(TorConstants.ID,
+						TorConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				torEnabledSetting.postValue(tor);
-				boolean wifi = isPluginEnabled(LanTcpConstants.ID, false);
+				boolean wifi = isPluginEnabled(LanTcpConstants.ID,
+						LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				wifiEnabledSetting.postValue(wifi);
-				boolean bt = isPluginEnabled(BluetoothConstants.ID, false);
+				boolean bt = isPluginEnabled(BluetoothConstants.ID,
+						BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE);
 				btEnabledSetting.postValue(bt);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
