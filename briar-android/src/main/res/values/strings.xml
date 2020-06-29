@@ -68,6 +68,7 @@
 	<string name="lock_button">Lock App</string>
 	<string name="settings_button">Settings</string>
 	<string name="sign_out_button">Sign Out</string>
+	<string name="transports_onboarding_text">Tap here to control how Briar connects to your contacts.</string>
 
 	<!-- Transports: Tor -->
 	<string name="transport_tor">Internet</string>

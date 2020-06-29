@@ -56,8 +56,10 @@ import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
+import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -75,6 +77,8 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
+import static org.briarproject.briar.android.util.UiUtils.observeOnce;
+import static org.briarproject.briar.android.util.UiUtils.resolveColorAttribute;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -98,6 +102,7 @@ public class NavDrawerActivity extends BriarActivity implements
 			Uri.parse("briar-content://org.briarproject.briar/sign-out");
 
 	private final List<Transport> transports = new ArrayList<>(3);
+	private final MutableLiveData<ImageView> torIcon = new MutableLiveData<>();
 
 	private NavDrawerViewModel navDrawerViewModel;
 	private PluginViewModel pluginViewModel;
@@ -154,12 +159,22 @@ public class NavDrawerActivity extends BriarActivity implements
 
 		drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar,
 				R.string.nav_drawer_open_description,
-				R.string.nav_drawer_close_description);
+				R.string.nav_drawer_close_description) {
+			@Override
+			public void onDrawerOpened(View drawerView) {
+				super.onDrawerOpened(drawerView);
+				navDrawerViewModel.checkTransportsOnboarding();
+			}
+		};
 		drawerLayout.addDrawerListener(drawerToggle);
 		navigation.setNavigationItemSelectedListener(this);
 
 		initializeTransports();
 		transportsView.setAdapter(transportsAdapter);
+
+		observeOnce(navDrawerViewModel.showTransportsOnboarding(), this, show ->
+				observeOnce(torIcon, this, imageView ->
+						showTransportsOnboarding(show, imageView)));
 
 		lockManager.isLockable().observe(this, this::setLockVisible);
 
@@ -425,6 +440,8 @@ public class NavDrawerActivity extends BriarActivity implements
 				TextView text = view.findViewById(R.id.textView);
 				text.setText(getString(t.label));
 
+				if (t.id.equals(TorConstants.ID)) torIcon.setValue(icon);
+
 				return view;
 			}
 		};
@@ -447,7 +464,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	private Transport createTransport(TransportId id,
 			@DrawableRes int iconDrawable, @StringRes int label) {
 		int iconColor = getIconColor(STARTING_STOPPING);
-		Transport transport = new Transport(iconDrawable, label, iconColor);
+		Transport transport = new Transport(id, iconDrawable, label, iconColor);
 		pluginViewModel.getPluginState(id).observe(this, state -> {
 			transport.iconColor = getIconColor(state);
 			transportsAdapter.notifyDataSetChanged();
@@ -455,8 +472,25 @@ public class NavDrawerActivity extends BriarActivity implements
 		return transport;
 	}
 
+	private void showTransportsOnboarding(boolean show, ImageView imageView) {
+		if (show) {
+			int color = resolveColorAttribute(this, R.attr.colorControlNormal);
+			new MaterialTapTargetPrompt.Builder(NavDrawerActivity.this,
+					R.style.OnboardingDialogTheme).setTarget(imageView)
+					.setPrimaryText(R.string.network_settings_title)
+					.setSecondaryText(R.string.transports_onboarding_text)
+					.setIcon(R.drawable.transport_tor)
+					.setIconDrawableColourFilter(color)
+					.setBackgroundColour(
+							ContextCompat.getColor(this, R.color.briar_primary))
+					.show();
+			navDrawerViewModel.transportsOnboardingShown();
+		}
+	}
+
 	private static class Transport {
 
+		private final TransportId id;
 		@DrawableRes
 		private final int iconDrawable;
 		@StringRes
@@ -465,8 +499,9 @@ public class NavDrawerActivity extends BriarActivity implements
 		@ColorRes
 		private int iconColor;
 
-		private Transport(@DrawableRes int iconDrawable, @StringRes int label,
-				@ColorRes int iconColor) {
+		private Transport(TransportId id, @DrawableRes int iconDrawable,
+				@StringRes int label, @ColorRes int iconColor) {
+			this.id = id;
 			this.iconDrawable = iconDrawable;
 			this.label = label;
 			this.iconColor = iconColor;

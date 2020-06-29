@@ -34,6 +34,8 @@ public class NavDrawerViewModel extends AndroidViewModel {
 			getLogger(NavDrawerViewModel.class.getName());
 
 	private static final String EXPIRY_DATE_WARNING = "expiryDateWarning";
+	private static final String SHOW_TRANSPORTS_ONBOARDING =
+			"showTransportsOnboarding";
 
 	@DatabaseExecutor
 	private final Executor dbExecutor;
@@ -42,6 +44,8 @@ public class NavDrawerViewModel extends AndroidViewModel {
 	private final MutableLiveData<Boolean> showExpiryWarning =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> shouldAskForDozeWhitelisting =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> showTransportsOnboarding =
 			new MutableLiveData<>();
 
 	@Inject
@@ -125,6 +129,41 @@ public class NavDrawerViewModel extends AndroidViewModel {
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				shouldAskForDozeWhitelisting.postValue(true);
+			}
+		});
+	}
+
+	@UiThread
+	LiveData<Boolean> showTransportsOnboarding() {
+		return showTransportsOnboarding;
+	}
+
+	@UiThread
+	void checkTransportsOnboarding() {
+		if (showTransportsOnboarding.getValue() != null) return;
+		dbExecutor.execute(() -> {
+			try {
+				Settings settings =
+						settingsManager.getSettings(SETTINGS_NAMESPACE);
+				boolean show =
+						settings.getBoolean(SHOW_TRANSPORTS_ONBOARDING, true);
+				showTransportsOnboarding.postValue(show);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	@UiThread
+	void transportsOnboardingShown() {
+		showTransportsOnboarding.setValue(false);
+		dbExecutor.execute(() -> {
+			try {
+				Settings settings = new Settings();
+				settings.putBoolean(SHOW_TRANSPORTS_ONBOARDING, false);
+				settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
 			}
 		});
 	}
