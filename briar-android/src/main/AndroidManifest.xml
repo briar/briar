@@ -364,7 +364,7 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.navdrawer.TransportsActivity"
-			android:label="Connections"
+			android:label="@string/network_settings_title"
 			android:parentActivityName="org.briarproject.briar.android.navdrawer.NavDrawerActivity">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
