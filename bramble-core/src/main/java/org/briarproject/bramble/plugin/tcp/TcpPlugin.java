@@ -102,6 +102,11 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	protected abstract boolean isConnectable(InterfaceAddress local,
 			InetSocketAddress remote);
 
+	/**
+	 * Returns true if the plugin is enabled by default.
+	 */
+	protected abstract boolean isEnabledByDefault();
+
 	TcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
 			int maxLatency, int maxIdleTime, int connectionTimeout) {
 		this.ioExecutor = ioExecutor;
@@ -131,7 +136,8 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	public void start() {
 		if (used.getAndSet(true)) throw new IllegalStateException();
 		Settings settings = callback.getSettings();
-		state.setStarted(settings.getBoolean(PREF_PLUGIN_ENABLE, false));
+		state.setStarted(
+				settings.getBoolean(PREF_PLUGIN_ENABLE, isEnabledByDefault()));
 		bind();
 	}
 
@@ -402,7 +408,8 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	@IoExecutor
 	private void onSettingsUpdated(Settings settings) {
-		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE, false);
+		boolean enabledByUser =
+				settings.getBoolean(PREF_PLUGIN_ENABLE, isEnabledByDefault());
 		List<ServerSocket> toClose = state.setEnabledByUser(enabledByUser);
 		State s = getState();
 		if (!toClose.isEmpty()) {

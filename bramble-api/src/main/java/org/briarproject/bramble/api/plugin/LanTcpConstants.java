@@ -12,4 +12,7 @@ public interface LanTcpConstants {
 	// Local settings (not shared with contacts)
 	String PREF_LAN_IP_PORTS = "ipPorts";
 	String PREF_IPV6 = "ipv6";
+
+	// Default value for PREF_PLUGIN_ENABLE
+	boolean DEFAULT_PREF_PLUGIN_ENABLE = true;
 }

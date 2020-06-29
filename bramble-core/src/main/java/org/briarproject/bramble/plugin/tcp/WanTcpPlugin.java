@@ -17,6 +17,7 @@ import java.util.concurrent.Executor;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.api.plugin.WanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.WanTcpConstants.ID;
 
 @MethodsNotNullByDefault
@@ -40,6 +41,11 @@ class WanTcpPlugin extends TcpPlugin {
 	@Override
 	public TransportId getId() {
 		return ID;
+	}
+
+	@Override
+	protected boolean isEnabledByDefault() {
+		return DEFAULT_PREF_PLUGIN_ENABLE;
 	}
 
 	@Override
