@@ -84,7 +84,7 @@
 			android:src="@drawable/ic_call_made"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/stepOneText"
-			app:tint="@color/briar_white" />
+			app:tint="@android:color/white" />
 
 		<TextView
 			android:id="@+id/yourLink"
@@ -105,7 +105,7 @@
 			android:layout_width="0dp"
 			android:layout_height="wrap_content"
 			android:layout_marginTop="16dp"
-			android:background="@color/briar_white"
+			android:background="@android:color/white"
 			android:ellipsize="end"
 			android:padding="8dp"
 			android:singleLine="true"
@@ -160,7 +160,7 @@
 			android:src="@drawable/ic_call_received"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/copyButton"
-			app:tint="@color/briar_white" />
+			app:tint="@android:color/white" />
 
 		<TextView
 			android:id="@+id/inputLink"

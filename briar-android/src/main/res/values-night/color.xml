@@ -1,29 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<color name="briar_primary">@color/briar_blue_dark</color>
-	<color name="briar_accent">@color/briar_green</color>
+	<color name="briar_primary">@color/briar_night_800</color>
+	<color name="briar_accent">@color/briar_lime_600</color>
 
 	<color name="preference_category">@color/briar_accent</color>
-	<color name="preference_category_background">@color/briar_black_almost</color>
+	<color name="preference_category_background">@color/briar_night_950</color>
 
-	<color name="color_primary">@color/briar_white</color>
+	<color name="color_primary">@android:color/white</color>
 
-	<color name="msg_in">@color/briar_blue</color>
-	<color name="msg_out">@color/briar_blue_elio_light</color>
-	<color name="notice_in">@color/briar_blue_dark</color>
-	<color name="notice_out">@color/briar_blue_elio</color>
+	<color name="msg_in">@color/briar_night_700</color>
+	<color name="msg_out">@color/briar_blue_600</color>
+	<color name="notice_in">@color/briar_night_800</color>
+	<color name="notice_out">@color/briar_blue_800</color>
 	<color name="msg_stroke">@color/msg_stroke_dark</color>
 
-	<color name="window_background">@color/briar_blue_very_dark</color>
-	<color name="card_background">@color/briar_blue_dark</color>
-	<color name="item_background_highlight">@color/briar_blue</color>
+	<color name="window_background">@color/briar_night_950</color>
+	<color name="card_background">@color/briar_night_800</color>
+	<color name="item_background_highlight">@color/briar_night_700</color>
 
-	<color name="briar_button_background_color">@color/briar_blue_medium</color>
-	<color name="briar_button_text_neutral">@color/briar_blue_light</color>
+	<color name="briar_button_background_color">@color/briar_night_500</color>
+	<color name="briar_button_text_neutral">@color/briar_blue_400</color>
 	<color name="briar_button_text_disabled">#23cccccc</color>
 
-	<color name="thread_indicator">@color/briar_blue</color>
-	<color name="thread_item_highlight">@color/briar_black</color>
+	<color name="thread_indicator">@color/briar_night_700</color>
+	<color name="thread_item_highlight">@android:color/black</color>
 
-	<color name="divider">@color/briar_black</color>
+	<color name="divider">@android:color/black</color>
 </resources>

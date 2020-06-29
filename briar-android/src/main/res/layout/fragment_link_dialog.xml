@@ -60,7 +60,7 @@
 				android:layout_gravity="center_vertical"
 				android:layout_marginTop="16dp"
 				android:layout_marginBottom="16dp"
-				android:background="@color/briar_white"
+				android:background="@android:color/white"
 				android:padding="8dp"
 				android:textColor="@color/briar_text_primary"
 				android:textIsSelectable="true"

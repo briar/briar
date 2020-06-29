@@ -432,8 +432,8 @@ public class NavDrawerActivity extends BriarActivity implements
 
 	@ColorRes
 	private int getIconColor(State state) {
-		if (state == ACTIVE) return R.color.briar_green_light;
-		else if (state == ENABLING) return R.color.briar_yellow;
+		if (state == ACTIVE) return R.color.briar_lime_400;
+		else if (state == ENABLING) return R.color.briar_orange_500;
 		else return android.R.color.tertiary_text_light;
 	}
 
