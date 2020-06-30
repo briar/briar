@@ -79,6 +79,9 @@ import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_PLUG
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_ONLY_WHEN_CHARGING;
+import static org.briarproject.bramble.api.plugin.TorConstants.HS_PRIVATE_KEY_V2;
+import static org.briarproject.bramble.api.plugin.TorConstants.HS_PRIVATE_KEY_V3;
+import static org.briarproject.bramble.api.plugin.TorConstants.HS_V3_CREATED;
 import static org.briarproject.bramble.api.plugin.TorConstants.ID;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.PREF_TOR_NETWORK;
@@ -92,6 +95,7 @@ import static org.briarproject.bramble.api.plugin.TorConstants.PROP_ONION_V3;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
+import static org.briarproject.bramble.api.plugin.TorConstants.V3_MIGRATION_PERIOD_MS;
 import static org.briarproject.bramble.plugin.tor.TorRendezvousCrypto.SEED_BYTES;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
@@ -438,15 +442,66 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void publishHiddenService(String port) {
 		if (!state.isTorRunning()) return;
-		LOG.info("Creating hidden service");
-		String privKey = settings.get(HS_PRIVKEY);
+		// TODO: Remove support for v2 hidden services after a reasonable
+		// migration period (migration started 2020-06-30)
+		String privKey2 = settings.get(HS_PRIVATE_KEY_V2);
+		String privKey3 = settings.get(HS_PRIVATE_KEY_V3);
+		String v3Created = settings.get(HS_V3_CREATED);
+		// Publish a v2 hidden service if we've already created one, and
+		// either we've never published a v3 hidden service or we're still
+		// in the migration period since first publishing it
+		if (!isNullOrEmpty(privKey2)) {
+			long now = clock.currentTimeMillis();
+			long then = v3Created == null ? now : Long.valueOf(v3Created);
+			if (now - then >= V3_MIGRATION_PERIOD_MS) retireV2HiddenService();
+			else publishV2HiddenService(port, privKey2);
+		}
+		publishV3HiddenService(port, privKey3);
+	}
+
+	private void publishV2HiddenService(String port, String privKey) {
+		LOG.info("Creating v2 hidden service");
+		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
+		Map<String, String> response;
+		try {
+			response = controlConnection.addOnion(privKey, portLines);
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+			return;
+		}
+		if (!response.containsKey(HS_ADDRESS)) {
+			LOG.warning("Tor did not return a hidden service address");
+			return;
+		}
+		String onion2 = response.get(HS_ADDRESS);
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Hidden service v2 " + scrubOnion(onion2));
+		}
+		// The hostname has already been published and the private key stored
+	}
+
+	private void retireV2HiddenService() {
+		LOG.info("Retiring v2 hidden service");
+		TransportProperties p = new TransportProperties();
+		p.put(PROP_ONION_V2, "");
+		callback.mergeLocalProperties(p);
+		Settings s = new Settings();
+		s.put(HS_PRIVATE_KEY_V2, "");
+		callback.mergeSettings(s);
+	}
+
+	private void publishV3HiddenService(String port, @Nullable String privKey) {
+		LOG.info("Creating v3 hidden service");
 		Map<Integer, String> portLines = singletonMap(80, "127.0.0.1:" + port);
 		Map<String, String> response;
 		try {
 			// Use the control connection to set up the hidden service
-			if (privKey == null)
-				response = controlConnection.addOnion(portLines);
-			else response = controlConnection.addOnion(privKey, portLines);
+			if (privKey == null) {
+				response = controlConnection.addOnion("NEW:ED25519-V3",
+						portLines, null);
+			} else {
+				response = controlConnection.addOnion(privKey, portLines);
+			}
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 			return;
@@ -460,16 +515,18 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			return;
 		}
 		// Publish the hidden service's onion hostname in transport properties
-		String onion2 = response.get(HS_ADDRESS);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Hidden service " + scrubOnion(onion2));
+		String onion3 = response.get(HS_ADDRESS);
+		if (LOG.isLoggable(INFO)) {
+			LOG.info("Hidden service v3 " + scrubOnion(onion3));
+		}
 		TransportProperties p = new TransportProperties();
-		p.put(PROP_ONION_V2, onion2);
+		p.put(PROP_ONION_V3, onion3);
 		callback.mergeLocalProperties(p);
 		if (privKey == null) {
 			// Save the hidden service's private key for next time
 			Settings s = new Settings();
-			s.put(HS_PRIVKEY, response.get(HS_PRIVKEY));
+			s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
+			s.put(HS_V3_CREATED, String.valueOf(clock.currentTimeMillis()));
 			callback.mergeSettings(s);
 		}
 	}
@@ -575,12 +632,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	@Override
 	public DuplexTransportConnection createConnection(TransportProperties p) {
 		if (getState() != ACTIVE) return null;
-		String bestOnion = null;
+		// TODO: Remove support for v2 hidden services after a reasonable
+		// migration period (migration started 2020-06-30)
+		String bestOnion = null, version = null;
 		String onion2 = p.get(PROP_ONION_V2);
 		String onion3 = p.get(PROP_ONION_V3);
 		if (!isNullOrEmpty(onion2)) {
 			if (ONION_V2.matcher(onion2).matches()) {
 				bestOnion = onion2;
+				version = "v2";
 			} else {
 				// Don't scrub the address so we can find the problem
 				if (LOG.isLoggable(INFO))
@@ -590,6 +650,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (!isNullOrEmpty(onion3)) {
 			if (ONION_V3.matcher(onion3).matches()) {
 				bestOnion = onion3;
+				version = "v3";
 			} else {
 				// Don't scrub the address so we can find the problem
 				if (LOG.isLoggable(INFO))
@@ -599,17 +660,21 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		if (bestOnion == null) return null;
 		Socket s = null;
 		try {
-			if (LOG.isLoggable(INFO))
-				LOG.info("Connecting to " + scrubOnion(bestOnion));
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Connecting to " + version + " "
+						+ scrubOnion(bestOnion));
+			}
 			s = torSocketFactory.createSocket(bestOnion + ".onion", 80);
 			s.setSoTimeout(socketTimeout);
-			if (LOG.isLoggable(INFO))
-				LOG.info("Connected to " + scrubOnion(bestOnion));
+			if (LOG.isLoggable(INFO)) {
+				LOG.info("Connected to " + version + " "
+						+ scrubOnion(bestOnion));
+			}
 			return new TorTransportConnection(this, s);
 		} catch (IOException e) {
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("Could not connect to " + scrubOnion(bestOnion)
-						+ ": " + e.toString());
+				LOG.info("Could not connect to " + version + " "
+						+ scrubOnion(bestOnion) + ": " + e.toString());
 			}
 			tryToClose(s, LOG, WARNING);
 			return null;
