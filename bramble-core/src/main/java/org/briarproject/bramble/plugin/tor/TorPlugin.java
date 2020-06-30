@@ -475,7 +475,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		}
 		String onion2 = response.get(HS_ADDRESS);
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Hidden service v2 " + scrubOnion(onion2));
+			LOG.info("V2 hidden service " + scrubOnion(onion2));
 		}
 		// The hostname has already been published and the private key stored
 	}
@@ -517,7 +517,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// Publish the hidden service's onion hostname in transport properties
 		String onion3 = response.get(HS_ADDRESS);
 		if (LOG.isLoggable(INFO)) {
-			LOG.info("Hidden service v3 " + scrubOnion(onion3));
+			LOG.info("V3 hidden service " + scrubOnion(onion3));
 		}
 		TransportProperties p = new TransportProperties();
 		p.put(PROP_ONION_V3, onion3);
@@ -796,8 +796,16 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	@Override
 	public void unrecognized(String type, String msg) {
-		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED"))
-			LOG.info("Descriptor uploaded");
+		if (type.equals("HS_DESC") && msg.startsWith("UPLOADED")) {
+			if (LOG.isLoggable(INFO)) {
+				String[] words = msg.split(" ");
+				if (words.length > 1 && ONION_V3.matcher(words[1]).matches()) {
+					LOG.info("V3 descriptor uploaded");
+				} else {
+					LOG.info("V2 descriptor uploaded");
+				}
+			}
+		}
 	}
 
 	@Override
