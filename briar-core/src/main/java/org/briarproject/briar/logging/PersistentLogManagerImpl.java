@@ -39,9 +39,8 @@ import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @ThreadSafe
@@ -50,11 +49,10 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 		OpenDatabaseHook {
 
 	private static final Logger LOG =
-			Logger.getLogger(PersistentLogManagerImpl.class.getName());
+			getLogger(PersistentLogManagerImpl.class.getName());
 
 	private static final String LOG_FILE = "briar.log";
 	private static final String OLD_LOG_FILE = "briar.log.old";
-	private static final long FLUSH_INTERVAL_MS = MINUTES.toMillis(5);
 
 	private final ScheduledExecutorService scheduler;
 	private final Executor ioExecutor;
@@ -116,15 +114,11 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 			OutputStream out = new FileOutputStream(logFile);
 			StreamWriter writer =
 					streamWriterFactory.createLogStreamWriter(out, logKey);
-			StreamHandler handler =
-					new StreamHandler(writer.getOutputStream(), formatter);
-			// Flush the log periodically in case we're killed without getting
-			// the chance to run shutdown hooks
-			scheduler.scheduleWithFixedDelay(() ->
-							ioExecutor.execute(handler::flush),
-					FLUSH_INTERVAL_MS, FLUSH_INTERVAL_MS, MILLISECONDS);
+			StreamHandler handler = new FlushingStreamHandler(scheduler,
+					ioExecutor, writer.getOutputStream(), formatter);
 			// Flush the log and terminate the stream at shutdown
 			shutdownManager.addShutdownHook(() -> {
+				LOG.info("Shutting down");
 				handler.flush();
 				try {
 					writer.sendEndOfStream();
