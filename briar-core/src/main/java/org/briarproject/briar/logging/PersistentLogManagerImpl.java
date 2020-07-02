@@ -22,9 +22,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -53,6 +53,7 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 
 	private static final String LOG_FILE = "briar.log";
 	private static final String OLD_LOG_FILE = "briar.log.old";
+	private static final int MAX_LINES_TO_RETURN = 10_000;
 
 	private final ScheduledExecutorService scheduler;
 	private final Executor ioExecutor;
@@ -142,14 +143,19 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 		File oldLogFile = new File(dir, OLD_LOG_FILE);
 		if (oldLogFile.exists()) {
 			LOG.info("Reading old log file");
-			List<String> lines = new ArrayList<>();
+			Deque<String> lines = new LinkedList<>();
+			int numLines = 0;
 			InputStream in = new FileInputStream(oldLogFile);
 			//noinspection TryFinallyCanBeTryWithResources
 			try {
 				InputStream reader = streamReaderFactory
 						.createLogStreamReader(in, oldLogKey);
 				Scanner s = new Scanner(reader);
-				while (s.hasNextLine()) lines.add(s.nextLine());
+				while (s.hasNextLine()) {
+					lines.add(s.nextLine());
+					if (numLines == MAX_LINES_TO_RETURN) lines.poll();
+					else numLines++;
+				}
 				s.close();
 				return lines;
 			} finally {
