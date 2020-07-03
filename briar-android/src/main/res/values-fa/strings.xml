@@ -28,6 +28,8 @@
   <!--Login-->
   <string name="enter_password">گذرواژه</string>
   <string name="try_again">گذرواژه اشتباه است، لطفا دوباره سعی کنید</string>
+  <string name="dialog_title_cannot_check_password">قادر به بررسی رمز عبور نیست</string>
+  <string name="dialog_message_cannot_check_password">Briar قادر به بررسی رمز عبور شما نیست. لطفا دستگاه خود را برای حل این مشکل راه اندازی مجدد کنید.</string>
   <string name="sign_in_button">ورود</string>
   <string name="forgotten_password">گذرواژه خود را فراموش کرده ام</string>
   <string name="dialog_title_lost_password">گذرواژه گمشده</string>
@@ -102,7 +104,6 @@
   <string name="delete">حذف</string>
   <string name="accept">پذیرفتن</string>
   <string name="decline">رد کردن</string>
-  <string name="options">گزینه ها</string>
   <string name="online">آنلاین</string>
   <string name="offline">آفلاین</string>
   <string name="send">ارسال</string>
@@ -187,7 +188,6 @@
   <string name="add_contact_remotely_title_case">افزودن مخاطب از دور</string>
   <string name="add_contact_nearby_title">افزودن مخاطب از نزدیک</string>
   <string name="add_contact_remotely_title">افزودن مخاطب از راه دور</string>
-  <string name="contact_name_hint">دادن یک نام مستعار به مخاطب</string>
   <string name="contact_link_intro">پیوند آمده از مخاطب خود را اینجا وارد کنید</string>
   <string name="contact_link_hint">پیوند مخاطب</string>
   <string name="paste_button">چسباندن</string>
@@ -205,7 +205,6 @@
   <string name="pending_contact_requests_snackbar">درخواست های مخاطب معلق وجود دارند</string>
   <string name="pending_contact_requests">درخواست های مخاطب معلق</string>
   <string name="no_pending_contacts">هیچ مخاطب معلقی وجود ندارد</string>
-  <string name="add_contact_remote_connecting">در حال اتصال…</string>
   <string name="waiting_for_contact_to_come_online">انتظار برای آنلاین شدن مخاطب...</string>
   <string name="connecting">در حال اتصال…</string>
   <string name="adding_contact">در حال افزودن مخاطب...</string>
@@ -226,11 +225,6 @@
     <item quantity="one">مخاطب جدید افزوده شد.</item>
     <item quantity="other">%d مخاطب جدید افزوده شد.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">افزودن این مخاطب بیشتر از حد معمول وقت گرفته است</string>
-  <string name="adding_contact_slow_title">عدم توانایی در اتصال به مخاطب</string>
-  <string name="adding_contact_slow_text">افزودن این مخاطب بیش تر از معمول وقت گرفته است.
-
-لطفا بررسی کنید که مخاطب شما پیوندتان را دریافت کرده و شما را افزوده است:</string>
   <string name="offline_state">ارتباط با اینترنت برقرار نیست</string>
   <string name="duplicate_link_dialog_title">پیوند تکراری</string>
   <string name="duplicate_link_dialog_text_1">شما هم اکنون یک مخاطب معلق با این پیوند دارید: %s</string>
@@ -262,7 +256,6 @@
   <string name="introduction_button">معرفی کردن</string>
   <string name="introduction_sent">معرفی شما فرستاده شد.</string>
   <string name="introduction_error">خطایی در معرفی کردن رخ داده است.</string>
-  <string name="introduction_response_error">خطا در هنگام پاسخ به معرفی</string>
   <string name="introduction_request_sent">شما میخواهید %1$s را به %2$s معرفی کنید.</string>
   <string name="introduction_request_received">%1$s مایل است شما را به %2$s کند. آیا میخواهید %2$s را به لیست مخاطبانتان اضافه کنید؟</string>
   <string name="introduction_request_exists_received">%1$s مایل است شما را به %2$s معرفی کند، اما %2$s از قبل جزء لیست مخاطبان شما می باشد. از آنجایی که %1$s ممکن است از این موضوع خبر نداشته باشد، شما هم چنان میتوانید پاسخ دهید:</string>
@@ -455,20 +448,11 @@
   <string name="pref_theme_dark">تاریک</string>
   <string name="pref_theme_auto">خودکار ( روز)</string>
   <string name="pref_theme_system">پیش فرض سیستم</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">شبکه ها</string>
-  <string name="bluetooth_setting">اتصال از طریق بلوتوث</string>
-  <string name="bluetooth_setting_enabled">هر زمانی که مخاطبان نزدیک هستند</string>
-  <string name="bluetooth_setting_disabled">فقط در هنگام افزودن مخاطبان</string>
-  <string name="tor_network_setting">اتصال از طریق اینترنت (تور)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">خودکار مبتنی بر موقعیت</string>
-  <string name="tor_network_setting_without_bridges">استفاده از تور بدون پل ها</string>
-  <string name="tor_network_setting_with_bridges">استفاده از تور با پل ها</string>
-  <string name="tor_network_setting_never">وصل نشو</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">خودکار: %1$s(در %2$s)</string>
   <string name="tor_mobile_data_title">استفاده از داده موبایل</string>
-  <string name="tor_only_when_charging_title">اتصال از طریق اینترنت (تور) فقط در هنگام شارژ</string>
   <string name="tor_only_when_charging_summary">ارتباط اینترنت را هنگامی که دستگاه در حال استفاده از باتری خود می باشد را غیرفعال می کند</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
@@ -509,8 +493,6 @@
   <string name="panic_setting_signout_summary">در صورت کلیک بر روی کلید هراس از Briar (برایر) خارج شو</string>
   <string name="purge_setting_title">حذف حساب کاربری</string>
   <string name="purge_setting_summary">در صورت فشار دادن دکمه هراس حساب کاربری Briar (برایر) شما حذف خواهد شد. اخطار: این باعث حذف دائمی تمام هویت ها، مخاطبان و پیام های شما خواهد شد</string>
-  <string name="uninstall_setting_title">پاک کردن Briar (برایر)</string>
-  <string name="uninstall_setting_summary">این نیازمند تایید دستی در موعد هراس میباشد</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">نوتیفیکیشن ها</string>
   <string name="notify_sign_in_title">به من یاد آوری کن تا دوباره وارد شوم</string>

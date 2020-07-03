@@ -89,7 +89,6 @@
   <string name="delete">삭제</string>
   <string name="accept">받아들이기</string>
   <string name="decline">거절하기</string>
-  <string name="options">옵션</string>
   <string name="online">온라인</string>
   <string name="offline">오프라인</string>
   <string name="send">보내기</string>
@@ -153,7 +152,6 @@
   <string name="add_contact_remotely_title_case">멀리서 지인 추가하기</string>
   <string name="add_contact_nearby_title">주위의 지인 추가하기</string>
   <string name="add_contact_remotely_title">멀리서 지인 추가하기</string>
-  <string name="contact_name_hint">연락처에 별명을 붙이세요</string>
   <string name="contact_link_intro">지인 분에게서 받은 링크를 여기에 입력하세요</string>
   <string name="contact_link_hint">지인 분의 링크</string>
   <string name="paste_button">붙여 넣기</string>
@@ -171,7 +169,6 @@
   <string name="pending_contact_requests_snackbar">기다리고 있는 연락 요청이 있습니다</string>
   <string name="pending_contact_requests">연락 요청이 받아들여지길 기다리고 있습니다</string>
   <string name="no_pending_contacts">남은 연락 요청이 없습니다</string>
-  <string name="add_contact_remote_connecting">접속중...</string>
   <string name="waiting_for_contact_to_come_online">지인 분이 온라인에 접속하길 기다리고 있습니다...</string>
   <string name="connecting">접속중...</string>
   <string name="adding_contact">연락처 추가하는 중입니다...</string>
@@ -191,9 +188,6 @@
   <plurals name="contact_added_notification_text">
     <item quantity="other">새로운 연락처 %d개를 추가했습니다.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">평소보다 이 연락처를 추가하는데 오래 걸리고 있습니다</string>
-  <string name="adding_contact_slow_title">연락처에 연결되지 않습니다</string>
-  <string name="adding_contact_slow_text">평소보다 이 연락처를 추가하는데 오래 걸리고 있습니다.\n\n 지인 분이 링크를 받아서 추가했는지 확인해 주세요:</string>
   <string name="offline_state">인터넷에 연결되지 않음</string>
   <string name="duplicate_link_dialog_title">중복되는 링크입니다</string>
   <string name="duplicate_link_dialog_text_1">%s: 이미 이 링크를 통한 연락 요청이 있습니다.</string>
@@ -220,7 +214,6 @@
   <string name="introduction_button">소개시키기</string>
   <string name="introduction_sent">소개시켰습니다.</string>
   <string name="introduction_error">소개시키는 과정에서 문제가 있었습니다.</string>
-  <string name="introduction_response_error">소개에 응하는 과정에서 문제가 있었습니다.</string>
   <string name="introduction_request_sent">%2$s에게 %1$s을(를) 소개하고 싶다고 전했습니다.</string>
   <string name="introduction_request_received">%1$s이(가) %2$s에게 소개하고 싶다고 합니다. %2$s을(를) 연락처 목록에 추가하고 싶으십니까?</string>
   <string name="introduction_request_exists_received">%1$s이(가) %2$s에게 소개하고 싶다고 물었지만, %2$s은(는) 이미 연락처 목록에 있습니다. %1$s이(가) 아직 이 부분을 모르고 있을 수 있으니, 아직 응할 수 있습니다:</string>
@@ -387,20 +380,11 @@
   <string name="pref_theme_dark">어둠</string>
   <string name="pref_theme_auto">자동(시간에 따라)</string>
   <string name="pref_theme_system">기본 설정</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">네트워크</string>
-  <string name="bluetooth_setting">블루투스로 연결하기</string>
-  <string name="bluetooth_setting_enabled">연락처가 가까이 있을 때마다</string>
-  <string name="bluetooth_setting_disabled">연락처를 추가할 때만</string>
-  <string name="tor_network_setting">인터넷(Tor)을 통해 연결하기</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">장소에 따라 자동으로</string>
-  <string name="tor_network_setting_without_bridges">Tor를 브리지 없이 사용하기</string>
-  <string name="tor_network_setting_with_bridges">Tor를 브리지를 통해 사용하기</string>
-  <string name="tor_network_setting_never">연결하지 말기</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">자동: %1$s(%2$s에서)</string>
   <string name="tor_mobile_data_title">모바일 데이터 사용하기</string>
-  <string name="tor_only_when_charging_title">충전할 때만 인터넷(Tor)을 통해 연결하기</string>
   <string name="tor_only_when_charging_summary">충전 중이지 않을 때에는 인터넷 연결을 비활성화</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title"> 보안</string>
@@ -441,8 +425,6 @@
   <string name="panic_setting_signout_summary">패닉 버튼이 눌리면 Briar에서 로그아웃하기</string>
   <string name="purge_setting_title">계정 삭제하기</string>
   <string name="purge_setting_summary">패닉 버튼이 눌리면 Briar 계정을 삭제하기 (주의: 계정, 연락처와 메시지가 영구적으로 지워집니다)</string>
-  <string name="uninstall_setting_title">Briar 삭제하기</string>
-  <string name="uninstall_setting_summary">패닉 상황에서 수동으로 확인해야 합니다</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">알림</string>
   <string name="notify_sign_in_title">로그인 알려주기</string>

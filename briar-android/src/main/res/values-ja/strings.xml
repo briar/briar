@@ -89,7 +89,6 @@
   <string name="delete">削除</string>
   <string name="accept">承認</string>
   <string name="decline">却下</string>
-  <string name="options">オプション</string>
   <string name="online">オンライン</string>
   <string name="offline">オフライン</string>
   <string name="send">送信</string>
@@ -153,7 +152,6 @@
   <string name="add_contact_remotely_title_case">離れた場所にいる相手を連絡先に追加</string>
   <string name="add_contact_nearby_title">近くにいる相手を連絡先に追加</string>
   <string name="add_contact_remotely_title">離れた場所にいる相手を連絡先に追加</string>
-  <string name="contact_name_hint">連絡先にニックネームを付ける</string>
   <string name="contact_link_intro">連絡相手のリンクをここに入力してください</string>
   <string name="contact_link_hint">連絡相手のリンク</string>
   <string name="paste_button">貼り付け</string>
@@ -171,7 +169,6 @@
   <string name="pending_contact_requests_snackbar">保留中の連絡先への追加リクエストがあります</string>
   <string name="pending_contact_requests">連絡先追加リクエスト</string>
   <string name="no_pending_contacts">保留中の連絡先追加リクエストはありません</string>
-  <string name="add_contact_remote_connecting">接続中…</string>
   <string name="waiting_for_contact_to_come_online">連絡相手がオンラインになるのを待っています…</string>
   <string name="connecting">接続中…</string>
   <string name="adding_contact">連絡先を追加しています…</string>
@@ -191,9 +188,6 @@
   <plurals name="contact_added_notification_text">
     <item quantity="other">%d 新しい連絡先が追加されました。</item>
   </plurals>
-  <string name="adding_contact_slow_warning">この連絡先の追加には通常より時間がかかります</string>
-  <string name="adding_contact_slow_title">連絡先に接続できません</string>
-  <string name="adding_contact_slow_text">この連絡先の追加には通常より時間がかかります。\n \n連絡先がリンクを受信して追加したことを確認してください：</string>
   <string name="offline_state">インターネットに接続されていません</string>
   <string name="duplicate_link_dialog_title">重複リンク</string>
   <string name="duplicate_link_dialog_text_1">既に保留中の連絡先があります。リンク：%s</string>
@@ -220,7 +214,6 @@
   <string name="introduction_button">はじめに</string>
   <string name="introduction_sent">こちらの構成情報を送信しました。</string>
   <string name="introduction_error">構成情報の作成中にエラーが発生しました。</string>
-  <string name="introduction_response_error">連絡相手からの構成情報に返信する際のエラー</string>
   <string name="introduction_request_sent">%1$sを%2$sに追加するように要求しました。</string>
   <string name="introduction_request_received">%1$sから%2$sへの紹介を求められました。 連絡先リストに%2$sを追加しますか？</string>
   <string name="introduction_request_exists_received">%1$sから%2$sの紹介を求められましたが、%2$sは既に連絡先リストにあります。%1$sはそれを知らない可能性があるため、引き続き応じれます：</string>
@@ -387,20 +380,12 @@
   <string name="pref_theme_dark">ダーク</string>
   <string name="pref_theme_auto">自動（昼間）</string>
   <string name="pref_theme_system">システムデフォルト</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">ネットワーク</string>
-  <string name="bluetooth_setting">Bluetooth経由で接続する</string>
-  <string name="bluetooth_setting_enabled">連絡先に登録している人が近くにいるときはいつでも接続する</string>
-  <string name="bluetooth_setting_disabled">その人を追加した場合のみ</string>
-  <string name="tor_network_setting">インターネット経由で接続する（Tor）</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">接続</string>
   <string name="tor_network_setting_automatic">場所に基づいて自動的に接続する</string>
-  <string name="tor_network_setting_without_bridges">ブリッジなしでTorを使用する</string>
-  <string name="tor_network_setting_with_bridges">ブリッジを通してTorを使用する</string>
-  <string name="tor_network_setting_never">接続しない</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">自動：%1$s（%2$sのうち）</string>
   <string name="tor_mobile_data_title">モバイルデータを使用する</string>
-  <string name="tor_only_when_charging_title">充電時にのみインターネット（Tor）経由で接続する</string>
   <string name="tor_only_when_charging_summary">デバイスがバッテリー使用している場合、インターネット接続を無効にする</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">セキュリティ</string>
@@ -441,8 +426,6 @@
   <string name="panic_setting_signout_summary">パニックボタンが押された場合、Briarからログアウトする</string>
   <string name="purge_setting_title">アカウントを削除</string>
   <string name="purge_setting_summary">パニックボタンが押された場合は、Briarアカウントを削除します。 注意：これにより、ID、連絡先、メッセージが完全に削除されます</string>
-  <string name="uninstall_setting_title">Briarをアンインストールする</string>
-  <string name="uninstall_setting_summary">これには、パニックイベントの手動の確認が必要です</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">通知</string>
   <string name="notify_sign_in_title">サインインするように通知する</string>

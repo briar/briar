@@ -116,7 +116,6 @@
   <string name="delete">حذف</string>
   <string name="accept">قبول</string>
   <string name="decline">رفض</string>
-  <string name="options">الخيارات</string>
   <string name="online">متصل</string>
   <string name="offline">غير متصل</string>
   <string name="send">ارسال</string>
@@ -193,7 +192,6 @@
   <string name="add_contact_remotely_title_case">إضافة جهة اتصال عن بعد </string>
   <string name="add_contact_nearby_title">إضافة جهة اتصال قريبة</string>
   <string name="add_contact_remotely_title">إضافة جهة اتصال عن بعد </string>
-  <string name="contact_name_hint">إعطاء اسم مستعار لجهة الاتصال</string>
   <string name="contact_link_intro">أدخلوا الرّابط المرسل من جهة الاتصال هنا </string>
   <string name="contact_link_hint">رابط جهة الاتصال</string>
   <string name="paste_button">لصق</string>
@@ -211,7 +209,6 @@
   <string name="pending_contact_requests_snackbar">هناك طلبات للاتصال بكم في الانتظار  </string>
   <string name="pending_contact_requests">طلبات التواصل القائمة </string>
   <string name="no_pending_contacts">لا توجد جهات اتصال قيد الإضافة</string>
-  <string name="add_contact_remote_connecting">جاري الاتصال ...</string>
   <string name="waiting_for_contact_to_come_online">بانتظار ظهور جهة الاتصال على الانترنت. </string>
   <string name="connecting">جاري الاتصال ...</string>
   <string name="adding_contact">جاري إضافة جهة الاتصال ...</string>
@@ -236,9 +233,6 @@
     <item quantity="many">تمّت إضافة %d من جهات الاتصال</item>
     <item quantity="other">تمّت إضافة %d من جهات الاتصال.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">إضافة جهة الاتصال هذه تستغرق وقتاً أكثر من العادة</string>
-  <string name="adding_contact_slow_title">لم يمكن الاتصال بجهة الاتصال </string>
-  <string name="adding_contact_slow_text">إضافة جهة الاتصال هذه تستغرق وقتاً أكثر من العادة. \n\n يرجى التأكّد من أن جهة الاتصال استلمت الرّابط الخاص بك ومن ثمّ أضافتك:</string>
   <string name="offline_state">لا اتصال بالانترنت </string>
   <string name="duplicate_link_dialog_title">الرّابط مكرّر </string>
   <string name="duplicate_link_dialog_text_1">لديكم جهة اتصال معلّقة تحمل نفس هذا الرّابط: %s</string>
@@ -266,7 +260,6 @@
   <string name="introduction_button">عمل تقديم</string>
   <string name="introduction_sent">تم إرسال تقديمك.</string>
   <string name="introduction_error">حدث خطأ في عمل التقديم.</string>
-  <string name="introduction_response_error">خطأ في الإجابة على التقديم</string>
   <string name="introduction_request_sent">لقد طلبت تقديم %1$s إلى %2$s.</string>
   <string name="introduction_request_received">قد طلب %1$s أن يقوم بتقديمك إلى %2$s. فهل توافق أن يتم إضافة %2$s إلى قائمة جهات اتصالك؟</string>
   <string name="introduction_request_exists_received">قد طلب %1$s أن يقدمك إلى %2$s، لكن %2$s هو بالفعل في قائمة جهات اتصالك. حيث أن %1$s قد لا يعرف هذا، فلا زال يمكنك الرد:</string>
@@ -454,20 +447,11 @@
   <string name="pref_theme_dark">ليلي</string>
   <string name="pref_theme_auto">تلقائي (توقيت النهار)</string>
   <string name="pref_theme_system">النظام الافتراضي</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">الشبكات</string>
-  <string name="bluetooth_setting">الإتصال عبر بلوتوث</string>
-  <string name="bluetooth_setting_enabled">متى ما كان أحد جهات الاتصال قريبًا</string>
-  <string name="bluetooth_setting_disabled">فقط عند إضافة جهة إتصال</string>
-  <string name="tor_network_setting">اتصال عبر الانترنت (تور)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">تلقائيًا حسب الموقع</string>
-  <string name="tor_network_setting_without_bridges">استخدام تور بلا جسور</string>
-  <string name="tor_network_setting_with_bridges">استخدام تور مع الجسور</string>
-  <string name="tor_network_setting_never">عدم الاتصال</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">تلقائيا: %1$s (في %2$s)</string>
   <string name="tor_mobile_data_title">إستخدام بيانات الجوال</string>
-  <string name="tor_only_when_charging_title">الاتصال عبر الانترنت (تور أو Tor) عند اتصال الجهار بالشّاحن فقط</string>
   <string name="tor_only_when_charging_summary">تعطيل الاتصال بالانترنت عند تشغيل الجهاز على البطارية</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">الأمان</string>
@@ -508,8 +492,6 @@
   <string name="panic_setting_signout_summary">تسجيل الخروج من Briar (براير) عند ضغط زر الذعر</string>
   <string name="purge_setting_title">حذف الحساب</string>
   <string name="purge_setting_summary">احذف حساب Briar (براير) إذا تم ضغط زر الذعر. انتبه: هذا سيسبب حذف دائم لكل معرفات وحساباتك ورسائلك.</string>
-  <string name="uninstall_setting_title">ألغ تثبيت Briar (براير)</string>
-  <string name="uninstall_setting_summary">هذا يتطلب تأكيد يدوي في حالة الذعر</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">الإشعارات</string>
   <string name="notify_sign_in_title">ذكرني لتسجيل الدخول</string>

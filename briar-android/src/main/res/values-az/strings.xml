@@ -96,7 +96,6 @@
   <string name="delete">Sil</string>
   <string name="accept">Qəbul et</string>
   <string name="decline">Azaldılma</string>
-  <string name="options">Seçimlər</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Göndər</string>
@@ -166,7 +165,6 @@
   <string name="add_contact_remotely_title_case">Məsafədə kontakt əlavə etmək </string>
   <string name="add_contact_nearby_title">Yaxında kontakt əlavə etmək </string>
   <string name="add_contact_remotely_title">Məsafədə kontakt əlavə etmək </string>
-  <string name="contact_name_hint">Niklə kontakt saxlayın</string>
   <string name="contact_link_intro">Kontaktın linkini buraya daxil edin</string>
   <string name="contact_link_hint">Kontaktın linki</string>
   <string name="paste_button">Yapışdır</string>
@@ -184,7 +182,6 @@
   <string name="pending_contact_requests_snackbar">Gözləyən kontakt sorğuları var. </string>
   <string name="pending_contact_requests">Kənara qoyulmuş kontak sorğuları</string>
   <string name="no_pending_contacts">Gözləyən kontakt yoxdur</string>
-  <string name="add_contact_remote_connecting">Qoşulur...</string>
   <string name="waiting_for_contact_to_come_online">Kontaktı xəttdə gözləyin ...</string>
   <string name="connecting">Qoşulur...</string>
   <string name="adding_contact">Kontaktın əlavə etməsi... </string>
@@ -205,9 +202,6 @@
     <item quantity="one">New contact added.</item>
     <item quantity="other">%d yeni kontakt əlavə olundu. </item>
   </plurals>
-  <string name="adding_contact_slow_warning">Bu kontaktın əlavə edilməsi adi haldan daha uzun sürür</string>
-  <string name="adding_contact_slow_title">Kontakta qoşula bilmir</string>
-  <string name="adding_contact_slow_text">Bu kontaktın əlavə edilməsi normaldan daha çox vaxt tələb edir.\n\nYoxlayın ki kontakt sizin linkinizi qəbul edib və sizi əlavə etdi: </string>
   <string name="offline_state">İnternet bağlantısı yoxdur</string>
   <string name="duplicate_link_dialog_title">Dublikat Link</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
@@ -231,7 +225,6 @@
   <string name="introduction_button">Şərh edin</string>
   <string name="introduction_sent">Şərhiniz göndərildi.</string>
   <string name="introduction_error">Şərhinizi gödərəndə xəta baş verdi.</string>
-  <string name="introduction_response_error">Cavab verərkən səhv</string>
   <string name="introduction_request_sent">Siz %1$s-i %2$s-ə təqdim etmək istədiniz.</string>
   <string name="introduction_request_received">%1$ssizi%2$s-ə təqdim etmək istədi. %2$s-i kontakt siyahınıza əlavə etmək istəyirsiniz?</string>
   <string name="introduction_request_exists_received">%1$ssizi %2$s-ə tanıtmaq istədi, ancaq %2$s sizin kontaklarinizda var. %1$sbilənə qədər cavab verə bilərsiniz:</string>
@@ -372,19 +365,10 @@
   <string name="pref_theme_dark">Tünd</string>
   <string name="pref_theme_auto">Avtomatik (Gündüz)</string>
   <string name="pref_theme_system">Sistem Olduğu kimi</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Şəbəkələr</string>
-  <string name="bluetooth_setting">Bluetooth-la bağlantı</string>
-  <string name="bluetooth_setting_enabled">Kontaktlar yaxın olduqda</string>
-  <string name="bluetooth_setting_disabled">Yalnız kontakt əlavə edərkən</string>
-  <string name="tor_network_setting">İnternet (Tor)-la qoşulma</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Yerə görə avtomatik olaraq</string>
-  <string name="tor_network_setting_without_bridges">Köprü olmadan Tor-u istifadə edin</string>
-  <string name="tor_network_setting_with_bridges">Tor ilə körpülərdən istifadə edin</string>
-  <string name="tor_network_setting_never">Qoşulmamaq</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_mobile_data_title">Mobil interneti istifadə etmək</string>
-  <string name="tor_only_when_charging_title">Yalnız şarj edərkən İnternet (Tor) vasitəsilə qoşun</string>
   <string name="tor_only_when_charging_summary">Cihaz batareyadan işləyərkən internet bağlantısını kəsir</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Təhlükəsizlik</string>
@@ -423,8 +407,6 @@
   <string name="panic_setting_signout_title">Çıxış</string>
   <string name="panic_setting_signout_summary">Panik düyməsi basarkən Briar-dan çıxın</string>
   <string name="purge_setting_title">Hesabı sil</string>
-  <string name="uninstall_setting_title">Briar-i sil</string>
-  <string name="uninstall_setting_summary">Çaxnaşma zamanı əllə dəstəkləmək tələb olunur</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Bildirişler</string>
   <string name="notify_sign_in_title">Daxil olmaq üçün mənim yadıma salmaq</string>

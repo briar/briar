@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Wachtwoord</string>
   <string name="try_again">Verkeerd wachtwoord, probeer het nog een keer</string>
+  <string name="dialog_title_cannot_check_password">Kan wachtwoord niet controleren</string>
+  <string name="dialog_message_cannot_check_password">Briar kan je wachtwoord niet controleren. Start je apparaat opnieuw op en probeer het nog eens.</string>
   <string name="sign_in_button">Log in</string>
   <string name="forgotten_password">Ik ben mijn wachtwoord vergeten</string>
   <string name="dialog_title_lost_password">Wachtwoord vergeten</string>
@@ -96,7 +98,6 @@
   <string name="delete">Verwijder</string>
   <string name="accept">Accepteer</string>
   <string name="decline">Wijs af</string>
-  <string name="options">Opties</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Verstuur</string>
@@ -109,7 +110,7 @@
   <string name="fix">Oplossen</string>
   <string name="help">Help</string>
   <string name="sorry">Excuses</string>
-  <string name="error_start_activity">Beschikbaar op jouw systeem</string>
+  <string name="error_start_activity">Onbeschikbaar op jouw systeem</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Er zijn geen contacten om te tonen</string>
   <string name="no_contacts_action">Tik op het +-icoon om een contact toe te voegen</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Voeg een contact ver weg toe</string>
   <string name="add_contact_nearby_title">Voeg contact dat in de buurt is toe</string>
   <string name="add_contact_remotely_title">Voeg een contact dat niet in de buurt is toe</string>
-  <string name="contact_name_hint">Geef contact een bijnaam</string>
   <string name="contact_link_intro">Voer de link van je contact hier in</string>
   <string name="contact_link_hint">Link van contact</string>
   <string name="paste_button">Plakken</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Er zijn geen wachtende contactverzoeken</string>
   <string name="pending_contact_requests">Wachtende contactverzoeken</string>
   <string name="no_pending_contacts">Geen wachtende contactverzoeken</string>
-  <string name="add_contact_remote_connecting">Bezig met verbinden...</string>
   <string name="waiting_for_contact_to_come_online">Aan het wachten tot contact online komt...</string>
   <string name="connecting">Bezig met verbinden...</string>
   <string name="adding_contact">Contact aan het toevoegen...</string>
@@ -212,9 +211,6 @@
     <item quantity="one">Nieuw contact toegevoegd</item>
     <item quantity="other">%d nieuwe contacten zijn toegevoegd.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Toevoegen van dit contact duurt langer dan gebruikelijk</string>
-  <string name="adding_contact_slow_title">Kan niet verbinden met contact</string>
-  <string name="adding_contact_slow_text">Het toeveogen van dit contact duurt langer dan gebruikelijk.\n\nGa alsjeblieft na of je contact jouw link heeft ontvangen en je heeft toegevoegd.</string>
   <string name="offline_state">Geen internetverbinding</string>
   <string name="duplicate_link_dialog_title">Duplicate link</string>
   <string name="duplicate_link_dialog_text_1">Je hebt al en wachtend contact met deze link: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Introduceer</string>
   <string name="introduction_sent">Je introductie is verzonden</string>
   <string name="introduction_error">Er trad een fout op tijdens het aanmaken van de introductie.</string>
-  <string name="introduction_response_error">Fout tijdens reageren op een introductie</string>
   <string name="introduction_request_sent">Je hebt gevraagd om %1$s te introduceren aan %2$s.</string>
   <string name="introduction_request_received">%1$s heeft voorgesteld om je te introduceren aan %2$s. Wil je %2$s toevoegen aan je contactenlijst?</string>
   <string name="introduction_request_exists_received">%1$s heeft gevraagd om je te introduceren aan %2$s, maar %2$s staat al in je contactenlijst. Omdat %1$s dit niet per se weet kun je nog steeds antwoorden:</string>
@@ -413,20 +408,12 @@
   <string name="pref_theme_dark">Donker</string>
   <string name="pref_theme_auto">Automatisch (overdag)</string>
   <string name="pref_theme_system">Systeemstandaard</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Netwerken</string>
-  <string name="bluetooth_setting">Verbind via Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Alleen als contacten dichtbij zijn</string>
-  <string name="bluetooth_setting_disabled">Alleen tijdens toevoegen van contacten</string>
-  <string name="tor_network_setting">Maak verbinding via internet (Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Verbindingen</string>
   <string name="tor_network_setting_automatic">Automatisch gebaseerd op locatie</string>
-  <string name="tor_network_setting_without_bridges">Gebruik Tor zonder bridges</string>
-  <string name="tor_network_setting_with_bridges">Gebruik Tor met bridges</string>
-  <string name="tor_network_setting_never">Maak geen verbinding</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatisch: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Gebruik mobiele data</string>
-  <string name="tor_only_when_charging_title">Verbind met internet (Tor) alleen tijdens opladen</string>
   <string name="tor_only_when_charging_summary">Schakel internetverbinding uit als apparaat op batterij loopt</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Beveiliging</string>
@@ -467,8 +454,6 @@
   <string name="panic_setting_signout_summary">Log uit op Briar als de paniekknop wordt ingedrukt.</string>
   <string name="purge_setting_title">Verwijder account</string>
   <string name="purge_setting_summary">Verwijder je Briar-account als een paniekknop wordt ingedrukt. Let op: dit zal permanent je identiteit, contacten en berichten verwijderen.</string>
-  <string name="uninstall_setting_title">Deïnstalleer Briar</string>
-  <string name="uninstall_setting_summary">Dit vereist een handmatige bevestiging op een paniekmoment</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Meldingen</string>
   <string name="notify_sign_in_title">Herinner me om in te loggen</string>

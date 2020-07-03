@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Fjalëkalim</string>
   <string name="try_again">Fjalëkalim i gabuar, riprovoni</string>
+  <string name="dialog_title_cannot_check_password">S\’kontrollohet Dot Fjalëkalimi</string>
+  <string name="dialog_message_cannot_check_password">Briar-i s’e kontrollon dot fjalëkalimin tuaj. Ju lutemi, që të zgjidhet ky problem, provoni të rinisni pajisjen tuaj.</string>
   <string name="sign_in_button">Hyni</string>
   <string name="forgotten_password">Kam harruar fjalëkalimin tim</string>
   <string name="dialog_title_lost_password">U humb Fjalëkalimi</string>
@@ -96,7 +98,6 @@
   <string name="delete">Fshije</string>
   <string name="accept">Pranoje</string>
   <string name="decline">Hidhe poshtë</string>
-  <string name="options">Mundësi</string>
   <string name="online">Në linjë</string>
   <string name="offline">Jo në linjë</string>
   <string name="send">Dërgoje</string>
@@ -116,7 +117,7 @@
   <string name="date_no_private_messages">S\’ka mesazhe.</string>
   <string name="no_private_messages">S’ka mesazhe për shfaqje</string>
   <string name="message_hint">Shtypni mesazhin</string>
-  <string name="image_caption_hint">Shtoni një titull (na daçi)</string>
+  <string name="image_caption_hint">Shtoni një titull (në daçi)</string>
   <string name="image_attach">Bashkëngjitni figurë</string>
   <string name="image_attach_error">S\’u bashkëngjit dot figurë(a)</string>
   <string name="image_attach_error_too_big">Figurë shumë e madhe. Kufiri është %d MB.</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Shtoni Kontakt në Largësi</string>
   <string name="add_contact_nearby_title">Shtoni kontakt atypari  </string>
   <string name="add_contact_remotely_title">Shtoni kontakt në largësi</string>
-  <string name="contact_name_hint">Jepini një nofkë kontaktit</string>
   <string name="contact_link_intro">Jepni këtu lidhjen prej kontaktit tuaj</string>
   <string name="contact_link_hint">Lidhje e kontaktit</string>
   <string name="paste_button">Ngjiteni</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Ka kërkesa kontakti pezull</string>
   <string name="pending_contact_requests">Kërkesa Kontakti Pezull</string>
   <string name="no_pending_contacts">S\’ka kontakte pezull</string>
-  <string name="add_contact_remote_connecting">Duke u kyqur...</string>
   <string name="waiting_for_contact_to_come_online">Po pritet që kontakti të jetë në linjë…</string>
   <string name="connecting">Duke u kyqur...</string>
   <string name="adding_contact">Po shtohet kontakti…</string>
@@ -212,9 +211,6 @@
     <item quantity="one">U shtua kontakt i ri.</item>
     <item quantity="other">U shtuan %d kontakte të reja.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Shtimi i këtij kontakti po zgjat më shumë se zakonisht</string>
-  <string name="adding_contact_slow_title">S\’lidhet Dot Me Kontaktin</string>
-  <string name="adding_contact_slow_text">Shtimi i këtij kontakti po zgjat më shumë se zakonisht.\n\nJu lutemi, kontrolloni nëse kontakti juaj e ka marrë lidhjen tuaj dhe ju ka shtuar:</string>
   <string name="offline_state">S\’ka lidhje internet</string>
   <string name="duplicate_link_dialog_title">Lidhje e Përsëdytur</string>
   <string name="duplicate_link_dialog_text_1">Keni tashmë një kontakt pezull me këtë lidhje: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Bëje prezantimin</string>
   <string name="introduction_sent">Prezantimi juaj u dërgua.</string>
   <string name="introduction_error">Pati një gabim me bërjen e prezantimit.</string>
-  <string name="introduction_response_error">Gabim në përgjigjen ndaj prezantimit</string>
   <string name="introduction_request_sent">Keni kërkuar të prezantoni %1$s te %2$s.</string>
   <string name="introduction_request_received">%1$s ka kërkuar t\’ju prezantojë te %2$s. Doni të shtohet %2$s te lista juaj e kontakteve?</string>
   <string name="introduction_request_exists_received">%1$s ka kërkuar t\’ju prezantojë te %2$s, por %2$s gjendet tashmë te lista juaj e kontakteve. Meqë %1$s mund të mos ta dijë këtë gjë, mundeni prapëseprapë t\’i përgjigjeni:</string>
@@ -413,20 +408,21 @@
   <string name="pref_theme_dark">E errët</string>
   <string name="pref_theme_auto">Automatike (Daytime)</string>
   <string name="pref_theme_system">Parazgjedhje Sistemi</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Rrjete</string>
-  <string name="bluetooth_setting">Lidhu përmes Bluetooth-i</string>
-  <string name="bluetooth_setting_enabled">Kurdo që kontaktet janë këtej pari</string>
-  <string name="bluetooth_setting_disabled">Vetëm kur shtohen kontakte</string>
-  <string name="tor_network_setting">Lidhu nëpërmjet Internetit (Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Lidhje</string>
+  <string name="bluetooth_setting">Lidhuni me kontaktet përmes Bluetooth-i</string>
+  <string name="wifi_setting">Lidhuni me kontakte në të njëjtin rrjet Wi-Fi</string>
+  <string name="tor_enable_title">Lidhuni me kontakte përmes Internet-i</string>
+  <string name="tor_enable_summary">Për privatësi, krejt lidhjet kryhen përmes rrjetit Tor</string>
+  <string name="tor_network_setting">Metodë lidhjeje për rrjetin Tor</string>
   <string name="tor_network_setting_automatic">Automatike, bazuar në vendndodhjen</string>
-  <string name="tor_network_setting_without_bridges">Përdore Tor-in pa ura</string>
-  <string name="tor_network_setting_with_bridges">Përdore Tor-in me ura</string>
-  <string name="tor_network_setting_never">Mos u lidh</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_without_bridges">Përdor rrjet Tor pa ura</string>
+  <string name="tor_network_setting_with_bridges">Përdor rrjet Tor me ura</string>
+  <string name="tor_network_setting_never">Mos u lidh në Internet</string>
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatike: %1$s (në %2$s)</string>
   <string name="tor_mobile_data_title">Përdor të dhëna celulare</string>
-  <string name="tor_only_when_charging_title">Lidhu përmes Internetit (Tor) vetëm kur bëhet ngarkim</string>
+  <string name="tor_only_when_charging_title">Lidhu në Internet vetëm kur ngarkohet bateria</string>
   <string name="tor_only_when_charging_summary">Çaktivizon lidhjen në Internet, kur pajisja ushqehet nga bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Siguri</string>
@@ -467,8 +463,6 @@
   <string name="panic_setting_signout_summary">Dil nga Briar-i nëse shtypet një buton paniku</string>
   <string name="purge_setting_title">Fshi Llogarinë</string>
   <string name="purge_setting_summary">Fshijeni llogarinë tuaj Briar, nëse shtypet një buton paniku. Kujdes: Kjo do të shkaktojë fshirjen e identiteteve, kontakteve dhe mesazheve tuaj</string>
-  <string name="uninstall_setting_title">Çinstalo Briar-in</string>
-  <string name="uninstall_setting_summary">Kjo lyp ripohim dorazi, në rast akti paniku</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Njoftime</string>
   <string name="notify_sign_in_title">Rikujtomë të bëj hyrjen</string>

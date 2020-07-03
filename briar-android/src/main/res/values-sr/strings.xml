@@ -101,7 +101,6 @@ Izaberite dugačku lozinku koju je teško pogoditi, kao četiri nasumične rije�
   <string name="delete">Briši</string>
   <string name="accept">Prihvati</string>
   <string name="decline">Odbij</string>
-  <string name="options">Opcije</string>
   <string name="online">Na vezi</string>
   <string name="offline">Iskljucen</string>
   <string name="send">Šalji</string>
@@ -177,7 +176,6 @@ Jeste li sigurno da zelite da je sacuvate?</string>
   <string name="introduction_button">Izvršite upoznavanje</string>
   <string name="introduction_sent">Vaše poziv na upoznavanje je poslat</string>
   <string name="introduction_error">Došlo je do greške pri izvršenju upoznavanja.</string>
-  <string name="introduction_response_error">Greška pri odgovoru na upoznavanje</string>
   <string name="introduction_request_sent">Tražili ste da se %1$s i %2$s upoznaju.</string>
   <string name="introduction_request_received">%1$s je tražio da vas upozna sa %2$s. Da li želite da dodate %2$s u vašu listu kontakata?</string>
   <string name="introduction_request_exists_received">%1$s je tražio da vas upozna sa %2$s, ali %2$s je već u vašoj listi kontakata. Pošto %1$s to možda nezna, vi i dalje možete da odgovorite: </string>
@@ -368,17 +366,9 @@ Dotaknite + ikonu da uvezete kanal</string>
   <string name="pref_theme_dark">Tamna</string>
   <string name="pref_theme_auto">Automatski (Dnevno)</string>
   <string name="pref_theme_system">Default sistema</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Mreže</string>
-  <string name="bluetooth_setting">Povežite se preko Bluetooth-a</string>
-  <string name="bluetooth_setting_enabled">Kad god su kontakti blizu</string>
-  <string name="bluetooth_setting_disabled">Samo pri dodavanju kontakata</string>
-  <string name="tor_network_setting">Konektuj se preko Interneta (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automatski prema na lokaciji</string>
-  <string name="tor_network_setting_without_bridges">Koristi Tor bez mostova</string>
-  <string name="tor_network_setting_with_bridges">Koristi Tor sa mostovima</string>
-  <string name="tor_network_setting_never">Ne konektuj se</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatski: %1$s (za %2$s)</string>
   <string name="tor_mobile_data_title">Koristi mobilinu mrežu</string>
   <!--Settings Security and Panic-->
@@ -419,8 +409,6 @@ Dotaknite + ikonu da uvezete kanal</string>
   <string name="panic_setting_signout_summary">Izloguj se iz Briar-a ako je pritisnuto panik dugme</string>
   <string name="purge_setting_title">Izbriši račun</string>
   <string name="purge_setting_summary">Izbriši Briar račun ako je panik dugme pritisnuto. Pažnja: Ovo će permanentno izbrisati vaše identitete, kontakte i poruke</string>
-  <string name="uninstall_setting_title">Deinstaliraj Briar</string>
-  <string name="uninstall_setting_summary">Ovo zahtijeva ručnu potvrdu u slučaju panike</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Obavještenja</string>
   <string name="notify_sign_in_title">Podsjeti me da se prijavim</string>

@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Lösenord</string>
   <string name="try_again">Felaktigt lösenord, försök igen </string>
+  <string name="dialog_title_cannot_check_password">Kan ej kontrollera lösenordet</string>
+  <string name="dialog_message_cannot_check_password">Briar kan inte kontrollera ditt lösenord. Prova att starta om din enhet och försök igen.</string>
   <string name="sign_in_button">Logga in</string>
   <string name="forgotten_password">Jag har glömt mitt lösenord </string>
   <string name="dialog_title_lost_password">Glömt lösenord?</string>
@@ -96,7 +98,6 @@
   <string name="delete">Radera</string>
   <string name="accept">Acceptera</string>
   <string name="decline">Neka</string>
-  <string name="options">Alternativ</string>
   <string name="online">Uppkopplad</string>
   <string name="offline">Nedkopplad</string>
   <string name="send">Skicka</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Lägg till en kontakt på avstånd</string>
   <string name="add_contact_nearby_title">Lägg till en närvarande kontakt</string>
   <string name="add_contact_remotely_title">Lägg till en kontakt på avstånd</string>
-  <string name="contact_name_hint">Ge kontakten ett smeknamn</string>
   <string name="contact_link_intro">Skriv in länken från din kontakt här</string>
   <string name="contact_link_hint">Kontaktens länk</string>
   <string name="paste_button">Klistra in</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Det finns väntande kontaktförfrågningar</string>
   <string name="pending_contact_requests">Väntande kontaktförfrågningar</string>
   <string name="no_pending_contacts">Inga väntande kontakter</string>
-  <string name="add_contact_remote_connecting">Ansluter...</string>
   <string name="waiting_for_contact_to_come_online">Väntar på att kontakten ska koppla upp sig...</string>
   <string name="connecting">Ansluter...</string>
   <string name="adding_contact">Lägger till kontakt...</string>
@@ -212,9 +211,6 @@
     <item quantity="one">%d nya kontakter lades till.</item>
     <item quantity="other">%d nya kontakter lades till.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Det tar längre tid än vanligt att lägga till den här kontakten.</string>
-  <string name="adding_contact_slow_title">Kan ej ansluta till kontakten</string>
-  <string name="adding_contact_slow_text">Det tar längre tid än vanligt att lägga till den här kontakten.\n\nVänligen kontrollera att din kontakt har tagit emot din länk och lagt till dig:</string>
   <string name="offline_state">Ingen Internetanslutning</string>
   <string name="duplicate_link_dialog_title">Kopiera länk</string>
   <string name="duplicate_link_dialog_text_1">Du har redan en väntande kontakt med den här länken: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Presentera kontakt</string>
   <string name="introduction_sent">Din presentation har skickats</string>
   <string name="introduction_error">Något gick fel när presentationen skulle genomföras.</string>
-  <string name="introduction_response_error">Presentationen kunde ej besvaras.</string>
   <string name="introduction_request_sent">Du har begärt presentation av %2$s för %1$s.</string>
   <string name="introduction_request_received">%1$s presenterar %2$s för dig. Vill du lägga till %2$s till dina kontakter?</string>
   <string name="introduction_request_exists_received">%1$s presenterar %2$s för dig, men %2$s finns redan bland dina kontakter. Du kan ändå svara  %1$s, som kanske inte vet detta:</string>
@@ -413,20 +408,11 @@
   <string name="pref_theme_dark">Mörk</string>
   <string name="pref_theme_auto">Automatisk (dagtid)</string>
   <string name="pref_theme_system">Systemets förval</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Nätverk</string>
-  <string name="bluetooth_setting">Anslut via Bluetooth</string>
-  <string name="bluetooth_setting_enabled">När kontakter finns i närheten</string>
-  <string name="bluetooth_setting_disabled">Bara när kontakter läggs till</string>
-  <string name="tor_network_setting">Anslut över Internet (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automatisk, baserad på position</string>
-  <string name="tor_network_setting_without_bridges">Använd Tor utan bryggor</string>
-  <string name="tor_network_setting_with_bridges">Använd Tor med bryggor</string>
-  <string name="tor_network_setting_never">Anslut ej</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatisk: %1$s (i %2$s)</string>
   <string name="tor_mobile_data_title">Använd mobildata</string>
-  <string name="tor_only_when_charging_title">Ansluta bara via Internet (Tor) när enheten laddas</string>
   <string name="tor_only_when_charging_summary">Avaktiverar anslutning över Internet när enheten går på batteri</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Säkerhet</string>
@@ -467,8 +453,6 @@
   <string name="panic_setting_signout_summary">Logga ut från Briar om panikknappen tryckts</string>
   <string name="purge_setting_title">Radera kontot</string>
   <string name="purge_setting_summary">Radera ditt Briar-konto om panik-knappen trycks. Varning: detta raderar oåterkalleligt dina indentiteter, kontakter och meddelanden</string>
-  <string name="uninstall_setting_title">Avinstallera Briar</string>
-  <string name="uninstall_setting_summary">Detta kräver manuell bekräftelse i en paniksituation</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Aviseringar</string>
   <string name="notify_sign_in_title">Påminn mig om att logga in</string>

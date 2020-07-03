@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">欢迎来到 Briar</string>
-  <string name="setup_name_explanation">您的昵称将显示在您发布的任何内容旁。昵称在创建帐户后无法更改。</string>
+  <string name="setup_name_explanation">您的昵称将被显示在您发布的任何内容旁边。昵称在创建帐户后无法更改。</string>
   <string name="setup_next">下一步</string>
   <string name="setup_password_intro">设置一个密码</string>
   <string name="setup_password_explanation">您的 Briar 帐户将被加密储存在您的设备上，而非云端。卸载 Briar 或忘记密码，将导致帐户无法恢复。请设置一个不易被猜出的长密码，比如四个随机英文单词，或是由随机字母、数字和符号组成的十位字符。</string>
@@ -15,20 +15,22 @@
   <string name="confirm_password">确认密码</string>
   <string name="name_too_long">昵称过长</string>
   <string name="password_too_weak">密码强度不够</string>
-  <string name="passwords_do_not_match">两次密码不匹配</string>
+  <string name="passwords_do_not_match">两次输入的密码不一致</string>
   <string name="create_account_button">创建帐户</string>
   <string name="more_info">更多信息</string>
   <string name="don_t_ask_again">不再询问</string>
   <string name="setup_huawei_text">轻按下方的按钮将 Briar 加入“受保护的应用”列表。</string>
   <string name="setup_huawei_button">保护 Briar</string>
   <string name="setup_huawei_help">如果 Briar 未被加入受保护应用列表，它将无法在后台运行。</string>
-  <string name="warning_dozed">%s 无法在后台运行。</string>
+  <string name="warning_dozed">%s 无法在后台运行</string>
   <!--Login-->
   <string name="enter_password">密码</string>
   <string name="try_again">密码错误，请重试</string>
+  <string name="dialog_title_cannot_check_password">无法检查密码</string>
+  <string name="dialog_message_cannot_check_password">Briar无法检查您的密码。请尝试重新启动您的设备以解决此问题。</string>
   <string name="sign_in_button">登录</string>
   <string name="forgotten_password">我忘记了密码</string>
-  <string name="dialog_title_lost_password">忘记密码</string>
+  <string name="dialog_title_lost_password">密码遗失</string>
   <string name="dialog_message_lost_password">您的 Briar 帐户被加密储存在您的设备上，而非云端，因此我们无法重置您的密码。您是否希望删除帐户，重新开始？\n\n注意：删除帐户将导致您的身份信息、联系人和消息永久丢失。</string>
   <string name="startup_failed_notification_title">Briar 无法启动</string>
   <string name="startup_failed_notification_text">轻按查看更多信息。</string>
@@ -41,7 +43,9 @@
     <item quantity="other">这是 Briar 的一个测试版本。您的帐户将在 %d 天后到期，且无法延期。</item>
   </plurals>
   <string name="expiry_date_reached">本软件已过期。\n感谢您的测试！</string>
+  <string name="download_briar">请下载最新版本以继续使用 Briar</string>
   <string name="create_new_account">您将需要创建一个新帐户，但可以使用相同的昵称。</string>
+  <string name="download_briar_button">下载最新版本</string>
   <string name="startup_open_database">正在解密数据库……</string>
   <string name="startup_migrate_database">正在更新数据库……</string>
   <string name="startup_compact_database">正在压缩数据库……</string>
@@ -89,7 +93,6 @@
   <string name="delete">删除</string>
   <string name="accept">接受</string>
   <string name="decline">谢绝</string>
-  <string name="options">选项</string>
   <string name="online">在线</string>
   <string name="offline">离线</string>
   <string name="send">发送</string>
@@ -102,6 +105,7 @@
   <string name="fix">修复</string>
   <string name="help">帮助</string>
   <string name="sorry">抱歉</string>
+  <string name="error_start_activity">在您的系统上不可用</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">尚无联系人可供显示</string>
   <string name="no_contacts_action">轻按 + 号即可添加联系人</string>
@@ -116,6 +120,17 @@
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
   <string name="set_alias_button">更改</string>
+  <string name="delete_all_messages">删除全部消息</string>
+  <string name="dialog_title_delete_all_messages">确认删除消息</string>
+  <string name="dialog_message_delete_all_messages">您确定要删除所有消息吗？</string>
+  <string name="dialog_title_not_all_messages_deleted">无法删除所有消息</string>
+  <string name="dialog_message_not_deleted_ongoing_both">与正在进行的邀请和介绍有关的消息在结束之前无法被删除。</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">与正在进行的介绍有关的消息在结束之前无法被删除。</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">与正在进行的邀请有关的消息在结束之前无法被删除。</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">部分下载的消息只有在完成下载后才能被删除。</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">如要删除邀请或介绍，您需要选择该请求和回应。</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">如要删除介绍，您需要选择该请求和回应。</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">如要删除邀请，您需要选择该请求和回应。</string>
   <string name="delete_contact">删除联系人</string>
   <string name="dialog_title_delete_contact">确认删除联系人</string>
   <string name="dialog_message_delete_contact">确认要删除该联系人和与之交流的所有消息吗？</string>
@@ -131,6 +146,7 @@
   <string name="dialog_message_no_image_support">你的联系人的 Briar 尚未支持图片附件。一旦他们升级你就会看到一个不同的图标。</string>
   <string name="dialog_title_image_support">你现在可以向此联系人发送图片</string>
   <string name="dialog_message_image_support">轻按此图标即可附加图片。</string>
+  <string name="messaging_too_many_attachments_toast">只有前 %d 个图片将被发送</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">添加附近的联系人</string>
   <string name="face_to_face">您必须面对面添加联系人。\n\n这样将防止未来他人冒充您的身份并查看您的信息。</string>
@@ -153,7 +169,6 @@
   <string name="add_contact_remotely_title_case">添加远处的联系人</string>
   <string name="add_contact_nearby_title">添加附近的联系人</string>
   <string name="add_contact_remotely_title">添加远处的联系人</string>
-  <string name="contact_name_hint">添加联系人昵称</string>
   <string name="contact_link_intro">在此输入您联系人的链接</string>
   <string name="contact_link_hint">联系人的链接</string>
   <string name="paste_button">粘贴</string>
@@ -171,7 +186,6 @@
   <string name="pending_contact_requests_snackbar">有待处理的联系人请求</string>
   <string name="pending_contact_requests">待处理的联系人请求</string>
   <string name="no_pending_contacts">没有待处理的联系人</string>
-  <string name="add_contact_remote_connecting">连接中……</string>
   <string name="waiting_for_contact_to_come_online">正在等待联系人上线……</string>
   <string name="connecting">连接中……</string>
   <string name="adding_contact">正在添加联系人……</string>
@@ -191,12 +205,10 @@
   <plurals name="contact_added_notification_text">
     <item quantity="other">%d 新联系人已添加。</item>
   </plurals>
-  <string name="adding_contact_slow_warning">添加此联系人比通常花费了更多时间</string>
-  <string name="adding_contact_slow_title">无法连接到联系人</string>
-  <string name="adding_contact_slow_text">添加此联系人比通常花费了更多时间。\n\n请检查您的联系人是否收到您的链接并已添加您：</string>
   <string name="offline_state">无网络连接</string>
   <string name="duplicate_link_dialog_title">重复的链接</string>
   <string name="duplicate_link_dialog_text_1">您已经有此链接的待处理联系人：%s</string>
+  <string name="duplicate_link_dialog_text_1_contact">您已经有此链接的联系人：%s</string>
   <!--This is a question asking whether two nicknames refer to the same person-->
   <string name="duplicate_link_dialog_text_2">%s 和 %s 是同一个人吗？</string>
   <!--This is a button for answering that two nicknames do indeed refer to the same person. This
@@ -220,7 +232,6 @@
   <string name="introduction_button">做介绍</string>
   <string name="introduction_sent">您的介绍已发送。</string>
   <string name="introduction_error">介绍时发生错误。</string>
-  <string name="introduction_response_error">回复介绍时出错</string>
   <string name="introduction_request_sent">您已将 %1$s 介绍给 %2$s。</string>
   <string name="introduction_request_received">%1$s 想要将您介绍给 %2$s。您希望将 %2$s 添加至您的联系人列表中吗？</string>
   <string name="introduction_request_exists_received">%1$s 想要将您介绍给 %2$s，但是 %2$s 已经在您的联系人列表中。%1$s 可能并不知情，但您仍可以做出回复：</string>
@@ -387,20 +398,11 @@
   <string name="pref_theme_dark">深色</string>
   <string name="pref_theme_auto">自动（白天）</string>
   <string name="pref_theme_system">系统默认</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">网络</string>
-  <string name="bluetooth_setting">通过蓝牙连接</string>
-  <string name="bluetooth_setting_enabled">只要联系人在附近时</string>
-  <string name="bluetooth_setting_disabled">仅在添加联系人时</string>
-  <string name="tor_network_setting">通过互联网连接（Tor）</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">基于位置自动选择</string>
-  <string name="tor_network_setting_without_bridges">不通过网桥连接到 Tor</string>
-  <string name="tor_network_setting_with_bridges">通过网桥连接到 Tor</string>
-  <string name="tor_network_setting_never">不要连接</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">自动选择：%1$s（在 %2$s）</string>
   <string name="tor_mobile_data_title">使用移动数据</string>
-  <string name="tor_only_when_charging_title">只有在充电时通过网络（Tor）连接</string>
   <string name="tor_only_when_charging_summary">当设备使用电池电量时关闭网络连接</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
@@ -441,8 +443,6 @@
   <string name="panic_setting_signout_summary">触发应急开关时登出 Briar</string>
   <string name="purge_setting_title">删除帐户</string>
   <string name="purge_setting_summary">触发应急开关时删除您的 Briar 帐户。注意：这将导致您的身份信息、联系人和消息永久丢失。</string>
-  <string name="uninstall_setting_title">卸载 Briar</string>
-  <string name="uninstall_setting_summary">这需要在紧急事件中进行人工确认</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">消息通知</string>
   <string name="notify_sign_in_title">提醒我登录</string>

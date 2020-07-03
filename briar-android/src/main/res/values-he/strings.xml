@@ -10,9 +10,9 @@
   <string name="setup_doze_intro">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע.</string>
   <string name="setup_doze_explanation">כדי לקבל הודעות, Briar צריך להישאר מחובר ברקע. אנא השבת מיטובי סוללה כך ש־Briar יוכל להישאר מחובר.</string>
   <string name="setup_doze_button">התר חיבורים</string>
-  <string name="choose_nickname">בחר את כינויך</string>
-  <string name="choose_password">בחר את סיסמתך</string>
-  <string name="confirm_password">אשר את סיסמתך</string>
+  <string name="choose_nickname">בחר את הכינוי שלך</string>
+  <string name="choose_password">בחר סיסמה</string>
+  <string name="confirm_password">אשר סיסמה</string>
   <string name="name_too_long">השם ארוך מדי</string>
   <string name="password_too_weak">הסיסמה חלשה מדי</string>
   <string name="passwords_do_not_match">הסיסמאות לא תואמות</string>
@@ -26,17 +26,17 @@
   <!--Login-->
   <string name="enter_password">סיסמה</string>
   <string name="try_again">סיסמה שגויה, נסה שוב</string>
+  <string name="dialog_title_cannot_check_password">לא יכול לבדוק סיסמה</string>
+  <string name="dialog_message_cannot_check_password">Briar לא יכול לבדוק את הסיסמה שלך. אנא נסה לאתחל מחדש את המכשיר שלך כדי לפתור בעיה זאת.</string>
   <string name="sign_in_button">היכנס</string>
   <string name="forgotten_password">שכחתי את הסיסמה שלי</string>
   <string name="dialog_title_lost_password">סיסמה אבודה</string>
-  <string name="dialog_message_lost_password">חשבון הבריאר שלכם שמור ומוצפן על המכשיר, לא בענן, כך שלא נוכל לשחזר את הסיסמה שלכם. למחוק את החשבון שלכם ולהתחיל מחדש?
-
-זהירות: הזהויות שלכם, אנשי הקשר וההודעות יאבדו לצמיתות.</string>
+  <string name="dialog_message_lost_password">חשבון Briar שלך מאוחסן באופן מוצפן על המכשיר שלך, לא בענן, כך שאנחנו לא יכולים לאפס את הסיסמה שלך. האם תרצה למחוק את החשבון שלך ולהתחיל מחדש?\n\nזהירות: הזהויות, אנשי הקשר וההודעות שלך יאבדו לצמיתות.</string>
   <string name="startup_failed_notification_title">Briar לא היה ניתן להתחיל</string>
   <string name="startup_failed_notification_text">הקש לעוד מידע.</string>
   <string name="startup_failed_activity_title">כישלון הזנק Briar</string>
-  <string name="startup_failed_db_error">מסיבה כלשהי, מסד נתונים Briar שלך פגום ללא יכולת תיקון. החשבון שלך, הנתונים שלך וכל אנשי הקשר שלך אבדו. למרבה הצער, אתה צריך להתקין מחדש את Briar או להגדיר חשבון חדש ע\"י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
-  <string name="startup_failed_data_too_old_error">החשבון שלך נוצר עם גרסה ישנה של יישום זה ואינו יכול להיפתח עם גרסה זו. אתה חייב להתקין מחדש את הגרסה הישנה או להגדיר חשבון חדש ע\"י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
+  <string name="startup_failed_db_error">מסיבה כלשהי, מסד נתונים Briar שלך פגום ללא יכולת תיקון. החשבון שלך, הנתונים שלך וכל אנשי הקשר שלך אבדו. למרבה הצער, אתה צריך להתקין מחדש את Briar או להגדיר חשבון חדש ע״י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
+  <string name="startup_failed_data_too_old_error">החשבון שלך נוצר עם גרסה ישנה של יישום זה ואינו יכול להיפתח עם גרסה זו. אתה חייב להתקין מחדש את הגרסה הישנה או להגדיר חשבון חדש ע״י בחירה באפשרות \'שכחתי את הסיסמה שלי\' בתזכיר הסיסמה.</string>
   <string name="startup_failed_data_too_new_error">גרסה זו של היישום ישנה מדי. אנא שדרג אל הגרסה האחרונה ונסה שוב.</string>
   <string name="startup_failed_service_error">Briar לא הצליח להתחיל מתקע דרוש. התקנה מחדש של Briar פותרת בדרך כלל בעיה זו. עם זאת, שים לב שתאבד את חשבונך ואת כל הנתונים המשויכים אליו כי Briar אינו משתמש בשרתים מרכזיים כדי לאחסן עליהם את נתוניך.</string>
   <plurals name="expiry_warning">
@@ -45,14 +45,13 @@
     <item quantity="many">זאת גרסת בחינה של Briar. חשבונך יפוג תוך %d ימים ואינו יכול להתחדש.</item>
     <item quantity="other">זאת גרסת בחינה של Briar. חשבונך יפוג תוך %d ימים ואינו יכול להתחדש.</item>
   </plurals>
-  <string name="expiry_date_reached">פג תוקפה של תוכנה זו.
-תודה לכם שבדקתם.</string>
+  <string name="expiry_date_reached">תוכנה זו פגה.\nתודה על הבדיקה!</string>
   <string name="download_briar">כדי להמשיך להשתמש ב־Briar, אנא הורד את השחרור האחרון.</string>
   <string name="create_new_account">תיצטרך ליצור חשבון חדש, אבל אתה יכול להשתמש באותו כינוי.</string>
   <string name="download_briar_button">הורד שחרור אחרון</string>
-  <string name="startup_open_database">מפענח מסד נתונים...</string>
-  <string name="startup_migrate_database">משדרג מסד נתונים...</string>
-  <string name="startup_compact_database">מכווץ מסד נתונים...</string>
+  <string name="startup_open_database">מפענח מסד נתונים…</string>
+  <string name="startup_migrate_database">משדרג מסד נתונים…</string>
+  <string name="startup_compact_database">מצופף מסד נתונים…</string>
   <!--Navigation Drawer-->
   <string name="nav_drawer_open_description">פתח את מגירת הניווט</string>
   <string name="nav_drawer_close_description">סגור את מגירת הניווט</string>
@@ -103,20 +102,19 @@
   <string name="now">עכשיו</string>
   <string name="show">הראה</string>
   <string name="hide">הסתר</string>
-  <string name="ok">אישור</string>
+  <string name="ok">אשר</string>
   <string name="cancel">בטל</string>
   <string name="got_it">הבנתי</string>
   <string name="delete">מחק</string>
   <string name="accept">קבל</string>
   <string name="decline">סרב</string>
-  <string name="options">אפשרויות</string>
   <string name="online">מקוון</string>
-  <string name="offline">מנותק</string>
+  <string name="offline">לא מקוון</string>
   <string name="send">שלח</string>
   <string name="allow">התר</string>
   <string name="open">פתח</string>
   <string name="no_data">אין נתונים</string>
-  <string name="ellipsis">...</string>
+  <string name="ellipsis">…</string>
   <string name="text_too_long">הטקסט המוכנס ארוך מדי</string>
   <string name="show_onboarding">הראה דו־שיח עזרה</string>
   <string name="fix">תקן</string>
@@ -132,7 +130,7 @@
   <string name="image_caption_hint">הוסף כיתוב (רשותי)</string>
   <string name="image_attach">צרף תמונה</string>
   <string name="image_attach_error">לא היה ניתן לצרף תמונה (או תמונות)</string>
-  <string name="image_attach_error_too_big">התמונה גדולה מדי. המגבלה היא %d מ\"ב.</string>
+  <string name="image_attach_error_too_big">התמונה גדולה מדי. המגבלה היא %d מ״ב.</string>
   <string name="image_attach_error_invalid_mime_type">תסדיר תמונה בלתי נתמך: %s</string>
   <string name="set_contact_alias">שַׁנֵּה שם איש קשר</string>
   <string name="set_contact_alias_hint">שם איש הקשר</string>
@@ -166,15 +164,13 @@
   <string name="messaging_too_many_attachments_toast">רק %d התמונות הראשונות יישלחו</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">הוסף איש קשר בקרבה</string>
-  <string name="face_to_face">אתם חייבים להפגש עם האדם שאותו תרצו להוסיף כאיש קשר.
-
-זאת על מנת למנוע מצב שבו מתחזים אליכם או קוראים הודעות שלכם בעתיד.</string>
+  <string name="face_to_face">אתה חייב להיפגש עם האדם שאותו אתה רוצה להוסיף כאיש קשר.\n\nזה ימנע מכל אחד להתחזות אליך או לקרוא את ההודעות שלך בעתיד.</string>
   <string name="continue_button">המשך</string>
   <string name="try_again_button">נסה שוב</string>
   <string name="waiting_for_contact_to_scan">ממתין שאיש הקשר יסרוק ויתחבר\u2026</string>
-  <string name="exchanging_contact_details">מחליף פרטים של איש קשר\u2026</string>
+  <string name="exchanging_contact_details">מחליף פרטי איש קשר\u2026</string>
   <string name="contact_added_toast">איש קשר התווסף: %s</string>
-  <string name="contact_already_exists">איש קשר %s קיים כבר</string>
+  <string name="contact_already_exists">איש הקשר %s קיים כבר</string>
   <string name="qr_code_invalid">קוד ה־QR אינו תקף</string>
   <string name="qr_code_too_old">קוד ה־QR שסרקת מגיע מגרסה ישנה יותר של %s.\n\nאנא בקש מאיש הקשר שלך לשדרג את הגרסה האחרונה ואז נסה שוב.</string>
   <string name="qr_code_too_new">קוד ה־QR שסרקת מגיע מגרסה חדשה יותר של %s.\n\nאנא שדרג אל הגרסה האחרונה ואז נסה שוב.</string>
@@ -188,7 +184,6 @@
   <string name="add_contact_remotely_title_case">הוסף איש קשר בקרבה</string>
   <string name="add_contact_nearby_title">הוסף איש קשר בקרבה</string>
   <string name="add_contact_remotely_title">הוסף איש קשר במרחק</string>
-  <string name="contact_name_hint">תן כינוי אל איש קשר</string>
   <string name="contact_link_intro">הכנס את הקישור מאיש הקשר שלך כאן</string>
   <string name="contact_link_hint">קישור של איש קשר</string>
   <string name="paste_button">הדבק</string>
@@ -206,10 +201,9 @@
   <string name="pending_contact_requests_snackbar">יש בקשות ממתינות של אנשי קשר</string>
   <string name="pending_contact_requests">בקשות ממתינות של אנשי קשר</string>
   <string name="no_pending_contacts">אין בקשות ממתינות של אנשי קשר</string>
-  <string name="add_contact_remote_connecting">מתחבר...</string>
-  <string name="waiting_for_contact_to_come_online">ממתין אל איש הקשר שיהיה מקוון...</string>
-  <string name="connecting">מתחבר...</string>
-  <string name="adding_contact">מוסיף איש קשר...</string>
+  <string name="waiting_for_contact_to_come_online">ממתין אל איש הקשר שיהיה מקוון…</string>
+  <string name="connecting">מתחבר…</string>
+  <string name="adding_contact">מוסיף איש קשר…</string>
   <string name="adding_contact_failed">הוספת איש קשר נכשלה</string>
   <string name="dialog_title_remove_pending_contact">אשר הסרה</string>
   <string name="dialog_message_remove_pending_contact">איש קשר זה מתווסף. אם תסיר אותו כעת, הוא לא יתווסף.</string>
@@ -229,9 +223,6 @@
     <item quantity="many">%dאנשי קשר חדשים התווספו. </item>
     <item quantity="other">%d אנשי קשר חדשים התווספו.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">הוספת איש קשר זה לוקחת מעבר לזמן הרגיל</string>
-  <string name="adding_contact_slow_title">לא ניתן להתחבר אל איש קשר</string>
-  <string name="adding_contact_slow_text">הוספת איש קשר זה לוקחת מעבר לזמן הרגיל.\n\nאנא בדוק שאיש הקשר שלך קיבל את הקישור שלך ושהוא הוסיף אותך:</string>
   <string name="offline_state">אין חיבור אינטרנט</string>
   <string name="duplicate_link_dialog_title">קישור כפול</string>
   <string name="duplicate_link_dialog_text_1">יש לך כבר איש קשר ממתין עם קישור זה: %s</string>
@@ -249,27 +240,26 @@
   <string name="duplicate_link_dialog_text_3">%s ו־%s שלחו לך את אותו הקישור.\n\nייתכן שאחד מהם מנסה לגלות מי הם אנשי הקשר שלך.\n\nאל תגיד לו שקיבלת את אותו הקישור ממישהו אחר.</string>
   <string name="pending_contact_updated_toast">איש קשר ממתין עודכן</string>
   <!--Introductions-->
-  <string name="introduction_onboarding_title">הציגו את אנשי קשר שלכם</string>
-  <string name="introduction_onboarding_text">אתם יכולים להציג את אנשי הקשר שלכם אחד לשני, כך שהם לא צריכים להפגש פנים-מול-פנים על מנת להתחבר בבריאר.</string>
-  <string name="introduction_menu_item">הציגו איש קשר</string>
+  <string name="introduction_onboarding_title">הכר בין אנשי הקשר שלך</string>
+  <string name="introduction_onboarding_text">אתה יכול להכיר בין אנשי הקשר שלך אחד עם השני, כך שהם לא צריכים להיפגש פנים מול פנים כדי להתחבר ב־Briar.</string>
+  <string name="introduction_menu_item">בצע היכרות</string>
   <string name="introduction_activity_title">בחר איש קשר</string>
   <string name="introduction_not_possible">יש לך כבר היכרות אחת בתהליך עם אנשי קשר אלו. אנא התר לה תחילה לסיים. אם אתה או אנשי הקשר שלך לעיתים נדירות מקוונים, זה עשוי לקחת זמן מה.</string>
-  <string name="introduction_message_title">הציגו אנשי קשר</string>
+  <string name="introduction_message_title">הכר בין אנשי קשר</string>
   <string name="introduction_message_hint">הוסף הודעה (רשותי)</string>
-  <string name="introduction_button">הציגו איש קשר</string>
-  <string name="introduction_sent">הצגת איש קשר נשלחה.</string>
-  <string name="introduction_error">הייתה שגיאה בעת הצגת איש קשר.</string>
-  <string name="introduction_response_error">שגיאה בעת התגובה להצגת איש קשר</string>
-  <string name="introduction_request_sent">ביקשתם להציג את %1$s ל- %2$s.</string>
-  <string name="introduction_request_received">%1$s ביקש להציג אתכם ל- %2$s. האם תרצו להוסיף את %2$s לאנשי הקשר שלכם?</string>
-  <string name="introduction_request_exists_received">%1$s ביקשו להציג אתכם ל- %2$s, אבל %2$s עדיין ברשימת אנשי הקשר שלכם. מכיוון ש- %1$s עשוי לא לדעת זאת, אתם עדיין מוזמנים להגיב:</string>
-  <string name="introduction_request_answered_received">%1$s ביקשו להציג אתכם בפני %2$s.</string>
-  <string name="introduction_response_accepted_sent">הסכמתם להיות מוצגים בפני %1$s.</string>
+  <string name="introduction_button">בצע היכרות</string>
+  <string name="introduction_sent">ההיכרות שלך נשלחה.</string>
+  <string name="introduction_error">הייתה שגיאה בעת ביצוע ההיכרות.</string>
+  <string name="introduction_request_sent">ביקשת להכיר את %1$s בפני %2$s.</string>
+  <string name="introduction_request_received">%1$s ביקש להכיר אותך בפני %2$s. האם אתה רוצה להוסיף את %2$s אל רשימת אנשי הקשר שלך?</string>
+  <string name="introduction_request_exists_received">%1$s ביקש להכיר אותך בפני %2$s, אבל %2$s כבר ברשימת אנשי הקשר שלך. מאחר ש%1$s כנראה לא יודע זאת, אתה עדיין יכול להגיב:</string>
+  <string name="introduction_request_answered_received">%1$s ביקש להכיר אותך בפני %2$s.</string>
+  <string name="introduction_response_accepted_sent">הסכמת אל ההיכרות בפני %1$s.</string>
   <string name="introduction_response_accepted_sent_info">בטרם %1$s יוכל להתווסף אל אנשי הקשר שלך, הוא צריך לקבל את ההיכרות בנוסף. זה עשוי לקחת זמן מה.</string>
-  <string name="introduction_response_declined_sent">סירבתם להיות מוצגים בפני %1$s.</string>
-  <string name="introduction_response_accepted_received">%1$s הסכימו להיות מוצגים בפני %2$s.</string>
-  <string name="introduction_response_declined_received">%1$s סירבו להיות מוצגים בפני %2$s.</string>
-  <string name="introduction_response_declined_received_by_introducee">%1$s אומרים ש- %2$s סירבו להיות מוצגים בפניהם.</string>
+  <string name="introduction_response_declined_sent">סירבת אל ההיכרות בפני %1$s.</string>
+  <string name="introduction_response_accepted_received">%1$s הסכים אל ההיכרות בפני %2$s.</string>
+  <string name="introduction_response_declined_received">%1$s סירב אל ההיכרות בפני %2$s.</string>
+  <string name="introduction_response_declined_received_by_introducee">%1$s אומר כי %2$s סירב אל ההיכרות.</string>
   <!--Private Groups-->
   <string name="groups_list_empty">אין קבוצות להראות</string>
   <string name="groups_list_empty_action">הקש על הצלמית + כדי ליצור קבוצה, או בקש מאנשי הקשר שלך לשתף איתך קבוצות</string>
@@ -281,12 +271,12 @@
     <item quantity="other">%d הודעות</item>
   </plurals>
   <string name="groups_group_is_empty">קבוצה זו ריקה</string>
-  <string name="groups_group_is_dissolved">קבוצה זו התפזרה</string>
+  <string name="groups_group_is_dissolved">קבוצה זו פורקה</string>
   <string name="groups_remove">הסר</string>
   <string name="groups_create_group_title">צור קבוצה פרטית</string>
   <string name="groups_create_group_button">צור קבוצה</string>
   <string name="groups_create_group_invitation_button">שלח הזמנה</string>
-  <string name="groups_create_group_hint">בחרו שם לקבוצה הפרטית שלכם</string>
+  <string name="groups_create_group_hint">בחר שם לקבוצה הפרטית שלך</string>
   <string name="groups_invitation_sent">הזמנה קבוצתית נשלחה</string>
   <string name="groups_member_list">רשימת חברי קבוצה</string>
   <string name="groups_invite_members">הזמן חברי קבוצה</string>
@@ -297,22 +287,18 @@
   <string name="groups_leave">עזוב קבוצה</string>
   <string name="groups_leave_dialog_title">אשר עזיבת קבוצה</string>
   <string name="groups_leave_dialog_message">האם אתה בטוח שאתה רוצה לעזוב קבוצה זו?</string>
-  <string name="groups_dissolve">פזר קבוצה</string>
-  <string name="groups_dissolve_dialog_title">אשר פיזור קבוצה</string>
-  <string name="groups_dissolve_dialog_message">האם אתם בטוחים שתרצו לפזר את הקבוצה?
-
-כל המשתתפים לא יוכלו להמשיך את השיחה ועלולים לא לקבל את ההודעות האחרונות.</string>
-  <string name="groups_dissolve_button">פיזור</string>
-  <string name="groups_dissolved_dialog_title">הקבוצה פוזרה</string>
-  <string name="groups_dissolved_dialog_message">יוצר הקבוצה פיזר אותה.
-
-לא תוכלו יותר לכתוב הודעות לקבוצה ואולי אף לא תקבלו את כל ההודעות שנכתבו.</string>
+  <string name="groups_dissolve">פרק קבוצה</string>
+  <string name="groups_dissolve_dialog_title">אשר פירוק קבוצה</string>
+  <string name="groups_dissolve_dialog_message">האם אתה בטוח שאתה רוצה לפרק את הקבוצה הזאתו?\n\nכל חברי הקבוצה האחרים לא יוכלו להמשיך בשיחתם וכנראה לא יקבלו את ההודעות האחרונות.</string>
+  <string name="groups_dissolve_button">פרק</string>
+  <string name="groups_dissolved_dialog_title">הקבוצה פורקה</string>
+  <string name="groups_dissolved_dialog_message">היוצר של הקבוצה הזאת פירק אותה.\n\nאתה לא יכול עוד לכתוב הודעות אל הקבוצה וכנראה שלא תקבל את כל הרשומות שנכתבו.</string>
   <!--Private Group Invitations-->
   <string name="groups_invitations_title">הזמנות לקבוצה</string>
-  <string name="groups_invitations_invitation_sent">הזמנתם את %1$s להצטרף לקבוצה \"%2$s\".</string>
-  <string name="groups_invitations_invitation_received">%1$s הזמינו אתכם להצטרף לקבוצה \"%2$s\".</string>
+  <string name="groups_invitations_invitation_sent">הזמנת את %1$s להצטרף אל הקבוצה \"%2$s\".</string>
+  <string name="groups_invitations_invitation_received">%1$s הזמין אותך להצטרף אל הקבוצה \"%2$s\".</string>
   <string name="groups_invitations_joined">הצטרף אל קבוצה</string>
-  <string name="groups_invitations_declined">הזמנה קבוצתית נדחתה</string>
+  <string name="groups_invitations_declined">הזמנה קבוצתית סורבה</string>
   <plurals name="groups_invitations_open">
     <item quantity="one">הזמנה קבוצתית פתוחה %d</item>
     <item quantity="two">%d הזמנות קבוצתיות פתוחות</item>
@@ -323,16 +309,16 @@
   <string name="groups_invitations_response_declined_sent">סירבת אל ההזמנה הקבוצתית מאת %s.</string>
   <string name="groups_invitations_response_accepted_received">%s הסכים אל ההזמנה הקבוצתית.</string>
   <string name="groups_invitations_response_declined_received">%s סירב אל ההזמנה הקבוצתית.</string>
-  <string name="sharing_status_groups">רק היוצר יכול להזמין משתתפים חדשים לקבוצה. להלן כל המשתתפים הנוכחיים של הקבוצה.</string>
+  <string name="sharing_status_groups">רק היוצר יכול להזמין חברי קבוצה חדשים אל הקבוצה. להלן כל חברי הקבוצה הנוכחיים.</string>
   <!--Private Groups Revealing Contacts-->
   <string name="groups_reveal_contacts">חשוף אנשי קשר</string>
   <string name="groups_reveal_dialog_message">אתם יכולים לבחור אם לחשוף את אנשי הקשר שלכם למשתתפים הנוכחיים והעתידיים של קבוצה זו.
 
 חשיפת אנשי הקשר תגרום לחיבור עם הקבוצה להיות מהיר ואמין יותר, כי תוכלו לתקשר עם אנשי הקשר שנחשפו גם אם יוצר הקבוצה אינו מחובר.</string>
-  <string name="groups_reveal_visible">היחסים עם האיש קשר גלויים לקבוצה</string>
-  <string name="groups_reveal_visible_revealed_by_us">היחסים עם האיש קשר גלויים לקבוצה (נחשפו על ידיכם)</string>
-  <string name="groups_reveal_visible_revealed_by_contact">היחסים עם האיש קשר גלויים לקבוצה (נחשפו על %s)</string>
-  <string name="groups_reveal_invisible">היחסים עם האיש קשר אינם גלויים לקבוצה</string>
+  <string name="groups_reveal_visible">יחסים עם אנשי קשר גלויים לקבוצה</string>
+  <string name="groups_reveal_visible_revealed_by_us">יחסים עם אנשי קשר גלויים לקבוצה (נחשפים על ידך)</string>
+  <string name="groups_reveal_visible_revealed_by_contact">יחסים עם אנשי קשר גלויים לקבוצה (נחשפים על ידי %s)</string>
+  <string name="groups_reveal_invisible">יחסים עם אנשי קשר אינם גלויים לקבוצה</string>
   <!--Forums-->
   <string name="no_forums">אין פורומים להראות</string>
   <string name="no_forums_action">הקש על הצלמית + כדי ליצור פורום, או בקש מאנשי הקשר שלך לשתף איתך פורומים</string>
@@ -381,10 +367,10 @@
   <string name="sharing_status_forum">כל חבר פורום יכול לשתף את הפורום עם אנשי הקשר שלו. אתה משתף פורום זה עם אנשי הקשר הבאים. יתכן שיש חברי פורום אחרים שאינך יכול לראות.</string>
   <string name="shared_with">משותף עם %1$d (%2$d מקוונים)</string>
   <plurals name="forums_shared">
-    <item quantity="one">פורום %d משותף ע\"י אנשי קשר</item>
-    <item quantity="two">%d פורומים משותפים ע\"י אנשי קשר</item>
-    <item quantity="many">%d פורומים משותפים ע\"י אנשי קשר</item>
-    <item quantity="other">%d פורומים משותפים ע\"י אנשי קשר</item>
+    <item quantity="one">פורום %d משותף ע״י אנשי קשר</item>
+    <item quantity="two">%d פורומים משותפים ע״י אנשי קשר</item>
+    <item quantity="many">%d פורומים משותפים ע״י אנשי קשר</item>
+    <item quantity="other">%d פורומים משותפים ע״י אנשי קשר</item>
   </plurals>
   <string name="nobody">אף אחד</string>
   <!--Blogs-->
@@ -445,21 +431,12 @@
   <string name="pref_theme_light">בהיר</string>
   <string name="pref_theme_dark">כהה</string>
   <string name="pref_theme_auto">אוטומטי (שעות יום)</string>
-  <string name="pref_theme_system">ברירת מחדל של מערכת</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">רשתות</string>
-  <string name="bluetooth_setting">התחבר באמצעות שן כחולה</string>
-  <string name="bluetooth_setting_enabled">כאשר אנשי קשר בקרבה</string>
-  <string name="bluetooth_setting_disabled">רק בעת הוספת אנשי קשר</string>
-  <string name="tor_network_setting">התחבר באמצעות אינטרנט (Tor)</string>
+  <string name="pref_theme_system">ברירת מחדל</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">אוטומטי על סמך מיקום</string>
-  <string name="tor_network_setting_without_bridges">השתמש ב־Tor בלי גשרים</string>
-  <string name="tor_network_setting_with_bridges">השתמש ב־Tor עם גשרים</string>
-  <string name="tor_network_setting_never">אל תתחבר</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">אוטומטי: %1$s (תוך %2$s)</string>
   <string name="tor_mobile_data_title">השתמש בנתונים סלולריים</string>
-  <string name="tor_only_when_charging_title">התחבר דרך אינטרנט (Tor) רק בעת טעינה</string>
   <string name="tor_only_when_charging_summary">משבית חיבור אינטרנט כשהמכשיר עובד על סוללה</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">אבטחה</string>
@@ -491,7 +468,7 @@
   <string name="panic_setting_hint">קבע כיצד Briar יגיב כשתשתמש ביישום כפתור בהלה</string>
   <string name="panic_app_setting_title">יישום כפתור בהלה</string>
   <string name="unknown_app">יישום בלתי ידוע</string>
-  <string name="panic_app_setting_summary">לא הוגדר יישום</string>
+  <string name="panic_app_setting_summary">יישום לא הוגדר</string>
   <string name="panic_app_setting_none">כלום</string>
   <string name="dialog_title_connect_panic_app">אשר יישום בהלה</string>
   <string name="dialog_message_connect_panic_app">האם אתה בטוח שאתה רוצה להתיר אל %1$s לעורר פעולות הרסניות של כפתור בהלה?</string>
@@ -500,8 +477,6 @@
   <string name="panic_setting_signout_summary">התנתק מן Briar אם כפתור בהלה נלחץ</string>
   <string name="purge_setting_title">מחק חשבון</string>
   <string name="purge_setting_summary">מחק את חשבון Briar שלך אם כפתור בהלה נלחץ. זהירות: זה ימחק לצמיתות את הזהויות, אנשי הקשר וההודעות שלך</string>
-  <string name="uninstall_setting_title">הסר את Briar</string>
-  <string name="uninstall_setting_summary">זה דורש אישור ידני באירוע בהלה</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">התראות</string>
   <string name="notify_sign_in_title">הזכר לי להתחבר</string>
@@ -533,23 +508,23 @@
   <string name="link_warning_text">זה יכול לשמש כדי לזהות אותך. חשוב על האם אתה בוטח באיש ששלח לך קישור זה ושקול לפתוח את הקישור עם דפדפן Tor.</string>
   <string name="link_warning_open_link">פתח קישור</string>
   <!--Crash Reporter-->
-  <string name="crash_report_title">דיווח על קריסת Briar</string>
+  <string name="crash_report_title">דוח קריסת Briar</string>
   <string name="briar_crashed">סליחה, Briar קרס.</string>
   <string name="not_your_fault">זאת לא אשמתך.</string>
-  <string name="please_send_report">אנא עזור לנו לבנות Briar טוב יותר ע\"י שליחת דוח קריסה אלינו.</string>
+  <string name="please_send_report">אנא עזור לנו לבנות Briar טוב יותר ע״י שליחת דוח קריסה אלינו.</string>
   <string name="report_is_encrypted">אנו מבטיחים שהדוח הזה מוצפן ונשלח באופן מאובטח.</string>
   <string name="feedback_title">משוב</string>
   <string name="describe_crash">תאר מה קרה (רשותי)</string>
   <string name="enter_feedback">הכנס את משובך</string>
-  <string name="optional_contact_email">כתובת הדוא\"ל שלך (רשותי)</string>
+  <string name="optional_contact_email">כתובת הדוא״ל שלך (רשותי)</string>
   <string name="include_debug_report_crash">כלול נתונים אלמוניים לגבי הקריסה</string>
   <string name="include_debug_report_feedback">כלול נתונים אלמוניים לגבי מכשיר זה</string>
-  <string name="could_not_load_report_data">לא היה ניתן לטעון נתוני דיווח.</string>
-  <string name="send_report">שלח דיווח</string>
+  <string name="could_not_load_report_data">לא היה ניתן לטעון נתוני דוח.</string>
+  <string name="send_report">שלח דוח</string>
   <string name="close">סגור</string>
   <string name="dev_report_saved">הדוח נשמר. הוא יישלח בפעם הבאה שתתחבר אל Briar.</string>
   <!--Sign Out-->
-  <string name="progress_title_logout">מתנתק מן Briar...</string>
+  <string name="progress_title_logout">מתנתק מן Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">ציפוי מסך התגלה</string>
   <string name="screen_filter_body">יישום אחר מציירת מעל Briar. כדי להגן על אבטחתך, Briar לא יגיב לנגיעות כאשר יישום אחר מצייר מעל.\n\nהיישומים הבאים יכולים לצייר מעל:\n\n%1$s</string>

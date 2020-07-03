@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Lykilorð</string>
   <string name="try_again">Rangt lykilorð, reyndu aftur</string>
+  <string name="dialog_title_cannot_check_password">Get ekki yfirfarið lykilorð</string>
+  <string name="dialog_message_cannot_check_password">Briar getur ekki yfirfarið lykilorðið þitt. Prófaðu að endurræsa tækið þitt til að reyna að leysa þetta vandamál.</string>
   <string name="sign_in_button">Skrá inn</string>
   <string name="forgotten_password">Ég hef gleymt lykilorðinu mínu</string>
   <string name="dialog_title_lost_password">Týnt lykilorð</string>
@@ -96,7 +98,6 @@
   <string name="delete">Eyða</string>
   <string name="accept">Samþykkja</string>
   <string name="decline">Hafna</string>
-  <string name="options">Valkostir</string>
   <string name="online">Nettengt</string>
   <string name="offline">Ónettengt</string>
   <string name="send">Senda</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Bæta við fjarlægum tengilið</string>
   <string name="add_contact_nearby_title">Bæta við nálægum tengilið</string>
   <string name="add_contact_remotely_title">Bæta við fjarlægum tengilið</string>
-  <string name="contact_name_hint">Gefðu tengiliðnum stuttnefni</string>
   <string name="contact_link_intro">Settu hér inn tengilinn frá tengiliðnum þínum</string>
   <string name="contact_link_hint">Tengill á tengilið</string>
   <string name="paste_button">Líma</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Það eru nokkrar tengiliðabeiðnir sem bíða</string>
   <string name="pending_contact_requests">Tengiliðabeiðnir sem bíða</string>
   <string name="no_pending_contacts">Engar tengiliðabeiðnir bíða</string>
-  <string name="add_contact_remote_connecting">Tengist…</string>
   <string name="waiting_for_contact_to_come_online">Bíð eftir að tengiliður tengist netinu…</string>
   <string name="connecting">Tengist…</string>
   <string name="adding_contact">Bæti við tengilið…</string>
@@ -212,9 +211,6 @@
     <item quantity="one">Nýjum tengilið bætt við.</item>
     <item quantity="other">%d nýjum tengiliðum bætt við.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Það að bæta við þessum tengilið tekur lengri tíma en venjulega</string>
-  <string name="adding_contact_slow_title">Tekst ekki að tengjast tengiliðnum</string>
-  <string name="adding_contact_slow_text">Það að bæta við þessum tengilið tekur lengri tíma en venjulega\n\nGakktu úr skugga um að tengiliðurinn þinn hafi fengið tengilinn frá þér og bætt þér við hjá sér:</string>
   <string name="offline_state">Engin internettenging</string>
   <string name="duplicate_link_dialog_title">Endurtekinn tengill</string>
   <string name="duplicate_link_dialog_text_1">Þú ert þegar með tengilið í bið sem er með þessum tengli: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Útbúa kynningu</string>
   <string name="introduction_sent">Kynningin þín hefur verið send.</string>
   <string name="introduction_error">Villa kom upp við kynninguna.</string>
-  <string name="introduction_response_error">Villa kom upp við að svara kynningunni.</string>
   <string name="introduction_request_sent">Þú hefur verið beðin/n um að kynna %1$s fyrir %2$s.</string>
   <string name="introduction_request_received">%1$s hefur beðið um að fá að kynna þig fyrir %2$s. Viltu bæta %2$s við tengiliðalistann þinn?</string>
   <string name="introduction_request_exists_received">%1$s hefur beðið um að fá að kynna þig fyrir %2$s, en %2$s er þegar í tengiliðalistanum þínum. Þar sem ekki er víst að %1$s viti það, þá geturðu samt svarað:</string>
@@ -413,20 +408,11 @@
   <string name="pref_theme_dark">Dökkt</string>
   <string name="pref_theme_auto">Sjálfvirkt (eftir tíma dags)</string>
   <string name="pref_theme_system">Sjálfgefið í kerfinu</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Netkerfi</string>
-  <string name="bluetooth_setting">Tengjast í gegnum Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Alltaf þegar tengiliðir eru nálægt</string>
-  <string name="bluetooth_setting_disabled">Aðeins þegar tengiliðum er bætt við</string>
-  <string name="tor_network_setting">Tengjast í gegnum internetið (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Sjálfvirkt byggt á staðsetningu</string>
-  <string name="tor_network_setting_without_bridges">Nota Tor án brúa</string>
-  <string name="tor_network_setting_with_bridges">Nota Tor með brúm</string>
-  <string name="tor_network_setting_never">Ekki tengjast</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Sjálfvirkt: %1$s (eftir %2$s)</string>
   <string name="tor_mobile_data_title">Nota farsímagagnasamband</string>
-  <string name="tor_only_when_charging_title">Tengjast í gegnum internetið (Tor) aðeins þegar verið er í hleðslu</string>
   <string name="tor_only_when_charging_summary">Gerir internettengingu óvirka þegar tækið keyrir á rafhlöðu</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Öryggi</string>
@@ -467,8 +453,6 @@
   <string name="panic_setting_signout_summary">Skrá út úr Briar ef ýtt er á neyðarhnapp</string>
   <string name="purge_setting_title">Eyða notandaaðgangi</string>
   <string name="purge_setting_summary">Eyða Briar-aðgangnum þínum ef ýtt er á neyðarhnapp. Varúð: Þetta mun eyða endanlega auðkennunum þínum, tengiliðum og skilaboðum</string>
-  <string name="uninstall_setting_title">Fjarlægja Briar</string>
-  <string name="uninstall_setting_summary">Þetta krefst handvirkrar staðfestingar komi upp neyðarástand</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Tilkynningar</string>
   <string name="notify_sign_in_title">Minna mig á að skrá inn</string>

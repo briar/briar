@@ -89,7 +89,6 @@
   <string name="delete">刪除</string>
   <string name="accept">接受</string>
   <string name="decline">謝絕</string>
-  <string name="options">選項</string>
   <string name="online">在線</string>
   <string name="offline">離線</string>
   <string name="send">發送</string>
@@ -153,7 +152,6 @@
   <string name="add_contact_remotely_title_case">添加遠處的聯絡人</string>
   <string name="add_contact_nearby_title">添加附近的聯絡人</string>
   <string name="add_contact_remotely_title">添加遠處的聯絡人</string>
-  <string name="contact_name_hint">給聯絡人暱稱</string>
   <string name="contact_link_intro">在此輸入您的聯絡人的鏈接</string>
   <string name="contact_link_hint">聯絡人的鏈接</string>
   <string name="paste_button">貼上</string>
@@ -171,7 +169,6 @@
   <string name="pending_contact_requests_snackbar">有未處理的聯絡人請求</string>
   <string name="pending_contact_requests">未處理的聯絡人請求</string>
   <string name="no_pending_contacts">沒有未處理的聯絡人</string>
-  <string name="add_contact_remote_connecting">連接中……</string>
   <string name="waiting_for_contact_to_come_online">正等待聯絡人上網…</string>
   <string name="connecting">連接中……</string>
   <string name="adding_contact">正在添加聯絡人……</string>
@@ -191,9 +188,6 @@
   <plurals name="contact_added_notification_text">
     <item quantity="other">%d 新聯絡人已添加。</item>
   </plurals>
-  <string name="adding_contact_slow_warning">添加聯絡人需時過長</string>
-  <string name="adding_contact_slow_title">不能連接至聯絡人</string>
-  <string name="adding_contact_slow_text">添加聯絡人需時過長。\n\n請檢查聯絡人已收到您的鏈接並且已添加您：</string>
   <string name="offline_state">無互聯網連接</string>
   <string name="duplicate_link_dialog_title">重覆的鏈接</string>
   <string name="duplicate_link_dialog_text_1">您已經有此鏈接的聯絡人，尚待處理：%s</string>
@@ -220,7 +214,6 @@
   <string name="introduction_button">做介紹</string>
   <string name="introduction_sent">您的介紹已發送。</string>
   <string name="introduction_error">介紹時發生錯誤。</string>
-  <string name="introduction_response_error">回覆介紹時出錯</string>
   <string name="introduction_request_sent">您已將 %1$s 介紹給 %2$s。</string>
   <string name="introduction_request_received">%1$s 想要將您介紹給 %2$s。您希望將 %2$s 添加至您的聯絡人列表中嗎？</string>
   <string name="introduction_request_exists_received">%1$s 想要將您介紹給 %2$s，但是 %2$s 已經在您的聯絡人列表中。%1$s 可能並不知情，但您仍可以做出回覆：</string>
@@ -387,20 +380,11 @@
   <string name="pref_theme_dark">深色</string>
   <string name="pref_theme_auto">自動（白天）</string>
   <string name="pref_theme_system">系統默認</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">網絡</string>
-  <string name="bluetooth_setting">通過藍牙連接</string>
-  <string name="bluetooth_setting_enabled">只要聯絡人在附近時</string>
-  <string name="bluetooth_setting_disabled">僅在添加聯絡人時</string>
-  <string name="tor_network_setting">通過互聯網連接（Tor）</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">基於位置自動選擇</string>
-  <string name="tor_network_setting_without_bridges">不通過網橋連接到 Tor</string>
-  <string name="tor_network_setting_with_bridges">通過網橋連接到 Tor</string>
-  <string name="tor_network_setting_never">不要連接</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">自動選擇：%1$s（在 %2$s）</string>
   <string name="tor_mobile_data_title">使用移動數據</string>
-  <string name="tor_only_when_charging_title">只有在充電時通過網絡（Tor）連接</string>
   <string name="tor_only_when_charging_summary">當裝置使用電池電量時關閉網絡連接</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
@@ -441,8 +425,6 @@
   <string name="panic_setting_signout_summary">觸發緊急開關時登出 Briar</string>
   <string name="purge_setting_title">刪除帳戶</string>
   <string name="purge_setting_summary">觸發緊急開關時刪除您的 Briar 帳戶。注意：這將導致您的身份、聯絡人和訊息永久丟失。</string>
-  <string name="uninstall_setting_title">卸載 Briar</string>
-  <string name="uninstall_setting_summary">需要確認緊急事件</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">消息通知</string>
   <string name="notify_sign_in_title">提醒我登錄</string>

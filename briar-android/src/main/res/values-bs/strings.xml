@@ -74,7 +74,6 @@
   <string name="delete">Obriši</string>
   <string name="accept">Prihvati</string>
   <string name="decline">Odbij</string>
-  <string name="options">Opcije</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Pošalji</string>
@@ -138,7 +137,6 @@
   <string name="add_contact_remotely_title_case">Dodaj udaljeni konktakt</string>
   <string name="add_contact_nearby_title">Dodaj kontakt koji je u blizini</string>
   <string name="add_contact_remotely_title">Dodaj udaljeni kontakt</string>
-  <string name="contact_name_hint">Dodjeli kontaktu nadimak</string>
   <string name="contact_link_intro">Unesite link vašeg kontakta ovdje</string>
   <string name="contact_link_hint">Kontaktov link</string>
   <string name="paste_button">Zalepi</string>
@@ -156,7 +154,6 @@
   <string name="pending_contact_requests_snackbar">Postoje zahtjevi za kontaktima koji čekanju</string>
   <string name="pending_contact_requests">Zahtjevi za kontaktima na čekanju</string>
   <string name="no_pending_contacts">Nema Zahtjeva za kontaktima na čekanju</string>
-  <string name="add_contact_remote_connecting">Konektovanje…</string>
   <string name="waiting_for_contact_to_come_online">Čekanje da kontakt bude online…</string>
   <string name="connecting">Konektovanje…</string>
   <string name="adding_contact">Dodavanje kontakta...</string>
@@ -173,9 +170,6 @@
   <string name="step_1">1</string>
   <!--This is a numeral indicating the second step in a series of screens-->
   <string name="step_2">2</string>
-  <string name="adding_contact_slow_warning">Dodavanje ovog kontakta traje duže nego obično</string>
-  <string name="adding_contact_slow_title">Nije moguće povezivanje sa kontaktom</string>
-  <string name="adding_contact_slow_text">Dodavanje ovog kontakta traje duže nego obično.\n\nMolim vas provjerite da li je vaš kontakt dobio vaš link i dodao vas:</string>
   <string name="offline_state">Nema konekcije na internet</string>
   <string name="duplicate_link_dialog_title">Duliciran Link</string>
   <string name="duplicate_link_dialog_text_1">Već imate kontakta na čekanju sa ovim linkom: %s</string>
@@ -202,7 +196,6 @@
   <string name="introduction_button">Izvršite upoznavanje</string>
   <string name="introduction_sent">Vaše poziv na upoznavanje je poslat</string>
   <string name="introduction_error">Došlo je do greške pri izvršenju upoznavanja.</string>
-  <string name="introduction_response_error">Greška pri odgovoru na upoznavanje</string>
   <string name="introduction_request_sent">Tražili ste da se %1$s i %2$s upoznaju.</string>
   <string name="introduction_request_received">%1$s je tražio da vas upozna sa %2$s. Da li želite da dodate %2$s u vašu listu kontakata?</string>
   <string name="introduction_request_exists_received">%1$s je tražio da vas upozna sa %2$s, ali %2$s je već u vašoj listi kontakata. Pošto %1$s to možda ne zna, vi i dalje možete da odgovorite: </string>
@@ -357,20 +350,11 @@
   <string name="pref_theme_dark">Tamna</string>
   <string name="pref_theme_auto">Automatski (Dnevno)</string>
   <string name="pref_theme_system">Podrazumjevane postavke sistema</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Mreže</string>
-  <string name="bluetooth_setting">Povežite se preko Bluetooth-a</string>
-  <string name="bluetooth_setting_enabled">Kad god su kontakti blizu</string>
-  <string name="bluetooth_setting_disabled">Samo pri dodavanju kontakata</string>
-  <string name="tor_network_setting">Konektuj se preko Interneta (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automatski prema na lokaciji</string>
-  <string name="tor_network_setting_without_bridges">Koristi Tor bez mostova</string>
-  <string name="tor_network_setting_with_bridges">Koristi Tor sa mostovima</string>
-  <string name="tor_network_setting_never">Ne konektuj se</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatski: %1$s (za %2$s)</string>
   <string name="tor_mobile_data_title">Koristi mobilinu mrežu</string>
-  <string name="tor_only_when_charging_title">Konektuj se preko Interneta (Tor) samo tokom punjenja uređaja</string>
   <string name="tor_only_when_charging_summary">Onemogući interent konekciju kada se uređaj napaja samo sa baterijie</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sigurnost</string>
@@ -411,8 +395,6 @@
   <string name="panic_setting_signout_summary">Izloguj se iz Briar-a ako je pritisnuto panik dugme</string>
   <string name="purge_setting_title">Izbriši račun</string>
   <string name="purge_setting_summary">Izbriši Briar račun ako je panik dugme pritisnuto. Pažnja: Ovo će trajno izbrisati vaše identitete, kontakte i poruke</string>
-  <string name="uninstall_setting_title">Deinstaliraj Briar</string>
-  <string name="uninstall_setting_summary">Ovo zahtijeva ručnu potvrdu u slučaju panike</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Obavještenja</string>
   <string name="notify_sign_in_title">Podsjeti me da se prijavim</string>

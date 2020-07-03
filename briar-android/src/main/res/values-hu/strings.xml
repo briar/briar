@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Jelszó</string>
   <string name="try_again">Hibás jelszó, próbáld újra</string>
+  <string name="dialog_title_cannot_check_password">A jelszót nem sikerült ellenőrizni</string>
+  <string name="dialog_message_cannot_check_password">A Briar nem tudta ellenőrizni jelszavát. Kérjük indítja újra az eszközét a probléma megoldásához.</string>
   <string name="sign_in_button">Bejelentkezés</string>
   <string name="forgotten_password">Elfelejtettem a jelszavam</string>
   <string name="dialog_title_lost_password">Elveszett jelszó</string>
@@ -96,7 +98,6 @@
   <string name="delete">Töröl</string>
   <string name="accept">Elfogad</string>
   <string name="decline">Megtagad</string>
-  <string name="options">Opciók</string>
   <string name="online">Csatlakozva</string>
   <string name="offline">Offline</string>
   <string name="send">Küldés</string>
@@ -128,6 +129,13 @@
   <string name="dialog_title_delete_all_messages">Üzenet törlés megerősítése</string>
   <string name="dialog_message_delete_all_messages">Biztos, hogy szeretné törölni összes üzenetét?</string>
   <string name="dialog_title_not_all_messages_deleted">Nem törölhető minden üzenet</string>
+  <string name="dialog_message_not_deleted_ongoing_both">A folyamatban lévő meghívásokkal és bemutatkozásokkal kapcsolatos  üzenetek nem törölhetők, amíg nem teljesülnek.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">A folyamatban lévő bemutatkozásokkal kapcsolatos üzenetek nem törölhetők, amíg nem teljesülnek.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">A folyamatban lévő meghívásokkal kapcsolatos üzenetek nem törölhetők, amíg nem teljesülnek.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">A részben letöltött üzenetek nem törölhetők, amíg nem töltődnek le teljesen.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Egy meghívás vagy bemutatkozás törléséhez ki kell jelölnie a kérelmet és a választ.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Egy bemutatkozás törléséhez ki kell jelölnie a kérelmet és a választ.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Egy meghívás törléséhez ki kell jelölnie a kérelmet és a választ.</string>
   <string name="delete_contact">Kapcsolat törlése</string>
   <string name="dialog_title_delete_contact">Kapcsolat törlésének megerősítése</string>
   <string name="dialog_message_delete_contact">Biztosan eltávolítja ezt a kapcsolatot és minden vele történt üzenetváltását?</string>
@@ -168,7 +176,6 @@ Biztosan szeretné menteni?</string>
   <string name="add_contact_remotely_title_case">Távoli kapcsolat hozzá adása</string>
   <string name="add_contact_nearby_title">Közeli kapcsolat hozzáadása</string>
   <string name="add_contact_remotely_title">Távoli kapcsolat hozzá adása</string>
-  <string name="contact_name_hint">Adjon a kapcsolatnak becenevet</string>
   <string name="contact_link_intro">Írj a be a linket a kapcsolatától ide</string>
   <string name="contact_link_hint">Kapcsolat linkje</string>
   <string name="paste_button">Beilleszt</string>
@@ -186,7 +193,6 @@ Biztosan szeretné menteni?</string>
   <string name="pending_contact_requests_snackbar">Vannak még folyamatban lévő kérelmek</string>
   <string name="pending_contact_requests">Folyamatban lévő kapcsolati kérelmek</string>
   <string name="no_pending_contacts">Nincs várakozó kapcsolat</string>
-  <string name="add_contact_remote_connecting">Csatlakozás...</string>
   <string name="waiting_for_contact_to_come_online">Várakozás a kapcsolatra, hogy online legyen...</string>
   <string name="connecting">Csatlakozás...</string>
   <string name="adding_contact">Kapcsolat hozzáadása...</string>
@@ -208,9 +214,6 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
     <item quantity="one">Új kapcsolat hozzáadva.</item>
     <item quantity="other">%d új kapcsolat hozzáadva</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Ennek a kapcsolatnak a hozzáadása a szokásosnál tovább tart</string>
-  <string name="adding_contact_slow_title">Sikertelen csatlakozás a kapcsolathoz</string>
-  <string name="adding_contact_slow_text">Ennek a kapcsolatnak a hozzáadása tovább tart, mint általában.\n\nKérjük ellenőrizze, hogy a kapcsolata megkapta-e a linket és hozzáadta-e Önt:</string>
   <string name="offline_state">Nincs internet kapcsolat</string>
   <string name="duplicate_link_dialog_title">Duplikált link</string>
   <string name="duplicate_link_dialog_text_1">Önnek már van várakozó kapcsolata ezzel a linkkel: %s</string>
@@ -238,7 +241,6 @@ Kérjük frissítsen a legutolsó verzióra és próbálja újra.</string>
   <string name="introduction_button">Bemutatkozás készítése</string>
   <string name="introduction_sent">A bemutatkozása elküldésre került.</string>
   <string name="introduction_error">Hiba történt a bemutatkozás létrehozásakor.</string>
-  <string name="introduction_response_error">Hiba történt a bemutatkozásra válaszkor</string>
   <string name="introduction_request_sent">Megkértek, hogy mutasd be egymásnak %1$s és %2$s személyeket.</string>
   <string name="introduction_request_received">%1$s szeretne bemutatni %2$s személynek. Szeretné hozzáadni %2$s személyt a kapcsolataihoz?</string>
   <string name="introduction_request_exists_received">%1$s megkérve lett, hogy mutassa be Önt  személynek, de %2$s már a kapcsolatai között található. Mivel %1$s erről nem tudhat, továbbra is válaszolhatja a következőket:</string>
@@ -414,20 +416,12 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="pref_theme_dark">Sötét</string>
   <string name="pref_theme_auto">Automatikus (napszaknak megfelelő)</string>
   <string name="pref_theme_system">Rendszer alapértelmezett</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Hálózatok</string>
-  <string name="bluetooth_setting">Csatlakozás bluetooth-on keresztül</string>
-  <string name="bluetooth_setting_enabled">Amikor kapcsolatok vannak a közelben</string>
-  <string name="bluetooth_setting_disabled">Amikor kapcsolatokat adok hozzá</string>
-  <string name="tor_network_setting">Csatlakozás interneten (Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Kapcsolatok</string>
   <string name="tor_network_setting_automatic">Automatikusan hely alapján</string>
-  <string name="tor_network_setting_without_bridges">Tor használata hidak nélkül</string>
-  <string name="tor_network_setting_with_bridges">Tor használata hidakkal</string>
-  <string name="tor_network_setting_never">Ne csatlakozzon</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatikus: %1$s ( %2$s)</string>
   <string name="tor_mobile_data_title">Mobil adat használata</string>
-  <string name="tor_only_when_charging_title">Csatlakozás az internethez Tor-ral, töltés alatt</string>
   <string name="tor_only_when_charging_summary">Letiltja az internet kapcsolatot, amikor elemről fut az eszköz</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Biztonság</string>
@@ -469,8 +463,6 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="purge_setting_title">Fiók törlése</string>
   <string name="purge_setting_summary">A Briar fiók törlése a pánik gomb megnyomásakor.
 Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</string>
-  <string name="uninstall_setting_title">Briar eltávolítása</string>
-  <string name="uninstall_setting_summary">Ez kézi jóváhagyását igényli a pánik eseménynek</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Értesítések</string>
   <string name="notify_sign_in_title">Emlékeztessen a bejlentkezésre</string>

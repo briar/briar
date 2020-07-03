@@ -94,7 +94,6 @@
   <string name="delete">हटाना</string>
   <string name="accept">स्वीकारें</string>
   <string name="decline">पतन</string>
-  <string name="options">विकल्प</string>
   <string name="online">ऑनलाइन</string>
   <string name="offline">ऑफलाइन</string>
   <string name="send">भेजना</string>
@@ -158,7 +157,6 @@
   <string name="add_contact_remotely_title_case">दूरी वाले संपर्क जोड़ें</string>
   <string name="add_contact_nearby_title">आस-पास वाले संपर्क जोड़ें</string>
   <string name="add_contact_remotely_title">दूरी वाले संपर्क जोड़ें</string>
-  <string name="contact_name_hint">संपर्क को एक उपनाम दें</string>
   <string name="contact_link_intro">यहां अपने संपर्क से लिंक दर्ज करें</string>
   <string name="contact_link_hint">संपर्क का लिंक</string>
   <string name="paste_button">चिपकाएं</string>
@@ -176,7 +174,6 @@
   <string name="pending_contact_requests_snackbar">संपर्क अनुरोध लंबित हैं</string>
   <string name="pending_contact_requests">लंबित संपर्क अनुरोध</string>
   <string name="no_pending_contacts">कोई लंबित संपर्क नहीं</string>
-  <string name="add_contact_remote_connecting">कनेक्ट हो रहा है ...</string>
   <string name="waiting_for_contact_to_come_online">संपर्क की ऑनलाइन आने की प्रतीक्षा की जा रही है...</string>
   <string name="connecting">कनेक्ट हो रहा है ...</string>
   <string name="adding_contact">संपर्क जोड़ रहा है ...</string>
@@ -197,9 +194,6 @@
     <item quantity="one">नया संपर्क जोड़ा गया|</item>
     <item quantity="other">%d नए संपर्क जोड़े गए</item>
   </plurals>
-  <string name="adding_contact_slow_warning">इस संपर्क को जोड़ने में सामान्य से अधिक समय लग रहा है</string>
-  <string name="adding_contact_slow_title">संपर्क से जुड़ नहीं कर सकता</string>
-  <string name="adding_contact_slow_text">इस संपर्क को जोड़ने में सामान्य से अधिक समय लग रहा है। \n\n कृपया जांचें कि आपके संपर्क ने आपका लिंक प्राप्त कर लिया है और आपको जोड़ दिया है:</string>
   <string name="offline_state">कोई इंटरनेट कनेक्शन नहीं</string>
   <string name="duplicate_link_dialog_title">प्रतिलिपि लिंक</string>
   <string name="duplicate_link_dialog_text_1">आपके पास इस लिंक के साथ पहले से ही एक लंबित संपर्क है: %s</string>
@@ -226,7 +220,6 @@
   <string name="introduction_button">परिचय करें</string>
   <string name="introduction_sent">आपका परिचय भेजा गया है।</string>
   <string name="introduction_error">परिचय बनाने में एक त्रुटि हुई।</string>
-  <string name="introduction_response_error">परिचय का जवाब देने में त्रुटि</string>
   <string name="introduction_request_sent">आपने%2$s से%1$s का परिचय देने के लिए कहा है</string>
   <string name="introduction_request_received">%1$sने आपको%2$s में पेश करने को कहा है क्या आप अपनी संपर्क सूची में%2$s जोड़ना चाहते हैं?</string>
   <string name="introduction_request_exists_received">%1$sने आपको%2$s में लाने के लिए कहा है, लेकिन%2$s आपकी संपर्क सूची में पहले से मौजूद है। चूंकि%1$s शायद यह नहीं जान पाए, आप फिर भी जवाब दे सकते हैं:</string>
@@ -397,20 +390,11 @@
   <string name="pref_theme_dark">अंधेरा</string>
   <string name="pref_theme_auto">स्वचालित (दिन का समय)</string>
   <string name="pref_theme_system">प्रणालीगत चूक</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">नेटवर्क</string>
-  <string name="bluetooth_setting">ब्लूटूथ के माध्यम से कनेक्ट करें</string>
-  <string name="bluetooth_setting_enabled">जब भी संपर्क आस-पास हो</string>
-  <string name="bluetooth_setting_disabled">केवल जब संपर्क जोड़ते हैं</string>
-  <string name="tor_network_setting">इंटरनेट (टोर) के माध्यम से कनेक्ट करें</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">स्वचालित स्थान पर आधारित</string>
-  <string name="tor_network_setting_without_bridges">पुलों के बिना टोर का प्रयोग करें</string>
-  <string name="tor_network_setting_with_bridges">पुलों के साथ टोर का प्रयोग करें</string>
-  <string name="tor_network_setting_never">कनेक्ट मत करो</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">स्वचालित:%1$s (में %2$s)</string>
   <string name="tor_mobile_data_title">मोबाइल डेटा का प्रयोग करें</string>
-  <string name="tor_only_when_charging_title">चार्ज होने पर ही इंटरनेट (टोर) से कनेक्ट करें</string>
   <string name="tor_only_when_charging_summary">जब यंत्र बैटरी पर चल रहा हो तो इंटरनेट संबंध को निष्क्रिय कर देता है</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">सुरक्षा</string>
@@ -451,8 +435,6 @@
   <string name="panic_setting_signout_summary">यदि कोई आतंक बटन दबाया जाता है तो Briar  से साइन आउट करें</string>
   <string name="purge_setting_title">खाता हटा दो</string>
   <string name="purge_setting_summary">यदि आपका आतंक बटन दबाया गया हो तो अपने Briar  खाते को हटा दें। सावधानी: यह आपकी पहचान, संपर्क और संदेश को स्थायी रूप से हटा देगा</string>
-  <string name="uninstall_setting_title">Briar  की स्थापना रद्द करें</string>
-  <string name="uninstall_setting_summary">इसके लिए एक आतंक घटना में मैन्युअल पुष्टिकरण की आवश्यकता है</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">सूचनाएं</string>
   <string name="notify_sign_in_title">मुझे साइन इन करने के लिए याद दिलाएं</string>

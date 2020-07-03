@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Contrasenya</string>
   <string name="try_again">La contrasenya és incorrecta, torneu a escriure-la</string>
+  <string name="dialog_title_cannot_check_password">No es pot verificar la contrasenya</string>
+  <string name="dialog_message_cannot_check_password">El Briar no pot verificar la contrasenya. Proveu de reiniciar el vostre aparell per a solucionar aquest problema.</string>
   <string name="sign_in_button">Inicia la sessió</string>
   <string name="forgotten_password">No recordo la contrasenya</string>
   <string name="dialog_title_lost_password">Contrasenya perduda</string>
@@ -96,7 +98,6 @@
   <string name="delete">Suprimeix</string>
   <string name="accept">Accepta</string>
   <string name="decline">Refusa</string>
-  <string name="options">Opcions</string>
   <string name="online">En línia</string>
   <string name="offline">Fora de línia</string>
   <string name="send">Envia</string>
@@ -128,6 +129,13 @@
   <string name="dialog_title_delete_all_messages">Confirmeu la supressió dels missatges</string>
   <string name="dialog_message_delete_all_messages">Esteu segur que voleu suprimir tots els missatges?</string>
   <string name="dialog_title_not_all_messages_deleted">No s\'ha pogut suprimir tots els missatges</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Els missatges relacionats amb introduccions i invitacions pendents no es poden suprimir fins que es finalitzin.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Els missatges relacionats amb introduccions pendents no es poden suprimir fins que es finalitzin.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Els missatges relacionats amb invitacions pendents no es poden suprimir fins que es finalitzin.</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Els missatges baixats parcialment no es poden suprimir fins que s\'acabin de baixar.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Per a suprimir una invitació o una introducció, cal que seleccioneu la sol·licitdu i la resposta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Per a suprimir una introducció, cal que seleccioneu la sol·licitud i la resposta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Per a suprimir una invitació, cal que seleccioneu la sol·licitud i la resposta.</string>
   <string name="delete_contact">Suprimeix aquest contacte</string>
   <string name="dialog_title_delete_contact">Confirmeu la supressió del contacte</string>
   <string name="dialog_message_delete_contact">Segur que voleu suprimir aquest contacte i tots els missatges que us heu intercanviat?</string>
@@ -167,7 +175,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="add_contact_remotely_title_case">Afegeix un contacte llunyà</string>
   <string name="add_contact_nearby_title">Afegeix un contacte proper</string>
   <string name="add_contact_remotely_title">Afegeix un contacte llunyà</string>
-  <string name="contact_name_hint">Doneu un sobrenom al contacte</string>
   <string name="contact_link_intro">Escriviu l\'enllaç del vostre contacte</string>
   <string name="contact_link_hint">Enllaç del contacte</string>
   <string name="paste_button">Enganxa</string>
@@ -185,7 +192,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="pending_contact_requests_snackbar">Hi ha sol·licituds de contacte pendents</string>
   <string name="pending_contact_requests">Sol·licituds de contacte pendents</string>
   <string name="no_pending_contacts">No hi ha sol·licituds de contacte pendents</string>
-  <string name="add_contact_remote_connecting">S\'està connectant...</string>
   <string name="waiting_for_contact_to_come_online">S\'està esperant que el contacte estigui connectat…</string>
   <string name="connecting">S\'està connectant...</string>
   <string name="adding_contact">S\'està afegint el contacte…</string>
@@ -206,9 +212,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
     <item quantity="one">S\'ha afegit el nou contacte </item>
     <item quantity="other">S\'han afegit %d nous contactes.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Afegir aquest contacte està trigant més que de costum…</string>
-  <string name="adding_contact_slow_title">No pot connectar-se al contacte</string>
-  <string name="adding_contact_slow_text">Afegir aquest contacte està trigant més que de costum.\n\nComproveu que el contacte ha rebut el vostre enllaç i també us ha afegit.</string>
   <string name="offline_state">No hi ha connexió a Internet</string>
   <string name="duplicate_link_dialog_title">Enllaç duplicat</string>
   <string name="duplicate_link_dialog_text_1">Teniu una sol·licitud de contacte pendent amb l\'enllaç %s</string>
@@ -236,7 +239,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="introduction_button">Presenta\'ls</string>
   <string name="introduction_sent">S\'ha enviat la vostra presentació.</string>
   <string name="introduction_error">Hi ha hagut un error en presentar els contactes.</string>
-  <string name="introduction_response_error">Error en respondre a la presentació</string>
   <string name="introduction_request_sent">Heu demanat fer les presentacions per a que %1$s i %2$s es coneguin.</string>
   <string name="introduction_request_received">%1$s us vol presentar a %2$s. Voleu afegir a%2$s a la vostra llista de contactes?</string>
   <string name="introduction_request_exists_received">%1$s us vol presentar a %2$s, però ja teniu a %2$s a la llista de contactes. Atès que segurament %1$s no ho sabia, encara el podeu contestar:</string>
@@ -407,20 +409,11 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="pref_theme_dark">Fosc</string>
   <string name="pref_theme_auto">Automàtic (segons l\'hora)</string>
   <string name="pref_theme_system">Valor per defecte del sistema</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Xarxes</string>
-  <string name="bluetooth_setting">Connecta via bluetooth</string>
-  <string name="bluetooth_setting_enabled">Sempre que hi hagi contactes propers</string>
-  <string name="bluetooth_setting_disabled">Només quan s\'afegeixen contactes</string>
-  <string name="tor_network_setting">Connecta a través d\'Internet (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automàtic, basat en la posició</string>
-  <string name="tor_network_setting_without_bridges">Usa Tor sense ponts</string>
-  <string name="tor_network_setting_with_bridges">Usa Tor amb ponts</string>
-  <string name="tor_network_setting_never">No et connectis</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automàtic: %1$s (a %2$s)</string>
   <string name="tor_mobile_data_title">Usa dades mòbils</string>
-  <string name="tor_only_when_charging_title">Connecta a través d\'Internet (Tor) només quan s\'estigui carregant</string>
   <string name="tor_only_when_charging_summary">Desactiva la connexió a Internet quan el dispositiu estigui funcionant amb la bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
@@ -461,8 +454,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="panic_setting_signout_summary">Tanca la sessió de Briar si es prem un botó de pànic</string>
   <string name="purge_setting_title">Esborreu el compte</string>
   <string name="purge_setting_summary">Suprimeix el compte de Briar si es prem el botó de pànic. Atenció: En aquest cas, s\'eliminarien permanentment les vostres identitats, contactes i missatges</string>
-  <string name="uninstall_setting_title">Desinstal·leu Briar</string>
-  <string name="uninstall_setting_summary">Això requeria la confirmació manual malgrat ser en una situació de pànic</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificacions</string>
   <string name="notify_sign_in_title">Recorda\'m que iniciï la sessió</string>

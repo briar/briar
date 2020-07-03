@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Contraseña</string>
   <string name="try_again">Contraseña incorrecta, inténtalo de nuevo</string>
+  <string name="dialog_title_cannot_check_password">Imposible comprobar la contraseña</string>
+  <string name="dialog_message_cannot_check_password">Briar no ha podido comprobar tu contraseña. Por favor, prueba a reiniciar tu dispositivo para resolver el problema.</string>
   <string name="sign_in_button">Iniciar sesión</string>
   <string name="forgotten_password">He olvidado mi contraseña</string>
   <string name="dialog_title_lost_password">Contraseña perdida</string>
@@ -96,7 +98,6 @@
   <string name="delete">Borrar</string>
   <string name="accept">Aceptar</string>
   <string name="decline">Rechazar</string>
-  <string name="options">Opciones</string>
   <string name="online">En línea</string>
   <string name="offline">Fuera de línea</string>
   <string name="send">Enviar</string>
@@ -125,7 +126,7 @@
   <string name="set_contact_alias_hint">Nombre del contacto</string>
   <string name="set_alias_button">Cambiar</string>
   <string name="delete_all_messages">Eliminar todos los mensajes</string>
-  <string name="dialog_title_delete_all_messages">Confirmar eliminación de mensajes</string>
+  <string name="dialog_title_delete_all_messages">Confirmar la eliminación del mensaje</string>
   <string name="dialog_message_delete_all_messages">¿Estás seguro de que deseas eliminar todos los mensajes?</string>
   <string name="dialog_title_not_all_messages_deleted">No se pudieron eliminar todos los mensajes.</string>
   <string name="dialog_message_not_deleted_ongoing_both">Los mensajes relacionados con presentaciones o invitaciones en curso no se pueden eliminar hasta que finalicen.</string>
@@ -152,7 +153,7 @@
   <string name="dialog_message_image_support">Pulsa este ícono para adjuntar imágenes.</string>
   <string name="messaging_too_many_attachments_toast">Solo se enviarán las primeras %d  imágenes</string>
   <!--Adding Contacts-->
-  <string name="add_contact_title">Agregar Contacto Cercano</string>
+  <string name="add_contact_title">Agregar contacto cercano</string>
   <string name="face_to_face">Debes reunirte con la persona a la que quieras añadir como contacto.\n\nHaciéndolo así prevendrás que nadie te suplante o pueda leer tus mensajes en el futuro.</string>
   <string name="continue_button">Continuar</string>
   <string name="try_again_button">Prueba de nuevo</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Añadir un Contacto a Distancia</string>
   <string name="add_contact_nearby_title">Agregar un contacto cercano</string>
   <string name="add_contact_remotely_title">Añadir un contacto a distancia</string>
-  <string name="contact_name_hint">Ponerle un sobrenombre al contacto</string>
   <string name="contact_link_intro">Introduzca el enlace de su contacto aquí</string>
   <string name="contact_link_hint">Enlace de contacto</string>
   <string name="paste_button">Pegar</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Hay solicitudes de contacto pendientes</string>
   <string name="pending_contact_requests">Solicitudes de contacto pendientes</string>
   <string name="no_pending_contacts">No hay contactos pendientes</string>
-  <string name="add_contact_remote_connecting">Conectando...</string>
   <string name="waiting_for_contact_to_come_online">Esperando que el contacto se ponga en línea....</string>
   <string name="connecting">Conectando...</string>
   <string name="adding_contact">Añadir contacto....</string>
@@ -212,9 +211,6 @@
     <item quantity="one">Nuevo contacto añadido.</item>
     <item quantity="other">%d nuevos contactos añadidos.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Añadir este contacto tarda más de lo habitual</string>
-  <string name="adding_contact_slow_title">No se puede conectar con el contacto</string>
-  <string name="adding_contact_slow_text">Agregar este contacto está tomando más tiempo de lo normal.\n\nPor favor, compruebe que su contacto ha recibido su enlace y lo ha agregado:</string>
   <string name="offline_state">No hay conexión a Internet</string>
   <string name="duplicate_link_dialog_title">Duplicar enlace</string>
   <string name="duplicate_link_dialog_text_1">Ya tiene un contacto pendiente con este enlace: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Hacer presentación</string>
   <string name="introduction_sent">Tu presentación se ha mandado.</string>
   <string name="introduction_error">Ocurrió un error realizando la presentación.</string>
-  <string name="introduction_response_error">Error al responder a la presentación</string>
   <string name="introduction_request_sent">Le has preguntado a %1$s si quiere que le presentes a %2$s.</string>
   <string name="introduction_request_received">%1$s ha pedido presentarte a %2$s. ¿Quieres añadir a %2$s a tu lista de contactos?</string>
   <string name="introduction_request_exists_received">%1$s ha pedido presentarte a %2$s, pero %2$s ya está en tu lista de contactos. %1$s puede no saberlo, así que puedes responderle de todas maneras:</string>
@@ -413,20 +408,12 @@
   <string name="pref_theme_dark">Oscuro</string>
   <string name="pref_theme_auto">Automático (Diurno)</string>
   <string name="pref_theme_system">Predeterminado del sistema</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Redes</string>
-  <string name="bluetooth_setting">Conectar mediante Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Cuando haya contactos cerca</string>
-  <string name="bluetooth_setting_disabled">Solo al añadir contactos</string>
-  <string name="tor_network_setting">Conectar vía Internet (Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Conexiones</string>
   <string name="tor_network_setting_automatic">Automático basado en ubicación</string>
-  <string name="tor_network_setting_without_bridges">Usar Tor sin puentes de red</string>
-  <string name="tor_network_setting_with_bridges">Usar Tor con puentes de red</string>
-  <string name="tor_network_setting_never">No conectar</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automática: %1$s (en %2$s)</string>
   <string name="tor_mobile_data_title">Usar datos móviles</string>
-  <string name="tor_only_when_charging_title">Conectar vía Internet (Tor) solamente cuando está cargando</string>
   <string name="tor_only_when_charging_summary">Deshabilita la conexión a Internet cuando el dispositivo está corriendo con batería.</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguridad</string>
@@ -467,8 +454,6 @@
   <string name="panic_setting_signout_summary">Cerrar la sesión de Briar si se pulsa un botón de pánico</string>
   <string name="purge_setting_title">Eliminar cuenta</string>
   <string name="purge_setting_summary">Eliminar tu cuenta de Briar si se pulsa un botón de pánico. Precaución: esto eliminará permanentemente tus identidades, contactos y mensajes</string>
-  <string name="uninstall_setting_title">Desinstalar Briar</string>
-  <string name="uninstall_setting_summary">Requerirá confirmación manual en un evento de pánico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificaciones</string>
   <string name="notify_sign_in_title">Recordarme para iniciar sesión</string>

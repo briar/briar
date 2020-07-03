@@ -106,7 +106,6 @@
   <string name="delete">Ištrinti</string>
   <string name="accept">Priimti</string>
   <string name="decline">Atmesti</string>
-  <string name="options">Parametrai</string>
   <string name="online">Pasiekiama(-s)</string>
   <string name="offline">Nepasiekiama(-s)</string>
   <string name="send">Siųsti</string>
@@ -183,7 +182,6 @@
   <string name="add_contact_remotely_title_case">Pridėti adresatą per atstumą</string>
   <string name="add_contact_nearby_title">Pridėti šalia esantį adresatą</string>
   <string name="add_contact_remotely_title">Pridėti adresatą per atstumą</string>
-  <string name="contact_name_hint">Suteikite adresatui slapyvardį</string>
   <string name="contact_link_intro">Čia įveskite iš adresato gautą nuorodą</string>
   <string name="contact_link_hint">Adresato nuoroda</string>
   <string name="paste_button">Įdėti</string>
@@ -201,7 +199,6 @@
   <string name="pending_contact_requests_snackbar">Yra laukiančių adresato užklausų</string>
   <string name="pending_contact_requests">Laukiančios adresatų užklausos</string>
   <string name="no_pending_contacts">Laukiančių adresatų nėra</string>
-  <string name="add_contact_remote_connecting">Jungiamasi…</string>
   <string name="waiting_for_contact_to_come_online">Laukiama, kol adresatas prisijungs prie tinko…</string>
   <string name="connecting">Jungiamasi…</string>
   <string name="adding_contact">Pridedamas adresatas…</string>
@@ -224,9 +221,6 @@
     <item quantity="many">Pridėta %d naujų adresatų.</item>
     <item quantity="other">Pridėtas %d naujas adresatas.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Adresato pridėjimas užtrunka ilgiau nei įprasta</string>
-  <string name="adding_contact_slow_title">Nepavyksta prisijungti prie adresato</string>
-  <string name="adding_contact_slow_text">Šio adresato pridėjimas užtrunka ilgiau nei įprasta.\n\nPatikrinkite ar šis adresatas gavo jūsų nuorodą ir pridėjo jus:</string>
   <string name="offline_state">Nėra interneto ryšio</string>
   <string name="duplicate_link_dialog_title">Identiška nuoroda</string>
   <string name="duplicate_link_dialog_text_1">Jūs jau turite laukiančią adresato užklausą su šia nuoroda: %s</string>
@@ -254,7 +248,6 @@
   <string name="introduction_button">Supažindinti</string>
   <string name="introduction_sent">Jūsų supažindinimas išsiųstas.</string>
   <string name="introduction_error">Supažindinant, įvyko klaida.</string>
-  <string name="introduction_response_error">Klaida, atsakant į supažindinimą</string>
   <string name="introduction_request_sent">Jūs paprašėte, kad naudotojas %1$s būtų supažindintas su %2$s.</string>
   <string name="introduction_request_received">%1$s paprašė supažindinti jus su %2$s. Ar norite pridėti naudotoją %2$s į savo adresatų sąrašą?</string>
   <string name="introduction_request_exists_received">%1$s paprašė supažindinti jus su %2$s, tačiau %2$s jau yra jūsų adresatų sąraše. Kadangi %1$s gali to ir nežinoti, vis tiek galite atsakyti:</string>
@@ -433,20 +426,11 @@
   <string name="pref_theme_dark">Tamsus</string>
   <string name="pref_theme_auto">Automatinis (Dienos metas)</string>
   <string name="pref_theme_system">Sistemos numatytasis</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Tinklai</string>
-  <string name="bluetooth_setting">Prisijungti per Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Kai adresatai yra šalia</string>
-  <string name="bluetooth_setting_disabled">Tik pridedant adresatus</string>
-  <string name="tor_network_setting">Prisijungti per internetą (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automatiškai pagal buvimo vietą</string>
-  <string name="tor_network_setting_without_bridges">Naudoti Tor be tinklų tiltų</string>
-  <string name="tor_network_setting_with_bridges">Naudoti Tor su tinklų tiltais</string>
-  <string name="tor_network_setting_never">Neprisijungti</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatiškai: %1$s (šalyje %2$s)</string>
   <string name="tor_mobile_data_title">Naudoti mobiliuosius duomenis</string>
-  <string name="tor_only_when_charging_title">Prisijungti per internetą (Tor) tik įkraunant įrenginį</string>
   <string name="tor_only_when_charging_summary">Išjungia interneto ryšį, kai įrenginys veikia naudodamas akumuliatorių</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Saugumas</string>
@@ -487,8 +471,6 @@
   <string name="panic_setting_signout_summary">Atsijungti iš Briar, jei yra paspaudžiamas panikos mygtukas</string>
   <string name="purge_setting_title">Ištrinti paskyrą</string>
   <string name="purge_setting_summary">Ištrinti jūsų Briar paskyrą, jei yra paspaudžiamas panikos mygtukas. Dėmesio: Tai visiems laikams ištrins jūsų tapatybes, adresatus ir žinutes</string>
-  <string name="uninstall_setting_title">Pašalinti Briar</string>
-  <string name="uninstall_setting_summary">Panikos atveju, tai reikalauja rankinio patvirtinimo</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Pranešimai</string>
   <string name="notify_sign_in_title">Priminti man prisijungti</string>

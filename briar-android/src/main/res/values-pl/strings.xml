@@ -104,7 +104,6 @@
   <string name="delete">Usuń</string>
   <string name="accept">Akceptuj</string>
   <string name="decline">Odrzuć</string>
-  <string name="options">Opcje</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Wyślij</string>
@@ -169,7 +168,6 @@
   <string name="add_contact_remotely_title_case">Dodaj Kontakt na odległość</string>
   <string name="add_contact_nearby_title">Dodaj kontakt w pobliżu</string>
   <string name="add_contact_remotely_title">Dodaj kontakt na odległość</string>
-  <string name="contact_name_hint">Nadaj pseudonim kontaktowi</string>
   <string name="contact_link_intro">Wprowadź tutaj link od swojego kontaktu</string>
   <string name="contact_link_hint">Link kontaktu</string>
   <string name="paste_button">Wklej</string>
@@ -187,7 +185,6 @@
   <string name="pending_contact_requests_snackbar">Są prośby o dodanie do kontaktów</string>
   <string name="pending_contact_requests">Prośby o dodanie do kontaktów</string>
   <string name="no_pending_contacts">Brak próśb o dodanie do kontaktów</string>
-  <string name="add_contact_remote_connecting">Trwa łączenie...</string>
   <string name="waiting_for_contact_to_come_online">Czekam, aż kontakt pojawi się online…</string>
   <string name="connecting">Trwa łączenie...</string>
   <string name="adding_contact">Dodawanie kontaktu…</string>
@@ -210,9 +207,6 @@
     <item quantity="many">Nowe kontakty dodane.</item>
     <item quantity="other">Dodano %d nowych kontaktów.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Dodawanie tego kontaktu zajmuje więcej czasu niż zwykle</string>
-  <string name="adding_contact_slow_title">Nie można połączyć się z Kontaktem</string>
-  <string name="adding_contact_slow_text">Dodawanie tego kontaktu zajmuje więcej czasu niż zwykle.\n\nProsze sprawdź czy twój kontakt otrzymał twój link i ciebie dodał:</string>
   <string name="offline_state">Brak połączenia z Internetem</string>
   <string name="duplicate_link_dialog_title">Duplikat Linku</string>
   <string name="duplicate_link_dialog_text_1">Masz już oczekujący kontakt z tym linkiem: %s</string>
@@ -239,7 +233,6 @@
   <string name="introduction_button">Wykonaj przedstawienie</string>
   <string name="introduction_sent">Twoje przedstawienie zostało wysłane.</string>
   <string name="introduction_error">Wystąpił błąd podczas wykonywania przedstawienia.</string>
-  <string name="introduction_response_error">Wystąpił błąd podczas odpowiedzi na przedstawienie</string>
   <string name="introduction_request_sent">Poprosiłeś o przedstawienie %1$s kontaktowi %2$s.</string>
   <string name="introduction_request_received">%1$s poprosił o możliwość przedstawienia Ciebie kontaktowi %2$s. Czy chcesz dodać %2$s do listy kontaktów?</string>
   <string name="introduction_request_exists_received">%1$s poprosił o możliwość przedstawienia Ciebie kontaktowi %2$s, ale %2$s jest już na liście Twoich kontaktów. Skoro %1$s może o tym nie wiedzieć, możesz nadal odpowiedzieć:</string>
@@ -418,20 +411,12 @@
   <string name="pref_theme_dark">Ciemny</string>
   <string name="pref_theme_auto">Automatycznie (w czasie dnia)</string>
   <string name="pref_theme_system">Domyślny Systemu</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Sieci</string>
-  <string name="bluetooth_setting">Połącz przez Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Zawsze wtedy gdy kontakty są w pobliżu</string>
-  <string name="bluetooth_setting_disabled">Tylko przy dodawaniu kontaktów</string>
-  <string name="tor_network_setting">Połącz przez Internet (Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Połączenia</string>
   <string name="tor_network_setting_automatic">Automatycznie bazując na lokalizacji</string>
-  <string name="tor_network_setting_without_bridges">Używaj Tor bez mostów</string>
-  <string name="tor_network_setting_with_bridges">Używaj Tor z mostami</string>
-  <string name="tor_network_setting_never">Nie łącz</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatycznie: %1$s (za %2$s)</string>
   <string name="tor_mobile_data_title">Używaj danych komórkowych</string>
-  <string name="tor_only_when_charging_title">Łącz przez Internet (Tor) tylko podczas ładowania</string>
   <string name="tor_only_when_charging_summary">Wyłącza połączenie Internetowe, gdy urządzenie pracuje na baterii</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Bezpieczeństwo</string>
@@ -472,8 +457,6 @@
   <string name="panic_setting_signout_summary">Wyloguj się z Briar jeśli przycisk awaryjny zostanie wciśnięty</string>
   <string name="purge_setting_title">Skasuj Konto</string>
   <string name="purge_setting_summary">Skasuj Twoje konto Briar jeśli przycisk wyjścia awaryjnego zostanie wciśnięty. Ostrzeżenie: Ta akcja usunie permanentnie Twoje konto, kontakty i wiadomości</string>
-  <string name="uninstall_setting_title">Odinstaluj Briar</string>
-  <string name="uninstall_setting_summary">To wymaga manualnego potwierdzenia w przypadku aktywowania procedury awaryjnej</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Powiadomienia</string>
   <string name="notify_sign_in_title">Przypomnij mi by się zalogować</string>

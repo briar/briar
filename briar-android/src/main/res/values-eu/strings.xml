@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Pasahitza</string>
   <string name="try_again">Pasahitz okerra, saiatu berriro</string>
+  <string name="dialog_title_cannot_check_password">Ezin izan da pasahitza egiaztatu</string>
+  <string name="dialog_message_cannot_check_password">Briar-ek ezin du zure pasahitza egiaztatu. Saiatu gailua berrabiarazten arazo hau konpontzeko.</string>
   <string name="sign_in_button">Hasi saioa</string>
   <string name="forgotten_password">Nire pasahitza ahaztu dut</string>
   <string name="dialog_title_lost_password">Pasahitzaren galera</string>
@@ -96,7 +98,6 @@
   <string name="delete">Ezabatu</string>
   <string name="accept">Onartu</string>
   <string name="decline">Errefusatu</string>
-  <string name="options">Aukerak</string>
   <string name="online">Konektatuta</string>
   <string name="offline">Deskonektatuta</string>
   <string name="send">Bidali</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Gehitu urruneko kontaktua</string>
   <string name="add_contact_nearby_title">Gehitu inguruko kontaktua</string>
   <string name="add_contact_remotely_title">Gehitu urruneko kontaktua</string>
-  <string name="contact_name_hint">Eman ezizena kontaktuari</string>
   <string name="contact_link_intro">Sartu hemen zure kontaktuaren esteka</string>
   <string name="contact_link_hint">Kontaktuaren esteka</string>
   <string name="paste_button">Itsatsi</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Kontaktu eskaerak daude aztertzeke</string>
   <string name="pending_contact_requests">Kontaktu eskaerak aztertzeke</string>
   <string name="no_pending_contacts">Ez dago kontakturik aztertzeke</string>
-  <string name="add_contact_remote_connecting">Konektatzen...</string>
   <string name="waiting_for_contact_to_come_online">Kontaktua konektatu bitartean zain...</string>
   <string name="connecting">Konektatzen...</string>
   <string name="adding_contact">Kontaktua gehitzen...</string>
@@ -212,9 +211,6 @@
     <item quantity="one">Kontaktu berria gehitu da</item>
     <item quantity="other">%d kontaktu berri gehitu dira.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Kontaktu hau gehitzeak ohi baino denbora gehiago hartzen ari da</string>
-  <string name="adding_contact_slow_title">Ezin da kontaktuarekin kontaktatu</string>
-  <string name="adding_contact_slow_text">Kontaktu hau gehitzeak ohi baino denbora gehiago hartzen du.\n\nEgiaztatu kontaktua esteka jaso duela eta zu gehitu zaituela:</string>
   <string name="offline_state">Internet konexiorik ez</string>
   <string name="duplicate_link_dialog_title">Bikoiztutako esteka</string>
   <string name="duplicate_link_dialog_text_1">Baduzu kontaktu bat aztertzeke esteka honekin: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Egin aurkezpena</string>
   <string name="introduction_sent">Zure aurkezpena bidali da.</string>
   <string name="introduction_error">Errorea gertatu da aurkezpena egitean.</string>
-  <string name="introduction_response_error">Errorea aurkezpenari erantzutean</string>
   <string name="introduction_request_sent">%1$s erabiltzailea %2$s erabiltzaileari aurkeztea eskatu duzu</string>
   <string name="introduction_request_received">%1$s erabiltzaileak zu %2$s(e)ri aurkeztea eskatu du. %2$s zure kontaktuen zerrendara gehitu nahi duzu?</string>
   <string name="introduction_request_exists_received">%1$s erabiltzaileak zu %2$s(e)ri aurkeztea eskatu du, baina %2$s badago zure kontaktuen zerrendan. %1$s erabiltzaileak agian hori ez dakienez, erantzun dezakezu:</string>
@@ -413,20 +408,11 @@
   <string name="pref_theme_dark">Iluna</string>
   <string name="pref_theme_auto">Automatikoa (Egunez)</string>
   <string name="pref_theme_system">Sistemak lehenetsitakoa</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Sareak</string>
-  <string name="bluetooth_setting">Konektatu Bluetooth bidez</string>
-  <string name="bluetooth_setting_enabled">Kontaktuak hurbil daudeneak</string>
-  <string name="bluetooth_setting_disabled">Kontaktuak gehitzean besterik ez</string>
-  <string name="tor_network_setting">Konektatu Internet bidez (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automatikoa kokalekuan oinarritua</string>
-  <string name="tor_network_setting_without_bridges">Erabili Tor zubirik gabe</string>
-  <string name="tor_network_setting_with_bridges">Erabili Tor zubiekin</string>
-  <string name="tor_network_setting_never">Ez konektatu</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatikoa: %1$s (%2$s(e)n)</string>
   <string name="tor_mobile_data_title">Erabili datu mugikorrak</string>
-  <string name="tor_only_when_charging_title">Konektatu Internet bidez (Tor) kargatu bitartean besterik ez</string>
   <string name="tor_only_when_charging_summary">Internet konexio desgaitzen du gailuak bateria darabilenean</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurtasuna</string>
@@ -467,8 +453,6 @@
   <string name="panic_setting_signout_summary">Amaitu Briar saioa larrialdi-botoia zapaltzen bada</string>
   <string name="purge_setting_title">Ezabatu kontua</string>
   <string name="purge_setting_summary">Ezabatu zure Briar kontua larrialdi-botoia zapaltzen bada. Kontuz: Honek behin betiko ezabatuko ditu zure identitateak, kontaktuak eta mezuak</string>
-  <string name="uninstall_setting_title">Desinstalatu Briar</string>
-  <string name="uninstall_setting_summary">Hau eskuz baieztatu behar da larrialdi egoera batean</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Jakinarazpenak</string>
   <string name="notify_sign_in_title">Gogorarazi niri saioa hastea</string>

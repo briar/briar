@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Senhal</string>
   <string name="try_again">Senhal incorècte, tornatz ensajar</string>
+  <string name="dialog_title_cannot_check_password">Verificacion del senhal impossibla</string>
+  <string name="dialog_message_cannot_check_password">Briar pòt pas verificar vòstre senhal. Mercés de reaviar l’aparelh per resòlver aqueste problèma.</string>
   <string name="sign_in_button">Se connectar</string>
   <string name="forgotten_password">Senhal oblidat</string>
   <string name="dialog_title_lost_password">Senhal oblidat</string>
@@ -98,7 +100,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="delete">Suprimir</string>
   <string name="accept">Acceptar</string>
   <string name="decline">Refusar</string>
-  <string name="options">Opcions</string>
   <string name="online">En linha</string>
   <string name="offline">Fòra linha</string>
   <string name="send">Mandar</string>
@@ -130,6 +131,10 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="dialog_title_delete_all_messages">Confirmatz la supression dels messatges</string>
   <string name="dialog_message_delete_all_messages">Volètz vertadièrament suprimir totes los messatges ?</string>
   <string name="dialog_title_not_all_messages_deleted">Supression de totes los messatges impossibla</string>
+  <string name="dialog_message_not_deleted_partly_downloaded">Los messatges pas complètament telecargats pòdon pas èsser suprimits fins que lo telecargament siá acabat.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Per suprimir una invitacion o una presentacion, vos cal seleccionar la demanda e la responsa.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Per suprimir una presentacion, vos cal seleccionar la demanda e la responsa.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Per suprimir una invitacion, vos cal seleccionar la demanda e la responsa.</string>
   <string name="delete_contact">Suprimir lo contacte</string>
   <string name="dialog_title_delete_contact">Confirmatz la supression del contacte</string>
   <string name="dialog_message_delete_contact">Sètz segur de voler suprimir lo contacte e los messatges ligats a el ?</string>
@@ -168,7 +173,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="add_contact_remotely_title_case">Ajustar un contacte a distància</string>
   <string name="add_contact_nearby_title">Ajustatz un contacte a proximitat</string>
   <string name="add_contact_remotely_title">Ajustatz un contacte a distància</string>
-  <string name="contact_name_hint">Donar un escais-nom a un contacte</string>
   <string name="contact_link_intro">Picatz lo ligam del contacte aquí</string>
   <string name="contact_link_hint">Ligam del contacte</string>
   <string name="paste_button">Pegar</string>
@@ -186,7 +190,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="pending_contact_requests_snackbar">I a de demandas d’apondon en espèra</string>
   <string name="pending_contact_requests">Demandas d’apondon en espèra</string>
   <string name="no_pending_contacts">Cap de demanda en espèra</string>
-  <string name="add_contact_remote_connecting">Connexion…</string>
   <string name="waiting_for_contact_to_come_online">En espèra que lo contacte passe en linha…</string>
   <string name="connecting">Connexion…</string>
   <string name="adding_contact">Apondon del contacte…</string>
@@ -207,9 +210,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
     <item quantity="one">Nòu contacte ajustat.</item>
     <item quantity="other">%d nòus contactes ajustats.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">L’apondon del contacte tarda mai que de costuma</string>
-  <string name="adding_contact_slow_title">Connexion impossibla al contacte</string>
-  <string name="adding_contact_slow_text">.L’apondon del contacte tarda mai que de costuma\n\nVerificatz que vòstre contacte aja ben recebut vòstre ligam e vos aja ajustat :</string>
   <string name="offline_state">Cap de connexion Internet</string>
   <string name="duplicate_link_dialog_title">Duplicar lo ligam</string>
   <string name="duplicate_link_dialog_text_1">Avètz ja una demanda en espèra amb aqueste ligam : %s</string>
@@ -237,7 +237,6 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="introduction_button">Escafar l’introduccion</string>
   <string name="introduction_sent">Vòstra admission es enviada.</string>
   <string name="introduction_error">Una error s’es produsida pendent l’admission</string>
-  <string name="introduction_response_error">Error pendent la responsa d’admission.</string>
   <string name="introduction_request_sent">Avètz demandat a %2$s d’apondre %1$s</string>
   <string name="introduction_request_received">%1$s vos prepausa d’apondre %2$s. Volètz apondre %2$s a vòstres contactes ?</string>
   <string name="introduction_request_exists_received">%1$s vos demandèt d’apondre %2$s mas %2$s es ja dins vòstra tièra de contactes. Del moment que %1$s o sap pas, podètz çaquelà respondre :</string>
@@ -411,20 +410,11 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="pref_theme_dark">Escur</string>
   <string name="pref_theme_auto">Automatic (Segon l’ora)</string>
   <string name="pref_theme_system">Per defaut sistèma</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Ret</string>
-  <string name="bluetooth_setting">Se connectar per Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Quand de contactes son prèp</string>
-  <string name="bluetooth_setting_disabled">Solament en apondre de contctes</string>
-  <string name="tor_network_setting">Se connectar via Internet (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Automaticament basat sus l’emplaçament</string>
-  <string name="tor_network_setting_without_bridges">Utilizar Tor sens ponts</string>
-  <string name="tor_network_setting_with_bridges">Utilizar Tor amb ponts</string>
-  <string name="tor_network_setting_never">Se connectar pas</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatic : %1$s (en %2$s)</string>
   <string name="tor_mobile_data_title">Utilizar la connexion del mobil</string>
-  <string name="tor_only_when_charging_title">Se connectar via Internet (Tor) pas qu’en cargament bateriá</string>
   <string name="tor_only_when_charging_summary">Desactiva la connexion Internet quand l’aparelh manca de bateriá</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
@@ -465,8 +455,6 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="panic_setting_signout_summary">Se desconnectar de Briar en apiejant lo boton Urgéncia ?</string>
   <string name="purge_setting_title">Suprimir lo compte</string>
   <string name="purge_setting_summary">Suprimir vòstre compte en apiejant lo boton Urgéncia. Mèfi, aquò escafarà per totjorn vòstra identitat, vòstres contactes e messatges.</string>
-  <string name="uninstall_setting_title">Desinstallar Briar</string>
-  <string name="uninstall_setting_summary">Aquò demanda una confirmacion manuala.</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificacions</string>
   <string name="notify_sign_in_title">Me rapelar de me connectar</string>

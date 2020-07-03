@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Password</string>
   <string name="try_again">Password sbagliata, riprova</string>
+  <string name="dialog_title_cannot_check_password">Impossibile controllare la password</string>
+  <string name="dialog_message_cannot_check_password">Briar non riesce a controllare la tua password. Prova a riavviare il dispositivo per risolvere il problema.</string>
   <string name="sign_in_button">Entra</string>
   <string name="forgotten_password">Ho dimenticato la password</string>
   <string name="dialog_title_lost_password">Password persa</string>
@@ -96,7 +98,6 @@
   <string name="delete">Cancella</string>
   <string name="accept">Accetta</string>
   <string name="decline">Declina</string>
-  <string name="options">Opzioni</string>
   <string name="online">Connesso</string>
   <string name="offline">Disconnesso</string>
   <string name="send">Invia</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Aggiungi contatto distante</string>
   <string name="add_contact_nearby_title">Aggiungi contatto vicino</string>
   <string name="add_contact_remotely_title">Aggiungi contatto distante</string>
-  <string name="contact_name_hint">Dai un nickname al contatto</string>
   <string name="contact_link_intro">Inserisci qui il link dal tuo contatto</string>
   <string name="contact_link_hint">Link del contatto</string>
   <string name="paste_button">Incolla</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Ci sono richieste di contatto in attesa</string>
   <string name="pending_contact_requests">Richieste di contatto in attesa</string>
   <string name="no_pending_contacts">Nessun contatto in attesa</string>
-  <string name="add_contact_remote_connecting">Connessione in corso...</string>
   <string name="waiting_for_contact_to_come_online">In attesa che il contatto sia in linea...</string>
   <string name="connecting">Connessione in corso...</string>
   <string name="adding_contact">Aggiunta contatto…</string>
@@ -212,9 +211,6 @@
     <item quantity="one">Nuovo contatto aggiunto.</item>
     <item quantity="other">%d nuovi contatti aggiunti.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">L\'aggiunta di questo contatto sta impiegando più tempo del solito</string>
-  <string name="adding_contact_slow_title">Impossibile connettersi al contatto</string>
-  <string name="adding_contact_slow_text">L\'aggiunta di questo contatto sta impiegando più tempo del solito.\n\nControlla che il tuo contatto abbia ricevuto il tuo link e ti abbia aggiunto:</string>
   <string name="offline_state">Nessuna connessione internet</string>
   <string name="duplicate_link_dialog_title">Duplica il link</string>
   <string name="duplicate_link_dialog_text_1">Hai già un contatto in attesa con questo link: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Crea l\'introduzione</string>
   <string name="introduction_sent">La tua introduzione è stata inviata.</string>
   <string name="introduction_error">C\'è stato un errore nella creazione dell\'introduzione</string>
-  <string name="introduction_response_error">Errore durante la risposta all\' introduzione</string>
   <string name="introduction_request_sent">Hai richiesto di introdurre %1$s a %2$s.</string>
   <string name="introduction_request_received">%1$s ha chiesto di introdurti in %2$s. Vuoi aggiungere %2$s alla tua lista contatti?</string>
   <string name="introduction_request_exists_received">%1$s ha chiesto di introdurti in %2$s, ma %2$s è già nella tua lista contatti. Dato che %1$s può non saperlo, puoi comunque rispondere:</string>
@@ -413,20 +408,12 @@
   <string name="pref_theme_dark">Scuro</string>
   <string name="pref_theme_auto">Automatico ( Dì )</string>
   <string name="pref_theme_system">Predefinito di sistema</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Reti</string>
-  <string name="bluetooth_setting">Connessione attraverso Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Quando i contatti sono vicini</string>
-  <string name="bluetooth_setting_disabled">Solo quando viene aggiunto un contatto</string>
-  <string name="tor_network_setting">Connetti via internet (Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Connessioni</string>
   <string name="tor_network_setting_automatic">Automatico basato sulla posizione</string>
-  <string name="tor_network_setting_without_bridges">Usa Tor senza bridge</string>
-  <string name="tor_network_setting_with_bridges">Usa Tor con bridge</string>
-  <string name="tor_network_setting_never">Non connettere</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatico: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Usa dati mobili</string>
-  <string name="tor_only_when_charging_title">Connetti via internet (Tor) solo durante la ricarica</string>
   <string name="tor_only_when_charging_summary">Disattiva la connessione internet quando il dispositivo funziona a batteria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicurezza</string>
@@ -467,8 +454,6 @@
   <string name="panic_setting_signout_summary">Uscire da Briar se viene premuto un pulsante di panico</string>
   <string name="purge_setting_title">Elimina Account</string>
   <string name="purge_setting_summary">Cancella il tuo account Briar se un panic button è premuto. Attenzione: ciò cancellerà permanentemente le tue identità, contatti e messaggi</string>
-  <string name="uninstall_setting_title">Disinstalla Briar</string>
-  <string name="uninstall_setting_summary">Questo richiede una conferma manuale in un evento panico</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifiche</string>
   <string name="notify_sign_in_title">Ricordami di accedere</string>

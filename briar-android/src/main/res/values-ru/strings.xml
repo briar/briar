@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Пароль</string>
   <string name="try_again">Неверный пароль, повторите попытку</string>
+  <string name="dialog_title_cannot_check_password">Не удается проверить пароль</string>
+  <string name="dialog_message_cannot_check_password">Briar не может проверить ваш пароль. Пожалуйста, попробуйте перезагрузить устройство, чтобы решить эту проблему.</string>
   <string name="sign_in_button">Войти</string>
   <string name="forgotten_password">Я забыл свой пароль</string>
   <string name="dialog_title_lost_password">Пароль утерян</string>
@@ -108,7 +110,6 @@
   <string name="delete">Удалить</string>
   <string name="accept">Принять</string>
   <string name="decline">Отклонить</string>
-  <string name="options">Опции</string>
   <string name="online">В сети</string>
   <string name="offline">Не в сети</string>
   <string name="send">Отправить</string>
@@ -185,7 +186,6 @@
   <string name="add_contact_remotely_title_case">Добавление контакта на расстоянии</string>
   <string name="add_contact_nearby_title">Добавить контакт поблизости</string>
   <string name="add_contact_remotely_title">Добавить контакт на расстоянии</string>
-  <string name="contact_name_hint">Дать контакту ник</string>
   <string name="contact_link_intro">Введите ссылку от вашего контакта здесь</string>
   <string name="contact_link_hint">Ссылка контакта</string>
   <string name="paste_button">Вставить</string>
@@ -203,7 +203,6 @@
   <string name="pending_contact_requests_snackbar">Есть ожидающие запросы на контакт</string>
   <string name="pending_contact_requests">Ожидающие запросы на контакт</string>
   <string name="no_pending_contacts">Нет запросов на контакт</string>
-  <string name="add_contact_remote_connecting">Подключение...</string>
   <string name="waiting_for_contact_to_come_online">Ожидание появления контакта онлайн...</string>
   <string name="connecting">Подключение...</string>
   <string name="adding_contact">Добавление контакта…</string>
@@ -226,9 +225,6 @@
     <item quantity="many">Добавлено %d новых контактов.</item>
     <item quantity="other">Добавлено %d новых контактов.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Добавление этого контакта занимает больше времени, чем обычно</string>
-  <string name="adding_contact_slow_title">Не удается подключиться к контакту</string>
-  <string name="adding_contact_slow_text">Добавление этого контакта занимает больше времени, чем обычно.\n\nПожалуйста, проверьте, что ваш контакт получил вашу ссылку и добавил вас:</string>
   <string name="offline_state">Подключение к интернету отсутствует</string>
   <string name="duplicate_link_dialog_title">Дублировать ссылку</string>
   <string name="duplicate_link_dialog_text_1">У вас уже есть ожидающий контакт с этой ссылкой: %s</string>
@@ -256,7 +252,6 @@
   <string name="introduction_button">Сделать представление</string>
   <string name="introduction_sent">Ваше представление было отправлено.</string>
   <string name="introduction_error">Произошла ошибка во время представления.</string>
-  <string name="introduction_response_error">Ошибка при ответе на представление</string>
   <string name="introduction_request_sent">Вы сделали представление %1$s %2$s.</string>
   <string name="introduction_request_received">%1$s попросил(-а) вас представить %2$s. Вы хотите добавить %2$s в ваш список контактов?</string>
   <string name="introduction_request_exists_received">%1$s попросил(-а) вас представить %2$s, но %2$s уже находится в вашем списке контактов. Поскольку %1$s может не знать об этом, вы все равно можете ответить:</string>
@@ -435,20 +430,11 @@
   <string name="pref_theme_dark">Темная</string>
   <string name="pref_theme_auto">Авто (День)</string>
   <string name="pref_theme_system">Системные настройки</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Сети</string>
-  <string name="bluetooth_setting">Подключение через Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Когда контакты находятся поблизости</string>
-  <string name="bluetooth_setting_disabled">Только при добавлении контактов</string>
-  <string name="tor_network_setting">Подключение через интернет (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Автоматически на основе местоположения</string>
-  <string name="tor_network_setting_without_bridges">Использовать Tor без мостов</string>
-  <string name="tor_network_setting_with_bridges">Использовать Tor с мостами</string>
-  <string name="tor_network_setting_never">Не подключать</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Автоматически: %1$s (%2$s)</string>
   <string name="tor_mobile_data_title">Использовать мобильные данные</string>
-  <string name="tor_only_when_charging_title">Подключаться через интернет (Tor) только при зарядке</string>
   <string name="tor_only_when_charging_summary">Отключение интернет-соединения, при работе устройства от батареи</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безопасность</string>
@@ -489,8 +475,6 @@
   <string name="panic_setting_signout_summary">Выйти из Briar, если нажата тревожная кнопка</string>
   <string name="purge_setting_title">Удалить аккаунт</string>
   <string name="purge_setting_summary">Удалить вашу учетную запись Briar при нажатии тревожной кнопки. Внимание: это необратимо удалит ваши идентификаторы, контакты и сообщения</string>
-  <string name="uninstall_setting_title">Удалить Briar</string>
-  <string name="uninstall_setting_summary">Это потребует вашего подтверждения</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Уведомления</string>
   <string name="notify_sign_in_title">Напомнить мне войти</string>

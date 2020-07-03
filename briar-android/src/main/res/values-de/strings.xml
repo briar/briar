@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Passwort</string>
   <string name="try_again">Passwort falsch, bitte erneut versuchen</string>
+  <string name="dialog_title_cannot_check_password">Passwort kann nicht überprüft werden</string>
+  <string name="dialog_message_cannot_check_password">Briar kann dein Passwort nicht überprüfen. Starte bitte dein Gerät neu und versuche damit, dieses Problem zu lösen.</string>
   <string name="sign_in_button">Anmelden</string>
   <string name="forgotten_password">Ich habe mein Passwort vergessen</string>
   <string name="dialog_title_lost_password">Passwort vergessen</string>
@@ -96,7 +98,6 @@
   <string name="delete">Löschen</string>
   <string name="accept">Annehmen</string>
   <string name="decline">Ablehnen</string>
-  <string name="options">Optionen</string>
   <string name="online">Online</string>
   <string name="offline">Offline</string>
   <string name="send">Senden</string>
@@ -109,7 +110,7 @@
   <string name="fix">Behoben</string>
   <string name="help">Hilfe</string>
   <string name="sorry">Entschuldigung</string>
-  <string name="error_start_activity">Nicht Verfügbar auf deinem Gerät</string>
+  <string name="error_start_activity">Nicht Verfügbar für dein System</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Keine Kontakte vorhanden</string>
   <string name="no_contacts_action">Tippe auf das + Symbol, um einen Kontakt hinzuzufügen</string>
@@ -127,17 +128,20 @@
   <string name="delete_all_messages">Alle Nachrichten löschen</string>
   <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
   <string name="dialog_message_delete_all_messages">Bist Du sicher, dass Du alle Nachrichten löschen willst?</string>
-  <string name="dialog_title_not_all_messages_deleted">Konnte nicht alle Nachrichten löschen</string>
+  <string name="dialog_title_not_all_messages_deleted">Es konnten nicht alle Nachrichten gelöscht werden</string>
   <string name="dialog_message_not_deleted_ongoing_both">Nachrichten, die sich auf laufende Einladungen und Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Nachrichten, die sich auf laufende Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
   <string name="dialog_message_not_deleted_ongoing_invitations">Nachrichten, die sich auf laufende Einladungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
   <string name="dialog_message_not_deleted_partly_downloaded">Teilweise heruntergeladene Nachrichten können erst nach dem Ende des Downloads gelöscht werden.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Um eine Einladung oder Kontaktempfehlung zu löschen, musst du die Anfrage und die Antwort auswählen.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Um eine Kontaktempfehlung zu löschen, musst du die Anfrage und die Antwort auswählen.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_invitations">Um eine Einladung zu löschen, musst du die Anfrage und die Antwort auswählen.</string>
   <string name="delete_contact">Kontakt löschen</string>
   <string name="dialog_title_delete_contact">Löschen des Kontakts bestätigen</string>
   <string name="dialog_message_delete_contact">Bist du sicher, dass du diesen Kontakt und alle dazugehörigen Nachrichten löschen möchtest?</string>
   <string name="contact_deleted_toast">Kontakt gelöscht</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
-  <string name="you">Sie</string>
+  <string name="you">Du</string>
   <string name="save_image">Bild speichern</string>
   <string name="dialog_title_save_image">Bild speichern?</string>
   <string name="dialog_message_save_image">Gespeicherte Bilder können von vielen anderen Apps eingesehen werden.\n\nBist du sicher, dass du das Bild speichern möchtest?</string>
@@ -153,7 +157,7 @@
   <string name="face_to_face">Um einen neuen Kontakt hinzuzufügen, ist es notwendig, dass sich beide Kontakte an einem Ort treffen.\n\nDadurch wird betrügerische Identitätsvortäuschung und unautorisierter Kommunikationszugriff verhindert.</string>
   <string name="continue_button">Weiter</string>
   <string name="try_again_button">Noch einmal versuchen</string>
-  <string name="waiting_for_contact_to_scan">Warte auf Scan und Verbindung mit dem Kontakt\u2026</string>
+  <string name="waiting_for_contact_to_scan">Warten auf Kontakt zum scannen und verbinden\u2026</string>
   <string name="exchanging_contact_details">Kontaktdetails werden ausgetauscht\u2026</string>
   <string name="contact_added_toast">Kontakt hinzugefügt: %s</string>
   <string name="contact_already_exists">Kontakt %s existiert bereits</string>
@@ -169,8 +173,7 @@
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Kontakt aus der Ferne hinzufügen</string>
   <string name="add_contact_nearby_title">Kontakt in der Nähe hinzufügen</string>
-  <string name="add_contact_remotely_title">Kontakt aus der Ferne hinzufügen</string>
-  <string name="contact_name_hint">Gib dem Kontakt einen Spitznamen</string>
+  <string name="add_contact_remotely_title">Kontakt in der Ferne hinzufügen</string>
   <string name="contact_link_intro">Füge hier den Link des Kontakts ein, den du hinzufügen möchtest:</string>
   <string name="contact_link_hint">Kontakt Link</string>
   <string name="paste_button">Einfügen</string>
@@ -188,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Es gibt ausstehende Kontaktanfragen</string>
   <string name="pending_contact_requests">Ausstehende Kontaktanfragen</string>
   <string name="no_pending_contacts">Keine ausstehenden Kontakte</string>
-  <string name="add_contact_remote_connecting">Verbindung wird aufgebaut …</string>
   <string name="waiting_for_contact_to_come_online">Warte auf Online-Aktivität des Kontakts ...</string>
   <string name="connecting">Verbindung wird aufgebaut …</string>
   <string name="adding_contact">Kontakt hinzufügen...</string>
@@ -209,9 +211,6 @@
     <item quantity="one">Neuer Kontakt hinzugefügt.</item>
     <item quantity="other">%d neue Kontakte hinzugefügt.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Das Hinzufügen des Kontakts dauert länger als normal</string>
-  <string name="adding_contact_slow_title">Kann nicht zu Kontakt verbinden</string>
-  <string name="adding_contact_slow_text">Das Hinzufügen des Kontakts dauert länger als normal.\n\nBitte kontrolliere, dass dein Kontakt deinen Link erhalten und eingegeben hat:</string>
   <string name="offline_state">Keine Internetverbindung</string>
   <string name="duplicate_link_dialog_title">Link duplizieren</string>
   <string name="duplicate_link_dialog_text_1">Du hast bereits einen Kontakt mit diesem Link ausstehend: %s</string>
@@ -239,7 +238,6 @@
   <string name="introduction_button">Kontaktempfehlung abgeben</string>
   <string name="introduction_sent">Deine Kontaktempfehlung wurde verschickt.</string>
   <string name="introduction_error">Es gab einen Fehler beim Versuch, die Kontaktempfehlung zu verschicken.</string>
-  <string name="introduction_response_error">Fehler bei Antwort auf Kontaktempfehlung</string>
   <string name="introduction_request_sent">Du wolltest %1$s an %2$s als Kontakt empfehlen</string>
   <string name="introduction_request_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. Möchtest du %2$s zu deiner Kontaktliste hinzufügen?</string>
   <string name="introduction_request_exists_received">%1$s schlägt vor, dich als Kontakt an %2$s zu empfehlen. %2$s ist allerdings bereits in deiner Kontaktliste. Da %1$s das vielleicht nicht weiss, kannst du trotzdem antworten:</string>
@@ -410,20 +408,12 @@
   <string name="pref_theme_dark">Dunkel</string>
   <string name="pref_theme_auto">Automatisch (Tageszeit)</string>
   <string name="pref_theme_system">Systemstandard</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Netzwerke</string>
-  <string name="bluetooth_setting">Über Bluetooth verbinden</string>
-  <string name="bluetooth_setting_enabled">Sobald Kontakte in der Nähe sind</string>
-  <string name="bluetooth_setting_disabled">Nur beim Hinzufügen von Kontakten</string>
-  <string name="tor_network_setting">Über Internet (Tor) verbinden</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Verbindungen</string>
   <string name="tor_network_setting_automatic">Automatisch (standortbasiert)</string>
-  <string name="tor_network_setting_without_bridges">Tor ohne Bridges nutzen</string>
-  <string name="tor_network_setting_with_bridges">Tor mit Bridges nutzen</string>
-  <string name="tor_network_setting_never">Nicht verbinden</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatisch: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Mobile Daten benutzen</string>
-  <string name="tor_only_when_charging_title">Verbindung über Internet (Tor) nur während des Ladevorgangs herstellen</string>
   <string name="tor_only_when_charging_summary">Deaktiviert die Internetverbindung, wenn das Gerät mit Akku betrieben wird</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
@@ -464,8 +454,6 @@
   <string name="panic_setting_signout_summary">Von Briar abmelden, wenn ein Panik-Button aktiviert wird</string>
   <string name="purge_setting_title">Konto löschen</string>
   <string name="purge_setting_summary">Briar-Konto löschen, wenn der Panik-Button gedrückt wird. Achtung: Es werden alle Identitäten, Kontakte und Nachrichten unwiderruflich gelöscht</string>
-  <string name="uninstall_setting_title">Briar deinstallieren</string>
-  <string name="uninstall_setting_summary">Diese Aktion benötigt eine manuelle Bestätigung im Falle eines Panik-Ereignisses</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Benachrichtigungen</string>
   <string name="notify_sign_in_title">Anmeldeerinnerung</string>

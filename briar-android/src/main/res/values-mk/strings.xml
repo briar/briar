@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Лозинка</string>
   <string name="try_again">Погрешна лозинка</string>
+  <string name="dialog_title_cannot_check_password">Не може да се провери лозинката</string>
+  <string name="dialog_message_cannot_check_password">Briar не може да ја провери вашата лозинка. Ве молиме обидетете се со рестартирање на вашиот уред за да го решите овој проблем.</string>
   <string name="sign_in_button">Најави се</string>
   <string name="forgotten_password">Ја заборавив лозинката</string>
   <string name="dialog_title_lost_password">Изгубена лозинка</string>
@@ -96,7 +98,6 @@
   <string name="delete">Избриши</string>
   <string name="accept">Прифаќам</string>
   <string name="decline">Одбивам</string>
-  <string name="options">Опции</string>
   <string name="online">Онлајн/Вклучен</string>
   <string name="offline">Офлајн/Исклучен</string>
   <string name="send">Испрати</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Додај контакт НА РАСТОЈАНИЕ</string>
   <string name="add_contact_nearby_title">Додај контакт во близина</string>
   <string name="add_contact_remotely_title">Додај контакт на растојание</string>
-  <string name="contact_name_hint">Додели му прекар на контактот</string>
   <string name="contact_link_intro">Внеси го линкот од твојот контакт овде</string>
   <string name="contact_link_hint">Линк на контактот</string>
   <string name="paste_button">Залепи</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Има барања за контакт на чекање</string>
   <string name="pending_contact_requests">Барања за контакт на чекање</string>
   <string name="no_pending_contacts">Нема контакти на чекање</string>
-  <string name="add_contact_remote_connecting">Се поврзува...</string>
   <string name="waiting_for_contact_to_come_online">Чекање на контакт да се вклучи...</string>
   <string name="connecting">Се поврзува...</string>
   <string name="adding_contact">Додавање контакт...</string>
@@ -212,9 +211,6 @@
     <item quantity="one">Нов контакт е додаден.</item>
     <item quantity="other">%dнови контакти се додадени.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Додавањето на овој контакт е подолго од вообичаено</string>
-  <string name="adding_contact_slow_title">Не може да се поврзе со контакт</string>
-  <string name="adding_contact_slow_text">Додавањето на овој контакт е подолго од вообичаеното.\n\nВе молиме проверете дека вашиот контакт го добил вашиот линк и дека ве додал: </string>
   <string name="offline_state">Нема Интернет врска</string>
   <string name="duplicate_link_dialog_title">Дуплицирање на линк</string>
   <string name="duplicate_link_dialog_text_1">Веќе имате контакт на чекање со овој линк: %s</string>
@@ -242,7 +238,6 @@
   <string name="introduction_button">Направи запознавање</string>
   <string name="introduction_sent">Вашето запознавање беше испратено.</string>
   <string name="introduction_error">Се појави грешка за време на запознавањето.</string>
-  <string name="introduction_response_error">Грешка при одговор на запознавањето</string>
   <string name="introduction_request_sent">Побаравте да се запознаат %1$s и %2$s.</string>
   <string name="introduction_request_received">%1$s побара да ве запознае со %2$s. Дали сакате да го додадете %2$s на вашата контакт листа?</string>
   <string name="introduction_request_exists_received">%1$s побара да ве запознае со %2$s, но %2$s е веќе во вашата контакт листа. Додека %1$s можеби не го знае тоа, вие сеуште можете да одговорите:</string>
@@ -413,20 +408,11 @@
   <string name="pref_theme_dark">Темно</string>
   <string name="pref_theme_auto">Автоматски (Дневно)</string>
   <string name="pref_theme_system">Систем стандардно поставен</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Мрежи</string>
-  <string name="bluetooth_setting">Поврзи се преку Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Секогаш кога контактите се во близина</string>
-  <string name="bluetooth_setting_disabled">Само кога се додаваат контакти</string>
-  <string name="tor_network_setting">Поврзи се преку Интернет (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">Автоматски базирано на локација</string>
-  <string name="tor_network_setting_without_bridges">Користи Tor без мостови</string>
-  <string name="tor_network_setting_with_bridges">Користи Tor со мостови</string>
-  <string name="tor_network_setting_never">Не се поврзувај</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Автоматски: %1$s (во %2$s)</string>
   <string name="tor_mobile_data_title">Користи мобилни податоци</string>
-  <string name="tor_only_when_charging_title">Поврзи преку Интернет (Tor) само за време на полнење</string>
   <string name="tor_only_when_charging_summary">Оневозможи го Интернет поврзувањето кога уредот не е приклучен на полнач</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безбедност</string>
@@ -467,8 +453,6 @@
   <string name="panic_setting_signout_summary">Одјави се од Briar ако копчето паника е притиснато</string>
   <string name="purge_setting_title">Избриши сметка</string>
   <string name="purge_setting_summary">Избриши ја твојата Briar сметка ако е притиснато копчето паника. Внимание: Ова трајно ќе ги избрише твоите идентитети, контакти и пораки</string>
-  <string name="uninstall_setting_title">Отстрани го Briar</string>
-  <string name="uninstall_setting_summary">Ова бара рачно потврдување во случај на паника</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Известувања</string>
   <string name="notify_sign_in_title">Потсети ме да се најавам</string>

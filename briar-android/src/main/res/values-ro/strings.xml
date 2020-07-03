@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
-  <string name="setup_title">Bine ai venit la Briar</string>
+  <string name="setup_title">Bine ați venit la Briar</string>
   <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimiteți. Nu îl veți putea schimba după crearea contului.</string>
   <string name="setup_next">Următorul</string>
   <string name="setup_password_intro">Alegeți o parolă</string>
@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Parola</string>
   <string name="try_again">Parolă greșită, reîncercați</string>
+  <string name="dialog_title_cannot_check_password">Nu se poate verifica parola</string>
+  <string name="dialog_message_cannot_check_password">Briar nu poate verifica parola. Încercați să reporniți dispozitivul pentru a rezolva această problemă.</string>
   <string name="sign_in_button">Autentificare</string>
   <string name="forgotten_password">Am uitat parola</string>
   <string name="dialog_title_lost_password">Parolă uitată</string>
@@ -101,7 +103,6 @@
   <string name="delete">Șterge</string>
   <string name="accept">Acceptă</string>
   <string name="decline">Refuză</string>
-  <string name="options">Opțiuni</string>
   <string name="online">Conectat</string>
   <string name="offline">Deconectat</string>
   <string name="send">Trimite</string>
@@ -178,7 +179,6 @@
   <string name="add_contact_remotely_title_case">Adaugă un contact la distanță</string>
   <string name="add_contact_nearby_title">Adaugă un contact din apropiere</string>
   <string name="add_contact_remotely_title">Adaugă un contact la distanță</string>
-  <string name="contact_name_hint">Introduceți un nume pentru contact</string>
   <string name="contact_link_intro">Introduceți adresa contactului dumneavoastră aici</string>
   <string name="contact_link_hint">Adresa contactului</string>
   <string name="paste_button">Lipește</string>
@@ -196,7 +196,6 @@
   <string name="pending_contact_requests_snackbar">Există solicitări de contact în așteptare</string>
   <string name="pending_contact_requests">Solicitări de contact în așteptare</string>
   <string name="no_pending_contacts">Nici un contact în așteptare</string>
-  <string name="add_contact_remote_connecting">Se conectează...</string>
   <string name="waiting_for_contact_to_come_online">Așteptăm contactul să se conecteze…</string>
   <string name="connecting">Se conectează...</string>
   <string name="adding_contact">Se adaugă contactul…</string>
@@ -218,9 +217,6 @@
     <item quantity="few">%d contacte noi adăugate.</item>
     <item quantity="other">%d de contacte noi adăugate.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">Se pare că durează mai mult să se adauge acest contact</string>
-  <string name="adding_contact_slow_title">Nu s-a putut face conectarea contactului</string>
-  <string name="adding_contact_slow_text">Se pare că durează mai mult să se adauge acest contact.\n\nVă rugăm să verificați dacă și contactul a primit adresa dumneavoastră și va adăugat:</string>
   <string name="offline_state">Nu este disponibilă o conexiune la internet</string>
   <string name="duplicate_link_dialog_title">Adresă duplicat</string>
   <string name="duplicate_link_dialog_text_1">Deja aveți un contact în așteptare cu această adresă: %s</string>
@@ -248,7 +244,6 @@
   <string name="introduction_button">Fă o recomandare</string>
   <string name="introduction_sent">Recomandarea dumneavoastră a fost trimisă.</string>
   <string name="introduction_error">A apărut o eroare în procesul de recomandare.</string>
-  <string name="introduction_response_error">Eroare atunci când s-a răspuns la recomandare</string>
   <string name="introduction_request_sent">Ați cerut recomandarea %1$s către %2$s.</string>
   <string name="introduction_request_received">%1$s a cerut să vă recomande către %2$s. Doriți să adăugați pe %2$s la lista dumneavoastră de contacte?</string>
   <string name="introduction_request_exists_received">%1$s a cerut să vă recomande către %2$s, dar %2$s este deja în lista dumneavoastră de contacte. Cum %1$s s-ar putea să nu știe asta, puteți totuși răspunde:</string>
@@ -423,20 +418,21 @@
   <string name="pref_theme_dark">Închisă</string>
   <string name="pref_theme_auto">Automat (Zi lumina)</string>
   <string name="pref_theme_system">Implicit sistem</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Rețele</string>
-  <string name="bluetooth_setting">Conectare prin Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Atunci când contactele vă sunt în apropiere</string>
-  <string name="bluetooth_setting_disabled">Doar la adăugarea contactelor</string>
-  <string name="tor_network_setting">Conectare prin Internet (rețeaua Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Conexiuni</string>
+  <string name="bluetooth_setting">Conectare la contacte prin Bluetooth</string>
+  <string name="wifi_setting">Conectare la contacte prin rețeaua Wi-Fi comună</string>
+  <string name="tor_enable_title">Conectare la contacte prin Internet</string>
+  <string name="tor_enable_summary">Toate conexiunile se fac prin rețeaua Tor pentru protejarea confidențialității</string>
+  <string name="tor_network_setting">Metoda de conectare la rețeaua Tor</string>
   <string name="tor_network_setting_automatic">Automat în funcție de locație</string>
-  <string name="tor_network_setting_without_bridges">Folosește rețeaua Tor fără conexiuni bridge</string>
-  <string name="tor_network_setting_with_bridges">Folosește rețeaua Tor cu conexiuni bridge</string>
-  <string name="tor_network_setting_never">Nu conecta</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_without_bridges">Folosire rețea Tor fără conexiuni punte</string>
+  <string name="tor_network_setting_with_bridges">Folosire rețea Tor cu conexiuni punte</string>
+  <string name="tor_network_setting_never">Fără conexiune la Internet</string>
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automat: %1$s (în %2$s)</string>
   <string name="tor_mobile_data_title">Utilizează date mobile</string>
-  <string name="tor_only_when_charging_title">Conectare prin Internet (rețeaua Tor) doar atunci când dispozitivul se încarcă</string>
+  <string name="tor_only_when_charging_title">Conectare la Internet doar atunci când dispozitivul se încarcă</string>
   <string name="tor_only_when_charging_summary">Se dezactivează conexiunea la Internet atunci când dispozitivul funcționează pe baterie</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Securitate</string>
@@ -477,8 +473,6 @@
   <string name="panic_setting_signout_summary">Ieși din Briar dacă un buton de panică este apăsat</string>
   <string name="purge_setting_title">Șterge cont</string>
   <string name="purge_setting_summary">Ștergeți contul Briar dacă este apăsat un buton de panică. Atenție: aceasta va șterge definitiv identitatea, contactele și mesajele dvs.</string>
-  <string name="uninstall_setting_title">Dezinstalare Briar</string>
-  <string name="uninstall_setting_summary">Aceasta necesită o confirmare manuală în timpul unui eveniment de panică</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notificări</string>
   <string name="notify_sign_in_title">Reamintește-mi să mă conectez</string>

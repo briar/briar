@@ -81,7 +81,6 @@ umepoteza nenosiri</string>
   <string name="delete">futa</string>
   <string name="accept">kukubali</string>
   <string name="decline">kukata</string>
-  <string name="options">chaguo</string>
   <string name="online">mkondoni</string>
   <string name="offline">nje ya mkondo</string>
   <string name="send">tuma</string>
@@ -145,7 +144,6 @@ umepoteza nenosiri</string>
   <string name="add_contact_remotely_title_case">Ongeza mawasiliano kwambali </string>
   <string name="add_contact_nearby_title">ongeza mawasiliano kwa karibu </string>
   <string name="add_contact_remotely_title">Ongeza Mawasilina kwa wambali </string>
-  <string name="contact_name_hint">Ipe lakabu wasilinao hili </string>
   <string name="contact_link_intro">Ingiza kiungo cha mawasiliano hapa. </string>
   <string name="contact_link_hint">unganisha mawasiliano </string>
   <string name="paste_button">bandika </string>
@@ -163,7 +161,6 @@ umepoteza nenosiri</string>
   <string name="pending_contact_requests_snackbar">Maombi ya mawasiliano yalio subirishwa </string>
   <string name="pending_contact_requests">Maombi yalio subirishwa </string>
   <string name="no_pending_contacts">Hakuna maombi yalio subirishwa </string>
-  <string name="add_contact_remote_connecting">kuunganishwa...</string>
   <string name="waiting_for_contact_to_come_online">Subiri kwaulie wasiliana nae aje Mkondoni .</string>
   <string name="connecting">kuunganishwa...</string>
   <string name="adding_contact">Ongeza Mawasiliano....</string>
@@ -184,9 +181,6 @@ umepoteza nenosiri</string>
     <item quantity="one">mawasiliano mapya yameongezeka </item>
     <item quantity="other">%dmawawasiliano mapya yameongezeka</item>
   </plurals>
-  <string name="adding_contact_slow_warning">kuongeza mawawasiliano haya yatachukua muda kuliko</string>
-  <string name="adding_contact_slow_title">inashidikana kuungana na mawasiliano </string>
-  <string name="adding_contact_slow_text">kuongeza mawasiliano haya yatachukua muda kuliko.\n\nTafathali angalia Kama unaye wasiliana nae kakuunganisha na wewe.</string>
   <string name="offline_state">Hakuna mtandao</string>
   <string name="duplicate_link_dialog_title">Kiunga cha kurudia.</string>
   <string name="duplicate_link_dialog_text_1">Tayari unayo mawasiliano yenye kiunga hiki:%s</string>
@@ -213,7 +207,6 @@ umepoteza nenosiri</string>
   <string name="introduction_button">Anza Utambulisho </string>
   <string name="introduction_sent">Utambulisho wako Umetumwa.</string>
   <string name="introduction_error">Kulikuwa na hitilafu wakati wa utambulisho .</string>
-  <string name="introduction_response_error">Hitilafu wakati wa kujibu Utambulisho.</string>
   <string name="introduction_request_sent">Umeombwa umtambulishe %1$skwa%2$s.</string>
   <string name="introduction_request_received">%1$sameombwa akutambulishe Wewe kwa %2$s. Unataka kumuongeza %2$skwenye orodha ya mawasiliano ? </string>
   <string name="introduction_request_exists_received">%1$sAmeombwa akutambulishe wewe kwa %2$s,ila%2$sYupo tayari kwenye orodha ya mawasiliano yako . Tangu%1$shafahamu hilo, unaweza ukamjibu tu .</string>
@@ -366,20 +359,11 @@ umepoteza nenosiri</string>
   <string name="pref_theme_dark">Giza</string>
   <string name="pref_theme_auto">kiotomatiki (Mchana)</string>
   <string name="pref_theme_system">Mfumo Msingi </string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Mtandao</string>
-  <string name="bluetooth_setting">Unganisha kwa Bluetooth</string>
-  <string name="bluetooth_setting_enabled">wakati wowote mawasiliano yakiwa karibu </string>
-  <string name="bluetooth_setting_disabled">Wakati waku ongeza mawasiliano tu.</string>
-  <string name="tor_network_setting">Unganisha kwa Mtandao (Tor)</string>
+  <!--Settings Connections-->
   <string name="tor_network_setting_automatic">kiotomatiki  inatengemeana na mahali </string>
-  <string name="tor_network_setting_without_bridges">tumia Tor bila madaraja </string>
-  <string name="tor_network_setting_with_bridges">Tumia Tor na madaraja </string>
-  <string name="tor_network_setting_never">usi unganishe </string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">kiotomatiki:%1$s (ndani%2$s)</string>
   <string name="tor_mobile_data_title">Tumia Data ya simu</string>
-  <string name="tor_only_when_charging_title">Unganishwa kwenye mkongo (Tor) kwenye wakati wa kucharge tu</string>
   <string name="tor_only_when_charging_summary">Zima mtandao wakati betri ipo chini </string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Ulizi</string>
@@ -420,8 +404,6 @@ umepoteza nenosiri</string>
   <string name="panic_setting_signout_summary">Toka kwenye Briar endapo kitufe cha Hofu kitabo nyezwa </string>
   <string name="purge_setting_title">futa akaunti</string>
   <string name="purge_setting_summary">Futa Briar akaunti endapo kitufe cha Hofu kitakuwa kimebonyezwa kwa mstuko . Hii itafuta kabisa mawasiliano na ujumbe wako </string>
-  <string name="uninstall_setting_title">ondoa Briar</string>
-  <string name="uninstall_setting_summary">Hii itaitaji mwongozo wa tukio la hofu  </string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Arifu</string>
   <string name="notify_sign_in_title">Nikumbushe ku ingia</string>

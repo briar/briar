@@ -10,9 +10,9 @@
   <string name="setup_doze_intro">Pour recevoir des messages, Briar a besoin de rester connectée en arrière-plan.</string>
   <string name="setup_doze_explanation">Pour recevoir des messages, Briar a besoin de rester connectée en arrière-plan. Veuillez désactiver les optimisations de la batterie afin que Briar puisse rester connectée.</string>
   <string name="setup_doze_button">Autoriser les connexions</string>
-  <string name="choose_nickname">Choisir votre pseudonyme</string>
-  <string name="choose_password">Choisir votre mot de passe</string>
-  <string name="confirm_password">Confirmer votre mot de passe</string>
+  <string name="choose_nickname">Choisissez votre pseudonyme</string>
+  <string name="choose_password">Choisissez votre mot de passe</string>
+  <string name="confirm_password">Confirmez votre mot de passe</string>
   <string name="name_too_long">Le nom est trop long</string>
   <string name="password_too_weak">Le mot de passe est trop faible</string>
   <string name="passwords_do_not_match">Les mots de passe ne correspondent pas</string>
@@ -26,10 +26,12 @@
   <!--Login-->
   <string name="enter_password">Mot de passe</string>
   <string name="try_again">Le mot de passe est erroné, ressayez</string>
+  <string name="dialog_title_cannot_check_password">Impossible de vérifier le mot de passe</string>
+  <string name="dialog_message_cannot_check_password">Briar ne peut pas vérifier votre mot de passe. Veuillez essayer de redémarrer votre appareil pour résoudre ce problème.</string>
   <string name="sign_in_button">Connexion</string>
   <string name="forgotten_password">J’ai oublié mon mot de passe</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
-  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
+  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
   <string name="startup_failed_notification_title">Impossible de démarrer Briar</string>
   <string name="startup_failed_notification_text">Toucher pour plus d’informations.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
@@ -96,7 +98,6 @@
   <string name="delete">Supprimer</string>
   <string name="accept">Accepter</string>
   <string name="decline">Refuser</string>
-  <string name="options">Options</string>
   <string name="online">En ligne</string>
   <string name="offline">Hors ligne</string>
   <string name="send">Envoyer</string>
@@ -154,11 +155,11 @@
   <!--Adding Contacts-->
   <string name="add_contact_title">Ajouter un contact à proximité</string>
   <string name="face_to_face">Vous devez rencontrer la personne que vous voulez ajouter comme contact, afin d’éviter que quelqu’un se fasse passer pour vous et puisse lire vos messages à l’avenir.</string>
-  <string name="continue_button">Continuer</string>
+  <string name="continue_button">Poursuivre</string>
   <string name="try_again_button">Ressayer</string>
   <string name="waiting_for_contact_to_scan">En attente de balayage du code QR par le contact et de sa connexion\u2026</string>
   <string name="exchanging_contact_details">Échange des renseignements de contact\u2026</string>
-  <string name="contact_added_toast">Contact ajouté : %s</string>
+  <string name="contact_added_toast">Contact ajouté : %s</string>
   <string name="contact_already_exists">Le contact %s existe déjà</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
   <string name="qr_code_too_old">Le code QR que vous avez balayé provient d’une version plus ancienne de %s.\n\nVeuillez demander à votre contact de passer à la version la plus récente et ressayer.</string>
@@ -173,7 +174,6 @@
   <string name="add_contact_remotely_title_case">Ajouter un contact éloigné</string>
   <string name="add_contact_nearby_title">Ajouter un contact à proximité</string>
   <string name="add_contact_remotely_title">Ajouter un contact éloigné</string>
-  <string name="contact_name_hint">Donner un pseudonyme au contact</string>
   <string name="contact_link_intro">Saisissez ici le lien de votre contact</string>
   <string name="contact_link_hint">Lien de votre contact</string>
   <string name="paste_button">Coller</string>
@@ -191,7 +191,6 @@
   <string name="pending_contact_requests_snackbar">Des demandes de contact sont en attente</string>
   <string name="pending_contact_requests">Demandes de contact en attente</string>
   <string name="no_pending_contacts">Il n’y a aucun contact en attente</string>
-  <string name="add_contact_remote_connecting">Connexion…</string>
   <string name="waiting_for_contact_to_come_online">En attente de l’arrivée en ligne du contact…</string>
   <string name="connecting">Connexion…</string>
   <string name="adding_contact">Ajout du contact…</string>
@@ -212,9 +211,6 @@
     <item quantity="one">Un nouveau contact a été ajouté</item>
     <item quantity="other">%d nouveaux contacts ont été ajoutés.</item>
   </plurals>
-  <string name="adding_contact_slow_warning">L’ajout de ce contact prend plus longtemps que d’habitude</string>
-  <string name="adding_contact_slow_title">Impossible de se connecter au contact</string>
-  <string name="adding_contact_slow_text">L’ajout de ce contact prend plus longtemps que d’habitude.\n\nVeuillez vérifier si votre contact a reçu votre lien et vous a ajouté :</string>
   <string name="offline_state">Aucune connexion à Internet</string>
   <string name="duplicate_link_dialog_title">Lien en double</string>
   <string name="duplicate_link_dialog_text_1">Vous avez déjà un contact en attente avec ce lien : %s</string>
@@ -242,10 +238,9 @@
   <string name="introduction_button">Faire les présentations</string>
   <string name="introduction_sent">Votre présentation a été envoyée.</string>
   <string name="introduction_error">Une erreur est survenue lors de la présentation.</string>
-  <string name="introduction_response_error">Erreur de réponse à la présentation</string>
   <string name="introduction_request_sent">Vous avez demandé de présenter %1$s à %2$s.</string>
   <string name="introduction_request_received">%1$s a demandé de vous présenter à %2$s. Souhaitez-vous ajouter %2$s à votre liste de contacts ?</string>
-  <string name="introduction_request_exists_received">%1$s a demandé de vous présenter à %2$s, mais %2$s est déjà dans votre liste de contacts. Puisque %1$s pourrait ne pas le savoir, vous pouvez tout de même répondre :</string>
+  <string name="introduction_request_exists_received">%1$s a demandé de vous présenter à %2$s, mais %2$s est déjà dans votre liste de contacts. Puisque %1$s pourrait ne pas le savoir, vous pouvez tout de même répondre :</string>
   <string name="introduction_request_answered_received">%1$s a demandé de vous présenter à %2$s.</string>
   <string name="introduction_response_accepted_sent">Vous avez accepté d’être présenté à %1$s.</string>
   <string name="introduction_response_accepted_sent_info">Avant que %1$s ne soit ajouté à vos contacts, ce contact doit aussi accepter la présentation. Cela peut prendre du temps. </string>
@@ -267,7 +262,7 @@
   <string name="groups_create_group_title">Créer un groupe privé</string>
   <string name="groups_create_group_button">Créer un groupe</string>
   <string name="groups_create_group_invitation_button">Envoyer une invitation</string>
-  <string name="groups_create_group_hint">Choisir un nom pour votre groupe privé</string>
+  <string name="groups_create_group_hint">Choisissez un nom pour votre groupe privé</string>
   <string name="groups_invitation_sent">L’invitation de groupe a été envoyée</string>
   <string name="groups_member_list">Liste des participants</string>
   <string name="groups_invite_members">Inviter des participants</string>
@@ -310,7 +305,7 @@
   <string name="no_forums">Aucun forum à afficher</string>
   <string name="no_forums_action">Touchez l’icône + pour créer un forum ou pour demander à vos contacts de partager des forums avec vous</string>
   <string name="create_forum_title">Créer un forum</string>
-  <string name="choose_forum_hint">Choisir un nom pour votre forum </string>
+  <string name="choose_forum_hint">Choisissez un nom pour votre forum </string>
   <string name="create_forum_button">Créer un forum</string>
   <string name="forum_created_toast">Le forum a été créé</string>
   <string name="no_forum_posts">Aucun article à afficher</string>
@@ -332,7 +327,7 @@
   <string name="contacts_selected">Des contacts ont été sélectionnés</string>
   <string name="activity_share_toolbar_header">Choisir des contacts</string>
   <string name="no_contacts_selector">Aucun contact à afficher</string>
-  <string name="no_contacts_selector_action">Veuillez revenir ici après avoir ajouter un contact</string>
+  <string name="no_contacts_selector_action">Veuillez revenir ici après avoir ajouté un contact</string>
   <string name="forum_shared_snackbar">Le forum a été partagé avec les contacts choisis</string>
   <string name="forum_share_message">Ajouter un message (facultatif)</string>
   <string name="forum_share_error">Une erreur est survenue lors du partage de ce forum.</string>
@@ -392,17 +387,17 @@
   <string name="blogs_rss_feeds_import">Importer un fil RSS</string>
   <string name="blogs_rss_feeds_import_button">Importer</string>
   <string name="blogs_rss_feeds_import_hint">Saisir l’URL du fil RSS</string>
-  <string name="blogs_rss_feeds_import_error">Nous sommes désolé ! Une erreur est survenue lors de l’importation de votre fil.</string>
+  <string name="blogs_rss_feeds_import_error">Nous sommes désolés ! Une erreur est survenue lors de l’importation de votre fil.</string>
   <string name="blogs_rss_feeds_manage">Gérer les fils RSS</string>
-  <string name="blogs_rss_feeds_manage_imported">Importés :</string>
-  <string name="blogs_rss_feeds_manage_author">Auteur :</string>
-  <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
+  <string name="blogs_rss_feeds_manage_imported">Importés :</string>
+  <string name="blogs_rss_feeds_manage_author">Auteur :</string>
+  <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
   <string name="blogs_rss_remove_feed">Supprimer le fil</string>
   <string name="blogs_rss_remove_feed_dialog_message">Voulez-vous vraiment supprimer ce fil ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce fil pourraient ne plus en recevoir les mises à jour.</string>
   <string name="blogs_rss_remove_feed_ok">Supprimer</string>
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le fil !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Aucun fil RSS à afficher\n\nTouchez l’icône + pour importer un fil</string>
-  <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez ressayer ultérieurement.</string>
+  <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez ressayer plus tard.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Langue et région</string>
   <string name="pref_language_changed">Ce paramètre prendra effet une fois que vous aurez redémarré Briar. Veuillez vous déconnecter et redémarrer Briar.</string>
@@ -413,21 +408,22 @@
   <string name="pref_theme_dark">Sombre</string>
   <string name="pref_theme_auto">Automatique (journée)</string>
   <string name="pref_theme_system">Valeur par défaut du système</string>
-  <!--Settings Network-->
-  <string name="network_settings_title">Réseaux</string>
-  <string name="bluetooth_setting">Se connecter par Bluetooth</string>
-  <string name="bluetooth_setting_enabled">Lorsque des contacts sont à proximité</string>
-  <string name="bluetooth_setting_disabled">Uniquement lors de l’ajout de contacts</string>
-  <string name="tor_network_setting">Se connecter par Internet (Tor)</string>
+  <!--Settings Connections-->
+  <string name="network_settings_title">Connexions </string>
+  <string name="bluetooth_setting">Se connecter à des contacts par Bluetooth</string>
+  <string name="wifi_setting">Se connecter à des contacts sur le même réseau Wi-Fi</string>
+  <string name="tor_enable_title">Se connecter à des contacts par Internet</string>
+  <string name="tor_enable_summary">Afin de protéger les données personnelles et la confidentialité, toutes les connexions passent par le réseau Tor</string>
+  <string name="tor_network_setting">Méthode de connexion pour le réseau Tor</string>
   <string name="tor_network_setting_automatic">Automatique d’après la position</string>
-  <string name="tor_network_setting_without_bridges">Utiliser Tor sans ponts</string>
-  <string name="tor_network_setting_with_bridges">Utiliser Tor avec des ponts</string>
-  <string name="tor_network_setting_never">Ne pas se connecter</string>
-  <!--How and when Tor will connect after Automatic: E.g. Don't connect (in China) or Use Tor with bridges (in Belarus)-->
+  <string name="tor_network_setting_without_bridges">Utiliser le réseau Tor sans ponts</string>
+  <string name="tor_network_setting_with_bridges">Utiliser le réseau Tor avec des ponts</string>
+  <string name="tor_network_setting_never">Ne pas se connecter à Internet</string>
+  <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatique : %1$s (en %2$s)</string>
-  <string name="tor_mobile_data_title">Utiliser les données cellulaires</string>
-  <string name="tor_only_when_charging_title">Ne se connecter par Internet (Tor) qu’en charge seulement</string>
-  <string name="tor_only_when_charging_summary">Désactive la connexion Internet quand l’appareil est sur la pile</string>
+  <string name="tor_mobile_data_title">Utiliser les données mobiles</string>
+  <string name="tor_only_when_charging_title">Ne se connecter à Internet qu’en charge seulement</string>
+  <string name="tor_only_when_charging_summary">Désactive la connexion Internet quand l’appareil fonctionne sur la pile</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sécurité</string>
   <string name="pref_lock_title">Verrou de l’appli</string>
@@ -455,7 +451,7 @@
   <string name="password_changed">Le mot de passe a été changé.</string>
   <string name="panic_setting">Paramètres du bouton d’urgence</string>
   <string name="panic_setting_title">Bouton d’urgence</string>
-  <string name="panic_setting_hint">Configurer la réaction de Briar lorsque vous utilisez une application de bouton d’urgence</string>
+  <string name="panic_setting_hint">Configurer la réaction de Briar quand vous utilisez une application de bouton d’urgence</string>
   <string name="panic_app_setting_title">Application de bouton d’urgence</string>
   <string name="unknown_app">une appli inconnue</string>
   <string name="panic_app_setting_summary">Aucune appli n’a été définie</string>
@@ -466,9 +462,7 @@
   <string name="panic_setting_signout_title">Déconnexion</string>
   <string name="panic_setting_signout_summary">Se déconnecter de Briar si l’on appuie sur un bouton d’urgence</string>
   <string name="purge_setting_title">Supprimer le compte</string>
-  <string name="purge_setting_summary">Supprimer votre compte Briar lorsqu’on appuie sur un bouton d’urgence. Attention : cela supprimera définitivement vos identités, contacts et messages</string>
-  <string name="uninstall_setting_title">Désinstaller Briar</string>
-  <string name="uninstall_setting_summary">Une confirmation manuelle est exigée en cas d’événement d’urgence</string>
+  <string name="purge_setting_summary">Supprimer votre compte Briar si on appuie sur un bouton d’urgence. Attention : cela supprimera définitivement vos identités, contacts et messages</string>
   <!--Settings Notifications-->
   <string name="notification_settings_title">Notifications</string>
   <string name="notify_sign_in_title">Rappelez-moi de me connecter</string>
