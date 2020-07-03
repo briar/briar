@@ -228,6 +228,16 @@
 		</Preference>
 
 		<Preference
+			android:key="pref_key_export_log"
+			android:title="Export Current Log to SD Card"
+			app:iconSpaceReserved="false"/>
+
+		<Preference
+			android:key="pref_key_export_old_log"
+			android:title="Export Previous Log to SD Card"
+			app:iconSpaceReserved="false"/>
+
+		<Preference
 			android:key="pref_key_explode"
 			android:title="Crash"
 			app:iconSpaceReserved="false"/>

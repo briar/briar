@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.settings;
 
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -74,6 +75,7 @@ import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_MOBILE;
 import static org.briarproject.bramble.api.plugin.TorConstants.DEFAULT_PREF_TOR_NETWORK;
@@ -133,7 +135,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			"pref_key_tor_only_when_charging";
 
 	private static final Logger LOG =
-			Logger.getLogger(SettingsFragment.class.getName());
+			getLogger(SettingsFragment.class.getName());
 
 	private SettingsActivity listener;
 	private ListPreference language;
@@ -251,8 +253,25 @@ public class SettingsFragment extends PreferenceFragmentCompat
 						throw new RuntimeException("Boom!");
 					}
 			);
+			findPreference("pref_key_export_log").setOnPreferenceClickListener(
+					preference -> {
+						((SettingsActivity) requireActivity())
+								.onExportLogClick(false);
+						return true;
+					}
+			);
+			findPreference("pref_key_export_old_log")
+					.setOnPreferenceClickListener(
+							preference -> {
+								((SettingsActivity) requireActivity())
+										.onExportLogClick(true);
+								return true;
+							}
+					);
 		} else {
 			findPreference("pref_key_explode").setVisible(false);
+			findPreference("pref_key_export_log").setVisible(false);
+			findPreference("pref_key_export_old_log").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
 			PreferenceGroup testing =
 					findPreference("pref_key_explode").getParent();
@@ -331,6 +350,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		return direction == LAYOUT_DIRECTION_LTR;
 	}
 
+	@SuppressLint("StringFormatInvalid")
 	private void setTorNetworkSummary(int torNetworkSetting) {
 		if (torNetworkSetting != PREF_TOR_NETWORK_AUTOMATIC) {
 			torNetwork.setSummary("%s");  // use setting value
