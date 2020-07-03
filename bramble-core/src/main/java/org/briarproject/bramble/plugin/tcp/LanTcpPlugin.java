@@ -349,7 +349,7 @@ class LanTcpPlugin extends TcpPlugin {
 				tryToClose(ss, LOG, WARNING);
 			}
 		}
-		if (ss == null) {
+		if (ss == null || !ss.isBound()) {
 			LOG.info("Could not bind server socket for key agreement");
 			return null;
 		}
