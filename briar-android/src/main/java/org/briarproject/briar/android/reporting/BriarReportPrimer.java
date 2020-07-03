@@ -95,16 +95,11 @@ public class BriarReportPrimer implements ReportPrimer {
 			}
 			customData.put("Log", sb.toString());
 
-			sb = new StringBuilder();
-			try {
-				File logDir = ctx.getDir("log", MODE_PRIVATE);
-				for (String line : logManager.getPersistedLog(logDir)) {
-					sb.append(line).append('\n');
-				}
-			} catch (IOException e) {
-				sb.append("Could not recover persisted log: ").append(e);
-			}
-			customData.put("Persisted log", sb.toString());
+			customData.put("Persisted log",
+					getPersistedLog(ctx, logManager, false));
+
+			customData.put("Previous persisted log",
+					getPersistedLog(ctx, logManager, true));
 
 			// System memory
 			Object o = ctx.getSystemService(ACTIVITY_SERVICE);
@@ -269,6 +264,20 @@ public class BriarReportPrimer implements ReportPrimer {
 			customData.put("Commit ID", BuildConfig.GitHash);
 
 			return unmodifiableMap(customData);
+		}
+
+		private String getPersistedLog(Context ctx,
+				PersistentLogManager logManager, boolean old) {
+			File logDir = ctx.getDir("log", MODE_PRIVATE);
+			StringBuilder sb = new StringBuilder();
+			try {
+				for (String line : logManager.getPersistedLog(logDir, old)) {
+					sb.append(line).append('\n');
+				}
+			} catch (IOException e) {
+				sb.append("Could not recover persisted log: ").append(e);
+			}
+			return sb.toString();
 		}
 	}
 

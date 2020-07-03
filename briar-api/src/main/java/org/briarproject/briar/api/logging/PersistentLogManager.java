@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.settings.Settings;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collection;
+import java.util.List;
 import java.util.logging.Handler;
 
 @NotNullByDefault
@@ -32,6 +32,9 @@ public interface PersistentLogManager {
 	/**
 	 * Loads and returns the persistent log entries stored in the given
 	 * directory, or an empty list if no log entries are found.
+	 *
+	 * @param old True if the previous session's log should be loaded, or false
+	 * if the current session's log should be loaded
 	 */
-	Collection<String> getPersistedLog(File dir) throws IOException;
+	List<String> getPersistedLog(File dir, boolean old) throws IOException;
 }

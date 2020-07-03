@@ -22,9 +22,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Collection;
-import java.util.Deque;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -134,22 +133,31 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 	}
 
 	@Override
-	public Collection<String> getPersistedLog(File dir) throws IOException {
-		SecretKey oldLogKey = this.oldLogKey;
-		if (oldLogKey == null) {
-			LOG.info("Old log key has not been loaded");
-			return emptyList();
+	public List<String> getPersistedLog(File dir, boolean old)
+			throws IOException {
+		if (old) {
+			SecretKey oldLogKey = this.oldLogKey;
+			if (oldLogKey == null) {
+				LOG.info("Old log key has not been loaded");
+				return emptyList();
+			}
+			return getPersistedLog(new File(dir, OLD_LOG_FILE), oldLogKey);
+		} else {
+			return getPersistedLog(new File(dir, LOG_FILE), logKey);
 		}
-		File oldLogFile = new File(dir, OLD_LOG_FILE);
-		if (oldLogFile.exists()) {
-			LOG.info("Reading old log file");
-			Deque<String> lines = new LinkedList<>();
+	}
+
+	private List<String> getPersistedLog(File logFile, SecretKey key)
+			throws IOException {
+		if (logFile.exists()) {
+			LOG.info("Reading log file");
+			LinkedList<String> lines = new LinkedList<>();
 			int numLines = 0;
-			InputStream in = new FileInputStream(oldLogFile);
+			InputStream in = new FileInputStream(logFile);
 			//noinspection TryFinallyCanBeTryWithResources
 			try {
 				InputStream reader = streamReaderFactory
-						.createLogStreamReader(in, oldLogKey);
+						.createLogStreamReader(in, key);
 				Scanner s = new Scanner(reader);
 				while (s.hasNextLine()) {
 					lines.add(s.nextLine());
@@ -162,7 +170,7 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 				in.close();
 			}
 		} else {
-			LOG.info("Old log file does not exist");
+			LOG.info("Log file does not exist");
 			return emptyList();
 		}
 	}
