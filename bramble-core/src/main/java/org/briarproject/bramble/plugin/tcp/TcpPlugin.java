@@ -162,7 +162,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 				tryToClose(ss, LOG, WARNING);
 			}
 		}
-		if (ss == null) {
+		if (ss == null || !ss.isBound()) {
 			LOG.info("Could not bind server socket");
 			return;
 		}
