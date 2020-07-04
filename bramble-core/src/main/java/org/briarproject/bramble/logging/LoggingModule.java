@@ -1,7 +1,7 @@
-package org.briarproject.briar.logging;
+package org.briarproject.bramble.logging;
 
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.briar.api.logging.PersistentLogManager;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 
 import java.util.logging.Formatter;
 

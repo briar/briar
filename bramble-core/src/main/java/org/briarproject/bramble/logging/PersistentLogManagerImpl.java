@@ -1,4 +1,4 @@
-package org.briarproject.briar.logging;
+package org.briarproject.bramble.logging;
 
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.SecretKey;
@@ -8,13 +8,13 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.system.Scheduler;
 import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
-import org.briarproject.briar.api.logging.PersistentLogManager;
 
 import java.io.File;
 import java.io.FileInputStream;

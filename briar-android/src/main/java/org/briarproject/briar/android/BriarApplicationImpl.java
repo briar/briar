@@ -19,6 +19,7 @@ import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.briarproject.bramble.BrambleAndroidEagerSingletons;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
@@ -27,7 +28,6 @@ import org.briarproject.briar.android.reporting.BriarReportPrimer;
 import org.briarproject.briar.android.reporting.BriarReportSenderFactory;
 import org.briarproject.briar.android.reporting.DevReportActivity;
 import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.api.logging.PersistentLogManager;
 
 import java.io.File;
 import java.io.IOException;

@@ -1,4 +1,4 @@
-package org.briarproject.briar.logging;
+package org.briarproject.bramble.logging;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 

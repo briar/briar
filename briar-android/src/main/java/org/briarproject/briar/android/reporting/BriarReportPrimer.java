@@ -14,10 +14,10 @@ import android.os.Looper;
 import org.acra.builder.ReportBuilder;
 import org.acra.builder.ReportPrimer;
 import org.briarproject.bramble.api.Pair;
+import org.briarproject.bramble.api.logging.PersistentLogManager;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.android.AndroidComponent;
 import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.api.logging.PersistentLogManager;
 
 import java.io.File;
 import java.io.IOException;
