@@ -19,6 +19,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -104,9 +105,16 @@ public class SettingsActivity extends BriarActivity {
 	private void copyLog(boolean old, OutputStreamProvider osp) {
 		ioExecutor.execute(() -> {
 			try {
-				PrintWriter w = new PrintWriter(osp.getOutputStream());
 				File logDir = getApplication().getDir("log", MODE_PRIVATE);
-				for (String line : logManager.getPersistedLog(logDir, old)) {
+				List<String> lines = logManager.getPersistedLog(logDir, old);
+				if (lines.isEmpty()) {
+					runOnUiThreadUnlessDestroyed(() ->
+							Toast.makeText(getApplication(), "Log is empty",
+									LENGTH_LONG).show());
+					return;
+				}
+				PrintWriter w = new PrintWriter(osp.getOutputStream());
+				for (String line : lines) {
 					w.println(line);
 				}
 				w.close();
