@@ -71,6 +71,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ENABLING;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.BriarService.EXTRA_STARTUP_FAILED;
+import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.navdrawer.IntentRouter.handleExternalIntent;
 import static org.briarproject.briar.android.util.UiUtils.getDaysUntilExpiry;
@@ -128,8 +129,10 @@ public class NavDrawerActivity extends BriarActivity implements
 		navDrawerViewModel = provider.get(NavDrawerViewModel.class);
 		pluginViewModel = provider.get(PluginViewModel.class);
 
-		navDrawerViewModel.showExpiryWarning()
-				.observe(this, this::showExpiryWarning);
+		if (IS_DEBUG_BUILD) {
+			navDrawerViewModel.showExpiryWarning()
+					.observe(this, this::showExpiryWarning);
+		}
 		navDrawerViewModel.shouldAskForDozeWhitelisting().observe(this, ask -> {
 			if (ask) showDozeDialog(getString(R.string.setup_doze_intro));
 		});
@@ -171,7 +174,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	public void onStart() {
 		super.onStart();
 		lockManager.checkIfLockable();
-		navDrawerViewModel.checkExpiryWarning();
+		if (IS_DEBUG_BUILD) navDrawerViewModel.checkExpiryWarning();
 	}
 
 	@Override
@@ -350,7 +353,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	private void showExpiryWarning(boolean show) {
-		int daysUntilExpiry = getDaysUntilExpiry();
+		long daysUntilExpiry = getDaysUntilExpiry();
 		if (daysUntilExpiry < 0) {
 			signOut();
 			return;
@@ -362,7 +365,8 @@ public class NavDrawerActivity extends BriarActivity implements
 			TextView expiryWarningText =
 					expiryWarning.findViewById(R.id.expiryWarningText);
 			String text = getResources().getQuantityString(
-					R.plurals.expiry_warning, daysUntilExpiry, daysUntilExpiry);
+					R.plurals.expiry_warning, (int) daysUntilExpiry,
+					(int) daysUntilExpiry);
 			expiryWarningText.setText(text);
 			// make close button functional
 			ImageView expiryWarningClose =

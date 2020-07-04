@@ -159,10 +159,9 @@ public class UiUtils {
 		return DateUtils.formatDateTime(ctx, time, flags);
 	}
 
-	public static int getDaysUntilExpiry() {
+	public static long getDaysUntilExpiry() {
 		long now = System.currentTimeMillis();
-		long daysBeforeExpiry = (EXPIRY_DATE - now) / DAYS.toMillis(1);
-		return (int) daysBeforeExpiry;
+		return (EXPIRY_DATE - now) / DAYS.toMillis(1);
 	}
 
 	public static SpannableStringBuilder getTeaser(Context ctx, Spanned text) {
