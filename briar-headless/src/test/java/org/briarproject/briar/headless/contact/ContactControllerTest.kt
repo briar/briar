@@ -20,6 +20,8 @@ import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEven
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.db.NoSuchPendingContactException
 import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
+import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent
+import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent
 import org.briarproject.bramble.identity.output
 import org.briarproject.bramble.test.TestUtils.getPendingContact
 import org.briarproject.bramble.test.TestUtils.getRandomBytes
@@ -29,6 +31,7 @@ import org.briarproject.briar.headless.json.JsonDict
 import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import kotlin.random.Random
 
 internal class ContactControllerTest : ControllerTest() {
 
@@ -38,7 +41,8 @@ internal class ContactControllerTest : ControllerTest() {
         contactManager,
         conversationManager,
         objectMapper,
-        webSocketController
+        webSocketController,
+        connectionRegistry
     )
 
     @Test
@@ -50,9 +54,11 @@ internal class ContactControllerTest : ControllerTest() {
 
     @Test
     fun testList() {
+        val connected = Random.nextBoolean()
         every { contactManager.contacts } returns listOf(contact)
         every { conversationManager.getGroupCount(contact.id).latestMsgTime } returns timestamp
-        every { ctx.json(listOf(contact.output(timestamp))) } returns ctx
+        every { connectionRegistry.isConnected(contact.id) } returns connected
+        every { ctx.json(listOf(contact.output(timestamp, connected))) } returns ctx
         controller.list(ctx)
     }
 
@@ -268,7 +274,36 @@ internal class ContactControllerTest : ControllerTest() {
     }
 
     @Test
+    fun testContactConnectedEvent() {
+        val event = ContactConnectedEvent(contact.id)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_CONTACT_CONNECTED,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
+    fun testContactDisconnectedEvent() {
+        val event = ContactDisconnectedEvent(contact.id)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_CONTACT_DISCONNECTED,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
     fun testOutputContact() {
+        val connected = Random.nextBoolean()
         assertNotNull(contact.handshakePublicKey)
         val json = """
             {
@@ -277,10 +312,11 @@ internal class ContactControllerTest : ControllerTest() {
                 "alias" : "${contact.alias}",
                 "handshakePublicKey": ${toJson(contact.handshakePublicKey!!.encoded)},
                 "verified": ${contact.isVerified},
-                "lastChatActivity": $timestamp
+                "lastChatActivity": $timestamp,
+                "connected": $connected
             }
         """
-        assertJsonEquals(json, contact.output(timestamp))
+        assertJsonEquals(json, contact.output(timestamp, connected))
     }
 
     @Test
@@ -353,6 +389,28 @@ internal class ContactControllerTest : ControllerTest() {
         val json = """
             {
                 "pendingContactId": ${toJson(pendingContact.id.bytes)}
+            }
+        """
+        assertJsonEquals(json, event.output())
+    }
+
+    @Test
+    fun testOutputContactConnectedEvent() {
+        val event = ContactConnectedEvent(contact.id)
+        val json = """
+            {
+                "contactId": ${contact.id.int}
+            }
+        """
+        assertJsonEquals(json, event.output())
+    }
+
+    @Test
+    fun testOutputContactDisconnectedEvent() {
+        val event = ContactDisconnectedEvent(contact.id)
+        val json = """
+            {
+                "contactId": ${contact.id.int}
             }
         """
         assertJsonEquals(json, event.output())
