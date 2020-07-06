@@ -68,7 +68,8 @@ Returns a JSON array of contacts:
     "alias" : "A local nickname",
     "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
     "verified": true,
-    "lastChatActivity": 1557838312175
+    "lastChatActivity": 1557838312175,
+    "connected": false
 }
 ```
 
@@ -389,6 +390,22 @@ will no longer work on making this `pendingContact` become `contact`.
         "pendingContactId": "YqKjsczCuxScXohb5+RAYtFEwK71icoB4ldztV2gh7M="
     },
     "name": "PendingContactRemovedEvent",
+    "type": "event"
+}
+```
+
+### A contact connected or disconnected
+
+When Briar establishes a connection to a contact (the contact comes online),
+it sends a `ContactConnectedEvent`.
+When the last connection is lost (the contact goes offline), it sends a `ContactDisconnectedEvent`.
+
+```json
+{
+    "data": {
+        "contactId": 1
+    },
+    "name": "ContactConnectedEvent",
     "type": "event"
 }
 ```

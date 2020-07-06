@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.http.Context
 import io.javalin.http.util.ContextUtil
 import io.mockk.mockk
+import org.briarproject.bramble.api.connection.ConnectionRegistry
 import org.briarproject.bramble.api.contact.Contact
 import org.briarproject.bramble.api.contact.ContactManager
 import org.briarproject.bramble.api.identity.Author
@@ -26,6 +27,7 @@ abstract class ControllerTest {
     protected val contactManager = mockk<ContactManager>()
     protected val conversationManager = mockk<ConversationManager>()
     protected val identityManager = mockk<IdentityManager>()
+    protected val connectionRegistry = mockk<ConnectionRegistry>()
     protected val clock = mockk<Clock>()
     protected val ctx = mockk<Context>()
 

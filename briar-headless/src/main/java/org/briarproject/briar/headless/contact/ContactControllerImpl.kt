@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.NotFoundResponse
+import org.briarproject.bramble.api.connection.ConnectionRegistry
 import org.briarproject.bramble.api.contact.ContactManager
 import org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX
 import org.briarproject.bramble.api.contact.PendingContactId
@@ -16,6 +17,8 @@ import org.briarproject.bramble.api.db.NoSuchPendingContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
 import org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH
+import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent
+import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent
 import org.briarproject.bramble.util.StringUtils.toUtf8
 import org.briarproject.briar.api.conversation.ConversationManager
 import org.briarproject.briar.headless.event.WebSocketController
@@ -32,6 +35,8 @@ internal const val EVENT_CONTACT_ADDED = "ContactAddedEvent"
 internal const val EVENT_PENDING_CONTACT_STATE_CHANGED = "PendingContactStateChangedEvent"
 internal const val EVENT_PENDING_CONTACT_ADDED = "PendingContactAddedEvent"
 internal const val EVENT_PENDING_CONTACT_REMOVED = "PendingContactRemovedEvent"
+internal const val EVENT_CONTACT_CONNECTED = "ContactConnectedEvent"
+internal const val EVENT_CONTACT_DISCONNECTED = "ContactDisconnectedEvent"
 
 @Immutable
 @Singleton
@@ -41,7 +46,8 @@ constructor(
     private val contactManager: ContactManager,
     private val conversationManager: ConversationManager,
     private val objectMapper: ObjectMapper,
-    private val webSocket: WebSocketController
+    private val webSocket: WebSocketController,
+    private val connectionRegistry: ConnectionRegistry
 ) : ContactController, EventListener {
 
     override fun eventOccurred(e: Event) = when (e) {
@@ -57,6 +63,12 @@ constructor(
         is PendingContactRemovedEvent -> {
             webSocket.sendEvent(EVENT_PENDING_CONTACT_REMOVED, e.output())
         }
+        is ContactConnectedEvent -> {
+            webSocket.sendEvent(EVENT_CONTACT_CONNECTED, e.output())
+        }
+        is ContactDisconnectedEvent -> {
+            webSocket.sendEvent(EVENT_CONTACT_DISCONNECTED, e.output())
+        }
         else -> {
         }
     }
@@ -64,7 +76,8 @@ constructor(
     override fun list(ctx: Context): Context {
         val contacts = contactManager.contacts.map { contact ->
             val latestMsgTime = conversationManager.getGroupCount(contact.id).latestMsgTime
-            contact.output(latestMsgTime)
+            val connected = connectionRegistry.isConnected(contact.id)
+            contact.output(latestMsgTime, connected)
         }
         return ctx.json(contacts)
     }
