@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.PowerManager;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
@@ -51,6 +50,7 @@ import androidx.annotation.UiThread;
 import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -186,9 +186,7 @@ public class UiUtils {
 	}
 
 	public static Spanned getSpanned(@Nullable String s) {
-		// TODO move to HtmlCompat #1435
-		// https://commonsware.com/blog/2018/05/29/at-last-htmlcompat.html
-		return Html.fromHtml(s);
+		return HtmlCompat.fromHtml(s, HtmlCompat.FROM_HTML_MODE_LEGACY);
 	}
 
 	public static void makeLinksClickable(TextView v,
