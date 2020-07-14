@@ -141,6 +141,7 @@ public class AndroidAccountManagerTest extends BrambleMockTestCase {
 
 		assertFalse(dbDir.exists());
 		assertFalse(keyDir.exists());
+		assertFalse(logDir.exists());
 		assertTrue(codeCacheDir.exists());
 		assertTrue(codeCacheFile.exists());
 		assertTrue(libDir.exists());
