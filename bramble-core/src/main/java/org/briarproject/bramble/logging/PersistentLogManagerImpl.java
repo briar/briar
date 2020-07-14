@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Logger;
@@ -62,7 +62,8 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 	private final StreamWriterFactory streamWriterFactory;
 	private final Formatter formatter;
 	private final SecretKey logKey;
-	private final AtomicBoolean handlerCreated = new AtomicBoolean(false);
+	private final AtomicReference<Integer> shutdownHookHandle =
+			new AtomicReference<>();
 
 	@Nullable
 	private volatile SecretKey oldLogKey = null;
@@ -103,7 +104,6 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 
 	@Override
 	public Handler createLogHandler(File dir) throws IOException {
-		if (handlerCreated.getAndSet(true)) throw new IllegalStateException();
 		File logFile = new File(dir, LOG_FILE);
 		File oldLogFile = new File(dir, OLD_LOG_FILE);
 		if (oldLogFile.exists() && !oldLogFile.delete())
@@ -117,7 +117,7 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 			StreamHandler handler = new FlushingStreamHandler(scheduler,
 					ioExecutor, writer.getOutputStream(), formatter);
 			// Flush the log and terminate the stream at shutdown
-			shutdownManager.addShutdownHook(() -> {
+			Runnable shutdownHook = () -> {
 				LOG.info("Shutting down");
 				handler.flush();
 				try {
@@ -125,11 +125,25 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 				} catch (IOException e) {
 					logException(LOG, WARNING, e);
 				}
-			});
+			};
+			int handle = shutdownManager.addShutdownHook(shutdownHook);
+			// If a previous handler registered a shutdown hook, remove it
+			Integer oldHandle = shutdownHookHandle.getAndSet(handle);
+			if (oldHandle != null) {
+				shutdownManager.removeShutdownHook(oldHandle);
+			}
 			return handler;
 		} catch (SecurityException e) {
 			throw new IOException(e);
 		}
+	}
+
+	@Override
+	public void addLogHandler(File dir, Logger logger) throws IOException {
+		for (Handler h : logger.getHandlers()) {
+			if (h instanceof FlushingStreamHandler) logger.removeHandler(h);
+		}
+		logger.addHandler(createLogHandler(dir));
 	}
 
 	@Override

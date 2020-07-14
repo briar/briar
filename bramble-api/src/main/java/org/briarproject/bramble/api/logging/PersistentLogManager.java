@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.logging.Handler;
+import java.util.logging.Logger;
 
 @NotNullByDefault
 public interface PersistentLogManager {
@@ -24,10 +25,15 @@ public interface PersistentLogManager {
 	/**
 	 * Creates and returns a persistent log handler that stores its logs in
 	 * the given directory.
-	 * <p>
-	 * This method should only be called once.
 	 */
 	Handler createLogHandler(File dir) throws IOException;
+
+	/**
+	 * Creates a persistent log handler that stores its logs in the given
+	 * directory and adds the handler to the given logger, replacing any
+	 * existing persistent log handler.
+	 */
+	void addLogHandler(File dir, Logger logger) throws IOException;
 
 	/**
 	 * Loads and returns the persistent log entries stored in the given

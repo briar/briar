@@ -32,7 +32,6 @@ import org.briarproject.briar.android.util.UiUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collection;
-import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
@@ -130,12 +129,9 @@ public class BriarApplicationImpl extends Application
 
 		PersistentLogManager logManager =
 				applicationComponent.persistentLogManager();
-		Formatter formatter = applicationComponent.formatter();
+		File logDir = getDir("log", MODE_PRIVATE);
 		try {
-			File logDir = getDir("log", MODE_PRIVATE);
-			Handler handler = logManager.createLogHandler(logDir);
-			handler.setFormatter(formatter);
-			rootLogger.addHandler(handler);
+			rootLogger.addHandler(logManager.createLogHandler(logDir));
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
 		}
