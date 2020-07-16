@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin;
 
 import org.briarproject.bramble.api.connection.ConnectionManager;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
@@ -44,6 +45,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
+import static java.util.Collections.emptyList;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
@@ -300,6 +302,18 @@ class PluginManagerImpl implements PluginManager, Service {
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				return new TransportProperties();
+			}
+		}
+
+		@Override
+		public Collection<TransportProperties> getRemoteProperties() {
+			try {
+				Map<ContactId, TransportProperties> remote =
+						transportPropertyManager.getRemoteProperties(id);
+				return remote.values();
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+				return emptyList();
 			}
 		}
 
