@@ -10,6 +10,9 @@ public interface BluetoothConstants {
 	String PROP_ADDRESS = "address";
 	String PROP_UUID = "uuid";
 
+	// Local settings (not shared with contacts)
+	String PREF_ADDRESS_IS_REFLECTED = "addressIsReflected";
+
 	// Default value for PREF_PLUGIN_ENABLE
 	boolean DEFAULT_PREF_PLUGIN_ENABLE = false;
 }
