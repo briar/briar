@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.properties.event.RemoteTransportPropertiesUpdatedEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -37,6 +38,8 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_CONTACT_IDS_STORED;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_DISCOVERED;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_TRANSPORT_ID;
@@ -74,7 +77,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 
 	@Override
 	public void onDatabaseOpened(Transaction txn) throws DbException {
-		if (db.containsGroup(txn, localGroup.getId())) return;
+		if (db.containsGroup(txn, localGroup.getId())) {
+			storeContactIdsForContactGroups(txn);
+			return;
+		}
 		db.addGroup(txn, localGroup);
 		// Set things up for any pre-existing contacts
 		for (Contact c : db.getContacts(txn)) addingContact(txn, c);
@@ -89,6 +95,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
+		// Attach the contact ID to the group
+		storeContactId(txn, c, g);
 		// Copy the latest local properties into the group
 		Map<TransportId, TransportProperties> local = getLocalProperties(txn);
 		for (Entry<TransportId, TransportProperties> e : local.entrySet()) {
@@ -127,8 +135,11 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					// We've already received a newer update - delete this one
 					db.deleteMessage(txn, m.getId());
 					db.deleteMessageMetadata(txn, m.getId());
+					return false;
 				}
 			}
+			ContactId c = getContactId(txn, m.getGroupId());
+			txn.attach(new RemoteTransportPropertiesUpdatedEvent(c, t));
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
@@ -222,6 +233,40 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				remote.put(c.getId(), getRemoteProperties(txn, c, t));
 			return remote;
 		});
+	}
+
+	private void storeContactIdsForContactGroups(Transaction txn)
+			throws DbException {
+		try {
+			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			if (meta.containsKey(GROUP_KEY_CONTACT_IDS_STORED)) return;
+			for (Contact c : db.getContacts(txn)) {
+				storeContactId(txn, c, getContactGroup(c));
+			}
+			meta.put(GROUP_KEY_CONTACT_IDS_STORED, true);
+			clientHelper.mergeGroupMetadata(txn, localGroup.getId(), meta);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	private void storeContactId(Transaction txn, Contact c, Group contactGroup)
+			throws DbException {
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
+		try {
+			clientHelper.mergeGroupMetadata(txn, contactGroup.getId(), meta);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
+			throws DbException, FormatException {
+		BdfDictionary meta =
+				clientHelper.getGroupMetadataAsDictionary(txn, contactGroupId);
+		return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
 	}
 
 	private TransportProperties getRemoteProperties(Transaction txn, Contact c,

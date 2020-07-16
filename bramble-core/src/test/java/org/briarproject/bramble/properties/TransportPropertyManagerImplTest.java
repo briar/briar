@@ -32,6 +32,8 @@ import static java.util.Arrays.asList;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Collections.singletonMap;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_CONTACT_IDS_STORED;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.GROUP_KEY_DISCOVERED;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_TRANSPORT_ID;
@@ -94,6 +96,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact();
 		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+		BdfDictionary contactGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt())
+		);
 
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, localGroup.getId());
@@ -110,6 +115,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
+			oneOf(clientHelper).mergeGroupMetadata(txn, contactGroup.getId(),
+					contactGroupMeta);
 		}});
 		// Copy the latest local properties into the group
 		expectGetLocalProperties(txn);
@@ -123,13 +130,57 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testDoesNotCreateGroupsAtStartupIfAlreadyCreated()
+	public void testAddsContactIdsToGroupsAtStartupIfAlreadyCreated()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
+		Contact contact = getContact();
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+		BdfDictionary contactGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt())
+		);
+		BdfDictionary localGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_IDS_STORED, true)
+		);
 
 		context.checking(new Expectations() {{
 			oneOf(db).containsGroup(txn, localGroup.getId());
 			will(returnValue(true));
+			// Contact IDs have not been added to contact groups
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(new BdfDictionary()));
+			// Add contact IDs to contact groups
+			oneOf(db).getContacts(txn);
+			will(returnValue(singletonList(contact)));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(clientHelper).mergeGroupMetadata(txn, contactGroup.getId(),
+					contactGroupMeta);
+			// Remember that contact IDs have been added
+			oneOf(clientHelper).mergeGroupMetadata(txn, localGroup.getId(),
+					localGroupMeta);
+		}});
+
+		TransportPropertyManagerImpl t = createInstance();
+		t.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testDoesNotAddContactIdsToGroupsAtStartupIfAlreadyAdded()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+		BdfDictionary localGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_IDS_STORED, true)
+		);
+
+		context.checking(new Expectations() {{
+			oneOf(db).containsGroup(txn, localGroup.getId());
+			will(returnValue(true));
+			// Contact IDs have already been added to contact groups
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(localGroupMeta));
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -141,6 +192,9 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		Contact contact = getContact();
 		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+		BdfDictionary contactGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt())
+		);
 
 		context.checking(new Expectations() {{
 			// Create the group and share it with the contact
@@ -153,6 +207,8 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contact.getId(),
 					contactGroup.getId(), SHARED);
+			oneOf(clientHelper).mergeGroupMetadata(txn, contactGroup.getId(),
+					contactGroupMeta);
 		}});
 		// Copy the latest local properties into the group
 		expectGetLocalProperties(txn);
@@ -186,7 +242,11 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testDoesNotDeleteAnythingWhenFirstUpdateIsDelivered()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
+		Contact contact = getContact();
 		GroupId contactGroupId = new GroupId(getRandomId());
+		BdfDictionary contactGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt())
+		);
 		Message message = getMessage(contactGroupId);
 		Metadata meta = new Metadata();
 		BdfDictionary metaDictionary = BdfDictionary.of(
@@ -217,6 +277,10 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroupId);
 			will(returnValue(messageMetadata));
+			// Look up the contact ID to broadcast an event
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroupId);
+			will(returnValue(contactGroupMeta));
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -227,7 +291,11 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	public void testDeletesOlderUpdatesWhenUpdateIsDelivered()
 			throws Exception {
 		Transaction txn = new Transaction(null, false);
+		Contact contact = getContact();
 		GroupId contactGroupId = new GroupId(getRandomId());
+		BdfDictionary contactGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt())
+		);
 		Message message = getMessage(contactGroupId);
 		Metadata meta = new Metadata();
 		// Version 4 is being delivered
@@ -255,6 +323,10 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// The previous update (version 3) should be deleted
 			oneOf(db).deleteMessage(txn, fooVersion3);
 			oneOf(db).deleteMessageMetadata(txn, fooVersion3);
+			// Look up the contact ID to broadcast an event
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroupId);
+			will(returnValue(contactGroupMeta));
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -292,6 +364,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			// The update being delivered (version 3) should be deleted
 			oneOf(db).deleteMessage(txn, message.getId());
 			oneOf(db).deleteMessageMetadata(txn, message.getId());
+			// No event should be broadcast
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
