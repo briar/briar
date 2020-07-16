@@ -13,6 +13,11 @@ public interface TransportPropertyConstants {
 	int MAX_PROPERTY_LENGTH = 100;
 
 	/**
+	 * Prefix for keys that represent reflected properties.
+	 */
+	String REFLECTED_PROPERTY_PREFIX = "u:";
+
+	/**
 	 * Message metadata key for the transport ID of a local or remote update,
 	 * as a BDF string.
 	 */

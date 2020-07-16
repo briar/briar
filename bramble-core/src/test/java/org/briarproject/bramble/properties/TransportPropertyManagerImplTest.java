@@ -61,23 +61,28 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 	private final Clock clock = context.mock(Clock.class);
 
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
-	private final BdfDictionary fooPropertiesDict = BdfDictionary.of(
-			new BdfEntry("fooKey1", "fooValue1"),
-			new BdfEntry("fooKey2", "fooValue2")
-	);
-	private final BdfDictionary barPropertiesDict = BdfDictionary.of(
-			new BdfEntry("barKey1", "barValue1"),
-			new BdfEntry("barKey2", "barValue2")
-	);
+	private final BdfDictionary fooPropertiesDict, barPropertiesDict;
+	private final BdfDictionary discoveredPropertiesDict, mergedPropertiesDict;
 	private final TransportProperties fooProperties, barProperties;
+	private final TransportProperties discoveredProperties;
 
-	public TransportPropertyManagerImplTest() throws Exception {
+	public TransportPropertyManagerImplTest() {
 		fooProperties = new TransportProperties();
-		for (String key : fooPropertiesDict.keySet())
-			fooProperties.put(key, fooPropertiesDict.getString(key));
+		fooProperties.put("fooKey1", "fooValue1");
+		fooProperties.put("fooKey2", "fooValue2");
+		fooPropertiesDict = new BdfDictionary(fooProperties);
+
 		barProperties = new TransportProperties();
-		for (String key : barPropertiesDict.keySet())
-			barProperties.put(key, barPropertiesDict.getString(key));
+		barProperties.put("barKey1", "barValue1");
+		barProperties.put("barKey2", "barValue2");
+		barPropertiesDict = new BdfDictionary(barProperties);
+
+		discoveredProperties = new TransportProperties();
+		discoveredProperties.put("fooKey3", "fooValue3");
+		discoveredPropertiesDict = new BdfDictionary(discoveredProperties);
+
+		mergedPropertiesDict = new BdfDictionary(fooProperties);
+		mergedPropertiesDict.put("u:fooKey3", "fooValue3");
 	}
 
 	private TransportPropertyManagerImpl createInstance() {
@@ -657,8 +662,54 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(emptyMap()));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(new BdfDictionary()));
 			expectStoreMessage(txn, contactGroup.getId(), "foo",
 					fooPropertiesDict, 1, true, true);
+		}});
+
+		TransportPropertyManagerImpl t = createInstance();
+		t.mergeLocalProperties(new TransportId("foo"), fooProperties);
+	}
+
+	@Test
+	public void testMergingNewPropertiesCreatesUpdateWithReflectedProperties()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+		Contact contact = getContact();
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+		BdfDictionary contactGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_DISCOVERED, discoveredPropertiesDict)
+		);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			// There are no existing properties to merge with
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(emptyMap()));
+			// Store the new properties in the local group, version 1
+			expectStoreMessage(txn, localGroup.getId(), "foo",
+					fooPropertiesDict, 1, true, false);
+			// Store the new properties in each contact's group, version 1
+			oneOf(db).getContacts(txn);
+			will(returnValue(singletonList(contact)));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(emptyMap()));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(contactGroupMeta));
+			// Reflect discovered properties
+			oneOf(clientHelper).parseAndValidateTransportProperties(
+					discoveredPropertiesDict);
+			will(returnValue(discoveredProperties));
+			expectStoreMessage(txn, contactGroup.getId(), "foo",
+					mergedPropertiesDict, 1, true, true);
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
@@ -713,8 +764,80 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(contactGroupMessageMetadata));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(new BdfDictionary()));
 			expectStoreMessage(txn, contactGroup.getId(), "foo",
 					fooPropertiesDict, 2, true, true);
+			// Delete the previous update
+			oneOf(db).removeMessage(txn, contactGroupUpdateId);
+		}});
+
+		TransportPropertyManagerImpl t = createInstance();
+		t.mergeLocalProperties(new TransportId("foo"), fooProperties);
+	}
+
+	@Test
+	public void testMergingUpdatedPropertiesCreatesUpdateWithReflectedProperties()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+		Contact contact = getContact();
+		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+		BdfDictionary contactGroupMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_DISCOVERED, discoveredPropertiesDict)
+		);
+		BdfDictionary oldMetadata = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_TRANSPORT_ID, "foo"),
+				new BdfEntry(MSG_KEY_VERSION, 1),
+				new BdfEntry(MSG_KEY_LOCAL, true)
+		);
+		MessageId localGroupUpdateId = new MessageId(getRandomId());
+		Map<MessageId, BdfDictionary> localGroupMessageMetadata =
+				singletonMap(localGroupUpdateId, oldMetadata);
+		MessageId contactGroupUpdateId = new MessageId(getRandomId());
+		Map<MessageId, BdfDictionary> contactGroupMessageMetadata =
+				singletonMap(contactGroupUpdateId, oldMetadata);
+		TransportProperties oldProperties = new TransportProperties();
+		oldProperties.put("fooKey1", "oldFooValue1");
+		BdfDictionary oldPropertiesDict = BdfDictionary.of(
+				new BdfEntry("fooKey1", "oldFooValue1")
+		);
+		BdfList oldUpdate = BdfList.of("foo", 1, oldPropertiesDict);
+
+		context.checking(new DbExpectations() {{
+			oneOf(db).transaction(with(false), withDbRunnable(txn));
+			// Merge the new properties with the existing properties
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					localGroup.getId());
+			will(returnValue(localGroupMessageMetadata));
+			oneOf(clientHelper).getMessageAsList(txn, localGroupUpdateId);
+			will(returnValue(oldUpdate));
+			oneOf(clientHelper).parseAndValidateTransportProperties(
+					oldPropertiesDict);
+			will(returnValue(oldProperties));
+			// Store the merged properties in the local group, version 2
+			expectStoreMessage(txn, localGroup.getId(), "foo",
+					fooPropertiesDict, 2, true, false);
+			// Delete the previous update
+			oneOf(db).removeMessage(txn, localGroupUpdateId);
+			// Store the merged properties in each contact's group, version 2
+			oneOf(db).getContacts(txn);
+			will(returnValue(singletonList(contact)));
+			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
+					MAJOR_VERSION, contact);
+			will(returnValue(contactGroup));
+			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(contactGroupMessageMetadata));
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(contactGroupMeta));
+			// Reflect discovered properties
+			oneOf(clientHelper).parseAndValidateTransportProperties(
+					discoveredPropertiesDict);
+			will(returnValue(discoveredProperties));
+			expectStoreMessage(txn, contactGroup.getId(), "foo",
+					mergedPropertiesDict, 2, true, true);
 			// Delete the previous update
 			oneOf(db).removeMessage(txn, contactGroupUpdateId);
 		}});
