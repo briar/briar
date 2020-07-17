@@ -8,11 +8,15 @@ import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
+import org.briarproject.bramble.api.db.CommitAction;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.EventAction;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.properties.event.RemoteTransportPropertiesUpdatedEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
@@ -47,6 +51,7 @@ import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
@@ -290,6 +295,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 		TransportPropertyManagerImpl t = createInstance();
 		assertFalse(t.incomingMessage(txn, message, meta));
+		assertTrue(hasEvent(txn, RemoteTransportPropertiesUpdatedEvent.class));
 	}
 
 	@Test
@@ -336,6 +342,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 		TransportPropertyManagerImpl t = createInstance();
 		assertFalse(t.incomingMessage(txn, message, meta));
+		assertTrue(hasEvent(txn, RemoteTransportPropertiesUpdatedEvent.class));
 	}
 
 	@Test
@@ -374,6 +381,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 
 		TransportPropertyManagerImpl t = createInstance();
 		assertFalse(t.incomingMessage(txn, message, meta));
+		assertFalse(hasEvent(txn, RemoteTransportPropertiesUpdatedEvent.class));
 	}
 
 	@Test
@@ -902,5 +910,16 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).addLocalMessage(txn, message, meta, shared,
 					false);
 		}});
+	}
+
+	private boolean hasEvent(Transaction txn,
+			Class<? extends Event> eventClass) {
+		for (CommitAction action : txn.getActions()) {
+			if (action instanceof EventAction) {
+				Event event = ((EventAction) action).getEvent();
+				if (eventClass.isInstance(event)) return true;
+			}
+		}
+		return false;
 	}
 }
