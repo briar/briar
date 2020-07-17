@@ -514,15 +514,15 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			LOG.warning("Tor did not return a private key");
 			return;
 		}
-		// Publish the hidden service's onion hostname in transport properties
 		String onion3 = response.get(HS_ADDRESS);
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("V3 hidden service " + scrubOnion(onion3));
 		}
-		TransportProperties p = new TransportProperties();
-		p.put(PROP_ONION_V3, onion3);
-		callback.mergeLocalProperties(p);
 		if (privKey == null) {
+			// Publish the hidden service's onion hostname in transport props
+			TransportProperties p = new TransportProperties();
+			p.put(PROP_ONION_V3, onion3);
+			callback.mergeLocalProperties(p);
 			// Save the hidden service's private key for next time
 			Settings s = new Settings();
 			s.put(HS_PRIVATE_KEY_V3, response.get(HS_PRIVKEY));
