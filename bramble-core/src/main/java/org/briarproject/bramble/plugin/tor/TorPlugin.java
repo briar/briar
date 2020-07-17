@@ -452,7 +452,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 		// in the migration period since first publishing it
 		if (!isNullOrEmpty(privKey2)) {
 			long now = clock.currentTimeMillis();
-			long then = v3Created == null ? now : Long.valueOf(v3Created);
+			long then = v3Created == null ? now : Long.parseLong(v3Created);
 			if (now - then >= V3_MIGRATION_PERIOD_MS) retireV2HiddenService();
 			else publishV2HiddenService(port, privKey2);
 		}
