@@ -12,7 +12,10 @@ public interface BluetoothConstants {
 
 	// Local settings (not shared with contacts)
 	String PREF_ADDRESS_IS_REFLECTED = "addressIsReflected";
+	String PREF_EVER_CONNECTED = "everConnected";
 
-	// Default value for PREF_PLUGIN_ENABLE
+	// Default values for local settings
 	boolean DEFAULT_PREF_PLUGIN_ENABLE = false;
+	boolean DEFAULT_PREF_ADDRESS_IS_REFLECTED = false;
+	boolean DEFAULT_PREF_EVER_CONNECTED = false;
 }
