@@ -26,7 +26,9 @@ import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Scanner;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.FutureTask;
@@ -53,6 +55,8 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 public class BriarReportPrimer implements ReportPrimer {
+
+	private static final int MAX_PERSISTED_LOG_LINES = 1_000;
 
 	@Override
 	public void primeReport(@NonNull Context ctx,
@@ -271,9 +275,16 @@ public class BriarReportPrimer implements ReportPrimer {
 			File logDir = ctx.getDir("log", MODE_PRIVATE);
 			StringBuilder sb = new StringBuilder();
 			try {
-				for (String line : logManager.getPersistedLog(logDir, old)) {
-					sb.append(line).append('\n');
+				Scanner scanner = logManager.getPersistedLog(logDir, old);
+				LinkedList<String> lines = new LinkedList<>();
+				int numLines = 0;
+				while (scanner.hasNextLine()) {
+					lines.add(scanner.nextLine());
+					if (numLines == MAX_PERSISTED_LOG_LINES) lines.pollFirst();
+					else numLines++;
 				}
+				scanner.close();
+				for (String line : lines) sb.append(line).append('\n');
 			} catch (IOException e) {
 				sb.append("Could not recover persisted log: ").append(e);
 			}

@@ -16,14 +16,13 @@ import org.briarproject.bramble.api.transport.StreamReaderFactory;
 import org.briarproject.bramble.api.transport.StreamWriter;
 import org.briarproject.bramble.api.transport.StreamWriterFactory;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ScheduledExecutorService;
@@ -37,7 +36,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static java.util.Collections.emptyList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -52,7 +50,6 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 
 	private static final String LOG_FILE = "briar.log";
 	private static final String OLD_LOG_FILE = "briar.log.old";
-	private static final int MAX_LINES_TO_RETURN = 10_000;
 
 	private final ScheduledExecutorService scheduler;
 	private final Executor ioExecutor;
@@ -147,13 +144,13 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 	}
 
 	@Override
-	public List<String> getPersistedLog(File dir, boolean old)
+	public Scanner getPersistedLog(File dir, boolean old)
 			throws IOException {
 		if (old) {
 			SecretKey oldLogKey = this.oldLogKey;
 			if (oldLogKey == null) {
 				LOG.info("Old log key has not been loaded");
-				return emptyList();
+				return emptyScanner();
 			}
 			return getPersistedLog(new File(dir, OLD_LOG_FILE), oldLogKey);
 		} else {
@@ -161,31 +158,20 @@ class PersistentLogManagerImpl implements PersistentLogManager,
 		}
 	}
 
-	private List<String> getPersistedLog(File logFile, SecretKey key)
+	private Scanner getPersistedLog(File logFile, SecretKey key)
 			throws IOException {
 		if (logFile.exists()) {
 			LOG.info("Reading log file");
-			LinkedList<String> lines = new LinkedList<>();
-			int numLines = 0;
 			InputStream in = new FileInputStream(logFile);
-			//noinspection TryFinallyCanBeTryWithResources
-			try {
-				InputStream reader = streamReaderFactory
-						.createLogStreamReader(in, key);
-				Scanner s = new Scanner(reader);
-				while (s.hasNextLine()) {
-					lines.add(s.nextLine());
-					if (numLines == MAX_LINES_TO_RETURN) lines.poll();
-					else numLines++;
-				}
-				s.close();
-				return lines;
-			} finally {
-				in.close();
-			}
+			return new Scanner(streamReaderFactory.createLogStreamReader(in,
+					key));
 		} else {
 			LOG.info("Log file does not exist");
-			return emptyList();
+			return emptyScanner();
 		}
+	}
+
+	private Scanner emptyScanner() {
+		return new Scanner(new ByteArrayInputStream(new byte[0]));
 	}
 }
