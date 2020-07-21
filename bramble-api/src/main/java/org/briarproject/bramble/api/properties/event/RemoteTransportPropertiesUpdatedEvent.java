@@ -1,6 +1,5 @@
 package org.briarproject.bramble.api.properties.event;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -16,17 +15,10 @@ import javax.annotation.concurrent.Immutable;
 @NotNullByDefault
 public class RemoteTransportPropertiesUpdatedEvent extends Event {
 
-	private final ContactId contactId;
 	private final TransportId transportId;
 
-	public RemoteTransportPropertiesUpdatedEvent(ContactId contactId,
-			TransportId transportId) {
-		this.contactId = contactId;
+	public RemoteTransportPropertiesUpdatedEvent(TransportId transportId) {
 		this.transportId = transportId;
-	}
-
-	public ContactId getContactId() {
-		return contactId;
 	}
 
 	public TransportId getTransportId() {
