@@ -652,6 +652,10 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		Contact contact = getContact();
 		Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 
+		// Property with an empty value should be discarded
+		TransportProperties properties = new TransportProperties(fooProperties);
+		properties.put("fooKey3", "");
+
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
 			// There are no existing properties to merge with
@@ -678,7 +682,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
-		t.mergeLocalProperties(new TransportId("foo"), fooProperties);
+		t.mergeLocalProperties(new TransportId("foo"), properties);
 	}
 
 	@Test
@@ -737,15 +741,23 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		MessageId localGroupUpdateId = new MessageId(getRandomId());
 		Map<MessageId, BdfDictionary> localGroupMessageMetadata =
 				singletonMap(localGroupUpdateId, oldMetadata);
+
 		MessageId contactGroupUpdateId = new MessageId(getRandomId());
 		Map<MessageId, BdfDictionary> contactGroupMessageMetadata =
 				singletonMap(contactGroupUpdateId, oldMetadata);
+
 		TransportProperties oldProperties = new TransportProperties();
 		oldProperties.put("fooKey1", "oldFooValue1");
+		oldProperties.put("fooKey3", "oldFooValue3");
 		BdfDictionary oldPropertiesDict = BdfDictionary.of(
-				new BdfEntry("fooKey1", "oldFooValue1")
+				new BdfEntry("fooKey1", "oldFooValue1"),
+				new BdfEntry("fooKey3", "oldFooValue3")
 		);
 		BdfList oldUpdate = BdfList.of("foo", 1, oldPropertiesDict);
+
+		// Property assigned an empty value should be removed
+		TransportProperties properties = new TransportProperties(fooProperties);
+		properties.put("fooKey3", "");
 
 		context.checking(new DbExpectations() {{
 			oneOf(db).transaction(with(false), withDbRunnable(txn));
@@ -782,7 +794,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 		}});
 
 		TransportPropertyManagerImpl t = createInstance();
-		t.mergeLocalProperties(new TransportId("foo"), fooProperties);
+		t.mergeLocalProperties(new TransportId("foo"), properties);
 	}
 
 	@Test

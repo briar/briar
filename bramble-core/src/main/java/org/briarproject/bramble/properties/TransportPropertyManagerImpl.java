@@ -31,6 +31,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -45,6 +46,7 @@ import static org.briarproject.bramble.api.properties.TransportPropertyConstants
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_TRANSPORT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_VERSION;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.REFLECTED_PROPERTY_PREFIX;
+import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
 @NotNullByDefault
@@ -348,14 +350,22 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				LatestUpdate latest = findLatest(txn, localGroup.getId(), t,
 						true);
 				if (latest == null) {
-					merged = p;
+					merged = new TransportProperties(p);
+					Iterator<String> it = merged.values().iterator();
+					while (it.hasNext()) {
+						if (isNullOrEmpty(it.next())) it.remove();
+					}
 					changed = true;
 				} else {
 					BdfList message = clientHelper.getMessageAsList(txn,
 							latest.messageId);
 					TransportProperties old = parseProperties(message);
 					merged = new TransportProperties(old);
-					merged.putAll(p);
+					for (Entry<String, String> e : p.entrySet()) {
+						String key = e.getKey(), value = e.getValue();
+						if (isNullOrEmpty(value)) merged.remove(key);
+						else merged.put(key, value);
+					}
 					changed = !merged.equals(old);
 				}
 				if (changed) {
