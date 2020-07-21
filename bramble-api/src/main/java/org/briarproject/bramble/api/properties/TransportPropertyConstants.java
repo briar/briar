@@ -40,15 +40,4 @@ public interface TransportPropertyConstants {
 	 * contact, as a BDF dictionary.
 	 */
 	String GROUP_KEY_DISCOVERED = "discovered";
-
-	/**
-	 * Group metadata key for the contact's ID as a BDF long.
-	 */
-	String GROUP_KEY_CONTACT_ID = "contactId";
-
-	/**
-	 * Group metadata key for the local group, indicating that contact IDs have
-	 * been stored in the group metadata of contact groups.
-	 */
-	String GROUP_KEY_CONTACT_IDS_STORED = "contactIdsStored";
 }
