@@ -224,14 +224,17 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Local address " + scrubMacAddress(address));
 			}
-			if (address == null && everConnected.get()) {
-				address = getReflectedAddress();
-				if (LOG.isLoggable(INFO)) {
-					LOG.info("Reflected address " + scrubMacAddress(address));
-				}
-				if (address != null) {
-					changed = true;
-					isReflected = true;
+			if (address == null) {
+				if (everConnected.get()) {
+					address = getReflectedAddress();
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Reflected address " +
+								scrubMacAddress(address));
+					}
+					if (address != null) {
+						changed = true;
+						isReflected = true;
+					}
 				}
 			} else {
 				changed = true;
