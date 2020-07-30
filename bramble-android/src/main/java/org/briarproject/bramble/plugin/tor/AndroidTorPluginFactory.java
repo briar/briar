@@ -16,10 +16,10 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.util.AndroidUtils;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
@@ -39,7 +39,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final Context appContext;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
@@ -52,12 +52,17 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final Clock clock;
 
 	public AndroidTorPluginFactory(Executor ioExecutor,
-			ScheduledExecutorService scheduler, Context appContext,
-			NetworkManager networkManager, LocationUtils locationUtils,
-			EventBus eventBus, SocketFactory torSocketFactory,
-			BackoffFactory backoffFactory, ResourceProvider resourceProvider,
+			TaskScheduler scheduler,
+			Context appContext,
+			NetworkManager networkManager,
+			LocationUtils locationUtils,
+			EventBus eventBus,
+			SocketFactory torSocketFactory,
+			BackoffFactory backoffFactory,
+			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Clock clock) {
+			BatteryManager batteryManager,
+			Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.appContext = appContext;

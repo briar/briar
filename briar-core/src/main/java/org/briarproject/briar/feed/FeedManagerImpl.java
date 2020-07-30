@@ -29,7 +29,7 @@ import org.briarproject.bramble.api.plugin.event.TransportInactiveEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -48,7 +48,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -85,7 +84,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 
 	private static final int CONNECT_TIMEOUT = 60 * 1000; // Milliseconds
 
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final Executor ioExecutor;
 	private final DatabaseComponent db;
 	private final ContactGroupFactory contactGroupFactory;
@@ -101,13 +100,17 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private volatile boolean torActive = false;
 
 	@Inject
-	FeedManagerImpl(@Scheduler ScheduledExecutorService scheduler,
-			@IoExecutor Executor ioExecutor, DatabaseComponent db,
-			ContactGroupFactory contactGroupFactory, ClientHelper clientHelper,
-			BlogManager blogManager, BlogPostFactory blogPostFactory,
-			FeedFactory feedFactory, SocketFactory torSocketFactory,
-			Clock clock, Dns noDnsLookups) {
-
+	FeedManagerImpl(TaskScheduler scheduler,
+			@IoExecutor Executor ioExecutor,
+			DatabaseComponent db,
+			ContactGroupFactory contactGroupFactory,
+			ClientHelper clientHelper,
+			BlogManager blogManager,
+			BlogPostFactory blogPostFactory,
+			FeedFactory feedFactory,
+			SocketFactory torSocketFactory,
+			Clock clock,
+			Dns noDnsLookups) {
 		this.scheduler = scheduler;
 		this.ioExecutor = ioExecutor;
 		this.db = db;
@@ -285,7 +288,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	 * This method is called periodically from a background service.
 	 * It fetches all available feeds and posts new entries to the respective
 	 * blog.
-	 *
+	 * <p>
 	 * We can not do this within one database {@link Transaction},
 	 * because fetching can take a long time
 	 * and we can not block the database that long.
@@ -491,9 +494,9 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private Comparator<SyndEntry> getEntryComparator() {
 		return (e1, e2) -> {
 			Date d1 = e1.getPublishedDate() != null ? e1.getPublishedDate() :
-							e1.getUpdatedDate();
+					e1.getUpdatedDate();
 			Date d2 = e2.getPublishedDate() != null ? e2.getPublishedDate() :
-							e2.getUpdatedDate();
+					e2.getUpdatedDate();
 			if (d1 == null && d2 == null) return 0;
 			if (d1 == null) return -1;
 			if (d2 == null) return 1;

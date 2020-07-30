@@ -41,7 +41,7 @@ import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedE
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -52,7 +52,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -80,7 +79,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	private static final Logger LOG =
 			getLogger(RendezvousPollerImpl.class.getName());
 
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
 	private final TransportCrypto transportCrypto;
@@ -105,7 +104,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 
 	@Inject
 	RendezvousPollerImpl(@IoExecutor Executor ioExecutor,
-			@Scheduler ScheduledExecutorService scheduler,
+			TaskScheduler scheduler,
 			DatabaseComponent db,
 			IdentityManager identityManager,
 			TransportCrypto transportCrypto,
@@ -205,7 +204,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		return plugin.createRendezvousEndpoint(k, cs.alice, h);
 	}
 
-	@Scheduler
+	// Scheduler
 	private void poll() {
 		worker.execute(() -> {
 			removeExpiredPendingContacts();

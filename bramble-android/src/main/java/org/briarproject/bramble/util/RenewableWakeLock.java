@@ -3,8 +3,8 @@ package org.briarproject.bramble.util;
 import android.os.PowerManager;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.TaskScheduler;
 
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
@@ -29,7 +29,7 @@ public class RenewableWakeLock {
 	private static final int SAFETY_MARGIN_MS = 10_000;
 
 	private final PowerManager powerManager;
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final int levelAndFlags;
 	private final String tag;
 	private final long durationMs;
@@ -39,10 +39,10 @@ public class RenewableWakeLock {
 	@Nullable
 	private PowerManager.WakeLock wakeLock; // Locking: lock
 	@Nullable
-	private ScheduledFuture future; // Locking: lock
+	private ScheduledFuture<?> future; // Locking: lock
 
 	public RenewableWakeLock(PowerManager powerManager,
-			ScheduledExecutorService scheduler, int levelAndFlags, String tag,
+			TaskScheduler scheduler, int levelAndFlags, String tag,
 			long duration, TimeUnit timeUnit) {
 		this.powerManager = powerManager;
 		this.scheduler = scheduler;

@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.api.blog.Blog;
@@ -30,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.SocketFactory;
 
@@ -45,8 +45,7 @@ import static org.briarproject.briar.api.feed.FeedManager.MAJOR_VERSION;
 
 public class FeedManagerImplTest extends BrambleMockTestCase {
 
-	private final ScheduledExecutorService scheduler =
-			context.mock(ScheduledExecutorService.class);
+	private final TaskScheduler scheduler = context.mock(TaskScheduler.class);
 	private final Executor ioExecutor = new ImmediateExecutor();
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final ContactGroupFactory contactGroupFactory =
@@ -92,7 +91,7 @@ public class FeedManagerImplTest extends BrambleMockTestCase {
 
 	@Test
 	public void testFetchFeedsIoException() throws Exception {
-		BdfDictionary feedDict= new BdfDictionary();
+		BdfDictionary feedDict = new BdfDictionary();
 		BdfList feedList = BdfList.of(feedDict);
 
 		expectGetFeeds(feedList);

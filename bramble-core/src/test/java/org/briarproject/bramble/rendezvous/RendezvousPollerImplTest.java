@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionClosedE
 import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedEvent;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.CaptureArgumentAction;
 import org.briarproject.bramble.test.DbExpectations;
@@ -37,7 +38,6 @@ import org.junit.Test;
 
 import java.util.Random;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static java.util.Collections.emptyList;
@@ -60,8 +60,7 @@ import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 
 public class RendezvousPollerImplTest extends BrambleMockTestCase {
 
-	private final ScheduledExecutorService scheduler =
-			context.mock(ScheduledExecutorService.class);
+	private final TaskScheduler scheduler = context.mock(TaskScheduler.class);
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
 	private final IdentityManager identityManager =
 			context.mock(IdentityManager.class);

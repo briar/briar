@@ -2,7 +2,7 @@ package org.briarproject.bramble.system;
 
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ScheduledExecutorService;
@@ -19,17 +19,16 @@ public class SystemModule {
 
 	public static class EagerSingletons {
 		@Inject
-		@Scheduler
-		ScheduledExecutorService scheduledExecutorService;
+		TaskScheduler scheduler;
 	}
 
-	private final ScheduledExecutorService scheduler;
+	private final ScheduledExecutorService scheduledExecutorService;
 
 	public SystemModule() {
 		// Discard tasks that are submitted during shutdown
 		RejectedExecutionHandler policy =
 				new ScheduledThreadPoolExecutor.DiscardPolicy();
-		scheduler = new ScheduledThreadPoolExecutor(1, policy);
+		scheduledExecutorService = new ScheduledThreadPoolExecutor(1, policy);
 	}
 
 	@Provides
@@ -39,10 +38,8 @@ public class SystemModule {
 
 	@Provides
 	@Singleton
-	@Scheduler
-	ScheduledExecutorService provideScheduledExecutorService(
-			LifecycleManager lifecycleManager) {
-		lifecycleManager.registerForShutdown(scheduler);
-		return scheduler;
+	TaskScheduler provideTaskScheduler(LifecycleManager lifecycleManager) {
+		lifecycleManager.registerForShutdown(scheduledExecutorService);
+		return new TaskSchedulerImpl(scheduledExecutorService);
 	}
 }

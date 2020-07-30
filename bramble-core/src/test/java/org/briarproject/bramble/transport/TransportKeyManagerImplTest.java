@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.api.transport.IncomingKeys;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.OutgoingKeys;
@@ -29,7 +30,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -55,8 +55,7 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 	private final TransportCrypto transportCrypto =
 			context.mock(TransportCrypto.class);
 	private final Executor dbExecutor = context.mock(Executor.class);
-	private final ScheduledExecutorService scheduler =
-			context.mock(ScheduledExecutorService.class);
+	private final TaskScheduler scheduler = context.mock(TaskScheduler.class);
 	private final Clock clock = context.mock(Clock.class);
 
 	private final TransportId transportId = getTransportId();

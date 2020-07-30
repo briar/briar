@@ -8,12 +8,12 @@ import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.duplex.AbstractDuplexTransportConnection;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.util.RenewableWakeLock;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.concurrent.ScheduledExecutorService;
 
 import static android.content.Context.POWER_SERVICE;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
@@ -34,9 +34,10 @@ class AndroidBluetoothTransportConnection
 
 	AndroidBluetoothTransportConnection(Plugin plugin,
 			BluetoothConnectionLimiter connectionLimiter,
-			TimeoutMonitor timeoutMonitor, Context appContext,
-			ScheduledExecutorService scheduler, BluetoothSocket socket)
-			throws IOException {
+			TimeoutMonitor timeoutMonitor,
+			Context appContext,
+			TaskScheduler scheduler,
+			BluetoothSocket socket) throws IOException {
 		super(plugin);
 		this.connectionLimiter = connectionLimiter;
 		this.socket = socket;

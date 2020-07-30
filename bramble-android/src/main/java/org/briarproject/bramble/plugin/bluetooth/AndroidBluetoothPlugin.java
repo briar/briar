@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.IoUtils;
 
@@ -31,7 +32,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -67,7 +67,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 
 	private static final int MAX_DISCOVERY_MS = 10_000;
 
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final Clock clock;
@@ -79,10 +79,16 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private volatile BluetoothAdapter adapter = null;
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
-			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
-			SecureRandom secureRandom, ScheduledExecutorService scheduler,
-			AndroidExecutor androidExecutor, Context appContext, Clock clock,
-			Backoff backoff, PluginCallback callback, int maxLatency,
+			TimeoutMonitor timeoutMonitor,
+			Executor ioExecutor,
+			SecureRandom secureRandom,
+			TaskScheduler scheduler,
+			AndroidExecutor androidExecutor,
+			Context appContext,
+			Clock clock,
+			Backoff backoff,
+			PluginCallback callback,
+			int maxLatency,
 			int maxIdleTime) {
 		super(connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
 				backoff, callback, maxLatency, maxIdleTime);
