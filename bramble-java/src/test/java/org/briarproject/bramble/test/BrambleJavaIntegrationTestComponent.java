@@ -1,6 +1,6 @@
 package org.briarproject.bramble.test;
 
-import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.BrambleJavaModule;
 import org.briarproject.bramble.plugin.tor.BridgeTest;
@@ -17,7 +17,7 @@ import dagger.Component;
 		BrambleJavaModule.class
 })
 public interface BrambleJavaIntegrationTestComponent
-		extends BrambleCoreEagerSingletons {
+		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(BridgeTest init);
 

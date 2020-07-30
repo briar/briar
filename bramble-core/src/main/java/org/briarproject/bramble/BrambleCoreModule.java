@@ -21,7 +21,7 @@ import org.briarproject.bramble.rendezvous.RendezvousModule;
 import org.briarproject.bramble.settings.SettingsModule;
 import org.briarproject.bramble.sync.SyncModule;
 import org.briarproject.bramble.sync.validation.ValidationModule;
-import org.briarproject.bramble.system.SystemModule;
+import org.briarproject.bramble.system.ClockModule;
 import org.briarproject.bramble.transport.TransportModule;
 import org.briarproject.bramble.versioning.VersioningModule;
 
@@ -29,6 +29,7 @@ import dagger.Module;
 
 @Module(includes = {
 		ClientModule.class,
+		ClockModule.class,
 		ConnectionModule.class,
 		ContactModule.class,
 		CryptoModule.class,
@@ -48,7 +49,6 @@ import dagger.Module;
 		RendezvousModule.class,
 		SettingsModule.class,
 		SyncModule.class,
-		SystemModule.class,
 		TransportModule.class,
 		ValidationModule.class,
 		VersioningModule.class

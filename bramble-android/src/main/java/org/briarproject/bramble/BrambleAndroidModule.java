@@ -6,6 +6,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionModule;
 import org.briarproject.bramble.reporting.ReportingModule;
 import org.briarproject.bramble.socks.SocksModule;
 import org.briarproject.bramble.system.AndroidSystemModule;
+import org.briarproject.bramble.system.DefaultTaskSchedulerModule;
 
 import dagger.Module;
 
@@ -14,6 +15,7 @@ import dagger.Module;
 		AndroidNetworkModule.class,
 		AndroidSystemModule.class,
 		CircumventionModule.class,
+		DefaultTaskSchedulerModule.class,
 		ReportingModule.class,
 		SocksModule.class
 })

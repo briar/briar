@@ -1,6 +1,6 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.client.BriarClientModule;
@@ -19,7 +19,7 @@ import dagger.Component;
 		MessagingModule.class
 })
 interface MessageSizeIntegrationTestComponent
-		extends BrambleCoreEagerSingletons {
+		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(MessageSizeIntegrationTest testCase);
 
@@ -31,7 +31,8 @@ interface MessageSizeIntegrationTestComponent
 
 		public static void injectEagerSingletons(
 				MessageSizeIntegrationTestComponent c) {
-			BrambleCoreEagerSingletons.Helper.injectEagerSingletons(c);
+			BrambleCoreIntegrationTestEagerSingletons.Helper
+					.injectEagerSingletons(c);
 			c.inject(new ForumModule.EagerSingletons());
 			c.inject(new MessagingModule.EagerSingletons());
 		}
