@@ -5,7 +5,7 @@ import android.os.PowerManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
@@ -39,7 +39,7 @@ public class RenewableWakeLock {
 	@Nullable
 	private PowerManager.WakeLock wakeLock; // Locking: lock
 	@Nullable
-	private ScheduledFuture<?> future; // Locking: lock
+	private Future<?> future; // Locking: lock
 
 	public RenewableWakeLock(PowerManager powerManager,
 			TaskScheduler scheduler, int levelAndFlags, String tag,

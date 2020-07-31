@@ -31,7 +31,7 @@ import org.junit.Test;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Future;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -55,8 +55,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 	private final TransportPropertyManager transportPropertyManager =
 			context.mock(TransportPropertyManager.class);
 	private final Clock clock = context.mock(Clock.class);
-	private final ScheduledFuture<?> future =
-			context.mock(ScheduledFuture.class);
+	private final Future<?> future = context.mock(Future.class);
 	private final SecureRandom random;
 
 	private final Executor ioExecutor = new ImmediateExecutor();

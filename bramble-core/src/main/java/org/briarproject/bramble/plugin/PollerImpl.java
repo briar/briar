@@ -189,7 +189,7 @@ class PollerImpl implements Poller, EventListener {
 				// it will abort safely when it finds it's been replaced
 				if (scheduled != null) scheduled.future.cancel(false);
 				PollTask task = new PollTask(p, due, randomiseNext);
-				Future future = scheduler.schedule(() ->
+				Future<?> future = scheduler.schedule(() ->
 						ioExecutor.execute(task), delay, MILLISECONDS);
 				tasks.put(t, new ScheduledPollTask(task, future));
 			}

@@ -18,6 +18,7 @@ import org.acra.ACRA;
 import org.acra.ReportingInteractionMode;
 import org.acra.annotation.ReportsCrashes;
 import org.briarproject.bramble.BrambleAndroidEagerSingletons;
+import org.briarproject.bramble.BrambleAppComponent;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 import org.briarproject.briar.BuildConfig;
@@ -168,6 +169,11 @@ public class BriarApplicationImpl extends Application
 		vmPolicy.detectAll();
 		vmPolicy.penaltyLog();
 		StrictMode.setVmPolicy(vmPolicy.build());
+	}
+
+	@Override
+	public BrambleAppComponent getBrambleAppComponent() {
+		return applicationComponent;
 	}
 
 	@Override

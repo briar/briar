@@ -2,8 +2,8 @@ package org.briarproject.bramble.api.system;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
+import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,17 +18,17 @@ public interface TaskScheduler {
 	/**
 	 * See {@link ScheduledExecutorService#schedule(Runnable, long, TimeUnit)}.
 	 */
-	ScheduledFuture<?> schedule(Runnable task, long delay, TimeUnit unit);
+	Future<?> schedule(Runnable task, long delay, TimeUnit unit);
 
 	/**
 	 * See {@link ScheduledExecutorService#scheduleAtFixedRate(Runnable, long, long, TimeUnit)}.
 	 */
-	ScheduledFuture<?> scheduleAtFixedRate(Runnable task, long delay,
-			long interval, TimeUnit unit);
+	Future<?> scheduleAtFixedRate(Runnable task, long delay, long interval,
+			TimeUnit unit);
 
 	/**
 	 * See {@link ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)}.
 	 */
-	ScheduledFuture<?> scheduleWithFixedDelay(Runnable task, long delay,
+	Future<?> scheduleWithFixedDelay(Runnable task, long delay,
 			long interval, TimeUnit unit);
 }

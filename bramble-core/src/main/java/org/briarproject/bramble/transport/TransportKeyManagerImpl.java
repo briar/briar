@@ -198,7 +198,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private void scheduleKeyUpdate(long now) {
 		long delay = timePeriodLength - now % timePeriodLength;
-		scheduler.schedule((Runnable) this::updateKeys, delay, MILLISECONDS);
+		scheduler.schedule(this::updateKeys, delay, MILLISECONDS);
 	}
 
 	private void updateKeys() {
