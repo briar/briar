@@ -15,6 +15,7 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
@@ -40,6 +41,8 @@ class RenewableWakeLock implements SharedWakeLock {
 	private Future<?> future;
 	@GuardedBy("lock")
 	private int refCount = 0;
+	@GuardedBy("lock")
+	private long acquired = 0;
 
 	RenewableWakeLock(PowerManager powerManager, TaskScheduler scheduler,
 			int levelAndFlags, String tag, long durationMs,
@@ -68,6 +71,7 @@ class RenewableWakeLock implements SharedWakeLock {
 				wakeLock.acquire(durationMs + safetyMarginMs);
 				future = scheduler.schedule(this::renew, durationMs,
 						MILLISECONDS);
+				acquired = android.os.SystemClock.elapsedRealtime();
 			}
 		}
 	}
@@ -79,12 +83,18 @@ class RenewableWakeLock implements SharedWakeLock {
 				LOG.info("Already released");
 				return;
 			}
+			long now = android.os.SystemClock.elapsedRealtime();
+			long expiry = acquired + durationMs + safetyMarginMs;
+			if (now > expiry && LOG.isLoggable(WARNING)) {
+				LOG.warning("Wake lock expired " + (now - expiry) + " ms ago");
+			}
 			WakeLock oldWakeLock = wakeLock;
 			wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
 			wakeLock.setReferenceCounted(false);
 			wakeLock.acquire(durationMs + safetyMarginMs);
 			oldWakeLock.release();
 			future = scheduler.schedule(this::renew, durationMs, MILLISECONDS);
+			acquired = now;
 		}
 	}
 
@@ -100,6 +110,7 @@ class RenewableWakeLock implements SharedWakeLock {
 				future = null;
 				requireNonNull(wakeLock).release();
 				wakeLock = null;
+				acquired = 0;
 			}
 		}
 	}
