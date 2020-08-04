@@ -143,7 +143,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}
-		scheduler.scheduleAtFixedRate(this::poll, POLLING_INTERVAL_MS,
+		scheduler.scheduleWithFixedDelay(this::poll, POLLING_INTERVAL_MS,
 				POLLING_INTERVAL_MS, MILLISECONDS);
 	}
 

@@ -29,12 +29,6 @@ class TaskSchedulerImpl implements TaskScheduler {
 	}
 
 	@Override
-	public Future<?> scheduleAtFixedRate(Runnable task, long delay,
-			long interval, TimeUnit unit) {
-		return delegate.scheduleAtFixedRate(task, delay, interval, unit);
-	}
-
-	@Override
 	public Future<?> scheduleWithFixedDelay(Runnable task, long delay,
 			long interval, TimeUnit unit) {
 		return delegate.scheduleWithFixedDelay(task, delay, interval, unit);

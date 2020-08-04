@@ -122,7 +122,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					PendingContactStateChangedEvent.class, e ->
 					e.getPendingContactState() == OFFLINE)));
 			// Capture the poll task
-			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
+			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
 					with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
@@ -158,7 +158,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					PendingContactStateChangedEvent.class, e ->
 					e.getPendingContactState() == FAILED)));
 			// Schedule the poll task
-			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
+			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
 					with(MILLISECONDS));
 		}});
@@ -467,7 +467,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			oneOf(db).getPendingContacts(txn);
 			will(returnValue(emptyList()));
 			// Capture the poll task
-			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
+			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
 					with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
@@ -544,7 +544,7 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					PendingContactStateChangedEvent.class, e ->
 					e.getPendingContactState() == OFFLINE)));
 			// Capture the poll task
-			oneOf(scheduler).scheduleAtFixedRate(with(any(Runnable.class)),
+			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
 					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
 					with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,

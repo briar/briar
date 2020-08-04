@@ -96,16 +96,6 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	@Override
-	public Future<?> scheduleAtFixedRate(Runnable task, long delay,
-			long interval, TimeUnit unit) {
-		Runnable wrapped = () -> {
-			scheduleAtFixedRate(task, interval, interval, unit);
-			task.run();
-		};
-		return schedule(wrapped, delay, unit);
-	}
-
-	@Override
 	public Future<?> scheduleWithFixedDelay(Runnable task, long delay,
 			long interval, TimeUnit unit) {
 		Runnable wrapped = () -> {

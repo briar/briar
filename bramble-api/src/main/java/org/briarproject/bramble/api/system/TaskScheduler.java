@@ -21,12 +21,6 @@ public interface TaskScheduler {
 	Future<?> schedule(Runnable task, long delay, TimeUnit unit);
 
 	/**
-	 * See {@link ScheduledExecutorService#scheduleAtFixedRate(Runnable, long, long, TimeUnit)}.
-	 */
-	Future<?> scheduleAtFixedRate(Runnable task, long delay, long interval,
-			TimeUnit unit);
-
-	/**
 	 * See {@link ScheduledExecutorService#scheduleWithFixedDelay(Runnable, long, long, TimeUnit)}.
 	 */
 	Future<?> scheduleWithFixedDelay(Runnable task, long delay,
