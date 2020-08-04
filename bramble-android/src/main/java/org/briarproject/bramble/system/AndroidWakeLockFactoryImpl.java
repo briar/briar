@@ -33,7 +33,7 @@ class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
 	 * Automatically release the lock this many milliseconds after it's due
 	 * to have been replaced and released.
 	 */
-	private static final long SAFETY_MARGIN_MS = SECONDS.toMillis(10);
+	private static final long SAFETY_MARGIN_MS = SECONDS.toMillis(30);
 
 	private final SharedWakeLock sharedWakeLock;
 
