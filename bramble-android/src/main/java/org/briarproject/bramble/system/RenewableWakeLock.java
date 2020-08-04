@@ -1,13 +1,13 @@
 package org.briarproject.bramble.system;
 
 import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -24,33 +24,27 @@ class RenewableWakeLock implements AndroidWakeLock {
 	private static final Logger LOG =
 			getLogger(RenewableWakeLock.class.getName());
 
-	/**
-	 * Automatically release the lock this many milliseconds after it's due
-	 * to have been replaced and released.
-	 */
-	private static final int SAFETY_MARGIN_MS = 10_000;
-
 	private final PowerManager powerManager;
 	private final TaskScheduler scheduler;
 	private final int levelAndFlags;
 	private final String tag;
-	private final long durationMs;
-	private final Runnable renewTask;
+	private final long durationMs, safetyMarginMs;
 
 	private final Object lock = new Object();
 	@Nullable
-	private PowerManager.WakeLock wakeLock; // Locking: lock
+	private WakeLock wakeLock; // Locking: lock
 	@Nullable
 	private Future<?> future; // Locking: lock
 
 	RenewableWakeLock(PowerManager powerManager, TaskScheduler scheduler,
-			int levelAndFlags, String tag, long duration, TimeUnit timeUnit) {
+			int levelAndFlags, String tag, long durationMs,
+			long safetyMarginMs) {
 		this.powerManager = powerManager;
 		this.scheduler = scheduler;
 		this.levelAndFlags = levelAndFlags;
 		this.tag = tag;
-		durationMs = MILLISECONDS.convert(duration, timeUnit);
-		renewTask = this::renew;
+		this.durationMs = durationMs;
+		this.safetyMarginMs = safetyMarginMs;
 	}
 
 	@Override
@@ -63,8 +57,8 @@ class RenewableWakeLock implements AndroidWakeLock {
 			}
 			wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
 			wakeLock.setReferenceCounted(false);
-			wakeLock.acquire(durationMs + SAFETY_MARGIN_MS);
-			future = scheduler.schedule(renewTask, durationMs, MILLISECONDS);
+			wakeLock.acquire(durationMs + safetyMarginMs);
+			future = scheduler.schedule(this::renew, durationMs, MILLISECONDS);
 		}
 	}
 
@@ -75,12 +69,12 @@ class RenewableWakeLock implements AndroidWakeLock {
 				LOG.info("Already released");
 				return;
 			}
-			PowerManager.WakeLock oldWakeLock = wakeLock;
+			WakeLock oldWakeLock = wakeLock;
 			wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
 			wakeLock.setReferenceCounted(false);
-			wakeLock.acquire(durationMs + SAFETY_MARGIN_MS);
+			wakeLock.acquire(durationMs + safetyMarginMs);
 			oldWakeLock.release();
-			future = scheduler.schedule(renewTask, durationMs, MILLISECONDS);
+			future = scheduler.schedule(this::renew, durationMs, MILLISECONDS);
 		}
 	}
 
