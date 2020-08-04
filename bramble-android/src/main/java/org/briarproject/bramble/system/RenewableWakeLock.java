@@ -1,8 +1,9 @@
-package org.briarproject.bramble.util;
+package org.briarproject.bramble.system;
 
 import android.os.PowerManager;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidWakeLock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Future;
@@ -14,13 +15,14 @@ import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 
 @ThreadSafe
 @NotNullByDefault
-public class RenewableWakeLock {
+class RenewableWakeLock implements AndroidWakeLock {
 
 	private static final Logger LOG =
-			Logger.getLogger(RenewableWakeLock.class.getName());
+			getLogger(RenewableWakeLock.class.getName());
 
 	/**
 	 * Automatically release the lock this many milliseconds after it's due
@@ -41,9 +43,8 @@ public class RenewableWakeLock {
 	@Nullable
 	private Future<?> future; // Locking: lock
 
-	public RenewableWakeLock(PowerManager powerManager,
-			TaskScheduler scheduler, int levelAndFlags, String tag,
-			long duration, TimeUnit timeUnit) {
+	RenewableWakeLock(PowerManager powerManager, TaskScheduler scheduler,
+			int levelAndFlags, String tag, long duration, TimeUnit timeUnit) {
 		this.powerManager = powerManager;
 		this.scheduler = scheduler;
 		this.levelAndFlags = levelAndFlags;
@@ -52,6 +53,7 @@ public class RenewableWakeLock {
 		renewTask = this::renew;
 	}
 
+	@Override
 	public void acquire() {
 		if (LOG.isLoggable(INFO)) LOG.info("Acquiring wake lock " + tag);
 		synchronized (lock) {
@@ -82,6 +84,7 @@ public class RenewableWakeLock {
 		}
 	}
 
+	@Override
 	public void release() {
 		if (LOG.isLoggable(INFO)) LOG.info("Releasing wake lock " + tag);
 		synchronized (lock) {

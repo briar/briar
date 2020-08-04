@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.os.PowerManager;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.network.NetworkManager;
@@ -12,11 +11,11 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
+import org.briarproject.bramble.api.system.AndroidWakeLock;
+import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.api.system.TaskScheduler;
-import org.briarproject.bramble.util.RenewableWakeLock;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
@@ -24,20 +23,16 @@ import java.util.concurrent.Executor;
 import javax.net.SocketFactory;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.content.Context.POWER_SERVICE;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
-import static java.util.concurrent.TimeUnit.MINUTES;
-import static org.briarproject.bramble.util.AndroidUtils.getWakeLockTag;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class AndroidTorPlugin extends TorPlugin {
 
 	private final Context appContext;
-	private final RenewableWakeLock wakeLock;
+	private final AndroidWakeLock wakeLock;
 
 	AndroidTorPlugin(Executor ioExecutor,
-			TaskScheduler scheduler,
 			Context appContext,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
@@ -46,6 +41,7 @@ class AndroidTorPlugin extends TorPlugin {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
+			AndroidWakeLockFactory wakeLockFactory,
 			Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback,
@@ -58,11 +54,7 @@ class AndroidTorPlugin extends TorPlugin {
 				maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
-		PowerManager pm = (PowerManager)
-				appContext.getSystemService(POWER_SERVICE);
-		if (pm == null) throw new AssertionError();
-		wakeLock = new RenewableWakeLock(pm, scheduler, PARTIAL_WAKE_LOCK,
-				getWakeLockTag(appContext), 1, MINUTES);
+		wakeLock = wakeLockFactory.createWakeLock(PARTIAL_WAKE_LOCK);
 	}
 
 	@Override

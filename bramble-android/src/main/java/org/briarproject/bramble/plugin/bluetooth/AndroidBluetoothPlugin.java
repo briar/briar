@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 
-import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -18,7 +17,6 @@ import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.IoUtils;
 
@@ -60,14 +58,14 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
+class AndroidBluetoothPlugin
+		extends BluetoothPlugin<BluetoothSocket, BluetoothServerSocket> {
 
 	private static final Logger LOG =
 			getLogger(AndroidBluetoothPlugin.class.getName());
 
 	private static final int MAX_DISCOVERY_MS = 10_000;
 
-	private final TaskScheduler scheduler;
 	private final AndroidExecutor androidExecutor;
 	private final Context appContext;
 	private final Clock clock;
@@ -79,10 +77,9 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	private volatile BluetoothAdapter adapter = null;
 
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
-			TimeoutMonitor timeoutMonitor,
+			BluetoothConnectionFactory<BluetoothSocket> connectionFactory,
 			Executor ioExecutor,
 			SecureRandom secureRandom,
-			TaskScheduler scheduler,
 			AndroidExecutor androidExecutor,
 			Context appContext,
 			Clock clock,
@@ -90,9 +87,8 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 			PluginCallback callback,
 			int maxLatency,
 			int maxIdleTime) {
-		super(connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
+		super(connectionLimiter, connectionFactory, ioExecutor, secureRandom,
 				backoff, callback, maxLatency, maxIdleTime);
-		this.scheduler = scheduler;
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.clock = clock;
@@ -187,13 +183,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 	@Override
 	DuplexTransportConnection acceptConnection(BluetoothServerSocket ss)
 			throws IOException {
-		return wrapSocket(ss.accept());
-	}
-
-	private DuplexTransportConnection wrapSocket(BluetoothSocket s)
-			throws IOException {
-		return new AndroidBluetoothTransportConnection(this, connectionLimiter,
-				timeoutMonitor, appContext, scheduler, s);
+		return connectionFactory.wrapSocket(this, ss.accept());
 	}
 
 	@Override
@@ -210,7 +200,7 @@ class AndroidBluetoothPlugin extends BluetoothPlugin<BluetoothServerSocket> {
 		try {
 			s = d.createInsecureRfcommSocketToServiceRecord(u);
 			s.connect();
-			return wrapSocket(s);
+			return connectionFactory.wrapSocket(this, s);
 		} catch (IOException e) {
 			IoUtils.tryToClose(s, LOG, WARNING);
 			throw e;

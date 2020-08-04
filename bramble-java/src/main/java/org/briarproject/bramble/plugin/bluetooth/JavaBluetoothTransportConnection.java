@@ -16,18 +16,18 @@ class JavaBluetoothTransportConnection
 		extends AbstractDuplexTransportConnection {
 
 	private final BluetoothConnectionLimiter connectionLimiter;
-	private final StreamConnection stream;
+	private final StreamConnection socket;
 	private final InputStream in;
 
 	JavaBluetoothTransportConnection(Plugin plugin,
 			BluetoothConnectionLimiter connectionLimiter,
 			TimeoutMonitor timeoutMonitor,
-			StreamConnection stream) throws IOException {
+			StreamConnection socket) throws IOException {
 		super(plugin);
 		this.connectionLimiter = connectionLimiter;
-		this.stream = stream;
+		this.socket = socket;
 		in = timeoutMonitor.createTimeoutInputStream(
-				stream.openInputStream(), plugin.getMaxIdleTime() * 2);
+				socket.openInputStream(), plugin.getMaxIdleTime() * 2);
 	}
 
 	@Override
@@ -37,13 +37,13 @@ class JavaBluetoothTransportConnection
 
 	@Override
 	protected OutputStream getOutputStream() throws IOException {
-		return stream.openOutputStream();
+		return socket.openOutputStream();
 	}
 
 	@Override
 	protected void closeConnection(boolean exception) throws IOException {
 		try {
-			stream.close();
+			socket.close();
 		} finally {
 			connectionLimiter.connectionClosed(this);
 		}

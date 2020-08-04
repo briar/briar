@@ -14,6 +14,7 @@ import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
+import javax.microedition.io.StreamConnection;
 
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 
@@ -57,10 +58,13 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		BluetoothConnectionLimiter connectionLimiter =
 				new BluetoothConnectionLimiterImpl(eventBus);
+		BluetoothConnectionFactory<StreamConnection> connectionFactory =
+				new JavaBluetoothConnectionFactory(connectionLimiter,
+						timeoutMonitor);
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		JavaBluetoothPlugin plugin = new JavaBluetoothPlugin(connectionLimiter,
-				timeoutMonitor, ioExecutor, secureRandom, backoff, callback,
+				connectionFactory, ioExecutor, secureRandom, backoff, callback,
 				MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;

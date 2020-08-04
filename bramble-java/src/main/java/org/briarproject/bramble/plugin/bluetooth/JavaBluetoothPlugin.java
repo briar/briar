@@ -1,6 +1,5 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
-import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -26,7 +25,8 @@ import static org.briarproject.bramble.util.StringUtils.isValidMac;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
+class JavaBluetoothPlugin
+		extends BluetoothPlugin<StreamConnection, StreamConnectionNotifier> {
 
 	private static final Logger LOG =
 			getLogger(JavaBluetoothPlugin.class.getName());
@@ -35,10 +35,10 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 	private volatile LocalDevice localDevice = null;
 
 	JavaBluetoothPlugin(BluetoothConnectionLimiter connectionManager,
-			TimeoutMonitor timeoutMonitor, Executor ioExecutor,
-			SecureRandom secureRandom, Backoff backoff,
+			BluetoothConnectionFactory<StreamConnection> connectionFactory,
+			Executor ioExecutor, SecureRandom secureRandom, Backoff backoff,
 			PluginCallback callback, int maxLatency, int maxIdleTime) {
-		super(connectionManager, timeoutMonitor, ioExecutor, secureRandom,
+		super(connectionManager, connectionFactory, ioExecutor, secureRandom,
 				backoff, callback, maxLatency, maxIdleTime);
 	}
 
@@ -96,7 +96,7 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 	@Override
 	DuplexTransportConnection acceptConnection(StreamConnectionNotifier ss)
 			throws IOException {
-		return wrapSocket(ss.acceptAndOpen());
+		return connectionFactory.wrapSocket(this, ss.acceptAndOpen());
 	}
 
 	@Override
@@ -108,7 +108,8 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 	DuplexTransportConnection connectTo(String address, String uuid)
 			throws IOException {
 		String url = makeUrl(address, uuid);
-		return wrapSocket((StreamConnection) Connector.open(url));
+		StreamConnection s = (StreamConnection) Connector.open(url);
+		return connectionFactory.wrapSocket(this, s);
 	}
 
 	@Override
@@ -119,11 +120,5 @@ class JavaBluetoothPlugin extends BluetoothPlugin<StreamConnectionNotifier> {
 
 	private String makeUrl(String address, String uuid) {
 		return "btspp://" + address + ":" + uuid + ";name=RFCOMM";
-	}
-
-	private DuplexTransportConnection wrapSocket(StreamConnection s)
-			throws IOException {
-		return new JavaBluetoothTransportConnection(this, connectionLimiter,
-				timeoutMonitor, s);
 	}
 }
