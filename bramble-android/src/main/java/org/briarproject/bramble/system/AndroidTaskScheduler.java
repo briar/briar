@@ -11,7 +11,6 @@ import android.os.SystemClock;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AlarmListener;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.ArrayList;
@@ -51,7 +50,6 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	private static final long ALARM_MS = INTERVAL_FIFTEEN_MINUTES;
 
 	private final Application app;
-	private final Clock clock;
 	private final ScheduledExecutorService scheduledExecutorService;
 	private final AlarmManager alarmManager;
 
@@ -59,10 +57,9 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	@GuardedBy("lock")
 	private final Queue<ScheduledTask> tasks = new PriorityQueue<>();
 
-	AndroidTaskScheduler(Application app, Clock clock,
+	AndroidTaskScheduler(Application app,
 			ScheduledExecutorService scheduledExecutorService) {
 		this.app = app;
-		this.clock = clock;
 		this.scheduledExecutorService = scheduledExecutorService;
 		alarmManager = (AlarmManager)
 				requireNonNull(app.getSystemService(ALARM_SERVICE));
@@ -82,7 +79,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 
 	@Override
 	public Future<?> schedule(Runnable task, long delay, TimeUnit unit) {
-		long now = clock.currentTimeMillis();
+		long now = SystemClock.elapsedRealtime();
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
 		ScheduledTask s = new ScheduledTask(task, dueMillis);
 		if (dueMillis <= now) {
@@ -120,7 +117,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	private void runDueTasks() {
-		long now = clock.currentTimeMillis();
+		long now = SystemClock.elapsedRealtime();
 		List<ScheduledTask> due = new ArrayList<>();
 		synchronized (lock) {
 			while (true) {

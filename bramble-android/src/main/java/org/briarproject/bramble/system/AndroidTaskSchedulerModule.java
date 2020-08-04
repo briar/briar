@@ -4,7 +4,6 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.AlarmListener;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.RejectedExecutionHandler;
@@ -37,10 +36,10 @@ public class AndroidTaskSchedulerModule {
 	@Provides
 	@Singleton
 	AndroidTaskScheduler provideAndroidTaskScheduler(
-			LifecycleManager lifecycleManager, Application app, Clock clock) {
+			LifecycleManager lifecycleManager, Application app) {
 		lifecycleManager.registerForShutdown(scheduledExecutorService);
 		AndroidTaskScheduler scheduler =
-				new AndroidTaskScheduler(app, clock, scheduledExecutorService);
+				new AndroidTaskScheduler(app, scheduledExecutorService);
 		lifecycleManager.registerService(scheduler);
 		return scheduler;
 	}
