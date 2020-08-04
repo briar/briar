@@ -23,7 +23,6 @@ import java.util.concurrent.Executor;
 import javax.net.SocketFactory;
 
 import static android.content.Context.MODE_PRIVATE;
-import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -54,7 +53,7 @@ class AndroidTorPlugin extends TorPlugin {
 				maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
-		wakeLock = wakeLockFactory.createWakeLock(PARTIAL_WAKE_LOCK);
+		wakeLock = wakeLockFactory.createWakeLock();
 	}
 
 	@Override

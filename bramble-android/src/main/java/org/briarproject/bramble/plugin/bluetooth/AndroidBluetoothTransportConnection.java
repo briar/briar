@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.util.AndroidUtils.isValidBluetoothAddress;
 
@@ -36,7 +35,7 @@ class AndroidBluetoothTransportConnection
 		this.socket = socket;
 		in = timeoutMonitor.createTimeoutInputStream(
 				socket.getInputStream(), plugin.getMaxIdleTime() * 2);
-		wakeLock = wakeLockFactory.createWakeLock(PARTIAL_WAKE_LOCK);
+		wakeLock = wakeLockFactory.createWakeLock();
 		wakeLock.acquire();
 		String address = socket.getRemoteDevice().getAddress();
 		if (isValidBluetoothAddress(address)) remote.put(PROP_ADDRESS, address);

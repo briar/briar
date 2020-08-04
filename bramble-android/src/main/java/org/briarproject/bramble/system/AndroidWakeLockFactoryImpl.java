@@ -15,6 +15,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static android.content.Context.POWER_SERVICE;
+import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
@@ -34,22 +35,20 @@ class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
 	 */
 	private static final long SAFETY_MARGIN_MS = SECONDS.toMillis(10);
 
-	private final TaskScheduler scheduler;
-	private final PowerManager powerManager;
-	private final String tag;
+	private final SharedWakeLock sharedWakeLock;
 
 	@Inject
 	AndroidWakeLockFactoryImpl(TaskScheduler scheduler, Application app) {
-		this.scheduler = scheduler;
-		powerManager = (PowerManager)
+		PowerManager powerManager = (PowerManager)
 				requireNonNull(app.getSystemService(POWER_SERVICE));
-		tag = getWakeLockTag(app);
+		String tag = getWakeLockTag(app);
+		sharedWakeLock = new RenewableWakeLock(powerManager, scheduler,
+				PARTIAL_WAKE_LOCK, tag, LOCK_DURATION_MS, SAFETY_MARGIN_MS);
 	}
 
 	@Override
-	public AndroidWakeLock createWakeLock(int levelAndFlags) {
-		return new RenewableWakeLock(powerManager, scheduler, levelAndFlags,
-				tag, LOCK_DURATION_MS, SAFETY_MARGIN_MS);
+	public AndroidWakeLock createWakeLock() {
+		return new AndroidWakeLockImpl(sharedWakeLock);
 	}
 
 	private String getWakeLockTag(Context ctx) {

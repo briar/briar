@@ -4,22 +4,23 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.system.AndroidWakeLock;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
+import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @ThreadSafe
 @NotNullByDefault
-class RenewableWakeLock implements AndroidWakeLock {
+class RenewableWakeLock implements SharedWakeLock {
 
 	private static final Logger LOG =
 			getLogger(RenewableWakeLock.class.getName());
@@ -31,10 +32,14 @@ class RenewableWakeLock implements AndroidWakeLock {
 	private final long durationMs, safetyMarginMs;
 
 	private final Object lock = new Object();
+	@GuardedBy("lock")
 	@Nullable
-	private WakeLock wakeLock; // Locking: lock
+	private WakeLock wakeLock;
+	@GuardedBy("lock")
 	@Nullable
-	private Future<?> future; // Locking: lock
+	private Future<?> future;
+	@GuardedBy("lock")
+	private int refCount = 0;
 
 	RenewableWakeLock(PowerManager powerManager, TaskScheduler scheduler,
 			int levelAndFlags, String tag, long durationMs,
@@ -49,16 +54,21 @@ class RenewableWakeLock implements AndroidWakeLock {
 
 	@Override
 	public void acquire() {
-		if (LOG.isLoggable(INFO)) LOG.info("Acquiring wake lock " + tag);
 		synchronized (lock) {
-			if (wakeLock != null) {
-				LOG.info("Already acquired");
-				return;
+			refCount++;
+			if (refCount == 1) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Acquiring wake lock " + tag);
+				}
+				wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
+				// We do our own reference counting so we can replace the lock
+				// TODO: Check whether using a ref-counted wake lock affects
+				//  power management apps
+				wakeLock.setReferenceCounted(false);
+				wakeLock.acquire(durationMs + safetyMarginMs);
+				future = scheduler.schedule(this::renew, durationMs,
+						MILLISECONDS);
 			}
-			wakeLock = powerManager.newWakeLock(levelAndFlags, tag);
-			wakeLock.setReferenceCounted(false);
-			wakeLock.acquire(durationMs + safetyMarginMs);
-			future = scheduler.schedule(this::renew, durationMs, MILLISECONDS);
 		}
 	}
 
@@ -80,17 +90,17 @@ class RenewableWakeLock implements AndroidWakeLock {
 
 	@Override
 	public void release() {
-		if (LOG.isLoggable(INFO)) LOG.info("Releasing wake lock " + tag);
 		synchronized (lock) {
-			if (wakeLock == null) {
-				LOG.info("Already released");
-				return;
+			refCount--;
+			if (refCount == 0) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Releasing wake lock " + tag);
+				}
+				requireNonNull(future).cancel(false);
+				future = null;
+				requireNonNull(wakeLock).release();
+				wakeLock = null;
 			}
-			if (future == null) throw new AssertionError();
-			future.cancel(false);
-			future = null;
-			wakeLock.release();
-			wakeLock = null;
 		}
 	}
 }
