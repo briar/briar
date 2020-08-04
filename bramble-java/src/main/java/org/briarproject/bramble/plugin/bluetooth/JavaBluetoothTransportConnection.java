@@ -18,6 +18,7 @@ class JavaBluetoothTransportConnection
 	private final BluetoothConnectionLimiter connectionLimiter;
 	private final StreamConnection socket;
 	private final InputStream in;
+	private final OutputStream out;
 
 	JavaBluetoothTransportConnection(Plugin plugin,
 			BluetoothConnectionLimiter connectionLimiter,
@@ -28,6 +29,7 @@ class JavaBluetoothTransportConnection
 		this.socket = socket;
 		in = timeoutMonitor.createTimeoutInputStream(
 				socket.openInputStream(), plugin.getMaxIdleTime() * 2);
+		out = socket.openOutputStream();
 	}
 
 	@Override
@@ -36,8 +38,8 @@ class JavaBluetoothTransportConnection
 	}
 
 	@Override
-	protected OutputStream getOutputStream() throws IOException {
-		return socket.openOutputStream();
+	protected OutputStream getOutputStream() {
+		return out;
 	}
 
 	@Override
