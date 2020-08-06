@@ -424,8 +424,6 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 					with(dbExecutor), with(timePeriodLength),
 					with(MILLISECONDS));
 			will(new RunAction());
-			oneOf(dbExecutor).execute(with(any(Runnable.class)));
-			will(new RunAction());
 			// Start a transaction for updating keys
 			oneOf(db).transaction(with(false), withDbRunnable(txn1));
 			// Get the current time (the start of time period 1001)
