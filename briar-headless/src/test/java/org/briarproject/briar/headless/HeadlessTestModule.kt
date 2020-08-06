@@ -15,6 +15,7 @@ import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.socks.SocksModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
+import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.test.TestSecureRandomModule
 import org.briarproject.briar.headless.blogs.HeadlessBlogModule
@@ -34,6 +35,7 @@ import javax.inject.Singleton
         CircumventionModule::class,
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
+        DefaultWakefulIoExecutorModule::class,
         SocksModule::class,
         TestSecureRandomModule::class,
         HeadlessBlogModule::class,
