@@ -1,6 +1,6 @@
 package org.briarproject.bramble.plugin.tor;
 
-import android.content.Context;
+import android.app.Application;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -17,23 +17,22 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.Executor;
 
 import javax.net.SocketFactory;
 
-import static android.content.Context.MODE_PRIVATE;
-
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class AndroidTorPlugin extends TorPlugin {
 
-	private final Context appContext;
+	private final Application app;
 	private final AndroidWakeLock wakeLock;
 
 	AndroidTorPlugin(Executor ioExecutor,
 			Executor wakefulIoExecutor,
-			Context appContext,
+			Application app,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			SocketFactory torSocketFactory,
@@ -47,13 +46,14 @@ class AndroidTorPlugin extends TorPlugin {
 			PluginCallback callback,
 			String architecture,
 			int maxLatency,
-			int maxIdleTime) {
+			int maxIdleTime,
+			File torDirectory) {
 		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
 				torSocketFactory, clock, resourceProvider,
 				circumventionProvider, batteryManager, backoff,
 				torRendezvousCrypto, callback, architecture, maxLatency,
-				maxIdleTime, appContext.getDir("tor", MODE_PRIVATE));
-		this.appContext = appContext;
+				maxIdleTime, torDirectory);
+		this.app = app;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 	}
 
@@ -65,8 +65,8 @@ class AndroidTorPlugin extends TorPlugin {
 	@Override
 	protected long getLastUpdateTime() {
 		try {
-			PackageManager pm = appContext.getPackageManager();
-			PackageInfo pi = pm.getPackageInfo(appContext.getPackageName(), 0);
+			PackageManager pm = app.getPackageManager();
+			PackageInfo pi = pm.getPackageInfo(app.getPackageName(), 0);
 			return pi.lastUpdateTime;
 		} catch (NameNotFoundException e) {
 			throw new AssertionError(e);

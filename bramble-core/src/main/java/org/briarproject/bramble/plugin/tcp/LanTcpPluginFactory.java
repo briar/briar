@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.tcp;
 
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -8,10 +9,12 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.ID;
 
@@ -30,8 +33,9 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	private final EventBus eventBus;
 	private final BackoffFactory backoffFactory;
 
-	public LanTcpPluginFactory(Executor ioExecutor,
-			Executor wakefulIoExecutor,
+	@Inject
+	public LanTcpPluginFactory(@IoExecutor Executor ioExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
 			EventBus eventBus,
 			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
@@ -54,7 +58,7 @@ public class LanTcpPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		LanTcpPlugin plugin =  new LanTcpPlugin(ioExecutor, wakefulIoExecutor,
+		LanTcpPlugin plugin = new LanTcpPlugin(ioExecutor, wakefulIoExecutor,
 				backoff, callback, MAX_LATENCY, MAX_IDLE_TIME,
 				CONNECTION_TIMEOUT);
 		eventBus.addListener(plugin);
