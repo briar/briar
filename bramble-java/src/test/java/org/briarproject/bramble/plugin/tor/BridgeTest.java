@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 import org.briarproject.bramble.test.BrambleJavaIntegrationTestComponent;
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.briarproject.bramble.test.DaggerBrambleJavaIntegrationTestComponent;
@@ -59,6 +60,9 @@ public class BridgeTest extends BrambleTestCase {
 	@Inject
 	@IoExecutor
 	Executor ioExecutor;
+	@Inject
+	@WakefulIoExecutor
+	Executor wakefulIoExecutor;
 	@Inject
 	NetworkManager networkManager;
 	@Inject
@@ -121,10 +125,10 @@ public class BridgeTest extends BrambleTestCase {
 				return singletonList(bridge);
 			}
 		};
-		factory = new UnixTorPluginFactory(ioExecutor, networkManager,
-				locationUtils, eventBus, torSocketFactory, backoffFactory,
-				resourceProvider, bridgeProvider, batteryManager, clock,
-				torDir);
+		factory = new UnixTorPluginFactory(ioExecutor, wakefulIoExecutor,
+				networkManager, locationUtils, eventBus, torSocketFactory,
+				backoffFactory, resourceProvider, bridgeProvider,
+				batteryManager, clock, torDir);
 	}
 
 	@After

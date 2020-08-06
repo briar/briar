@@ -88,10 +88,15 @@ class LanTcpPlugin extends TcpPlugin {
 		}
 	}
 
-	LanTcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
-			int maxLatency, int maxIdleTime, int connectionTimeout) {
-		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime,
-				connectionTimeout);
+	LanTcpPlugin(Executor ioExecutor,
+			Executor wakefulIoExecutor,
+			Backoff backoff,
+			PluginCallback callback,
+			int maxLatency,
+			int maxIdleTime,
+			int connectionTimeout) {
+		super(ioExecutor, wakefulIoExecutor, backoff, callback, maxLatency,
+				maxIdleTime, connectionTimeout);
 	}
 
 	@Override

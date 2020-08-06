@@ -53,7 +53,8 @@ public class LanTcpPluginTest extends BrambleTestCase {
 	@Before
 	public void setUp() {
 		callback = new Callback();
-		plugin = new LanTcpPlugin(ioExecutor, backoff, callback, 0, 0, 1000) {
+		plugin = new LanTcpPlugin(ioExecutor, ioExecutor, backoff, callback,
+				0, 0, 1000) {
 			@Override
 			protected boolean canConnectToOwnAddress() {
 				return true;

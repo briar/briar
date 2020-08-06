@@ -32,6 +32,7 @@ import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
@@ -124,6 +125,7 @@ public class AppModule {
 
 	@Provides
 	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
 			AndroidExecutor androidExecutor,
 			SecureRandom random,
 			SocketFactory torSocketFactory,
@@ -140,14 +142,15 @@ public class AppModule {
 			TimeoutMonitor timeoutMonitor) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new AndroidBluetoothPluginFactory(
-				ioExecutor, androidExecutor, wakeLockManager, appContext,
-				random, eventBus, clock, timeoutMonitor, backoffFactory);
+				ioExecutor, wakefulIoExecutor, androidExecutor,
+				wakeLockManager, appContext, random, eventBus, clock,
+				timeoutMonitor, backoffFactory);
 		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
-				appContext, networkManager, locationUtils, eventBus,
-				torSocketFactory, backoffFactory, resourceProvider,
+				wakefulIoExecutor, appContext, networkManager, locationUtils,
+				eventBus, torSocketFactory, backoffFactory, resourceProvider,
 				circumventionProvider, batteryManager, wakeLockManager, clock);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
-				eventBus, backoffFactory, appContext);
+				wakefulIoExecutor, eventBus, backoffFactory, appContext);
 		Collection<DuplexPluginFactory> duplex = asList(bluetooth, tor, lan);
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {

@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reliability.ReliabilityLayerFactory;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 import org.briarproject.bramble.plugin.bluetooth.JavaBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.modem.ModemPluginFactory;
 import org.briarproject.bramble.plugin.tcp.LanTcpPluginFactory;
@@ -37,18 +38,22 @@ public class DesktopPluginModule extends PluginModule {
 
 	@Provides
 	PluginConfig getPluginConfig(@IoExecutor Executor ioExecutor,
-			SecureRandom random, BackoffFactory backoffFactory,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
+			SecureRandom random,
+			BackoffFactory backoffFactory,
 			ReliabilityLayerFactory reliabilityFactory,
-			ShutdownManager shutdownManager, EventBus eventBus,
+			ShutdownManager shutdownManager,
+			EventBus eventBus,
 			TimeoutMonitor timeoutMonitor) {
 		DuplexPluginFactory bluetooth = new JavaBluetoothPluginFactory(
-				ioExecutor, random, eventBus, timeoutMonitor, backoffFactory);
+				ioExecutor, wakefulIoExecutor, random, eventBus,
+				timeoutMonitor, backoffFactory);
 		DuplexPluginFactory modem = new ModemPluginFactory(ioExecutor,
 				reliabilityFactory);
-		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor, eventBus,
-				backoffFactory);
-		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor, eventBus,
-				backoffFactory, shutdownManager);
+		DuplexPluginFactory lan = new LanTcpPluginFactory(ioExecutor,
+				wakefulIoExecutor, eventBus, backoffFactory);
+		DuplexPluginFactory wan = new WanTcpPluginFactory(ioExecutor,
+				wakefulIoExecutor, eventBus, backoffFactory, shutdownManager);
 		Collection<DuplexPluginFactory> duplex =
 				asList(bluetooth, modem, lan, wan);
 		@NotNullByDefault

@@ -38,7 +38,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
 	private static final double BACKOFF_BASE = 1.2;
 
-	private final Executor ioExecutor;
+	private final Executor ioExecutor, wakefulIoExecutor;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final EventBus eventBus;
@@ -51,12 +51,19 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private final File torDirectory;
 
 	public UnixTorPluginFactory(Executor ioExecutor,
-			NetworkManager networkManager, LocationUtils locationUtils,
-			EventBus eventBus, SocketFactory torSocketFactory,
-			BackoffFactory backoffFactory, ResourceProvider resourceProvider,
+			Executor wakefulIoExecutor,
+			NetworkManager networkManager,
+			LocationUtils locationUtils,
+			EventBus eventBus,
+			SocketFactory torSocketFactory,
+			BackoffFactory backoffFactory,
+			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Clock clock, File torDirectory) {
+			BatteryManager batteryManager,
+			Clock clock,
+			File torDirectory) {
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.eventBus = eventBus;
@@ -97,11 +104,11 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
-		UnixTorPlugin plugin = new UnixTorPlugin(ioExecutor, networkManager,
-				locationUtils, torSocketFactory, clock, resourceProvider,
-				circumventionProvider, batteryManager, backoff,
-				torRendezvousCrypto, callback, architecture, MAX_LATENCY,
-				MAX_IDLE_TIME, torDirectory);
+		UnixTorPlugin plugin = new UnixTorPlugin(ioExecutor, wakefulIoExecutor,
+				networkManager, locationUtils, torSocketFactory, clock,
+				resourceProvider, circumventionProvider, batteryManager,
+				backoff, torRendezvousCrypto, callback, architecture,
+				MAX_LATENCY, MAX_IDLE_TIME, torDirectory);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

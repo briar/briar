@@ -77,7 +77,7 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 	final BluetoothConnectionLimiter connectionLimiter;
 	final BluetoothConnectionFactory<S> connectionFactory;
 
-	private final Executor ioExecutor;
+	private final Executor ioExecutor, wakefulIoExecutor;
 	private final SecureRandom secureRandom;
 	private final Backoff backoff;
 	private final PluginCallback callback;
@@ -124,6 +124,7 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 	BluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			BluetoothConnectionFactory<S> connectionFactory,
 			Executor ioExecutor,
+			Executor wakefulIoExecutor,
 			SecureRandom secureRandom,
 			Backoff backoff,
 			PluginCallback callback,
@@ -132,6 +133,7 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 		this.connectionLimiter = connectionLimiter;
 		this.connectionFactory = connectionFactory;
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.secureRandom = secureRandom;
 		this.backoff = backoff;
 		this.callback = callback;
@@ -355,7 +357,7 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 		if (isNullOrEmpty(address)) return;
 		String uuid = p.get(PROP_UUID);
 		if (isNullOrEmpty(uuid)) return;
-		ioExecutor.execute(() -> {
+		wakefulIoExecutor.execute(() -> {
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();
