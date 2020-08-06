@@ -6,13 +6,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.PowerManager;
 
-import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
-import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -41,15 +40,14 @@ class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 	private final SharedWakeLock sharedWakeLock;
 
 	@Inject
-	AndroidWakeLockManagerImpl(TaskScheduler scheduler,
-			@EventExecutor Executor eventExecutor,
-			Application app) {
+	AndroidWakeLockManagerImpl(Application app,
+			ScheduledExecutorService scheduledExecutorService) {
 		PowerManager powerManager = (PowerManager)
 				requireNonNull(app.getSystemService(POWER_SERVICE));
 		String tag = getWakeLockTag(app);
-		sharedWakeLock = new RenewableWakeLock(powerManager, scheduler,
-				eventExecutor, PARTIAL_WAKE_LOCK, tag, LOCK_DURATION_MS,
-				SAFETY_MARGIN_MS);
+		sharedWakeLock = new RenewableWakeLock(powerManager,
+				scheduledExecutorService, PARTIAL_WAKE_LOCK, tag,
+				LOCK_DURATION_MS, SAFETY_MARGIN_MS);
 	}
 
 	@Override

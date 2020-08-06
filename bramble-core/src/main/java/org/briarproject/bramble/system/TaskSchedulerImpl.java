@@ -17,23 +17,24 @@ import javax.annotation.concurrent.ThreadSafe;
 @NotNullByDefault
 class TaskSchedulerImpl implements TaskScheduler {
 
-	private final ScheduledExecutorService delegate;
+	private final ScheduledExecutorService scheduledExecutorService;
 
-	TaskSchedulerImpl(ScheduledExecutorService delegate) {
-		this.delegate = delegate;
+	TaskSchedulerImpl(ScheduledExecutorService scheduledExecutorService) {
+		this.scheduledExecutorService = scheduledExecutorService;
 	}
 
 	@Override
 	public Future<?> schedule(Runnable task, Executor executor, long delay,
 			TimeUnit unit) {
 		Runnable execute = () -> executor.execute(task);
-		return delegate.schedule(execute, delay, unit);
+		return scheduledExecutorService.schedule(execute, delay, unit);
 	}
 
 	@Override
 	public Future<?> scheduleWithFixedDelay(Runnable task, Executor executor,
 			long delay, long interval, TimeUnit unit) {
 		Runnable execute = () -> executor.execute(task);
-		return delegate.scheduleWithFixedDelay(execute, delay, interval, unit);
+		return scheduledExecutorService.scheduleWithFixedDelay(execute, delay,
+				interval, unit);
 	}
 }
