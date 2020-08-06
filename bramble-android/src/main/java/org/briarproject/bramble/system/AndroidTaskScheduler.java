@@ -11,7 +11,6 @@ import android.os.SystemClock;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AlarmListener;
-import org.briarproject.bramble.api.system.AndroidWakeLock;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
@@ -89,7 +88,8 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 			TimeUnit unit) {
 		long now = SystemClock.elapsedRealtime();
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
-		Runnable wakeful = createWakefulTask(task, executor);
+		Runnable wakeful = () ->
+				wakeLockManager.executeWakefully(task, executor);
 		ScheduledTask s = new ScheduledTask(wakeful, dueMillis);
 		if (dueMillis <= now) {
 			scheduledExecutorService.execute(s);
@@ -125,21 +125,6 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 						+ ", current PID is " + currentPid);
 			}
 		});
-	}
-
-	private Runnable createWakefulTask(Runnable task, Executor executor) {
-		// Hold a wake lock from before we submit the task until after it runs
-		AndroidWakeLock wakeLock = wakeLockManager.createWakeLock();
-		return () -> {
-			wakeLock.acquire();
-			executor.execute(() -> {
-				try {
-					task.run();
-				} finally {
-					wakeLock.release();
-				}
-			});
-		};
 	}
 
 	private void runDueTasks() {
