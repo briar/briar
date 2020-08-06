@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
@@ -78,10 +79,11 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	@Override
-	public Future<?> schedule(Runnable task, long delay, TimeUnit unit) {
+	public Future<?> schedule(Runnable task, Executor executor, long delay,
+			TimeUnit unit) {
 		long now = SystemClock.elapsedRealtime();
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
-		ScheduledTask s = new ScheduledTask(task, dueMillis);
+		ScheduledTask s = new ScheduledTask(task, executor, dueMillis);
 		if (dueMillis <= now) {
 			scheduledExecutorService.execute(s);
 		} else {
@@ -93,13 +95,13 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	@Override
-	public Future<?> scheduleWithFixedDelay(Runnable task, long delay,
-			long interval, TimeUnit unit) {
+	public Future<?> scheduleWithFixedDelay(Runnable task, Executor executor,
+			long delay, long interval, TimeUnit unit) {
 		Runnable wrapped = () -> {
 			task.run();
-			scheduleWithFixedDelay(task, interval, interval, unit);
+			scheduleWithFixedDelay(task, executor, interval, interval, unit);
 		};
-		return schedule(wrapped, delay, unit);
+		return schedule(wrapped, executor, delay, unit);
 	}
 
 	@Override
@@ -175,8 +177,9 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 
 		private final long dueMillis;
 
-		public ScheduledTask(Runnable runnable, long dueMillis) {
-			super(runnable, null);
+		public ScheduledTask(Runnable runnable, Executor executor,
+				long dueMillis) {
+			super(() -> executor.execute(runnable), null);
 			this.dueMillis = dueMillis;
 		}
 

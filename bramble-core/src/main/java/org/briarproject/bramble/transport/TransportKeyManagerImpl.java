@@ -6,6 +6,7 @@ import org.briarproject.bramble.api.contact.PendingContactId;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.crypto.TransportCrypto;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -198,17 +199,16 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private void scheduleKeyUpdate(long now) {
 		long delay = timePeriodLength - now % timePeriodLength;
-		scheduler.schedule(this::updateKeys, delay, MILLISECONDS);
+		scheduler.schedule(this::updateKeys, dbExecutor, delay, MILLISECONDS);
 	}
 
+	@DatabaseExecutor
 	private void updateKeys() {
-		dbExecutor.execute(() -> {
-			try {
-				db.transaction(false, this::updateKeys);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
+		try {
+			db.transaction(false, this::updateKeys);
+		} catch (DbException e) {
+			logException(LOG, WARNING, e);
+		}
 	}
 
 	@Override

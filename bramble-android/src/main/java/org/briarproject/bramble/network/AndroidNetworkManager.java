@@ -9,6 +9,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.network.NetworkStatus;
@@ -17,6 +18,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -51,6 +53,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 
 	private final TaskScheduler scheduler;
 	private final EventBus eventBus;
+	private final Executor eventExecutor;
 	private final Context appContext;
 	private final AtomicReference<Future<?>> connectivityCheck =
 			new AtomicReference<>();
@@ -60,9 +63,10 @@ class AndroidNetworkManager implements NetworkManager, Service {
 
 	@Inject
 	AndroidNetworkManager(TaskScheduler scheduler, EventBus eventBus,
-			Application app) {
+			@EventExecutor Executor eventExecutor, Application app) {
 		this.scheduler = scheduler;
 		this.eventBus = eventBus;
+		this.eventExecutor = eventExecutor;
 		this.appContext = app.getApplicationContext();
 	}
 
@@ -104,7 +108,8 @@ class AndroidNetworkManager implements NetworkManager, Service {
 
 	private void scheduleConnectionStatusUpdate(int delay, TimeUnit unit) {
 		Future<?> newConnectivityCheck =
-				scheduler.schedule(this::updateConnectionStatus, delay, unit);
+				scheduler.schedule(this::updateConnectionStatus, eventExecutor,
+						delay, unit);
 		Future<?> oldConnectivityCheck =
 				connectivityCheck.getAndSet(newConnectivityCheck);
 		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel(false);

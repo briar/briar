@@ -118,6 +118,7 @@ class PollerImpl implements Poller, EventListener {
 		}
 	}
 
+	// TODO: Make this wakeful
 	private void connectToContact(ContactId c) {
 		for (SimplexPlugin s : pluginManager.getSimplexPlugins())
 			if (s.shouldPoll()) connectToContact(c, s);
@@ -189,8 +190,8 @@ class PollerImpl implements Poller, EventListener {
 				// it will abort safely when it finds it's been replaced
 				if (scheduled != null) scheduled.future.cancel(false);
 				PollTask task = new PollTask(p, due, randomiseNext);
-				Future<?> future = scheduler.schedule(() ->
-						ioExecutor.execute(task), delay, MILLISECONDS);
+				Future<?> future = scheduler.schedule(task, ioExecutor, delay,
+						MILLISECONDS);
 				tasks.put(t, new ScheduledPollTask(task, future));
 			}
 		} finally {
@@ -233,9 +234,9 @@ class PollerImpl implements Poller, EventListener {
 	private class ScheduledPollTask {
 
 		private final PollTask task;
-		private final Future future;
+		private final Future<?> future;
 
-		private ScheduledPollTask(PollTask task, Future future) {
+		private ScheduledPollTask(PollTask task, Future<?> future) {
 			this.task = task;
 			this.future = future;
 		}

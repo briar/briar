@@ -143,8 +143,8 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}
-		scheduler.scheduleWithFixedDelay(this::poll, POLLING_INTERVAL_MS,
-				POLLING_INTERVAL_MS, MILLISECONDS);
+		scheduler.scheduleWithFixedDelay(this::poll, worker,
+				POLLING_INTERVAL_MS, POLLING_INTERVAL_MS, MILLISECONDS);
 	}
 
 	@EventExecutor
@@ -204,12 +204,10 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		return plugin.createRendezvousEndpoint(k, cs.alice, h);
 	}
 
-	// Scheduler
+	// Worker
 	private void poll() {
-		worker.execute(() -> {
-			removeExpiredPendingContacts();
-			for (PluginState ps : pluginStates.values()) poll(ps);
-		});
+		removeExpiredPendingContacts();
+		for (PluginState ps : pluginStates.values()) poll(ps);
 	}
 
 	// Worker

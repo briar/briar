@@ -6,6 +6,7 @@ import android.os.PowerManager.WakeLock;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
@@ -28,6 +29,7 @@ class RenewableWakeLock implements SharedWakeLock {
 
 	private final PowerManager powerManager;
 	private final TaskScheduler scheduler;
+	private final Executor eventExecutor;
 	private final int levelAndFlags;
 	private final String tag;
 	private final long durationMs, safetyMarginMs;
@@ -44,11 +46,16 @@ class RenewableWakeLock implements SharedWakeLock {
 	@GuardedBy("lock")
 	private long acquired = 0;
 
-	RenewableWakeLock(PowerManager powerManager, TaskScheduler scheduler,
-			int levelAndFlags, String tag, long durationMs,
+	RenewableWakeLock(PowerManager powerManager,
+			TaskScheduler scheduler,
+			Executor eventExecutor,
+			int levelAndFlags,
+			String tag,
+			long durationMs,
 			long safetyMarginMs) {
 		this.powerManager = powerManager;
 		this.scheduler = scheduler;
+		this.eventExecutor = eventExecutor;
 		this.levelAndFlags = levelAndFlags;
 		this.tag = tag;
 		this.durationMs = durationMs;
@@ -69,8 +76,8 @@ class RenewableWakeLock implements SharedWakeLock {
 				//  power management apps
 				wakeLock.setReferenceCounted(false);
 				wakeLock.acquire(durationMs + safetyMarginMs);
-				future = scheduler.schedule(this::renew, durationMs,
-						MILLISECONDS);
+				future = scheduler.schedule(this::renew, eventExecutor,
+						durationMs, MILLISECONDS);
 				acquired = android.os.SystemClock.elapsedRealtime();
 			}
 		}
@@ -93,7 +100,8 @@ class RenewableWakeLock implements SharedWakeLock {
 			wakeLock.setReferenceCounted(false);
 			wakeLock.acquire(durationMs + safetyMarginMs);
 			oldWakeLock.release();
-			future = scheduler.schedule(this::renew, durationMs, MILLISECONDS);
+			future = scheduler.schedule(this::renew, eventExecutor,
+					durationMs, MILLISECONDS);
 			acquired = now;
 		}
 	}
