@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
@@ -48,7 +48,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final ResourceProvider resourceProvider;
 	private final CircumventionProvider circumventionProvider;
 	private final BatteryManager batteryManager;
-	private final AndroidWakeLockFactory wakeLockFactory;
+	private final AndroidWakeLockManager wakeLockManager;
 	private final Clock clock;
 
 	public AndroidTorPluginFactory(Executor ioExecutor,
@@ -61,7 +61,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
-			AndroidWakeLockFactory wakeLockFactory,
+			AndroidWakeLockManager wakeLockManager,
 			Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.appContext = appContext;
@@ -73,7 +73,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
-		this.wakeLockFactory = wakeLockFactory;
+		this.wakeLockManager = wakeLockManager;
 		this.clock = clock;
 	}
 
@@ -120,7 +120,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor,
 				appContext, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				wakeLockFactory, backoff, torRendezvousCrypto, callback,
+				wakeLockManager, backoff, torRendezvousCrypto, callback,
 				architecture, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;

@@ -13,7 +13,7 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 
 import java.security.SecureRandom;
@@ -35,7 +35,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 
 	private final Executor ioExecutor;
 	private final AndroidExecutor androidExecutor;
-	private final AndroidWakeLockFactory wakeLockFactory;
+	private final AndroidWakeLockManager wakeLockManager;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
 	private final EventBus eventBus;
@@ -45,7 +45,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 
 	public AndroidBluetoothPluginFactory(Executor ioExecutor,
 			AndroidExecutor androidExecutor,
-			AndroidWakeLockFactory wakeLockFactory,
+			AndroidWakeLockManager wakeLockManager,
 			Context appContext,
 			SecureRandom secureRandom,
 			EventBus eventBus,
@@ -54,7 +54,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
 		this.androidExecutor = androidExecutor;
-		this.wakeLockFactory = wakeLockFactory;
+		this.wakeLockManager = wakeLockManager;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
 		this.eventBus = eventBus;
@@ -79,7 +79,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 				new BluetoothConnectionLimiterImpl(eventBus);
 		BluetoothConnectionFactory<BluetoothSocket> connectionFactory =
 				new AndroidBluetoothConnectionFactory(connectionLimiter,
-						wakeLockFactory, timeoutMonitor);
+						wakeLockManager, timeoutMonitor);
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(

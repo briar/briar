@@ -4,7 +4,7 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.AlarmListener;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.RejectedExecutionHandler;
@@ -38,10 +38,10 @@ public class AndroidTaskSchedulerModule {
 	@Singleton
 	AndroidTaskScheduler provideAndroidTaskScheduler(
 			LifecycleManager lifecycleManager, Application app,
-			AndroidWakeLockFactory wakeLockFactory) {
+			AndroidWakeLockManager wakeLockManager) {
 		lifecycleManager.registerForShutdown(scheduledExecutorService);
 		AndroidTaskScheduler scheduler = new AndroidTaskScheduler(app,
-				wakeLockFactory, scheduledExecutorService);
+				wakeLockManager, scheduledExecutorService);
 		lifecycleManager.registerService(scheduler);
 		return scheduler;
 	}

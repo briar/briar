@@ -9,7 +9,7 @@ import android.os.PowerManager;
 import org.briarproject.bramble.api.event.EventExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Executor;
@@ -25,7 +25,7 @@ import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @Immutable
 @NotNullByDefault
-class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
+class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 
 	/**
 	 * How often to replace the wake lock.
@@ -41,7 +41,7 @@ class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
 	private final SharedWakeLock sharedWakeLock;
 
 	@Inject
-	AndroidWakeLockFactoryImpl(TaskScheduler scheduler,
+	AndroidWakeLockManagerImpl(TaskScheduler scheduler,
 			@EventExecutor Executor eventExecutor,
 			Application app) {
 		PowerManager powerManager = (PowerManager)
@@ -55,6 +55,17 @@ class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
 	@Override
 	public AndroidWakeLock createWakeLock() {
 		return new AndroidWakeLockImpl(sharedWakeLock);
+	}
+
+	@Override
+	public void runWakefully(Runnable r) {
+		AndroidWakeLock wakeLock = createWakeLock();
+		wakeLock.acquire();
+		try {
+			r.run();
+		} finally {
+			wakeLock.release();
+		}
 	}
 
 	private String getWakeLockTag(Context ctx) {
