@@ -11,6 +11,8 @@ import android.os.SystemClock;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AlarmListener;
+import org.briarproject.bramble.api.system.AndroidWakeLock;
+import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.ArrayList;
@@ -51,6 +53,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	private static final long ALARM_MS = INTERVAL_FIFTEEN_MINUTES;
 
 	private final Application app;
+	private final AndroidWakeLockFactory wakeLockFactory;
 	private final ScheduledExecutorService scheduledExecutorService;
 	private final AlarmManager alarmManager;
 
@@ -59,8 +62,10 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	private final Queue<ScheduledTask> tasks = new PriorityQueue<>();
 
 	AndroidTaskScheduler(Application app,
+			AndroidWakeLockFactory wakeLockFactory,
 			ScheduledExecutorService scheduledExecutorService) {
 		this.app = app;
+		this.wakeLockFactory = wakeLockFactory;
 		this.scheduledExecutorService = scheduledExecutorService;
 		alarmManager = (AlarmManager)
 				requireNonNull(app.getSystemService(ALARM_SERVICE));
@@ -83,7 +88,8 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 			TimeUnit unit) {
 		long now = SystemClock.elapsedRealtime();
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
-		ScheduledTask s = new ScheduledTask(task, executor, dueMillis);
+		Runnable wakeful = createWakefulTask(task, executor);
+		ScheduledTask s = new ScheduledTask(wakeful, dueMillis);
 		if (dueMillis <= now) {
 			scheduledExecutorService.execute(s);
 		} else {
@@ -116,6 +122,21 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 			LOG.info("Ignoring alarm with PID " + extraPid
 					+ ", current PID is " + currentPid);
 		}
+	}
+
+	private Runnable createWakefulTask(Runnable task, Executor executor) {
+		// Hold a wake lock from before we submit the task until after it runs
+		AndroidWakeLock wakeLock = wakeLockFactory.createWakeLock();
+		return () -> {
+			wakeLock.acquire();
+			executor.execute(() -> {
+				try {
+					task.run();
+				} finally {
+					wakeLock.release();
+				}
+			});
+		};
 	}
 
 	private void runDueTasks() {
@@ -177,9 +198,8 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 
 		private final long dueMillis;
 
-		public ScheduledTask(Runnable runnable, Executor executor,
-				long dueMillis) {
-			super(() -> executor.execute(runnable), null);
+		public ScheduledTask(Runnable runnable, long dueMillis) {
+			super(runnable, null);
 			this.dueMillis = dueMillis;
 		}
 
