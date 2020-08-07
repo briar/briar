@@ -3,6 +3,7 @@ package org.briarproject.bramble.system;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -23,6 +24,8 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
 	private static final Logger LOG =
 			getLogger(AndroidWakeLockImpl.class.getName());
 
+	private static final AtomicInteger INSTANCE_ID = new AtomicInteger(0);
+
 	private final SharedWakeLock sharedWakeLock;
 	private final String tag;
 
@@ -32,7 +35,7 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
 
 	AndroidWakeLockImpl(SharedWakeLock sharedWakeLock, String tag) {
 		this.sharedWakeLock = sharedWakeLock;
-		this.tag = tag;
+		this.tag = tag + "_" + INSTANCE_ID.getAndIncrement();
 	}
 
 	@Override
