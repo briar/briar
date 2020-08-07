@@ -14,6 +14,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -75,6 +76,8 @@ class RenewableWakeLock implements SharedWakeLock {
 				future = scheduledExecutorService.schedule(this::renew,
 						durationMs, MILLISECONDS);
 				acquired = android.os.SystemClock.elapsedRealtime();
+			} else if (LOG.isLoggable(FINE)) {
+				LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
 			}
 		}
 	}
@@ -85,6 +88,9 @@ class RenewableWakeLock implements SharedWakeLock {
 			if (wakeLock == null) {
 				LOG.info("Already released");
 				return;
+			}
+			if (LOG.isLoggable(FINE)) {
+				LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
 			}
 			long now = android.os.SystemClock.elapsedRealtime();
 			long expiry = acquired + durationMs + safetyMarginMs;
@@ -115,6 +121,8 @@ class RenewableWakeLock implements SharedWakeLock {
 				requireNonNull(wakeLock).release();
 				wakeLock = null;
 				acquired = 0;
+			} else if (LOG.isLoggable(FINE)) {
+				LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
 			}
 		}
 	}

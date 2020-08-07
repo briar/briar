@@ -3,8 +3,12 @@ package org.briarproject.bramble.system;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
 
+import java.util.logging.Logger;
+
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
+
+import static java.util.logging.Logger.getLogger;
 
 /**
  * A wrapper around a {@link SharedWakeLock} that provides the more convenient
@@ -14,6 +18,9 @@ import javax.annotation.concurrent.ThreadSafe;
 @ThreadSafe
 @NotNullByDefault
 class AndroidWakeLockImpl implements AndroidWakeLock {
+
+	private static final Logger LOG =
+			getLogger(AndroidWakeLockImpl.class.getName());
 
 	private final SharedWakeLock sharedWakeLock;
 	private final Object lock = new Object();
@@ -27,7 +34,10 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
 	@Override
 	public void acquire() {
 		synchronized (lock) {
-			if (!held) {
+			if (held) {
+				LOG.fine("Already acquired");
+			} else {
+				LOG.fine("Acquiring shared wake lock");
 				held = true;
 				sharedWakeLock.acquire();
 			}
@@ -38,8 +48,11 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
 	public void release() {
 		synchronized (lock) {
 			if (held) {
+				LOG.fine("Releasing shared wake lock");
 				held = false;
 				sharedWakeLock.release();
+			} else {
+				LOG.fine("Already released");
 			}
 		}
 	}
