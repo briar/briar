@@ -8,9 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A service that can be used to schedule the execution of tasks.
- * <p>
- * The service should only be used for running tasks on other executors
- * at scheduled times. No significant work should be run by the service itself.
  */
 @NotNullByDefault
 public interface TaskScheduler {
