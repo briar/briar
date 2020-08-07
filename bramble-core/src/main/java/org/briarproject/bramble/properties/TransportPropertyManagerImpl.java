@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
+import org.briarproject.bramble.api.properties.event.RemoteTransportPropertiesUpdatedEvent;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
@@ -42,6 +43,7 @@ import static org.briarproject.bramble.api.properties.TransportPropertyConstants
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_TRANSPORT_ID;
 import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_VERSION;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.REFLECTED_PROPERTY_PREFIX;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @Immutable
@@ -129,8 +131,10 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					// We've already received a newer update - delete this one
 					db.deleteMessage(txn, m.getId());
 					db.deleteMessageMetadata(txn, m.getId());
+					return false;
 				}
 			}
+			txn.attach(new RemoteTransportPropertiesUpdatedEvent(t));
 		} catch (FormatException e) {
 			throw new InvalidMessageException(e);
 		}
@@ -153,15 +157,27 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 		if (props.isEmpty()) return;
 		try {
 			db.transaction(false, txn -> {
-				Group g = getContactGroup(db.getContact(txn, c));
+				Contact contact = db.getContact(txn, c);
+				Group g = getContactGroup(contact);
 				BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(
 						txn, g.getId());
 				BdfDictionary discovered =
 						meta.getOptionalDictionary(GROUP_KEY_DISCOVERED);
-				if (discovered == null) discovered = new BdfDictionary();
-				discovered.putAll(props);
-				meta.put(GROUP_KEY_DISCOVERED, discovered);
-				clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
+				BdfDictionary merged;
+				boolean changed;
+				if (discovered == null) {
+					merged = new BdfDictionary(props);
+					changed = true;
+				} else {
+					merged = new BdfDictionary(discovered);
+					merged.putAll(props);
+					changed = !merged.equals(discovered);
+				}
+				if (changed) {
+					meta.put(GROUP_KEY_DISCOVERED, merged);
+					clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
+					updateLocalProperties(txn, contact, t);
+				}
 			});
 		} catch (FormatException e) {
 			throw new DbException(e);
@@ -224,6 +240,24 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				remote.put(c.getId(), getRemoteProperties(txn, c, t));
 			return remote;
 		});
+	}
+
+	private void updateLocalProperties(Transaction txn, Contact c,
+			TransportId t) throws DbException {
+		try {
+			TransportProperties local;
+			LatestUpdate latest = findLatest(txn, localGroup.getId(), t, true);
+			if (latest == null) {
+				local = new TransportProperties();
+			} else {
+				BdfList message = clientHelper.getMessageAsList(txn,
+						latest.messageId);
+				local = parseProperties(message);
+			}
+			storeLocalProperties(txn, c, t, local);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
 	}
 
 	private TransportProperties getRemoteProperties(Transaction txn, Contact c,
@@ -298,24 +332,44 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					storeMessage(txn, localGroup.getId(), t, merged, version,
 							true, false);
 					// Delete the previous update, if any
-					if (latest != null)
-						db.removeMessage(txn, latest.messageId);
+					if (latest != null) db.removeMessage(txn, latest.messageId);
 					// Store the merged properties in each contact's group
 					for (Contact c : db.getContacts(txn)) {
-						Group g = getContactGroup(c);
-						latest = findLatest(txn, g.getId(), t, true);
-						version = latest == null ? 1 : latest.version + 1;
-						storeMessage(txn, g.getId(), t, merged, version,
-								true, true);
-						// Delete the previous update, if any
-						if (latest != null)
-							db.removeMessage(txn, latest.messageId);
+						storeLocalProperties(txn, c, t, merged);
 					}
 				}
 			});
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private void storeLocalProperties(Transaction txn, Contact c,
+			TransportId t, TransportProperties p)
+			throws DbException, FormatException {
+		Group g = getContactGroup(c);
+		LatestUpdate latest = findLatest(txn, g.getId(), t, true);
+		long version = latest == null ? 1 : latest.version + 1;
+		// Reflect any remote properties we've discovered
+		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
+				g.getId());
+		BdfDictionary discovered =
+				meta.getOptionalDictionary(GROUP_KEY_DISCOVERED);
+		TransportProperties combined;
+		if (discovered == null) {
+			combined = p;
+		} else {
+			combined = new TransportProperties(p);
+			TransportProperties d = clientHelper
+					.parseAndValidateTransportProperties(discovered);
+			for (Entry<String, String> e : d.entrySet()) {
+				String key = REFLECTED_PROPERTY_PREFIX + e.getKey();
+				combined.put(key, e.getValue());
+			}
+		}
+		storeMessage(txn, g.getId(), t, combined, version, true, true);
+		// Delete the previous update, if any
+		if (latest != null) db.removeMessage(txn, latest.messageId);
 	}
 
 	private Group getContactGroup(Contact c) {
