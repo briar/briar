@@ -35,7 +35,7 @@ class AndroidBluetoothTransportConnection
 		this.socket = socket;
 		in = timeoutMonitor.createTimeoutInputStream(
 				socket.getInputStream(), plugin.getMaxIdleTime() * 2);
-		wakeLock = wakeLockManager.createWakeLock();
+		wakeLock = wakeLockManager.createWakeLock("BluetoothConnection");
 		wakeLock.acquire();
 		String address = socket.getRemoteDevice().getAddress();
 		if (isValidBluetoothAddress(address)) remote.put(PROP_ADDRESS, address);

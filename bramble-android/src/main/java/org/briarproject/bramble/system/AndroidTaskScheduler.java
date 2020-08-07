@@ -73,8 +73,8 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	@Override
 	public void startService() {
 		scheduledExecutorService.scheduleAtFixedRate(
-				() -> wakeLockManager.runWakefully(this::runDueTasks),
-				TICK_MS, TICK_MS, MILLISECONDS);
+				() -> wakeLockManager.runWakefully(this::runDueTasks,
+						"TaskTicker"), TICK_MS, TICK_MS, MILLISECONDS);
 		scheduleAlarm();
 	}
 
@@ -89,7 +89,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 		long now = SystemClock.elapsedRealtime();
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
 		Runnable wakeful = () ->
-				wakeLockManager.executeWakefully(task, executor);
+				wakeLockManager.executeWakefully(task, executor, "TaskHandoff");
 		ScheduledTask s = new ScheduledTask(wakeful, dueMillis);
 		if (dueMillis <= now) {
 			scheduledExecutorService.execute(s);
@@ -124,7 +124,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 				LOG.info("Ignoring alarm with PID " + extraPid
 						+ ", current PID is " + currentPid);
 			}
-		});
+		}, "TaskAlarm");
 	}
 
 	private void runDueTasks() {

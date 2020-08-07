@@ -51,13 +51,13 @@ class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 	}
 
 	@Override
-	public AndroidWakeLock createWakeLock() {
-		return new AndroidWakeLockImpl(sharedWakeLock);
+	public AndroidWakeLock createWakeLock(String tag) {
+		return new AndroidWakeLockImpl(sharedWakeLock, tag);
 	}
 
 	@Override
-	public void runWakefully(Runnable r) {
-		AndroidWakeLock wakeLock = createWakeLock();
+	public void runWakefully(Runnable r, String tag) {
+		AndroidWakeLock wakeLock = createWakeLock(tag);
 		wakeLock.acquire();
 		try {
 			r.run();
@@ -67,8 +67,8 @@ class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 	}
 
 	@Override
-	public void executeWakefully(Runnable r, Executor executor) {
-		AndroidWakeLock wakeLock = createWakeLock();
+	public void executeWakefully(Runnable r, Executor executor, String tag) {
+		AndroidWakeLock wakeLock = createWakeLock(tag);
 		wakeLock.acquire();
 		try {
 			executor.execute(() -> {

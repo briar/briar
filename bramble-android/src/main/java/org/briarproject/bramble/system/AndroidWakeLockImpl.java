@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Logger.getLogger;
 
 /**
@@ -23,21 +24,28 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
 			getLogger(AndroidWakeLockImpl.class.getName());
 
 	private final SharedWakeLock sharedWakeLock;
+	private final String tag;
+
 	private final Object lock = new Object();
 	@GuardedBy("lock")
 	private boolean held = false;
 
-	AndroidWakeLockImpl(SharedWakeLock sharedWakeLock) {
+	AndroidWakeLockImpl(SharedWakeLock sharedWakeLock, String tag) {
 		this.sharedWakeLock = sharedWakeLock;
+		this.tag = tag;
 	}
 
 	@Override
 	public void acquire() {
 		synchronized (lock) {
 			if (held) {
-				LOG.fine("Already acquired");
+				if (LOG.isLoggable(FINE)) {
+					LOG.fine(tag + " already acquired");
+				}
 			} else {
-				LOG.fine("Acquiring shared wake lock");
+				if (LOG.isLoggable(FINE)) {
+					LOG.fine(tag + " acquiring shared wake lock");
+				}
 				held = true;
 				sharedWakeLock.acquire();
 			}
@@ -48,11 +56,15 @@ class AndroidWakeLockImpl implements AndroidWakeLock {
 	public void release() {
 		synchronized (lock) {
 			if (held) {
-				LOG.fine("Releasing shared wake lock");
+				if (LOG.isLoggable(FINE)) {
+					LOG.fine(tag + " releasing shared wake lock");
+				}
 				held = false;
 				sharedWakeLock.release();
 			} else {
-				LOG.fine("Already released");
+				if (LOG.isLoggable(FINE)) {
+					LOG.fine(tag + " already released");
+				}
 			}
 		}
 	}

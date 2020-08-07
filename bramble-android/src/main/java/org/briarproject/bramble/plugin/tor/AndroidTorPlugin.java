@@ -53,7 +53,7 @@ class AndroidTorPlugin extends TorPlugin {
 				maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
-		wakeLock = wakeLockManager.createWakeLock();
+		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 	}
 
 	@Override

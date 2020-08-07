@@ -7,9 +7,9 @@ import java.util.concurrent.Executor;
 @NotNullByDefault
 public interface AndroidWakeLockManager {
 
-	AndroidWakeLock createWakeLock();
+	AndroidWakeLock createWakeLock(String tag);
 
-	void runWakefully(Runnable r);
+	void runWakefully(Runnable r, String tag);
 
-	void executeWakefully(Runnable r, Executor executor);
+	void executeWakefully(Runnable r, Executor executor, String tag);
 }
