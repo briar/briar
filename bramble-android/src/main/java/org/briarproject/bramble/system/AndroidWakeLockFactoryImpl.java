@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.system.AndroidWakeLock;
 import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
-import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static android.content.Context.POWER_SERVICE;
@@ -20,7 +19,6 @@ import static java.util.concurrent.TimeUnit.MINUTES;
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
-@Immutable
 @NotNullByDefault
 class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
 
