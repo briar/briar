@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Multiset;
 import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.event.Event;
@@ -25,6 +26,7 @@ import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
 import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.properties.event.RemoteTransportPropertiesUpdatedEvent;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
 import org.briarproject.bramble.api.settings.Settings;
@@ -46,8 +48,12 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.TRANSPORT_ID_BLUETOOTH;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.DEFAULT_PREF_ADDRESS_IS_REFLECTED;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.DEFAULT_PREF_EVER_CONNECTED;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_ADDRESS_IS_REFLECTED;
+import static org.briarproject.bramble.api.plugin.BluetoothConstants.PREF_EVER_CONNECTED;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_ADDRESS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.PROP_UUID;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
@@ -55,6 +61,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.DISABLED;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.REFLECTED_PROPERTY_PREFIX;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
@@ -77,6 +84,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 	private final PluginCallback callback;
 	private final int maxLatency, maxIdleTime;
 	private final AtomicBoolean used = new AtomicBoolean(false);
+	private final AtomicBoolean everConnected = new AtomicBoolean(false);
 
 	protected final PluginState state = new PluginState();
 
@@ -167,6 +175,8 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		Settings settings = callback.getSettings();
 		boolean enabledByUser = settings.getBoolean(PREF_PLUGIN_ENABLE,
 				DEFAULT_PREF_PLUGIN_ENABLE);
+		everConnected.set(settings.getBoolean(PREF_EVER_CONNECTED,
+				DEFAULT_PREF_EVER_CONNECTED));
 		state.setStarted(enabledByUser);
 		try {
 			initialiseAdapter();
@@ -205,25 +215,68 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 		TransportProperties p = callback.getLocalProperties();
 		String address = p.get(PROP_ADDRESS);
 		String uuid = p.get(PROP_UUID);
+		Settings s = callback.getSettings();
+		boolean isReflected = s.getBoolean(PREF_ADDRESS_IS_REFLECTED,
+				DEFAULT_PREF_ADDRESS_IS_REFLECTED);
 		boolean changed = false;
-		if (address == null) {
+		if (address == null || isReflected) {
 			address = getBluetoothAddress();
-			if (LOG.isLoggable(INFO))
+			if (LOG.isLoggable(INFO)) {
 				LOG.info("Local address " + scrubMacAddress(address));
-			if (!isNullOrEmpty(address)) {
-				p.put(PROP_ADDRESS, address);
+			}
+			if (address == null) {
+				if (everConnected.get()) {
+					address = getReflectedAddress();
+					if (LOG.isLoggable(INFO)) {
+						LOG.info("Reflected address " +
+								scrubMacAddress(address));
+					}
+					if (address != null) {
+						changed = true;
+						isReflected = true;
+					}
+				}
+			} else {
 				changed = true;
+				isReflected = false;
 			}
 		}
 		if (uuid == null) {
 			byte[] random = new byte[UUID_BYTES];
 			secureRandom.nextBytes(random);
 			uuid = UUID.nameUUIDFromBytes(random).toString();
-			p.put(PROP_UUID, uuid);
 			changed = true;
 		}
 		contactConnectionsUuid = uuid;
-		if (changed) callback.mergeLocalProperties(p);
+		if (changed) {
+			p = new TransportProperties();
+			// If we previously used a reflected address and there's no longer
+			// a reflected address with enough votes to be used, we'll continue
+			// to use the old reflected address until there's a new winner
+			if (address != null) p.put(PROP_ADDRESS, address);
+			p.put(PROP_UUID, uuid);
+			callback.mergeLocalProperties(p);
+			s = new Settings();
+			s.putBoolean(PREF_ADDRESS_IS_REFLECTED, isReflected);
+			callback.mergeSettings(s);
+		}
+	}
+
+	@Nullable
+	private String getReflectedAddress() {
+		// Count the number of votes for each reflected address
+		String key = REFLECTED_PROPERTY_PREFIX + PROP_ADDRESS;
+		Multiset<String> votes = new Multiset<>();
+		for (TransportProperties p : callback.getRemoteProperties()) {
+			String address = p.get(key);
+			if (address != null && isValidAddress(address)) votes.add(address);
+		}
+		// If an address gets more than half of the votes, accept it
+		int total = votes.getTotal();
+		for (String address : votes.keySet()) {
+			if (votes.getCount(address) * 2 > total) return address;
+		}
+		return null;
 	}
 
 	private void acceptContactConnections(SS ss) {
@@ -240,7 +293,20 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			LOG.info("Connection received");
 			connectionLimiter.connectionOpened(conn);
 			backoff.reset();
+			setEverConnected();
 			callback.handleConnection(conn);
+		}
+	}
+
+	private void setEverConnected() {
+		if (!everConnected.getAndSet(true)) {
+			ioExecutor.execute(() -> {
+				Settings s = new Settings();
+				s.putBoolean(PREF_EVER_CONNECTED, true);
+				callback.mergeSettings(s);
+				// Contacts may already have sent a reflected address
+				updateProperties();
+			});
 		}
 	}
 
@@ -290,6 +356,7 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();
+				setEverConnected();
 				h.handleConnection(d);
 			}
 		});
@@ -392,7 +459,10 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 				LOG.info("Connecting to key agreement UUID " + uuid);
 			conn = connect(address, uuid);
 		}
-		if (conn != null) connectionLimiter.connectionOpened(conn);
+		if (conn != null) {
+			connectionLimiter.connectionOpened(conn);
+			setEverConnected();
+		}
 		return conn;
 	}
 
@@ -429,6 +499,12 @@ abstract class BluetoothPlugin<SS> implements DuplexPlugin, EventListener {
 			ioExecutor.execute(connectionLimiter::keyAgreementStarted);
 		} else if (e instanceof KeyAgreementStoppedListeningEvent) {
 			ioExecutor.execute(connectionLimiter::keyAgreementEnded);
+		} else if (e instanceof RemoteTransportPropertiesUpdatedEvent) {
+			RemoteTransportPropertiesUpdatedEvent r =
+					(RemoteTransportPropertiesUpdatedEvent) e;
+			if (r.getTransportId().equals(ID)) {
+				ioExecutor.execute(this::updateProperties);
+			}
 		}
 	}
 

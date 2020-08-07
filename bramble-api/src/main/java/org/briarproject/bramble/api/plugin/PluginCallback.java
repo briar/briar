@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.Settings;
 
+import java.util.Collection;
+
 /**
  * An interface through which a transport plugin interacts with the rest of
  * the application.
@@ -24,6 +26,11 @@ public interface PluginCallback extends ConnectionHandler {
 	 * Returns the plugin's local transport properties.
 	 */
 	TransportProperties getLocalProperties();
+
+	/**
+	 * Returns the plugin's remote transport properties.
+	 */
+	Collection<TransportProperties> getRemoteProperties();
 
 	/**
 	 * Merges the given settings with the plugin's settings

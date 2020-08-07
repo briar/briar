@@ -22,11 +22,13 @@ import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static java.net.NetworkInterface.getNetworkInterfaces;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.list;
 import static java.util.concurrent.Executors.newCachedThreadPool;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -318,6 +320,11 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		@Override
 		public TransportProperties getLocalProperties() {
 			return local;
+		}
+
+		@Override
+		public Collection<TransportProperties> getRemoteProperties() {
+			return emptyList();
 		}
 
 		@Override
