@@ -50,6 +50,7 @@ public class AndroidSystemModule {
 	}
 
 	@Provides
+	@Singleton
 	AndroidWakeLockFactory provideWakeLockFactory(
 			AndroidWakeLockFactoryImpl wakeLockFactory) {
 		return wakeLockFactory;
