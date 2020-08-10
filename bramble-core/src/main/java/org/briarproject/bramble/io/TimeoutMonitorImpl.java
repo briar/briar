@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.Wakeful;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -75,6 +76,7 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 	}
 
 	@IoExecutor
+	@Wakeful
 	private void checkTimeouts() {
 		List<TimeoutInputStream> snapshot;
 		synchronized (lock) {

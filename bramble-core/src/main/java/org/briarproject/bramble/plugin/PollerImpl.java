@@ -256,6 +256,7 @@ class PollerImpl implements Poller, EventListener {
 
 		@Override
 		@IoExecutor
+		@Wakeful
 		public void run() {
 			lock.lock();
 			try {

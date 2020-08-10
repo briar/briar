@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.TransportKeySet;
@@ -203,6 +204,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	}
 
 	@DatabaseExecutor
+	@Wakeful
 	private void updateKeys() {
 		try {
 			db.transaction(false, this::updateKeys);
@@ -441,6 +443,8 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 		}
 	}
 
+	@DatabaseExecutor
+	@Wakeful
 	private void updateKeys(Transaction txn) throws DbException {
 		long now = clock.currentTimeMillis();
 		lock.lock();

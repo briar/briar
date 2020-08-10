@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.properties.TransportProperties;
+import org.briarproject.bramble.api.system.Wakeful;
 
 import javax.annotation.Nullable;
 
@@ -18,6 +19,7 @@ public interface SimplexPlugin extends Plugin {
 	 * Attempts to create and return a reader for the given transport
 	 * properties. Returns null if a reader cannot be created.
 	 */
+	@Wakeful
 	@Nullable
 	TransportConnectionReader createReader(TransportProperties p);
 
@@ -25,6 +27,7 @@ public interface SimplexPlugin extends Plugin {
 	 * Attempts to create and return a writer for the given transport
 	 * properties. Returns null if a writer cannot be created.
 	 */
+	@Wakeful
 	@Nullable
 	TransportConnectionWriter createWriter(TransportProperties p);
 }

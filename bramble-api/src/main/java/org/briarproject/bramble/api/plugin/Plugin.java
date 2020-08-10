@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.system.Wakeful;
 
 import java.util.Collection;
 
@@ -70,11 +71,13 @@ public interface Plugin {
 	/**
 	 * Starts the plugin.
 	 */
+	@Wakeful
 	void start() throws PluginException;
 
 	/**
 	 * Stops the plugin.
 	 */
+	@Wakeful
 	void stop() throws PluginException;
 
 	/**
@@ -106,6 +109,7 @@ public interface Plugin {
 	 * Attempts to create connections using the given transport properties,
 	 * passing any created connections to the corresponding handlers.
 	 */
+	@Wakeful
 	void poll(Collection<Pair<TransportProperties, ConnectionHandler>>
 			properties);
 }
