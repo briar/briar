@@ -6,10 +6,9 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
@@ -22,14 +21,15 @@ class TransportKeyManagerFactoryImpl implements
 	private final DatabaseComponent db;
 	private final TransportCrypto transportCrypto;
 	private final Executor dbExecutor;
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final Clock clock;
 
 	@Inject
 	TransportKeyManagerFactoryImpl(DatabaseComponent db,
 			TransportCrypto transportCrypto,
 			@DatabaseExecutor Executor dbExecutor,
-			@Scheduler ScheduledExecutorService scheduler, Clock clock) {
+			TaskScheduler scheduler,
+			Clock clock) {
 		this.db = db;
 		this.transportCrypto = transportCrypto;
 		this.dbExecutor = dbExecutor;

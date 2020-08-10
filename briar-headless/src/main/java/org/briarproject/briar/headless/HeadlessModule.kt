@@ -3,6 +3,7 @@ package org.briarproject.briar.headless
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
+import org.briarproject.bramble.account.AccountModule
 import org.briarproject.bramble.api.FeatureFlags
 import org.briarproject.bramble.api.battery.BatteryManager
 import org.briarproject.bramble.api.db.DatabaseConfig
@@ -24,6 +25,8 @@ import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.plugin.tor.CircumventionProvider
 import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
 import org.briarproject.bramble.socks.SocksModule
+import org.briarproject.bramble.system.DefaultTaskSchedulerModule
+import org.briarproject.bramble.system.DesktopSecureRandomModule
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.util.OsUtils.isLinux
 import org.briarproject.bramble.util.OsUtils.isMac
@@ -40,17 +43,20 @@ import javax.net.SocketFactory
 
 @Module(
     includes = [
-        JavaNetworkModule::class,
-        JavaSystemModule::class,
+        AccountModule::class,
         CircumventionModule::class,
         DefaultBatteryManagerModule::class,
         DefaultEventExecutorModule::class,
-        SocksModule::class,
+        DefaultTaskSchedulerModule::class,
+        DesktopSecureRandomModule::class,
         HeadlessBlogModule::class,
         HeadlessContactModule::class,
         HeadlessEventModule::class,
         HeadlessForumModule::class,
-        HeadlessMessagingModule::class
+        HeadlessMessagingModule::class,
+        JavaNetworkModule::class,
+        JavaSystemModule::class,
+        SocksModule::class
     ]
 )
 internal class HeadlessModule(private val appDir: File) {

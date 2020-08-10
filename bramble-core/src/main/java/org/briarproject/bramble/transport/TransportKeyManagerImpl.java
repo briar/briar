@@ -11,7 +11,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.transport.StreamContext;
 import org.briarproject.bramble.api.transport.TransportKeySet;
@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -53,7 +52,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 	private final DatabaseComponent db;
 	private final TransportCrypto transportCrypto;
 	private final Executor dbExecutor;
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final Clock clock;
 	private final TransportId transportId;
 	private final long timePeriodLength;
@@ -72,9 +71,12 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 			pendingContactOutContexts = new HashMap<>();
 
 	TransportKeyManagerImpl(DatabaseComponent db,
-			TransportCrypto transportCrypto, Executor dbExecutor,
-			@Scheduler ScheduledExecutorService scheduler, Clock clock,
-			TransportId transportId, long maxLatency) {
+			TransportCrypto transportCrypto,
+			Executor dbExecutor,
+			TaskScheduler scheduler,
+			Clock clock,
+			TransportId transportId,
+			long maxLatency) {
 		this.db = db;
 		this.transportCrypto = transportCrypto;
 		this.dbExecutor = dbExecutor;
@@ -196,7 +198,7 @@ class TransportKeyManagerImpl implements TransportKeyManager {
 
 	private void scheduleKeyUpdate(long now) {
 		long delay = timePeriodLength - now % timePeriodLength;
-		scheduler.schedule((Runnable) this::updateKeys, delay, MILLISECONDS);
+		scheduler.schedule(this::updateKeys, delay, MILLISECONDS);
 	}
 
 	private void updateKeys() {

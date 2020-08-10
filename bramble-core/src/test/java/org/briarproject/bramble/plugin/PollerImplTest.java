@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.RunAction;
@@ -30,8 +31,7 @@ import org.junit.Test;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.Future;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -45,8 +45,7 @@ import static org.briarproject.bramble.test.TestUtils.getTransportId;
 
 public class PollerImplTest extends BrambleMockTestCase {
 
-	private final ScheduledExecutorService scheduler =
-			context.mock(ScheduledExecutorService.class);
+	private final TaskScheduler scheduler = context.mock(TaskScheduler.class);
 	private final ConnectionManager connectionManager =
 			context.mock(ConnectionManager.class);
 	private final ConnectionRegistry connectionRegistry =
@@ -56,7 +55,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 	private final TransportPropertyManager transportPropertyManager =
 			context.mock(TransportPropertyManager.class);
 	private final Clock clock = context.mock(Clock.class);
-	private final ScheduledFuture future = context.mock(ScheduledFuture.class);
+	private final Future<?> future = context.mock(Future.class);
 	private final SecureRandom random;
 
 	private final Executor ioExecutor = new ImmediateExecutor();

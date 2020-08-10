@@ -31,7 +31,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
@@ -55,7 +55,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -125,14 +124,19 @@ public class AppModule {
 
 	@Provides
 	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
-			@Scheduler ScheduledExecutorService scheduler,
-			AndroidExecutor androidExecutor, SecureRandom random,
-			SocketFactory torSocketFactory, BackoffFactory backoffFactory,
-			Application app, NetworkManager networkManager,
-			LocationUtils locationUtils, EventBus eventBus,
+			TaskScheduler scheduler,
+			AndroidExecutor androidExecutor,
+			SecureRandom random,
+			SocketFactory torSocketFactory,
+			BackoffFactory backoffFactory,
+			Application app,
+			NetworkManager networkManager,
+			LocationUtils locationUtils,
+			EventBus eventBus,
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Clock clock,
+			BatteryManager batteryManager,
+			Clock clock,
 			TimeoutMonitor timeoutMonitor) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new AndroidBluetoothPluginFactory(

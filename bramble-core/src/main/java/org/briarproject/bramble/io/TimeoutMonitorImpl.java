@@ -3,7 +3,7 @@ package org.briarproject.bramble.io;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -30,7 +29,7 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 
 	private static final long CHECK_INTERVAL_MS = SECONDS.toMillis(10);
 
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final Executor ioExecutor;
 	private final Clock clock;
 	private final Object lock = new Object();
@@ -41,7 +40,7 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 	private Future<?> task = null;
 
 	@Inject
-	TimeoutMonitorImpl(@Scheduler ScheduledExecutorService scheduler,
+	TimeoutMonitorImpl(TaskScheduler scheduler,
 			@IoExecutor Executor ioExecutor, Clock clock) {
 		this.scheduler = scheduler;
 		this.ioExecutor = ioExecutor;
@@ -74,7 +73,7 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 		if (toCancel != null) toCancel.cancel(false);
 	}
 
-	@Scheduler
+	// Scheduler
 	private void checkTimeouts() {
 		ioExecutor.execute(() -> {
 			List<TimeoutInputStream> snapshot;

@@ -1,6 +1,6 @@
 package org.briarproject.briar.test;
 
-import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.connection.ConnectionManager;
@@ -51,7 +51,7 @@ import dagger.Component;
 		SharingModule.class
 })
 public interface BriarIntegrationTestComponent
-		extends BrambleCoreEagerSingletons {
+		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
 
@@ -115,7 +115,8 @@ public interface BriarIntegrationTestComponent
 
 		public static void injectEagerSingletons(
 				BriarIntegrationTestComponent c) {
-			BrambleCoreEagerSingletons.Helper.injectEagerSingletons(c);
+			BrambleCoreIntegrationTestEagerSingletons.Helper
+					.injectEagerSingletons(c);
 			c.inject(new BlogModule.EagerSingletons());
 			c.inject(new ForumModule.EagerSingletons());
 			c.inject(new GroupInvitationModule.EagerSingletons());

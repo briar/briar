@@ -15,11 +15,11 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
+import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.util.RenewableWakeLock;
 
 import java.io.IOException;
 import java.util.concurrent.Executor;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.net.SocketFactory;
 
@@ -36,18 +36,26 @@ class AndroidTorPlugin extends TorPlugin {
 	private final Context appContext;
 	private final RenewableWakeLock wakeLock;
 
-	AndroidTorPlugin(Executor ioExecutor, ScheduledExecutorService scheduler,
-			Context appContext, NetworkManager networkManager,
-			LocationUtils locationUtils, SocketFactory torSocketFactory,
-			Clock clock, ResourceProvider resourceProvider,
+	AndroidTorPlugin(Executor ioExecutor,
+			TaskScheduler scheduler,
+			Context appContext,
+			NetworkManager networkManager,
+			LocationUtils locationUtils,
+			SocketFactory torSocketFactory,
+			Clock clock,
+			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Backoff backoff,
+			BatteryManager batteryManager,
+			Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto,
-			PluginCallback callback, String architecture, int maxLatency,
+			PluginCallback callback,
+			String architecture,
+			int maxLatency,
 			int maxIdleTime) {
 		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture, maxLatency, maxIdleTime,
+				backoff, torRendezvousCrypto, callback, architecture,
+				maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
 		PowerManager pm = (PowerManager)

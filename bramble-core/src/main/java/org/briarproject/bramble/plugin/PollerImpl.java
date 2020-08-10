@@ -26,7 +26,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPlugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -36,7 +36,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -58,7 +57,7 @@ class PollerImpl implements Poller, EventListener {
 	private static final Logger LOG = getLogger(PollerImpl.class.getName());
 
 	private final Executor ioExecutor;
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final ConnectionManager connectionManager;
 	private final ConnectionRegistry connectionRegistry;
 	private final PluginManager pluginManager;
@@ -71,11 +70,13 @@ class PollerImpl implements Poller, EventListener {
 
 	@Inject
 	PollerImpl(@IoExecutor Executor ioExecutor,
-			@Scheduler ScheduledExecutorService scheduler,
+			TaskScheduler scheduler,
 			ConnectionManager connectionManager,
-			ConnectionRegistry connectionRegistry, PluginManager pluginManager,
+			ConnectionRegistry connectionRegistry,
+			PluginManager pluginManager,
 			TransportPropertyManager transportPropertyManager,
-			SecureRandom random, Clock clock) {
+			SecureRandom random,
+			Clock clock) {
 		this.ioExecutor = ioExecutor;
 		this.scheduler = scheduler;
 		this.connectionManager = connectionManager;
@@ -188,7 +189,7 @@ class PollerImpl implements Poller, EventListener {
 				// it will abort safely when it finds it's been replaced
 				if (scheduled != null) scheduled.future.cancel(false);
 				PollTask task = new PollTask(p, due, randomiseNext);
-				Future future = scheduler.schedule(() ->
+				Future<?> future = scheduler.schedule(() ->
 						ioExecutor.execute(task), delay, MILLISECONDS);
 				tasks.put(t, new ScheduledPollTask(task, future));
 			}

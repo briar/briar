@@ -3,16 +3,20 @@ package org.briarproject.briar.headless
 import com.fasterxml.jackson.databind.ObjectMapper
 import dagger.Module
 import dagger.Provides
+import org.briarproject.bramble.account.AccountModule
 import org.briarproject.bramble.api.FeatureFlags
 import org.briarproject.bramble.api.db.DatabaseConfig
 import org.briarproject.bramble.api.plugin.PluginConfig
 import org.briarproject.bramble.api.plugin.TransportId
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
+import org.briarproject.bramble.event.DefaultEventExecutorModule
 import org.briarproject.bramble.network.JavaNetworkModule
 import org.briarproject.bramble.plugin.tor.CircumventionModule
 import org.briarproject.bramble.socks.SocksModule
+import org.briarproject.bramble.system.DefaultTaskSchedulerModule
 import org.briarproject.bramble.system.JavaSystemModule
+import org.briarproject.bramble.test.TestSecureRandomModule
 import org.briarproject.briar.headless.blogs.HeadlessBlogModule
 import org.briarproject.briar.headless.contact.HeadlessContactModule
 import org.briarproject.briar.headless.event.HeadlessEventModule
@@ -26,8 +30,12 @@ import javax.inject.Singleton
     includes = [
         JavaNetworkModule::class,
         JavaSystemModule::class,
+        AccountModule::class,
         CircumventionModule::class,
+        DefaultEventExecutorModule::class,
+        DefaultTaskSchedulerModule::class,
         SocksModule::class,
+        TestSecureRandomModule::class,
         HeadlessBlogModule::class,
         HeadlessContactModule::class,
         HeadlessEventModule::class,

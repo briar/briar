@@ -1,6 +1,6 @@
 package org.briarproject.bramble.sync;
 
-import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 
@@ -13,7 +13,8 @@ import dagger.Component;
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class
 })
-interface SyncIntegrationTestComponent extends BrambleCoreEagerSingletons {
+interface SyncIntegrationTestComponent extends
+		BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(SyncIntegrationTest testCase);
 }

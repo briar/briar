@@ -1,6 +1,6 @@
 package org.briarproject.bramble.contact;
 
-import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactExchangeManager;
@@ -23,7 +23,7 @@ import dagger.Component;
 		BrambleCoreModule.class
 })
 interface ContactExchangeIntegrationTestComponent
-		extends BrambleCoreEagerSingletons {
+		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	ConnectionManager getConnectionManager();
 

@@ -2,6 +2,7 @@ package org.briarproject.briar.android;
 
 import org.briarproject.bramble.BrambleAndroidEagerSingletons;
 import org.briarproject.bramble.BrambleAndroidModule;
+import org.briarproject.bramble.BrambleAppComponent;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.account.BriarAccountModule;
@@ -73,7 +74,7 @@ import dagger.Component;
 })
 public interface AndroidComponent
 		extends BrambleCoreEagerSingletons, BrambleAndroidEagerSingletons,
-		BriarCoreEagerSingletons, AndroidEagerSingletons {
+		BriarCoreEagerSingletons, AndroidEagerSingletons, BrambleAppComponent {
 
 	// Exposed objects
 	@CryptoExecutor

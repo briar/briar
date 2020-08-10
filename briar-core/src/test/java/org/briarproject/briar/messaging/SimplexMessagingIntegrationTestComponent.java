@@ -1,6 +1,6 @@
 package org.briarproject.briar.messaging;
 
-import org.briarproject.bramble.BrambleCoreEagerSingletons;
+import org.briarproject.bramble.BrambleCoreIntegrationTestEagerSingletons;
 import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.api.connection.ConnectionManager;
 import org.briarproject.bramble.api.contact.ContactManager;
@@ -24,7 +24,7 @@ import dagger.Component;
 		MessagingModule.class
 })
 interface SimplexMessagingIntegrationTestComponent
-		extends BrambleCoreEagerSingletons {
+		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(MessagingModule.EagerSingletons init);
 
@@ -46,7 +46,8 @@ interface SimplexMessagingIntegrationTestComponent
 
 		public static void injectEagerSingletons(
 				SimplexMessagingIntegrationTestComponent c) {
-			BrambleCoreEagerSingletons.Helper.injectEagerSingletons(c);
+			BrambleCoreIntegrationTestEagerSingletons.Helper
+					.injectEagerSingletons(c);
 			c.inject(new MessagingModule.EagerSingletons());
 		}
 	}

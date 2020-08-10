@@ -15,10 +15,9 @@ import org.briarproject.bramble.api.network.NetworkStatus;
 import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.system.Scheduler;
+import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -50,7 +49,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 	private static final String WIFI_AP_STATE_CHANGED_ACTION =
 			"android.net.wifi.WIFI_AP_STATE_CHANGED";
 
-	private final ScheduledExecutorService scheduler;
+	private final TaskScheduler scheduler;
 	private final EventBus eventBus;
 	private final Context appContext;
 	private final AtomicReference<Future<?>> connectivityCheck =
@@ -60,8 +59,8 @@ class AndroidNetworkManager implements NetworkManager, Service {
 	private volatile BroadcastReceiver networkStateReceiver = null;
 
 	@Inject
-	AndroidNetworkManager(@Scheduler ScheduledExecutorService scheduler,
-			EventBus eventBus, Application app) {
+	AndroidNetworkManager(TaskScheduler scheduler, EventBus eventBus,
+			Application app) {
 		this.scheduler = scheduler;
 		this.eventBus = eventBus;
 		this.appContext = app.getApplicationContext();

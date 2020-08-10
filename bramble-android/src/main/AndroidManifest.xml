@@ -16,6 +16,8 @@
 		android:label="@string/app_name"
 		android:supportsRtl="true">
 
+		<receiver android:name=".system.AlarmReceiver" />
+
 	</application>
 
 </manifest>

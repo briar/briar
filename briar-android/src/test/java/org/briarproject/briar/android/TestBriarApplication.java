@@ -8,6 +8,7 @@ import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.google.GoogleEmojiProvider;
 
 import org.briarproject.bramble.BrambleAndroidEagerSingletons;
+import org.briarproject.bramble.BrambleAppComponent;
 import org.briarproject.bramble.BrambleCoreEagerSingletons;
 import org.briarproject.briar.BriarCoreEagerSingletons;
 
@@ -51,6 +52,11 @@ public class TestBriarApplication extends Application
 		AndroidEagerSingletons.Helper
 				.injectEagerSingletons(applicationComponent);
 		EmojiManager.install(new GoogleEmojiProvider());
+	}
+
+	@Override
+	public BrambleAppComponent getBrambleAppComponent() {
+		return applicationComponent;
 	}
 
 	@Override
