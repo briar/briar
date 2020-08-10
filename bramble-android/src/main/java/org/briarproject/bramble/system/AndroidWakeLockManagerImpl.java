@@ -75,10 +75,14 @@ class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 				try {
 					r.run();
 				} finally {
+					// Release the wake lock if the task throws an exception
 					wakeLock.release();
 				}
 			});
 		} catch (Exception e) {
+			// Release the wake lock if the executor throws an exception when
+			// we submit the task (in which case the release() call above won't
+			// happen)
 			wakeLock.release();
 			throw e;
 		}
