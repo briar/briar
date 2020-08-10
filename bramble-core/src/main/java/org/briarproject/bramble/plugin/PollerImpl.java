@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.security.SecureRandom;
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ class PollerImpl implements Poller, EventListener {
 
 	private static final Logger LOG = getLogger(PollerImpl.class.getName());
 
-	private final Executor ioExecutor;
+	private final Executor wakefulIoExecutor;
 	private final TaskScheduler scheduler;
 	private final ConnectionManager connectionManager;
 	private final ConnectionRegistry connectionRegistry;
@@ -69,7 +70,7 @@ class PollerImpl implements Poller, EventListener {
 	private final Map<TransportId, ScheduledPollTask> tasks;
 
 	@Inject
-	PollerImpl(@IoExecutor Executor ioExecutor,
+	PollerImpl(@WakefulIoExecutor Executor wakefulIoExecutor,
 			TaskScheduler scheduler,
 			ConnectionManager connectionManager,
 			ConnectionRegistry connectionRegistry,
@@ -77,7 +78,7 @@ class PollerImpl implements Poller, EventListener {
 			TransportPropertyManager transportPropertyManager,
 			SecureRandom random,
 			Clock clock) {
-		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.scheduler = scheduler;
 		this.connectionManager = connectionManager;
 		this.connectionRegistry = connectionRegistry;
@@ -118,7 +119,6 @@ class PollerImpl implements Poller, EventListener {
 		}
 	}
 
-	// TODO: Make this wakeful
 	private void connectToContact(ContactId c) {
 		for (SimplexPlugin s : pluginManager.getSimplexPlugins())
 			if (s.shouldPoll()) connectToContact(c, s);
@@ -135,7 +135,7 @@ class PollerImpl implements Poller, EventListener {
 	}
 
 	private void connectToContact(ContactId c, SimplexPlugin p) {
-		ioExecutor.execute(() -> {
+		wakefulIoExecutor.execute(() -> {
 			TransportId t = p.getId();
 			if (connectionRegistry.isConnected(c, t)) return;
 			try {
@@ -151,7 +151,7 @@ class PollerImpl implements Poller, EventListener {
 	}
 
 	private void connectToContact(ContactId c, DuplexPlugin p) {
-		ioExecutor.execute(() -> {
+		wakefulIoExecutor.execute(() -> {
 			TransportId t = p.getId();
 			if (connectionRegistry.isConnected(c, t)) return;
 			try {
@@ -190,8 +190,8 @@ class PollerImpl implements Poller, EventListener {
 				// it will abort safely when it finds it's been replaced
 				if (scheduled != null) scheduled.future.cancel(false);
 				PollTask task = new PollTask(p, due, randomiseNext);
-				Future<?> future = scheduler.schedule(task, ioExecutor, delay,
-						MILLISECONDS);
+				Future<?> future = scheduler.schedule(task, wakefulIoExecutor,
+						delay, MILLISECONDS);
 				tasks.put(t, new ScheduledPollTask(task, future));
 			}
 		} finally {
