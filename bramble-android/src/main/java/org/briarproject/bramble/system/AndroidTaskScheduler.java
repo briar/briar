@@ -110,7 +110,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 			LOG.info("Alarm");
 			rescheduleAlarm();
 			runDueTasks();
-		} else {
+		} else if (LOG.isLoggable(INFO)) {
 			LOG.info("Ignoring alarm with PID " + extraPid
 					+ ", current PID is " + currentPid);
 		}
@@ -143,6 +143,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	private void rescheduleAlarm() {
+		// If SDK_INT < 23 the alarm repeats automatically
 		if (SDK_INT >= 23) scheduleIdleAlarm();
 	}
 
