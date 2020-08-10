@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 
 import org.briarproject.bramble.api.event.EventBus;
@@ -12,8 +13,8 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
 import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
@@ -33,8 +34,8 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
-	private final TaskScheduler scheduler;
 	private final AndroidExecutor androidExecutor;
+	private final AndroidWakeLockFactory wakeLockFactory;
 	private final Context appContext;
 	private final SecureRandom secureRandom;
 	private final EventBus eventBus;
@@ -43,8 +44,8 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 
 	public AndroidBluetoothPluginFactory(Executor ioExecutor,
-			TaskScheduler scheduler,
 			AndroidExecutor androidExecutor,
+			AndroidWakeLockFactory wakeLockFactory,
 			Context appContext,
 			SecureRandom secureRandom,
 			EventBus eventBus,
@@ -52,8 +53,8 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 			TimeoutMonitor timeoutMonitor,
 			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
-		this.scheduler = scheduler;
 		this.androidExecutor = androidExecutor;
+		this.wakeLockFactory = wakeLockFactory;
 		this.appContext = appContext;
 		this.secureRandom = secureRandom;
 		this.eventBus = eventBus;
@@ -76,12 +77,15 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		BluetoothConnectionLimiter connectionLimiter =
 				new BluetoothConnectionLimiterImpl(eventBus);
+		BluetoothConnectionFactory<BluetoothSocket> connectionFactory =
+				new AndroidBluetoothConnectionFactory(connectionLimiter,
+						wakeLockFactory, timeoutMonitor);
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(
-				connectionLimiter, timeoutMonitor, ioExecutor, secureRandom,
-				scheduler, androidExecutor, appContext, clock, backoff,
-				callback, MAX_LATENCY, MAX_IDLE_TIME);
+				connectionLimiter, connectionFactory, ioExecutor, secureRandom,
+				androidExecutor, appContext, clock, backoff, callback,
+				MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

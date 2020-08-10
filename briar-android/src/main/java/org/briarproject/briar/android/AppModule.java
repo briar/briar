@@ -28,10 +28,10 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
@@ -124,7 +124,6 @@ public class AppModule {
 
 	@Provides
 	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
-			TaskScheduler scheduler,
 			AndroidExecutor androidExecutor,
 			SecureRandom random,
 			SocketFactory torSocketFactory,
@@ -136,16 +135,17 @@ public class AppModule {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
+			AndroidWakeLockFactory wakeLockFactory,
 			Clock clock,
 			TimeoutMonitor timeoutMonitor) {
 		Context appContext = app.getApplicationContext();
 		DuplexPluginFactory bluetooth = new AndroidBluetoothPluginFactory(
-				ioExecutor, scheduler, androidExecutor, appContext, random,
-				eventBus, clock, timeoutMonitor, backoffFactory);
+				ioExecutor, androidExecutor, wakeLockFactory, appContext,
+				random, eventBus, clock, timeoutMonitor, backoffFactory);
 		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
-				scheduler, appContext, networkManager, locationUtils, eventBus,
+				appContext, networkManager, locationUtils, eventBus,
 				torSocketFactory, backoffFactory, resourceProvider,
-				circumventionProvider, batteryManager, clock);
+				circumventionProvider, batteryManager, wakeLockFactory, clock);
 		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
 				eventBus, backoffFactory, appContext);
 		Collection<DuplexPluginFactory> duplex = asList(bluetooth, tor, lan);

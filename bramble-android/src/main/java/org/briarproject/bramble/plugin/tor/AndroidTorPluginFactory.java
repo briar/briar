@@ -13,10 +13,10 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.api.system.TaskScheduler;
 import org.briarproject.bramble.util.AndroidUtils;
 
 import java.util.concurrent.Executor;
@@ -39,7 +39,6 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private static final double BACKOFF_BASE = 1.2;
 
 	private final Executor ioExecutor;
-	private final TaskScheduler scheduler;
 	private final Context appContext;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
@@ -49,10 +48,10 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final ResourceProvider resourceProvider;
 	private final CircumventionProvider circumventionProvider;
 	private final BatteryManager batteryManager;
+	private final AndroidWakeLockFactory wakeLockFactory;
 	private final Clock clock;
 
 	public AndroidTorPluginFactory(Executor ioExecutor,
-			TaskScheduler scheduler,
 			Context appContext,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
@@ -62,9 +61,9 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
+			AndroidWakeLockFactory wakeLockFactory,
 			Clock clock) {
 		this.ioExecutor = ioExecutor;
-		this.scheduler = scheduler;
 		this.appContext = appContext;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
@@ -74,6 +73,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		this.resourceProvider = resourceProvider;
 		this.circumventionProvider = circumventionProvider;
 		this.batteryManager = batteryManager;
+		this.wakeLockFactory = wakeLockFactory;
 		this.clock = clock;
 	}
 
@@ -117,11 +117,11 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
-		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor, scheduler,
+		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor,
 				appContext, networkManager, locationUtils, torSocketFactory,
 				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture,
-				MAX_LATENCY, MAX_IDLE_TIME);
+				wakeLockFactory, backoff, torRendezvousCrypto, callback,
+				architecture, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}
