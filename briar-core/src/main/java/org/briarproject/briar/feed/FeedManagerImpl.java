@@ -146,9 +146,8 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	private void startFeedExecutor() {
 		if (fetcherStarted.getAndSet(true)) return;
 		LOG.info("Tor started, scheduling RSS feed fetcher");
-		Runnable fetcher = () -> ioExecutor.execute(this::fetchFeeds);
-		scheduler.scheduleWithFixedDelay(fetcher, FETCH_DELAY_INITIAL,
-				FETCH_INTERVAL, FETCH_UNIT);
+		scheduler.scheduleWithFixedDelay(this::fetchFeeds, ioExecutor,
+				FETCH_DELAY_INITIAL, FETCH_INTERVAL, FETCH_UNIT);
 	}
 
 	@Override
@@ -471,6 +470,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 		if (date == null) time = now;
 		else time = Math.max(0, Math.min(date.getTime(), now));
 		String text = getPostText(b.toString());
+		//noinspection TryWithIdenticalCatches
 		try {
 			// create and store post
 			LocalAuthor localAuthor = feed.getLocalAuthor();

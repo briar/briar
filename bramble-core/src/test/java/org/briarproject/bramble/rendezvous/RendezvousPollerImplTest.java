@@ -123,8 +123,8 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					e.getPendingContactState() == OFFLINE)));
 			// Capture the poll task
 			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
-					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
-					with(MILLISECONDS));
+					with(any(Executor.class)), with(POLLING_INTERVAL_MS),
+					with(POLLING_INTERVAL_MS), with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
 					0));
 		}});
@@ -159,8 +159,8 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					e.getPendingContactState() == FAILED)));
 			// Schedule the poll task
 			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
-					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
-					with(MILLISECONDS));
+					with(any(Executor.class)), with(POLLING_INTERVAL_MS),
+					with(POLLING_INTERVAL_MS), with(MILLISECONDS));
 		}});
 
 		rendezvousPoller.startService();
@@ -468,8 +468,8 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 			will(returnValue(emptyList()));
 			// Capture the poll task
 			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
-					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
-					with(MILLISECONDS));
+					with(any(Executor.class)), with(POLLING_INTERVAL_MS),
+					with(POLLING_INTERVAL_MS), with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
 					0));
 		}});
@@ -545,8 +545,8 @@ public class RendezvousPollerImplTest extends BrambleMockTestCase {
 					e.getPendingContactState() == OFFLINE)));
 			// Capture the poll task
 			oneOf(scheduler).scheduleWithFixedDelay(with(any(Runnable.class)),
-					with(POLLING_INTERVAL_MS), with(POLLING_INTERVAL_MS),
-					with(MILLISECONDS));
+					with(any(Executor.class)), with(POLLING_INTERVAL_MS),
+					with(POLLING_INTERVAL_MS), with(MILLISECONDS));
 			will(new CaptureArgumentAction<>(capturePollTask, Runnable.class,
 					0));
 		}});

@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 
 import java.io.IOException;
 
@@ -15,15 +15,15 @@ class AndroidBluetoothConnectionFactory
 		implements BluetoothConnectionFactory<BluetoothSocket> {
 
 	private final BluetoothConnectionLimiter connectionLimiter;
-	private final AndroidWakeLockFactory wakeLockFactory;
+	private final AndroidWakeLockManager wakeLockManager;
 	private final TimeoutMonitor timeoutMonitor;
 
 	AndroidBluetoothConnectionFactory(
 			BluetoothConnectionLimiter connectionLimiter,
-			AndroidWakeLockFactory wakeLockFactory,
+			AndroidWakeLockManager wakeLockManager,
 			TimeoutMonitor timeoutMonitor) {
 		this.connectionLimiter = connectionLimiter;
-		this.wakeLockFactory = wakeLockFactory;
+		this.wakeLockManager = wakeLockManager;
 		this.timeoutMonitor = timeoutMonitor;
 	}
 
@@ -31,6 +31,6 @@ class AndroidBluetoothConnectionFactory
 	public DuplexTransportConnection wrapSocket(DuplexPlugin plugin,
 			BluetoothSocket s) throws IOException {
 		return new AndroidBluetoothTransportConnection(plugin,
-				connectionLimiter, wakeLockFactory, timeoutMonitor, s);
+				connectionLimiter, wakeLockManager, timeoutMonitor, s);
 	}
 }

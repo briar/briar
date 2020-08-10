@@ -1,13 +1,17 @@
 package org.briarproject.bramble.system;
 
 import org.briarproject.bramble.api.event.EventExecutor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
 import org.briarproject.bramble.api.system.SecureRandomProvider;
 
 import java.util.concurrent.Executor;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledThreadPoolExecutor;
 
 import javax.inject.Singleton;
 
@@ -16,6 +20,23 @@ import dagger.Provides;
 
 @Module
 public class AndroidSystemModule {
+
+	private final ScheduledExecutorService scheduledExecutorService;
+
+	public AndroidSystemModule() {
+		// Discard tasks that are submitted during shutdown
+		RejectedExecutionHandler policy =
+				new ScheduledThreadPoolExecutor.DiscardPolicy();
+		scheduledExecutorService = new ScheduledThreadPoolExecutor(1, policy);
+	}
+
+	@Provides
+	@Singleton
+	ScheduledExecutorService provideScheduledExecutorService(
+			LifecycleManager lifecycleManager) {
+		lifecycleManager.registerForShutdown(scheduledExecutorService);
+		return scheduledExecutorService;
+	}
 
 	@Provides
 	@Singleton
@@ -51,8 +72,8 @@ public class AndroidSystemModule {
 
 	@Provides
 	@Singleton
-	AndroidWakeLockFactory provideWakeLockFactory(
-			AndroidWakeLockFactoryImpl wakeLockFactory) {
-		return wakeLockFactory;
+	AndroidWakeLockManager provideWakeLockManager(
+			AndroidWakeLockManagerImpl wakeLockManager) {
+		return wakeLockManager;
 	}
 }

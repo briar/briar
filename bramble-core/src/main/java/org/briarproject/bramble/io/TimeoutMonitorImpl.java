@@ -55,7 +55,8 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 		synchronized (lock) {
 			if (streams.isEmpty()) {
 				task = scheduler.scheduleWithFixedDelay(this::checkTimeouts,
-						CHECK_INTERVAL_MS, CHECK_INTERVAL_MS, MILLISECONDS);
+						ioExecutor, CHECK_INTERVAL_MS, CHECK_INTERVAL_MS,
+						MILLISECONDS);
 			}
 			streams.add(stream);
 		}
@@ -73,23 +74,21 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 		if (toCancel != null) toCancel.cancel(false);
 	}
 
-	// Scheduler
+	@IoExecutor
 	private void checkTimeouts() {
-		ioExecutor.execute(() -> {
-			List<TimeoutInputStream> snapshot;
-			synchronized (lock) {
-				snapshot = new ArrayList<>(streams);
-			}
-			for (TimeoutInputStream stream : snapshot) {
-				if (stream.hasTimedOut()) {
-					LOG.info("Input stream has timed out");
-					try {
-						stream.close();
-					} catch (IOException e) {
-						logException(LOG, INFO, e);
-					}
+		List<TimeoutInputStream> snapshot;
+		synchronized (lock) {
+			snapshot = new ArrayList<>(streams);
+		}
+		for (TimeoutInputStream stream : snapshot) {
+			if (stream.hasTimedOut()) {
+				LOG.info("Input stream has timed out");
+				try {
+					stream.close();
+				} catch (IOException e) {
+					logException(LOG, INFO, e);
 				}
 			}
-		});
+		}
 	}
 }

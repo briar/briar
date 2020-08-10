@@ -4,9 +4,9 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
@@ -14,6 +14,7 @@ import javax.annotation.concurrent.GuardedBy;
 import javax.annotation.concurrent.ThreadSafe;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
@@ -27,7 +28,7 @@ class RenewableWakeLock implements SharedWakeLock {
 			getLogger(RenewableWakeLock.class.getName());
 
 	private final PowerManager powerManager;
-	private final TaskScheduler scheduler;
+	private final ScheduledExecutorService scheduledExecutorService;
 	private final int levelAndFlags;
 	private final String tag;
 	private final long durationMs, safetyMarginMs;
@@ -44,11 +45,14 @@ class RenewableWakeLock implements SharedWakeLock {
 	@GuardedBy("lock")
 	private long acquired = 0;
 
-	RenewableWakeLock(PowerManager powerManager, TaskScheduler scheduler,
-			int levelAndFlags, String tag, long durationMs,
+	RenewableWakeLock(PowerManager powerManager,
+			ScheduledExecutorService scheduledExecutorService,
+			int levelAndFlags,
+			String tag,
+			long durationMs,
 			long safetyMarginMs) {
 		this.powerManager = powerManager;
-		this.scheduler = scheduler;
+		this.scheduledExecutorService = scheduledExecutorService;
 		this.levelAndFlags = levelAndFlags;
 		this.tag = tag;
 		this.durationMs = durationMs;
@@ -69,9 +73,11 @@ class RenewableWakeLock implements SharedWakeLock {
 				//  power management apps
 				wakeLock.setReferenceCounted(false);
 				wakeLock.acquire(durationMs + safetyMarginMs);
-				future = scheduler.schedule(this::renew, durationMs,
-						MILLISECONDS);
+				future = scheduledExecutorService.schedule(this::renew,
+						durationMs, MILLISECONDS);
 				acquired = android.os.SystemClock.elapsedRealtime();
+			} else if (LOG.isLoggable(FINE)) {
+				LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
 			}
 		}
 	}
@@ -83,6 +89,9 @@ class RenewableWakeLock implements SharedWakeLock {
 				LOG.info("Already released");
 				return;
 			}
+			if (LOG.isLoggable(FINE)) {
+				LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
+			}
 			long now = android.os.SystemClock.elapsedRealtime();
 			long expiry = acquired + durationMs + safetyMarginMs;
 			if (now > expiry && LOG.isLoggable(WARNING)) {
@@ -93,7 +102,8 @@ class RenewableWakeLock implements SharedWakeLock {
 			wakeLock.setReferenceCounted(false);
 			wakeLock.acquire(durationMs + safetyMarginMs);
 			oldWakeLock.release();
-			future = scheduler.schedule(this::renew, durationMs, MILLISECONDS);
+			future = scheduledExecutorService.schedule(this::renew, durationMs,
+					MILLISECONDS);
 			acquired = now;
 		}
 	}
@@ -111,6 +121,8 @@ class RenewableWakeLock implements SharedWakeLock {
 				requireNonNull(wakeLock).release();
 				wakeLock = null;
 				acquired = 0;
+			} else if (LOG.isLoggable(FINE)) {
+				LOG.fine("Wake lock " + tag + " has " + refCount + " holders");
 			}
 		}
 	}

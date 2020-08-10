@@ -7,7 +7,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.duplex.AbstractDuplexTransportConnection;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,7 +27,7 @@ class AndroidBluetoothTransportConnection
 
 	AndroidBluetoothTransportConnection(Plugin plugin,
 			BluetoothConnectionLimiter connectionLimiter,
-			AndroidWakeLockFactory wakeLockFactory,
+			AndroidWakeLockManager wakeLockManager,
 			TimeoutMonitor timeoutMonitor,
 			BluetoothSocket socket) throws IOException {
 		super(plugin);
@@ -35,7 +35,7 @@ class AndroidBluetoothTransportConnection
 		this.socket = socket;
 		in = timeoutMonitor.createTimeoutInputStream(
 				socket.getInputStream(), plugin.getMaxIdleTime() * 2);
-		wakeLock = wakeLockFactory.createWakeLock();
+		wakeLock = wakeLockManager.createWakeLock("BluetoothConnection");
 		wakeLock.acquire();
 		String address = socket.getRemoteDevice().getAddress();
 		if (isValidBluetoothAddress(address)) remote.put(PROP_ADDRESS, address);

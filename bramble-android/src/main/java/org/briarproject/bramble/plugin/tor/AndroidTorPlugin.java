@@ -12,7 +12,7 @@ import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.api.system.ResourceProvider;
@@ -40,7 +40,7 @@ class AndroidTorPlugin extends TorPlugin {
 			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
-			AndroidWakeLockFactory wakeLockFactory,
+			AndroidWakeLockManager wakeLockManager,
 			Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto,
 			PluginCallback callback,
@@ -53,7 +53,7 @@ class AndroidTorPlugin extends TorPlugin {
 				maxLatency, maxIdleTime,
 				appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
-		wakeLock = wakeLockFactory.createWakeLock();
+		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 	}
 
 	@Override

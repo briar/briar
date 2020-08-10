@@ -117,7 +117,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 					new TransportKeySet(keySetId, contactId, null, updated)));
 			// Schedule a key update at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(timePeriodLength - 1), with(MILLISECONDS));
+					with(dbExecutor), with(timePeriodLength - 1),
+					with(MILLISECONDS));
 		}});
 
 		transportKeyManager.start(txn);
@@ -420,9 +421,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 			}
 			// Schedule a key update at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(timePeriodLength), with(MILLISECONDS));
-			will(new RunAction());
-			oneOf(dbExecutor).execute(with(any(Runnable.class)));
+					with(dbExecutor), with(timePeriodLength),
+					with(MILLISECONDS));
 			will(new RunAction());
 			// Start a transaction for updating keys
 			oneOf(db).transaction(with(false), withDbRunnable(txn1));
@@ -445,7 +445,8 @@ public class TransportKeyManagerImplTest extends BrambleMockTestCase {
 					new TransportKeySet(keySetId, contactId, null, updated)));
 			// Schedule a key update at the start of the next time period
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
-					with(timePeriodLength), with(MILLISECONDS));
+					with(dbExecutor), with(timePeriodLength),
+					with(MILLISECONDS));
 		}});
 
 		transportKeyManager.start(txn);

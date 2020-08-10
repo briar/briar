@@ -8,8 +8,10 @@ import android.os.PowerManager;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidWakeLock;
-import org.briarproject.bramble.api.system.AndroidWakeLockFactory;
-import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.inject.Inject;
 
@@ -20,7 +22,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 
 @NotNullByDefault
-class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
+class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 
 	/**
 	 * How often to replace the wake lock.
@@ -36,17 +38,52 @@ class AndroidWakeLockFactoryImpl implements AndroidWakeLockFactory {
 	private final SharedWakeLock sharedWakeLock;
 
 	@Inject
-	AndroidWakeLockFactoryImpl(TaskScheduler scheduler, Application app) {
+	AndroidWakeLockManagerImpl(Application app,
+			ScheduledExecutorService scheduledExecutorService) {
 		PowerManager powerManager = (PowerManager)
 				requireNonNull(app.getSystemService(POWER_SERVICE));
 		String tag = getWakeLockTag(app);
-		sharedWakeLock = new RenewableWakeLock(powerManager, scheduler,
-				PARTIAL_WAKE_LOCK, tag, LOCK_DURATION_MS, SAFETY_MARGIN_MS);
+		sharedWakeLock = new RenewableWakeLock(powerManager,
+				scheduledExecutorService, PARTIAL_WAKE_LOCK, tag,
+				LOCK_DURATION_MS, SAFETY_MARGIN_MS);
 	}
 
 	@Override
-	public AndroidWakeLock createWakeLock() {
-		return new AndroidWakeLockImpl(sharedWakeLock);
+	public AndroidWakeLock createWakeLock(String tag) {
+		return new AndroidWakeLockImpl(sharedWakeLock, tag);
+	}
+
+	@Override
+	public void runWakefully(Runnable r, String tag) {
+		AndroidWakeLock wakeLock = createWakeLock(tag);
+		wakeLock.acquire();
+		try {
+			r.run();
+		} finally {
+			wakeLock.release();
+		}
+	}
+
+	@Override
+	public void executeWakefully(Runnable r, Executor executor, String tag) {
+		AndroidWakeLock wakeLock = createWakeLock(tag);
+		wakeLock.acquire();
+		try {
+			executor.execute(() -> {
+				try {
+					r.run();
+				} finally {
+					// Release the wake lock if the task throws an exception
+					wakeLock.release();
+				}
+			});
+		} catch (Exception e) {
+			// Release the wake lock if the executor throws an exception when
+			// we submit the task (in which case the release() call above won't
+			// happen)
+			wakeLock.release();
+			throw e;
+		}
 	}
 
 	private String getWakeLockTag(Context ctx) {

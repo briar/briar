@@ -11,12 +11,14 @@ import android.os.SystemClock;
 import org.briarproject.bramble.api.lifecycle.Service;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AlarmListener;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Queue;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
@@ -50,6 +52,7 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	private static final long ALARM_MS = INTERVAL_FIFTEEN_MINUTES;
 
 	private final Application app;
+	private final AndroidWakeLockManager wakeLockManager;
 	private final ScheduledExecutorService scheduledExecutorService;
 	private final AlarmManager alarmManager;
 
@@ -58,8 +61,10 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	private final Queue<ScheduledTask> tasks = new PriorityQueue<>();
 
 	AndroidTaskScheduler(Application app,
+			AndroidWakeLockManager wakeLockManager,
 			ScheduledExecutorService scheduledExecutorService) {
 		this.app = app;
+		this.wakeLockManager = wakeLockManager;
 		this.scheduledExecutorService = scheduledExecutorService;
 		alarmManager = (AlarmManager)
 				requireNonNull(app.getSystemService(ALARM_SERVICE));
@@ -67,8 +72,9 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 
 	@Override
 	public void startService() {
-		scheduledExecutorService.scheduleAtFixedRate(this::runDueTasks,
-				TICK_MS, TICK_MS, MILLISECONDS);
+		scheduledExecutorService.scheduleAtFixedRate(
+				() -> wakeLockManager.runWakefully(this::runDueTasks,
+						"TaskTicker"), TICK_MS, TICK_MS, MILLISECONDS);
 		scheduleAlarm();
 	}
 
@@ -78,10 +84,13 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	@Override
-	public Future<?> schedule(Runnable task, long delay, TimeUnit unit) {
+	public Future<?> schedule(Runnable task, Executor executor, long delay,
+			TimeUnit unit) {
 		long now = SystemClock.elapsedRealtime();
 		long dueMillis = now + MILLISECONDS.convert(delay, unit);
-		ScheduledTask s = new ScheduledTask(task, dueMillis);
+		Runnable wakeful = () ->
+				wakeLockManager.executeWakefully(task, executor, "TaskHandoff");
+		ScheduledTask s = new ScheduledTask(wakeful, dueMillis);
 		if (dueMillis <= now) {
 			scheduledExecutorService.execute(s);
 		} else {
@@ -93,27 +102,29 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	@Override
-	public Future<?> scheduleWithFixedDelay(Runnable task, long delay,
-			long interval, TimeUnit unit) {
+	public Future<?> scheduleWithFixedDelay(Runnable task, Executor executor,
+			long delay, long interval, TimeUnit unit) {
 		Runnable wrapped = () -> {
 			task.run();
-			scheduleWithFixedDelay(task, interval, interval, unit);
+			scheduleWithFixedDelay(task, executor, interval, interval, unit);
 		};
-		return schedule(wrapped, delay, unit);
+		return schedule(wrapped, executor, delay, unit);
 	}
 
 	@Override
 	public void onAlarm(Intent intent) {
-		int extraPid = intent.getIntExtra(EXTRA_PID, -1);
-		int currentPid = Process.myPid();
-		if (extraPid == currentPid) {
-			LOG.info("Alarm");
-			rescheduleAlarm();
-			runDueTasks();
-		} else if (LOG.isLoggable(INFO)) {
-			LOG.info("Ignoring alarm with PID " + extraPid
-					+ ", current PID is " + currentPid);
-		}
+		wakeLockManager.runWakefully(() -> {
+			int extraPid = intent.getIntExtra(EXTRA_PID, -1);
+			int currentPid = Process.myPid();
+			if (extraPid == currentPid) {
+				LOG.info("Alarm");
+				rescheduleAlarm();
+				runDueTasks();
+			} else if (LOG.isLoggable(INFO)) {
+				LOG.info("Ignoring alarm with PID " + extraPid
+						+ ", current PID is " + currentPid);
+			}
+		}, "TaskAlarm");
 	}
 
 	private void runDueTasks() {
