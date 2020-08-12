@@ -38,7 +38,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
 	private static final double BACKOFF_BASE = 1.2;
 
-	private final Executor ioExecutor;
+	private final Executor ioExecutor, wakefulIoExecutor;
 	private final Context appContext;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
@@ -52,6 +52,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 	private final Clock clock;
 
 	public AndroidTorPluginFactory(Executor ioExecutor,
+			Executor wakefulIoExecutor,
 			Context appContext,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
@@ -64,6 +65,7 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 			AndroidWakeLockManager wakeLockManager,
 			Clock clock) {
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.appContext = appContext;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
@@ -118,10 +120,11 @@ public class AndroidTorPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		TorRendezvousCrypto torRendezvousCrypto = new TorRendezvousCryptoImpl();
 		AndroidTorPlugin plugin = new AndroidTorPlugin(ioExecutor,
-				appContext, networkManager, locationUtils, torSocketFactory,
-				clock, resourceProvider, circumventionProvider, batteryManager,
-				wakeLockManager, backoff, torRendezvousCrypto, callback,
-				architecture, MAX_LATENCY, MAX_IDLE_TIME);
+				wakefulIoExecutor, appContext, networkManager, locationUtils,
+				torSocketFactory, clock, resourceProvider,
+				circumventionProvider, batteryManager, wakeLockManager,
+				backoff, torRendezvousCrypto, callback, architecture,
+				MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

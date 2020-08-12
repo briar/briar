@@ -33,7 +33,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private static final int MAX_POLLING_INTERVAL = 10 * 60 * 1000; // 10 mins
 	private static final double BACKOFF_BASE = 1.2;
 
-	private final Executor ioExecutor;
+	private final Executor ioExecutor, wakefulIoExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final AndroidWakeLockManager wakeLockManager;
 	private final Context appContext;
@@ -44,6 +44,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 
 	public AndroidBluetoothPluginFactory(Executor ioExecutor,
+			Executor wakefulIoExecutor,
 			AndroidExecutor androidExecutor,
 			AndroidWakeLockManager wakeLockManager,
 			Context appContext,
@@ -53,6 +54,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 			TimeoutMonitor timeoutMonitor,
 			BackoffFactory backoffFactory) {
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.androidExecutor = androidExecutor;
 		this.wakeLockManager = wakeLockManager;
 		this.appContext = appContext;
@@ -83,9 +85,9 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(
-				connectionLimiter, connectionFactory, ioExecutor, secureRandom,
-				androidExecutor, appContext, clock, backoff, callback,
-				MAX_LATENCY, MAX_IDLE_TIME);
+				connectionLimiter, connectionFactory, ioExecutor,
+				wakefulIoExecutor, secureRandom, androidExecutor, appContext,
+				clock, backoff, callback, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;
 	}

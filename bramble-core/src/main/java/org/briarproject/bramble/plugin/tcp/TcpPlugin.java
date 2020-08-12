@@ -66,7 +66,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	private static final Pattern DOTTED_QUAD =
 			Pattern.compile("^\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}$");
 
-	protected final Executor ioExecutor, bindExecutor;
+	protected final Executor ioExecutor, wakefulIoExecutor, bindExecutor;
 	protected final Backoff backoff;
 	protected final PluginCallback callback;
 	protected final int maxLatency, maxIdleTime;
@@ -107,9 +107,15 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	 */
 	protected abstract boolean isEnabledByDefault();
 
-	TcpPlugin(Executor ioExecutor, Backoff backoff, PluginCallback callback,
-			int maxLatency, int maxIdleTime, int connectionTimeout) {
+	TcpPlugin(Executor ioExecutor,
+			Executor wakefulIoExecutor,
+			Backoff backoff,
+			PluginCallback callback,
+			int maxLatency,
+			int maxIdleTime,
+			int connectionTimeout) {
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.backoff = backoff;
 		this.callback = callback;
 		this.maxLatency = maxLatency;
@@ -245,7 +251,7 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 	}
 
 	private void connect(TransportProperties p, ConnectionHandler h) {
-		ioExecutor.execute(() -> {
+		wakefulIoExecutor.execute(() -> {
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();

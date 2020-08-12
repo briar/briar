@@ -36,10 +36,16 @@ class JavaBluetoothPlugin
 
 	JavaBluetoothPlugin(BluetoothConnectionLimiter connectionManager,
 			BluetoothConnectionFactory<StreamConnection> connectionFactory,
-			Executor ioExecutor, SecureRandom secureRandom, Backoff backoff,
-			PluginCallback callback, int maxLatency, int maxIdleTime) {
-		super(connectionManager, connectionFactory, ioExecutor, secureRandom,
-				backoff, callback, maxLatency, maxIdleTime);
+			Executor ioExecutor,
+			Executor wakefulIoExecutor,
+			SecureRandom secureRandom,
+			Backoff backoff,
+			PluginCallback callback,
+			int maxLatency,
+			int maxIdleTime) {
+		super(connectionManager, connectionFactory, ioExecutor,
+				wakefulIoExecutor, secureRandom, backoff, callback,
+				maxLatency, maxIdleTime);
 	}
 
 	@Override

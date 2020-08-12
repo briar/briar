@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.api.system.LocationUtils
 import org.briarproject.bramble.api.system.ResourceProvider
+import org.briarproject.bramble.api.system.WakefulIoExecutor
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule
 import org.briarproject.bramble.event.DefaultEventExecutorModule
 import org.briarproject.bramble.network.JavaNetworkModule
@@ -26,6 +27,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider
 import org.briarproject.bramble.plugin.tor.UnixTorPluginFactory
 import org.briarproject.bramble.socks.SocksModule
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule
+import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.system.DesktopSecureRandomModule
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.util.OsUtils.isLinux
@@ -48,6 +50,7 @@ import javax.net.SocketFactory
         DefaultBatteryManagerModule::class,
         DefaultEventExecutorModule::class,
         DefaultTaskSchedulerModule::class,
+        DefaultWakefulIoExecutorModule::class,
         DesktopSecureRandomModule::class,
         HeadlessBlogModule::class,
         HeadlessContactModule::class,
@@ -75,16 +78,32 @@ internal class HeadlessModule(private val appDir: File) {
 
     @Provides
     internal fun providePluginConfig(
-        @IoExecutor ioExecutor: Executor, torSocketFactory: SocketFactory,
-        backoffFactory: BackoffFactory, networkManager: NetworkManager,
-        locationUtils: LocationUtils, eventBus: EventBus, resourceProvider: ResourceProvider,
-        circumventionProvider: CircumventionProvider, batteryManager: BatteryManager, clock: Clock
+        @IoExecutor ioExecutor: Executor,
+        @WakefulIoExecutor wakefulIoExecutor: Executor,
+        torSocketFactory: SocketFactory,
+        backoffFactory: BackoffFactory,
+        networkManager: NetworkManager,
+        locationUtils: LocationUtils,
+        eventBus: EventBus,
+        resourceProvider: ResourceProvider,
+        circumventionProvider: CircumventionProvider,
+        batteryManager: BatteryManager,
+        clock: Clock
     ): PluginConfig {
         val duplex: List<DuplexPluginFactory> = if (isLinux() || isMac()) {
             val torDirectory = File(appDir, "tor")
             val tor = UnixTorPluginFactory(
-                ioExecutor, networkManager, locationUtils, eventBus, torSocketFactory,
-                backoffFactory, resourceProvider, circumventionProvider, batteryManager, clock,
+                ioExecutor,
+                wakefulIoExecutor,
+                networkManager,
+                locationUtils,
+                eventBus,
+                torSocketFactory,
+                backoffFactory,
+                resourceProvider,
+                circumventionProvider,
+                batteryManager,
+                clock,
                 torDirectory
             )
             listOf(tor)

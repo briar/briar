@@ -61,11 +61,16 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	private volatile SocketFactory socketFactory;
 
-	AndroidLanTcpPlugin(Executor ioExecutor, Context appContext,
-			Backoff backoff, PluginCallback callback, int maxLatency,
-			int maxIdleTime, int connectionTimeout) {
-		super(ioExecutor, backoff, callback, maxLatency, maxIdleTime,
-				connectionTimeout);
+	AndroidLanTcpPlugin(Executor ioExecutor,
+			Executor wakefulIoExecutor,
+			Context appContext,
+			Backoff backoff,
+			PluginCallback callback,
+			int maxLatency,
+			int maxIdleTime,
+			int connectionTimeout) {
+		super(ioExecutor, wakefulIoExecutor, backoff, callback, maxLatency,
+				maxIdleTime, connectionTimeout);
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("AndroidLanTcpPlugin", ioExecutor, 1);

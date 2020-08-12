@@ -79,6 +79,7 @@ class AndroidBluetoothPlugin
 	AndroidBluetoothPlugin(BluetoothConnectionLimiter connectionLimiter,
 			BluetoothConnectionFactory<BluetoothSocket> connectionFactory,
 			Executor ioExecutor,
+			Executor wakefulIoExecutor,
 			SecureRandom secureRandom,
 			AndroidExecutor androidExecutor,
 			Context appContext,
@@ -87,8 +88,9 @@ class AndroidBluetoothPlugin
 			PluginCallback callback,
 			int maxLatency,
 			int maxIdleTime) {
-		super(connectionLimiter, connectionFactory, ioExecutor, secureRandom,
-				backoff, callback, maxLatency, maxIdleTime);
+		super(connectionLimiter, connectionFactory, ioExecutor,
+				wakefulIoExecutor, secureRandom, backoff, callback,
+				maxLatency, maxIdleTime);
 		this.androidExecutor = androidExecutor;
 		this.appContext = appContext;
 		this.clock = clock;

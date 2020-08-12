@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.bramble.battery.DefaultBatteryManagerModule;
 import org.briarproject.bramble.event.DefaultEventExecutorModule;
 import org.briarproject.bramble.system.DefaultTaskSchedulerModule;
+import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule;
 
 import dagger.Module;
 import dagger.Provides;
@@ -12,6 +13,7 @@ import dagger.Provides;
 		DefaultBatteryManagerModule.class,
 		DefaultEventExecutorModule.class,
 		DefaultTaskSchedulerModule.class,
+		DefaultWakefulIoExecutorModule.class,
 		TestDatabaseConfigModule.class,
 		TestPluginConfigModule.class,
 		TestSecureRandomModule.class

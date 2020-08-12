@@ -118,7 +118,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	private static final Pattern ONION_V2 = Pattern.compile("[a-z2-7]{16}");
 	private static final Pattern ONION_V3 = Pattern.compile("[a-z2-7]{56}");
 
-	private final Executor ioExecutor, connectionStatusExecutor;
+	private final Executor ioExecutor, wakefulIoExecutor;
+	private final Executor connectionStatusExecutor;
 	private final NetworkManager networkManager;
 	private final LocationUtils locationUtils;
 	private final SocketFactory torSocketFactory;
@@ -145,15 +146,24 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	protected abstract long getLastUpdateTime();
 
-	TorPlugin(Executor ioExecutor, NetworkManager networkManager,
-			LocationUtils locationUtils, SocketFactory torSocketFactory,
-			Clock clock, ResourceProvider resourceProvider,
+	TorPlugin(Executor ioExecutor,
+			Executor wakefulIoExecutor,
+			NetworkManager networkManager,
+			LocationUtils locationUtils,
+			SocketFactory torSocketFactory,
+			Clock clock,
+			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Backoff backoff,
+			BatteryManager batteryManager,
+			Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto,
-			PluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime, File torDirectory) {
+			PluginCallback callback,
+			String architecture,
+			int maxLatency,
+			int maxIdleTime,
+			File torDirectory) {
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.networkManager = networkManager;
 		this.locationUtils = locationUtils;
 		this.torSocketFactory = torSocketFactory;
@@ -620,7 +630,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 	}
 
 	private void connect(TransportProperties p, ConnectionHandler h) {
-		ioExecutor.execute(() -> {
+		wakefulIoExecutor.execute(() -> {
 			DuplexTransportConnection d = createConnection(p);
 			if (d != null) {
 				backoff.reset();

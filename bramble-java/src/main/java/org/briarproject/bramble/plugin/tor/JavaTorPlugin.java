@@ -20,17 +20,26 @@ import javax.net.SocketFactory;
 @NotNullByDefault
 abstract class JavaTorPlugin extends TorPlugin {
 
-	JavaTorPlugin(Executor ioExecutor, NetworkManager networkManager,
-			LocationUtils locationUtils, SocketFactory torSocketFactory,
-			Clock clock, ResourceProvider resourceProvider,
+	JavaTorPlugin(Executor ioExecutor,
+			Executor wakefulIoExecutor,
+			NetworkManager networkManager,
+			LocationUtils locationUtils,
+			SocketFactory torSocketFactory,
+			Clock clock,
+			ResourceProvider resourceProvider,
 			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager, Backoff backoff,
+			BatteryManager batteryManager,
+			Backoff backoff,
 			TorRendezvousCrypto torRendezvousCrypto,
-			PluginCallback callback, String architecture, int maxLatency,
-			int maxIdleTime, File torDirectory) {
-		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
-				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture,
+			PluginCallback callback,
+			String architecture,
+			int maxLatency,
+			int maxIdleTime,
+			File torDirectory) {
+		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
+				torSocketFactory, clock, resourceProvider,
+				circumventionProvider, batteryManager, backoff,
+				torRendezvousCrypto, callback, architecture,
 				maxLatency, maxIdleTime, torDirectory);
 	}
 

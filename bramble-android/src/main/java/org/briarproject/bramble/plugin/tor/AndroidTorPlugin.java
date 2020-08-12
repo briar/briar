@@ -32,6 +32,7 @@ class AndroidTorPlugin extends TorPlugin {
 	private final AndroidWakeLock wakeLock;
 
 	AndroidTorPlugin(Executor ioExecutor,
+			Executor wakefulIoExecutor,
 			Context appContext,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
@@ -47,11 +48,11 @@ class AndroidTorPlugin extends TorPlugin {
 			String architecture,
 			int maxLatency,
 			int maxIdleTime) {
-		super(ioExecutor, networkManager, locationUtils, torSocketFactory,
-				clock, resourceProvider, circumventionProvider, batteryManager,
-				backoff, torRendezvousCrypto, callback, architecture,
-				maxLatency, maxIdleTime,
-				appContext.getDir("tor", MODE_PRIVATE));
+		super(ioExecutor, wakefulIoExecutor, networkManager, locationUtils,
+				torSocketFactory, clock, resourceProvider,
+				circumventionProvider, batteryManager, backoff,
+				torRendezvousCrypto, callback, architecture, maxLatency,
+				maxIdleTime, appContext.getDir("tor", MODE_PRIVATE));
 		this.appContext = appContext;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 	}

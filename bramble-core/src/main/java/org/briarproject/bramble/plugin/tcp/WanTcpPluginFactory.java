@@ -27,14 +27,18 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 	private static final int MAX_POLLING_INTERVAL = 600_000; // 10 mins
 	private static final double BACKOFF_BASE = 1.2;
 
-	private final Executor ioExecutor;
+	private final Executor ioExecutor, wakefulIoExecutor;
 	private final EventBus eventBus;
 	private final BackoffFactory backoffFactory;
 	private final ShutdownManager shutdownManager;
 
-	public WanTcpPluginFactory(Executor ioExecutor, EventBus eventBus,
-			BackoffFactory backoffFactory, ShutdownManager shutdownManager) {
+	public WanTcpPluginFactory(Executor ioExecutor,
+			Executor wakefulIoExecutor,
+			EventBus eventBus,
+			BackoffFactory backoffFactory,
+			ShutdownManager shutdownManager) {
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.eventBus = eventBus;
 		this.backoffFactory = backoffFactory;
 		this.shutdownManager = shutdownManager;
@@ -54,9 +58,10 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		Backoff backoff = backoffFactory.createBackoff(MIN_POLLING_INTERVAL,
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
-		WanTcpPlugin plugin = new WanTcpPlugin(ioExecutor, backoff,
-				new PortMapperImpl(shutdownManager), callback, MAX_LATENCY,
-				MAX_IDLE_TIME, CONNECTION_TIMEOUT);
+		PortMapper portMapper = new PortMapperImpl(shutdownManager);
+		WanTcpPlugin plugin = new WanTcpPlugin(ioExecutor, wakefulIoExecutor,
+				backoff, portMapper, callback, MAX_LATENCY, MAX_IDLE_TIME,
+				CONNECTION_TIMEOUT);
 		eventBus.addListener(plugin);
 		return plugin;
 	}
