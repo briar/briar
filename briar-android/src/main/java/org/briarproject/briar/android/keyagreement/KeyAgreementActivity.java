@@ -41,7 +41,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 import static android.Manifest.permission.CAMERA;
 import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
@@ -396,7 +396,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 	private void requestPermissions() {
 		ActivityCompat.requestPermissions(this,
-				new String[] {CAMERA, ACCESS_COARSE_LOCATION},
+				new String[] {CAMERA, ACCESS_FINE_LOCATION},
 				REQUEST_PERMISSION_CAMERA_LOCATION);
 	}
 
@@ -413,9 +413,9 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		} else {
 			cameraPermission = Permission.PERMANENTLY_DENIED;
 		}
-		if (gotPermission(ACCESS_COARSE_LOCATION, permissions, grantResults)) {
+		if (gotPermission(ACCESS_FINE_LOCATION, permissions, grantResults)) {
 			locationPermission = Permission.GRANTED;
-		} else if (shouldShowRationale(ACCESS_COARSE_LOCATION)) {
+		} else if (shouldShowRationale(ACCESS_FINE_LOCATION)) {
 			locationPermission = Permission.SHOW_RATIONALE;
 		} else {
 			locationPermission = Permission.PERMANENTLY_DENIED;
