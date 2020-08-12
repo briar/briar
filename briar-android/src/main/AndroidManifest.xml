@@ -29,7 +29,7 @@
 	<uses-permission android:name="android.permission.WAKE_LOCK"/>
 	<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
-	<uses-permission-sdk-23 android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+	<uses-permission-sdk-23 android:name="android.permission.ACCESS_FINE_LOCATION"/>
 	<uses-permission-sdk-23 android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS"/>
 	<uses-permission-sdk-23 android:name="android.permission.USE_BIOMETRIC"/>
 	<uses-permission-sdk-23 android:name="android.permission.FOREGROUND_SERVICE"/>
@@ -43,7 +43,7 @@
 		android:banner="@mipmap/tv_banner"
 		android:supportsRtl="true"
 		android:theme="@style/BriarTheme"
-		tools:ignore="GoogleAppIndexingWarning"
+		tools:ignore="GoogleAppIndexingWarning,UnusedAttribute"
 		tools:targetApi="16">
 
 		<receiver
