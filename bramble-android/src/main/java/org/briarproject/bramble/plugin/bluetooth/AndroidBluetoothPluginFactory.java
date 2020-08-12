@@ -1,10 +1,11 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import android.app.Application;
 import android.bluetooth.BluetoothSocket;
-import android.content.Context;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -15,11 +16,13 @@ import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 
@@ -36,18 +39,19 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 	private final Executor ioExecutor, wakefulIoExecutor;
 	private final AndroidExecutor androidExecutor;
 	private final AndroidWakeLockManager wakeLockManager;
-	private final Context appContext;
+	private final Application app;
 	private final SecureRandom secureRandom;
 	private final EventBus eventBus;
 	private final Clock clock;
 	private final TimeoutMonitor timeoutMonitor;
 	private final BackoffFactory backoffFactory;
 
-	public AndroidBluetoothPluginFactory(Executor ioExecutor,
-			Executor wakefulIoExecutor,
+	@Inject
+	public AndroidBluetoothPluginFactory(@IoExecutor Executor ioExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
 			AndroidExecutor androidExecutor,
 			AndroidWakeLockManager wakeLockManager,
-			Context appContext,
+			Application app,
 			SecureRandom secureRandom,
 			EventBus eventBus,
 			Clock clock,
@@ -57,7 +61,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.androidExecutor = androidExecutor;
 		this.wakeLockManager = wakeLockManager;
-		this.appContext = appContext;
+		this.app = app;
 		this.secureRandom = secureRandom;
 		this.eventBus = eventBus;
 		this.clock = clock;
@@ -86,7 +90,7 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 				MAX_POLLING_INTERVAL, BACKOFF_BASE);
 		AndroidBluetoothPlugin plugin = new AndroidBluetoothPlugin(
 				connectionLimiter, connectionFactory, ioExecutor,
-				wakefulIoExecutor, secureRandom, androidExecutor, appContext,
+				wakefulIoExecutor, secureRandom, androidExecutor, app,
 				clock, backoff, callback, MAX_LATENCY, MAX_IDLE_TIME);
 		eventBus.addListener(plugin);
 		return plugin;

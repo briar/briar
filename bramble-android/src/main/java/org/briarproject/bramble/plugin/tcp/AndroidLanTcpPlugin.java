@@ -1,7 +1,7 @@
 package org.briarproject.bramble.plugin.tcp;
 
 import android.annotation.TargetApi;
-import android.content.Context;
+import android.app.Application;
 import android.net.ConnectivityManager;
 import android.net.LinkAddress;
 import android.net.LinkProperties;
@@ -42,6 +42,7 @@ import static java.util.Collections.list;
 import static java.util.Collections.singletonList;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.plugin.LanTcpConstants.DEFAULT_PREF_PLUGIN_ENABLE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
@@ -63,7 +64,7 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 
 	AndroidLanTcpPlugin(Executor ioExecutor,
 			Executor wakefulIoExecutor,
-			Context appContext,
+			Application app,
 			Backoff backoff,
 			PluginCallback callback,
 			int maxLatency,
@@ -74,12 +75,9 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 		// Don't execute more than one connection status check at a time
 		connectionStatusExecutor =
 				new PoliteExecutor("AndroidLanTcpPlugin", ioExecutor, 1);
-		ConnectivityManager connectivityManager = (ConnectivityManager)
-				appContext.getSystemService(CONNECTIVITY_SERVICE);
-		if (connectivityManager == null) throw new AssertionError();
-		this.connectivityManager = connectivityManager;
-		wifiManager = (WifiManager) appContext.getApplicationContext()
-				.getSystemService(WIFI_SERVICE);
+		connectivityManager = (ConnectivityManager)
+				requireNonNull(app.getSystemService(CONNECTIVITY_SERVICE));
+		wifiManager = (WifiManager) app.getSystemService(WIFI_SERVICE);
 		socketFactory = SocketFactory.getDefault();
 	}
 

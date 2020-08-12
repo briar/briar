@@ -1,6 +1,7 @@
 package org.briarproject.bramble.plugin.tcp;
 
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.ShutdownManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
@@ -9,10 +10,12 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.plugin.WanTcpConstants.ID;
 
@@ -32,8 +35,9 @@ public class WanTcpPluginFactory implements DuplexPluginFactory {
 	private final BackoffFactory backoffFactory;
 	private final ShutdownManager shutdownManager;
 
-	public WanTcpPluginFactory(Executor ioExecutor,
-			Executor wakefulIoExecutor,
+	@Inject
+	public WanTcpPluginFactory(@IoExecutor Executor ioExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
 			EventBus eventBus,
 			BackoffFactory backoffFactory,
 			ShutdownManager shutdownManager) {

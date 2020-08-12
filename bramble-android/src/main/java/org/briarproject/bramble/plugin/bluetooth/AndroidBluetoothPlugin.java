@@ -1,5 +1,6 @@
 package org.briarproject.bramble.plugin.bluetooth;
 
+import android.app.Application;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
@@ -67,7 +68,7 @@ class AndroidBluetoothPlugin
 	private static final int MAX_DISCOVERY_MS = 10_000;
 
 	private final AndroidExecutor androidExecutor;
-	private final Context appContext;
+	private final Application app;
 	private final Clock clock;
 
 	private volatile boolean wasEnabledByUs = false;
@@ -82,7 +83,7 @@ class AndroidBluetoothPlugin
 			Executor wakefulIoExecutor,
 			SecureRandom secureRandom,
 			AndroidExecutor androidExecutor,
-			Context appContext,
+			Application app,
 			Clock clock,
 			Backoff backoff,
 			PluginCallback callback,
@@ -92,7 +93,7 @@ class AndroidBluetoothPlugin
 				wakefulIoExecutor, secureRandom, backoff, callback,
 				maxLatency, maxIdleTime);
 		this.androidExecutor = androidExecutor;
-		this.appContext = appContext;
+		this.app = app;
 		this.clock = clock;
 	}
 
@@ -104,13 +105,13 @@ class AndroidBluetoothPlugin
 		filter.addAction(ACTION_STATE_CHANGED);
 		filter.addAction(ACTION_SCAN_MODE_CHANGED);
 		receiver = new BluetoothStateReceiver();
-		appContext.registerReceiver(receiver, filter);
+		app.registerReceiver(receiver, filter);
 	}
 
 	@Override
 	public void stop() {
 		super.stop();
-		if (receiver != null) appContext.unregisterReceiver(receiver);
+		if (receiver != null) app.unregisterReceiver(receiver);
 	}
 
 	@Override
@@ -167,7 +168,7 @@ class AndroidBluetoothPlugin
 	@Override
 	@Nullable
 	String getBluetoothAddress() {
-		String address = AndroidUtils.getBluetoothAddress(appContext, adapter);
+		String address = AndroidUtils.getBluetoothAddress(app, adapter);
 		return address.isEmpty() ? null : address;
 	}
 
@@ -237,7 +238,7 @@ class AndroidBluetoothPlugin
 		filter.addAction(ACTION_DISCOVERY_STARTED);
 		filter.addAction(ACTION_DISCOVERY_FINISHED);
 		filter.addAction(ACTION_FOUND);
-		appContext.registerReceiver(receiver, filter);
+		app.registerReceiver(receiver, filter);
 		try {
 			if (adapter.startDiscovery()) {
 				long now = clock.currentTimeMillis();
@@ -274,7 +275,7 @@ class AndroidBluetoothPlugin
 		} finally {
 			LOG.info("Cancelling discovery");
 			adapter.cancelDiscovery();
-			appContext.unregisterReceiver(receiver);
+			app.unregisterReceiver(receiver);
 		}
 		// Shuffle the addresses so we don't always try the same one first
 		shuffle(addresses);

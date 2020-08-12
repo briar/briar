@@ -1,42 +1,30 @@
 package org.briarproject.briar.android;
 
 import android.app.Application;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.StrictMode;
 
 import com.vanniktech.emoji.RecentEmoji;
 
 import org.briarproject.bramble.api.FeatureFlags;
-import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyStrengthener;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.db.DatabaseConfig;
 import org.briarproject.bramble.api.event.EventBus;
-import org.briarproject.bramble.api.io.TimeoutMonitor;
-import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
-import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.BluetoothConstants;
 import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.PluginConfig;
+import org.briarproject.bramble.api.plugin.TorDirectory;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
 import org.briarproject.bramble.api.plugin.simplex.SimplexPluginFactory;
 import org.briarproject.bramble.api.reporting.DevConfig;
-import org.briarproject.bramble.api.system.AndroidExecutor;
-import org.briarproject.bramble.api.system.AndroidWakeLockManager;
-import org.briarproject.bramble.api.system.Clock;
-import org.briarproject.bramble.api.system.LocationUtils;
-import org.briarproject.bramble.api.system.ResourceProvider;
-import org.briarproject.bramble.api.system.WakefulIoExecutor;
 import org.briarproject.bramble.plugin.bluetooth.AndroidBluetoothPluginFactory;
 import org.briarproject.bramble.plugin.tcp.AndroidLanTcpPluginFactory;
 import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
-import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.account.LockManagerImpl;
@@ -51,15 +39,12 @@ import org.briarproject.briar.api.android.ScreenFilterMonitor;
 
 import java.io.File;
 import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Executor;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import javax.net.SocketFactory;
 
 import dagger.Module;
 import dagger.Provides;
@@ -124,40 +109,21 @@ public class AppModule {
 	}
 
 	@Provides
-	PluginConfig providePluginConfig(@IoExecutor Executor ioExecutor,
-			@WakefulIoExecutor Executor wakefulIoExecutor,
-			AndroidExecutor androidExecutor,
-			SecureRandom random,
-			SocketFactory torSocketFactory,
-			BackoffFactory backoffFactory,
-			Application app,
-			NetworkManager networkManager,
-			LocationUtils locationUtils,
-			EventBus eventBus,
-			ResourceProvider resourceProvider,
-			CircumventionProvider circumventionProvider,
-			BatteryManager batteryManager,
-			AndroidWakeLockManager wakeLockManager,
-			Clock clock,
-			TimeoutMonitor timeoutMonitor) {
-		Context appContext = app.getApplicationContext();
-		DuplexPluginFactory bluetooth = new AndroidBluetoothPluginFactory(
-				ioExecutor, wakefulIoExecutor, androidExecutor,
-				wakeLockManager, appContext, random, eventBus, clock,
-				timeoutMonitor, backoffFactory);
-		DuplexPluginFactory tor = new AndroidTorPluginFactory(ioExecutor,
-				wakefulIoExecutor, appContext, networkManager, locationUtils,
-				eventBus, torSocketFactory, backoffFactory, resourceProvider,
-				circumventionProvider, batteryManager, wakeLockManager, clock);
-		DuplexPluginFactory lan = new AndroidLanTcpPluginFactory(ioExecutor,
-				wakefulIoExecutor, eventBus, backoffFactory, appContext);
-		Collection<DuplexPluginFactory> duplex = asList(bluetooth, tor, lan);
+	@Singleton
+	@TorDirectory
+	File provideTorDirectory(Application app) {
+		return app.getDir("tor", MODE_PRIVATE);
+	}
+
+	@Provides
+	PluginConfig providePluginConfig(AndroidBluetoothPluginFactory bluetooth,
+			AndroidTorPluginFactory tor, AndroidLanTcpPluginFactory lan) {
 		@NotNullByDefault
 		PluginConfig pluginConfig = new PluginConfig() {
 
 			@Override
 			public Collection<DuplexPluginFactory> getDuplexFactories() {
-				return duplex;
+				return asList(bluetooth, tor, lan);
 			}
 
 			@Override

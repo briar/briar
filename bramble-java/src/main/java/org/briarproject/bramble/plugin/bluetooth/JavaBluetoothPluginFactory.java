@@ -2,6 +2,7 @@ package org.briarproject.bramble.plugin.bluetooth;
 
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.io.TimeoutMonitor;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
@@ -9,11 +10,13 @@ import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.security.SecureRandom;
 import java.util.concurrent.Executor;
 
 import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 import javax.microedition.io.StreamConnection;
 
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
@@ -34,8 +37,9 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	private final TimeoutMonitor timeoutMonitor;
 	private final BackoffFactory backoffFactory;
 
-	public JavaBluetoothPluginFactory(Executor ioExecutor,
-			Executor wakefulIoExecutor,
+	@Inject
+	public JavaBluetoothPluginFactory(@IoExecutor Executor ioExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
 			SecureRandom secureRandom,
 			EventBus eventBus,
 			TimeoutMonitor timeoutMonitor,

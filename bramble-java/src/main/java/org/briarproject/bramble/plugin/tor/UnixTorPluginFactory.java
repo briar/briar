@@ -2,12 +2,14 @@ package org.briarproject.bramble.plugin.tor;
 
 import org.briarproject.bramble.api.battery.BatteryManager;
 import org.briarproject.bramble.api.event.EventBus;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.network.NetworkManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Backoff;
 import org.briarproject.bramble.api.plugin.BackoffFactory;
 import org.briarproject.bramble.api.plugin.PluginCallback;
 import org.briarproject.bramble.api.plugin.TorConstants;
+import org.briarproject.bramble.api.plugin.TorDirectory;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPluginFactory;
@@ -20,6 +22,7 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
+import javax.inject.Inject;
 import javax.net.SocketFactory;
 
 import static java.util.logging.Logger.getLogger;
@@ -50,8 +53,9 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 	private final Clock clock;
 	private final File torDirectory;
 
-	public UnixTorPluginFactory(Executor ioExecutor,
-			Executor wakefulIoExecutor,
+	@Inject
+	public UnixTorPluginFactory(@IoExecutor Executor ioExecutor,
+			@IoExecutor Executor wakefulIoExecutor,
 			NetworkManager networkManager,
 			LocationUtils locationUtils,
 			EventBus eventBus,
@@ -61,7 +65,7 @@ public class UnixTorPluginFactory implements DuplexPluginFactory {
 			CircumventionProvider circumventionProvider,
 			BatteryManager batteryManager,
 			Clock clock,
-			File torDirectory) {
+			@TorDirectory File torDirectory) {
 		this.ioExecutor = ioExecutor;
 		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.networkManager = networkManager;
