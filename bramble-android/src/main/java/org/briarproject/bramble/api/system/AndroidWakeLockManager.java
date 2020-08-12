@@ -24,4 +24,12 @@ public interface AndroidWakeLockManager {
 	 * thrown while submitting or running the task.
 	 */
 	void executeWakefully(Runnable r, Executor executor, String tag);
+
+	/**
+	 * Starts a dedicated thread to run the given task asynchronously. A wake
+	 * lock is acquired before starting the thread and released when the task
+	 * completes, or if an exception is thrown while starting the thread or
+	 * running the task.
+	 */
+	void executeWakefully(Runnable r, String tag);
 }

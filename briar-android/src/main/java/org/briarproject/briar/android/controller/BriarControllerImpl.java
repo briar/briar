@@ -8,8 +8,10 @@ import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.briar.android.BriarService;
 import org.briarproject.briar.android.BriarService.BriarServiceConnection;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
@@ -23,15 +25,17 @@ import javax.inject.Inject;
 import androidx.annotation.CallSuper;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.LifecycleState.STARTING_SERVICES;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.needsDozeWhitelisting;
 
+@NotNullByDefault
 public class BriarControllerImpl implements BriarController {
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarControllerImpl.class.getName());
+			getLogger(BriarControllerImpl.class.getName());
 
 	public static final String DOZE_ASK_AGAIN = "dozeAskAgain";
 
@@ -41,6 +45,7 @@ public class BriarControllerImpl implements BriarController {
 	private final Executor databaseExecutor;
 	private final SettingsManager settingsManager;
 	private final DozeWatchdog dozeWatchdog;
+	private final AndroidWakeLockManager wakeLockManager;
 	private final Activity activity;
 
 	private boolean bound = false;
@@ -50,7 +55,9 @@ public class BriarControllerImpl implements BriarController {
 			AccountManager accountManager,
 			LifecycleManager lifecycleManager,
 			@DatabaseExecutor Executor databaseExecutor,
-			SettingsManager settingsManager, DozeWatchdog dozeWatchdog,
+			SettingsManager settingsManager,
+			DozeWatchdog dozeWatchdog,
+			AndroidWakeLockManager wakeLockManager,
 			Activity activity) {
 		this.serviceConnection = serviceConnection;
 		this.accountManager = accountManager;
@@ -58,6 +65,7 @@ public class BriarControllerImpl implements BriarController {
 		this.databaseExecutor = databaseExecutor;
 		this.settingsManager = settingsManager;
 		this.dozeWatchdog = dozeWatchdog;
+		this.wakeLockManager = wakeLockManager;
 		this.activity = activity;
 	}
 
@@ -127,9 +135,8 @@ public class BriarControllerImpl implements BriarController {
 	}
 
 	@Override
-	public void signOut(ResultHandler<Void> eventHandler,
-			boolean deleteAccount) {
-		new Thread(() -> {
+	public void signOut(ResultHandler<Void> handler, boolean deleteAccount) {
+		wakeLockManager.executeWakefully(() -> {
 			try {
 				// Wait for the service to finish starting up
 				IBinder binder = serviceConnection.waitForBinder();
@@ -145,8 +152,8 @@ public class BriarControllerImpl implements BriarController {
 			} finally {
 				if (deleteAccount) accountManager.deleteAccount();
 			}
-			eventHandler.onResult(null);
-		}).start();
+			handler.onResult(null);
+		}, "SignOut");
 	}
 
 	@Override

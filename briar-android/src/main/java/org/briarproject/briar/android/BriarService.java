@@ -20,14 +20,12 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
-import org.briarproject.bramble.api.system.WakefulIoExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.LockManager;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
@@ -86,9 +84,6 @@ public class BriarService extends Service {
 	LockManager lockManager;
 	@Inject
 	AndroidWakeLockManager wakeLockManager;
-	@Inject
-	@WakefulIoExecutor
-	Executor wakefulIoExecutor;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -140,7 +135,7 @@ public class BriarService extends Service {
 					notificationManager.getForegroundNotification();
 			startForeground(ONGOING_NOTIFICATION_ID, foregroundNotification);
 			// Start the services in a background thread
-			wakefulIoExecutor.execute(() -> {
+			wakeLockManager.executeWakefully(() -> {
 				StartResult result = lifecycleManager.startServices(dbKey);
 				if (result == SUCCESS) {
 					started = true;
@@ -153,7 +148,7 @@ public class BriarService extends Service {
 					showStartupFailureNotification(result);
 					stopSelf();
 				}
-			});
+			}, "LifecycleStartup");
 			// Register for device shutdown broadcasts
 			receiver = new BroadcastReceiver() {
 				@Override
@@ -224,9 +219,9 @@ public class BriarService extends Service {
 			stopForeground(true);
 			if (receiver != null) unregisterReceiver(receiver);
 			// Stop the services in a background thread
-			wakefulIoExecutor.execute(() -> {
+			wakeLockManager.executeWakefully(() -> {
 				if (started) lifecycleManager.stopServices();
-			});
+			}, "LifecycleShutdown");
 		}, "LifecycleShutdown");
 	}
 
@@ -279,7 +274,7 @@ public class BriarService extends Service {
 			// Hide the UI
 			hideUi();
 			// Wait for shutdown to complete, then exit
-			wakefulIoExecutor.execute(() -> {
+			wakeLockManager.executeWakefully(() -> {
 				try {
 					if (started) lifecycleManager.waitForShutdown();
 				} catch (InterruptedException e) {
@@ -287,7 +282,7 @@ public class BriarService extends Service {
 				}
 				LOG.info("Exiting");
 				System.exit(0);
-			});
+			}, "BackgroundShutdown");
 		}, "BackgroundShutdown");
 	}
 
