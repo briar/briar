@@ -27,6 +27,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
@@ -37,7 +38,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.logging.Logger;
@@ -191,11 +191,11 @@ class PollerImpl implements Poller, EventListener {
 			if (scheduled == null || due < scheduled.task.due) {
 				// If a later task exists, cancel it. If it's already started
 				// it will abort safely when it finds it's been replaced
-				if (scheduled != null) scheduled.future.cancel(false);
+				if (scheduled != null) scheduled.cancellable.cancel();
 				PollTask task = new PollTask(p, due, randomiseNext);
-				Future<?> future = scheduler.schedule(task, ioExecutor, delay,
-						MILLISECONDS);
-				tasks.put(t, new ScheduledPollTask(task, future));
+				Cancellable cancellable = scheduler.schedule(task, ioExecutor,
+						delay, MILLISECONDS);
+				tasks.put(t, new ScheduledPollTask(task, cancellable));
 			}
 		} finally {
 			lock.unlock();
@@ -206,7 +206,7 @@ class PollerImpl implements Poller, EventListener {
 		lock.lock();
 		try {
 			ScheduledPollTask scheduled = tasks.remove(t);
-			if (scheduled != null) scheduled.future.cancel(false);
+			if (scheduled != null) scheduled.cancellable.cancel();
 		} finally {
 			lock.unlock();
 		}
@@ -237,11 +237,11 @@ class PollerImpl implements Poller, EventListener {
 	private class ScheduledPollTask {
 
 		private final PollTask task;
-		private final Future<?> future;
+		private final Cancellable cancellable;
 
-		private ScheduledPollTask(PollTask task, Future<?> future) {
+		private ScheduledPollTask(PollTask task, Cancellable cancellable) {
 			this.task = task;
-			this.future = future;
+			this.cancellable = cancellable;
 		}
 	}
 

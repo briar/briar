@@ -17,9 +17,9 @@ import org.briarproject.bramble.api.network.event.NetworkStatusEvent;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
@@ -55,7 +55,7 @@ class AndroidNetworkManager implements NetworkManager, Service {
 	private final EventBus eventBus;
 	private final Executor eventExecutor;
 	private final Context appContext;
-	private final AtomicReference<Future<?>> connectivityCheck =
+	private final AtomicReference<Cancellable> connectivityCheck =
 			new AtomicReference<>();
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
@@ -107,12 +107,12 @@ class AndroidNetworkManager implements NetworkManager, Service {
 	}
 
 	private void scheduleConnectionStatusUpdate(int delay, TimeUnit unit) {
-		Future<?> newConnectivityCheck =
+		Cancellable newConnectivityCheck =
 				scheduler.schedule(this::updateConnectionStatus, eventExecutor,
 						delay, unit);
-		Future<?> oldConnectivityCheck =
+		Cancellable oldConnectivityCheck =
 				connectivityCheck.getAndSet(newConnectivityCheck);
-		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel(false);
+		if (oldConnectivityCheck != null) oldConnectivityCheck.cancel();
 	}
 
 	private class NetworkStateReceiver extends BroadcastReceiver {
