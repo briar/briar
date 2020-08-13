@@ -46,6 +46,7 @@ class JavaBluetoothTransportConnection
 	protected void closeConnection(boolean exception) throws IOException {
 		try {
 			socket.close();
+			in.close();
 		} finally {
 			connectionLimiter.connectionClosed(this);
 		}
