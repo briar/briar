@@ -109,8 +109,8 @@ public class PluginManagerImplTest extends BrambleTestCase {
 			oneOf(duplexPlugin).stop();
 		}});
 
-		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, eventBus,
-				pluginConfig, connectionManager, settingsManager,
+		PluginManagerImpl p = new PluginManagerImpl(ioExecutor, ioExecutor,
+				eventBus, pluginConfig, connectionManager, settingsManager,
 				transportPropertyManager);
 
 		// Two plugins should be started and stopped

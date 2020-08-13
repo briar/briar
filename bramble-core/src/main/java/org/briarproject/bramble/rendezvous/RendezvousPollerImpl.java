@@ -42,6 +42,7 @@ import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedE
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.Wakeful;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -205,6 +206,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	}
 
 	// Worker
+	@Wakeful
 	private void poll() {
 		removeExpiredPendingContacts();
 		for (PluginState ps : pluginStates.values()) poll(ps);
@@ -235,6 +237,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	}
 
 	// Worker
+	@Wakeful
 	private void poll(PluginState ps) {
 		if (ps.endpoints.isEmpty()) return;
 		TransportId t = ps.plugin.getId();

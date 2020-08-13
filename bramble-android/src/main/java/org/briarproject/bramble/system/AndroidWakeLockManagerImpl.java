@@ -86,6 +86,24 @@ class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 		}
 	}
 
+	@Override
+	public void executeWakefully(Runnable r, String tag) {
+		AndroidWakeLock wakeLock = createWakeLock(tag);
+		wakeLock.acquire();
+		try {
+			new Thread(() -> {
+				try {
+					r.run();
+				} finally {
+					wakeLock.release();
+				}
+			}).start();
+		} catch (Exception e) {
+			wakeLock.release();
+			throw e;
+		}
+	}
+
 	private String getWakeLockTag(Context ctx) {
 		PackageManager pm = ctx.getPackageManager();
 		for (PackageInfo info : pm.getInstalledPackages(0)) {

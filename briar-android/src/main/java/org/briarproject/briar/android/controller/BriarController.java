@@ -1,7 +1,10 @@
 package org.briarproject.briar.android.controller;
 
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.android.controller.handler.ResultHandler;
 
+@NotNullByDefault
 public interface BriarController extends ActivityLifecycleController {
 
 	void startAndBindService();
@@ -16,7 +19,8 @@ public interface BriarController extends ActivityLifecycleController {
 
 	void doNotAskAgainForDozeWhiteListing();
 
-	void signOut(ResultHandler<Void> eventHandler, boolean deleteAccount);
+	@Wakeful
+	void signOut(ResultHandler<Void> handler, boolean deleteAccount);
 
 	void deleteAccount();
 

@@ -4,17 +4,14 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
 
 import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 
 import androidx.preference.PreferenceManager;
 import info.guardianproject.GuardianProjectRSA4096;
@@ -23,6 +20,7 @@ import info.guardianproject.panic.PanicResponder;
 import info.guardianproject.trustedintents.TrustedIntents;
 
 import static android.os.Build.VERSION.SDK_INT;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_LOCK;
 import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_PURGE;
 
@@ -31,12 +29,7 @@ import static org.briarproject.briar.android.panic.PanicPreferencesFragment.KEY_
 public class PanicResponderActivity extends BriarActivity {
 
 	private static final Logger LOG =
-			Logger.getLogger(PanicResponderActivity.class.getName());
-
-	@Inject
-	protected LifecycleManager lifecycleManager;
-	@Inject
-	protected AndroidExecutor androidExecutor;
+			getLogger(PanicResponderActivity.class.getName());
 
 	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,13 +56,20 @@ public class PanicResponderActivity extends BriarActivity {
 					// Performing panic responses
 					if (sharedPref.getBoolean(KEY_PURGE, false)) {
 						LOG.info("Purging all data...");
-						deleteAllData();
+						signOut(true, true);
+					} else if (sharedPref.getBoolean(KEY_LOCK, true)) {
+						LOG.info("Signing out...");
+						signOut(true, false);
+					} else {
+						LOG.info("Configured not to purge or lock");
 					}
-				}
-				// non-destructive actions are allowed by non-connected trusted apps
-				if (sharedPref.getBoolean(KEY_LOCK, true)) {
+				} else if (sharedPref.getBoolean(KEY_LOCK, true)) {
+					// non-destructive actions are allowed by non-connected
+					// trusted apps
 					LOG.info("Signing out...");
 					signOut(true, false);
+				} else {
+					LOG.info("Configured not to lock");
 				}
 			}
 		}
@@ -84,12 +84,5 @@ public class PanicResponderActivity extends BriarActivity {
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
-	}
-
-	private void deleteAllData() {
-		androidExecutor.runOnBackgroundThread(() -> {
-			LOG.info("Signing out...");
-			signOut(true, true);
-		});
 	}
 }

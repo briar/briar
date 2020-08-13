@@ -7,6 +7,8 @@ import android.widget.CheckBox;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
+import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.account.UnlockActivity;
 import org.briarproject.briar.android.controller.BriarController;
@@ -32,6 +34,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PASSWORD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_UNLOCK;
@@ -47,7 +50,7 @@ public abstract class BriarActivity extends BaseActivity {
 	public static final String GROUP_NAME = "briar.GROUP_NAME";
 
 	private static final Logger LOG =
-			Logger.getLogger(BriarActivity.class.getName());
+			getLogger(BriarActivity.class.getName());
 
 	@Inject
 	BriarController briarController;
@@ -56,6 +59,8 @@ public abstract class BriarActivity extends BaseActivity {
 	DbController dbController;
 	@Inject
 	protected LockManager lockManager;
+	@Inject
+	AndroidWakeLockManager wakeLockManager;
 
 	@Override
 	public void onStart() {
@@ -130,6 +135,7 @@ public abstract class BriarActivity extends BaseActivity {
 
 	/**
 	 * Sets the transition animations.
+	 *
 	 * @param enterTransition used to move views into initial positions
 	 * @param exitTransition used to move views out when starting a <b>new</b> activity.
 	 * @param returnTransition used when window is closing, because the activity is finishing.
@@ -197,22 +203,30 @@ public abstract class BriarActivity extends BaseActivity {
 
 	protected void signOut(boolean removeFromRecentApps,
 			boolean deleteAccount) {
-		if (briarController.accountSignedIn()) {
-			// Don't use UiResultHandler because we want the result even if
-			// this activity has been destroyed
-			briarController.signOut(result -> runOnUiThread(
-					() -> exit(removeFromRecentApps)), deleteAccount);
-		} else {
-			if (deleteAccount) briarController.deleteAccount();
-			exit(removeFromRecentApps);
-		}
+		// Hold a wake lock to ensure we exit before the device goes to sleep
+		wakeLockManager.runWakefully(() -> {
+			if (briarController.accountSignedIn()) {
+				// Don't use UiResultHandler because we want the result even if
+				// this activity has been destroyed
+				briarController.signOut(result -> {
+					Runnable exit = () -> exit(removeFromRecentApps);
+					wakeLockManager.executeWakefully(exit,
+							this::runOnUiThread, "SignOut");
+				}, deleteAccount);
+			} else {
+				if (deleteAccount) briarController.deleteAccount();
+				exit(removeFromRecentApps);
+			}
+		}, "SignOut");
 	}
 
+	@Wakeful
 	private void exit(boolean removeFromRecentApps) {
 		if (removeFromRecentApps) startExitActivity();
 		else finishAndExit();
 	}
 
+	@Wakeful
 	private void startExitActivity() {
 		Intent i = new Intent(this, ExitActivity.class);
 		i.addFlags(FLAG_ACTIVITY_NEW_TASK
@@ -222,6 +236,7 @@ public abstract class BriarActivity extends BaseActivity {
 		startActivity(i);
 	}
 
+	@Wakeful
 	private void finishAndExit() {
 		if (SDK_INT >= 21) finishAndRemoveTask();
 		else supportFinishAfterTransition();

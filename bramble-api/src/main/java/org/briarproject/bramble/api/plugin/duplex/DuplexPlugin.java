@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
 import org.briarproject.bramble.api.rendezvous.RendezvousEndpoint;
+import org.briarproject.bramble.api.system.Wakeful;
 
 import javax.annotation.Nullable;
 
@@ -21,6 +22,7 @@ public interface DuplexPlugin extends Plugin {
 	 * Attempts to create and return a connection using the given transport
 	 * properties. Returns null if a connection cannot be created.
 	 */
+	@Wakeful
 	@Nullable
 	DuplexTransportConnection createConnection(TransportProperties p);
 

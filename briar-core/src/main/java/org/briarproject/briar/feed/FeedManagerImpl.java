@@ -30,6 +30,7 @@ import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.Wakeful;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -284,7 +285,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	}
 
 	/**
-	 * This method is called periodically from a background service.
+	 * This method is called periodically by the task scheduler.
 	 * It fetches all available feeds and posts new entries to the respective
 	 * blog.
 	 * <p>
@@ -292,6 +293,7 @@ class FeedManagerImpl implements FeedManager, EventListener, OpenDatabaseHook,
 	 * because fetching can take a long time
 	 * and we can not block the database that long.
 	 */
+	@Wakeful
 	void fetchFeeds() {
 		if (!torActive) return;
 		LOG.info("Updating RSS feeds...");

@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.logout.HideUiActivity;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -48,6 +49,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.ALREADY_RUNNING;
 import static org.briarproject.bramble.api.lifecycle.LifecycleManager.StartResult.SUCCESS;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FAILURE_NOTIFICATION_ID;
@@ -80,6 +82,8 @@ public class BriarService extends Service {
 	AccountManager accountManager;
 	@Inject
 	LockManager lockManager;
+	@Inject
+	AndroidWakeLockManager wakeLockManager;
 
 	// Fields that are accessed from background threads must be volatile
 	@Inject
@@ -108,54 +112,57 @@ public class BriarService extends Service {
 			return;
 		}
 
-		// Create notification channels
-		if (SDK_INT >= 26) {
-			NotificationManager nm = (NotificationManager)
-					getSystemService(NOTIFICATION_SERVICE);
-			NotificationChannel ongoingChannel = new NotificationChannel(
-					ONGOING_CHANNEL_ID,
-					getString(R.string.ongoing_notification_title),
-					IMPORTANCE_NONE);
-			ongoingChannel.setLockscreenVisibility(VISIBILITY_SECRET);
-			nm.createNotificationChannel(ongoingChannel);
-			NotificationChannel failureChannel = new NotificationChannel(
-					FAILURE_CHANNEL_ID,
-					getString(R.string.startup_failed_notification_title),
-					IMPORTANCE_DEFAULT);
-			failureChannel.setLockscreenVisibility(VISIBILITY_SECRET);
-			nm.createNotificationChannel(failureChannel);
-		}
-		Notification foregroundNotification =
-				notificationManager.getForegroundNotification();
-		startForeground(ONGOING_NOTIFICATION_ID, foregroundNotification);
-		// Start the services in a background thread
-		new Thread(() -> {
-			StartResult result = lifecycleManager.startServices(dbKey);
-			if (result == SUCCESS) {
-				started = true;
-			} else if (result == ALREADY_RUNNING) {
-				LOG.info("Already running");
-				stopSelf();
-			} else {
-				if (LOG.isLoggable(WARNING))
-					LOG.warning("Startup failed: " + result);
-				showStartupFailureNotification(result);
-				stopSelf();
+		// Hold a wake lock during startup
+		wakeLockManager.runWakefully(() -> {
+			// Create notification channels
+			if (SDK_INT >= 26) {
+				NotificationManager nm = (NotificationManager)
+						requireNonNull(getSystemService(NOTIFICATION_SERVICE));
+				NotificationChannel ongoingChannel = new NotificationChannel(
+						ONGOING_CHANNEL_ID,
+						getString(R.string.ongoing_notification_title),
+						IMPORTANCE_NONE);
+				ongoingChannel.setLockscreenVisibility(VISIBILITY_SECRET);
+				nm.createNotificationChannel(ongoingChannel);
+				NotificationChannel failureChannel = new NotificationChannel(
+						FAILURE_CHANNEL_ID,
+						getString(R.string.startup_failed_notification_title),
+						IMPORTANCE_DEFAULT);
+				failureChannel.setLockscreenVisibility(VISIBILITY_SECRET);
+				nm.createNotificationChannel(failureChannel);
 			}
-		}).start();
-		// Register for device shutdown broadcasts
-		receiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				LOG.info("Device is shutting down");
-				shutdownFromBackground();
-			}
-		};
-		IntentFilter filter = new IntentFilter();
-		filter.addAction(ACTION_SHUTDOWN);
-		filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
-		filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
-		registerReceiver(receiver, filter);
+			Notification foregroundNotification =
+					notificationManager.getForegroundNotification();
+			startForeground(ONGOING_NOTIFICATION_ID, foregroundNotification);
+			// Start the services in a background thread
+			wakeLockManager.executeWakefully(() -> {
+				StartResult result = lifecycleManager.startServices(dbKey);
+				if (result == SUCCESS) {
+					started = true;
+				} else if (result == ALREADY_RUNNING) {
+					LOG.info("Already running");
+					stopSelf();
+				} else {
+					if (LOG.isLoggable(WARNING))
+						LOG.warning("Startup failed: " + result);
+					showStartupFailureNotification(result);
+					stopSelf();
+				}
+			}, "LifecycleStartup");
+			// Register for device shutdown broadcasts
+			receiver = new BroadcastReceiver() {
+				@Override
+				public void onReceive(Context context, Intent intent) {
+					LOG.info("Device is shutting down");
+					shutdownFromBackground();
+				}
+			};
+			IntentFilter filter = new IntentFilter();
+			filter.addAction(ACTION_SHUTDOWN);
+			filter.addAction("android.intent.action.QUICKBOOT_POWEROFF");
+			filter.addAction("com.htc.intent.action.QUICKBOOT_POWEROFF");
+			registerReceiver(receiver, filter);
+		}, "LifecycleStartup");
 	}
 
 	@Override
@@ -179,8 +186,8 @@ public class BriarService extends Service {
 			i.putExtra(EXTRA_NOTIFICATION_ID, FAILURE_NOTIFICATION_ID);
 			b.setContentIntent(PendingIntent.getActivity(BriarService.this,
 					0, i, FLAG_UPDATE_CURRENT));
-			Object o = getSystemService(NOTIFICATION_SERVICE);
-			NotificationManager nm = (NotificationManager) o;
+			NotificationManager nm = (NotificationManager)
+					requireNonNull(getSystemService(NOTIFICATION_SERVICE));
 			nm.notify(FAILURE_NOTIFICATION_ID, b.build());
 			// Bring the dashboard to the front to clear the back stack
 			i = new Intent(BriarService.this, ENTRY_ACTIVITY);
@@ -205,14 +212,17 @@ public class BriarService extends Service {
 
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
-		LOG.info("Destroyed");
-		stopForeground(true);
-		if (receiver != null) unregisterReceiver(receiver);
-		// Stop the services in a background thread
-		new Thread(() -> {
-			if (started) lifecycleManager.stopServices();
-		}).start();
+		// Hold a wake lock during shutdown
+		wakeLockManager.runWakefully(() -> {
+			super.onDestroy();
+			LOG.info("Destroyed");
+			stopForeground(true);
+			if (receiver != null) unregisterReceiver(receiver);
+			// Stop the services in a background thread
+			wakeLockManager.executeWakefully(() -> {
+				if (started) lifecycleManager.stopServices();
+			}, "LifecycleShutdown");
+		}, "LifecycleShutdown");
 	}
 
 	@Override
@@ -257,20 +267,23 @@ public class BriarService extends Service {
 	}
 
 	private void shutdownFromBackground() {
-		// Stop the service
-		stopSelf();
-		// Hide the UI
-		hideUi();
-		// Wait for shutdown to complete, then exit
-		new Thread(() -> {
-			try {
-				if (started) lifecycleManager.waitForShutdown();
-			} catch (InterruptedException e) {
-				LOG.info("Interrupted while waiting for shutdown");
-			}
-			LOG.info("Exiting");
-			System.exit(0);
-		}).start();
+		// Hold a wake lock during shutdown
+		wakeLockManager.runWakefully(() -> {
+			// Stop the service
+			stopSelf();
+			// Hide the UI
+			hideUi();
+			// Wait for shutdown to complete, then exit
+			wakeLockManager.executeWakefully(() -> {
+				try {
+					if (started) lifecycleManager.waitForShutdown();
+				} catch (InterruptedException e) {
+					LOG.info("Interrupted while waiting for shutdown");
+				}
+				LOG.info("Exiting");
+				System.exit(0);
+			}, "BackgroundShutdown");
+		}, "BackgroundShutdown");
 	}
 
 	/**

@@ -14,6 +14,9 @@ public interface TaskScheduler {
 
 	/**
 	 * Submits the given task to the given executor after the given delay.
+	 * <p>
+	 * If the platform supports wake locks, a wake lock will be held while
+	 * submitting and running the task.
 	 */
 	Future<?> schedule(Runnable task, Executor executor, long delay,
 			TimeUnit unit);
@@ -22,6 +25,9 @@ public interface TaskScheduler {
 	 * Submits the given task to the given executor after the given delay,
 	 * and then repeatedly with the given interval between executions
 	 * (measured from the end of one execution to the beginning of the next).
+	 * <p>
+	 * If the platform supports wake locks, a wake lock will be held while
+	 * submitting and running the task.
 	 */
 	Future<?> scheduleWithFixedDelay(Runnable task, Executor executor,
 			long delay, long interval, TimeUnit unit);

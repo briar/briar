@@ -29,6 +29,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.system.WakefulIoExecutor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -64,7 +65,7 @@ class PluginManagerImpl implements PluginManager, Service {
 	private static final Logger LOG =
 			getLogger(PluginManagerImpl.class.getName());
 
-	private final Executor ioExecutor;
+	private final Executor ioExecutor, wakefulIoExecutor;
 	private final EventBus eventBus;
 	private final PluginConfig pluginConfig;
 	private final ConnectionManager connectionManager;
@@ -77,11 +78,15 @@ class PluginManagerImpl implements PluginManager, Service {
 	private final AtomicBoolean used = new AtomicBoolean(false);
 
 	@Inject
-	PluginManagerImpl(@IoExecutor Executor ioExecutor, EventBus eventBus,
-			PluginConfig pluginConfig, ConnectionManager connectionManager,
+	PluginManagerImpl(@IoExecutor Executor ioExecutor,
+			@WakefulIoExecutor Executor wakefulIoExecutor,
+			EventBus eventBus,
+			PluginConfig pluginConfig,
+			ConnectionManager connectionManager,
 			SettingsManager settingsManager,
 			TransportPropertyManager transportPropertyManager) {
 		this.ioExecutor = ioExecutor;
+		this.wakefulIoExecutor = wakefulIoExecutor;
 		this.eventBus = eventBus;
 		this.pluginConfig = pluginConfig;
 		this.connectionManager = connectionManager;
@@ -109,7 +114,7 @@ class PluginManagerImpl implements PluginManager, Service {
 				simplexPlugins.add(s);
 				CountDownLatch startLatch = new CountDownLatch(1);
 				startLatches.put(t, startLatch);
-				ioExecutor.execute(new PluginStarter(s, startLatch));
+				wakefulIoExecutor.execute(new PluginStarter(s, startLatch));
 			}
 		}
 		// Instantiate the duplex plugins and start them asynchronously
@@ -125,7 +130,7 @@ class PluginManagerImpl implements PluginManager, Service {
 				duplexPlugins.add(d);
 				CountDownLatch startLatch = new CountDownLatch(1);
 				startLatches.put(t, startLatch);
-				ioExecutor.execute(new PluginStarter(d, startLatch));
+				wakefulIoExecutor.execute(new PluginStarter(d, startLatch));
 			}
 		}
 	}
@@ -137,12 +142,16 @@ class PluginManagerImpl implements PluginManager, Service {
 		LOG.info("Stopping simplex plugins");
 		for (SimplexPlugin s : simplexPlugins) {
 			CountDownLatch startLatch = startLatches.get(s.getId());
+			// Don't need the wakeful executor here as we wait for the plugin
+			// to stop before returning
 			ioExecutor.execute(new PluginStopper(s, startLatch, stopLatch));
 		}
 		// Stop the duplex plugins
 		LOG.info("Stopping duplex plugins");
 		for (DuplexPlugin d : duplexPlugins) {
 			CountDownLatch startLatch = startLatches.get(d.getId());
+			// Don't need the wakeful executor here as we wait for the plugin
+			// to stop before returning
 			ioExecutor.execute(new PluginStopper(d, startLatch, stopLatch));
 		}
 		// Wait for all the plugins to stop
@@ -205,7 +214,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 	}
 
-	private class PluginStarter implements Runnable {
+	private static class PluginStarter implements Runnable {
 
 		private final Plugin plugin;
 		private final CountDownLatch startLatch;
@@ -235,7 +244,7 @@ class PluginManagerImpl implements PluginManager, Service {
 		}
 	}
 
-	private class PluginStopper implements Runnable {
+	private static class PluginStopper implements Runnable {
 
 		private final Plugin plugin;
 		private final CountDownLatch startLatch, stopLatch;

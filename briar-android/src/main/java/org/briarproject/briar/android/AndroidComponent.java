@@ -24,6 +24,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.system.AndroidExecutor;
+import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
@@ -165,6 +166,8 @@ public interface AndroidComponent
 	ViewModelProvider.Factory viewModelFactory();
 
 	FeatureFlags featureFlags();
+
+	AndroidWakeLockManager wakeLockManager();
 
 	void inject(SignInReminderReceiver briarService);
 

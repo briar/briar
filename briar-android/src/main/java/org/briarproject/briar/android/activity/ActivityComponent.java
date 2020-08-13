@@ -82,13 +82,19 @@ import org.briarproject.briar.android.test.TestDataActivity;
 import dagger.Component;
 
 @ActivityScope
-@Component(
-		modules = {ActivityModule.class, ForumModule.class, SharingModule.class,
-				BlogModule.class, ContactModule.class, GroupListModule.class,
-				CreateGroupModule.class, GroupInvitationModule.class,
-				GroupConversationModule.class, GroupMemberModule.class,
-				GroupRevealModule.class},
-		dependencies = AndroidComponent.class)
+@Component(modules = {
+		ActivityModule.class,
+		BlogModule.class,
+		ContactModule.class,
+		CreateGroupModule.class,
+		ForumModule.class,
+		GroupInvitationModule.class,
+		GroupConversationModule.class,
+		GroupListModule.class,
+		GroupMemberModule.class,
+		GroupRevealModule.class,
+		SharingModule.class
+}, dependencies = AndroidComponent.class)
 public interface ActivityComponent {
 
 	Activity activity();

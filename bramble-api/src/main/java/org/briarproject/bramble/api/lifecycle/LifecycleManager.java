@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.Wakeful;
 
 import java.util.concurrent.ExecutorService;
 
@@ -65,6 +66,7 @@ public interface LifecycleManager {
 	 * Opens the {@link DatabaseComponent} using the given key and starts any
 	 * registered {@link Service Services}.
 	 */
+	@Wakeful
 	StartResult startServices(SecretKey dbKey);
 
 	/**
@@ -72,6 +74,7 @@ public interface LifecycleManager {
 	 * registered {@link ExecutorService ExecutorServices}, and closes the
 	 * {@link DatabaseComponent}.
 	 */
+	@Wakeful
 	void stopServices();
 
 	/**
@@ -104,6 +107,7 @@ public interface LifecycleManager {
 		 *
 		 * @param txn A read-write transaction
 		 */
+		@Wakeful
 		void onDatabaseOpened(Transaction txn) throws DbException;
 	}
 }
