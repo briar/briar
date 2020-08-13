@@ -208,10 +208,11 @@ public abstract class BriarActivity extends BaseActivity {
 			if (briarController.accountSignedIn()) {
 				// Don't use UiResultHandler because we want the result even if
 				// this activity has been destroyed
-				briarController.signOut(result ->
-						wakeLockManager.executeWakefully(() ->
-										exit(removeFromRecentApps),
-								this::runOnUiThread, "SignOut"), deleteAccount);
+				briarController.signOut(result -> {
+					Runnable exit = () -> exit(removeFromRecentApps);
+					wakeLockManager.executeWakefully(exit,
+							this::runOnUiThread, "SignOut");
+				}, deleteAccount);
 			} else {
 				if (deleteAccount) briarController.deleteAccount();
 				exit(removeFromRecentApps);
