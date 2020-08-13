@@ -30,6 +30,9 @@ public interface AndroidWakeLockManager {
 	 * lock is acquired before starting the thread and released when the task
 	 * completes, or if an exception is thrown while starting the thread or
 	 * running the task.
+	 * <p>
+	 * This method should only be used for lifecycle management tasks that
+	 * can't be run on an executor.
 	 */
 	void executeWakefully(Runnable r, String tag);
 }
