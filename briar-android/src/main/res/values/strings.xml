@@ -72,7 +72,6 @@
 
 	<!-- Transports: Tor -->
 	<string name="transport_tor">Internet</string>
-	<string name="tor_status">Internet status:</string>
 	<string name="tor_device_status_online_wifi">Your phone has Internet access via Wi-Fi</string>
 	<string name="tor_device_status_online_mobile">Your phone has Internet access via mobile data</string>
 	<string name="tor_device_status_offline">Your phone does not have Internet access</string>
@@ -87,7 +86,6 @@
 	<!-- Transports: Wi-Fi -->
 	<string name="transport_lan">Wi-Fi</string>
 	<string name="transport_lan_long">Same Wi-Fi network</string>
-	<string name="lan_status">Wi-Fi status:</string>
 	<string name="lan_device_status_on">Your phone is connected to Wi-Fi</string>
 	<string name="lan_device_status_off">Your phone is not connected to Wi-Fi</string>
 	<string name="lan_plugin_status_enabling">Briar is connecting to the Wi-Fi network</string>
@@ -97,7 +95,6 @@
 
 	<!-- Transports: Bluetooth -->
 	<string name="transport_bt">Bluetooth</string>
-	<string name="bt_status">Bluetooth status:</string>
 	<string name="bt_device_status_on">Your phone\'s Bluetooth is turned on</string>
 	<string name="bt_device_status_off">Your phone\'s Bluetooth is turned off</string>
 	<string name="bt_plugin_status_enabling">Briar is connecting to Bluetooth</string>
@@ -602,6 +599,9 @@
 	<string name="lock_unlock_password">Use Password</string>
 	<string name="lock_is_locked">Briar is locked</string>
 	<string name="lock_tap_to_unlock">Tap to unlock</string>
+
+	<!-- Connections Screen -->
+	<string name="transports_help_text">Briar can connect to your contacts via the Internet, Wi-Fi or Bluetooth.\n\nAll Internet connections go through the Tor network for privacy.\n\nIf a contact can be reached by multiple methods, Briar uses them in parallel.</string>
 
 	<!-- Screenshots -->
 

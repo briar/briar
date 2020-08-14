@@ -1,6 +1,5 @@
 package org.briarproject.briar.android.navdrawer;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +23,6 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.settings.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +48,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_BATTERY;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_COUNTRY_BLOCKED;
 import static org.briarproject.bramble.api.plugin.TorConstants.REASON_MOBILE_DATA;
+import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -94,8 +93,9 @@ public class TransportsActivity extends BriarActivity {
 		if (item.getItemId() == android.R.id.home) {
 			onBackPressed();
 			return true;
-		} else if (item.getItemId() == R.id.action_open_settings) {
-			startActivity(new Intent(this, SettingsActivity.class));
+		} else if (item.getItemId() == R.id.action_help) {
+			String text = getString(R.string.transports_help_text);
+			showOnboardingDialog(this, text);
 			return true;
 		}
 		return false;
@@ -104,7 +104,7 @@ public class TransportsActivity extends BriarActivity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.transports_actions, menu);
+		inflater.inflate(R.menu.help_action, menu);
 		return super.onCreateOptionsMenu(menu);
 	}
 
