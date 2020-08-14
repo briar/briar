@@ -71,7 +71,6 @@ class AndroidBluetoothPlugin
 	private final Application app;
 	private final Clock clock;
 
-	private volatile boolean wasEnabledByUs = false;
 	private volatile BluetoothStateReceiver receiver = null;
 
 	// Non-null if the plugin started successfully
@@ -131,38 +130,6 @@ class AndroidBluetoothPlugin
 	@Override
 	boolean isAdapterEnabled() {
 		return adapter != null && adapter.isEnabled();
-	}
-
-	@Override
-	void enableAdapter() {
-		if (adapter != null && !adapter.isEnabled()) {
-			if (adapter.enable()) {
-				LOG.info("Enabling Bluetooth");
-				wasEnabledByUs = true;
-			} else {
-				LOG.info("Could not enable Bluetooth");
-			}
-		}
-	}
-
-	@Override
-	void disableAdapterIfEnabledByUs() {
-		if (isAdapterEnabled() && wasEnabledByUs) {
-			if (adapter.disable()) LOG.info("Disabling Bluetooth");
-			else LOG.info("Could not disable Bluetooth");
-			wasEnabledByUs = false;
-		}
-	}
-
-	@Override
-	void setEnabledByUs() {
-		wasEnabledByUs = true;
-	}
-
-	@Override
-	void onAdapterDisabled() {
-		super.onAdapterDisabled();
-		wasEnabledByUs = false;
 	}
 
 	@Override
