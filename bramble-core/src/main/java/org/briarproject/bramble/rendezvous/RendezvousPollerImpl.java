@@ -42,6 +42,7 @@ import org.briarproject.bramble.api.rendezvous.event.RendezvousConnectionOpenedE
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 import org.briarproject.bramble.api.system.Wakeful;
 
 import java.security.GeneralSecurityException;
@@ -68,6 +69,7 @@ import static org.briarproject.bramble.api.contact.PendingContactState.ADDING_CO
 import static org.briarproject.bramble.api.contact.PendingContactState.FAILED;
 import static org.briarproject.bramble.api.contact.PendingContactState.OFFLINE;
 import static org.briarproject.bramble.api.contact.PendingContactState.WAITING_FOR_CONNECTION;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNull;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.POLLING_INTERVAL_MS;
 import static org.briarproject.bramble.rendezvous.RendezvousConstants.RENDEZVOUS_TIMEOUT_MS;
@@ -102,6 +104,8 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			new HashMap<>();
 	@Nullable
 	private KeyPair handshakeKeyPair = null;
+	@Nullable
+	private Cancellable pollTask = null;
 
 	@Inject
 	RendezvousPollerImpl(@IoExecutor Executor ioExecutor,
@@ -144,8 +148,6 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		} catch (DbException e) {
 			throw new ServiceException(e);
 		}
-		scheduler.scheduleWithFixedDelay(this::poll, worker,
-				POLLING_INTERVAL_MS, POLLING_INTERVAL_MS, MILLISECONDS);
 	}
 
 	@EventExecutor
@@ -186,6 +188,12 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 			}
 			if (cs.numEndpoints == 0) broadcastState(p.getId(), OFFLINE);
 			else broadcastState(p.getId(), WAITING_FOR_CONNECTION);
+			if (cryptoStates.size() == 1) {
+				LOG.info("Starting poller");
+				requireNull(pollTask);
+				pollTask = scheduler.scheduleWithFixedDelay(this::poll, worker,
+						POLLING_INTERVAL_MS, POLLING_INTERVAL_MS, MILLISECONDS);
+			}
 		} catch (DbException | GeneralSecurityException e) {
 			logException(LOG, WARNING, e);
 		}
@@ -208,6 +216,7 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 	// Worker
 	@Wakeful
 	private void poll() {
+		LOG.info("Polling");
 		removeExpiredPendingContacts();
 		for (PluginState ps : pluginStates.values()) poll(ps);
 	}
@@ -233,6 +242,11 @@ class RendezvousPollerImpl implements RendezvousPoller, Service, EventListener {
 		for (PluginState ps : pluginStates.values()) {
 			RendezvousEndpoint endpoint = ps.endpoints.remove(p);
 			if (endpoint != null) tryToClose(endpoint, LOG, INFO);
+		}
+		if (cryptoStates.isEmpty()) {
+			LOG.info("Stopping poller");
+			requireNonNull(pollTask).cancel();
+			pollTask = null;
 		}
 	}
 
