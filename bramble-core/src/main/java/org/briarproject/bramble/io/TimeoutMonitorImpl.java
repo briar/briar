@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.io.TimeoutMonitor;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 import org.briarproject.bramble.api.system.Wakeful;
 
 import java.io.IOException;
@@ -11,7 +12,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -38,7 +38,7 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 	private final List<TimeoutInputStream> streams = new ArrayList<>();
 
 	@GuardedBy("lock")
-	private Future<?> task = null;
+	private Cancellable cancellable = null;
 
 	@Inject
 	TimeoutMonitorImpl(TaskScheduler scheduler,
@@ -55,9 +55,9 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 				timeoutMs, this::removeStream);
 		synchronized (lock) {
 			if (streams.isEmpty()) {
-				task = scheduler.scheduleWithFixedDelay(this::checkTimeouts,
-						ioExecutor, CHECK_INTERVAL_MS, CHECK_INTERVAL_MS,
-						MILLISECONDS);
+				cancellable = scheduler.scheduleWithFixedDelay(
+						this::checkTimeouts, ioExecutor, CHECK_INTERVAL_MS,
+						CHECK_INTERVAL_MS, MILLISECONDS);
 			}
 			streams.add(stream);
 		}
@@ -65,14 +65,17 @@ class TimeoutMonitorImpl implements TimeoutMonitor {
 	}
 
 	private void removeStream(TimeoutInputStream stream) {
-		Future<?> toCancel = null;
+		Cancellable toCancel = null;
 		synchronized (lock) {
 			if (streams.remove(stream) && streams.isEmpty()) {
-				toCancel = task;
-				task = null;
+				toCancel = cancellable;
+				cancellable = null;
 			}
 		}
-		if (toCancel != null) toCancel.cancel(false);
+		if (toCancel != null) {
+			LOG.info("Cancelling timeout monitor task");
+			toCancel.cancel();
+		}
 	}
 
 	@IoExecutor

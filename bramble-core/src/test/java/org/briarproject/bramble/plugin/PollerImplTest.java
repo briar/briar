@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.TaskScheduler.Cancellable;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.bramble.test.RunAction;
@@ -31,7 +32,6 @@ import org.junit.Test;
 import java.security.SecureRandom;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -55,7 +55,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 	private final TransportPropertyManager transportPropertyManager =
 			context.mock(TransportPropertyManager.class);
 	private final Clock clock = context.mock(Clock.class);
-	private final Future<?> future = context.mock(Future.class);
+	private final Cancellable cancellable = context.mock(Cancellable.class);
 	private final SecureRandom random;
 
 	private final Executor ioExecutor = new ImmediateExecutor();
@@ -237,7 +237,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with((long) pollingInterval),
 					with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 		}});
 
 		poller.eventOccurred(new ConnectionOpenedEvent(contactId, transportId,
@@ -266,7 +266,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with((long) pollingInterval),
 					with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 			// Second event
 			// Get the plugin
 			oneOf(pluginManager).getPlugin(transportId);
@@ -309,7 +309,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with((long) pollingInterval),
 					with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 			// Second event
 			// Get the plugin
 			oneOf(pluginManager).getPlugin(transportId);
@@ -322,7 +322,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			will(returnValue(pollingInterval - 2));
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(now + 1));
-			oneOf(future).cancel(false);
+			oneOf(cancellable).cancel();
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with((long) pollingInterval - 2),
 					with(MILLISECONDS));
@@ -352,7 +352,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with(0L), with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 			will(new RunAction());
 			// Running the polling task schedules the next polling task
 			oneOf(plugin).getPollingInterval();
@@ -364,7 +364,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with((long) (pollingInterval * 0.5)),
 					with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 			// Get the transport properties and connected contacts
 			oneOf(transportPropertyManager).getRemoteProperties(transportId);
 			will(returnValue(singletonMap(contactId, properties)));
@@ -396,7 +396,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with(0L), with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 			will(new RunAction());
 			// Running the polling task schedules the next polling task
 			oneOf(plugin).getPollingInterval();
@@ -408,7 +408,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with((long) (pollingInterval * 0.5)),
 					with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 			// Get the transport properties and connected contacts
 			oneOf(transportPropertyManager).getRemoteProperties(transportId);
 			will(returnValue(singletonMap(contactId, properties)));
@@ -438,9 +438,9 @@ public class PollerImplTest extends BrambleMockTestCase {
 			will(returnValue(now));
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with(0L), with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 			// The plugin is deactivated before the task runs - cancel the task
-			oneOf(future).cancel(false);
+			oneOf(cancellable).cancel();
 		}});
 
 		poller.eventOccurred(new TransportActiveEvent(transportId));
@@ -463,7 +463,7 @@ public class PollerImplTest extends BrambleMockTestCase {
 			oneOf(scheduler).schedule(with(any(Runnable.class)),
 					with(ioExecutor), with((long) pollingInterval),
 					with(MILLISECONDS));
-			will(returnValue(future));
+			will(returnValue(cancellable));
 		}});
 	}
 

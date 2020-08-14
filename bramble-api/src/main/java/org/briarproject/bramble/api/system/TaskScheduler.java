@@ -3,7 +3,6 @@ package org.briarproject.bramble.api.system;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -18,7 +17,7 @@ public interface TaskScheduler {
 	 * If the platform supports wake locks, a wake lock will be held while
 	 * submitting and running the task.
 	 */
-	Future<?> schedule(Runnable task, Executor executor, long delay,
+	Cancellable schedule(Runnable task, Executor executor, long delay,
 			TimeUnit unit);
 
 	/**
@@ -29,6 +28,16 @@ public interface TaskScheduler {
 	 * If the platform supports wake locks, a wake lock will be held while
 	 * submitting and running the task.
 	 */
-	Future<?> scheduleWithFixedDelay(Runnable task, Executor executor,
+	Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
 			long delay, long interval, TimeUnit unit);
+
+	interface Cancellable {
+
+		/**
+		 * Cancels the task if it has not already started running. If the task
+		 * is {@link #scheduleWithFixedDelay(Runnable, Executor, long, long, TimeUnit) periodic},
+		 * all future executions of the task are cancelled.
+		 */
+		void cancel();
+	}
 }

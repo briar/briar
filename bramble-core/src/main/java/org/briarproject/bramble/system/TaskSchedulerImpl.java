@@ -4,8 +4,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.TaskScheduler;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.concurrent.ThreadSafe;
@@ -24,17 +24,20 @@ class TaskSchedulerImpl implements TaskScheduler {
 	}
 
 	@Override
-	public Future<?> schedule(Runnable task, Executor executor, long delay,
+	public Cancellable schedule(Runnable task, Executor executor, long delay,
 			TimeUnit unit) {
 		Runnable execute = () -> executor.execute(task);
-		return scheduledExecutorService.schedule(execute, delay, unit);
+		ScheduledFuture<?> future =
+				scheduledExecutorService.schedule(execute, delay, unit);
+		return () -> future.cancel(false);
 	}
 
 	@Override
-	public Future<?> scheduleWithFixedDelay(Runnable task, Executor executor,
+	public Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
 			long delay, long interval, TimeUnit unit) {
 		Runnable execute = () -> executor.execute(task);
-		return scheduledExecutorService.scheduleWithFixedDelay(execute, delay,
-				interval, unit);
+		ScheduledFuture<?> future = scheduledExecutorService.
+				scheduleWithFixedDelay(execute, delay, interval, unit);
+		return () -> future.cancel(false);
 	}
 }

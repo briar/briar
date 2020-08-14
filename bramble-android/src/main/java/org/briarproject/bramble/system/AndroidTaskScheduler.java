@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.system.AlarmListener;
 import org.briarproject.bramble.api.system.AndroidWakeLockManager;
 import org.briarproject.bramble.api.system.TaskScheduler;
+import org.briarproject.bramble.api.system.Wakeful;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +21,9 @@ import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Future;
-import java.util.concurrent.FutureTask;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.GuardedBy;
@@ -35,7 +36,6 @@ import static android.content.Context.ALARM_SERVICE;
 import static android.os.Build.VERSION.SDK_INT;
 import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.system.AlarmConstants.EXTRA_PID;
@@ -48,7 +48,6 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	private static final Logger LOG =
 			getLogger(AndroidTaskScheduler.class.getName());
 
-	private static final long TICK_MS = SECONDS.toMillis(10);
 	private static final long ALARM_MS = INTERVAL_FIFTEEN_MINUTES;
 
 	private final Application app;
@@ -72,9 +71,6 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 
 	@Override
 	public void startService() {
-		scheduledExecutorService.scheduleAtFixedRate(
-				() -> wakeLockManager.runWakefully(this::runDueTasks,
-						"TaskTicker"), TICK_MS, TICK_MS, MILLISECONDS);
 		scheduleAlarm();
 	}
 
@@ -84,31 +80,18 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 	}
 
 	@Override
-	public Future<?> schedule(Runnable task, Executor executor, long delay,
+	public Cancellable schedule(Runnable task, Executor executor, long delay,
 			TimeUnit unit) {
-		long now = SystemClock.elapsedRealtime();
-		long dueMillis = now + MILLISECONDS.convert(delay, unit);
-		Runnable wakeful = () ->
-				wakeLockManager.executeWakefully(task, executor, "TaskHandoff");
-		ScheduledTask s = new ScheduledTask(wakeful, dueMillis);
-		if (dueMillis <= now) {
-			scheduledExecutorService.execute(s);
-		} else {
-			synchronized (lock) {
-				tasks.add(s);
-			}
-		}
-		return s;
+		AtomicBoolean cancelled = new AtomicBoolean(false);
+		return schedule(task, executor, delay, unit, cancelled);
 	}
 
 	@Override
-	public Future<?> scheduleWithFixedDelay(Runnable task, Executor executor,
+	public Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
 			long delay, long interval, TimeUnit unit) {
-		Runnable wrapped = () -> {
-			task.run();
-			scheduleWithFixedDelay(task, executor, interval, interval, unit);
-		};
-		return schedule(wrapped, executor, delay, unit);
+		AtomicBoolean cancelled = new AtomicBoolean(false);
+		return scheduleWithFixedDelay(task, executor, delay, interval, unit,
+				cancelled);
 	}
 
 	@Override
@@ -127,6 +110,39 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 		}, "TaskAlarm");
 	}
 
+	private Cancellable schedule(Runnable task, Executor executor, long delay,
+			TimeUnit unit, AtomicBoolean cancelled) {
+		long now = SystemClock.elapsedRealtime();
+		long dueMillis = now + MILLISECONDS.convert(delay, unit);
+		Runnable wakeful = () ->
+				wakeLockManager.executeWakefully(task, executor, "TaskHandoff");
+		Future<?> check = scheduleCheckForDueTasks(delay, unit);
+		ScheduledTask s = new ScheduledTask(wakeful, dueMillis, check,
+				cancelled);
+		synchronized (lock) {
+			tasks.add(s);
+		}
+		return s;
+	}
+
+	private Cancellable scheduleWithFixedDelay(Runnable task, Executor executor,
+			long delay, long interval, TimeUnit unit, AtomicBoolean cancelled) {
+		// All executions of this periodic task share a cancelled flag
+		Runnable wrapped = () -> {
+			task.run();
+			scheduleWithFixedDelay(task, executor, interval, interval, unit,
+					cancelled);
+		};
+		return schedule(wrapped, executor, delay, unit, cancelled);
+	}
+
+	private Future<?> scheduleCheckForDueTasks(long delay, TimeUnit unit) {
+		Runnable wakeful = () -> wakeLockManager.runWakefully(
+				this::runDueTasks, "TaskScheduler");
+		return scheduledExecutorService.schedule(wakeful, delay, unit);
+	}
+
+	@Wakeful
 	private void runDueTasks() {
 		long now = SystemClock.elapsedRealtime();
 		List<ScheduledTask> due = new ArrayList<>();
@@ -182,14 +198,37 @@ class AndroidTaskScheduler implements TaskScheduler, Service, AlarmListener {
 				FLAG_CANCEL_CURRENT);
 	}
 
-	private static class ScheduledTask extends FutureTask<Void>
-			implements Comparable<ScheduledTask> {
+	private class ScheduledTask
+			implements Runnable, Cancellable, Comparable<ScheduledTask> {
 
+		private final Runnable task;
 		private final long dueMillis;
+		private final Future<?> check;
+		private final AtomicBoolean cancelled;
 
-		public ScheduledTask(Runnable runnable, long dueMillis) {
-			super(runnable, null);
+		public ScheduledTask(Runnable task, long dueMillis,
+				Future<?> check, AtomicBoolean cancelled) {
+			this.task = task;
 			this.dueMillis = dueMillis;
+			this.check = check;
+			this.cancelled = cancelled;
+		}
+
+		@Override
+		public void run() {
+			if (!cancelled.get()) task.run();
+		}
+
+		@Override
+		public void cancel() {
+			// Cancel any future executions of this task
+			cancelled.set(true);
+			// Cancel the scheduled check for due tasks
+			check.cancel(false);
+			// Remove the task from the queue
+			synchronized (lock) {
+				tasks.remove(this);
+			}
 		}
 
 		@Override
