@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.navdrawer;
 
 import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -99,6 +100,7 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 		torPluginState.setValue(getTransportState(TorConstants.ID));
 		wifiPluginState.setValue(getTransportState(LanTcpConstants.ID));
 		btPluginState.setValue(getTransportState(BluetoothConstants.ID));
+		initialiseBluetoothState();
 		loadSettings();
 	}
 
@@ -171,6 +173,12 @@ public class PluginViewModel extends AndroidViewModel implements EventListener {
 		Settings s = new Settings();
 		s.putBoolean(PREF_PLUGIN_ENABLE, enable);
 		mergeSettings(s, id.getString());
+	}
+
+	private void initialiseBluetoothState() {
+		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
+		if (bt == null) bluetoothTurnedOn.setValue(false);
+		else bluetoothTurnedOn.setValue(bt.getState() == STATE_ON);
 	}
 
 	private void loadSettings() {
