@@ -149,15 +149,21 @@ abstract class TcpPlugin implements DuplexPlugin, EventListener {
 
 	protected void bind() {
 		bindExecutor.execute(() -> {
-			if (getState() != INACTIVE) return;
+			State s = getState();
+			if (s != ACTIVE && s != INACTIVE) return;
 			bind(true);
 			bind(false);
 		});
 	}
 
 	private void bind(boolean ipv4) {
+		ServerSocket old = state.getServerSocket(ipv4);
 		ServerSocket ss = null;
 		for (InetSocketAddress addr : getLocalSocketAddresses(ipv4)) {
+			if (old != null && addr.equals(old.getLocalSocketAddress())) {
+				LOG.info("Server socket already bound");
+				return;
+			}
 			try {
 				ss = new ServerSocket();
 				ss.bind(addr);

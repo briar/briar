@@ -277,11 +277,11 @@ class AndroidLanTcpPlugin extends LanTcpPlugin {
 				// make outgoing connections on API 21+ if another network
 				// has internet access
 				socketFactory = SocketFactory.getDefault();
-				if (s == INACTIVE) bind();
+				bind();
 			} else {
 				LOG.info("Connected to wifi");
 				socketFactory = getSocketFactory();
-				if (s == INACTIVE) bind();
+				bind();
 			}
 		});
 	}
