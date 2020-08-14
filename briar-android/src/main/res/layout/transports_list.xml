@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<org.briarproject.briar.android.widget.TouchInterceptingLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
+	android:background="?android:attr/selectableItemBackground"
 	android:orientation="vertical"
 	tools:showIn="@layout/navigation_menu">
 
@@ -12,7 +13,8 @@
 		android:id="@+id/transportsView"
 		android:layout_width="match_parent"
 		android:layout_height="wrap_content"
+		android:listSelector="@android:color/transparent"
 		android:numColumns="3"
 		tools:listitem="@layout/list_item_transport" />
 
-</LinearLayout>
+</org.briarproject.briar.android.widget.TouchInterceptingLinearLayout>

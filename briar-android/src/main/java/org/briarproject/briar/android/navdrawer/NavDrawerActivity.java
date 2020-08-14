@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.material.navigation.NavigationView;
@@ -147,7 +148,8 @@ public class NavDrawerActivity extends BriarActivity implements
 		drawerLayout = findViewById(R.id.drawer_layout);
 		navigation = findViewById(R.id.navigation);
 		GridView transportsView = findViewById(R.id.transportsView);
-		transportsView.setOnItemClickListener((parent, view, position, id) -> {
+		LinearLayout transportsLayout = findViewById(R.id.transports);
+		transportsLayout.setOnClickListener(v -> {
 			LOG.info("Starting transports activity");
 			startActivity(new Intent(this, TransportsActivity.class));
 		});
