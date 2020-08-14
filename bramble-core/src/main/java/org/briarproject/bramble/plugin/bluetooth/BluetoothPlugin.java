@@ -21,9 +21,6 @@ import org.briarproject.bramble.api.plugin.PluginException;
 import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.plugin.duplex.DuplexPlugin;
 import org.briarproject.bramble.api.plugin.duplex.DuplexTransportConnection;
-import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
-import org.briarproject.bramble.api.plugin.event.DisableBluetoothEvent;
-import org.briarproject.bramble.api.plugin.event.EnableBluetoothEvent;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.event.RemoteTransportPropertiesUpdatedEvent;
 import org.briarproject.bramble.api.rendezvous.KeyMaterialSource;
@@ -92,12 +89,6 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 	abstract void initialiseAdapter() throws IOException;
 
 	abstract boolean isAdapterEnabled();
-
-	abstract void enableAdapter();
-
-	abstract void disableAdapterIfEnabledByUs();
-
-	abstract void setEnabledByUs();
 
 	/**
 	 * Returns the local Bluetooth address, or null if no valid address can
@@ -189,10 +180,7 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 			throw new PluginException(e);
 		}
 		updateProperties();
-		if (enabledByUser) {
-			if (isAdapterEnabled()) bind();
-			else enableAdapter();
-		}
+		if (enabledByUser && isAdapterEnabled()) bind();
 	}
 
 	private void bind() {
@@ -319,7 +307,6 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 	public void stop() {
 		SS ss = state.setStopped();
 		tryToClose(ss);
-		disableAdapterIfEnabledByUs();
 	}
 
 	@Override
@@ -490,13 +477,7 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof EnableBluetoothEvent) {
-			ioExecutor.execute(this::enableAdapter);
-		} else if (e instanceof DisableBluetoothEvent) {
-			ioExecutor.execute(this::disableAdapterIfEnabledByUs);
-		} else if (e instanceof BluetoothEnabledEvent) {
-			setEnabledByUs();
-		} else if (e instanceof SettingsUpdatedEvent) {
+		if (e instanceof SettingsUpdatedEvent) {
 			SettingsUpdatedEvent s = (SettingsUpdatedEvent) e;
 			if (s.getNamespace().equals(ID.getString()))
 				ioExecutor.execute(() -> onSettingsUpdated(s.getSettings()));
@@ -522,11 +503,13 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 		if (ss != null) {
 			LOG.info("Disabled by user, closing server socket");
 			tryToClose(ss);
-			disableAdapterIfEnabledByUs();
 		} else if (s == INACTIVE) {
-			LOG.info("Enabled by user, opening server socket");
-			if (isAdapterEnabled()) bind();
-			else enableAdapter();
+			if (isAdapterEnabled()) {
+				LOG.info("Enabled by user, opening server socket");
+				bind();
+			} else {
+				LOG.info("Enabled by user but adapter is disabled");
+			}
 		}
 	}
 

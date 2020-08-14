@@ -18,7 +18,6 @@ import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.Plugin.State;
 import org.briarproject.bramble.api.plugin.PluginManager;
-import org.briarproject.bramble.api.plugin.event.BluetoothEnabledEvent;
 import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
@@ -117,13 +116,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	 * shown automatically before the continue button has been clicked.
 	 */
 	private boolean continueClicked = false;
-
-	/**
-	 * Records whether the Bluetooth adapter was already enabled before we
-	 * asked for Bluetooth discoverability, so we know whether to broadcast a
-	 * {@link BluetoothEnabledEvent}.
-	 */
-	private boolean wasAdapterEnabled = false;
 
 	/**
 	 * Records whether we've enabled the wifi plugin so we don't enable it more
@@ -274,7 +266,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 			if (i.resolveActivity(getPackageManager()) != null) {
 				LOG.info("Asking for Bluetooth discoverability");
 				bluetoothDecision = BluetoothDecision.WAITING;
-				wasAdapterEnabled = bt.isEnabled();
 				startActivityForResult(i, REQUEST_BLUETOOTH_DISCOVERABLE);
 			} else {
 				bluetoothDecision = BluetoothDecision.NO_ADAPTER;
@@ -320,11 +311,6 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 			} else {
 				LOG.info("Bluetooth discoverability was accepted");
 				bluetoothDecision = BluetoothDecision.ACCEPTED;
-				if (!wasAdapterEnabled) {
-					LOG.info("Bluetooth adapter was enabled by us");
-					eventBus.broadcast(new BluetoothEnabledEvent());
-					wasAdapterEnabled = true;
-				}
 			}
 			showQrCodeFragmentIfAllowed();
 		} else super.onActivityResult(request, result, data);
