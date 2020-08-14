@@ -232,6 +232,16 @@
 			android:title="Crash"
 			app:iconSpaceReserved="false"/>
 
+		<Preference
+			android:key="pref_key_export"
+			android:title="Export Account to SD Card"
+			app:iconSpaceReserved="false"/>
+
+		<Preference
+			android:key="pref_key_import"
+			android:title="Import Account from SD Card"
+			app:iconSpaceReserved="false"/>
+
 	</PreferenceCategory>
 
 </PreferenceScreen>

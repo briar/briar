@@ -32,6 +32,7 @@ import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.Localizer;
+import org.briarproject.briar.android.account.AccountUtils;
 import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.ArrayList;
@@ -251,9 +252,23 @@ public class SettingsFragment extends PreferenceFragmentCompat
 						throw new RuntimeException("Boom!");
 					}
 			);
+			findPreference("pref_key_export").setOnPreferenceClickListener(
+					preference -> {
+						AccountUtils.exportAccount(requireContext());
+						return true;
+					}
+			);
+			findPreference("pref_key_import").setOnPreferenceClickListener(
+					preference -> {
+						AccountUtils.importAccount(requireContext());
+						return true;
+					}
+			);
 		} else {
 			findPreference("pref_key_explode").setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
+			findPreference("pref_key_export").setVisible(false);
+			findPreference("pref_key_import").setVisible(false);
 			PreferenceGroup testing =
 					findPreference("pref_key_explode").getParent();
 			if (testing == null) throw new AssertionError();
