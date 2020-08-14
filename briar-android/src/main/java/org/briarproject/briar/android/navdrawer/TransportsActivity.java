@@ -157,6 +157,14 @@ public class TransportsActivity extends BriarActivity {
 								switchCompat.isChecked()));
 				switchCompat.setChecked(t.isSwitchChecked);
 
+				TextView summary = view.findViewById(R.id.summary);
+				if (t.summary == 0) {
+					summary.setVisibility(GONE);
+				} else {
+					summary.setText(t.summary);
+					summary.setVisibility(VISIBLE);
+				}
+
 				TextView deviceStatus = view.findViewById(R.id.deviceStatus);
 				deviceStatus.setText(getBulletString(t.deviceStatus));
 
@@ -170,19 +178,20 @@ public class TransportsActivity extends BriarActivity {
 
 		Transport tor = createTransport(TorConstants.ID,
 				R.drawable.transport_tor, R.string.transport_tor,
-				R.string.tor_enable_title, R.string.tor_device_status_offline,
+				R.string.tor_enable_title, R.string.tor_enable_summary,
+				R.string.tor_device_status_offline,
 				R.string.tor_plugin_status_inactive);
 		transports.add(tor);
 
 		Transport wifi = createTransport(LanTcpConstants.ID,
 				R.drawable.transport_lan, R.string.transport_lan_long,
-				R.string.wifi_setting, R.string.lan_device_status_off,
+				R.string.wifi_setting, 0, R.string.lan_device_status_off,
 				R.string.lan_plugin_status_inactive);
 		transports.add(wifi);
 
 		Transport bt = createTransport(BluetoothConstants.ID,
 				R.drawable.transport_bt, R.string.transport_bt,
-				R.string.bluetooth_setting, R.string.bt_device_status_off,
+				R.string.bluetooth_setting, 0, R.string.bt_device_status_off,
 				R.string.bt_plugin_status_inactive);
 		transports.add(bt);
 
@@ -294,11 +303,11 @@ public class TransportsActivity extends BriarActivity {
 
 	private Transport createTransport(TransportId id,
 			@DrawableRes int iconDrawable, @StringRes int title,
-			@StringRes int switchLabel, @StringRes int deviceStatus,
-			@StringRes int pluginStatus) {
+			@StringRes int switchLabel, @StringRes int summary,
+			@StringRes int deviceStatus, @StringRes int pluginStatus) {
 		int iconColor = getIconColor(STARTING_STOPPING);
 		Transport transport = new Transport(id, iconDrawable, iconColor, title,
-				switchLabel, false, deviceStatus, pluginStatus, false);
+				switchLabel, false, summary, deviceStatus, pluginStatus, false);
 		viewModel.getPluginState(id).observe(this, state -> {
 			transport.iconColor = getIconColor(state);
 			transport.pluginStatus = getPluginStatus(transport.id, state);
@@ -318,7 +327,7 @@ public class TransportsActivity extends BriarActivity {
 		@DrawableRes
 		private final int iconDrawable;
 		@StringRes
-		private final int title, switchLabel;
+		private final int title, switchLabel, summary;
 
 		@ColorRes
 		private int iconColor;
@@ -326,10 +335,15 @@ public class TransportsActivity extends BriarActivity {
 		private int deviceStatus, pluginStatus;
 		private boolean isSwitchChecked, showPluginStatus;
 
-		private Transport(TransportId id, @DrawableRes int iconDrawable,
-				@ColorRes int iconColor, @StringRes int title,
-				@StringRes int switchLabel, boolean isSwitchChecked,
-				@StringRes int deviceStatus, @StringRes int pluginStatus,
+		private Transport(TransportId id,
+				@DrawableRes int iconDrawable,
+				@ColorRes int iconColor,
+				@StringRes int title,
+				@StringRes int switchLabel,
+				boolean isSwitchChecked,
+				@StringRes int summary,
+				@StringRes int deviceStatus,
+				@StringRes int pluginStatus,
 				boolean showPluginStatus) {
 			this.id = id;
 			this.iconDrawable = iconDrawable;
@@ -337,6 +351,7 @@ public class TransportsActivity extends BriarActivity {
 			this.title = title;
 			this.switchLabel = switchLabel;
 			this.isSwitchChecked = isSwitchChecked;
+			this.summary = summary;
 			this.deviceStatus = deviceStatus;
 			this.pluginStatus = pluginStatus;
 			this.showPluginStatus = showPluginStatus;

@@ -15,7 +15,8 @@
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_marginBottom="8dp"
-			android:orientation="horizontal">
+			android:orientation="horizontal"
+			tools:ignore="UseCompoundDrawables">
 
 			<ImageView
 				android:id="@+id/icon"
@@ -31,8 +32,8 @@
 				android:id="@+id/title"
 				android:layout_width="wrap_content"
 				android:layout_height="wrap_content"
-				android:textAppearance="?android:attr/textAppearanceMedium"
 				android:textColor="?android:attr/textColorPrimary"
+				android:textSize="@dimen/text_size_large"
 				tools:text="@string/transport_tor" />
 
 		</LinearLayout>
@@ -41,13 +42,27 @@
 			android:id="@+id/switchCompat"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:layout_marginBottom="8dp"
+			android:textColor="?android:attr/textColorPrimary"
+			android:textSize="@dimen/text_size_medium"
+			android:widgetLayout="@layout/preference_switch_compat"
 			tools:checked="true"
 			tools:text="@string/tor_enable_title" />
 
 		<TextView
+			android:id="@+id/summary"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
+			android:layout_marginEnd="32dp"
+			android:layout_marginRight="32dp"
+			android:textColor="?android:attr/textColorSecondary"
+			android:visibility="gone"
+			tools:text="@string/tor_enable_summary"
+			tools:visibility="visible" />
+
+		<TextView
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginTop="8dp"
 			android:text="@string/status_heading"
 			android:textColor="?android:attr/textColorPrimary" />
 
