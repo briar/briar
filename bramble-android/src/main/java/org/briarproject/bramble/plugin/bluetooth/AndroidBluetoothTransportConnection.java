@@ -55,6 +55,7 @@ class AndroidBluetoothTransportConnection
 	protected void closeConnection(boolean exception) throws IOException {
 		try {
 			socket.close();
+			in.close();
 		} finally {
 			wakeLock.release();
 			connectionLimiter.connectionClosed(this);
