@@ -117,14 +117,24 @@ public class UnlockActivity extends BaseActivity {
 
 	@RequiresApi(api = 28)
 	private void requestFingerprintUnlock() {
-		BiometricPrompt biometricPrompt = new Builder(this)
-				.setTitle(getString(R.string.lock_unlock))
-				.setDescription(
-						getString(R.string.lock_unlock_fingerprint_description))
-				.setNegativeButton(getString(R.string.lock_unlock_password),
-						getMainExecutor(),
-						(dialog, which) -> requestKeyguardUnlock())
-				.build();
+		BiometricPrompt biometricPrompt;
+		if (SDK_INT >= 29) {
+			biometricPrompt = new Builder(this)
+					.setTitle(getString(R.string.lock_unlock))
+					.setDescription(getString(
+							R.string.lock_unlock_fingerprint_description))
+					.setDeviceCredentialAllowed(true)
+					.build();
+		} else {
+			biometricPrompt = new Builder(this)
+					.setTitle(getString(R.string.lock_unlock))
+					.setDescription(getString(
+							R.string.lock_unlock_fingerprint_description))
+					.setNegativeButton(getString(R.string.lock_unlock_password),
+							getMainExecutor(),
+							(dialog, which) -> requestKeyguardUnlock())
+					.build();
+		}
 		CancellationSignal signal = new CancellationSignal();
 		AuthenticationCallback callback = new AuthenticationCallback() {
 			@Override
