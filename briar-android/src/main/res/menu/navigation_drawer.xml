@@ -24,7 +24,7 @@
 	<group android:checkableBehavior="single">
 		<item
 			android:id="@+id/nav_btn_settings"
-			android:icon="@drawable/ic_settings_black_24dp"
+			android:icon="@drawable/ic_settings_black"
 			android:title="@string/settings_button"/>
 		<item
 			android:id="@+id/nav_btn_lock"
