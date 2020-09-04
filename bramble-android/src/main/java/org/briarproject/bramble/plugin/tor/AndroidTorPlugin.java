@@ -133,9 +133,7 @@ class AndroidTorPlugin extends TorPlugin {
 			}
 		} else if (SDK_INT < 29) {
 			// The binary wasn't extracted at install time. Try to extract it
-			if (!extracted.exists()) {
-				extractLibraryFromApk(TOR_LIB_NAME, extracted);
-			}
+			extractLibraryFromApk(TOR_LIB_NAME, extracted);
 		} else {
 			// No point extracting the binary, we won't be allowed to execute it
 			throw new FileNotFoundException(torLib.getAbsolutePath());
@@ -153,9 +151,7 @@ class AndroidTorPlugin extends TorPlugin {
 			}
 		} else if (SDK_INT < 29) {
 			// The binary wasn't extracted at install time. Try to extract it
-			if (!extracted.exists()) {
-				extractLibraryFromApk(OBFS4_LIB_NAME, extracted);
-			}
+			extractLibraryFromApk(OBFS4_LIB_NAME, extracted);
 		} else {
 			// No point extracting the binary, we won't be allowed to execute it
 			throw new FileNotFoundException(obfs4Lib.getAbsolutePath());
