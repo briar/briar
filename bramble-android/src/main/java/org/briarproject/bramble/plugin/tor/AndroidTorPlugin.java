@@ -43,6 +43,9 @@ class AndroidTorPlugin extends TorPlugin {
 	private static final List<String> LIBRARY_ARCHITECTURES =
 			asList("armeabi-v7a", "arm64-v8a", "x86", "x86_64");
 
+	private static final String TOR_LIB_NAME = "libtor.so";
+	private static final String OBFS4_LIB_NAME = "libobfs4proxy.so";
+
 	private static final Logger LOG =
 			getLogger(AndroidTorPlugin.class.getName());
 
@@ -76,8 +79,8 @@ class AndroidTorPlugin extends TorPlugin {
 		this.app = app;
 		wakeLock = wakeLockManager.createWakeLock("TorPlugin");
 		String nativeLibDir = app.getApplicationInfo().nativeLibraryDir;
-		torLib = new File(nativeLibDir, "libtor.so");
-		obfs4Lib = new File(nativeLibDir, "libobfs4proxy.so");
+		torLib = new File(nativeLibDir, TOR_LIB_NAME);
+		obfs4Lib = new File(nativeLibDir, OBFS4_LIB_NAME);
 	}
 
 	@Override
@@ -131,7 +134,7 @@ class AndroidTorPlugin extends TorPlugin {
 		} else if (SDK_INT < 29) {
 			// The binary wasn't extracted at install time. Try to extract it
 			if (!extracted.exists()) {
-				extractLibraryFromApk("libtor.so", extracted);
+				extractLibraryFromApk(TOR_LIB_NAME, extracted);
 			}
 		} else {
 			// No point extracting the binary, we won't be allowed to execute it
@@ -151,7 +154,7 @@ class AndroidTorPlugin extends TorPlugin {
 		} else if (SDK_INT < 29) {
 			// The binary wasn't extracted at install time. Try to extract it
 			if (!extracted.exists()) {
-				extractLibraryFromApk("libobfs4proxy.so", extracted);
+				extractLibraryFromApk(OBFS4_LIB_NAME, extracted);
 			}
 		} else {
 			// No point extracting the binary, we won't be allowed to execute it
