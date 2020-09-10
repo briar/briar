@@ -83,8 +83,6 @@ public class FeedManagerIntegrationTest extends BriarTestCase {
 		assertEquals(url, feed.getUrl());
 		assertEquals(feedBlog, feed.getBlog());
 		assertEquals("Schneier on Security", feed.getTitle());
-		assertEquals("A blog covering security and security technology.",
-				feed.getDescription());
 		assertEquals(feed.getTitle(), feed.getBlog().getName());
 		assertEquals(feed.getTitle(), feed.getLocalAuthor().getName());
 
