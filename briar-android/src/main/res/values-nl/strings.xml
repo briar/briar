@@ -61,10 +61,12 @@
   <string name="lock_button">App vergrendelen</string>
   <string name="settings_button">Instellingen</string>
   <string name="sign_out_button">Log uit</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wifi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Uitgelogd van Briar</string>
   <string name="reminder_notification_text">Tik om opnieuw in te loggen.</string>
@@ -111,6 +113,7 @@
   <string name="help">Help</string>
   <string name="sorry">Excuses</string>
   <string name="error_start_activity">Onbeschikbaar op jouw systeem</string>
+  <string name="status_heading">Status:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Er zijn geen contacten om te tonen</string>
   <string name="no_contacts_action">Tik op het +-icoon om een contact toe te voegen</string>
@@ -410,10 +413,19 @@
   <string name="pref_theme_system">Systeemstandaard</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Verbindingen</string>
+  <string name="bluetooth_setting">Verbind met contacten via bluetooth</string>
+  <string name="wifi_setting">Verbind met contacten over hetzelfde wifinetwerk</string>
+  <string name="tor_enable_title">Verbind met contactenover het internet</string>
+  <string name="tor_enable_summary">Alle verbindingen gaan door het Tornetwerk voor privacy</string>
+  <string name="tor_network_setting">Verbindingsmethose voor Tornetwerk</string>
   <string name="tor_network_setting_automatic">Automatisch gebaseerd op locatie</string>
+  <string name="tor_network_setting_without_bridges">Gebruikt Tornetwerk zonder bridges</string>
+  <string name="tor_network_setting_with_bridges">Gebruik Tornetwerk met bridges</string>
+  <string name="tor_network_setting_never">Verbind niet met het internet</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatisch: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Gebruik mobiele data</string>
+  <string name="tor_only_when_charging_title">Verbind alleen met het internet tijdens opladen</string>
   <string name="tor_only_when_charging_summary">Schakel internetverbinding uit als apparaat op batterij loopt</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Beveiliging</string>
@@ -510,9 +522,9 @@
   <string name="permission_camera_title">Cameratoestemming</string>
   <string name="permission_camera_request_body">Om de QR-code te scannen moet Briar toegang hebben tot de camera.</string>
   <string name="permission_location_title">Toegang tot locatie</string>
-  <string name="permission_location_request_body">Om Bluetooth-apparaten te ontdekken heeft Briar toestemming nodig tot je locatie.\n\nBriar slaat je locatie niet op en deelt het met niemand.</string>
+  <string name="permission_location_request_body">Om bluetoothapparaten te ontdekken heeft Briar toestemming nodig tot je locatie.\n\nBriar slaat je locatie niet op en deelt het met niemand.</string>
   <string name="permission_camera_location_title">Camera en locatie</string>
-  <string name="permission_camera_location_request_body">Om de QR-code in te scannen heeft Briar toegang nodig tot de camera.\n\nOm Bluetooth-apparaten te ontdekken heeft Briar toestemming nodig tot je locatie.\n\nBriar slaat je locatie niet op en deelt het met niemand.</string>
+  <string name="permission_camera_location_request_body">Om de QR-code in te scannen heeft Briar toegang nodig tot de camera.\n\nOm bluetoothapparaten te ontdekken heeft Briar toestemming nodig tot je locatie.\n\nBriar slaat je locatie niet op en deelt het met niemand.</string>
   <string name="permission_camera_denied_body">Je hebt toegang tot de camera niet vrijgegeven, terwijl het toevoegen van contacten de camera nodig heeft.\n\nOverweeg alsjeblieft toegang vrij te geven.</string>
   <string name="qr_code">QR-code</string>
   <string name="show_qr_code_fullscreen">Toon QR-code op volledig scherm</string>
@@ -523,6 +535,7 @@
   <string name="lock_unlock_password">Gebruik Wachtwoord</string>
   <string name="lock_is_locked">Briar is vergrendeld</string>
   <string name="lock_tap_to_unlock">Tik om te ontgrendelen</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Veerle</string>

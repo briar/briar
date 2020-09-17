@@ -60,10 +60,12 @@
   <string name="lock_button">锁定应用</string>
   <string name="settings_button">设置</string>
   <string name="sign_out_button">登出</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">互联网</string>
-  <string name="transport_bt">蓝牙</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">无线局域网</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">蓝牙</string>
   <!--Notifications-->
   <string name="reminder_notification_title">已登出 Briar</string>
   <string name="reminder_notification_text">轻按以重新登录。</string>
@@ -399,7 +401,16 @@
   <string name="pref_theme_auto">自动（白天）</string>
   <string name="pref_theme_system">系统默认</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">连接</string>
+  <string name="bluetooth_setting">通过蓝牙连接联系人</string>
+  <string name="wifi_setting">通过同一Wi-Fi和联系人连接</string>
+  <string name="tor_enable_title">通过互联网和联系人连接</string>
+  <string name="tor_enable_summary">为了保护隐私，所有连接都通过Tor网络</string>
+  <string name="tor_network_setting">Tor网络连接方式</string>
   <string name="tor_network_setting_automatic">基于位置自动选择</string>
+  <string name="tor_network_setting_without_bridges">不通过网桥连接到 Tor</string>
+  <string name="tor_network_setting_with_bridges">通过网桥连接到 Tor</string>
+  <string name="tor_network_setting_never">不连接到互联网</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">自动选择：%1$s（在 %2$s）</string>
   <string name="tor_mobile_data_title">使用移动数据</string>
@@ -512,6 +523,7 @@
   <string name="lock_unlock_password">使用密码</string>
   <string name="lock_is_locked">Briar 已锁定</string>
   <string name="lock_tap_to_unlock">轻按以解锁</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">韩梅梅</string>

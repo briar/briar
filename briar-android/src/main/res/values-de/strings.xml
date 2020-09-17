@@ -61,10 +61,36 @@
   <string name="lock_button">App sperren</string>
   <string name="settings_button">Einstellungen</string>
   <string name="sign_out_button">Abmelden</string>
-  <!--Transports-->
+  <string name="transports_onboarding_text">Hier tippen, um die Verbindung zu deinen Kontakten zu steuern.</string>
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <string name="tor_device_status_online_wifi">Dein Telefon hat Internetzugang über WLAN</string>
+  <string name="tor_device_status_online_mobile">Dein Telefon hat Internetzugang über mobile Daten</string>
+  <string name="tor_device_status_offline">Dein Telefon hat keinen Internetzugang</string>
+  <string name="tor_plugin_status_enabling">Briar verbindet sich mit dem Internet</string>
+  <string name="tor_plugin_status_active">Briar ist mit dem Internet verbunden</string>
+  <string name="tor_plugin_status_inactive">Briar kann keine Verbindung zum Internet herstellen</string>
+  <string name="tor_plugin_status_disabled">Briar ist so konfiguriert, dass keine Internetverbindung verwendet werden soll</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar ist so konfiguriert, dass keine mobilen Daten verwendet werden sollen</string>
+  <string name="tor_plugin_status_disabled_battery">Briar ist so konfiguriert, dass im Akkubetrieb das Internet nicht genutzt werden soll</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar ist so konfiguriert, dass keine Internetverbindung in diesem Land verwendet werden soll</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">WLAN</string>
+  <string name="transport_lan_long">Selbes WLAN-Netzwerk</string>
+  <string name="lan_device_status_on">Dein Telefon ist über WLAN verbunden</string>
+  <string name="lan_device_status_off">Dein Telefon ist nicht über WLAN verbunden</string>
+  <string name="lan_plugin_status_enabling">Briar verbindet sich mit dem WLAN-Netzwerk</string>
+  <string name="lan_plugin_status_active">Briar ist mit dem WLAN-Netzwerk verbunden</string>
+  <string name="lan_plugin_status_inactive">Briar kann keine Verbindung zum WLAN-Netzwerk herstellen</string>
+  <string name="lan_plugin_status_disabled">Briar ist so konfiguriert, dass kein WLAN-Netzwerk verwendet werden soll</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Die Bluetooth-Funktion deines Telefons ist eingeschaltet</string>
+  <string name="bt_device_status_off">Die Bluetooth-Funktion deines Telefons ist ausgeschaltet</string>
+  <string name="bt_plugin_status_enabling">Briar verbindet sich über Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar ist über Bluetooth verbunden</string>
+  <string name="bt_plugin_status_inactive">Briar kann keine Verbindung über Bluetooth herstellen</string>
+  <string name="bt_plugin_status_disabled">Briar ist so konfiguriert, dass Bluetooth nicht verwendet werden soll</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Von Briar abgemeldet</string>
   <string name="reminder_notification_text">Tippe, um dich wieder anzumelden.</string>
@@ -111,6 +137,7 @@
   <string name="help">Hilfe</string>
   <string name="sorry">Entschuldigung</string>
   <string name="error_start_activity">Nicht Verfügbar für dein System</string>
+  <string name="status_heading">Status:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Keine Kontakte vorhanden</string>
   <string name="no_contacts_action">Tippe auf das + Symbol, um einen Kontakt hinzuzufügen</string>
@@ -127,7 +154,7 @@
   <string name="set_alias_button">Ändern</string>
   <string name="delete_all_messages">Alle Nachrichten löschen</string>
   <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
-  <string name="dialog_message_delete_all_messages">Bist Du sicher, dass Du alle Nachrichten löschen willst?</string>
+  <string name="dialog_message_delete_all_messages">Bist du sicher, dass du alle Nachrichten löschen willst?</string>
   <string name="dialog_title_not_all_messages_deleted">Es konnten nicht alle Nachrichten gelöscht werden</string>
   <string name="dialog_message_not_deleted_ongoing_both">Nachrichten, die sich auf laufende Einladungen und Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Nachrichten, die sich auf laufende Kontaktempfehlungen beziehen, können nicht gelöscht werden, bis sie abgeschlossen sind.</string>
@@ -168,7 +195,7 @@
   <string name="connecting_to_device">Verbinde mit Gerät\u2026</string>
   <string name="authenticating_with_device">Authentifiziere Gerät\u2026</string>
   <string name="connection_error_title">Keine Verbindung zum Kontakt</string>
-  <string name="connection_error_explanation">Überprüfe, ob ihr beide mit dem selben WLAN-Netzwerk verbunden seid.</string>
+  <string name="connection_error_explanation">Überprüfe, ob ihr beide mit demselben WLAN-Netzwerk verbunden seid.</string>
   <string name="connection_error_feedback">Wenn das Problem weiterbesteht, hilf uns die App zu verbessern und <a href="feedback">schicke Feedback</a>.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Kontakt aus der Ferne hinzufügen</string>
@@ -225,7 +252,7 @@
 	will be used in a dialog button, so if the translation of this string longer than 20 characters,
 	please use "No" instead, and use "Yes" for the "Same Person" button-->
   <string name="different_person_button">Andere Person</string>
-  <string name="duplicate_link_dialog_text_3">%s und %s haben Dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass Du diesen Link auch von jemand anderem erhalten hast.</string>
+  <string name="duplicate_link_dialog_text_3">%s und %s haben Dir denselben Link geschickt.\n\nMöglicherweise versucht einer der beiden mehr über deine Kontakte zu erfahren.\n\nDu solltest deswegen niemandem sagen, dass du diesen Link auch von jemand anderem erhalten hast.</string>
   <string name="pending_contact_updated_toast">Ausstehender Kontakt aktualisiert</string>
   <!--Introductions-->
   <string name="introduction_onboarding_title">Mache deine Kontakte untereinander bekannt</string>
@@ -410,10 +437,19 @@
   <string name="pref_theme_system">Systemstandard</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Verbindungen</string>
+  <string name="bluetooth_setting">Verbindung zu den Kontakten über Bluetooth</string>
+  <string name="wifi_setting">Verbindung zu den Kontakten über dasselbe WLAN-Netzwerk</string>
+  <string name="tor_enable_title">Verbindung zu den Kontakten über das Internet</string>
+  <string name="tor_enable_summary">Alle Verbindungen laufen über das Tor-Netzwerk, um den Datenschutz zu gewährleisten</string>
+  <string name="tor_network_setting">Verbindungsmethode mit dem Tor-Netzwerk</string>
   <string name="tor_network_setting_automatic">Automatisch (standortbasiert)</string>
+  <string name="tor_network_setting_without_bridges">Tor-Netzwerk ohne Bridges nutzen</string>
+  <string name="tor_network_setting_with_bridges">Tor-Netzwerk mit Bridges nutzen</string>
+  <string name="tor_network_setting_never">Keine Verbindung zum Internet herstellen</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatisch: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Mobile Daten benutzen</string>
+  <string name="tor_only_when_charging_title">Verbindung zum Internet nur während des Ladevorgangs</string>
   <string name="tor_only_when_charging_summary">Deaktiviert die Internetverbindung, wenn das Gerät mit Akku betrieben wird</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicherheit</string>
@@ -523,6 +559,8 @@
   <string name="lock_unlock_password">Passwort benutzen</string>
   <string name="lock_is_locked">Briar ist gesperrt</string>
   <string name="lock_tap_to_unlock">Zum Entsperren antippen</string>
+  <!--Connections Screen-->
+  <string name="transports_help_text">Briar kann sich über das Internet, WLAN oder Bluetooth mit deinen Kontakten verbinden.\n\nAlle Internetverbindungen laufen über das Tor-Netzwerk, um den Datenschutz zu gewährleisten.\n\nWenn ein Kontakt auf mehreren Wegen erreichbar ist, nutzt Briar diese parallel.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

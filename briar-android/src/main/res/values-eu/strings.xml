@@ -61,10 +61,12 @@
   <string name="lock_button">Blokeatu aplikazioa</string>
   <string name="settings_button">Ezarpenak</string>
   <string name="sign_out_button">Amaitu saioa</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briar saioa amaituta</string>
   <string name="reminder_notification_text">Sakatu saioa berriro hasteko.</string>
@@ -111,6 +113,7 @@
   <string name="help">Laguntza</string>
   <string name="sorry">Sentitzen dugu</string>
   <string name="error_start_activity">Ez dago eskuragarri zure sistemarako</string>
+  <string name="status_heading">Egoera:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Ez dago erakusteko kontakturik</string>
   <string name="no_contacts_action">Sakatu + ikonoa kontaktua gehitzeko</string>
@@ -522,6 +525,7 @@
   <string name="lock_unlock_password">Erabili pasahitza</string>
   <string name="lock_is_locked">Briar blokeatuta dago</string>
   <string name="lock_tap_to_unlock">Sakatu desblokeatzeko</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Arantza</string>

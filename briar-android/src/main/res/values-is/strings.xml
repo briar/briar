@@ -61,10 +61,26 @@
   <string name="lock_button">Læsa forriti</string>
   <string name="settings_button">Stillingar</string>
   <string name="sign_out_button">Skrá út</string>
-  <!--Transports-->
+  <string name="transports_onboarding_text">Ýttu hér til að stýra hvernig Briar tengist tengiliðunum þínum.</string>
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <string name="tor_device_status_online_wifi">Síminn þinn er með aðgang að internetinu í gegnum Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Síminn þinn er með aðgang að internetinu í gegnum farsímagögn</string>
+  <string name="tor_device_status_offline">Síminn þinn er ekki með aðgang að internetinu</string>
+  <string name="tor_plugin_status_enabling">Briar er að tengjast við internetið</string>
+  <string name="tor_plugin_status_active">Briar er tengt við internetið</string>
+  <string name="tor_plugin_status_inactive">Briar getur ekki tengst við internetið</string>
+  <string name="tor_plugin_status_disabled">Briar er sett upp til að nota ekki internetið</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar er sett upp til að nota ekki farsímagögn</string>
+  <string name="tor_plugin_status_disabled_battery">Briar er sett upp til að nota ekki internetið þegar keyrt er á rafhlöðu</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar er sett upp til að nota ekki internetið í þessu landi</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Þráðlaust Wi-Fi net</string>
+  <string name="transport_lan_long">Sama þráðlausa Wi-Fi netkerfið</string>
+  <string name="lan_device_status_on">Síminn þinn er tengdur við Wi-Fi</string>
+  <string name="lan_device_status_off">Síminn þinn er ekki tengdur við Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Skráð út úr Briar</string>
   <string name="reminder_notification_text">Ýttu til að skrá þig aftur inn.</string>
@@ -111,6 +127,7 @@
   <string name="help">Hjálp</string>
   <string name="sorry">Því miður</string>
   <string name="error_start_activity">Er ekki tiltækt fyrir kerfið þitt</string>
+  <string name="status_heading">Staða</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Engir tengiliðir til að birta</string>
   <string name="no_contacts_action">Ýttu á + táknið til að bæta við tengilið</string>
@@ -522,6 +539,7 @@
   <string name="lock_unlock_password">Nota lykilorð</string>
   <string name="lock_is_locked">Briar er læst</string>
   <string name="lock_tap_to_unlock">Ýttu til að aflæsa</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Lísa</string>

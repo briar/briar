@@ -67,10 +67,12 @@
   <string name="lock_button">قفل کردن برنامه</string>
   <string name="settings_button">تنظیمات</string>
   <string name="sign_out_button">خروج</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">اینترنت</string>
-  <string name="transport_bt">بلوتوث</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">وای فای</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">بلوتوث</string>
   <!--Notifications-->
   <string name="reminder_notification_title">از Briar (برایر) خارج شد</string>
   <string name="reminder_notification_text">برای وارد شدن دوباره ضربه بزنید.</string>
@@ -117,6 +119,7 @@
   <string name="help">راهنما</string>
   <string name="sorry">پوزش</string>
   <string name="error_start_activity">برای سیستم شما موجود نمی باشد</string>
+  <string name="status_heading">وضعیت:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">هیچ مخاطبی برای نمایش وجود ندارد</string>
   <string name="no_contacts_action">برای افزودن مخاطب روی + کلیک کنید</string>
@@ -449,10 +452,20 @@
   <string name="pref_theme_auto">خودکار ( روز)</string>
   <string name="pref_theme_system">پیش فرض سیستم</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">اتصالات</string>
+  <string name="bluetooth_setting">اتصال به مخاطبان از طریق بلوتوث</string>
+  <string name="wifi_setting">اتصال به مخاطبان روی یک شبکه وای‌-فای یکسان</string>
+  <string name="tor_enable_title">اتصال به مخاطبان از طریق اینترنت</string>
+  <string name="tor_enable_summary">تمام اتصال ها برای حفظ حریم خصوصی از شبکه تور عبور می‌کنند</string>
+  <string name="tor_network_setting">روش اتصال برای شبکه تور</string>
   <string name="tor_network_setting_automatic">خودکار مبتنی بر موقعیت</string>
+  <string name="tor_network_setting_without_bridges">استفاده از شبکه تور بدون پل</string>
+  <string name="tor_network_setting_with_bridges">استفاده از شبکه تور با پل</string>
+  <string name="tor_network_setting_never">به اینترنت وصل نشو</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">خودکار: %1$s(در %2$s)</string>
   <string name="tor_mobile_data_title">استفاده از داده موبایل</string>
+  <string name="tor_only_when_charging_title">اتصال به اینترنت تنها در هنگام شارژ شدن</string>
   <string name="tor_only_when_charging_summary">ارتباط اینترنت را هنگامی که دستگاه در حال استفاده از باتری خود می باشد را غیرفعال می کند</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">امنیت</string>
@@ -574,6 +587,7 @@ Briar (برایر) موقعیت شما را ذخیره نمی‌کند و آن �
   <string name="lock_unlock_password">استفاده از گذرواژه</string>
   <string name="lock_is_locked">Briar (برایر) قفل می باشد</string>
   <string name="lock_tap_to_unlock">برای آنلاک کردن کلیک کنید</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">آلیس</string>

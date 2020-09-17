@@ -63,10 +63,12 @@ Volètz suprimir vòstre compte e ne crear un nòu ?\n
   <string name="lock_button">Verrolhar l’aplicacion</string>
   <string name="settings_button">Paramètres</string>
   <string name="sign_out_button">Se desconnectar</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wifi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Desconnectat de Briar</string>
   <string name="reminder_notification_text">Tocatz per vos desconnectar</string>
@@ -526,6 +528,7 @@ parteja pas amb degun.</string>
   <string name="lock_unlock_password">Utilizar lo senhal</string>
   <string name="lock_is_locked">Briar es verrolhat</string>
   <string name="lock_tap_to_unlock">Tocatz per desverrolhar</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alicia</string>

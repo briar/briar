@@ -61,10 +61,12 @@
   <string name="lock_button">Bloquear App</string>
   <string name="settings_button">Axustes</string>
   <string name="sign_out_button">Finalizar sesión</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Desconectou de Briar</string>
   <string name="reminder_notification_text">Toque para voltar a conectar</string>
@@ -111,6 +113,7 @@
   <string name="help">Axuda</string>
   <string name="sorry">Desculpe</string>
   <string name="error_start_activity">Non dispoñible para o teu sistema</string>
+  <string name="status_heading">Estado</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sen contactos para amosar</string>
   <string name="no_contacts_action">Toque a icona + para engadir un contacto</string>
@@ -409,10 +412,20 @@
   <string name="pref_theme_auto">Automático (no día)</string>
   <string name="pref_theme_system">Por omisión do sistema</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">Conexións</string>
+  <string name="bluetooth_setting">Conectar cos contactos vía Bluetooth</string>
+  <string name="wifi_setting">Conectar cos contactos na mesma rede Wi-Fi</string>
+  <string name="tor_enable_title">Conectar cos contactos a través de internet</string>
+  <string name="tor_enable_summary">Todas as conexións a través da rede Tor para ter privacidade</string>
+  <string name="tor_network_setting">Método de conexión á rede Tor</string>
   <string name="tor_network_setting_automatic">Automática baseada na localización</string>
+  <string name="tor_network_setting_without_bridges">Usar rede Tor sen pontes</string>
+  <string name="tor_network_setting_with_bridges">Usar rede Tor con pontes</string>
+  <string name="tor_network_setting_never">Non conectar a internet</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automático: %1$s (en %2$s)</string>
   <string name="tor_mobile_data_title">Utilizar datos móbiles</string>
+  <string name="tor_only_when_charging_title">Conectar a internet só cando carga batería</string>
   <string name="tor_only_when_charging_summary">Desactiva a conexión a internet cando o dispositivo utiliza a batería</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguridade</string>
@@ -522,6 +535,7 @@
   <string name="lock_unlock_password">Utilizar contrasinal</string>
   <string name="lock_is_locked">Briar está bloqueada</string>
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

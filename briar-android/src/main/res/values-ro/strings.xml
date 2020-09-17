@@ -2,7 +2,7 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Bine ați venit la Briar</string>
-  <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimiteți. Nu îl veți putea schimba după crearea contului.</string>
+  <string name="setup_name_explanation">Numele dumneavoastră va fi afișat lângă orice conținut trimis. Nu îl veți putea schimba după crearea contului.</string>
   <string name="setup_next">Următorul</string>
   <string name="setup_password_intro">Alegeți o parolă</string>
   <string name="setup_password_explanation">Contul dvs. Briar este stocat criptat pe dispozitiv, nu în cloud. Dacă vă uitați parola sau ștergeți Briar, nu veți putea să vă recuperați contul.\n\nAlegeți o parolă lungă greu de ghicit, de exemplu, patru cuvinte aleatorii sau zece litere, numere și simboluri aleatoare.</string>
@@ -21,7 +21,7 @@
   <string name="don_t_ask_again">Nu mai întreba din nou</string>
   <string name="setup_huawei_text">Vă rugăm să apăsați butonul de mai jos și să vă asigurați că Briar este marcat ca protejat în fereastra de \"Aplicații protejate\".</string>
   <string name="setup_huawei_button">Protejează Briar</string>
-  <string name="setup_huawei_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu v-a fi capabil să ruleze în fundal.</string>
+  <string name="setup_huawei_help">Dacă Briar nu este adăugat în lista de aplicații protejate, nu va fi capabil să ruleze în fundal.</string>
   <string name="warning_dozed">%s nu poate rula în fundal</string>
   <!--Login-->
   <string name="enter_password">Parola</string>
@@ -32,8 +32,8 @@
   <string name="forgotten_password">Am uitat parola</string>
   <string name="dialog_title_lost_password">Parolă uitată</string>
   <string name="dialog_message_lost_password">Contul dvs. Briar este stocat criptat pe dispozitiv, nu în cloud. Dacă vă uitați parola sau ștergeți Briar, nu veți putea să vă recuperați contul. Doriți să vă ștergeți contul și să începeți din nou?\n\nAtenție: identitățile, contactele și mesajele dvs. vor fi pierdute definitiv.</string>
-  <string name="startup_failed_notification_title">Briar nu a putut pornii</string>
-  <string name="startup_failed_notification_text">Atingeți pentru informații suplimentare</string>
+  <string name="startup_failed_notification_title">Briar nu a putut fi pornit</string>
+  <string name="startup_failed_notification_text">Atingeți pentru informații suplimentare.</string>
   <string name="startup_failed_activity_title">Eroare de pornire Briar</string>
   <string name="startup_failed_db_error">Din anumite motive, baza dvs. de date Briar este deteriorată fără vreo posibilitate de a o recupera. Contul dvs., datele dvs. și toate persoanele de contact sunt pierdute. Din nefericire, trebuie să reinstalați Briar sau să creați un nou cont, selectând \"Am uitat parola\" la promptul de parolă.</string>
   <string name="startup_failed_data_too_old_error">Contul dvs. a fost creat cu o versiune veche a acestei aplicații și nu poate fi deschis cu această versiune. Trebuie fie să reinstalați versiunea veche, fie să configurați un nou cont, selectând \"Am uitat parola\" la solicitarea de a introduce parola.</string>
@@ -42,7 +42,7 @@
   <plurals name="expiry_warning">
     <item quantity="one">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zi și nu se poate reînnoi</item>
     <item quantity="few">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu se poate reînnoi.</item>
-    <item quantity="other">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d de zile și nu se poate reînnoi.</item>
+    <item quantity="other">Aceasta este o versiune de test pentru Briar. Contul dumneavoastră va expira în %d zile și nu poate fi reînnoit.</item>
   </plurals>
   <string name="expiry_date_reached">Acest program a expirat.\nVă mulțumim că l-ați testat!</string>
   <string name="download_briar">Pentru a putea să utilizați Briar în continuare, vă rugăm să descărcați ultima versiune.</string>
@@ -62,10 +62,36 @@
   <string name="lock_button">Blochează aplicația</string>
   <string name="settings_button">Setări</string>
   <string name="sign_out_button">Ieșire</string>
-  <!--Transports-->
+  <string name="transports_onboarding_text">Atingeți aici pentru a controla modul în care Briar se conectează la contacte</string>
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <string name="tor_device_status_online_wifi">Telefonul are acces la internet prin Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Telefonul are acces la internet prin date mobile</string>
+  <string name="tor_device_status_offline">Telefonul nu are acces la internet</string>
+  <string name="tor_plugin_status_enabling">Briar se conectează la internet</string>
+  <string name="tor_plugin_status_active">Briar este conectat la internet</string>
+  <string name="tor_plugin_status_inactive">Briar nu se poate conecta la internet</string>
+  <string name="tor_plugin_status_disabled">Briar este configurat să nu se conecteze la internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar este configurat să nu folosească date mobile</string>
+  <string name="tor_plugin_status_disabled_battery">Briar este configurat să nu folosească internetul când utilizează bateria</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar este configurat să nu folosească internetul în această țară</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Aceeași rețea Wi-Fi</string>
+  <string name="lan_device_status_on">Telefonul este conectat la Wi-Fi</string>
+  <string name="lan_device_status_off">Telefonul nu este conectat la Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar se conectează la rețeaua Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar este conectat la rețeaua Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar nu se poate conecta la rețeaua Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar este configurat să nu folosească rețeaua Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Telefonul are Bluetooth pornit</string>
+  <string name="bt_device_status_off">Telefonul nu are Bluetooth pornit</string>
+  <string name="bt_plugin_status_enabling">Briar se conectează la Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar este conectat la Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar nu se poate conecta la Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar este configurat să nu folosească Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Ieșire din Briar</string>
   <string name="reminder_notification_text">Atingeți pentru autentificare.</string>
@@ -76,28 +102,28 @@
   <plurals name="private_message_notification_text">
     <item quantity="one">Mesaj privat nou.</item>
     <item quantity="few">%d mesaje private noi.</item>
-    <item quantity="other">%d de mesaje private noi.</item>
+    <item quantity="other">%d mesaje private noi.</item>
   </plurals>
   <plurals name="group_message_notification_text">
     <item quantity="one">Mesaj nou de grup.</item>
     <item quantity="few">%d mesaje de grup noi.</item>
-    <item quantity="other">%d de mesaje de grup noi.</item>
+    <item quantity="other">%d mesaje de grup noi.</item>
   </plurals>
   <plurals name="forum_post_notification_text">
     <item quantity="one">Un nou mesaj pe forum.</item>
     <item quantity="few">%d mesaje noi pe forum.</item>
-    <item quantity="other">%d de mesaje noi pe forum.</item>
+    <item quantity="other">%d mesaje noi pe forum.</item>
   </plurals>
   <plurals name="blog_post_notification_text">
     <item quantity="one">Un nou mesaj pe blog.</item>
     <item quantity="few">%d mesaje noi pe blog.</item>
-    <item quantity="other">%d de mesaje noi pe blog.</item>
+    <item quantity="other">%d mesaje noi pe blog.</item>
   </plurals>
   <!--Misc-->
   <string name="now">acum</string>
   <string name="show">Arată</string>
   <string name="hide">Ascunde</string>
-  <string name="ok">Bine</string>
+  <string name="ok">OK</string>
   <string name="cancel">Anulează</string>
   <string name="got_it">Am înțeles</string>
   <string name="delete">Șterge</string>
@@ -111,16 +137,17 @@
   <string name="no_data">Fără date</string>
   <string name="ellipsis">…</string>
   <string name="text_too_long">Textul introdus este prea lung</string>
-  <string name="show_onboarding">Arata fereastra de ajutor</string>
+  <string name="show_onboarding">Arată fereastra de ajutor</string>
   <string name="fix">Rezolvă</string>
   <string name="help">Ajutor</string>
   <string name="sorry">Ne pare rău</string>
   <string name="error_start_activity">Indisponibil pentru sistemul dumneavoastră</string>
+  <string name="status_heading">Status:</string>
   <!--Contacts and Private Conversations-->
-  <string name="no_contacts">Nici un contact de arătat</string>
+  <string name="no_contacts">Niciun contact de arătat</string>
   <string name="no_contacts_action">Atingeți iconița + pentru a adăuga un contact</string>
   <string name="date_no_private_messages">Fără mesaje.</string>
-  <string name="no_private_messages">Nici un mesaj de arătat</string>
+  <string name="no_private_messages">Niciun mesaj de arătat</string>
   <string name="message_hint">Scrieți mesajul</string>
   <string name="image_caption_hint">Adaugă un subtitlu (opțional)</string>
   <string name="image_attach">Atașează imagine</string>
@@ -542,6 +569,8 @@
   <string name="lock_unlock_password">Folosește parola</string>
   <string name="lock_is_locked">Briar este blocat</string>
   <string name="lock_tap_to_unlock">Atingeți pentru a debloca</string>
+  <!--Connections Screen-->
+  <string name="transports_help_text">Briar se poate conecta la contactele dumneavoastră prin internet, Wi-Fi sau Bluetooth.\n\nToate conexiunile la internet trec prin rețeaua Tor din motive de confidențialitate.\n\nDacă un contact poate fi accesat prin metode multiple, Briar le va folosi în mod paralel.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

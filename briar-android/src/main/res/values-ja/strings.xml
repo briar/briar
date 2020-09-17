@@ -56,10 +56,12 @@
   <string name="lock_button">アプリをロック</string>
   <string name="settings_button">設定</string>
   <string name="sign_out_button">サインアウト</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">インターネット</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briarからサインアウト</string>
   <string name="reminder_notification_text">タップして再ログインします。</string>
@@ -101,6 +103,7 @@
   <string name="fix">修復する</string>
   <string name="help">ヘルプ</string>
   <string name="sorry">すみません</string>
+  <string name="status_heading">状態</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">表示する連絡先がありません</string>
   <string name="no_contacts_action">「＋」アイコンをタップして連絡先を追加</string>
@@ -495,6 +498,7 @@
   <string name="lock_unlock_password">パスワードを使用</string>
   <string name="lock_is_locked">Briarはロックされています</string>
   <string name="lock_tap_to_unlock">タップしてロック解除</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">アリス</string>

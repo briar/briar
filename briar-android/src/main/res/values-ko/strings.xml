@@ -56,10 +56,12 @@
   <string name="lock_button">앱 잠그기</string>
   <string name="settings_button">설정</string>
   <string name="sign_out_button">로그아웃</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">인터넷</string>
-  <string name="transport_bt">블루투스</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">블루투스</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briar에서 로그아웃 됨</string>
   <string name="reminder_notification_text">눌러서 다시 로그인하세요.</string>
@@ -101,6 +103,7 @@
   <string name="fix">고치기</string>
   <string name="help">도움</string>
   <string name="sorry">죄송합니다</string>
+  <string name="status_heading">상태</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">저장된 연락처가 없습니다</string>
   <string name="no_contacts_action">+ 상징을 눌러서 연락처를 추가하세요</string>
@@ -494,6 +497,7 @@
   <string name="lock_unlock_password">비밀번호 사용하기</string>
   <string name="lock_is_locked">Briar가 잠겼습니다</string>
   <string name="lock_tap_to_unlock">눌러 잠금해제</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">영희</string>

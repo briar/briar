@@ -61,10 +61,36 @@
   <string name="lock_button">Blocca app</string>
   <string name="settings_button">Impostazioni</string>
   <string name="sign_out_button">Esci</string>
-  <!--Transports-->
+  <string name="transports_onboarding_text">Tocca qui per controllare come Briar si connette ai tuoi contatti.</string>
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <string name="tor_device_status_online_wifi">Il tuo telefono ha accesso internet via Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Il tuo telefono ha accesso internet via dati mobili</string>
+  <string name="tor_device_status_offline">Il tuo telefono non ha accesso internet</string>
+  <string name="tor_plugin_status_enabling">Briar si sta connettendo a internet</string>
+  <string name="tor_plugin_status_active">Briar è connesso a internet</string>
+  <string name="tor_plugin_status_inactive">Briar non riesce a connettersi a internet</string>
+  <string name="tor_plugin_status_disabled">Briar è configurato per non usare internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar è configurato per non usare i dati mobili</string>
+  <string name="tor_plugin_status_disabled_battery">Briar è configurato per non usare internet quando funziona a batteria</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar è configurato per non usare internet in questa nazione</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Stessa rete Wi-Fi</string>
+  <string name="lan_device_status_on">Il tuo telefono è connesso al Wi-Fi</string>
+  <string name="lan_device_status_off">Il tuo telefono non è connesso al Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar si sta connettendo alla rete Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar è connesso alla rete Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar non riesce a connettersi alla rete Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar è configurato per non usare la rete Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Il Bluetooth del tuo telefono è acceso</string>
+  <string name="bt_device_status_off">Il Bluetooth del tuo telefono è spento</string>
+  <string name="bt_plugin_status_enabling">Briar si sta connettendo al Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar è connesso al Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar non riesce a connettersi al Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar è configurato per non usare il Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Uscito da Briar</string>
   <string name="reminder_notification_text">Tocca per riaccedere.</string>
@@ -111,6 +137,7 @@
   <string name="help">Aiuto</string>
   <string name="sorry">Scusa</string>
   <string name="error_start_activity">Non disponibile sul tuo sistema</string>
+  <string name="status_heading">Stato</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nessun contatto da mostrare</string>
   <string name="no_contacts_action">Tocca l\'icona + per aggiungere un contatto</string>
@@ -410,10 +437,19 @@
   <string name="pref_theme_system">Predefinito di sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Connessioni</string>
+  <string name="bluetooth_setting">Connetti ai contatti attraverso Bluetooth</string>
+  <string name="wifi_setting">Connetti ai contatti nella stessa rete Wi-Fi</string>
+  <string name="tor_enable_title">Connetti ai contatti attraverso internet</string>
+  <string name="tor_enable_summary">Tutte le connessioni passano attraverso la rete Tor per privacy</string>
+  <string name="tor_network_setting">Metodo di connessione per la rete Tor</string>
   <string name="tor_network_setting_automatic">Automatico basato sulla posizione</string>
+  <string name="tor_network_setting_without_bridges">Usa la rete Tor senza bridge</string>
+  <string name="tor_network_setting_with_bridges">Usa la rete Tor con bridge</string>
+  <string name="tor_network_setting_never">Non connettere a internet</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatico: %1$s (in %2$s)</string>
   <string name="tor_mobile_data_title">Usa dati mobili</string>
+  <string name="tor_only_when_charging_title">Connetti a internet solo durante la ricarica</string>
   <string name="tor_only_when_charging_summary">Disattiva la connessione internet quando il dispositivo funziona a batteria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Sicurezza</string>
@@ -523,6 +559,8 @@
   <string name="lock_unlock_password">Usa password</string>
   <string name="lock_is_locked">Briar è bloccato</string>
   <string name="lock_tap_to_unlock">Tocca per sbloccare</string>
+  <!--Connections Screen-->
+  <string name="transports_help_text">Briar può connettersi ai tuoi contatti tramite internet, Wi-Fi o Bluetooth.\n\nTutte le connessioni internet passano attraverso la rete Tor per privacy.\n\nSe un contatto può essere raggiunto con più metodi, Briar li usa in parallelo.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

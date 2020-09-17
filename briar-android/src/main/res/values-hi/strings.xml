@@ -57,10 +57,12 @@
   <string name="lock_button">लॉक ऐप</string>
   <string name="settings_button">सेटिंग्स</string>
   <string name="sign_out_button">साइन आउट</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">इंटरनेट</string>
-  <string name="transport_bt">ब्लूटूथ</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">वाई - फाई</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">ब्लूटूथ</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briar  से साइन आउट हो रहा है ...</string>
   <string name="reminder_notification_text">वापस साइन इन करने के लिए टैप करें।</string>
@@ -106,6 +108,7 @@
   <string name="fix">ठीक कर</string>
   <string name="help">सहायता</string>
   <string name="sorry">माफ़ कीजिये</string>
+  <string name="status_heading">स्थिति</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">दिखाने के लिए कोई संपर्क नहीं है</string>
   <string name="no_contacts_action">संपर्क जोड़ने के लिए + आइकन टैप करें</string>
@@ -504,6 +507,7 @@
   <string name="lock_unlock_password">पासवर्ड का प्रयोग करें</string>
   <string name="lock_is_locked">Briar लॉक है</string>
   <string name="lock_tap_to_unlock">अनलॉक करने के लिए टैप करें</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">ऐलिस</string>

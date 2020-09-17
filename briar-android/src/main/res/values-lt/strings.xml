@@ -26,6 +26,8 @@
   <!--Login-->
   <string name="enter_password">Slaptažodis</string>
   <string name="try_again">Neteisingas slaptažodis, bandykite dar kartą</string>
+  <string name="dialog_title_cannot_check_password">Nepavyksta patikrinti slaptažodžio</string>
+  <string name="dialog_message_cannot_check_password">Briar nepavyksta patikrinti jūsų slaptažodžio. Norėdami išspręsti šią problemą, pabandykite paleisti įrenginį iš naujo.</string>
   <string name="sign_in_button">Prisijungti</string>
   <string name="forgotten_password">Aš pamiršau savo slaptažodį</string>
   <string name="dialog_title_lost_password">Prarastas slaptažodis</string>
@@ -61,10 +63,36 @@
   <string name="lock_button">Užrakinti programėlę</string>
   <string name="settings_button">Nustatymai</string>
   <string name="sign_out_button">Atsijungti</string>
-  <!--Transports-->
+  <string name="transports_onboarding_text">Bakstelėkite čia norėdami valdyti tai, kaip Briar jungiasi prie jūsų adresatų.</string>
+  <!--Transports: Tor-->
   <string name="transport_tor">Internetas</string>
-  <string name="transport_bt">Bluetooth</string>
+  <string name="tor_device_status_online_wifi">Jūsų telefonas jungiasi prie interneto per belaidį (Wi-Fi)</string>
+  <string name="tor_device_status_online_mobile">Jūsų telefonas jungiasi prie interneto per mobiliuosius duomenis</string>
+  <string name="tor_device_status_offline">Jūsų telefonas neprisijungęs prie interneto</string>
+  <string name="tor_plugin_status_enabling">Briar jungiasi prie interneto</string>
+  <string name="tor_plugin_status_active">Briar yra prisijungusi prie interneto</string>
+  <string name="tor_plugin_status_inactive">Briar negali prisijungti prie interneto</string>
+  <string name="tor_plugin_status_disabled">Briar yra sukonfigūruota taip, kad nesinaudotų internetu</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar yra sukonfigūruota taip, kad nesinaudotų mobiliaisiais duomenimis</string>
+  <string name="tor_plugin_status_disabled_battery">Briar yra sukonfigūruota taip, kad nesinaudotų internetu, kai įrenginys veikia naudodamas akumuliatoriaus energiją</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar yra sukonfigūruota taip, kad šioje šalyje nesinaudotų internetu</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Belaidis (Wi-Fi)</string>
+  <string name="transport_lan_long">Tas pats belaidis (Wi-Fi) tinklas</string>
+  <string name="lan_device_status_on">Jūsų telefonas yra prisijungęs prie belaidžio (Wi-Fi)</string>
+  <string name="lan_device_status_off">Jūsų telefonas nėra prisijungęs prie belaidžio (Wi-Fi)</string>
+  <string name="lan_plugin_status_enabling">Briar jungiasi prie belaidžio (Wi-Fi) tinklo</string>
+  <string name="lan_plugin_status_active">Briar yra prisijungusi prie belaidžio (Wi-Fi) tinklo</string>
+  <string name="lan_plugin_status_inactive">Briar negali prisijungti prie belaidžio (Wi-Fi) tinklo</string>
+  <string name="lan_plugin_status_disabled">Briar yra sukonfigūruota taip, kad nesinaudotų belaidžiu (Wi-Fi) tinklu</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Jūsų telefono Bluetooth ryšys yra įjungtas</string>
+  <string name="bt_device_status_off">Jūsų telefono Bluetooth ryšys yra išjungtas</string>
+  <string name="bt_plugin_status_enabling">Briar jungiasi prie Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar yra prisijungusi prie Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar negali prisijungti prie Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar yra sukonfigūruota taip, kad nesinaudotų Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Atsijungta iš Briar</string>
   <string name="reminder_notification_text">Bakstelėkite, norėdami prisijungti atgal.</string>
@@ -119,6 +147,7 @@
   <string name="help">Pagalba</string>
   <string name="sorry">Atsiprašome</string>
   <string name="error_start_activity">Jūsų sistemoje neprieinama</string>
+  <string name="status_heading">Būsena:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nėra rodytinų adresatų</string>
   <string name="no_contacts_action">Norėdami pridėti adresatą, bakstelėkite + piktogramą</string>
@@ -427,10 +456,20 @@
   <string name="pref_theme_auto">Automatinis (Dienos metas)</string>
   <string name="pref_theme_system">Sistemos numatytasis</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">Ryšiai</string>
+  <string name="bluetooth_setting">Jungtis prie adresatų per Bluetooth ryšį</string>
+  <string name="wifi_setting">Jungtis prie adresatų tame pačiame belaidžiame (Wi-Fi) tinkle</string>
+  <string name="tor_enable_title">Jungtis prie adresatų per internetą</string>
+  <string name="tor_enable_summary">Privatumo sumetimais, visi ryšiai jungsis per Tor tinklą</string>
+  <string name="tor_network_setting">Būdas, kaip jungtis prie Tor tinklo</string>
   <string name="tor_network_setting_automatic">Automatiškai pagal buvimo vietą</string>
+  <string name="tor_network_setting_without_bridges">Naudoti Tor tinklą be tinklų tilto</string>
+  <string name="tor_network_setting_with_bridges">Naudoti Tor tinklą su tinklų tiltu</string>
+  <string name="tor_network_setting_never">Neprisijungti prie interneto</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatiškai: %1$s (šalyje %2$s)</string>
   <string name="tor_mobile_data_title">Naudoti mobiliuosius duomenis</string>
+  <string name="tor_only_when_charging_title">Prisijungti prie interneto tik įkraunant įrenginį</string>
   <string name="tor_only_when_charging_summary">Išjungia interneto ryšį, kai įrenginys veikia naudodamas akumuliatorių</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Saugumas</string>
@@ -540,6 +579,8 @@
   <string name="lock_unlock_password">Naudoti slaptažodį</string>
   <string name="lock_is_locked">Briar užrakinta</string>
   <string name="lock_tap_to_unlock">Bakstelėkite, norėdami atrakinti</string>
+  <!--Connections Screen-->
+  <string name="transports_help_text">Briar gali jungtis prie jūsų adresatų per internetą, belaidį (Wi-Fi) tinklą ar Bluetooth ryšį.\n\nPrivatumo sumetimais, visi ryšiai jungiasi per Tor tinklą.\n\nJei adresatas gali būti pasiekiamas keliais būdais, tuomet Briar naudoja juos lygiagrečiai.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Jurgita</string>

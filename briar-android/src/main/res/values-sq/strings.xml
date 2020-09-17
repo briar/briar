@@ -61,10 +61,36 @@
   <string name="lock_button">Kyçe Aplikacionin</string>
   <string name="settings_button">Rregullime</string>
   <string name="sign_out_button">Dilni</string>
-  <!--Transports-->
+  <string name="transports_onboarding_text">Prekkeni këtu që të kontrolloni se si lidhet Briar-i me kontaktet tuaja.</string>
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <string name="tor_device_status_online_wifi">Telefoni juaj mund të përdorë Internet përmes Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Telefoni juaj mund të përdorë Internet përmes të dhënash pakete celulari</string>
+  <string name="tor_device_status_offline">Telefoni juaj s’mund të përdorë Internet</string>
+  <string name="tor_plugin_status_enabling">Briar-i po lidhet me Internetin</string>
+  <string name="tor_plugin_status_active">Briar-i është lidhur me Internetin</string>
+  <string name="tor_plugin_status_inactive">Briar-i s’mund të lidhet me Internetin</string>
+  <string name="tor_plugin_status_disabled">Briar-i është formësuar të mos përdorë Internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar-i është formësuar të mos përdorë të dhëna pakete celulari</string>
+  <string name="tor_plugin_status_disabled_battery">Briar-i është formësuar të mos përdorë Internet, kur xhiron me bateri</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar-i është formësuar të mos përdorë Internet në këtë vend</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Po atë rrjet Wi-Fi</string>
+  <string name="lan_device_status_on">Telefoni juaj është lidhur me Wi-Fi</string>
+  <string name="lan_device_status_off">Telefoni juaj s’është lidhur me Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar-i po lidhet me rrjetin Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar-i është lidhur me rrjetin Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar-i s’mund të lidhet dot me rrjetin Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar-i është formësuar të mos përdorë rrjetin Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Bluetooth-i i telefonit tuaj është i hapur</string>
+  <string name="bt_device_status_off">Bluetooth-i i telefonit tuaj është i mbyllur</string>
+  <string name="bt_plugin_status_enabling">Briar-i po lidhet me Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar-i është lidhur me Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar-i s’mund të lidhet me Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar-i është formësuar të mos përdorë Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">U dol nga Briar-i</string>
   <string name="reminder_notification_text">Prekeni që të ribëhet hyrja.</string>
@@ -111,6 +137,7 @@
   <string name="help">Ndihmë</string>
   <string name="sorry">Na ndjeni</string>
   <string name="error_start_activity">Jo i passhëm në sistemin tuaj</string>
+  <string name="status_heading">Gjëndja</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">S’ka kontakte për shfaqje</string>
   <string name="no_contacts_action">Prekni ikonën + që të shtoni një kontakt</string>
@@ -532,6 +559,11 @@
   <string name="lock_unlock_password">Përdor Fjalëkalim</string>
   <string name="lock_is_locked">Briar-i është i kyçur</string>
   <string name="lock_tap_to_unlock">Prekeni që të shkyçet</string>
+  <!--Connections Screen-->
+  <string name="transports_help_text">Briar-i mund të lidhet me kontaktet tuaja përmes Interneti, Wi-Fi ose Bluetooth-i.\n\n
+Për privatësi, krejt lidhjet Internet kalojnë përmes rrjetit Tor.\n\n
+Nëse me një kontakt mund të bëhet lidhja përmes metodash të shumta,\n\n
+Briar-i i përdor ato paralelisht.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Mira</string>

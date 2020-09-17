@@ -63,10 +63,12 @@
   <string name="lock_button">נעל יישום</string>
   <string name="settings_button">הגדרות</string>
   <string name="sign_out_button">התנתק</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">אינטרנט</string>
-  <string name="transport_bt">שן כחולה</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">שן כחולה</string>
   <!--Notifications-->
   <string name="reminder_notification_title">נותקת מן Briar</string>
   <string name="reminder_notification_text">הקש כדי להתחבר חזרה.</string>
@@ -121,6 +123,7 @@
   <string name="help">עזרה</string>
   <string name="sorry">סליחה</string>
   <string name="error_start_activity">בלתי זמין במערכת שלך</string>
+  <string name="status_heading">מצב</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">אין אנשי קשר להראות</string>
   <string name="no_contacts_action">הקש על הצלמית + כדי להוסיף איש קשר</string>
@@ -546,6 +549,7 @@
   <string name="lock_unlock_password">השתמש בסיסמה</string>
   <string name="lock_is_locked">Briar נעול</string>
   <string name="lock_tap_to_unlock">הקש כדי לבטל נעילה</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">נועה</string>

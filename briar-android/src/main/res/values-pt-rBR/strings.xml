@@ -61,10 +61,12 @@
   <string name="lock_button">Bloquear Aplicativo</string>
   <string name="settings_button">Configurações</string>
   <string name="sign_out_button">Sair</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Saiu do Briar</string>
   <string name="reminder_notification_text">Toque para fazer login novamente.</string>
@@ -111,6 +113,7 @@
   <string name="help">Ajuda</string>
   <string name="sorry">Sentimos muito</string>
   <string name="error_start_activity">Indisponível no seu sistema</string>
+  <string name="status_heading">Status:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Sem contatos para exibir</string>
   <string name="no_contacts_action">Toque no ícone + para adicionar um contato</string>
@@ -523,6 +526,7 @@
   <string name="lock_unlock_password">Usar senha</string>
   <string name="lock_is_locked">O Briar está desbloqueado</string>
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

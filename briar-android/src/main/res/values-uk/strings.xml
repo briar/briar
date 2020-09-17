@@ -59,10 +59,12 @@
   <string name="lock_button">Заблокувати програму</string>
   <string name="settings_button">Налаштування</string>
   <string name="sign_out_button">Вийти</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">Інтернет</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Ви вийшли з Briar</string>
   <string name="reminder_notification_text">Натисніть, щоб знову увійти.</string>
@@ -116,6 +118,7 @@
   <string name="fix">Виправити</string>
   <string name="help">Довідка</string>
   <string name="sorry">Вибачте</string>
+  <string name="status_heading">Статус</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Немає контактів для відображення</string>
   <string name="no_contacts_action">Натисніть на символ \"+\" для того, щоб додати контакт</string>
@@ -525,6 +528,7 @@
   <string name="lock_unlock_password">Використовуйте пароль</string>
   <string name="lock_is_locked">Briar заблоковано</string>
   <string name="lock_tap_to_unlock">Натисніть, щоб розблокувати</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Аліса</string>

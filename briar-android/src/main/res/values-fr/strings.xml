@@ -25,19 +25,19 @@
   <string name="warning_dozed">%s n’a pas pu fonctionner en arrière-plan</string>
   <!--Login-->
   <string name="enter_password">Mot de passe</string>
-  <string name="try_again">Le mot de passe est erroné, ressayez</string>
+  <string name="try_again">Le mot de passe est erroné, réessayez</string>
   <string name="dialog_title_cannot_check_password">Impossible de vérifier le mot de passe</string>
   <string name="dialog_message_cannot_check_password">Briar ne peut pas vérifier votre mot de passe. Veuillez essayer de redémarrer votre appareil pour résoudre ce problème.</string>
   <string name="sign_in_button">Connexion</string>
   <string name="forgotten_password">J’ai oublié mon mot de passe</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
-  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
+  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Souhaitez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
   <string name="startup_failed_notification_title">Impossible de démarrer Briar</string>
   <string name="startup_failed_notification_text">Toucher pour plus d’informations.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
   <string name="startup_failed_db_error">Pour quelque raison, votre base de données Briar est corrompue sans espoir de réparation. Votre compte, vos données et tous vos contacts sont perdus. Malheureusement, vous devez réinstaller Briar et créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » dans l’invite de mot de passe.</string>
   <string name="startup_failed_data_too_old_error">Votre compte a été créé avec une ancienne version de cette appli et ne peut pas être ouvert avec cette version. Vous devez soit réinstaller l’ancienne version, soit créer un nouveau compte en choisissant « J’ai oublié mon mot de passe » dans l’invite de mot de passe.</string>
-  <string name="startup_failed_data_too_new_error">Cette version de l’appli est trop ancienne. Veuillez passer à la version la plus récente et ressayer.</string>
+  <string name="startup_failed_data_too_new_error">Cette version de l’appli est trop ancienne. Veuillez passer à la version la plus récente et réessayer.</string>
   <string name="startup_failed_service_error">Briar n’a pas pu démarrer un greffon exigé. Réinstaller Briar résout généralement ce problème. Veuillez cependant noter que vous perdrez votre compte et toutes données relatives puisque Briar n’utilise pas de serveurs centralisés sur lesquels enregistrer vos données.</string>
   <plurals name="expiry_warning">
     <item quantity="one">Ceci est une version de test de Briar. Votre compte arrivera à expiration dans %d jour et ne peut pas être renouvelé.</item>
@@ -61,10 +61,36 @@
   <string name="lock_button">Verrouiller l’appli</string>
   <string name="settings_button">Paramètres</string>
   <string name="sign_out_button">Déconnexion</string>
-  <!--Transports-->
+  <string name="transports_onboarding_text">Touchez ici pour contrôler comment Briar se connecte à vos contacts.</string>
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <string name="tor_device_status_online_wifi">Votre téléphone a accès à Internet par le Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Votre téléphone a accès à Internet par les données mobiles</string>
+  <string name="tor_device_status_offline">Votre téléphone n’a pas accès à Internet</string>
+  <string name="tor_plugin_status_enabling">Briar se connecte à Internet</string>
+  <string name="tor_plugin_status_active">Briar est connecté à Internet</string>
+  <string name="tor_plugin_status_inactive">Briar ne peut pas se connecter à Internet</string>
+  <string name="tor_plugin_status_disabled">Briar est configuré pour ne pas utiliser Internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar est configuré pour ne pas utiliser les données mobiles</string>
+  <string name="tor_plugin_status_disabled_battery">Briar est configuré pour ne pas utiliser Internet si l’appareil utilise sa pile</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar est configuré pour ne pas utiliser Internet dans ce pays</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Même réseau Wi-Fi</string>
+  <string name="lan_device_status_on">Votre téléphone est connecté au Wi-Fi</string>
+  <string name="lan_device_status_off">Votre téléphone n’est pas connecté au Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar se connecte au réseau Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar est connecté au réseau Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar ne peut pas se connecter au réseau Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar est configuré pour ne pas utiliser le réseau Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Le Bluetooth de votre téléphone est activé</string>
+  <string name="bt_device_status_off">Le Bluetooth de votre téléphone est désactivé</string>
+  <string name="bt_plugin_status_enabling">Briar se connecte au Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar est connecté au Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar ne peut pas se connecter au Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar est configuré pour ne pas utiliser le Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Déconnecté de Briar</string>
   <string name="reminder_notification_text">Touchez pour vous reconnecter</string>
@@ -111,6 +137,7 @@
   <string name="help">Aide</string>
   <string name="sorry">Désolé</string>
   <string name="error_start_activity">N’est pas proposée sur votre système.</string>
+  <string name="status_heading">État :</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Aucun contact à afficher</string>
   <string name="no_contacts_action">Touchez l’icône + pour ajouter un contact</string>
@@ -127,7 +154,7 @@
   <string name="set_alias_button">Modifier</string>
   <string name="delete_all_messages">Supprimer tous les messages</string>
   <string name="dialog_title_delete_all_messages">Confirmer la suppression des messages</string>
-  <string name="dialog_message_delete_all_messages">Voulez-vous vraiment supprimer tous les messages ?</string>
+  <string name="dialog_message_delete_all_messages">Souhaitez-vous vraiment supprimer tous les messages ?</string>
   <string name="dialog_title_not_all_messages_deleted">Impossible de supprimer tous les messages</string>
   <string name="dialog_message_not_deleted_ongoing_both">Les messages relatifs aux invitations et présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Les messages relatifs aux présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
@@ -138,7 +165,7 @@
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Pour supprimer une invitation, vous devez sélectionner la demande et la réponse.</string>
   <string name="delete_contact">Supprimer le contact</string>
   <string name="dialog_title_delete_contact">Confirmer la suppression du contact</string>
-  <string name="dialog_message_delete_contact">Voulez-vous vraiment supprimer ce contact et tous les messages associés ?</string>
+  <string name="dialog_message_delete_contact">Souhaitez-vous vraiment supprimer ce contact et tous les messages associés ?</string>
   <string name="contact_deleted_toast">Le contact a été supprimé</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Vous</string>
@@ -162,8 +189,8 @@
   <string name="contact_added_toast">Contact ajouté : %s</string>
   <string name="contact_already_exists">Le contact %s existe déjà</string>
   <string name="qr_code_invalid">Le code QR est invalide</string>
-  <string name="qr_code_too_old">Le code QR que vous avez balayé provient d’une version plus ancienne de %s.\n\nVeuillez demander à votre contact de passer à la version la plus récente et ressayer.</string>
-  <string name="qr_code_too_new">Le code QR que vous avez balayé provient d’une version plus récente de %s.\n\nVeuillez passer à la version la plus récente et ressayer.</string>
+  <string name="qr_code_too_old">Le code QR que vous avez balayé provient d’une version plus ancienne de %s.\n\nVeuillez demander à votre contact de passer à la version la plus récente et réessayer.</string>
+  <string name="qr_code_too_new">Le code QR que vous avez balayé provient d’une version plus récente de %s.\n\nVeuillez passer à la version la plus récente et réessayer.</string>
   <string name="camera_error">Erreur de l’appareil photo</string>
   <string name="connecting_to_device">Connexion à l’appareil\u2026</string>
   <string name="authenticating_with_device">Autentification avec l’appareil\u2026</string>
@@ -200,7 +227,7 @@
   <string name="own_link_error">Saisissez le lien de votre contact, pas le vôtre</string>
   <string name="nickname_missing">Veuillez saisir un pseudonyme</string>
   <string name="invalid_link">Le lien est invalide</string>
-  <string name="unsupported_link">Ce lien provient d’une version plus récente de Briar. Veuillez passer à la version la plus récente et ressayer.</string>
+  <string name="unsupported_link">Ce lien provient d’une version plus récente de Briar. Veuillez passer à la version la plus récente et réessayer.</string>
   <string name="intent_own_link">Vous avez ouvert votre propre lien. Utilisez celui du contact que vous souhaitez ajouter.</string>
   <string name="missing_link">Veuillez saisir un lien</string>
   <!--This is a numeral indicating the first step in a series of screens-->
@@ -272,10 +299,10 @@
   <string name="groups_member_joined">%s s’est joint au groupe</string>
   <string name="groups_leave">Quitter le groupe</string>
   <string name="groups_leave_dialog_title">Confirmer la sortie du groupe</string>
-  <string name="groups_leave_dialog_message">Voulez-vous vraiment quitter ce groupe ?</string>
+  <string name="groups_leave_dialog_message">Souhaitez-vous vraiment quitter ce groupe ?</string>
   <string name="groups_dissolve">Dissoudre le groupe</string>
   <string name="groups_dissolve_dialog_title">Confirmer la dissolution du groupe</string>
-  <string name="groups_dissolve_dialog_message">Voulez-vous vraiment dissoudre ce groupe ?\n\nLes autres participants ne pourront pas poursuivre leur conversation et ne recevront peut-être pas les derniers messages.</string>
+  <string name="groups_dissolve_dialog_message">Souhaitez-vous vraiment dissoudre ce groupe ?\n\nLes autres participants ne pourront pas poursuivre leur conversation et ne recevront peut-être pas les derniers messages.</string>
   <string name="groups_dissolve_button">Dissoudre</string>
   <string name="groups_dissolved_dialog_title">Le groupe a été dissous</string>
   <string name="groups_dissolved_dialog_message">Le créateur de ce groupe l’a dissous.\n\nVous ne pouvez plus écrire de messages au groupe et ne recevrez peut-être pas tous ceux qui y ont été publiés.</string>
@@ -319,7 +346,7 @@
   <string name="btn_reply">Répondre</string>
   <string name="forum_leave">Quitter le forum</string>
   <string name="dialog_title_leave_forum">Confirmer la sortie du forum</string>
-  <string name="dialog_message_leave_forum">Voulez-vous vraiment quitter ce forum ?\n\nLes contacts avec qui vous l’avez partagé pourraient ne plus en recevoir les mises à jour.</string>
+  <string name="dialog_message_leave_forum">Souhaitez-vous vraiment quitter ce forum ?\n\nLes contacts avec qui vous l’avez partagé pourraient ne plus en recevoir les mises à jour.</string>
   <string name="dialog_button_leave">Quitter</string>
   <string name="forum_left_toast">À quitté le forum</string>
   <!--Forum Sharing-->
@@ -363,7 +390,7 @@
   <string name="blogs_feed_empty_state">Aucun billet à afficher</string>
   <string name="blogs_feed_empty_state_action">Les billets de vos contacts et les blogues auxquels vous vous abonnez apparaîtront ici.\n\nTouchez l’icône de crayon pour rédiger un billet</string>
   <string name="blogs_remove_blog">Supprimer le blogue</string>
-  <string name="blogs_remove_blog_dialog_message">Voulez-vous vraiment supprimer ce blogue ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce blogue pourraient ne plus en recevoir les mises à jour.</string>
+  <string name="blogs_remove_blog_dialog_message">Souhaitez-vous vraiment supprimer ce blogue ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce blogue pourraient ne plus en recevoir les mises à jour.</string>
   <string name="blogs_remove_blog_ok">Supprimer</string>
   <string name="blogs_blog_removed">Le blogue a été supprimé</string>
   <string name="blogs_reblog_comment_hint">Ajouter un commentaire (facultatif)</string>
@@ -393,11 +420,11 @@
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
   <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
   <string name="blogs_rss_remove_feed">Supprimer le fil</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Voulez-vous vraiment supprimer ce fil ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce fil pourraient ne plus en recevoir les mises à jour.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Souhaitez-vous vraiment supprimer ce fil ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce fil pourraient ne plus en recevoir les mises à jour.</string>
   <string name="blogs_rss_remove_feed_ok">Supprimer</string>
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le fil !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Aucun fil RSS à afficher\n\nTouchez l’icône + pour importer un fil</string>
-  <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez ressayer plus tard.</string>
+  <string name="blogs_rss_feeds_manage_error">Un problème est survenu lors du chargement de vos fils. Veuillez réessayer plus tard.</string>
   <!--Settings Display-->
   <string name="pref_language_title">Langue et région</string>
   <string name="pref_language_changed">Ce paramètre prendra effet une fois que vous aurez redémarré Briar. Veuillez vous déconnecter et redémarrer Briar.</string>
@@ -457,7 +484,7 @@
   <string name="panic_app_setting_summary">Aucune appli n’a été définie</string>
   <string name="panic_app_setting_none">Aucune</string>
   <string name="dialog_title_connect_panic_app">Confirmer l’application d’urgence</string>
-  <string name="dialog_message_connect_panic_app">Voulez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
+  <string name="dialog_message_connect_panic_app">Souhaitez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
   <string name="panic_setting_destructive_action">Actions destructrices</string>
   <string name="panic_setting_signout_title">Déconnexion</string>
   <string name="panic_setting_signout_summary">Se déconnecter de Briar si l’on appuie sur un bouton d’urgence</string>
@@ -532,6 +559,8 @@
   <string name="lock_unlock_password">Utiliser un mot de passe</string>
   <string name="lock_is_locked">Briar est verrouillée</string>
   <string name="lock_tap_to_unlock">Toucher pour déverrouiller</string>
+  <!--Connections Screen-->
+  <string name="transports_help_text">Briar peut se connecter à vos contacts par Internet, Wi-Fi ou Bluetooth.\n\nToutes les connections Internet passent par le réseau Tor afin de protéger les données.\n\nSi un contact peut être joint par plusieurs moyens, Briar les utilisera simultanément.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Laurence</string>

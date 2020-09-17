@@ -53,10 +53,12 @@
   <string name="lock_button">Zaključaj aplikaciju</string>
   <string name="settings_button">Podešavanja</string>
   <string name="sign_out_button">Odjava</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
-  <string name="transport_bt">Bluetooth</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Odjavljeni ste iz Briara</string>
   <string name="reminder_notification_text">Dotaknite da se prijavite nazad.</string>
@@ -86,6 +88,7 @@
   <string name="fix">Popravi</string>
   <string name="help">Pomoć</string>
   <string name="sorry">Izvini</string>
+  <string name="status_heading">Status:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Nema kontakata za prikazivanje</string>
   <string name="no_contacts_action">Taknite + ikonu da dodate kontakt</string>
@@ -464,6 +467,7 @@
   <string name="lock_unlock_password">Koristi lozinku</string>
   <string name="lock_is_locked">Briar je zaključan</string>
   <string name="lock_tap_to_unlock">Dotakni da otključaš</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Fata</string>

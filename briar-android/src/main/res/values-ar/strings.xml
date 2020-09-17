@@ -26,6 +26,7 @@
   <!--Login-->
   <string name="enter_password">‮كلمة السّر</string>
   <string name="try_again">كلمة السرّ خاطئة, الرجاء المحاولة مجدّدا</string>
+  <string name="dialog_title_cannot_check_password">لا يمكن التحقق من كلمة السر</string>
   <string name="sign_in_button">تسجيل الدخول</string>
   <string name="forgotten_password">نسيتُ كلمة السر</string>
   <string name="dialog_title_lost_password">فقدت كلمة السر</string>
@@ -63,10 +64,12 @@
   <string name="lock_button">قفل التطبيق</string>
   <string name="settings_button">الإعدادات</string>
   <string name="sign_out_button">تسجيل الخروج</string>
-  <!--Transports-->
+  <!--Transports: Tor-->
   <string name="transport_tor">إنترنت</string>
-  <string name="transport_bt">بلوتوث</string>
+  <!--Transports: Wi-Fi-->
   <string name="transport_lan">واي-فاي</string>
+  <!--Transports: Bluetooth-->
+  <string name="transport_bt">بلوتوث</string>
   <!--Notifications-->
   <string name="reminder_notification_title">تم تسجيل الخروج من Briar (براير)</string>
   <string name="reminder_notification_text">الرجاء اللمس لإعادة الدخول</string>
@@ -129,6 +132,7 @@
   <string name="help">مساعدة</string>
   <string name="sorry">معذرة</string>
   <string name="error_start_activity">غير متوفّر على نظامكم </string>
+  <string name="status_heading">الحالة:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">لا جهات اتصال للعرض</string>
   <string name="no_contacts_action">لمس علامة + لإضافة جهة إتصال</string>
@@ -448,10 +452,18 @@
   <string name="pref_theme_auto">تلقائي (توقيت النهار)</string>
   <string name="pref_theme_system">النظام الافتراضي</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">شبكات الاتصال</string>
+  <string name="bluetooth_setting">ربط جهات الاتصال عن طريق بلوتوث</string>
+  <string name="wifi_setting">ربط جهات الاتصال عن طريق نفس شبكة الواي فاي</string>
+  <string name="tor_enable_title">ربط شبكات الاتصال عن طريق الانترنت</string>
+  <string name="tor_enable_summary">كل جهات الاتصال تمر عبر شبكة تور من أجل الخصوصية</string>
+  <string name="tor_network_setting">وسيلة الاتصال لشبكة تور</string>
   <string name="tor_network_setting_automatic">تلقائيًا حسب الموقع</string>
+  <string name="tor_network_setting_never">لا يمكن الاتصال بالإنترنت</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">تلقائيا: %1$s (في %2$s)</string>
   <string name="tor_mobile_data_title">إستخدام بيانات الجوال</string>
+  <string name="tor_only_when_charging_title">الاتصال بالإنترنت فقط عن الشحن</string>
   <string name="tor_only_when_charging_summary">تعطيل الاتصال بالانترنت عند تشغيل الجهاز على البطارية</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">الأمان</string>
@@ -561,6 +573,7 @@
   <string name="lock_unlock_password">استخدام كلمة السر</string>
   <string name="lock_is_locked">Briar (براير) مقفل</string>
   <string name="lock_tap_to_unlock">الرجاء اللمس لفك القفل</string>
+  <!--Connections Screen-->
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">آليس</string>
