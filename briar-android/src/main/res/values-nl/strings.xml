@@ -139,7 +139,7 @@
   <string name="dialog_message_not_deleted_not_all_selected_both">Om een uitnodiging of introductie te verwijderen met je het verzoek en het antwoord selecteren.</string>
   <string name="dialog_message_not_deleted_not_all_selected_introductions">Om een introductie te verwijderen met je het verzoek en het antwoord selecteren.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Om een uitnodiging te verwijderen met je het verzoek en het antwoord selecteren.</string>
-  <string name="delete_contact">Verwijder bericht</string>
+  <string name="delete_contact">Verwijder contact</string>
   <string name="dialog_title_delete_contact">Bevestig verwijderen contact</string>
   <string name="dialog_message_delete_contact">Weet je zeker dat je dit contact en alle berichten die met dit contact zijn uitgewisseld wil verwijderen?</string>
   <string name="contact_deleted_toast">Contact is verwijderd</string>
