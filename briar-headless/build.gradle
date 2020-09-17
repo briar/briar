@@ -1,3 +1,9 @@
+import java.util.jar.JarEntry
+import java.util.jar.JarFile
+import java.util.jar.JarOutputStream
+
+import static java.util.Collections.list
+
 plugins {
 	id 'java'
 	id 'idea'
@@ -46,6 +52,34 @@ jar {
 	}
 	from {
 		configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+	}
+	doLast() {
+		// Rename the original jar
+		File jar = project.jar.archivePath
+		String srcPath = jar.toString().replaceFirst('\\.jar$', '.unsorted.jar')
+		File srcFile = new File(srcPath)
+		jar.renameTo(srcFile)
+		JarFile srcJarFile = new JarFile(srcFile)
+		OutputStream destStream = new JarOutputStream(new FileOutputStream(jar))
+		// Read and sort the entries
+		Map<String, JarEntry> entries = new TreeMap<String, JarEntry>()
+		for (JarEntry e : list(srcJarFile.entries())) entries.put(e.getName(), e)
+		// Write the sorted entries
+		for (JarEntry srcEntry : entries.values()) {
+			JarEntry destEntry = new JarEntry(srcEntry.getName())
+			destEntry.setTime(0)
+			destStream.putNextEntry(destEntry)
+			InputStream srcStream = srcJarFile.getInputStream(srcEntry)
+			int read
+			byte[] buf = new byte[4096]
+			while ((read = srcStream.read(buf, 0, buf.length)) != -1) {
+				destStream.write(buf, 0, read)
+			}
+			destStream.closeEntry()
+			srcStream.close()
+		}
+		destStream.close()
+		srcJarFile.close()
 	}
 }
 
