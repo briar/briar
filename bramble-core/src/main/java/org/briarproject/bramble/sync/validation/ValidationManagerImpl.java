@@ -35,6 +35,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
@@ -124,8 +125,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				Group g = db.getGroup(txn, m.getGroupId());
 				return new Pair<>(m, g);
 			});
-			validateMessageAsync(mg.getFirst(), mg.getSecond());
-			validateNextMessageAsync(unvalidated);
+			validateMessageAsync(mg.getFirst(), mg.getSecond(), unvalidated);
 		} catch (NoSuchMessageException e) {
 			LOG.info("Message removed before validation");
 			validateNextMessageAsync(unvalidated);
@@ -213,12 +213,14 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		}
 	}
 
-	private void validateMessageAsync(Message m, Group g) {
-		validationExecutor.execute(() -> validateMessage(m, g));
+	private void validateMessageAsync(Message m, Group g,
+			@Nullable Queue<MessageId> unvalidated) {
+		validationExecutor.execute(() -> validateMessage(m, g, unvalidated));
 	}
 
 	@ValidationExecutor
-	private void validateMessage(Message m, Group g) {
+	private void validateMessage(Message m, Group g,
+			@Nullable Queue<MessageId> unvalidated) {
 		ClientMajorVersion cv =
 				new ClientMajorVersion(g.getClientId(), g.getMajorVersion());
 		MessageValidator v = validators.get(cv);
@@ -234,6 +236,8 @@ class ValidationManagerImpl implements ValidationManager, Service,
 				Queue<MessageId> invalidate = new LinkedList<>();
 				invalidate.add(m.getId());
 				invalidateNextMessageAsync(invalidate);
+			} finally {
+				if (unvalidated != null) validateNextMessageAsync(unvalidated);
 			}
 		}
 	}
@@ -440,7 +444,7 @@ class ValidationManagerImpl implements ValidationManager, Service,
 		try {
 			Group g = db.transactionWithResult(true, txn ->
 					db.getGroup(txn, m.getGroupId()));
-			validateMessageAsync(m, g);
+			validateMessageAsync(m, g, null);
 		} catch (NoSuchGroupException e) {
 			LOG.info("Group removed before validation");
 		} catch (DbException e) {
