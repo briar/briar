@@ -69,7 +69,8 @@ Returns a JSON array of contacts:
     "handshakePublicKey": "XnYRd7a7E4CTqgAvh4hCxh/YZ0EPscxknB9ZcEOpSzY=",
     "verified": true,
     "lastChatActivity": 1557838312175,
-    "connected": false
+    "connected": false,
+    "unreadCount": 7
 }
 ```
 

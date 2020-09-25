@@ -77,7 +77,8 @@ constructor(
         val contacts = contactManager.contacts.map { contact ->
             val latestMsgTime = conversationManager.getGroupCount(contact.id).latestMsgTime
             val connected = connectionRegistry.isConnected(contact.id)
-            contact.output(latestMsgTime, connected)
+            val unreadCount = conversationManager.getGroupCount(contact.id).unreadCount
+            contact.output(latestMsgTime, connected, unreadCount)
         }
         return ctx.json(contacts)
     }

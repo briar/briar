@@ -46,6 +46,7 @@ abstract class ControllerTest {
     protected val message: Message = getMessage(group.id)
     protected val text: String = getRandomString(5)
     protected val timestamp = 42L
+    protected val unreadCount = 42
 
     protected fun assertJsonEquals(json: String, obj: Any) {
         assertEquals(json, outputCtx.json(obj).resultString(), STRICT)
