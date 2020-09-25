@@ -89,6 +89,9 @@ constructor(
                 path("/messages/:contactId/read") {
                     post { ctx -> messagingController.markMessageRead(ctx) }
                 }
+                path("/messages/:contactId/all") {
+                    delete { ctx -> messagingController.deleteAllMessages(ctx) }
+                }
                 path("/forums") {
                     get { ctx -> forumController.list(ctx) }
                     post { ctx -> forumController.create(ctx) }
