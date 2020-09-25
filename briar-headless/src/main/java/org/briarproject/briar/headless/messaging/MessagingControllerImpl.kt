@@ -11,6 +11,8 @@ import org.briarproject.bramble.api.db.DatabaseExecutor
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
+import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
+import org.briarproject.bramble.api.sync.event.MessagesSentEvent
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.blog.BlogInvitationRequest
@@ -39,6 +41,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 internal const val EVENT_CONVERSATION_MESSAGE = "ConversationMessageReceivedEvent"
+internal const val EVENT_MESSAGES_ACKED = "MessagesAckedEvent"
+internal const val EVENT_MESSAGES_SENT = "MessagesSentEvent"
 
 @Immutable
 @Singleton
@@ -89,6 +93,12 @@ constructor(
                 } else {
                     webSocketController.sendEvent(EVENT_CONVERSATION_MESSAGE, e.output())
                 }
+            }
+            is MessagesSentEvent -> {
+                webSocketController.sendEvent(EVENT_MESSAGES_SENT, e.output())
+            }
+            is MessagesAckedEvent -> {
+                webSocketController.sendEvent(EVENT_MESSAGES_ACKED, e.output())
             }
         }
     }
