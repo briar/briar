@@ -60,12 +60,36 @@
   <string name="lock_button">锁定应用</string>
   <string name="settings_button">设置</string>
   <string name="sign_out_button">登出</string>
+  <string name="transports_onboarding_text">点击这里来控制Briar如何连接到您的联系人</string>
   <!--Transports: Tor-->
   <string name="transport_tor">互联网</string>
+  <string name="tor_device_status_online_wifi">你的手机通过Wi-Fi上网</string>
+  <string name="tor_device_status_online_mobile">您的手机通过移动数据访问互联网</string>
+  <string name="tor_device_status_offline">你的手机不能上网</string>
+  <string name="tor_plugin_status_enabling">Briar正在连接互联网</string>
+  <string name="tor_plugin_status_active">Briar 已联网</string>
+  <string name="tor_plugin_status_inactive">Briar 无法联网</string>
+  <string name="tor_plugin_status_disabled">Briar 配置为不使用互联网</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar 配置为不使用移动数据</string>
+  <string name="tor_plugin_status_disabled_battery">Briar配置为在用电池运行时不使用互联网</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar配置为在这个国家不使用互联网</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">无线局域网</string>
+  <string name="transport_lan_long">同一 Wi-Fi 网络</string>
+  <string name="lan_device_status_on">你的手机连接到Wi-Fi</string>
+  <string name="lan_device_status_off">你的手机未连接到Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar正在连接Wi-Fi网络</string>
+  <string name="lan_plugin_status_active">Briar已连接到此Wi-Fi网络</string>
+  <string name="lan_plugin_status_inactive">Briar不能连接到此Wi-Fi网络</string>
+  <string name="lan_plugin_status_disabled">Briar 配置为不使用Wi-Fi 网络</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">蓝牙</string>
+  <string name="bt_device_status_on">你手机的蓝牙已打开</string>
+  <string name="bt_device_status_off">你手机额蓝牙已关闭</string>
+  <string name="bt_plugin_status_enabling">Briar 正连接蓝牙</string>
+  <string name="bt_plugin_status_active">Briar 已连接蓝牙</string>
+  <string name="bt_plugin_status_inactive">Briar 不能连接蓝牙</string>
+  <string name="bt_plugin_status_disabled">Briar 配置为不使用蓝牙</string>
   <!--Notifications-->
   <string name="reminder_notification_title">已登出 Briar</string>
   <string name="reminder_notification_text">轻按以重新登录。</string>
@@ -108,6 +132,7 @@
   <string name="help">帮助</string>
   <string name="sorry">抱歉</string>
   <string name="error_start_activity">在您的系统上不可用</string>
+  <string name="status_heading">状态：</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">尚无联系人可供显示</string>
   <string name="no_contacts_action">轻按 + 号即可添加联系人</string>
@@ -414,6 +439,7 @@
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">自动选择：%1$s（在 %2$s）</string>
   <string name="tor_mobile_data_title">使用移动数据</string>
+  <string name="tor_only_when_charging_title">仅在充电时联网</string>
   <string name="tor_only_when_charging_summary">当设备使用电池电量时关闭网络连接</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">安全</string>
@@ -524,6 +550,7 @@
   <string name="lock_is_locked">Briar 已锁定</string>
   <string name="lock_tap_to_unlock">轻按以解锁</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar可以通过互联网、Wi-Fi或蓝牙连接到您的联系人。\n\n为了保护隐私，所有的互联网连接都通过Tor网络。\n\n如果一个联系人可以通过多种方法联系到，Briar会并行地使用它们。</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">韩梅梅</string>

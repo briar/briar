@@ -211,7 +211,7 @@
   <string name="add_contact_choose_nickname">Wähle einen Spitznamen</string>
   <string name="add_contact_choose_a_nickname">Gib einen Spitznamen ein</string>
   <string name="nickname_intro">Gib deinem Kontakt einen Spitznamen. Nur du kannst ihn sehen.</string>
-  <string name="your_link">Gebe diesen Link dem Kontakt, den du hinzufügen möchtest:</string>
+  <string name="your_link">Gib diesen Link dem Kontakt, den du hinzufügen möchtest</string>
   <string name="link_clip_label">Briar Link</string>
   <string name="link_copied_toast">Link kopiert</string>
   <string name="adding_contact_error">Es gab einen Fehler beim Hinzufügen des Kontaktes.</string>

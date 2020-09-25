@@ -79,8 +79,18 @@
   <string name="transport_lan_long">Sama þráðlausa Wi-Fi netkerfið</string>
   <string name="lan_device_status_on">Síminn þinn er tengdur við Wi-Fi</string>
   <string name="lan_device_status_off">Síminn þinn er ekki tengdur við Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar er að tengjast við Wi-Fi-netið</string>
+  <string name="lan_plugin_status_active">Briar er tengt við við Wi-Fi-netið</string>
+  <string name="lan_plugin_status_inactive">Briar getur ekki tengst við Wi-Fi-netið</string>
+  <string name="lan_plugin_status_disabled">Briar er sett upp til að nota ekki Wi-Fi-netið</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Kveikt er á Bluetooth-kerfi símans</string>
+  <string name="bt_device_status_off">Slökkt er á Bluetooth-kerfi símans</string>
+  <string name="bt_plugin_status_enabling">Briar er að tengjast við Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar er tengt við Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar getur ekki tengst við Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar er sett upp til að nota ekki Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Skráð út úr Briar</string>
   <string name="reminder_notification_text">Ýttu til að skrá þig aftur inn.</string>
@@ -426,10 +436,20 @@
   <string name="pref_theme_auto">Sjálfvirkt (eftir tíma dags)</string>
   <string name="pref_theme_system">Sjálfgefið í kerfinu</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">Tengingar</string>
+  <string name="bluetooth_setting">Tengjast tengiliðum í gegnum Bluetooth</string>
+  <string name="wifi_setting">Tengjast tengiliðum á sama þráðlausa Wi-Fi neti</string>
+  <string name="tor_enable_title">Tengjast tengiliðum í gegnum internetið</string>
+  <string name="tor_enable_summary">Allar tengingar fara í gegnum Tor-netið til að vernda persónuupplýsingar</string>
+  <string name="tor_network_setting">Aðferðir til tengingar við Tor-netið</string>
   <string name="tor_network_setting_automatic">Sjálfvirkt byggt á staðsetningu</string>
+  <string name="tor_network_setting_without_bridges">Nota Tor-netkerfið án brúa</string>
+  <string name="tor_network_setting_with_bridges">Nota Tor-netkerfið með brúm</string>
+  <string name="tor_network_setting_never">Ekki tengjast við internetið</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Sjálfvirkt: %1$s (eftir %2$s)</string>
   <string name="tor_mobile_data_title">Nota farsímagagnasamband</string>
+  <string name="tor_only_when_charging_title">Tengjast í gegnum internetið aðeins þegar verið er í hleðslu</string>
   <string name="tor_only_when_charging_summary">Gerir internettengingu óvirka þegar tækið keyrir á rafhlöðu</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Öryggi</string>
@@ -540,6 +560,7 @@
   <string name="lock_is_locked">Briar er læst</string>
   <string name="lock_tap_to_unlock">Ýttu til að aflæsa</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar getur tengst við tengiliðina þína í gegnum internet, Wi-Fi eða Bluetooth.\n\nAllar internettengingar fara í gegnum Tor-netkerfið til að gæta gagnaleyndar.\n\nEf hægt er að nálgast tengilið með mörgum leiðum, notar Briar þær samhliða.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Lísa</string>

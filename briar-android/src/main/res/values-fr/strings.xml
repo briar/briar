@@ -198,9 +198,9 @@
   <string name="connection_error_explanation">Veuillez vérifier que vous êtes connecté au même réseau Wi-Fi.</string>
   <string name="connection_error_feedback">Si le problème persiste, veuillez nous <a href="feedback">envoyer une rétroaction</a> pour nous aider à améliorer l\'appli.</string>
   <!--Adding Contacts Remotely-->
-  <string name="add_contact_remotely_title_case">Ajouter un contact éloigné</string>
+  <string name="add_contact_remotely_title_case">Ajouter un contact à distance</string>
   <string name="add_contact_nearby_title">Ajouter un contact à proximité</string>
-  <string name="add_contact_remotely_title">Ajouter un contact éloigné</string>
+  <string name="add_contact_remotely_title">Ajouter un contact à distance</string>
   <string name="contact_link_intro">Saisissez ici le lien de votre contact</string>
   <string name="contact_link_hint">Lien de votre contact</string>
   <string name="paste_button">Coller</string>

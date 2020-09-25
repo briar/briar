@@ -61,6 +61,7 @@
   <string name="lock_button">Bloquear Aplicativo</string>
   <string name="settings_button">Configurações</string>
   <string name="sign_out_button">Sair</string>
+  <string name="transports_onboarding_text">Clique aqui para controlar como o Briar se conecta aos seus contatos.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
   <!--Transports: Wi-Fi-->
