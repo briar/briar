@@ -135,6 +135,7 @@ class AndroidBluetoothPlugin
 	@Override
 	@Nullable
 	String getBluetoothAddress() {
+		if (adapter == null) return null;
 		String address = AndroidUtils.getBluetoothAddress(app, adapter);
 		return address.isEmpty() ? null : address;
 	}
