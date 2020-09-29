@@ -10,11 +10,13 @@ import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.identity.AuthorInfo
 import org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED
 import org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED
+import org.briarproject.bramble.api.sync.MessageId
+import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
+import org.briarproject.bramble.api.sync.event.MessagesSentEvent
 import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.client.SessionId
-import org.briarproject.briar.api.conversation.ConversationManager
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
 import org.briarproject.briar.api.messaging.MessagingManager
@@ -101,6 +103,40 @@ internal class MessagingControllerImplTest : ControllerTest() {
     }
 
     @Test
+    fun testMessagesAckedEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesAckedEvent(contact.id, messageIds)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_MESSAGES_ACKED,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
+    fun testMessagesSentEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesSentEvent(contact.id, messageIds)
+
+        every {
+            webSocketController.sendEvent(
+                EVENT_MESSAGES_SENT,
+                event.output()
+            )
+        } just runs
+
+        controller.eventOccurred(event)
+    }
+
+    @Test
     fun listNonexistentContactId() {
         testNonexistentContactId { controller.list(ctx) }
     }
@@ -175,6 +211,43 @@ internal class MessagingControllerImplTest : ControllerTest() {
         } just runs
 
         controller.eventOccurred(event)
+    }
+
+    @Test
+    fun testOutputMessagesAckedEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesAckedEvent(contact.id, messageIds)
+        val json = """
+            {
+                "contactId": ${contact.id.int},
+                "messageIds": [
+                    ${toJson(messageId1.bytes)},
+                    ${toJson(messageId2.bytes)}
+                ]
+            }
+        """
+        assertJsonEquals(json, event.output())
+    }
+
+    @Test
+    fun testOutputMessagesSentEvent() {
+        val messageId1 = MessageId(getRandomId())
+        val messageId2 = MessageId(getRandomId())
+        val messageIds = listOf(messageId1, messageId2)
+        val event = MessagesSentEvent(contact.id, messageIds)
+
+        val json = """
+            {
+                "contactId": ${contact.id.int},
+                "messageIds": [
+                    ${toJson(messageId1.bytes)},
+                    ${toJson(messageId2.bytes)}
+                ]
+            }
+        """
+        assertJsonEquals(json, event.output())
     }
 
     @Test

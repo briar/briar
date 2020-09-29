@@ -410,3 +410,39 @@ When the last connection is lost (the contact goes offline), it sends a `Contact
     "type": "event"
 }
 ```
+
+### A message was sent
+
+When Briar sent a message to a contact, it sends a `MessagesSentEvent`. This is indicated in Briar
+by showing one tick next to the message.
+
+```json
+{
+    "data": {
+        "contactId": 1,
+        "messageIds": [
+            "+AIMMgOCPFF8HDEhiEHYjbfKrg7v0G94inKxjvjYzA8="
+        ]
+    },
+    "name": "MessagesSentEvent",
+    "type": "event"
+}
+```
+
+### A message was acknowledged
+
+When a contact acknowledges that they received a message, Briar sends a `MessagesAckedEvent`.
+This is indicated in Briar by showing two ticks next to the message.
+
+```json
+{
+    "data": {
+        "contactId": 1,
+        "messageIds": [
+            "+AIMMgOCPFF8HDEhiEHYjbfKrg7v0G94inKxjvjYzA8="
+        ]
+    },
+    "name": "MessagesAckedEvent",
+    "type": "event"
+}
+```
