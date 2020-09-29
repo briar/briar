@@ -58,7 +58,8 @@ internal class ContactControllerTest : ControllerTest() {
         every { contactManager.contacts } returns listOf(contact)
         every { conversationManager.getGroupCount(contact.id).latestMsgTime } returns timestamp
         every { connectionRegistry.isConnected(contact.id) } returns connected
-        every { ctx.json(listOf(contact.output(timestamp, connected))) } returns ctx
+        every { conversationManager.getGroupCount(contact.id).unreadCount } returns unreadCount
+        every { ctx.json(listOf(contact.output(timestamp, connected, unreadCount))) } returns ctx
         controller.list(ctx)
     }
 
@@ -313,10 +314,11 @@ internal class ContactControllerTest : ControllerTest() {
                 "handshakePublicKey": ${toJson(contact.handshakePublicKey!!.encoded)},
                 "verified": ${contact.isVerified},
                 "lastChatActivity": $timestamp,
-                "connected": $connected
+                "connected": $connected,
+                "unreadCount": $unreadCount
             }
         """
-        assertJsonEquals(json, contact.output(timestamp, connected))
+        assertJsonEquals(json, contact.output(timestamp, connected, unreadCount))
     }
 
     @Test

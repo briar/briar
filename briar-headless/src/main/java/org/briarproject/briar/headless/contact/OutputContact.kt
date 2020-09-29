@@ -7,12 +7,13 @@ import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent
 import org.briarproject.bramble.identity.output
 import org.briarproject.briar.headless.json.JsonDict
 
-internal fun Contact.output(latestMsgTime: Long, connected: Boolean) = JsonDict(
+internal fun Contact.output(latestMsgTime: Long, connected: Boolean, unreadCount: Int) = JsonDict(
     "contactId" to id.int,
     "author" to author.output(),
     "verified" to isVerified,
     "lastChatActivity" to latestMsgTime,
-    "connected" to connected
+    "connected" to connected,
+    "unreadCount" to unreadCount
 ).apply {
     alias?.let { put("alias", it) }
     handshakePublicKey?.let { put("handshakePublicKey", it.encoded) }
