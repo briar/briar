@@ -26,10 +26,12 @@ import org.briarproject.briar.api.messaging.PrivateMessageHeader
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent
 import org.briarproject.briar.headless.ControllerTest
 import org.briarproject.briar.headless.event.output
+import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
+import org.spongycastle.util.encoders.Base64
 
 internal class MessagingControllerImplTest : ControllerTest() {
 
@@ -196,6 +198,32 @@ internal class MessagingControllerImplTest : ControllerTest() {
         every { ctx.body() } returns """{"text": "${getRandomString(MAX_PRIVATE_MESSAGE_TEXT_LENGTH + 1)}"}"""
 
         assertThrows(BadRequestResponse::class.java) { controller.write(ctx) }
+    }
+
+    @Test
+    fun markMessageRead() {
+        mockkStatic("org.briarproject.briar.headless.RouterKt")
+        mockkStatic("org.spongycastle.util.encoders.Base64")
+        expectGetContact()
+
+        val messageIdString = message.id.bytes.toString()
+        every { messagingManager.getContactGroup(contact).id } returns group.id
+        every { ctx.getFromJson(objectMapper, "messageId") } returns messageIdString
+        every { Base64.decode(messageIdString) } returns message.id.bytes
+        every { messagingManager.setReadFlag(group.id, message.id, true) } just Runs
+        every { ctx.json(messageIdString) } returns ctx
+
+        controller.markMessageRead(ctx)
+    }
+
+    @Test
+    fun markMessageReadInvalidContactId() {
+        testInvalidContactId { controller.markMessageRead(ctx) }
+    }
+
+    @Test
+    fun markMessageReadNonexistentId() {
+        testNonexistentContactId { controller.markMessageRead(ctx) }
     }
 
     @Test

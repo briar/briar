@@ -86,6 +86,9 @@ constructor(
                     get { ctx -> messagingController.list(ctx) }
                     post { ctx -> messagingController.write(ctx) }
                 }
+                path("/messages/:contactId/read") {
+                    post { ctx -> messagingController.markMessageRead(ctx) }
+                }
                 path("/forums") {
                     get { ctx -> forumController.list(ctx) }
                     post { ctx -> forumController.create(ctx) }
