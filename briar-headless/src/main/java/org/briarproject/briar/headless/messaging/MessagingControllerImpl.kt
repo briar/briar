@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.event.Event
 import org.briarproject.bramble.api.event.EventListener
 import org.briarproject.bramble.api.sync.event.MessagesAckedEvent
 import org.briarproject.bramble.api.sync.event.MessagesSentEvent
+import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.api.system.Clock
 import org.briarproject.bramble.util.StringUtils.utf8IsTooLong
 import org.briarproject.briar.api.blog.BlogInvitationRequest
@@ -35,6 +36,8 @@ import org.briarproject.briar.headless.event.output
 import org.briarproject.briar.headless.getContactIdFromPathParam
 import org.briarproject.briar.headless.getFromJson
 import org.briarproject.briar.headless.json.JsonDict
+import org.spongycastle.util.encoders.Base64
+import org.spongycastle.util.encoders.DecoderException
 import java.util.concurrent.Executor
 import javax.annotation.concurrent.Immutable
 import javax.inject.Inject
@@ -81,6 +84,26 @@ constructor(
 
         messagingManager.addLocalMessage(m)
         return ctx.json(m.output(contact.id, text))
+    }
+
+    override fun markMessageRead(ctx: Context): Context {
+        val contact = getContact(ctx)
+        val groupId = messagingManager.getContactGroup(contact).id
+
+        val messageIdString = ctx.getFromJson(objectMapper, "messageId")
+        val messageId = deserializeMessageId(messageIdString)
+        messagingManager.setReadFlag(groupId, messageId, true)
+        return ctx.json(messageIdString)
+    }
+
+    private fun deserializeMessageId(idString: String): MessageId {
+        val idBytes = try {
+            Base64.decode(idString)
+        } catch (e: DecoderException) {
+            throw NotFoundResponse()
+        }
+        if (idBytes.size != MessageId.LENGTH) throw NotFoundResponse()
+        return MessageId(idBytes)
     }
 
     override fun eventOccurred(e: Event) {

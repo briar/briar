@@ -8,4 +8,6 @@ interface MessagingController {
 
     fun write(ctx: Context): Context
 
+    fun markMessageRead(ctx: Context): Context
+
 }

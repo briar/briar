@@ -234,6 +234,19 @@ The text of the message should be posted as JSON:
 }
 ```
 
+### Marking private messages as read
+
+`POST /v1/messages/{contactId}/read`
+
+The `messageId` of the message to be marked as read
+needs to be provided in the request body as follows:
+
+```json
+{
+    "messageId": "+AIMMgOCPFF8HDEhiEHYjbfKrg7v0G94inKxjvjYzA8="
+}
+```
+
 ### Listing blog posts
 
 `GET /v1/blogs/posts`
