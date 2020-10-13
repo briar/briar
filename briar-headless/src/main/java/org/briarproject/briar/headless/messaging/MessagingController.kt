@@ -10,4 +10,6 @@ interface MessagingController {
 
     fun markMessageRead(ctx: Context): Context
 
+    fun deleteAllMessages(ctx: Context): Context
+
 }

@@ -106,6 +106,16 @@ constructor(
         return MessageId(idBytes)
     }
 
+    override fun deleteAllMessages(ctx: Context): Context {
+        val contactId = ctx.getContactIdFromPathParam()
+        try {
+            val result = conversationManager.deleteAllMessages(contactId)
+            return ctx.json(result.output())
+        } catch (e: NoSuchContactException) {
+            throw NotFoundResponse()
+        }
+    }
+
     override fun eventOccurred(e: Event) {
         when (e) {
             is ConversationMessageReceivedEvent<*> -> {

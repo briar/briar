@@ -247,6 +247,12 @@ needs to be provided in the request body as follows:
 }
 ```
 
+### Deleting all private messages
+
+`DELETE /v1/messages/{contactId}/all`
+
+It returns with a status code `200`, if removal was successful.
+
 ### Listing blog posts
 
 `GET /v1/blogs/posts`

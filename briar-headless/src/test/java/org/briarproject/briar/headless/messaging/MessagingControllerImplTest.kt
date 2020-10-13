@@ -17,6 +17,7 @@ import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.bramble.util.StringUtils.getRandomString
 import org.briarproject.briar.api.client.SessionId
+import org.briarproject.briar.api.conversation.DeletionResult
 import org.briarproject.briar.api.introduction.IntroductionRequest
 import org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH
 import org.briarproject.briar.api.messaging.MessagingManager
@@ -32,6 +33,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.spongycastle.util.encoders.Base64
+import kotlin.random.Random
 
 internal class MessagingControllerImplTest : ControllerTest() {
 
@@ -341,6 +343,53 @@ internal class MessagingControllerImplTest : ControllerTest() {
             }
         """
         assertJsonEquals(json, request.output(contact.id))
+    }
+
+    @Test
+    fun testDeleteAllMessages() {
+        val result = DeletionResult()
+        every { ctx.pathParam("contactId") } returns "1"
+        every { conversationManager.deleteAllMessages(ContactId(1)) } returns result
+        every { ctx.json(result.output()) } returns ctx
+        controller.deleteAllMessages(ctx)
+    }
+
+    @Test
+    fun testDeleteAllMessagesInvalidContactId() {
+        every { ctx.pathParam("contactId") } returns "foo"
+        assertThrows(NotFoundResponse::class.java) {
+            controller.deleteAllMessages(ctx)
+        }
+    }
+
+    @Test
+    fun testDeleteAllMessagesNonexistentContactId() {
+        every { ctx.pathParam("contactId") } returns "1"
+        every { conversationManager.deleteAllMessages(ContactId(1)) } throws NoSuchContactException()
+        assertThrows(NotFoundResponse::class.java) {
+            controller.deleteAllMessages(ctx)
+        }
+    }
+
+    @Test
+    fun testOutputDeletionResult() {
+        val result = DeletionResult()
+        if (Random.nextBoolean()) result.addInvitationNotAllSelected()
+        if (Random.nextBoolean()) result.addInvitationSessionInProgress()
+        if (Random.nextBoolean()) result.addIntroductionNotAllSelected()
+        if (Random.nextBoolean()) result.addIntroductionSessionInProgress()
+        if (Random.nextBoolean()) result.addNotFullyDownloaded()
+        val json = """
+            {
+                "allDeleted": ${result.allDeleted()},
+                "hasIntroductionSessionInProgress": ${result.hasIntroductionSessionInProgress()},
+                "hasInvitationSessionInProgress": ${result.hasInvitationSessionInProgress()},
+                "hasNotAllIntroductionSelected": ${result.hasNotAllIntroductionSelected()},
+                "hasNotAllInvitationSelected": ${result.hasNotAllInvitationSelected()},
+                "hasNotFullyDownloaded": ${result.hasNotFullyDownloaded()}
+            }
+        """
+        assertJsonEquals(json, result.output())
     }
 
     private fun expectGetContact() {
