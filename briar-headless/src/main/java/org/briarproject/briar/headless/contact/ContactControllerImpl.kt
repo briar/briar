@@ -92,9 +92,7 @@ constructor(
         val link = ctx.getFromJson(objectMapper, "link")
         val alias = ctx.getFromJson(objectMapper, "alias")
         if (!LINK_REGEX.matcher(link).find()) throw BadRequestResponse("Invalid Link")
-        val aliasUtf8 = toUtf8(alias)
-        if (aliasUtf8.isEmpty() || aliasUtf8.size > MAX_AUTHOR_NAME_LENGTH)
-            throw BadRequestResponse("Invalid Alias")
+        checkAliasLength(alias)
         val pendingContact = contactManager.addPendingContact(link, alias)
         return ctx.json(pendingContact.output())
     }
@@ -125,6 +123,18 @@ constructor(
         return ctx
     }
 
+    override fun setContactAlias(ctx: Context): Context {
+        val contactId = ctx.getContactIdFromPathParam()
+        val alias = ctx.getFromJson(objectMapper, "alias")
+        checkAliasLength(alias)
+        try {
+            contactManager.setContactAlias(contactId, alias)
+        } catch (e: NoSuchContactException) {
+            throw NotFoundResponse()
+        }
+        return ctx
+    }
+
     override fun delete(ctx: Context): Context {
         val contactId = ctx.getContactIdFromPathParam()
         try {
@@ -133,6 +143,12 @@ constructor(
             throw NotFoundResponse()
         }
         return ctx
+    }
+
+    private fun checkAliasLength(alias: String) {
+        val aliasUtf8 = toUtf8(alias)
+        if (aliasUtf8.isEmpty() || aliasUtf8.size > MAX_AUTHOR_NAME_LENGTH)
+            throw BadRequestResponse("Invalid Alias")
     }
 
 }

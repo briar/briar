@@ -183,6 +183,18 @@ Note that it's also possible to add contacts nearby via Bluetooth/Wifi or
 introductions. In these cases contacts omit the `pendingContact` state and
 directly become `contact`s.
 
+### Changing alias of a contact
+
+`PUT /v1/contacts/{contactId}/alias`
+
+The alias should be posted as a JSON object:
+
+```json
+{
+    "alias": "A nickname for the new contact"
+}
+```
+
 ### Removing a contact
 
 `DELETE /v1/contacts/{contactId}`

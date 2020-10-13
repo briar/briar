@@ -9,6 +9,7 @@ interface ContactController {
     fun addPendingContact(ctx: Context): Context
     fun listPendingContacts(ctx: Context): Context
     fun removePendingContact(ctx: Context): Context
+    fun setContactAlias(ctx: Context): Context
     fun delete(ctx: Context): Context
 
 }
