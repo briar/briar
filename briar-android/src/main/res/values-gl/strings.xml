@@ -61,12 +61,36 @@
   <string name="lock_button">Bloquear App</string>
   <string name="settings_button">Axustes</string>
   <string name="sign_out_button">Finalizar sesión</string>
+  <string name="transports_onboarding_text">Toca aquí para controlar o xeito en que Briar conecta cos teus contactos.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
+  <string name="tor_device_status_online_wifi">O teu móbil ten acceso a internet por Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">O teu móbil ten acceso a internet por datos móbiles</string>
+  <string name="tor_device_status_offline">O teu móbil non ten acceso a internet</string>
+  <string name="tor_plugin_status_enabling">Briar estase conectando a internet</string>
+  <string name="tor_plugin_status_active">Briar está conectada a internet</string>
+  <string name="tor_plugin_status_inactive">Briar non pode conectarse a internet</string>
+  <string name="tor_plugin_status_disabled">Briar está configurada para non usar internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar está configurada para non usar datos móbilies</string>
+  <string name="tor_plugin_status_disabled_battery">Briar está configurada para non usar internet se está usando batería</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar está configurada para non usar internet neste país</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Mesma rede Wi-Fi</string>
+  <string name="lan_device_status_on">O móbil está conectado á Wi-Fi</string>
+  <string name="lan_device_status_off">O móbil non está conectado á Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar está conectando á rede Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar está conectada á rede Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar non pode conectar coa rede Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar está configurada para non usar a rede Wi-Fi</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">O móbil ten o Bluetooth activado</string>
+  <string name="bt_device_status_off">O móbil ten o Bluetooth desactivado</string>
+  <string name="bt_plugin_status_enabling">Briar está conectando por Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar está conectada ó Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar non pode conectar por Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar está configurada para non usar Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Desconectou de Briar</string>
   <string name="reminder_notification_text">Toque para voltar a conectar</string>
@@ -536,6 +560,7 @@
   <string name="lock_is_locked">Briar está bloqueada</string>
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar pode conectar cos teus contactos a través de Internet, Wi-Fi ou Bluetooth.\n\nTodas as conexións a internet pasan a través da rede Tor para máis privacidade.\n\nSe un contacto é accesible de múltiples xeitos, Briar usaráos en paralelo.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

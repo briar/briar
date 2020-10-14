@@ -61,12 +61,36 @@
   <string name="lock_button">Uygulamayı Kilitle</string>
   <string name="settings_button">Ayarlar</string>
   <string name="sign_out_button">Oturumu Kapat</string>
+  <string name="transports_onboarding_text">Briar\'ın kişilerinizle nasıl bağlanacağını kontrol etmek için buraya tıklayın</string>
   <!--Transports: Tor-->
   <string name="transport_tor">İnternet</string>
+  <string name="tor_device_status_online_wifi">Telefonunuzun Wi-Fi aracılığıyla İnternet erişimi var</string>
+  <string name="tor_device_status_online_mobile">Telefonunuzun mobil veri aracılığıyla İnternet erişimi var</string>
+  <string name="tor_device_status_offline">Telefonunuzun İnternet erişimi yok</string>
+  <string name="tor_plugin_status_enabling">Briar İnternet\'e bağlanıyor</string>
+  <string name="tor_plugin_status_active">Briar İnternet\'e bağlandı</string>
+  <string name="tor_plugin_status_inactive">Briar İnternet\'e bağlanamıyor</string>
+  <string name="tor_plugin_status_disabled">Briar İnternet kullanmamak üzere yapılandırılmış</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar mobil veri kullanmamak üzere yapılandırılmış</string>
+  <string name="tor_plugin_status_disabled_battery">Briar pille çalışırken İnternet kullanmamak üzere yapılandırılmış</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar bu ülkede İnternet kullanmamak üzere yapılandırılmış</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Aynı Wi-Fi Ağı</string>
+  <string name="lan_device_status_on">Telefonunuz Wi-Fi\'ye bağlı</string>
+  <string name="lan_device_status_off">Telefonunuz Wi-Fi\'ye bağlı değil</string>
+  <string name="lan_plugin_status_enabling">Briar Wi-Fi ağına bağlanıyor</string>
+  <string name="lan_plugin_status_active">Briar Wi-Fi ağına bağlandı</string>
+  <string name="lan_plugin_status_inactive">Briar Wi-Fi ağına bağlanamıyor</string>
+  <string name="lan_plugin_status_disabled">Briar Wi-Fi ağını kullanmamak üzere yapılandırılmış</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Telefonunuzun Bluetooth\'u açık</string>
+  <string name="bt_device_status_off">Telefonunuzun Bluetooth\'u kapalı</string>
+  <string name="bt_plugin_status_enabling">Briar Bluetooth\'a bağlanıyor</string>
+  <string name="bt_plugin_status_active">Briar Bluetooth\'a bağlandı</string>
+  <string name="bt_plugin_status_inactive">Briar Bluetooth\'a bağlanamıyor</string>
+  <string name="bt_plugin_status_disabled">Briar Bluetooth kullanmamak üzere yapılandırılmış</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Briar oturumu kapatıldı</string>
   <string name="reminder_notification_text">Tekrar oturum açmak için dokunun</string>
@@ -536,6 +560,7 @@
   <string name="lock_is_locked">Briar kilitli</string>
   <string name="lock_tap_to_unlock">Kilidi açmak için dokunun</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar kişilerinizle İnternet, Wi-Fi veya Bluetooth ile bağlanabilir.\n\nBütün İnternet bağlantıları gizliliğiniz için Tor Ağı üzerinden yapılıyor.\n\nEğer bir kişiniz birçok yöntemle erişilebiliyorsa, Briar bu yöntemleri paralel olarak kullanır.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

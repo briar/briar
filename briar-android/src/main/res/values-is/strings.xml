@@ -456,9 +456,9 @@
   <string name="pref_lock_title">Forritslæsing</string>
   <string name="pref_lock_summary">Notaðu skjálæsingu tækisins til að vernda Briar á meðan þú ert skráð/ur inn</string>
   <string name="pref_lock_disabled_summary">Til að nota þetta þarftu að setja upp skjálæsingu fyrir tækið þitt</string>
-  <string name="pref_lock_timeout_title">Tímamörk forritslæsingar við aðgerðaleysi</string>
+  <string name="pref_lock_timeout_title">Tímamörk læsingar forrits við aðgerðaleysi</string>
   <!--The %s placeholder is replaced with the following time spans, e.g. 5 Minutes, 1 Hour-->
-  <string name="pref_lock_timeout_summary">Þehar ekki er verið að nota Briar, læsa því sjálfvirkt eftir %s</string>
+  <string name="pref_lock_timeout_summary">Þegar ekki er verið að nota Briar, læsa því sjálfvirkt eftir %s</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->
   <string name="pref_lock_timeout_1">1 mínúta</string>
   <!--Will be shown in a list of lock times. Should fit into the %s of "automatically lock it after %s"-->

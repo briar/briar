@@ -61,12 +61,36 @@
   <string name="lock_button">App zárolása</string>
   <string name="settings_button">Beállítások</string>
   <string name="sign_out_button">Kijelentkezés</string>
+  <string name="transports_onboarding_text">Érintse meg itt, hogy beállíthassa, hogyan csatlakozzon a Tor kapcsolataihoz.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
+  <string name="tor_device_status_online_wifi">A telefonja Internet hozzáféréssel rendelkezik Wi-Fi-n keresztül</string>
+  <string name="tor_device_status_online_mobile">A telefonja Internet hozzáféréssel rendelkezik mobil hálózaton keresztül</string>
+  <string name="tor_device_status_offline">A telefonja nem rendelkezik Internet hozzáféréssel</string>
+  <string name="tor_plugin_status_enabling">A Briar csatlakozik az Internethez</string>
+  <string name="tor_plugin_status_active">A Briar csatlakoztatva az Internethez</string>
+  <string name="tor_plugin_status_inactive">A Briar nem tud csatlakozni az Internethez</string>
+  <string name="tor_plugin_status_disabled">A Briar Internet nélküli használatra van beállítva</string>
+  <string name="tor_plugin_status_disabled_mobile_data">A Briar mobil hálózat nélküli használatra van beállítva</string>
+  <string name="tor_plugin_status_disabled_battery">A Briar úgy van beállítva, hogy ne használjon Internetet, ha akkumulátorról megy a telefon</string>
+  <string name="tor_plugin_status_disabled_country_blocked">A Briar úgy van beállítva, hogy ne használjon Internetet ebben az országban</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Azonos Wi-Fi hálózat</string>
+  <string name="lan_device_status_on">A telefonja Wi-Fi-hez csatlakoztatott.</string>
+  <string name="lan_device_status_off">A telefonja Wi-Fi-hez nem csatlakoztatott.</string>
+  <string name="lan_plugin_status_enabling">A Briar csatlakozik a Wi-Fi hálózathoz</string>
+  <string name="lan_plugin_status_active">A Briar csatlakoztatva a Wi-Fi hálózathoz</string>
+  <string name="lan_plugin_status_inactive">A Briar nem tud csatlakozni a Wi-Fi hálózathoz</string>
+  <string name="lan_plugin_status_disabled">A Briar Wi-Fi nélküli használatra van beállítva</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">A telefonja Bluetooth-ja bekapcsolva</string>
+  <string name="bt_device_status_off">A telefonja Bluetooth-ja kikapcsolva</string>
+  <string name="bt_plugin_status_enabling">A Briar csatlakozik a Bluetooth-hoz</string>
+  <string name="bt_plugin_status_active">A Briar csatlakoztatva a Bluetooth-hoz</string>
+  <string name="bt_plugin_status_inactive">A Briar nem tud csatlakozni a Bluetooth-hoz</string>
+  <string name="bt_plugin_status_disabled">A Briar Bluetooth nélküli használatra van beállítva</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Kilépve a Briar-ból</string>
   <string name="reminder_notification_text">Érintse meg az újra belépéshez.</string>
@@ -421,10 +445,19 @@ Kapcsolatai, akivel megosztotta ezt a blogot, lehet nem kapnak többé frissít�
   <string name="pref_theme_system">Rendszer alapértelmezett</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Kapcsolatok</string>
+  <string name="bluetooth_setting">Csatlakozás a kapcsolatokhoz Bluetooth-on</string>
+  <string name="wifi_setting">Csatlakozás az egy Wi-Fi hálózaton lévő kapcsolatokhoz</string>
+  <string name="tor_enable_title">Csatlakozás a kapcsolatokhoz Interneten</string>
+  <string name="tor_enable_summary">Minden kapcsolat átmegy a Tor hálózaton az adatvédelem érdekében</string>
+  <string name="tor_network_setting">Kapcsolódási mód a Tor hálózathoz</string>
   <string name="tor_network_setting_automatic">Automatikusan hely alapján</string>
+  <string name="tor_network_setting_without_bridges">Tor hálózat használata hidak nélkül</string>
+  <string name="tor_network_setting_with_bridges">Tor hálózat használata hidakkal</string>
+  <string name="tor_network_setting_never">Ne csatlakozzon az internethez</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatikus: %1$s ( %2$s)</string>
   <string name="tor_mobile_data_title">Mobil adat használata</string>
+  <string name="tor_only_when_charging_title">Csatlakozás az internethez csak töltés alatt</string>
   <string name="tor_only_when_charging_summary">Letiltja az internet kapcsolatot, amikor elemről fut az eszköz</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Biztonság</string>
@@ -536,6 +569,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="lock_is_locked">A Briar zárolt</string>
   <string name="lock_tap_to_unlock">Érintse meg a zárolás feloldásához</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">A Briar Interneten, Wi-Fi-n vagy Bluetooth-on keresztül csatlakozhat kapcsolataihoz.\n\nAz összes internetkapcsolat a Tor hálózaton megy keresztül megy az adatvédelem érdekében.\n\nHa egy kapcsolatot több módszerrel is el lehet érni, Briar párhuzamosan használja azokat.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

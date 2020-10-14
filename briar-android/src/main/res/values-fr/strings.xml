@@ -31,7 +31,7 @@
   <string name="sign_in_button">Connexion</string>
   <string name="forgotten_password">J’ai oublié mon mot de passe</string>
   <string name="dialog_title_lost_password">Mot de passe oublié</string>
-  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Souhaitez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
+  <string name="dialog_message_lost_password">Votre compte Briar est enregistré chiffré sur votre appareil, pas dans le nuage, et nous ne pouvons donc pas réinitialiser votre mot de passe. Voulez-vous supprimer votre compte et recommencer ?\n\nAttention : vos identités, contacts et messages seront perdus irrémédiablement.</string>
   <string name="startup_failed_notification_title">Impossible de démarrer Briar</string>
   <string name="startup_failed_notification_text">Toucher pour plus d’informations.</string>
   <string name="startup_failed_activity_title">Échec de démarrage de Briar</string>
@@ -143,7 +143,7 @@
   <string name="no_contacts_action">Touchez l’icône + pour ajouter un contact</string>
   <string name="date_no_private_messages">Aucun message.</string>
   <string name="no_private_messages">Aucun message à afficher</string>
-  <string name="message_hint">Rédiger le message</string>
+  <string name="message_hint">Rédigez un message</string>
   <string name="image_caption_hint">Ajouter une légende (facultatif)</string>
   <string name="image_attach">Joindre une image</string>
   <string name="image_attach_error">Impossible de joindre une ou des images</string>
@@ -154,7 +154,7 @@
   <string name="set_alias_button">Modifier</string>
   <string name="delete_all_messages">Supprimer tous les messages</string>
   <string name="dialog_title_delete_all_messages">Confirmer la suppression des messages</string>
-  <string name="dialog_message_delete_all_messages">Souhaitez-vous vraiment supprimer tous les messages ?</string>
+  <string name="dialog_message_delete_all_messages">Voulez-vous vraiment supprimer tous les messages ?</string>
   <string name="dialog_title_not_all_messages_deleted">Impossible de supprimer tous les messages</string>
   <string name="dialog_message_not_deleted_ongoing_both">Les messages relatifs aux invitations et présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
   <string name="dialog_message_not_deleted_ongoing_introductions">Les messages relatifs aux présentations en cours ne peuvent pas être supprimés jusqu’à leur conclusion.</string>
@@ -165,13 +165,13 @@
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Pour supprimer une invitation, vous devez sélectionner la demande et la réponse.</string>
   <string name="delete_contact">Supprimer le contact</string>
   <string name="dialog_title_delete_contact">Confirmer la suppression du contact</string>
-  <string name="dialog_message_delete_contact">Souhaitez-vous vraiment supprimer ce contact et tous les messages associés ?</string>
+  <string name="dialog_message_delete_contact">Voulez-vous vraiment supprimer ce contact et tous les messages associés ?</string>
   <string name="contact_deleted_toast">Le contact a été supprimé</string>
   <!--This is shown in the action bar when opening an image in fullscreen that the user sent-->
   <string name="you">Vous</string>
   <string name="save_image">Enregistrer l’image</string>
   <string name="dialog_title_save_image">Enregistrer l’image ?</string>
-  <string name="dialog_message_save_image">L’enregistrement de cette image permettra aux autres applis d’y accéder.\n\n Souhaitez-vous vraiment l’enregistrer ?</string>
+  <string name="dialog_message_save_image">L’enregistrement de cette image permettra aux autres applis d’y accéder.\n\n Voulez-vous vraiment l’enregistrer ?</string>
   <string name="save_image_success">L’image a été enregistrée</string>
   <string name="save_image_error">Impossible d’enregistrer l’image</string>
   <string name="dialog_title_no_image_support">Les images ne sont pas disponibles</string>
@@ -198,9 +198,9 @@
   <string name="connection_error_explanation">Veuillez vérifier que vous êtes connecté au même réseau Wi-Fi.</string>
   <string name="connection_error_feedback">Si le problème persiste, veuillez nous <a href="feedback">envoyer une rétroaction</a> pour nous aider à améliorer l\'appli.</string>
   <!--Adding Contacts Remotely-->
-  <string name="add_contact_remotely_title_case">Ajouter un contact à distance</string>
+  <string name="add_contact_remotely_title_case">Ajouter un contact éloigné</string>
   <string name="add_contact_nearby_title">Ajouter un contact à proximité</string>
-  <string name="add_contact_remotely_title">Ajouter un contact à distance</string>
+  <string name="add_contact_remotely_title">Ajouter un contact éloigné</string>
   <string name="contact_link_intro">Saisissez ici le lien de votre contact</string>
   <string name="contact_link_hint">Lien de votre contact</string>
   <string name="paste_button">Coller</string>
@@ -266,7 +266,7 @@
   <string name="introduction_sent">Votre présentation a été envoyée.</string>
   <string name="introduction_error">Une erreur est survenue lors de la présentation.</string>
   <string name="introduction_request_sent">Vous avez demandé de présenter %1$s à %2$s.</string>
-  <string name="introduction_request_received">%1$s a demandé de vous présenter à %2$s. Souhaitez-vous ajouter %2$s à votre liste de contacts ?</string>
+  <string name="introduction_request_received">%1$s a demandé de vous présenter à %2$s. Voulez-vous ajouter %2$s à votre liste de contacts ?</string>
   <string name="introduction_request_exists_received">%1$s a demandé de vous présenter à %2$s, mais %2$s est déjà dans votre liste de contacts. Puisque %1$s pourrait ne pas le savoir, vous pouvez tout de même répondre :</string>
   <string name="introduction_request_answered_received">%1$s a demandé de vous présenter à %2$s.</string>
   <string name="introduction_response_accepted_sent">Vous avez accepté d’être présenté à %1$s.</string>
@@ -299,10 +299,10 @@
   <string name="groups_member_joined">%s s’est joint au groupe</string>
   <string name="groups_leave">Quitter le groupe</string>
   <string name="groups_leave_dialog_title">Confirmer la sortie du groupe</string>
-  <string name="groups_leave_dialog_message">Souhaitez-vous vraiment quitter ce groupe ?</string>
+  <string name="groups_leave_dialog_message">Voulez-vous vraiment quitter ce groupe ?</string>
   <string name="groups_dissolve">Dissoudre le groupe</string>
   <string name="groups_dissolve_dialog_title">Confirmer la dissolution du groupe</string>
-  <string name="groups_dissolve_dialog_message">Souhaitez-vous vraiment dissoudre ce groupe ?\n\nLes autres participants ne pourront pas poursuivre leur conversation et ne recevront peut-être pas les derniers messages.</string>
+  <string name="groups_dissolve_dialog_message">Voulez-vous vraiment dissoudre ce groupe ?\n\nLes autres participants ne pourront pas poursuivre leur conversation et ne recevront peut-être pas les derniers messages.</string>
   <string name="groups_dissolve_button">Dissoudre</string>
   <string name="groups_dissolved_dialog_title">Le groupe a été dissous</string>
   <string name="groups_dissolved_dialog_message">Le créateur de ce groupe l’a dissous.\n\nVous ne pouvez plus écrire de messages au groupe et ne recevrez peut-être pas tous ceux qui y ont été publiés.</string>
@@ -346,7 +346,7 @@
   <string name="btn_reply">Répondre</string>
   <string name="forum_leave">Quitter le forum</string>
   <string name="dialog_title_leave_forum">Confirmer la sortie du forum</string>
-  <string name="dialog_message_leave_forum">Souhaitez-vous vraiment quitter ce forum ?\n\nLes contacts avec qui vous l’avez partagé pourraient ne plus en recevoir les mises à jour.</string>
+  <string name="dialog_message_leave_forum">Voulez-vous vraiment quitter ce forum ?\n\nLes contacts avec qui vous l’avez partagé pourraient ne plus en recevoir les mises à jour.</string>
   <string name="dialog_button_leave">Quitter</string>
   <string name="forum_left_toast">À quitté le forum</string>
   <!--Forum Sharing-->
@@ -390,7 +390,7 @@
   <string name="blogs_feed_empty_state">Aucun billet à afficher</string>
   <string name="blogs_feed_empty_state_action">Les billets de vos contacts et les blogues auxquels vous vous abonnez apparaîtront ici.\n\nTouchez l’icône de crayon pour rédiger un billet</string>
   <string name="blogs_remove_blog">Supprimer le blogue</string>
-  <string name="blogs_remove_blog_dialog_message">Souhaitez-vous vraiment supprimer ce blogue ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce blogue pourraient ne plus en recevoir les mises à jour.</string>
+  <string name="blogs_remove_blog_dialog_message">Voulez-vous vraiment supprimer ce blogue ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce blogue pourraient ne plus en recevoir les mises à jour.</string>
   <string name="blogs_remove_blog_ok">Supprimer</string>
   <string name="blogs_blog_removed">Le blogue a été supprimé</string>
   <string name="blogs_reblog_comment_hint">Ajouter un commentaire (facultatif)</string>
@@ -420,7 +420,7 @@
   <string name="blogs_rss_feeds_manage_author">Auteur :</string>
   <string name="blogs_rss_feeds_manage_updated">Dernière mise à jour :</string>
   <string name="blogs_rss_remove_feed">Supprimer le fil</string>
-  <string name="blogs_rss_remove_feed_dialog_message">Souhaitez-vous vraiment supprimer ce fil ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce fil pourraient ne plus en recevoir les mises à jour.</string>
+  <string name="blogs_rss_remove_feed_dialog_message">Voulez-vous vraiment supprimer ce fil ?\nLes billets seront supprimés de votre appareil mais pas des appareils d’autrui.\n\nLes contacts avec qui vous avez partagé ce fil pourraient ne plus en recevoir les mises à jour.</string>
   <string name="blogs_rss_remove_feed_ok">Supprimer</string>
   <string name="blogs_rss_feeds_manage_delete_error">Impossible de supprimer le fil !</string>
   <string name="blogs_rss_feeds_manage_empty_state">Aucun fil RSS à afficher\n\nTouchez l’icône + pour importer un fil</string>
@@ -484,7 +484,7 @@
   <string name="panic_app_setting_summary">Aucune appli n’a été définie</string>
   <string name="panic_app_setting_none">Aucune</string>
   <string name="dialog_title_connect_panic_app">Confirmer l’application d’urgence</string>
-  <string name="dialog_message_connect_panic_app">Souhaitez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
+  <string name="dialog_message_connect_panic_app">Voulez-vous vraiment autoriser %1$s à déclencher les actions destructrices du bouton d’urgence ?</string>
   <string name="panic_setting_destructive_action">Actions destructrices</string>
   <string name="panic_setting_signout_title">Déconnexion</string>
   <string name="panic_setting_signout_summary">Se déconnecter de Briar si l’on appuie sur un bouton d’urgence</string>

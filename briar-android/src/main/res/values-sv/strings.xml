@@ -61,12 +61,36 @@
   <string name="lock_button">Lås appen</string>
   <string name="settings_button">Inställningar</string>
   <string name="sign_out_button">Logga ut</string>
+  <string name="transports_onboarding_text">Klicka här för att styra hur Briar ansluter till dina kontakter.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
+  <string name="tor_device_status_online_wifi">Din telefon har internetåtkomst via Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Din telefon har internetåtkomst via mobildata</string>
+  <string name="tor_device_status_offline">Din telefon har inte internetåtkomst</string>
+  <string name="tor_plugin_status_enabling">Briar ansluter till internet</string>
+  <string name="tor_plugin_status_active">Briar är anslutet till internet</string>
+  <string name="tor_plugin_status_inactive">Briar kan inte ansluta till internet</string>
+  <string name="tor_plugin_status_disabled">Briar är inte konfigurerat för att använda internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar är konfigurerat så att de inte använder mobildata</string>
+  <string name="tor_plugin_status_disabled_battery">Briar är konfigurerat att inte använda internet vid batterianvändning</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar är konfigurerat att inte använda internet i detta landet</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Samma Wi-Fi-nätverk</string>
+  <string name="lan_device_status_on">Din telefon är ansluten till Wi-Fi</string>
+  <string name="lan_device_status_off">Din telefon är inte ansluten till Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar ansluter till Wi-Fi-nätverket</string>
+  <string name="lan_plugin_status_active">Briar är anslutet till Wi-Fi nätverket</string>
+  <string name="lan_plugin_status_inactive">Briar kan inte ansluta till Wi-Fi-nätverket</string>
+  <string name="lan_plugin_status_disabled">Briar är konfigurerat för att inte använda Wi-Fi-nätverket</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Din telefons Bluetooth är aktiverad</string>
+  <string name="bt_device_status_off">Din telefons Bluetooth är inaktiverad</string>
+  <string name="bt_plugin_status_enabling">Briar ansluter till Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar är ansluten till Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar kan inte ansluta till Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar är konfigurerat för att inte använda Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Utloggad från Briar</string>
   <string name="reminder_notification_text">Tryck för att logga in igen.</string>
@@ -412,10 +436,20 @@
   <string name="pref_theme_auto">Automatisk (dagtid)</string>
   <string name="pref_theme_system">Systemets förval</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">Anslutningar</string>
+  <string name="bluetooth_setting">Anslut till kontakter via Bluetooth</string>
+  <string name="wifi_setting">Anslut till kontakter på samma Wi-Fi-nätverk</string>
+  <string name="tor_enable_title">Anslut till kontakter via internet</string>
+  <string name="tor_enable_summary">Alla anslutningar gå via Tor-nätverket av integritetsskäl</string>
+  <string name="tor_network_setting">Anslutningsmetod för Tor-nätverket</string>
   <string name="tor_network_setting_automatic">Automatisk, baserad på position</string>
+  <string name="tor_network_setting_without_bridges">Använd Tor-nätverket utan bryggor</string>
+  <string name="tor_network_setting_with_bridges">Anvädn Tor-nätverket med bryggor</string>
+  <string name="tor_network_setting_never">Anslut inte till internet</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automatisk: %1$s (i %2$s)</string>
   <string name="tor_mobile_data_title">Använd mobildata</string>
+  <string name="tor_only_when_charging_title">Anslut till internet endast vid laddning</string>
   <string name="tor_only_when_charging_summary">Avaktiverar anslutning över Internet när enheten går på batteri</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Säkerhet</string>
@@ -526,6 +560,7 @@
   <string name="lock_is_locked">Briar är låst</string>
   <string name="lock_tap_to_unlock">Tryck för att låsa upp</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar kan ansluta till dina kontakter via internet, Wi-Fi eller Bluetooth.\n\nAlla internetanslutningar går via Tor-nätverket av integritetsskäl.\n\nOm en kontakt kan nås via flera metoder kommer Briar att använda dem parallellt.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>
