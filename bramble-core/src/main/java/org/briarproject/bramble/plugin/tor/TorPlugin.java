@@ -863,6 +863,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			if (!state.isTorRunning()) return;
 			boolean online = status.isConnected();
 			boolean wifi = status.isWifi();
+			boolean ipv6Only = status.isIpv6Only();
 			String country = locationUtils.getCurrentCountry();
 			boolean blocked =
 					circumventionProvider.isTorProbablyBlocked(country);
@@ -879,7 +880,8 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 			boolean automatic = network == PREF_TOR_NETWORK_AUTOMATIC;
 
 			if (LOG.isLoggable(INFO)) {
-				LOG.info("Online: " + online + ", wifi: " + wifi);
+				LOG.info("Online: " + online + ", wifi: " + wifi
+						+ ", IPv6 only: " + ipv6Only);
 				if (country.isEmpty()) LOG.info("Country code unknown");
 				else LOG.info("Country code: " + country);
 				LOG.info("Charging: " + charging);
@@ -942,6 +944,7 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 				if (enableNetwork) {
 					enableBridges(enableBridges, useMeek);
 					enableConnectionPadding(enableConnectionPadding);
+					useIpv6(ipv6Only);
 				}
 				enableNetwork(enableNetwork);
 			} catch (IOException e) {
@@ -952,6 +955,11 @@ abstract class TorPlugin implements DuplexPlugin, EventHandler, EventListener {
 
 	private void enableConnectionPadding(boolean enable) throws IOException {
 		controlConnection.setConf("ConnectionPadding", enable ? "1" : "0");
+	}
+
+	private void useIpv6(boolean ipv6Only) throws IOException {
+		controlConnection.setConf("ClientUseIPv4", ipv6Only ? "0" : "1");
+		controlConnection.setConf("ClientUseIPv6", ipv6Only ? "1" : "0");
 	}
 
 	@ThreadSafe

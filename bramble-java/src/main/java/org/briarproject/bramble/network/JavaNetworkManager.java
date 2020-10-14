@@ -5,6 +5,8 @@ import org.briarproject.bramble.api.network.NetworkStatus;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
@@ -14,8 +16,8 @@ import javax.inject.Inject;
 
 import static java.net.NetworkInterface.getNetworkInterfaces;
 import static java.util.Collections.list;
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
@@ -23,7 +25,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 class JavaNetworkManager implements NetworkManager {
 
 	private static final Logger LOG =
-			Logger.getLogger(JavaNetworkManager.class.getName());
+			getLogger(JavaNetworkManager.class.getName());
 
 	@Inject
 	JavaNetworkManager() {
@@ -31,26 +33,28 @@ class JavaNetworkManager implements NetworkManager {
 
 	@Override
 	public NetworkStatus getNetworkStatus() {
-		boolean connected = false;
+		boolean connected = false, hasIpv4 = false, hasIpv6Unicast = false;
 		try {
 			Enumeration<NetworkInterface> interfaces = getNetworkInterfaces();
-			if (interfaces != null) {
+			if (interfaces == null) {
+				LOG.info("No network interfaces");
+			} else {
 				for (NetworkInterface i : list(interfaces)) {
-					if (i.isLoopback()) continue;
-					if (i.isUp() && i.getInetAddresses().hasMoreElements()) {
-						if (LOG.isLoggable(INFO)) {
-							LOG.info("Interface " + i.getDisplayName() +
-									" is up with at least one address.");
-						}
+					if (i.isLoopback() || !i.isUp()) continue;
+					for (InetAddress addr : list(i.getInetAddresses())) {
 						connected = true;
-						break;
+						if (addr instanceof Inet4Address) {
+							hasIpv4 = true;
+						} else if (!addr.isMulticastAddress()) {
+							hasIpv6Unicast = true;
+						}
 					}
 				}
 			}
 		} catch (SocketException e) {
 			logException(LOG, WARNING, e);
 		}
-		return new NetworkStatus(connected, false);
+		return new NetworkStatus(connected, false, !hasIpv4 && hasIpv6Unicast);
 	}
 
 }
