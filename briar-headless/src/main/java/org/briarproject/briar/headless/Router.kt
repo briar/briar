@@ -81,6 +81,9 @@ constructor(
                     path("/:contactId") {
                         delete { ctx -> contactController.delete(ctx) }
                     }
+                    path("/:contactId/alias") {
+                        put { ctx -> contactController.setContactAlias(ctx) }
+                    }
                 }
                 path("/messages/:contactId") {
                     get { ctx -> messagingController.list(ctx) }
