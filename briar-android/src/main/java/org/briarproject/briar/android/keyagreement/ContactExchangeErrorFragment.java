@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.keyagreement;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,7 +19,10 @@ import org.briarproject.briar.android.util.UiUtils;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.FragmentActivity;
 
+import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
+import static android.view.View.GONE;
 import static org.briarproject.briar.android.util.UiUtils.onSingleLinkClick;
 
 @MethodsNotNullByDefault
@@ -58,13 +62,12 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 		View v = inflater.inflate(R.layout.fragment_error_contact_exchange,
 				container, false);
 
-		// set humanized error message
+		// set optional error message
 		TextView explanation = v.findViewById(R.id.errorMessage);
 		Bundle args = getArguments();
-		if (args == null) {
-			throw new IllegalArgumentException("Use newInstance()");
-		}
-		explanation.setText(args.getString(ERROR_MSG));
+		String errorMessage = args == null ? null : args.getString(ERROR_MSG);
+		if (errorMessage == null) explanation.setVisibility(GONE);
+		else explanation.setText(args.getString(ERROR_MSG));
 
 		// make feedback link clickable
 		TextView sendFeedback = v.findViewById(R.id.sendFeedback);
@@ -73,7 +76,11 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 		// buttons
 		Button tryAgain = v.findViewById(R.id.tryAgainButton);
 		tryAgain.setOnClickListener(view -> {
-			if (getActivity() != null) getActivity().onBackPressed();
+			// Recreate the activity so we return to the intro fragment
+			FragmentActivity activity = requireActivity();
+			Intent i = new Intent(activity, ContactExchangeActivity.class);
+			i.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			activity.startActivity(i);
 		});
 		Button cancel = v.findViewById(R.id.cancelButton);
 		cancel.setOnClickListener(view -> finish());
