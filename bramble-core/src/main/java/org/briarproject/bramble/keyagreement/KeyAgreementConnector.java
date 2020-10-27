@@ -8,6 +8,8 @@ import org.briarproject.bramble.api.keyagreement.KeyAgreementListener;
 import org.briarproject.bramble.api.keyagreement.Payload;
 import org.briarproject.bramble.api.keyagreement.TransportDescriptor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.BluetoothConstants;
+import org.briarproject.bramble.api.plugin.LanTcpConstants;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -19,7 +21,9 @@ import org.briarproject.bramble.api.record.RecordWriterFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
@@ -28,8 +32,10 @@ import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 
+import static java.util.Arrays.asList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.keyagreement.KeyAgreementConstants.CONNECTION_TIMEOUT;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
@@ -41,7 +47,10 @@ class KeyAgreementConnector {
 	}
 
 	private static final Logger LOG =
-			Logger.getLogger(KeyAgreementConnector.class.getName());
+			getLogger(KeyAgreementConnector.class.getName());
+
+	private static final List<TransportId> PREFERRED_TRANSPORTS =
+			asList(BluetoothConstants.ID, LanTcpConstants.ID);
 
 	private final Callbacks callbacks;
 	private final KeyAgreementCrypto keyAgreementCrypto;
@@ -105,23 +114,32 @@ class KeyAgreementConnector {
 		this.alice = alice;
 		aliceLatch.countDown();
 
-		// Start connecting over supported transports
+		// Start connecting over best available transport
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Starting outgoing BQP connections as "
 					+ (alice ? "Alice" : "Bob"));
 		}
+		Map<TransportId, TransportDescriptor> descriptors = new HashMap<>();
 		for (TransportDescriptor d : remotePayload.getTransportDescriptors()) {
-			Plugin p = pluginManager.getPlugin(d.getId());
-			if (p instanceof DuplexPlugin) {
+			descriptors.put(d.getId(), d);
+		}
+		for (TransportId id : PREFERRED_TRANSPORTS) {
+			TransportDescriptor d = descriptors.get(id);
+			Plugin p = pluginManager.getPlugin(id);
+			if (d != null && p instanceof DuplexPlugin) {
 				if (LOG.isLoggable(INFO))
-					LOG.info("Connecting via " + d.getId());
+					LOG.info("Connecting via " + id);
 				DuplexPlugin plugin = (DuplexPlugin) p;
 				byte[] commitment = remotePayload.getCommitment();
 				BdfList descriptor = d.getDescriptor();
 				connectionChooser.submit(new ReadableTask(new ConnectorTask(
 						plugin, commitment, descriptor, alice)));
+				break;
 			}
 		}
+
+		// TODO: If we don't have any transports in common with the peer,
+		//  warn the user and give up (#1224)
 
 		// Get chosen connection
 		try {
