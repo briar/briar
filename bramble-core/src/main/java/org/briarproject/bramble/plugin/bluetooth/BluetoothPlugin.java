@@ -430,15 +430,22 @@ abstract class BluetoothPlugin<S, SS> implements DuplexPlugin, EventListener {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor) {
+			byte[] commitment, BdfList descriptor, boolean alice) {
 		if (getState() != ACTIVE) return null;
 		// No truncation necessary because COMMIT_LENGTH = 16
 		String uuid = UUID.nameUUIDFromBytes(commitment).toString();
 		DuplexTransportConnection conn;
 		if (descriptor.size() == 1) {
-			if (LOG.isLoggable(INFO))
-				LOG.info("Discovering address for key agreement UUID " + uuid);
-			conn = discoverAndConnect(uuid);
+			if (alice) {
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Discovering address for key agreement UUID " +
+							uuid);
+				}
+				conn = discoverAndConnect(uuid);
+			} else {
+				LOG.info("No address in key agreement descriptor");
+				return null;
+			}
 		} else {
 			String address;
 			try {
