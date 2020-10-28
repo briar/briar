@@ -118,8 +118,8 @@ class KeyAgreementConnector {
 				DuplexPlugin plugin = (DuplexPlugin) p;
 				byte[] commitment = remotePayload.getCommitment();
 				BdfList descriptor = d.getDescriptor();
-				connectionChooser.submit(new ReadableTask(
-						new ConnectorTask(plugin, commitment, descriptor)));
+				connectionChooser.submit(new ReadableTask(new ConnectorTask(
+						plugin, commitment, descriptor, alice)));
 			}
 		}
 
@@ -148,15 +148,17 @@ class KeyAgreementConnector {
 
 	private class ConnectorTask implements Callable<KeyAgreementConnection> {
 
+		private final DuplexPlugin plugin;
 		private final byte[] commitment;
 		private final BdfList descriptor;
-		private final DuplexPlugin plugin;
+		private final boolean alice;
 
 		private ConnectorTask(DuplexPlugin plugin, byte[] commitment,
-				BdfList descriptor) {
+				BdfList descriptor, boolean alice) {
 			this.plugin = plugin;
 			this.commitment = commitment;
 			this.descriptor = descriptor;
+			this.alice = alice;
 		}
 
 		@Nullable
@@ -166,7 +168,7 @@ class KeyAgreementConnector {
 			while (!stopped) {
 				DuplexTransportConnection conn =
 						plugin.createKeyAgreementConnection(commitment,
-								descriptor);
+								descriptor, alice);
 				if (conn != null) {
 					if (LOG.isLoggable(INFO))
 						LOG.info(plugin.getId() + ": Outgoing connection");
