@@ -1,5 +1,6 @@
 package org.briarproject.bramble.keyagreement;
 
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.crypto.KeyAgreementCrypto;
 import org.briarproject.bramble.api.crypto.KeyPair;
 import org.briarproject.bramble.api.data.BdfList;
@@ -114,7 +115,7 @@ class KeyAgreementConnector {
 		this.alice = alice;
 		aliceLatch.countDown();
 
-		// Start connecting over best available transport
+		// Start connecting over supported transports in order of preference
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Starting outgoing BQP connections as "
 					+ (alice ? "Alice" : "Bob"));
@@ -123,23 +124,25 @@ class KeyAgreementConnector {
 		for (TransportDescriptor d : remotePayload.getTransportDescriptors()) {
 			descriptors.put(d.getId(), d);
 		}
+		List<Pair<DuplexPlugin, BdfList>> transports = new ArrayList<>();
 		for (TransportId id : PREFERRED_TRANSPORTS) {
 			TransportDescriptor d = descriptors.get(id);
 			Plugin p = pluginManager.getPlugin(id);
 			if (d != null && p instanceof DuplexPlugin) {
 				if (LOG.isLoggable(INFO))
 					LOG.info("Connecting via " + id);
-				DuplexPlugin plugin = (DuplexPlugin) p;
-				byte[] commitment = remotePayload.getCommitment();
-				BdfList descriptor = d.getDescriptor();
-				connectionChooser.submit(new ReadableTask(new ConnectorTask(
-						plugin, commitment, descriptor, alice)));
-				break;
+				transports.add(new Pair<>((DuplexPlugin) p, d.getDescriptor()));
 			}
 		}
 
 		// TODO: If we don't have any transports in common with the peer,
 		//  warn the user and give up (#1224)
+
+		if (!transports.isEmpty()) {
+			byte[] commitment = remotePayload.getCommitment();
+			connectionChooser.submit(new ReadableTask(new ConnectorTask(
+					transports, commitment)));
+		}
 
 		// Get chosen connection
 		try {
@@ -166,17 +169,13 @@ class KeyAgreementConnector {
 
 	private class ConnectorTask implements Callable<KeyAgreementConnection> {
 
-		private final DuplexPlugin plugin;
+		private final List<Pair<DuplexPlugin, BdfList>> transports;
 		private final byte[] commitment;
-		private final BdfList descriptor;
-		private final boolean alice;
 
-		private ConnectorTask(DuplexPlugin plugin, byte[] commitment,
-				BdfList descriptor, boolean alice) {
-			this.plugin = plugin;
+		private ConnectorTask(List<Pair<DuplexPlugin, BdfList>> transports,
+				byte[] commitment) {
+			this.transports = transports;
 			this.commitment = commitment;
-			this.descriptor = descriptor;
-			this.alice = alice;
 		}
 
 		@Nullable
@@ -184,13 +183,18 @@ class KeyAgreementConnector {
 		public KeyAgreementConnection call() throws Exception {
 			// Repeat attempts until we connect, get stopped, or get interrupted
 			while (!stopped) {
-				DuplexTransportConnection conn =
-						plugin.createKeyAgreementConnection(commitment,
-								descriptor, alice);
-				if (conn != null) {
-					if (LOG.isLoggable(INFO))
-						LOG.info(plugin.getId() + ": Outgoing connection");
-					return new KeyAgreementConnection(conn, plugin.getId());
+				for (Pair<DuplexPlugin, BdfList> pair : transports) {
+					if (stopped) return null;
+					DuplexPlugin plugin = pair.getFirst();
+					BdfList descriptor = pair.getSecond();
+					DuplexTransportConnection conn =
+							plugin.createKeyAgreementConnection(commitment,
+									descriptor);
+					if (conn != null) {
+						if (LOG.isLoggable(INFO))
+							LOG.info(plugin.getId() + ": Outgoing connection");
+						return new KeyAgreementConnection(conn, plugin.getId());
+					}
 				}
 				// Wait 2s before retry (to circumvent transient failures)
 				Thread.sleep(2000);
