@@ -276,7 +276,7 @@ public class LanTcpPluginTest extends BrambleTestCase {
 		descriptor.add(local.getPort());
 		// Connect to the port
 		DuplexTransportConnection d = plugin.createKeyAgreementConnection(
-				new byte[COMMIT_LENGTH], descriptor, true);
+				new byte[COMMIT_LENGTH], descriptor);
 		assertNotNull(d);
 		// Check that the connection was accepted
 		assertTrue(latch.await(5, SECONDS));

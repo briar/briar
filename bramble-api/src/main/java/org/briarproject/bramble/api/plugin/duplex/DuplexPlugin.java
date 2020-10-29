@@ -41,12 +41,10 @@ public interface DuplexPlugin extends Plugin {
 	/**
 	 * Attempts to connect to the remote peer specified in the given descriptor.
 	 * Returns null if no connection can be established.
-	 *
-	 * @param alice True if the local party is Alice
 	 */
 	@Nullable
 	DuplexTransportConnection createKeyAgreementConnection(
-			byte[] remoteCommitment, BdfList descriptor, boolean alice);
+			byte[] remoteCommitment, BdfList descriptor);
 
 	/**
 	 * Returns true if the plugin supports rendezvous connections.

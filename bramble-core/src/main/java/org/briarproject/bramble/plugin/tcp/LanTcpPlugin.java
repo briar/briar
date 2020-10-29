@@ -376,7 +376,7 @@ class LanTcpPlugin extends TcpPlugin {
 
 	@Override
 	public DuplexTransportConnection createKeyAgreementConnection(
-			byte[] commitment, BdfList descriptor, boolean alice) {
+			byte[] commitment, BdfList descriptor) {
 		ServerSocket ss = state.getServerSocket(true);
 		if (ss == null) return null;
 		InterfaceAddress local = getLocalInterfaceAddress(ss.getInetAddress());

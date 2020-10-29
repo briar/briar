@@ -26,7 +26,6 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.keyagreement.IntroFragment.IntroScreenSeenListener;
 import org.briarproject.briar.android.keyagreement.KeyAgreementFragment.KeyAgreementEventListener;
-import org.briarproject.briar.android.util.UiUtils;
 
 import java.util.logging.Logger;
 
@@ -46,6 +45,7 @@ import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
@@ -55,6 +55,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.INACTIVE;
 import static org.briarproject.bramble.api.plugin.Plugin.State.STARTING_STOPPING;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_BLUETOOTH_DISCOVERABLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_PERMISSION_CAMERA_LOCATION;
+import static org.briarproject.briar.android.util.UiUtils.getGoToSettingsListener;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -133,6 +134,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	private Permission locationPermission = Permission.UNKNOWN;
 	private BluetoothDecision bluetoothDecision = BluetoothDecision.UNKNOWN;
 	private BroadcastReceiver bluetoothReceiver = null;
+	private Plugin wifiPlugin = null, bluetoothPlugin = null;
+	private BluetoothAdapter bt = null;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
@@ -152,6 +155,9 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		IntentFilter filter = new IntentFilter(ACTION_SCAN_MODE_CHANGED);
 		bluetoothReceiver = new BluetoothStateReceiver();
 		registerReceiver(bluetoothReceiver, filter);
+		wifiPlugin = pluginManager.getPlugin(LanTcpConstants.ID);
+		bluetoothPlugin = pluginManager.getPlugin(BluetoothConstants.ID);
+		bt = BluetoothAdapter.getDefaultAdapter();
 	}
 
 	@Override
@@ -187,6 +193,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		showQrCodeFragmentIfAllowed();
 	}
 
+	@SuppressWarnings("StatementWithEmptyBody")
 	private void showQrCodeFragmentIfAllowed() {
 		if (isResumed && continueClicked && areEssentialPermissionsGranted()) {
 			if (isWifiReady() && isBluetoothReady()) {
@@ -200,6 +207,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 				}
 				if (bluetoothDecision == BluetoothDecision.UNKNOWN) {
 					requestBluetoothDiscoverable();
+				} else if (bluetoothDecision == BluetoothDecision.REFUSED) {
+					// Ask again when the user clicks "continue"
 				} else if (shouldEnableBluetooth()) {
 					LOG.info("Enabling Bluetooth plugin");
 					hasEnabledBluetooth = true;
@@ -210,55 +219,50 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private boolean areEssentialPermissionsGranted() {
-		// If the camera permission has been granted, and the location
-		// permission has been granted or permanently denied, we can continue
 		return cameraPermission == Permission.GRANTED &&
-				(locationPermission == Permission.GRANTED ||
-						locationPermission == Permission.PERMANENTLY_DENIED);
+				(SDK_INT < 23 || locationPermission == Permission.GRANTED ||
+						!isBluetoothSupported());
+	}
+
+	private boolean isBluetoothSupported() {
+		return bt != null && bluetoothPlugin != null;
 	}
 
 	private boolean isWifiReady() {
-		Plugin p = pluginManager.getPlugin(LanTcpConstants.ID);
-		if (p == null) return true; // Continue without wifi
-		State state = p.getState();
+		if (wifiPlugin == null) return true; // Continue without wifi
+		State state = wifiPlugin.getState();
 		// Wait for plugin to become enabled
 		return state == ACTIVE || state == INACTIVE;
 	}
 
 	private boolean isBluetoothReady() {
-		if (bluetoothDecision == BluetoothDecision.UNKNOWN ||
-				bluetoothDecision == BluetoothDecision.WAITING) {
-			// Wait for decision
-			return false;
-		}
-		if (bluetoothDecision == BluetoothDecision.NO_ADAPTER
-				|| bluetoothDecision == BluetoothDecision.REFUSED) {
+		if (!isBluetoothSupported()) {
 			// Continue without Bluetooth
 			return true;
 		}
-		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
-		if (bt == null) return true; // Continue without Bluetooth
+		if (bluetoothDecision == BluetoothDecision.UNKNOWN ||
+				bluetoothDecision == BluetoothDecision.WAITING ||
+				bluetoothDecision == BluetoothDecision.REFUSED) {
+			// Wait for user to accept
+			return false;
+		}
 		if (bt.getScanMode() != SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
 			// Wait for adapter to become discoverable
 			return false;
 		}
-		Plugin p = pluginManager.getPlugin(BluetoothConstants.ID);
-		if (p == null) return true; // Continue without Bluetooth
 		// Wait for plugin to become active
-		return p.getState() == ACTIVE;
+		return bluetoothPlugin.getState() == ACTIVE;
 	}
 
 	private boolean shouldEnableWifi() {
 		if (hasEnabledWifi) return false;
-		Plugin p = pluginManager.getPlugin(LanTcpConstants.ID);
-		if (p == null) return false;
-		State state = p.getState();
+		if (wifiPlugin == null) return false;
+		State state = wifiPlugin.getState();
 		return state == STARTING_STOPPING || state == DISABLED;
 	}
 
 	private void requestBluetoothDiscoverable() {
-		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
-		if (bt == null) {
+		if (!isBluetoothSupported()) {
 			bluetoothDecision = BluetoothDecision.NO_ADAPTER;
 			showQrCodeFragmentIfAllowed();
 		} else {
@@ -277,9 +281,8 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	private boolean shouldEnableBluetooth() {
 		if (bluetoothDecision != BluetoothDecision.ACCEPTED) return false;
 		if (hasEnabledBluetooth) return false;
-		Plugin p = pluginManager.getPlugin(BluetoothConstants.ID);
-		if (p == null) return false;
-		State state = p.getState();
+		if (!isBluetoothSupported()) return false;
+		State state = bluetoothPlugin.getState();
 		return state == STARTING_STOPPING || state == DISABLED;
 	}
 
@@ -298,6 +301,9 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	@Override
 	public void showNextScreen() {
 		continueClicked = true;
+		if (bluetoothDecision == BluetoothDecision.REFUSED) {
+			bluetoothDecision = BluetoothDecision.UNKNOWN; // Ask again
+		}
 		if (checkPermissions()) showQrCodeFragmentIfAllowed();
 	}
 
@@ -341,17 +347,17 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 	private boolean checkPermissions() {
 		if (areEssentialPermissionsGranted()) return true;
-		// If the camera permission has been permanently denied, ask the
+		// If an essential permission has been permanently denied, ask the
 		// user to change the setting
 		if (cameraPermission == Permission.PERMANENTLY_DENIED) {
-			Builder builder = new Builder(this, R.style.BriarDialogTheme);
-			builder.setTitle(R.string.permission_camera_title);
-			builder.setMessage(R.string.permission_camera_denied_body);
-			builder.setPositiveButton(R.string.ok,
-					UiUtils.getGoToSettingsListener(this));
-			builder.setNegativeButton(R.string.cancel,
-					(dialog, which) -> supportFinishAfterTransition());
-			builder.show();
+			showDenialDialog(R.string.permission_camera_title,
+					R.string.permission_camera_denied_body);
+			return false;
+		}
+		if (isBluetoothSupported() &&
+				locationPermission == Permission.PERMANENTLY_DENIED) {
+			showDenialDialog(R.string.permission_location_title,
+					R.string.permission_location_denied_body);
 			return false;
 		}
 		// Should we show the rationale for one or both permissions?
@@ -371,6 +377,16 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		return false;
 	}
 
+	private void showDenialDialog(@StringRes int title, @StringRes int body) {
+		Builder builder = new Builder(this, R.style.BriarDialogTheme);
+		builder.setTitle(title);
+		builder.setMessage(body);
+		builder.setPositiveButton(R.string.ok, getGoToSettingsListener(this));
+		builder.setNegativeButton(R.string.cancel,
+				(dialog, which) -> supportFinishAfterTransition());
+		builder.show();
+	}
+
 	private void showRationale(@StringRes int title, @StringRes int body) {
 		Builder builder = new Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(title);
@@ -381,8 +397,13 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 	}
 
 	private void requestPermissions() {
-		ActivityCompat.requestPermissions(this,
-				new String[] {CAMERA, ACCESS_FINE_LOCATION},
+		String[] permissions;
+		if (isBluetoothSupported()) {
+			permissions = new String[] {CAMERA, ACCESS_FINE_LOCATION};
+		} else {
+			permissions = new String[] {CAMERA};
+		}
+		ActivityCompat.requestPermissions(this, permissions,
 				REQUEST_PERMISSION_CAMERA_LOCATION);
 	}
 
@@ -399,12 +420,15 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 		} else {
 			cameraPermission = Permission.PERMANENTLY_DENIED;
 		}
-		if (gotPermission(ACCESS_FINE_LOCATION, permissions, grantResults)) {
-			locationPermission = Permission.GRANTED;
-		} else if (shouldShowRationale(ACCESS_FINE_LOCATION)) {
-			locationPermission = Permission.SHOW_RATIONALE;
-		} else {
-			locationPermission = Permission.PERMANENTLY_DENIED;
+		if (isBluetoothSupported()) {
+			if (gotPermission(ACCESS_FINE_LOCATION, permissions,
+					grantResults)) {
+				locationPermission = Permission.GRANTED;
+			} else if (shouldShowRationale(ACCESS_FINE_LOCATION)) {
+				locationPermission = Permission.SHOW_RATIONALE;
+			} else {
+				locationPermission = Permission.PERMANENTLY_DENIED;
+			}
 		}
 		// If a permission dialog has been shown, showing the QR code fragment
 		// on this call path would cause a crash due to
