@@ -45,6 +45,7 @@ import static android.bluetooth.BluetoothAdapter.ACTION_REQUEST_DISCOVERABLE;
 import static android.bluetooth.BluetoothAdapter.ACTION_SCAN_MODE_CHANGED;
 import static android.bluetooth.BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static android.os.Build.VERSION.SDK_INT;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
@@ -219,7 +220,7 @@ public abstract class KeyAgreementActivity extends BriarActivity implements
 
 	private boolean areEssentialPermissionsGranted() {
 		return cameraPermission == Permission.GRANTED &&
-				(locationPermission == Permission.GRANTED ||
+				(SDK_INT < 23 || locationPermission == Permission.GRANTED ||
 						!isBluetoothSupported());
 	}
 
