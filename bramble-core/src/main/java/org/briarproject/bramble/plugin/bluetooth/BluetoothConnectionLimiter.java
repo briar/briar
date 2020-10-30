@@ -23,7 +23,9 @@ interface BluetoothConnectionLimiter {
 	boolean canOpenContactConnection();
 
 	/**
-	 * Informs the limiter that the given connection has been opened.
+	 * Informs the limiter that the given connection has been opened. If the
+	 * connection is above the limit it will be
+	 * {@link DuplexTransportConnection#markForClose() marked for close}.
 	 */
 	void connectionOpened(DuplexTransportConnection conn);
 

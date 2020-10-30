@@ -22,6 +22,8 @@ public abstract class AbstractDuplexTransportConnection
 	private final Writer writer;
 	private final AtomicBoolean halfClosed, closed;
 
+	private volatile boolean markedForClose = false;
+
 	protected AbstractDuplexTransportConnection(Plugin plugin) {
 		this.plugin = plugin;
 		reader = new Reader();
@@ -50,6 +52,16 @@ public abstract class AbstractDuplexTransportConnection
 	@Override
 	public TransportProperties getRemoteProperties() {
 		return remote;
+	}
+
+	@Override
+	public boolean isMarkedForClose() {
+		return markedForClose;
+	}
+
+	@Override
+	public void markForClose() {
+		markedForClose = true;
 	}
 
 	private class Reader implements TransportConnectionReader {

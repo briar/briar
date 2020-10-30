@@ -24,6 +24,7 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			getLogger(BluetoothConnectionLimiterImpl.class.getName());
 
 	private final EventBus eventBus;
+	private final boolean singleConnection;
 
 	private final Object lock = new Object();
 	@GuardedBy("lock")
@@ -32,8 +33,10 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 	@GuardedBy("lock")
 	private boolean keyAgreementInProgress = false;
 
-	BluetoothConnectionLimiterImpl(EventBus eventBus) {
+	BluetoothConnectionLimiterImpl(EventBus eventBus,
+			boolean singleConnection) {
 		this.eventBus = eventBus;
+		this.singleConnection = singleConnection;
 	}
 
 	@Override
@@ -59,6 +62,9 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 			if (keyAgreementInProgress) {
 				LOG.info("Can't open contact connection during key agreement");
 				return false;
+			} else if (singleConnection && !connections.isEmpty()) {
+				LOG.info("Can't open contact connection due to limit");
+				return false;
 			} else {
 				LOG.info("Can open contact connection");
 				return true;
@@ -68,12 +74,18 @@ class BluetoothConnectionLimiterImpl implements BluetoothConnectionLimiter {
 
 	@Override
 	public void connectionOpened(DuplexTransportConnection conn) {
+		boolean shouldClose = false;
 		synchronized (lock) {
 			connections.add(conn);
 			if (LOG.isLoggable(INFO)) {
 				LOG.info("Connection opened, " + connections.size() + " open");
 			}
+			if (singleConnection && connections.size() > 1) {
+				LOG.info("Marking connection for close");
+				shouldClose = true;
+			}
 		}
+		if (shouldClose) conn.markForClose();
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.plugin.duplex;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.plugin.ConnectionHandler;
 import org.briarproject.bramble.api.plugin.TransportConnectionReader;
 import org.briarproject.bramble.api.plugin.TransportConnectionWriter;
 import org.briarproject.bramble.api.properties.TransportProperties;
@@ -30,4 +31,17 @@ public interface DuplexTransportConnection {
 	 * the remote peer.
 	 */
 	TransportProperties getRemoteProperties();
+
+	/**
+	 * Returns true if the connection should be closed immediately without
+	 * sending anything.
+	 */
+	boolean isMarkedForClose();
+
+	/**
+	 * Call this method before the connection is passed to its
+	 * {@link ConnectionHandler} if the connection should be closed immediately
+	 * without sending anything.
+	 */
+	void markForClose();
 }

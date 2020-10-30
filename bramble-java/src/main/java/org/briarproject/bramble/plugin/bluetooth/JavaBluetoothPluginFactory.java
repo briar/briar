@@ -65,7 +65,7 @@ public class JavaBluetoothPluginFactory implements DuplexPluginFactory {
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
 		BluetoothConnectionLimiter connectionLimiter =
-				new BluetoothConnectionLimiterImpl(eventBus);
+				new BluetoothConnectionLimiterImpl(eventBus, false);
 		BluetoothConnectionFactory<StreamConnection> connectionFactory =
 				new JavaBluetoothConnectionFactory(connectionLimiter,
 						timeoutMonitor);

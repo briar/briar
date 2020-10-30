@@ -65,11 +65,16 @@ class OutgoingDuplexSyncConnection extends DuplexSyncConnection
 		Priority priority = generatePriority();
 		ioExecutor.execute(() -> runIncomingSession(priority));
 		try {
-			// Create and run the outgoing session
-			SyncSession out =
-					createDuplexOutgoingSession(ctx, writer, priority);
-			setOutgoingSession(out);
-			out.run();
+			if (connection.isMarkedForClose()) {
+				// Close the outgoing stream without sending anything
+				closeOutgoingStream(ctx, writer);
+			} else {
+				// Create and run the outgoing session
+				SyncSession out =
+						createDuplexOutgoingSession(ctx, writer, priority);
+				setOutgoingSession(out);
+				out.run();
+			}
 			writer.dispose(false);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);

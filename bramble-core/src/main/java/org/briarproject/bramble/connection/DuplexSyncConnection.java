@@ -33,6 +33,7 @@ abstract class DuplexSyncConnection extends SyncConnection
 
 	final Executor ioExecutor;
 	final TransportId transportId;
+	final DuplexTransportConnection connection;
 	final TransportConnectionReader reader;
 	final TransportConnectionWriter writer;
 	final TransportProperties remote;
@@ -80,6 +81,7 @@ abstract class DuplexSyncConnection extends SyncConnection
 				transportPropertyManager);
 		this.ioExecutor = ioExecutor;
 		this.transportId = transportId;
+		this.connection = connection;
 		reader = connection.getReader();
 		writer = connection.getWriter();
 		remote = connection.getRemoteProperties();
@@ -94,6 +96,13 @@ abstract class DuplexSyncConnection extends SyncConnection
 	void onWriteError() {
 		disposeOnError(reader, true);
 		disposeOnError(writer);
+	}
+
+	void closeOutgoingStream(StreamContext ctx, TransportConnectionWriter w)
+			throws IOException {
+		StreamWriter streamWriter = streamWriterFactory.createStreamWriter(
+				w.getOutputStream(), ctx);
+		streamWriter.sendEndOfStream();
 	}
 
 	SyncSession createDuplexOutgoingSession(StreamContext ctx,

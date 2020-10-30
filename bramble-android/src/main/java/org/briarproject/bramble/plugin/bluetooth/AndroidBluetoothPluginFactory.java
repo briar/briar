@@ -24,6 +24,7 @@ import java.util.concurrent.Executor;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static android.os.Build.BRAND;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.ID;
 
 @Immutable
@@ -81,8 +82,12 @@ public class AndroidBluetoothPluginFactory implements DuplexPluginFactory {
 
 	@Override
 	public DuplexPlugin createPlugin(PluginCallback callback) {
+		// On Motorola devices, don't try to open multiple connections - the
+		// Bluetooth stack can't handle it
+		// TODO: Narrow this down to specific models/versions if possible
+		boolean singleConnection = "motorola".equalsIgnoreCase(BRAND);
 		BluetoothConnectionLimiter connectionLimiter =
-				new BluetoothConnectionLimiterImpl(eventBus);
+				new BluetoothConnectionLimiterImpl(eventBus, singleConnection);
 		BluetoothConnectionFactory<BluetoothSocket> connectionFactory =
 				new AndroidBluetoothConnectionFactory(connectionLimiter,
 						wakeLockManager, timeoutMonitor);

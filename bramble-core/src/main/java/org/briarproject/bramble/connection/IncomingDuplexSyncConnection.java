@@ -93,10 +93,16 @@ class IncomingDuplexSyncConnection extends DuplexSyncConnection
 			return;
 		}
 		try {
-			// Create and run the outgoing session
-			SyncSession out = createDuplexOutgoingSession(ctx, writer, null);
-			setOutgoingSession(out);
-			out.run();
+			if (connection.isMarkedForClose()) {
+				// Close the outgoing stream without sending anything
+				closeOutgoingStream(ctx, writer);
+			} else {
+				// Create and run the outgoing session
+				SyncSession out =
+						createDuplexOutgoingSession(ctx, writer, null);
+				setOutgoingSession(out);
+				out.run();
+			}
 			writer.dispose(false);
 		} catch (IOException e) {
 			logException(LOG, WARNING, e);
