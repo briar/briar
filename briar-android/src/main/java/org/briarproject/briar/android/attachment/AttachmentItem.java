@@ -7,24 +7,33 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 
-import java.util.concurrent.atomic.AtomicLong;
-
 import javax.annotation.concurrent.Immutable;
 
 import androidx.annotation.Nullable;
 
+import static java.lang.System.arraycopy;
 import static java.util.Objects.requireNonNull;
+import static org.briarproject.bramble.util.StringUtils.toHexString;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.LOADING;
+import static org.briarproject.briar.android.attachment.AttachmentItem.State.MISSING;
 
 @Immutable
 @NotNullByDefault
 public class AttachmentItem implements Parcelable {
 
+	public enum State {
+		LOADING, MISSING, AVAILABLE, ERROR;
+
+		public boolean isFinal() {
+			return this == AVAILABLE || this == ERROR;
+		}
+	}
+
 	private final AttachmentHeader header;
 	private final int width, height;
 	private final String extension;
 	private final int thumbnailWidth, thumbnailHeight;
-	private final boolean hasError;
-	private final long instanceId;
+	private final State state;
 
 	public static final Creator<AttachmentItem> CREATOR =
 			new Creator<AttachmentItem>() {
@@ -39,19 +48,33 @@ public class AttachmentItem implements Parcelable {
 				}
 			};
 
-	private static final AtomicLong NEXT_INSTANCE_ID = new AtomicLong(0);
-
 	AttachmentItem(AttachmentHeader header, int width, int height,
 			String extension, int thumbnailWidth, int thumbnailHeight,
-			boolean hasError) {
+			State state) {
 		this.header = header;
 		this.width = width;
 		this.height = height;
 		this.extension = extension;
 		this.thumbnailWidth = thumbnailWidth;
 		this.thumbnailHeight = thumbnailHeight;
-		this.hasError = hasError;
-		instanceId = NEXT_INSTANCE_ID.getAndIncrement();
+		this.state = state;
+	}
+
+	/**
+	 * Use only for {@link State MISSING} or {@link State LOADING} items.
+	 */
+	AttachmentItem(AttachmentHeader header, int width, int height,
+			State state) {
+		this(header, width, height, "", width, height, state);
+		if (state != MISSING && state != LOADING)
+			throw new IllegalArgumentException();
+	}
+
+	/**
+	 * Use when the item does not need a size.
+	 */
+	AttachmentItem(AttachmentHeader header, String extension, State state) {
+		this(header, 0, 0, extension, 0, 0, state);
 	}
 
 	protected AttachmentItem(Parcel in) {
@@ -64,8 +87,7 @@ public class AttachmentItem implements Parcelable {
 		extension = requireNonNull(in.readString());
 		thumbnailWidth = in.readInt();
 		thumbnailHeight = in.readInt();
-		hasError = in.readByte() != 0;
-		instanceId = in.readLong();
+		state = State.valueOf(requireNonNull(in.readString()));
 		header = new AttachmentHeader(messageId, mimeType);
 	}
 
@@ -101,12 +123,16 @@ public class AttachmentItem implements Parcelable {
 		return thumbnailHeight;
 	}
 
-	public boolean hasError() {
-		return hasError;
+	public State getState() {
+		return state;
 	}
 
-	public String getTransitionName() {
-		return String.valueOf(instanceId);
+	public String getTransitionName(MessageId conversationItemId) {
+		int len = MessageId.LENGTH;
+		byte[] instanceId = new byte[len * 2];
+		arraycopy(header.getMessageId().getBytes(), 0, instanceId, 0, len);
+		arraycopy(conversationItemId.getBytes(), 0, instanceId, len, len);
+		return toHexString(instanceId);
 	}
 
 	@Override
@@ -123,14 +149,23 @@ public class AttachmentItem implements Parcelable {
 		dest.writeString(extension);
 		dest.writeInt(thumbnailWidth);
 		dest.writeInt(thumbnailHeight);
-		dest.writeByte((byte) (hasError ? 1 : 0));
-		dest.writeLong(instanceId);
+		dest.writeString(state.name());
 	}
 
+	/**
+	 * This is used to identity if two items are the same,
+	 * irrespective of their state or size.
+	 */
 	@Override
 	public boolean equals(@Nullable Object o) {
 		return o instanceof AttachmentItem &&
-				instanceId == ((AttachmentItem) o).instanceId;
+				header.getMessageId().equals(
+						((AttachmentItem) o).header.getMessageId()
+				);
 	}
 
+	@Override
+	public int hashCode() {
+		return header.getMessageId().hashCode();
+	}
 }

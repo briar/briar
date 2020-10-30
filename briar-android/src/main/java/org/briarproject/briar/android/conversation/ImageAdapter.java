@@ -49,7 +49,8 @@ class ImageAdapter extends Adapter<ImageViewHolder> {
 	public ImageViewHolder onCreateViewHolder(ViewGroup viewGroup, int type) {
 		View v = LayoutInflater.from(viewGroup.getContext()).inflate(
 				R.layout.list_item_image, viewGroup, false);
-		return new ImageViewHolder(v, imageSize);
+		requireNonNull(conversationItem);
+		return new ImageViewHolder(v, imageSize, conversationItem.getId());
 	}
 
 	@Override
