@@ -43,6 +43,15 @@ public class TestDuplexTransportConnection
 		return new TransportProperties();
 	}
 
+	@Override
+	public boolean isMarkedForClose() {
+		return false;
+	}
+
+	@Override
+	public void markForClose() {
+	}
+
 	/**
 	 * Creates and returns a pair of TestDuplexTransportConnections that are
 	 * connected to each other.
