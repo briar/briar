@@ -195,7 +195,6 @@
   <string name="connecting_to_device">Ansluter till enhet\u2026</string>
   <string name="authenticating_with_device">Autentiserar med enhet\u2026</string>
   <string name="connection_error_title">Kunde ej ansluta till din kontakt</string>
-  <string name="connection_error_explanation">Kontrollera att ni båda är anslutna på samma Wi-Fi-nätverk.</string>
   <string name="connection_error_feedback">Om det här problemet kvarstår, vänligen lämna <a href="feedback">synpunkter</a> så vi kan förbättra appen.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Lägg till en kontakt på avstånd</string>

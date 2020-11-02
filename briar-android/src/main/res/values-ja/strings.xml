@@ -149,7 +149,6 @@
   <string name="connecting_to_device">デバイスに接続中\u2026</string>
   <string name="authenticating_with_device">デバイス同士での認証中\u2026</string>
   <string name="connection_error_title">連絡先に接続できませんでした</string>
-  <string name="connection_error_explanation">あなたと連絡相手、両方が同じWi-Fiネットワークに接続していることを確認してください。</string>
   <string name="connection_error_feedback">この問題が解決しない場合、アプリを改善するために<a href="feedback">フィードバック</a>を送信してください。</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">離れた場所にいる相手を連絡先に追加</string>

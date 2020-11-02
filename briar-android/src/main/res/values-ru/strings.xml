@@ -207,7 +207,6 @@
   <string name="connecting_to_device">Подключение к устройству\u2026</string>
   <string name="authenticating_with_device">Аутентификация с устройством\u2026</string>
   <string name="connection_error_title">Не удалось подключиться к контакту</string>
-  <string name="connection_error_explanation">Убедитесь, что вы оба подключены к той же сети Wi-Fi.</string>
   <string name="connection_error_feedback">Если эта проблема сохраняется, пожалуйста <a href="feedback">отправьте отзыв</a>,  чтобы помочь нам улучшить приложение.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Добавление контакта на расстоянии</string>

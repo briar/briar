@@ -197,7 +197,6 @@ Biztosan szeretné menteni?</string>
   <string name="connecting_to_device">Csatlakozás az eszközhöz\u2026</string>
   <string name="authenticating_with_device">Azonosítás az eszközzel\u2026</string>
   <string name="connection_error_title">Nem sikerült csatlakozni a kapcsolatához</string>
-  <string name="connection_error_explanation">Ellenőrizzék, hogy mindketten ugyanahhoz a Wi-Fi hálózathoz vannak-e csatlakozva.</string>
   <string name="connection_error_feedback">Ha ez a probléma tartósan fennáll, kérjük <a href="feedback">küldjön visszajelzést</a> nekünk, hogy segítsen fejleszteni az appot.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Távoli kapcsolat hozzá adása</string>

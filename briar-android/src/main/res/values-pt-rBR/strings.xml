@@ -172,7 +172,6 @@
   <string name="connecting_to_device">Conectando a device\u2026</string>
   <string name="authenticating_with_device">Autenticando com o dispositivo\u2026</string>
   <string name="connection_error_title">Não foi possível conectar-se ao seu contato</string>
-  <string name="connection_error_explanation">Por favor, certifique se ambos estão conectados na mesma rede Wi-Fi.</string>
   <string name="connection_error_feedback">Se o problema persistir, por favor <a href="feedback">envie um feedback</a> para nos ajudar a melhorar o app.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Adicionar contato à distância</string>

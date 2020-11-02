@@ -165,7 +165,6 @@
   <string name="connecting_to_device">Łączenie z urządzeniem\u2026</string>
   <string name="authenticating_with_device">Autoryzowanie z urządzeniem\u2026</string>
   <string name="connection_error_title">Nie udało się połączyć z kontaktem</string>
-  <string name="connection_error_explanation">Sprawdź czy obaj jesteście połączeni z tą samą siecią Wi-Fi.</string>
   <string name="connection_error_feedback">Jeśli problem będzie występować dalej, proszę <a href="feedback">wysłać zgłoszenie</a> aby pomóc nam ulepszyć aplikację.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Dodaj Kontakt na odległość</string>

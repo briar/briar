@@ -195,7 +195,6 @@
   <string name="connecting_to_device">Tengist við tæki\u2026</string>
   <string name="authenticating_with_device">Auðkenni við tæki\u2026</string>
   <string name="connection_error_title">Gat ekki tengst við tengiliðinn þinn</string>
-  <string name="connection_error_explanation">Athugaðu hvort þið séuð ekki báðir tengdir við sama þráðlausa Wi-Fi netið.</string>
   <string name="connection_error_feedback">Ef þetta vandamál er viðvarandi, ættirðu að <a href="feedback">senda umsögn</a> til að hjálpa okkur að bæta forritið.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Bæta við fjarlægum tengilið</string>

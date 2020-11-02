@@ -190,7 +190,6 @@
   <string name="connecting_to_device">正在连接至设备\u2026</string>
   <string name="authenticating_with_device">正在验证设备\u2026</string>
   <string name="connection_error_title">无法连接到您的联系人</string>
-  <string name="connection_error_explanation">请确保你们连接到了同一个无线局域网中。</string>
   <string name="connection_error_feedback">如果该问题仍存在，请 <a href="feedback">发送反馈</a> 帮助我们改善应用。</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">添加远处的联系人</string>
@@ -540,6 +539,7 @@
   <string name="permission_camera_location_title">相机和位置</string>
   <string name="permission_camera_location_request_body"> Briar 需要相机权限以扫描二维码。\n\nBriar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
   <string name="permission_camera_denied_body">您已拒绝相机权限，而添加联系人需要使用相机。\n\n请考虑授予相机权限。</string>
+  <string name="permission_location_denied_body">您已拒绝访问您的位置，但Briar需要此权限才能发现蓝牙设备。\n\n请考虑授予访问权限。</string>
   <string name="qr_code">二维码</string>
   <string name="show_qr_code_fullscreen">全屏显示二维码</string>
   <!--App Locking-->

@@ -31,7 +31,7 @@
   <string name="sign_in_button">Prisijungti</string>
   <string name="forgotten_password">Aš pamiršau savo slaptažodį</string>
   <string name="dialog_title_lost_password">Prarastas slaptažodis</string>
-  <string name="dialog_message_lost_password">Jūsų Briar paskyra yra saugoma šifruotu pavidalu jūsų įrenginyje, o ne debesijoje, taigi, negalime atstatyti jūsų slaptažodžio Ar norėtumėte ištrinti savo paskyrą ir pradėti iš naujo?\n\nDėmesio: Jūsų tapatybės, žinutės ir adresatai bus prarasti visiems laikams.</string>
+  <string name="dialog_message_lost_password">Jūsų Briar paskyra yra saugoma šifruotu pavidalu jūsų įrenginyje, o ne debesijoje, taigi, negalime atstatyti jūsų slaptažodžio. Ar norėtumėte ištrinti savo paskyrą ir pradėti iš naujo?\n\nDėmesio: Jūsų tapatybės, žinutės ir adresatai bus prarasti visiems laikams.</string>
   <string name="startup_failed_notification_title">Nepavyko paleisti Briar</string>
   <string name="startup_failed_notification_text">Bakstelėkite išsamesnei informacijai.</string>
   <string name="startup_failed_activity_title">Briar paleidimo nesėkmė</string>
@@ -191,7 +191,7 @@
   <string name="messaging_too_many_attachments_toast">Bus išsiųsti tik %d pirmi paveikslai</string>
   <!--Adding Contacts-->
   <string name="add_contact_title">Pridėti šalia esantį adresatą</string>
-  <string name="face_to_face">Jūs privalote susitikti gyvai su asmeniu, kurį norite pridėti kaip adresatą.\n\nTai neleis bet kam apsimetinėti jumis ar ateityje skaityti jūsų žinutes.</string>
+  <string name="face_to_face">Jūs privalote susitikti gyvai su asmeniu, kurį norite pridėti kaip adresatą.\n\nTai neleis bet kam apsimetinėti jumis ar ateityje skaityti jūsų žinučių.</string>
   <string name="continue_button">Tęsti</string>
   <string name="try_again_button">Bandyti dar kartą</string>
   <string name="waiting_for_contact_to_scan">Laukiama, kol adresatas nuskenuos ir prisijungs\u2026</string>
@@ -205,7 +205,6 @@
   <string name="connecting_to_device">Jungiamasi prie įrenginio\u2026</string>
   <string name="authenticating_with_device">Tapatybės nustatymas su įrenginiu\u2026</string>
   <string name="connection_error_title">Nepavyko prisijungti prie jūsų adresato</string>
-  <string name="connection_error_explanation">Įsitikinkite, kad abu esate prisijungę prie to paties belaidžio (Wi-Fi) tinklo.</string>
   <string name="connection_error_feedback">Jei ši problema išlieka, <a href="feedback">atsiųskite mums atsiliepimą</a>, kad padėtumėte mums patobulinti programėlę.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Pridėti adresatą per atstumą</string>
@@ -570,6 +569,7 @@
   <string name="permission_camera_location_title">Kamera ir įrenginio vietovė</string>
   <string name="permission_camera_location_request_body">Tam, kad galėtų nuskenuoti QR kodą, Briar reikia gauti prieigą prie jūsų kameros.\n\nTam, kad galėtų atrasti Bluetooth įrenginius, Briar reikia gauti prieigą prie jūsų įrenginio vietovės.\n\nBriar nesaugo jūsų įrenginio vietovės ir su niekuo jos nebendrina.</string>
   <string name="permission_camera_denied_body">Jūs uždraudėte prieigą prie kameros, tačiau norint pridėti adresatus, reikia naudoti kamerą.\n\nApsvarstykite galimybę sutekti prieigą prie kameros.</string>
+  <string name="permission_location_denied_body">Jūs uždraudėte prieigą prie įrenginio vietovės, tačiau norint atrasti Bluetooth įrenginius, Briar reikia šio leidimo.\n\nApsvarstykite galimybę sutekti prieigą prie įrenginio vietovės.</string>
   <string name="qr_code">QR kodas</string>
   <string name="show_qr_code_fullscreen">Rodyti QR kodą visame ekrane</string>
   <!--App Locking-->

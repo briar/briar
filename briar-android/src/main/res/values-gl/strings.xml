@@ -195,7 +195,6 @@
   <string name="connecting_to_device">Conectando co dispositivo\u2026</string>
   <string name="authenticating_with_device">Autenticándose co dispositivo\u2026</string>
   <string name="connection_error_title">Non se puido conectar co contacto</string>
-  <string name="connection_error_explanation">Por favor, comprobe que ambas están conectadas a mesma rede Wi-Fi.</string>
   <string name="connection_error_feedback">Si persiste o problema,<a href="feedback">envíe un informe</a> para axudarnos a mellorar a app.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Engadir contacto a distancia</string>
@@ -550,6 +549,7 @@
   <string name="permission_camera_location_title">Cámara e localización</string>
   <string name="permission_camera_location_request_body">Para escanear o código QR, Briar precisa acceso a cámara.\n\nPara descubrir dispositivos Bluetooth, Briar precisa permiso a súa localización.\n\nBriar non garda a súa localización nin a comparte con ninguén.</string>
   <string name="permission_camera_denied_body">Denegou o permiso de acceso a cámara, pero é necesario para engadir contactos.\n\nPor favor, considere conceder o permiso.</string>
+  <string name="permission_location_denied_body">Denegache o acceso á localización, mais Briar precisa este permiso para descubrir dispositivos Bluetooth.\n\nConsidera conceder o permiso.</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Amosar o código QR a pantalla completa</string>
   <!--App Locking-->

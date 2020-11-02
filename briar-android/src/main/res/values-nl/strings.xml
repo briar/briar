@@ -195,7 +195,6 @@
   <string name="connecting_to_device">Aan het verbinden met apparaat\u2026</string>
   <string name="authenticating_with_device">Aan het authenticeren met apparaat\u2026</string>
   <string name="connection_error_title">Kon geen verbinding maken met je contact</string>
-  <string name="connection_error_explanation">Controleer alsjeblieft dat jullie beiden met hetzelfde wifinetwerk zijn verbonden.</string>
   <string name="connection_error_feedback">Als dit probleem aanhoudt, <a href="feedback">stuur feedback</a> alsjeblieft om ons te helpen de app te verbeteren.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Voeg een contact ver weg toe</string>

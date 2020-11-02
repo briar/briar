@@ -149,7 +149,6 @@
   <string name="connecting_to_device">正在連接至裝置\u2026</string>
   <string name="authenticating_with_device">正在驗證裝置\u2026</string>
   <string name="connection_error_title">無法連接到您的聯絡人</string>
-  <string name="connection_error_explanation">請確保您們連接到了同一個 Wi-Fi中。</string>
   <string name="connection_error_feedback">如果該問題仍存在，請 <a href="feedback">發送反饋</a> 幫助我們改善程式。</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">添加遠處的聯絡人</string>

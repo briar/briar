@@ -63,12 +63,36 @@
   <string name="lock_button">נעל יישום</string>
   <string name="settings_button">הגדרות</string>
   <string name="sign_out_button">התנתק</string>
+  <string name="transports_onboarding_text">הקש כאן כדי לשלוט איך Briar מתחבר אל אנשי הקשר שלך.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">אינטרנט</string>
+  <string name="tor_device_status_online_wifi">לטלפון שלך יש גישת אינטרנט באמצעות Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">לטלפון שלך יש חיבור אינטרנט באמצעות נתונים סלולריים</string>
+  <string name="tor_device_status_offline">לטלפון שלך אין גישת אינטרנט</string>
+  <string name="tor_plugin_status_enabling">Briar מתחבר אל האינטרנט</string>
+  <string name="tor_plugin_status_active">Briar מחובר אל האינטרנט</string>
+  <string name="tor_plugin_status_inactive">Briar אינו יכול להתחבר אל האינטרנט</string>
+  <string name="tor_plugin_status_disabled">Briar מתוצר לא להשתמש באינטרנט</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar מתוצר לא להשתמש בנתונים סלולריים</string>
+  <string name="tor_plugin_status_disabled_battery">Briar מתוצר לא להשתמש באינטרנט בעת הרצה על סוללה</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar מתוצר לא להשתמש באינטרנט במדינה זו</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">אותה רשת Wi-Fi</string>
+  <string name="lan_device_status_on">הטלפון שלך מחובר אל Wi-Fi</string>
+  <string name="lan_device_status_off">הטלפון שלך אינו מחובר אל Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar מתחבר אל רשת ה־Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar מחובר אל רשת ה־Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar אינו יכול להתחבר אל רשת ה־Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar מתוצר לא להשתמש ברשת ה־Wi-Fi</string>
   <!--Transports: Bluetooth-->
-  <string name="transport_bt">שן כחולה</string>
+  <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Bluetooth של הטלפון שלך מופעל</string>
+  <string name="bt_device_status_off">Bluetooth של הטלפון שלך מכובה</string>
+  <string name="bt_plugin_status_enabling">Briar מתחבר אל Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar מחובר אל Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar אינו יכול להתחבר אל Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar מתוצר לא להשתמש ב־Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">נותקת מן Briar</string>
   <string name="reminder_notification_text">הקש כדי להתחבר חזרה.</string>
@@ -181,7 +205,6 @@
   <string name="connecting_to_device">מתחבר אל מכשיר\u2026</string>
   <string name="authenticating_with_device">מזדהה מול המכשיר\u2026</string>
   <string name="connection_error_title">לא היה ניתן להתחבר אל איש הקשר שלך</string>
-  <string name="connection_error_explanation">אנא בדוק ששניכם מחוברים אל אותה רשת Wi-Fi.</string>
   <string name="connection_error_feedback">אם בעיה נמשכת, אנא <a href="feedback">שלח משוב</a> כדי לעזור לנו לשפר את היישום.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">הוסף איש קשר בקרבה</string>
@@ -436,10 +459,20 @@
   <string name="pref_theme_auto">אוטומטי (שעות יום)</string>
   <string name="pref_theme_system">ברירת מחדל</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">חיבורים</string>
+  <string name="bluetooth_setting">התחבר אל אנשי קשר באמצעות Bluetooth</string>
+  <string name="wifi_setting">התחבר אל אנשי קשר באותה רשת Wi-Fi</string>
+  <string name="tor_enable_title">התחבר אל אנשי קשר באמצעות האינטרנט</string>
+  <string name="tor_enable_summary">כל החיבורים עוברים דרך רשת Tor למען פרטיות</string>
+  <string name="tor_network_setting">שיטת חיבור עבור רשת Tor</string>
   <string name="tor_network_setting_automatic">אוטומטי על סמך מיקום</string>
+  <string name="tor_network_setting_without_bridges">השתמש ברשת Tor בלי גשרים</string>
+  <string name="tor_network_setting_with_bridges">השתמש ברשת Tor עם גשרים</string>
+  <string name="tor_network_setting_never">אל תתחבר אל האינטרנט</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">אוטומטי: %1$s (תוך %2$s)</string>
   <string name="tor_mobile_data_title">השתמש בנתונים סלולריים</string>
+  <string name="tor_only_when_charging_title">התחבר אל האינטרנט רק בעת טעינה</string>
   <string name="tor_only_when_charging_summary">משבית חיבור אינטרנט כשהמכשיר עובד על סוללה</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">אבטחה</string>
@@ -536,7 +569,7 @@
   <string name="permission_camera_title">הרשאת מצלמה</string>
   <string name="permission_camera_request_body">כדי לסרוק את קוד ה־QR, היישום Briar צריך גישה אל המצלמה.</string>
   <string name="permission_location_title">הרשאת מיקום</string>
-  <string name="permission_location_request_body">כדי לגלות מכשירי שן־כחולה, Briar צריך הרשאה להשיג גישה אל מיקומך.\n\nBriar אינו מאחסן את מיקומך או משתף אותו עם אף אחד.</string>
+  <string name="permission_location_request_body">כדי לגלות מכשירי Bluetooth, היישום Briar צריך הרשאה להשיג גישה אל מיקומך.\n\nBriar אינו מאחסן את מיקומך או משתף אותו עם אף אחד.</string>
   <string name="permission_camera_location_title">מצלמה ומיקום</string>
   <string name="permission_camera_location_request_body">כדי לסרוק את קוד ה־QR, היישום Briar צריך הרשאה אל המצלמה.\n\nכדי לגלות מכשירי שן־כחולה, Briar צריך הרשאה להשיג גישה אל מיקומך.\n\nBriar אינו מאחסן את מיקומך או משתף אותו עם אף אחד.</string>
   <string name="permission_camera_denied_body">דחית גישה אל המצלמה, אבל הוספת אנשי קשר דורשת שימוש במצלמה.\n\nאנא שקול הענקת גישה.</string>
@@ -550,6 +583,7 @@
   <string name="lock_is_locked">Briar נעול</string>
   <string name="lock_tap_to_unlock">הקש כדי לבטל נעילה</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar יכול להתחבר אל אנשי הקשר שלך באמצעות האינטרנט, Wi-Fi או Bluetooth.\n\nכל חיבורי האינטרנט עוברים דרך רשת Tor למען פרטיות.\n\nאם איש קשר ניתן להשגה באמצעות שיטות רבות, Briar משתמש בהן במקביל.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">נועה</string>

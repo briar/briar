@@ -27,7 +27,7 @@
   <string name="enter_password">Contrasenya</string>
   <string name="try_again">La contrasenya és incorrecta, torneu a escriure-la</string>
   <string name="dialog_title_cannot_check_password">No es pot verificar la contrasenya</string>
-  <string name="dialog_message_cannot_check_password">El Briar no pot verificar la contrasenya. Proveu de reiniciar el vostre aparell per a solucionar aquest problema.</string>
+  <string name="dialog_message_cannot_check_password">Briar no pot verificar la contrasenya. Proveu de reiniciar el vostre aparell per a solucionar aquest problema.</string>
   <string name="sign_in_button">Inicia la sessió</string>
   <string name="forgotten_password">No recordo la contrasenya</string>
   <string name="dialog_title_lost_password">Contrasenya perduda</string>
@@ -44,9 +44,9 @@
     <item quantity="other">Aquesta és una versió de prova de Briar. El vostre compte caducarà en %d dies i no es podrà renovar.</item>
   </plurals>
   <string name="expiry_date_reached">Aquesta versió de Briar ha caducat.\nGràcies per haver-lo provat!</string>
-  <string name="download_briar">Per continuar utilitzant el Briar, baixeu la darrera versió.</string>
+  <string name="download_briar">Per continuar utilitzant Briar, baixeu la darrera versió.</string>
   <string name="create_new_account">Haureu de crear un compte nou, però podeu utilitzar el mateix sobrenom.</string>
-  <string name="download_briar_button">Baixa l\'última versió</string>
+  <string name="download_briar_button">Descarrega la darrera versió</string>
   <string name="startup_open_database">S\'està desxifrant la base de dades...</string>
   <string name="startup_migrate_database">S\'està actualitzant la base de dades...</string>
   <string name="startup_compact_database">S\'està compactant la base de dades...</string>
@@ -61,12 +61,36 @@
   <string name="lock_button">Bloqueja l\'aplicació</string>
   <string name="settings_button">Configuració</string>
   <string name="sign_out_button">Tanca la sessió </string>
+  <string name="transports_onboarding_text">Toqueu per decidir com es connecta Briar als vostres contactes.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
+  <string name="tor_device_status_online_wifi">El mòbil té accés a Internet via WiFi</string>
+  <string name="tor_device_status_online_mobile">El mòbil té accés a Internet via dades</string>
+  <string name="tor_device_status_offline">El mòbil no té accés a Internet</string>
+  <string name="tor_plugin_status_enabling">Briar s\'està connectant a Internet</string>
+  <string name="tor_plugin_status_active">Briar està connectat a Internet</string>
+  <string name="tor_plugin_status_inactive">Briar no pot connectar-se a Internet</string>
+  <string name="tor_plugin_status_disabled">Briar està configurat per a no emprar Internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar està configurat per a no emprar dades mòbils</string>
+  <string name="tor_plugin_status_disabled_battery">Briar està configurat per a no usar Internet mentre funciona amb bateria</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar està configurat per a no emprar Internet en aquest país</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">La mateixa xarxa WiFi</string>
+  <string name="lan_device_status_on">El mòbil està connectat a WiFi</string>
+  <string name="lan_device_status_off">El mòbil no està connectat a WiFi</string>
+  <string name="lan_plugin_status_enabling">Briar s\'està connectant a la xarxa WiFi</string>
+  <string name="lan_plugin_status_active">Briar està connectat a la xarxa WiFi</string>
+  <string name="lan_plugin_status_inactive">Briar no pot connectar-se a la xarxa WiFi</string>
+  <string name="lan_plugin_status_disabled">Briar està configurat per a no emprar la xarxa WiFi</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">El Bluetooth del mòbil està apagat</string>
+  <string name="bt_device_status_off">El Bluetooth del mòbil està engegat</string>
+  <string name="bt_plugin_status_enabling">Briar s\'està connectant a Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar està connectat a Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar no pot connectar-se a Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar està configurat per a no emprar Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Heu sortit de Briar</string>
   <string name="reminder_notification_text">Toqueu per a reiniciar la sessió.</string>
@@ -112,7 +136,7 @@
   <string name="fix">Corregeix</string>
   <string name="help">Ajuda</string>
   <string name="sorry">Ens sap greu</string>
-  <string name="error_start_activity">No disponible al vostre sistema</string>
+  <string name="error_start_activity">No està disponible en el vostre sistema</string>
   <string name="status_heading">Estat</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">No hi ha cap contacte per mostrar</string>
@@ -128,16 +152,16 @@
   <string name="set_contact_alias">Canvia el nom del contacte</string>
   <string name="set_contact_alias_hint">Nom del contacte</string>
   <string name="set_alias_button">Canvia</string>
-  <string name="delete_all_messages">Suprimeix tots els missatges</string>
-  <string name="dialog_title_delete_all_messages">Confirmeu la supressió dels missatges</string>
-  <string name="dialog_message_delete_all_messages">Esteu segur que voleu suprimir tots els missatges?</string>
-  <string name="dialog_title_not_all_messages_deleted">No s\'ha pogut suprimir tots els missatges</string>
-  <string name="dialog_message_not_deleted_ongoing_both">Els missatges relacionats amb introduccions i invitacions pendents no es poden suprimir fins que es finalitzin.</string>
-  <string name="dialog_message_not_deleted_ongoing_introductions">Els missatges relacionats amb introduccions pendents no es poden suprimir fins que es finalitzin.</string>
-  <string name="dialog_message_not_deleted_ongoing_invitations">Els missatges relacionats amb invitacions pendents no es poden suprimir fins que es finalitzin.</string>
+  <string name="delete_all_messages">Esborra tots els missatges</string>
+  <string name="dialog_title_delete_all_messages">Confirmeu l\'esborrat dels missatges</string>
+  <string name="dialog_message_delete_all_messages">Segur que voleu esborrar tots els missatges?</string>
+  <string name="dialog_title_not_all_messages_deleted">No s\'han pogut esborrar tots els missatges</string>
+  <string name="dialog_message_not_deleted_ongoing_both">Els missatges relacionats amb presentacions i invitacions pendents no es poden suprimir fins que finalitzen.</string>
+  <string name="dialog_message_not_deleted_ongoing_introductions">Els missatges relacionats amb presentacions pendents no es poden suprimir fins que finalitzen.</string>
+  <string name="dialog_message_not_deleted_ongoing_invitations">Els missatges relacionats amb invitacions pendents no es poden suprimir fins que finalitzen.</string>
   <string name="dialog_message_not_deleted_partly_downloaded">Els missatges baixats parcialment no es poden suprimir fins que s\'acabin de baixar.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_both">Per a suprimir una invitació o una introducció, cal que seleccioneu la sol·licitdu i la resposta.</string>
-  <string name="dialog_message_not_deleted_not_all_selected_introductions">Per a suprimir una introducció, cal que seleccioneu la sol·licitud i la resposta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_both">Per a suprimir una invitació o una presentació, cal que seleccioneu la sol·licitud i la resposta.</string>
+  <string name="dialog_message_not_deleted_not_all_selected_introductions">Per a suprimir una presentació, cal que seleccioneu la sol·licitud i la resposta.</string>
   <string name="dialog_message_not_deleted_not_all_selected_invitations">Per a suprimir una invitació, cal que seleccioneu la sol·licitud i la resposta.</string>
   <string name="delete_contact">Suprimeix aquest contacte</string>
   <string name="dialog_title_delete_contact">Confirmeu la supressió del contacte</string>
@@ -172,7 +196,6 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="connecting_to_device">Connectant-se al dispositiu\u2026</string>
   <string name="authenticating_with_device">Autenticant-se amb el dispositiu\u2026</string>
   <string name="connection_error_title">No ha pogut connectar-se al vostre contacte</string>
-  <string name="connection_error_explanation">Comproveu que esteu connectats a la mateixa xarxa Wi-Fi.</string>
   <string name="connection_error_feedback">Si aquest problema persisteix, <a href="feedback">envieu-nos un comentari</a> per ajudar-nos a millorar l\'aplicació.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Afegeix un contacte llunyà</string>
@@ -413,10 +436,20 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="pref_theme_auto">Automàtic (segons l\'hora)</string>
   <string name="pref_theme_system">Valor per defecte del sistema</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">Connexions</string>
+  <string name="bluetooth_setting">Connectat als contactes via Bluetooth</string>
+  <string name="wifi_setting">Connectat als contactes en la mateixa xarxa WiFi</string>
+  <string name="tor_enable_title">Connectat als contactes via Internet</string>
+  <string name="tor_enable_summary">Totes les connexions van via la xarxa Tor per augmentar privacitat</string>
+  <string name="tor_network_setting">Mètode de connexió per a la xarxa Tor</string>
   <string name="tor_network_setting_automatic">Automàtic, basat en la posició</string>
+  <string name="tor_network_setting_without_bridges">Usa la xarxa Tor sense ponts</string>
+  <string name="tor_network_setting_with_bridges">Usa la xarxa Tor amb ponts</string>
+  <string name="tor_network_setting_never">No connectis a Internet</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automàtic: %1$s (a %2$s)</string>
   <string name="tor_mobile_data_title">Usa dades mòbils</string>
+  <string name="tor_only_when_charging_title">Només connecta\'t a Internet mentre s\'està carregant </string>
   <string name="tor_only_when_charging_summary">Desactiva la connexió a Internet quan el dispositiu estigui funcionant amb la bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Seguretat</string>
@@ -527,6 +560,7 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="lock_is_locked">Briar està bloquejat</string>
   <string name="lock_tap_to_unlock">Toqueu per desbloquejar-lo</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar pot contactar els vostres contactes via Internet, WiFi o Bluetooth.\n\nTotes les connexions d\'Internet van via la xarxa Tor per privacitat.\n\nSi es pot arribar a un contacte per diversos mètodes, Briar els usa tots simultàniament.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alba</string>

@@ -171,7 +171,6 @@
   <string name="connecting_to_device">Gailura konektatzen\u2026</string>
   <string name="authenticating_with_device">Gailuarekin autentifikatzen\u2026</string>
   <string name="connection_error_title">Ezin izan da zure kontaktuarekin konektatu</string>
-  <string name="connection_error_explanation">Egiaztatu biak Wi-Fi sare berera konektatuta zaudetela.</string>
   <string name="connection_error_feedback">Arazoa  mantentzen bada, mesedez <a href="feedback">bidali iruzkin bat</a> aplikazioa hobetzen laguntzeko.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Gehitu urruneko kontaktua</string>

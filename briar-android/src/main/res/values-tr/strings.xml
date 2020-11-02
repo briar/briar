@@ -195,7 +195,6 @@
   <string name="connecting_to_device">Aygıta bağlanıyor\u2026</string>
   <string name="authenticating_with_device">Aygıtla kimlik doğrulama\u2026</string>
   <string name="connection_error_title">Kişinizle bağlantı kurulamadı</string>
-  <string name="connection_error_explanation">Lütfen her ikinizin de aynı Wi-Fi ağına bağlı olup olmadığınızı kontrol edin.</string>
   <string name="connection_error_feedback">Sorun devam ederse, uygulamayı geliştirmemize yardımcı olmak için <a href="feedback">geri bildirim gönderin</a>.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Uzaktaki Kişiyi Ekle</string>

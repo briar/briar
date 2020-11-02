@@ -162,7 +162,6 @@
   <string name="connecting_to_device">Cihaza qoşulma /2026</string>
   <string name="authenticating_with_device">Cihazla təsdiqlənir \u2026</string>
   <string name="connection_error_title">Kontaktınıza qoşula bilmədi</string>
-  <string name="connection_error_explanation">Həmin Wi-Fi şəbəkəsinə qoşulduğunuzu yoxlayın.</string>
   <string name="connection_error_feedback"><a href="feedback">Bu problem davam edərsə, tətbiqin təkmilləşdirilməsinə kömək etmək üçün rəy göndərin.</a></string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Məsafədə kontakt əlavə etmək </string>

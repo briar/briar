@@ -69,10 +69,21 @@
   <string name="sign_out_button">خروج</string>
   <!--Transports: Tor-->
   <string name="transport_tor">اینترنت</string>
+  <string name="tor_plugin_status_enabling">Briar در حال اتصال به اینترنت می باشد</string>
+  <string name="tor_plugin_status_active">Briar به اینترنت متصل شد</string>
+  <string name="tor_plugin_status_inactive">Briar نمی تواند به اینترنت متصل شود</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">وای فای</string>
+  <string name="transport_lan_long">همان شبکه وای-فای</string>
+  <string name="lan_device_status_on">موبایل شما به وای-فای وصل می باشد</string>
+  <string name="lan_device_status_off">موبایل شما به وای-فای وصل نیست</string>
+  <string name="lan_plugin_status_enabling">Briar در حال اتصال به شبکه وای-فای می باشد</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">بلوتوث</string>
+  <string name="bt_device_status_on">بلوتوث موبایل شما روشن می باشد</string>
+  <string name="bt_device_status_off">بلوتوث موبایل شما خاموش می باشد</string>
+  <string name="bt_plugin_status_inactive">Briar نمی تواند به بلوتوث وصل شود</string>
+  <string name="bt_plugin_status_disabled">Briar طوری پیکربندی شده که از بلوتوث استفاده نکند</string>
   <!--Notifications-->
   <string name="reminder_notification_title">از Briar (برایر) خارج شد</string>
   <string name="reminder_notification_text">برای وارد شدن دوباره ضربه بزنید.</string>
@@ -185,7 +196,6 @@
   <string name="connecting_to_device">اتصال به دستگاهu2026\</string>
   <string name="authenticating_with_device">تصدیق سازی با دستگاه u2026\</string>
   <string name="connection_error_title">اتصال به مخاطب شما برقرار نشد</string>
-  <string name="connection_error_explanation">لطفا مطمئن شوید که هر دو شما به شبکه وای فای یکسان متصل هستید.</string>
   <string name="connection_error_feedback">اگر این مشکل ادامه پیدا کرد، لطفا <a href="feedback">بازخورد ارسال کنید</a> تا به ما در بهبود برنامه کمک کنید.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">افزودن مخاطب از دور</string>

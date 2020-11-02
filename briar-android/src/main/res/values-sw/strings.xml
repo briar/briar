@@ -187,7 +187,6 @@ Umepoteza nenosiri.</string>
   <string name="connecting_to_device">Unganisha kwenye kifaa\u2026</string>
   <string name="authenticating_with_device">Uhalisishaji wa kifaa\u2026</string>
   <string name="connection_error_title">Imeshindwa unganishwa kwenye mawasiliano </string>
-  <string name="connection_error_explanation">Tafathali Angalia kama wote Mmeunganishwa kwenye Mtandao wa WI-FI mmoja .</string>
   <string name="connection_error_feedback">Kama hilo tatizo linaendela , Tafathali <a href="feedback"> tutumie maoni</a>ilituboreshe Programu .</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Ongeza mawasiliano kwambali </string>

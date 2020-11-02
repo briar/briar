@@ -200,7 +200,6 @@
   <string name="connecting_to_device">Conectare la dispozitiv\u2026</string>
   <string name="authenticating_with_device">Autentificare cu dispozitivul\u2026</string>
   <string name="connection_error_title">Nu s-a putut face conexiunea la contactul dumneavoastră</string>
-  <string name="connection_error_explanation">Verificați să fiți conectați la aceeași rețea Wi-Fi.</string>
   <string name="connection_error_feedback">Dacă problema persistă, vă rugăm să <a href="feedback">trimiteți feedback</a> pentru a ne ajuta să îmbunătățim aplicația.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Adaugă un contact la distanță</string>
@@ -560,6 +559,7 @@
   <string name="permission_camera_location_title">Cameră foto și locație</string>
   <string name="permission_camera_location_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.\n\nPentru a putea descoperi dispozitive Bluetooth, Briar are nevoie de permisiunea de a vă accesa locația.\n\nBriar nu vă stochează locația și nici nu o partajează cu nimeni.  </string>
   <string name="permission_camera_denied_body">Ați refuzat accesul la camera foto, dar pentru a adăuga contacte este necesară folosirea camerei foto.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
+  <string name="permission_location_denied_body">Ați refuzat accesul la locație, dar Briar are nevoie de această permisiune pentru a descoperi dispozitive Bluetooth.\n\nVă rugăm să luați în considerare acordarea accesului.</string>
   <string name="qr_code">Cod QR</string>
   <string name="show_qr_code_fullscreen">Arată codul QR pe tot ecranul</string>
   <!--App Locking-->

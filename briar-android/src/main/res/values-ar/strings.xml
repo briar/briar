@@ -215,7 +215,6 @@
   <string name="connecting_to_device">يتم الإتصال بالجهاز\u2026</string>
   <string name="authenticating_with_device">يتم التوثيق مع الجهاز\u2026</string>
   <string name="connection_error_title">لم يمكن الإتصال بجهة إتصالك</string>
-  <string name="connection_error_explanation">رجاءًا التأكد أن كليكما متصل بنفس شبكة الواي فاي.</string>
   <string name="connection_error_feedback">إذا إستمرت المشكلة، رجاءًا <a href="feedback">أرسل تقرير </a> لمساعدتنا على تحسين التطبيق.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">إضافة جهة اتصال عن بعد </string>

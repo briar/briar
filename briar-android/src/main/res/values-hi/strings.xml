@@ -154,7 +154,6 @@
   <string name="connecting_to_device">उपकरण \ u2026 से कनेक्ट हो रहा है</string>
   <string name="authenticating_with_device">डिवाइस के साथ प्रमाणीकरण \ u2026</string>
   <string name="connection_error_title">आपके संपर्क से कनेक्ट नहीं हो सका</string>
-  <string name="connection_error_explanation">कृपया जांचें कि आप दोनों एक ही वाई-फाई नेटवर्क से जुड़े हुए हैं।</string>
   <string name="connection_error_feedback">यदि यह समस्या बनी रहती है, तो कृपया ऐप को बेहतर बनाने में हमारी सहायता के लिए <a href="feedback">फ़ीडबैक भेजें</a>।</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">दूरी वाले संपर्क जोड़ें</string>

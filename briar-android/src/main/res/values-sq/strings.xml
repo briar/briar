@@ -195,7 +195,6 @@
   <string name="connecting_to_device">Po lidhet me pajisjen\u2026</string>
   <string name="authenticating_with_device">Po bëhet mirëfilltësimi me pajisjen\u2026</string>
   <string name="connection_error_title">S’u lidh dot te kontakti juaj</string>
-  <string name="connection_error_explanation">Ju lutemi, kontrolloni se jeni të dy të lidhur në të njëjtin rrjet Wi-Fi.</string>
   <string name="connection_error_feedback">Nëse problemi vazhdon, ju lutemi, <a href="feedback">na njoftoni</a>, që të mund të përmirësojmë aplikacionin.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Shtoni Kontakt në Largësi</string>
@@ -550,6 +549,7 @@
   <string name="permission_camera_location_title">Kamera dhe vend</string>
   <string name="permission_camera_location_request_body">Që të skanojë kodin QR, Briar-it i duhet të përdorë kamerën.\n\nQë të pikasë pajisje Bluetooth, Briar-i lyp leje të njohë vendin tuaj.\n\nBriar-i nuk e depoziton vendin tuaj, as e ndan me dikë.</string>
   <string name="permission_camera_denied_body">Keni mohuar hyrjen në kamera, por shtimi i kontakteve lyp përdorimin e kamerës.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
+  <string name="permission_location_denied_body">Keni mohuar hyrje te vendndodhja juaj, por Briar-i ka nevojë për këtë leje, që të mund të zbulojë pajisje Bluetooth.\n\nJu lutemi, shihni mundësinë e akordimit të hyrjes.</string>
   <string name="qr_code">Kod QR</string>
   <string name="show_qr_code_fullscreen">Shfaqe kodin QR sa tërë ekrani</string>
   <!--App Locking-->

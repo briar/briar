@@ -61,12 +61,36 @@
   <string name="lock_button">Заклучи ја апликацијата</string>
   <string name="settings_button">Поставки</string>
   <string name="sign_out_button">Одјави се</string>
+  <string name="transports_onboarding_text">Допрете овде за да контролирате како Briar се поврзува со вашите контакти.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Интернет</string>
+  <string name="tor_device_status_online_wifi">Вашиот телефон има интернет пристап преку Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Вашиот телефон има интернет пристап преку мобилни податоци</string>
+  <string name="tor_device_status_offline">Вашиот телефон нема интернет пристап</string>
+  <string name="tor_plugin_status_enabling">Briar се поврзува на Интернет</string>
+  <string name="tor_plugin_status_active">Briar е поврзан на Интернет</string>
+  <string name="tor_plugin_status_inactive">Briar не може да се поврзе на Интернет</string>
+  <string name="tor_plugin_status_disabled">Briar е конфигуриран да не користи Интернет</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar е конфигуриран да не користи мобилни податоци</string>
+  <string name="tor_plugin_status_disabled_battery">Briar е конфигуриран да не користи Интернет додека е работи на батерија</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar е конфигуриран да не користи Интернет во оваа држава</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-Fi</string>
+  <string name="transport_lan_long">Иста Wi-Fi мрежа </string>
+  <string name="lan_device_status_on">Вашиот телефон е поврзан на Wi-Fi</string>
+  <string name="lan_device_status_off">Вашиот телефон не е поврзан на Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar се поврзува на Wi-Fi мрежа</string>
+  <string name="lan_plugin_status_active">Briar е поврзан на Wi-Fi мрежата</string>
+  <string name="lan_plugin_status_inactive">Briar сне може да се поврзе на Wi-Fi мрежата</string>
+  <string name="lan_plugin_status_disabled">Briar е конфигуриран да не ја користи Wi-Fi мрежата</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">Bluetooth-от на вашиот телефон е вклучен</string>
+  <string name="bt_device_status_off">Bluetooth-от на вашиот телефон е исклучен</string>
+  <string name="bt_plugin_status_enabling">Briar се поврзува со Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar е поврзан со Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar не може да се поврзе со Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar е конфигуриран да не користи Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Одјави се од Briar</string>
   <string name="reminder_notification_text">Допрете за да се најавите.</string>
@@ -113,6 +137,7 @@
   <string name="help">Помош</string>
   <string name="sorry">Жал ни е</string>
   <string name="error_start_activity">Недостапно на вашиот систем</string>
+  <string name="status_heading">Статус:</string>
   <!--Contacts and Private Conversations-->
   <string name="no_contacts">Нема контакти за прикажување</string>
   <string name="no_contacts_action">Допрете ја + иконата за да додадете контакт</string>
@@ -170,7 +195,6 @@
   <string name="connecting_to_device">Поврзување со уред\u2026</string>
   <string name="authenticating_with_device">Автентикација со уред\u2026</string>
   <string name="connection_error_title">Не може да се поврзе со твојот контакт</string>
-  <string name="connection_error_explanation">Ве молиме проверете дека и двајцата сте поврзани на истата Wi-Fi мрежа.</string>
   <string name="connection_error_feedback">Ако овој проблем останува, ве молиме <a href="feedback">испратете повратна информација</a> за да ни помогнете да ја подобриме апликацијата.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Додај контакт НА РАСТОЈАНИЕ</string>
@@ -411,10 +435,20 @@
   <string name="pref_theme_auto">Автоматски (Дневно)</string>
   <string name="pref_theme_system">Систем стандардно поставен</string>
   <!--Settings Connections-->
+  <string name="network_settings_title">Поврзувања</string>
+  <string name="bluetooth_setting">Поврзете се контактите преку Bluetooth</string>
+  <string name="wifi_setting">Поврзете се со контактите на истата Wi-Fi мрежа</string>
+  <string name="tor_enable_title">Поврзете се контактите преку Интернет</string>
+  <string name="tor_enable_summary">Сите поврзувања одат преку Tor мрежата поради приватност</string>
+  <string name="tor_network_setting">Метод на поврзување на Tor мрежата</string>
   <string name="tor_network_setting_automatic">Автоматски базирано на локација</string>
+  <string name="tor_network_setting_without_bridges">Користете Tor мрежа без мостови</string>
+  <string name="tor_network_setting_with_bridges">Користете Tor мрежа со мостови</string>
+  <string name="tor_network_setting_never">Не се поврзувај на Интернет</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Автоматски: %1$s (во %2$s)</string>
   <string name="tor_mobile_data_title">Користи мобилни податоци</string>
+  <string name="tor_only_when_charging_title">Поврзи на Интернет само за време на полнење</string>
   <string name="tor_only_when_charging_summary">Оневозможи го Интернет поврзувањето кога уредот не е приклучен на полнач</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Безбедност</string>
@@ -514,7 +548,8 @@
   <string name="permission_location_request_body">За да открие Bluetooth уреди, на Briar му е потребна дозвола за пристап до вашата локација.\n\nBriar не ја зачувува вашата локација или не ја споделува со никого.</string>
   <string name="permission_camera_location_title">Камера и локација</string>
   <string name="permission_camera_location_request_body">За да го скенира QR кодот, на Briar му е потребен пристап до камерата.\n\nЗа да открие Bluetooth уреди, на Briar му е потребна дозвола за вашата локација.\n\nBriar не ја зачувува вашата локација или не ја споделува со никого.</string>
-  <string name="permission_camera_denied_body">Го одбивте пристапот до камерата, но за додавање на контакти потребно е користење на камерата.\n\nВе молиме  размислете за давање дозвола.</string>
+  <string name="permission_camera_denied_body">Го одбивте пристапот до камерата, но за додавање на контакти потребно е користење на камерата.\n\nВе молиме  размислете за давање пристап.</string>
+  <string name="permission_location_denied_body">Го одбивте пристапот до вашата локација, но на Briar му е потребна оваа дозвола за да ги открие Bluetooth уредите.\n\nВе молиме размислете за давање пристап.</string>
   <string name="qr_code">QR код</string>
   <string name="show_qr_code_fullscreen">Покажи го QR кодот на цел екран</string>
   <!--App Locking-->
@@ -525,6 +560,7 @@
   <string name="lock_is_locked">Briar е заклучен</string>
   <string name="lock_tap_to_unlock">Допрете за отклучување</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar може да се поврзе со вашите контакти преку Интернет, Wi-Fi или Bluetooth.\n\nСите Интернет поврзувања одат преку Tor Мрежата поради приватност.\n\nАко контактот може да биде достапен преку повеќе начини, Briar ќе ги користи паралелно. </string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Жарко</string>

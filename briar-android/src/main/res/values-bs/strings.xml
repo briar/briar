@@ -134,7 +134,6 @@
   <string name="connecting_to_device">Povezujem se sa uređajem\u2026</string>
   <string name="authenticating_with_device">Autentikacija sa uređajem\u2026</string>
   <string name="connection_error_title">Nije moguće povezivanje sa vašim kontaktom</string>
-  <string name="connection_error_explanation">Provjerite jeste li oboje povezani na ist Wi-Fi mrežu.</string>
   <string name="connection_error_feedback">Ako se problem ponavlja, Molimo vas <a href="feedback">pošaljite povratne informacije</a> kako bi pomogli poboljšanju aplikacije.</string>
   <!--Adding Contacts Remotely-->
   <string name="add_contact_remotely_title_case">Dodaj udaljeni konktakt</string>
