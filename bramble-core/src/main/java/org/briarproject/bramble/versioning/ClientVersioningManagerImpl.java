@@ -298,7 +298,8 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 	private List<ClientVersion> loadClientVersions(Transaction txn,
 			MessageId m) throws DbException {
 		try {
-			return parseClientVersions(clientHelper.getMessageAsList(txn, m));
+			return parseClientVersions(
+					clientHelper.getSmallMessageAsList(txn, m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -391,7 +392,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 
 	private Update loadUpdate(Transaction txn, MessageId m) throws DbException {
 		try {
-			return parseUpdate(clientHelper.getMessageAsList(txn, m));
+			return parseUpdate(clientHelper.getSmallMessageAsList(txn, m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

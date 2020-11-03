@@ -402,7 +402,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, fooUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, fooUpdateId);
 			will(returnValue(fooUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
@@ -469,7 +469,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup2.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, fooUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, fooUpdateId);
 			will(returnValue(fooUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
@@ -524,7 +524,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, updateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, updateId);
 			will(returnValue(update));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
@@ -562,7 +562,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, updateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, updateId);
 			will(returnValue(update));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
@@ -693,7 +693,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(localGroupMessageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, localGroupUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localGroupUpdateId);
 			will(returnValue(oldUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					oldPropertiesDict);
@@ -758,7 +758,7 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					localGroup.getId());
 			will(returnValue(localGroupMessageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, localGroupUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localGroupUpdateId);
 			will(returnValue(oldUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					oldPropertiesDict);
@@ -817,12 +817,12 @@ public class TransportPropertyManagerImplTest extends BrambleMockTestCase {
 					localGroup.getId());
 			will(returnValue(messageMetadata));
 			// Retrieve and parse the latest local properties
-			oneOf(clientHelper).getMessageAsList(txn, fooVersion999);
+			oneOf(clientHelper).getSmallMessageAsList(txn, fooVersion999);
 			will(returnValue(fooUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					fooPropertiesDict);
 			will(returnValue(fooProperties));
-			oneOf(clientHelper).getMessageAsList(txn, barVersion3);
+			oneOf(clientHelper).getSmallMessageAsList(txn, barVersion3);
 			will(returnValue(barUpdate));
 			oneOf(clientHelper).parseAndValidateTransportProperties(
 					barPropertiesDict);

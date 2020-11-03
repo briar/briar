@@ -392,7 +392,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	@Override
 	public String getMessageText(MessageId m) throws DbException {
 		try {
-			BdfList body = clientHelper.getMessageAsList(m);
+			BdfList body = clientHelper.getSmallMessageAsList(m);
 			if (body.size() == 1) return body.getString(0); // Legacy format
 			else return body.getOptionalString(1);
 		} catch (FormatException e) {
@@ -404,7 +404,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	public Attachment getAttachment(AttachmentHeader h) throws DbException {
 		// TODO: Support large messages
 		MessageId m = h.getMessageId();
-		byte[] body = clientHelper.getMessage(m).getBody();
+		byte[] body = clientHelper.getSmallMessage(m).getBody();
 		try {
 			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
 			Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);

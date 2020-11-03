@@ -276,13 +276,14 @@ public interface DatabaseComponent extends TransactionManager {
 	Collection<Identity> getIdentities(Transaction txn) throws DbException;
 
 	/**
-	 * Returns the message with the given ID.
+	 * Returns the single-block message with the given ID.
 	 * <p/>
 	 * Read-only.
 	 *
 	 * @throws MessageDeletedException if the message has been deleted
+	 * @throws MessageTooLargeException if the message has more than one block
 	 */
-	Message getMessage(Transaction txn, MessageId m) throws DbException;
+	Message getSmallMessage(Transaction txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs of all delivered messages in the given group.

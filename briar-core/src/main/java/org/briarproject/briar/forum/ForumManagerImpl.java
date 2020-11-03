@@ -179,7 +179,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public String getPostText(MessageId m) throws DbException {
 		try {
-			return getPostText(clientHelper.getMessageAsList(m));
+			return getPostText(clientHelper.getSmallMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

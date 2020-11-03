@@ -317,7 +317,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 
 		// Get body of message to be wrapped
-		BdfList body = clientHelper.getMessageAsList(txn, header.getId());
+		BdfList body = clientHelper.getSmallMessageAsList(txn, header.getId());
 		long timestamp = header.getTimestamp();
 		Message wrappedMessage;
 
@@ -465,7 +465,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public String getPostText(MessageId m) throws DbException {
 		try {
-			return getPostText(clientHelper.getMessageAsList(m));
+			return getPostText(clientHelper.getSmallMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

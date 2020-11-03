@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.db.DataTooOldException;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.MessageDeletedException;
+import org.briarproject.bramble.api.db.MessageTooLargeException;
 import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.MigrationListener;
 import org.briarproject.bramble.api.identity.Author;
@@ -332,13 +333,14 @@ interface Database<T> {
 	Collection<Identity> getIdentities(T txn) throws DbException;
 
 	/**
-	 * Returns the message with the given ID.
+	 * Returns the single-block message with the given ID.
 	 * <p/>
 	 * Read-only.
 	 *
 	 * @throws MessageDeletedException if the message has been deleted
+	 * @throws MessageTooLargeException if the message has more than one block
 	 */
-	Message getMessage(T txn, MessageId m) throws DbException;
+	Message getSmallMessage(T txn, MessageId m) throws DbException;
 
 	/**
 	 * Returns the IDs and states of all dependencies of the given message.

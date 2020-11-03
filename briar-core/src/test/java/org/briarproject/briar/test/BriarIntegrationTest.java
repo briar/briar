@@ -242,7 +242,7 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 			executor.execute(() -> {
 				if (DEBUG) {
 					try {
-						BdfList body = clientHelper.getMessageAsList(id);
+						BdfList body = clientHelper.getSmallMessageAsList(id);
 						LOG.info("Contents of " + id + ":\n"
 								+ BdfStringUtils.toString(body));
 					} catch (DbException | FormatException e) {

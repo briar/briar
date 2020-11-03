@@ -99,7 +99,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		context.checking(new DbExpectations() {{
 			// Load the first raw message and group
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			oneOf(db).getMessage(txn, messageId);
+			oneOf(db).getSmallMessage(txn, messageId);
 			will(returnValue(message));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
@@ -118,7 +118,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(emptyMap()));
 			// Load the second raw message and group
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn2));
-			oneOf(db).getMessage(txn2, messageId1);
+			oneOf(db).getSmallMessage(txn2, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -159,7 +159,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn, messageId);
 			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			// Get the message and its metadata to deliver
-			oneOf(db).getMessage(txn, messageId);
+			oneOf(db).getSmallMessage(txn, messageId);
 			will(returnValue(message));
 			oneOf(db).getGroup(txn, groupId);
 			will(returnValue(group));
@@ -179,7 +179,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn1, messageId2);
 			will(returnValue(singletonMap(messageId1, DELIVERED)));
 			// Get the dependent and its metadata to deliver
-			oneOf(db).getMessage(txn1, messageId2);
+			oneOf(db).getSmallMessage(txn1, messageId2);
 			will(returnValue(message2));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
@@ -276,11 +276,11 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		context.checking(new DbExpectations() {{
 			// Load the first raw message - *gasp* it's gone!
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			oneOf(db).getMessage(txn, messageId);
+			oneOf(db).getSmallMessage(txn, messageId);
 			will(throwException(new NoSuchMessageException()));
 			// Load the second raw message and group
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
-			oneOf(db).getMessage(txn1, messageId1);
+			oneOf(db).getSmallMessage(txn1, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
@@ -317,14 +317,14 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 		context.checking(new DbExpectations() {{
 			// Load the first raw message
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn));
-			oneOf(db).getMessage(txn, messageId);
+			oneOf(db).getSmallMessage(txn, messageId);
 			will(returnValue(message));
 			// Load the group - *gasp* it's gone!
 			oneOf(db).getGroup(txn, groupId);
 			will(throwException(new NoSuchGroupException()));
 			// Load the second raw message and group
 			oneOf(db).transactionWithResult(with(true), withDbCallable(txn1));
-			oneOf(db).getMessage(txn1, messageId1);
+			oneOf(db).getSmallMessage(txn1, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn1, groupId);
 			will(returnValue(group));
@@ -614,7 +614,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn2, messageId1);
 			will(returnValue(singletonMap(messageId, DELIVERED)));
 			// Get message 1 and its metadata
-			oneOf(db).getMessage(txn2, messageId1);
+			oneOf(db).getSmallMessage(txn2, messageId1);
 			will(returnValue(message1));
 			oneOf(db).getGroup(txn2, groupId);
 			will(returnValue(group));
@@ -634,7 +634,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn3, messageId2);
 			will(returnValue(singletonMap(messageId, DELIVERED)));
 			// Get message 2 and its metadata
-			oneOf(db).getMessage(txn3, messageId2);
+			oneOf(db).getSmallMessage(txn3, messageId2);
 			will(returnValue(message2));
 			oneOf(db).getGroup(txn3, groupId);
 			will(returnValue(group));
@@ -654,7 +654,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn4, messageId3);
 			will(returnValue(twoDependencies));
 			// Get message 3 and its metadata
-			oneOf(db).getMessage(txn4, messageId3);
+			oneOf(db).getSmallMessage(txn4, messageId3);
 			will(returnValue(message3));
 			oneOf(db).getGroup(txn4, groupId);
 			will(returnValue(group));
@@ -677,7 +677,7 @@ public class ValidationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).getMessageDependencies(txn6, messageId4);
 			will(returnValue(singletonMap(messageId3, DELIVERED)));
 			// Get message 4 and its metadata
-			oneOf(db).getMessage(txn6, messageId4);
+			oneOf(db).getSmallMessage(txn6, messageId4);
 			will(returnValue(message4));
 			oneOf(db).getGroup(txn6, groupId);
 			will(returnValue(group));

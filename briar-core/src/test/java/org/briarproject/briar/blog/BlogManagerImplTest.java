@@ -498,7 +498,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
 			// Wrap the original post for blog 2
-			oneOf(clientHelper).getMessageAsList(txn, messageId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, messageId);
 			will(returnValue(originalPostBody));
 			oneOf(db).getGroup(txn, blog1.getId());
 			will(returnValue(blog1.getGroup()));
@@ -609,7 +609,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
 			// Wrap the original post for blog 1
-			oneOf(clientHelper).getMessageAsList(txn, rssMessageId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, rssMessageId);
 			will(returnValue(originalPostBody));
 			oneOf(db).getGroup(txn, rssBlog.getId());
 			will(returnValue(rssBlog.getGroup()));
@@ -734,7 +734,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(db).startTransaction(false);
 			will(returnValue(txn));
 			// Rewrap the wrapped post for blog 2
-			oneOf(clientHelper).getMessageAsList(txn, wrappedPostId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, wrappedPostId);
 			will(returnValue(wrappedPostBody));
 			oneOf(blogPostFactory).rewrapWrappedPost(blog2.getId(),
 					wrappedPostBody);
@@ -745,7 +745,7 @@ public class BlogManagerImplTest extends BriarTestCase {
 			oneOf(clientHelper).addLocalMessage(txn, rewrappedPostMsg,
 					rewrappedPostMeta, true, false);
 			// Wrap the original comment for blog 2
-			oneOf(clientHelper).getMessageAsList(txn, originalCommentId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, originalCommentId);
 			will(returnValue(originalCommentBody));
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					wrappedPostId);

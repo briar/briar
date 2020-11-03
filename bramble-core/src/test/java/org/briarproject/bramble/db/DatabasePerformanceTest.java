@@ -507,11 +507,11 @@ public abstract class DatabasePerformanceTest extends BrambleTestCase {
 	}
 
 	@Test
-	public void testGetMessage() throws Exception {
-		String name = "getMessage(T, MessageId)";
+	public void testGetSmallMessage() throws Exception {
+		String name = "getSmallMessage(T, MessageId)";
 		benchmark(name, db -> {
 			Connection txn = db.startTransaction();
-			db.getMessage(txn, pickRandom(messages).getId());
+			db.getSmallMessage(txn, pickRandom(messages).getId());
 			db.commitTransaction(txn);
 		});
 	}

@@ -448,7 +448,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			MessageStatus status, SessionId sessionId,
 			Map<AuthorId, AuthorInfo> authorInfos)
 			throws DbException, FormatException {
-		Message msg = clientHelper.getMessage(txn, m);
+		Message msg = clientHelper.getSmallMessage(txn, m);
 		BdfList body = clientHelper.toList(msg);
 		RequestMessage rm = messageParser.parseRequestMessage(msg, body);
 		String text = rm.getText();

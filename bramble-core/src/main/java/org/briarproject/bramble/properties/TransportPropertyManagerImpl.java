@@ -199,7 +199,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			Map<TransportId, LatestUpdate> latest = findLatestLocal(txn);
 			// Retrieve and parse the latest local properties
 			for (Entry<TransportId, LatestUpdate> e : latest.entrySet()) {
-				BdfList message = clientHelper.getMessageAsList(txn,
+				BdfList message = clientHelper.getSmallMessageAsList(txn,
 						e.getValue().messageId);
 				local.put(e.getKey(), parseProperties(message));
 			}
@@ -220,7 +220,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 						true);
 				if (latest != null) {
 					// Retrieve and parse the latest local properties
-					BdfList message = clientHelper.getMessageAsList(txn,
+					BdfList message = clientHelper.getSmallMessageAsList(txn,
 							latest.messageId);
 					p = parseProperties(message);
 				}
@@ -250,7 +250,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 			if (latest == null) {
 				local = new TransportProperties();
 			} else {
-				BdfList message = clientHelper.getMessageAsList(txn,
+				BdfList message = clientHelper.getSmallMessageAsList(txn,
 						latest.messageId);
 				local = parseProperties(message);
 			}
@@ -271,8 +271,8 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 				remote = new TransportProperties();
 			} else {
 				// Retrieve and parse the latest remote properties
-				BdfList message =
-						clientHelper.getMessageAsList(txn, latest.messageId);
+				BdfList message = clientHelper.getSmallMessageAsList(txn,
+						latest.messageId);
 				remote = parseProperties(message);
 			}
 			// Merge in any discovered properties
@@ -315,7 +315,7 @@ class TransportPropertyManagerImpl implements TransportPropertyManager,
 					}
 					changed = true;
 				} else {
-					BdfList message = clientHelper.getMessageAsList(txn,
+					BdfList message = clientHelper.getSmallMessageAsList(txn,
 							latest.messageId);
 					TransportProperties old = parseProperties(message);
 					merged = new TransportProperties(old);

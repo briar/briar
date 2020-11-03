@@ -247,8 +247,10 @@ public class MessagingManagerIntegrationTest
 		sendMessage(c0, c1, getRandomString(42), singletonList(h));
 
 		// attachment exists on both devices
-		db0.transaction(true, txn -> db0.getMessage(txn, h.getMessageId()));
-		db1.transaction(true, txn -> db1.getMessage(txn, h.getMessageId()));
+		db0.transaction(true, txn ->
+				db0.getSmallMessage(txn, h.getMessageId()));
+		db1.transaction(true, txn ->
+				db1.getSmallMessage(txn, h.getMessageId()));
 
 		// delete message on both sides (deletes all, because returns true)
 		assertTrue(db0.transactionWithResult(false,
@@ -260,13 +262,15 @@ public class MessagingManagerIntegrationTest
 
 		// attachment was deleted on both devices
 		try {
-			db0.transaction(true, txn -> db0.getMessage(txn, h.getMessageId()));
+			db0.transaction(true, txn ->
+					db0.getSmallMessage(txn, h.getMessageId()));
 			fail();
 		} catch (MessageDeletedException e) {
 			// expected
 		}
 		try {
-			db1.transaction(true, txn -> db1.getMessage(txn, h.getMessageId()));
+			db1.transaction(true, txn ->
+					db1.getSmallMessage(txn, h.getMessageId()));
 			fail();
 		} catch (MessageDeletedException e) {
 			// expected
@@ -282,7 +286,7 @@ public class MessagingManagerIntegrationTest
 
 		// attachment exists on both devices, state set to PENDING for receiver
 		db1.transaction(false, txn -> {
-			db1.getMessage(txn, h.getMessageId());
+			db1.getSmallMessage(txn, h.getMessageId());
 			db1.setMessageState(txn, h.getMessageId(), PENDING);
 		});
 
@@ -310,13 +314,15 @@ public class MessagingManagerIntegrationTest
 
 		// attachment was deleted on both devices
 		try {
-			db0.transaction(true, txn -> db0.getMessage(txn, h.getMessageId()));
+			db0.transaction(true, txn ->
+					db0.getSmallMessage(txn, h.getMessageId()));
 			fail();
 		} catch (MessageDeletedException e) {
 			// expected
 		}
 		try {
-			db1.transaction(true, txn -> db1.getMessage(txn, h.getMessageId()));
+			db1.transaction(true, txn ->
+					db1.getSmallMessage(txn, h.getMessageId()));
 			fail();
 		} catch (MessageDeletedException e) {
 			// expected

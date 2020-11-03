@@ -184,7 +184,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(singletonMap(localUpdateId, localUpdateMeta)));
 			// Load the latest local update
-			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localUpdateId);
 			will(returnValue(localUpdateBody));
 			// Latest local update is up-to-date, no visibilities have changed
 		}});
@@ -206,7 +206,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			// Load the old client versions
 			oneOf(db).getMessageIds(txn, localGroup.getId());
 			will(returnValue(singletonList(localVersionsId)));
-			oneOf(clientHelper).getMessageAsList(txn, localVersionsId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localVersionsId);
 			will(returnValue(localVersionsBody));
 			// Client versions are up-to-date
 		}});
@@ -248,7 +248,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			// Load the old client versions
 			oneOf(db).getMessageIds(txn, localGroup.getId());
 			will(returnValue(singletonList(oldLocalVersionsId)));
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalVersionsId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalVersionsId);
 			will(returnValue(oldLocalVersionsBody));
 			// Delete the old client versions
 			oneOf(db).removeMessage(txn, oldLocalVersionsId);
@@ -272,7 +272,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(singletonMap(oldLocalUpdateId,
 					oldLocalUpdateMeta)));
 			// Load the latest local update
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
 			// Delete the latest local update
 			oneOf(db).deleteMessage(txn, oldLocalUpdateId);
@@ -344,7 +344,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			// Load the old client versions
 			oneOf(db).getMessageIds(txn, localGroup.getId());
 			will(returnValue(singletonList(oldLocalVersionsId)));
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalVersionsId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalVersionsId);
 			will(returnValue(oldLocalVersionsBody));
 			// Delete the old client versions
 			oneOf(db).removeMessage(txn, oldLocalVersionsId);
@@ -367,10 +367,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			// Load the latest local update
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
 			// Load the latest remote update
-			oneOf(clientHelper).getMessageAsList(txn, oldRemoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldRemoteUpdateId);
 			will(returnValue(oldRemoteUpdateBody));
 			// Delete the latest local update
 			oneOf(db).deleteMessage(txn, oldLocalUpdateId);
@@ -451,10 +451,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			// Load the latest local update
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
 			// Load the latest remote update
-			oneOf(clientHelper).getMessageAsList(txn, oldRemoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldRemoteUpdateId);
 			will(returnValue(oldRemoteUpdateBody));
 			// Delete the old remote update
 			oneOf(db).deleteMessage(txn, oldRemoteUpdateId);
@@ -490,7 +490,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(singletonMap(oldLocalUpdateId,
 					oldLocalUpdateMeta)));
 			// Load the latest local update
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
 			// Get client ID
 			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
@@ -557,10 +557,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			// Load the latest local update
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
 			// Load the latest remote update
-			oneOf(clientHelper).getMessageAsList(txn, oldRemoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldRemoteUpdateId);
 			will(returnValue(oldRemoteUpdateBody));
 			// Delete the old remote update
 			oneOf(db).deleteMessage(txn, oldRemoteUpdateId);
@@ -630,10 +630,10 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
 			// Load the latest local update
-			oneOf(clientHelper).getMessageAsList(txn, oldLocalUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldLocalUpdateId);
 			will(returnValue(oldLocalUpdateBody));
 			// Load the latest remote update
-			oneOf(clientHelper).getMessageAsList(txn, oldRemoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, oldRemoteUpdateId);
 			will(returnValue(oldRemoteUpdateBody));
 			// Delete the old remote update
 			oneOf(db).deleteMessage(txn, oldRemoteUpdateId);
@@ -734,9 +734,9 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localUpdateId);
 			will(returnValue(localUpdateBody));
-			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, remoteUpdateId);
 			will(returnValue(remoteUpdateBody));
 		}});
 
@@ -769,9 +769,9 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localUpdateId);
 			will(returnValue(localUpdateBody));
-			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, remoteUpdateId);
 			will(returnValue(remoteUpdateBody));
 		}});
 
@@ -804,9 +804,9 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localUpdateId);
 			will(returnValue(localUpdateBody));
-			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, remoteUpdateId);
 			will(returnValue(remoteUpdateBody));
 		}});
 
@@ -839,9 +839,9 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, localUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, localUpdateId);
 			will(returnValue(localUpdateBody));
-			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, remoteUpdateId);
 			will(returnValue(remoteUpdateBody));
 		}});
 
@@ -901,7 +901,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, remoteUpdateId);
 			will(returnValue(remoteUpdateBody));
 		}});
 
@@ -933,7 +933,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, remoteUpdateId);
 			will(returnValue(remoteUpdateBody));
 		}});
 
@@ -965,7 +965,7 @@ public class ClientVersioningManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getMessageMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(messageMetadata));
-			oneOf(clientHelper).getMessageAsList(txn, remoteUpdateId);
+			oneOf(clientHelper).getSmallMessageAsList(txn, remoteUpdateId);
 			will(returnValue(remoteUpdateBody));
 		}});
 

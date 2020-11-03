@@ -418,7 +418,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 		else ids = db.getMessagesToSend(txn, c, maxLength, maxLatency);
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
-			messages.add(db.getMessage(txn, m));
+			messages.add(db.getSmallMessage(txn, m));
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
@@ -472,7 +472,7 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 				db.getRequestedMessagesToSend(txn, c, maxLength, maxLatency);
 		List<Message> messages = new ArrayList<>(ids.size());
 		for (MessageId m : ids) {
-			messages.add(db.getMessage(txn, m));
+			messages.add(db.getSmallMessage(txn, m));
 			db.updateExpiryTimeAndEta(txn, c, m, maxLatency);
 		}
 		if (ids.isEmpty()) return null;
@@ -564,12 +564,12 @@ class DatabaseComponentImpl<T> implements DatabaseComponent {
 	}
 
 	@Override
-	public Message getMessage(Transaction transaction, MessageId m)
+	public Message getSmallMessage(Transaction transaction, MessageId m)
 			throws DbException {
 		T txn = unbox(transaction);
 		if (!db.containsMessage(txn, m))
 			throw new NoSuchMessageException();
-		return db.getMessage(txn, m);
+		return db.getSmallMessage(txn, m);
 	}
 
 	@Override

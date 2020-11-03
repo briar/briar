@@ -304,7 +304,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public String getMessageText(MessageId m) throws DbException {
 		try {
-			return getMessageText(clientHelper.getMessageAsList(m));
+			return getMessageText(clientHelper.getSmallMessageAsList(m));
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

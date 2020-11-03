@@ -624,7 +624,7 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 
 		try {
 			db.transaction(false, transaction ->
-					db.getMessage(transaction, messageId));
+					db.getSmallMessage(transaction, messageId));
 			fail();
 		} catch (NoSuchMessageException expected) {
 			// Expected
@@ -868,11 +868,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).getSmallMessagesToSend(txn, contactId,
 					MAX_MESSAGE_LENGTH * 2, maxLatency);
 			will(returnValue(ids));
-			oneOf(database).getMessage(txn, messageId);
+			oneOf(database).getSmallMessage(txn, messageId);
 			will(returnValue(message));
 			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
 					maxLatency);
-			oneOf(database).getMessage(txn, messageId1);
+			oneOf(database).getSmallMessage(txn, messageId1);
 			will(returnValue(message1));
 			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
 					maxLatency);
@@ -953,11 +953,11 @@ public class DatabaseComponentImplTest extends BrambleMockTestCase {
 			oneOf(database).getRequestedMessagesToSend(txn, contactId,
 					MAX_MESSAGE_LENGTH * 2, maxLatency);
 			will(returnValue(ids));
-			oneOf(database).getMessage(txn, messageId);
+			oneOf(database).getSmallMessage(txn, messageId);
 			will(returnValue(message));
 			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId,
 					maxLatency);
-			oneOf(database).getMessage(txn, messageId1);
+			oneOf(database).getSmallMessage(txn, messageId1);
 			will(returnValue(message1));
 			oneOf(database).updateExpiryTimeAndEta(txn, contactId, messageId1,
 					maxLatency);

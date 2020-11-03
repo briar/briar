@@ -1870,8 +1870,8 @@ public class IntroductionIntegrationTest
 				ch.getMessageMetadataAsDictionary(g.getId(), query);
 		assertEquals(1, map.size());
 		MessageId id = map.entrySet().iterator().next().getKey();
-		Message m = ch.getMessage(id);
-		BdfList body = ch.getMessageAsList(id);
+		Message m = ch.getSmallMessage(id);
+		BdfList body = ch.getSmallMessageAsList(id);
 		if (type == ACCEPT) {
 			return c0.getMessageParser().parseAcceptMessage(m, body);
 		} else if (type == DECLINE) {

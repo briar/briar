@@ -89,7 +89,7 @@ class MessageParserImpl implements MessageParser {
 	@Override
 	public InviteMessage getInviteMessage(Transaction txn, MessageId m)
 			throws DbException, FormatException {
-		Message message = clientHelper.getMessage(txn, m);
+		Message message = clientHelper.getSmallMessage(txn, m);
 		BdfList body = clientHelper.toList(message);
 		return parseInviteMessage(message, body);
 	}
