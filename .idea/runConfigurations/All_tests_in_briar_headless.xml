@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="All tests in briar-headless" type="AndroidJUnit" factoryName="Android JUnit">
-    <module name="briar-headless" />
+    <module name="briar.briar-headless" />
     <option name="PACKAGE_NAME" value="org.briarproject.briar.headless" />
     <option name="MAIN_CLASS_NAME" value="" />
     <option name="METHOD_NAME" value="" />
