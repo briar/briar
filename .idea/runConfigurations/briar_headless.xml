@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="briar-headless" type="JetRunConfigurationType" factoryName="Kotlin" singleton="true">
-    <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea" />
+  <configuration default="false" name="briar-headless" type="JetRunConfigurationType" singleton="true">
+    <module name="briar.briar-headless" />
     <option name="VM_PARAMETERS" value="" />
     <option name="PROGRAM_PARAMETERS" value="-v" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
@@ -8,9 +8,8 @@
     <option name="PASS_PARENT_ENVS" value="true" />
     <option name="MAIN_CLASS_NAME" value="org.briarproject.briar.headless.MainKt" />
     <option name="WORKING_DIRECTORY" value="" />
-    <module name="briar-headless" />
-    <envs />
-    <method>
+    <method v="2">
+      <option name="Make" enabled="true" />
       <option name="Gradle.BeforeRunTask" enabled="true" tasks="jar" externalProjectPath="$PROJECT_DIR$/briar-headless" vmOptions="" scriptParameters="" />
     </method>
   </configuration>
