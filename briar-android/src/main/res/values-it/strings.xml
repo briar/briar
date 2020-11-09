@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Benvenuto su Briar</string>
   <string name="setup_name_explanation">Il tuo nickname sarà accanto ad ogni contenuto pubblicato. Non potrai cambiarlo dopo aver creato l\'account.</string>
@@ -549,6 +549,7 @@
   <string name="permission_camera_location_title">Fotocamera e geolocalizzazione</string>
   <string name="permission_camera_location_request_body">Per scansionare il codice QR, Briar ha bisogno di accedere alla fotocamera.\n\nPer trovare dispositivi Bluetooth, Briar ha bisogno di accedere alla tua posizione.\n\nBriar non memorizza la tua posizione, nè la condivide con terzi.</string>
   <string name="permission_camera_denied_body">Hai negato l\'accesso alla fotocamera, ma questa serve per aggiungere i contatti.\n\nConsidera la possibilità di concedere l\'accesso.</string>
+  <string name="permission_location_denied_body">Hai negato l\'accesso alla tua posizione, ma Briar ha bisogno di questa autorizzazione per trovare i dispositivi Bluetooth.\n\nConsidera la possibilità di concedere l\'accesso.</string>
   <string name="qr_code">Codice QR</string>
   <string name="show_qr_code_fullscreen">Mostra codice QR a tutto schermo</string>
   <!--App Locking-->

@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources>
   <!--Setup-->
   <string name="setup_title">Briar\'a Hoşgeldiniz</string>
   <string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
@@ -549,6 +549,7 @@
   <string name="permission_camera_location_title">Kamera ve konum</string>
   <string name="permission_camera_location_request_body">QR kodunu taramak için, Briar\'ın kameranıza erişmesi gerekiyor.\n\nBluetooth aygıtlarını keşfetmek için Briar\'ın konumunuza erişmesi gerekiyor.\n\nBriar konumunuzu saklamaz ve hiç kimseyle paylaşmaz.</string>
   <string name="permission_camera_denied_body">Kameraya erişimi engellediniz, ancak kişi eklemek için kamerayı kullanmanız gerekiyor.\n\nLütfen erişim izni vermeyi düşünün.</string>
+  <string name="permission_location_denied_body">Konuma erişimi engellediniz, ancak Briar\'ın Bluetooth aygıtlarını bulabilmek için bu izne ihtiyacı var.\n\nLütfen erişim izni vermeyi düşünün.</string>
   <string name="qr_code">QR kodu</string>
   <string name="show_qr_code_fullscreen">QR kodunu tam ekran göster</string>
   <!--App Locking-->
