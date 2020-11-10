@@ -62,7 +62,6 @@ import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.app.ActivityOptionsCompat.makeSceneTransitionAnimation;
 import static androidx.core.view.ViewCompat.getTransitionName;
 import static com.google.android.material.snackbar.BaseTransientBottomBar.LENGTH_INDEFINITE;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -122,7 +121,7 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(R.string.contact_list_button);
+		requireActivity().setTitle(R.string.contact_list_button);
 
 		View contentView = inflater.inflate(R.layout.fragment_contact_list,
 				container, false);
@@ -274,8 +273,8 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 			removeItem(((ContactRemovedEvent) e).getContactId());
 		} else if (e instanceof ConversationMessageReceivedEvent) {
 			LOG.info("Conversation message received, updating item");
-			ConversationMessageReceivedEvent p =
-					(ConversationMessageReceivedEvent) e;
+			ConversationMessageReceivedEvent<?> p =
+					(ConversationMessageReceivedEvent<?>) e;
 			ConversationMessageHeader h = p.getMessageHeader();
 			updateItem(p.getContactId(), h);
 		} else if (e instanceof PendingContactAddedEvent ||
@@ -317,7 +316,7 @@ public class ContactListFragment extends BaseFragment implements EventListener,
 	@UiThread
 	private void showSnackBar() {
 		if (snackbar != null) return;
-		View v = requireNonNull(getView());
+		View v = requireView();
 		int stringRes = R.string.pending_contact_requests_snackbar;
 		snackbar = new BriarSnackbarBuilder()
 				.setAction(R.string.show, view -> showPendingContactList())

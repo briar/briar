@@ -39,7 +39,6 @@ import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static android.widget.Toast.LENGTH_SHORT;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
@@ -102,7 +101,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		}
 
 		// get contact IDs from fragment arguments
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		int contactId1 = args.getInt(CONTACT_ID_1, -1);
 		int contactId2 = args.getInt(CONTACT_ID_2, -1);
 		if (contactId1 == -1 || contactId2 == -1) {

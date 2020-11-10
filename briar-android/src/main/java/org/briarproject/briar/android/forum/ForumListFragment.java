@@ -47,7 +47,6 @@ import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -95,7 +94,7 @@ public class ForumListFragment extends BaseEventFragment implements
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		requireNonNull(getActivity()).setTitle(R.string.forums_button);
+		requireActivity().setTitle(R.string.forums_button);
 
 		View contentView =
 				inflater.inflate(R.layout.fragment_forum_list, container,

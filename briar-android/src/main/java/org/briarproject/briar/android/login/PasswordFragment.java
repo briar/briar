@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -67,7 +68,8 @@ public class PasswordFragment extends BaseFragment implements TextWatcher {
 		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
 				.get(StartupViewModel.class);
 
-		viewModel.getPasswordValidated().observeEvent(this, result -> {
+		LifecycleOwner owner = getViewLifecycleOwner();
+		viewModel.getPasswordValidated().observeEvent(owner, result -> {
 			if (result != SUCCESS) onPasswordInvalid(result);
 		});
 

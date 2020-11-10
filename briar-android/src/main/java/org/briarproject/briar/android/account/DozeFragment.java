@@ -20,7 +20,6 @@ import androidx.annotation.Nullable;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_DOZE_WHITELISTING;
 import static org.briarproject.briar.android.util.UiUtils.showOnboardingDialog;
 
@@ -50,10 +49,10 @@ public class DozeFragment extends SetupFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(getString(R.string.setup_doze_title));
+		requireActivity().setTitle(getString(R.string.setup_doze_title));
 		setHasOptionsMenu(false);
 		View v = inflater.inflate(R.layout.fragment_setup_doze, container,
-						false);
+				false);
 		dozeView = v.findViewById(R.id.dozeView);
 		dozeView.setOnCheckedChangedListener(this);
 		huaweiView = v.findViewById(R.id.huaweiView);
@@ -78,7 +77,8 @@ public class DozeFragment extends SetupFragment
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 		if (request == REQUEST_DOZE_WHITELISTING) {
 			if (!dozeView.needsToBeShown() || secondAttempt) {
@@ -92,11 +92,7 @@ public class DozeFragment extends SetupFragment
 
 	@Override
 	public void onCheckedChanged() {
-		if (dozeView.isChecked() && huaweiView.isChecked()) {
-			next.setEnabled(true);
-		} else {
-			next.setEnabled(false);
-		}
+		next.setEnabled(dozeView.isChecked() && huaweiView.isChecked());
 	}
 
 	@SuppressLint("BatteryLife")

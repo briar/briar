@@ -74,7 +74,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
 
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		GroupId blogId =
 				new GroupId(requireNonNull(args.getByteArray(GROUP_ID)));
 		MessageId postId =

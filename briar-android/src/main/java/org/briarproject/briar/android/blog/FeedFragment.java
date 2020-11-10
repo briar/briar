@@ -35,7 +35,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
 
@@ -79,7 +78,7 @@ public class FeedFragment extends BaseFragment implements
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(R.string.blogs_button);
+		requireActivity().setTitle(R.string.blogs_button);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
@@ -103,7 +102,8 @@ public class FeedFragment extends BaseFragment implements
 	}
 
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+	public void onActivityResult(int requestCode, int resultCode,
+			@Nullable Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 
 		// The BlogPostAddedEvent arrives when the controller is not listening

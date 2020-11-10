@@ -33,7 +33,6 @@ import androidx.lifecycle.ViewModelProviders;
 
 import static android.content.Context.CLIPBOARD_SERVICE;
 import static android.widget.Toast.LENGTH_SHORT;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.contact.HandshakeLinkConstants.LINK_REGEX;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 
@@ -83,8 +82,8 @@ public class LinkExchangeFragment extends BaseFragment
 			linkInput.setText(viewModel.getRemoteHandshakeLink());
 		}
 
-		clipboard = (ClipboardManager) requireNonNull(
-				getContext().getSystemService(CLIPBOARD_SERVICE));
+		clipboard = (ClipboardManager)
+				requireContext().getSystemService(CLIPBOARD_SERVICE);
 
 		Button pasteButton = v.findViewById(R.id.pasteButton);
 		pasteButton.setOnClickListener(view -> {
@@ -107,7 +106,7 @@ public class LinkExchangeFragment extends BaseFragment
 
 	@Override
 	public void onGlobalLayout() {
-		ScrollView scrollView = (ScrollView) requireNonNull(getView());
+		ScrollView scrollView = (ScrollView) requireView();
 		View layout = scrollView.getChildAt(0);
 		int scrollBy = layout.getHeight() - scrollView.getHeight();
 		if (scrollBy > 0) {
@@ -121,7 +120,7 @@ public class LinkExchangeFragment extends BaseFragment
 	}
 
 	private void onHandshakeLinkLoaded(String link) {
-		View v = requireNonNull(getView());
+		View v = requireView();
 
 		TextView linkView = v.findViewById(R.id.linkView);
 		linkView.setText(link);

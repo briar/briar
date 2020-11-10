@@ -32,7 +32,6 @@ import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
-import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
@@ -84,7 +83,7 @@ public class ContactChooserFragment extends BaseFragment {
 					Contact c2 = item.getContact();
 					showMessageScreen(c1, c2);
 				};
-		adapter = new ContactListAdapter(requireNonNull(getActivity()),
+		adapter = new ContactListAdapter(requireActivity(),
 				onContactClickListener);
 
 		list = contentView.findViewById(R.id.list);
@@ -92,8 +91,7 @@ public class ContactChooserFragment extends BaseFragment {
 		list.setAdapter(adapter);
 		list.setEmptyText(R.string.no_contacts);
 
-		contactId = new ContactId(
-				requireNonNull(getArguments()).getInt(CONTACT_ID));
+		contactId = new ContactId(requireArguments().getInt(CONTACT_ID));
 
 		return contentView;
 	}

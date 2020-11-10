@@ -27,6 +27,7 @@ import javax.inject.Inject;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -78,7 +79,7 @@ public class ImageFragment extends Fragment
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		attachment = requireNonNull(args.getParcelable(ATTACHMENT_POSITION));
 		isFirst = args.getBoolean(IS_FIRST);
 		conversationItemId =
@@ -93,7 +94,7 @@ public class ImageFragment extends Fragment
 		View v = inflater.inflate(R.layout.fragment_image, container,
 				false);
 
-		viewModel = ViewModelProviders.of(requireNonNull(getActivity()),
+		viewModel = ViewModelProviders.of(requireActivity(),
 				viewModelFactory).get(ImageViewModel.class);
 
 		photoView = v.findViewById(R.id.photoView);
@@ -110,8 +111,9 @@ public class ImageFragment extends Fragment
 			photoView.setImageResource(R.drawable.ic_image_missing);
 			startPostponedTransition();
 			// state is not final, so observe state changes
+			LifecycleOwner owner = getViewLifecycleOwner();
 			viewModel.getOnAttachmentReceived(attachment.getMessageId())
-					.observeEvent(this, this::onAttachmentReceived);
+					.observeEvent(owner, this::onAttachmentReceived);
 		}
 
 		return v;

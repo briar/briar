@@ -12,8 +12,6 @@ import org.briarproject.briar.R;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import static java.util.Objects.requireNonNull;
-
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class CrashFragment extends Fragment {
@@ -35,7 +33,7 @@ public class CrashFragment extends Fragment {
 	}
 
 	private DevReportActivity getDevReportActivity() {
-		return (DevReportActivity) requireNonNull(getActivity());
+		return (DevReportActivity) requireActivity();
 	}
 
 }

@@ -113,7 +113,7 @@ public class ReportFormFragment extends Fragment
 		report = v.findViewById(R.id.report_content);
 		progress = v.findViewById(R.id.progress_wheel);
 
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		isFeedback = args.getBoolean(IS_FEEDBACK);
 		reportFile =
 				(File) requireNonNull(args.getSerializable(EXTRA_REPORT_FILE));
@@ -285,7 +285,7 @@ public class ReportFormFragment extends Fragment
 	}
 
 	private DevReportActivity getDevReportActivity() {
-		return (DevReportActivity) requireNonNull(getActivity());
+		return (DevReportActivity) requireActivity();
 	}
 
 }
