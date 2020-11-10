@@ -1,9 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-	android:id="@+id/scrollView"
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
+	android:id="@+id/scrollView"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:orientation="vertical">
@@ -22,12 +21,12 @@
 			android:padding="@dimen/margin_medium"
 			android:scaleType="fitCenter"
 			android:src="@drawable/qr_code_intro"
-			android:tint="@color/color_primary"
 			app:layout_constraintBottom_toBottomOf="@id/explanationText"
 			app:layout_constraintEnd_toStartOf="@id/explanationText"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toTopOf="parent"
-			tools:ignore="ContentDescription"/>
+			app:tint="@color/color_primary"
+			tools:ignore="ContentDescription" />
 
 		<ImageView
 			android:id="@+id/explanationImage"
@@ -35,16 +34,16 @@
 			android:layout_height="wrap_content"
 			android:layout_weight="1"
 			android:adjustViewBounds="true"
-			android:paddingEnd="@dimen/margin_large"
 			android:paddingStart="@dimen/margin_large"
 			android:paddingTop="@dimen/margin_large"
+			android:paddingEnd="@dimen/margin_large"
 			android:scaleType="fitCenter"
 			android:src="@drawable/qr_code_explanation"
 			app:layout_constraintBottom_toTopOf="@id/explanationText"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@id/diagram"
 			app:layout_constraintTop_toTopOf="parent"
-			tools:ignore="ContentDescription"/>
+			tools:ignore="ContentDescription" />
 
 		<TextView
 			android:id="@+id/explanationText"
@@ -55,7 +54,7 @@
 			android:text="@string/face_to_face"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toEndOf="@id/diagram"
-			app:layout_constraintTop_toBottomOf="@id/explanationImage"/>
+			app:layout_constraintTop_toBottomOf="@id/explanationImage" />
 
 		<View
 			android:id="@+id/explanationBorder"
@@ -65,14 +64,14 @@
 			app:layout_constraintBottom_toBottomOf="@id/explanationText"
 			app:layout_constraintEnd_toEndOf="@id/explanationImage"
 			app:layout_constraintStart_toStartOf="@id/explanationImage"
-			app:layout_constraintTop_toTopOf="@id/explanationImage"/>
+			app:layout_constraintTop_toTopOf="@id/explanationImage" />
 
 		<androidx.constraintlayout.widget.Barrier
 			android:id="@+id/barrier"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
 			app:barrierDirection="bottom"
-			app:constraint_referenced_ids="diagram,explanationBorder"/>
+			app:constraint_referenced_ids="diagram,explanationBorder" />
 
 		<Button
 			android:id="@+id/continueButton"
@@ -83,7 +82,7 @@
 			android:layout_marginTop="@dimen/margin_medium"
 			android:text="@string/continue_button"
 			app:layout_constraintBottom_toBottomOf="parent"
-			app:layout_constraintTop_toBottomOf="@id/barrier"/>
+			app:layout_constraintTop_toBottomOf="@id/barrier" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
