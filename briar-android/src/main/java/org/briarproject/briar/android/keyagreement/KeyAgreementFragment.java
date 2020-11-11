@@ -66,7 +66,7 @@ public class KeyAgreementFragment extends BaseEventFragment
 	static final String TAG = KeyAgreementFragment.class.getName();
 
 	private static final Logger LOG = Logger.getLogger(TAG);
-	@SuppressWarnings("CharsetObjectCanBeUsed")
+	@SuppressWarnings("CharsetObjectCanBeUsed") // Requires minSdkVersion >= 19
 	private static final Charset ISO_8859_1 = Charset.forName("ISO-8859-1");
 
 	@Inject
