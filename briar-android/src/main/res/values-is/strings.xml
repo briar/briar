@@ -549,6 +549,7 @@
   <string name="permission_camera_location_title">Myndavél og staðsetning</string>
   <string name="permission_camera_location_request_body">Til að skanna QR-kóðann, þarf Briar aðgang að myndavélinni.\n\nTil að finna Bluetooth-tæki, þarf Briar heimild til að nota staðsetningu þína.\n\nBriar geymir ekki staðsetningar eða deilir þeim með neinum.</string>
   <string name="permission_camera_denied_body">Þú hefur hafnað aðgangi að myndavélinni, en það að bæta við tengiliðum krefst notkun hennar.\n\nÍhugaðu að veita þennan aðgang.</string>
+  <string name="permission_location_denied_body">Þú hefur hafnað aðgangi að staðsetningu, en Briar þarf þessa heimild til að geta fundið Bluetooth-tæki.\n\nÍhugaðu að veita þennan aðgang.</string>
   <string name="qr_code">QR-kóði</string>
   <string name="show_qr_code_fullscreen">Birta QR-kóða á öllum skjánum</string>
   <!--App Locking-->

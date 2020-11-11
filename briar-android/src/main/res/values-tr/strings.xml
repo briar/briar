@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
   <!--Setup-->
   <string name="setup_title">Briar\'a Hoşgeldiniz</string>
   <string name="setup_name_explanation">Takma adınız, gönderdiğiniz herhangi bir içeriğin yanında gösterilecek. Hesabınızı oluşturduktan sonra onu değiştiremezsiniz.</string>
