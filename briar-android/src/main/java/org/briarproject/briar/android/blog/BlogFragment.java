@@ -46,7 +46,6 @@ import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
 import static com.google.android.material.snackbar.Snackbar.LENGTH_LONG;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_BLOG;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_WRITE_BLOG_POST;
@@ -97,14 +96,14 @@ public class BlogFragment extends BaseFragment
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
 		groupId = new GroupId(b);
 
 		View v = inflater.inflate(R.layout.fragment_blog, container, false);
 
-		adapter = new BlogPostAdapter(requireNonNull(getActivity()), this,
+		adapter = new BlogPostAdapter(requireActivity(), this,
 				getFragmentManager());
 		list = v.findViewById(R.id.postList);
 		layoutManager = new LinearLayoutManager(getActivity());
@@ -196,7 +195,8 @@ public class BlogFragment extends BaseFragment
 	}
 
 	@Override
-	public void onActivityResult(int request, int result, Intent data) {
+	public void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_WRITE_BLOG_POST && result == RESULT_OK) {

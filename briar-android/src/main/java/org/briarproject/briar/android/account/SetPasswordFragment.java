@@ -24,7 +24,6 @@ import static android.content.Context.INPUT_METHOD_SERVICE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static android.view.inputmethod.EditorInfo.IME_ACTION_DONE;
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.bramble.api.crypto.PasswordStrengthEstimator.QUITE_WEAK;
 import static org.briarproject.briar.android.util.UiUtils.setError;
 
@@ -55,7 +54,7 @@ public class SetPasswordFragment extends SetupFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		requireNonNull(getActivity()).setTitle(getString(R.string.setup_password_intro));
+		requireActivity().setTitle(getString(R.string.setup_password_intro));
 		View v = inflater.inflate(R.layout.fragment_setup_password, container,
 						false);
 

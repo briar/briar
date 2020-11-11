@@ -53,10 +53,10 @@
 				android:contentDescription="@string/close"
 				android:scaleType="center"
 				android:src="@drawable/ic_close"
-				android:tint="@color/briar_text_tertiary_inverse"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintEnd_toEndOf="parent"
-				app:layout_constraintTop_toTopOf="parent" />
+				app:layout_constraintTop_toTopOf="parent"
+				app:tint="@color/briar_text_tertiary_inverse" />
 
 		</androidx.constraintlayout.widget.ConstraintLayout>
 

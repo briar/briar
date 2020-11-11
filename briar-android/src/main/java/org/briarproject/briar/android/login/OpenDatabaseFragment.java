@@ -16,6 +16,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -51,7 +52,8 @@ public class OpenDatabaseFragment extends BaseFragment {
 
 		StartupViewModel viewModel = ViewModelProviders.of(requireActivity(),
 				viewModelFactory).get(StartupViewModel.class);
-		viewModel.getState().observe(this, this::onStateChanged);
+		LifecycleOwner owner = getViewLifecycleOwner();
+		viewModel.getState().observe(owner, this::onStateChanged);
 
 		return v;
 	}

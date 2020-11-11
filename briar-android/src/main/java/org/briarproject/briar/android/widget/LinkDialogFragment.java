@@ -49,7 +49,7 @@ public class LinkDialogFragment extends DialogFragment {
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		url = requireNonNull(args.getString("url"));
 
 		setStyle(STYLE_NO_TITLE, R.style.BriarDialogTheme);
@@ -70,7 +70,7 @@ public class LinkDialogFragment extends DialogFragment {
 		Context ctx = requireContext();
 		Intent i = new Intent(ACTION_VIEW, Uri.parse(url));
 		PackageManager packageManager = ctx.getPackageManager();
-		List activities =
+		List<?> activities =
 				packageManager.queryIntentActivities(i, MATCH_DEFAULT_ONLY);
 		boolean choice = activities.size() > 1;
 		Intent intent = choice ? Intent.createChooser(i,

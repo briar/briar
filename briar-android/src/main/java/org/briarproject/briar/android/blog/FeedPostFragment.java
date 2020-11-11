@@ -18,7 +18,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
 
-import static java.util.Objects.requireNonNull;
 import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
 
 @UiThread
@@ -54,7 +53,7 @@ public class FeedPostFragment extends BasePostFragment {
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-		Bundle args = requireNonNull(getArguments());
+		Bundle args = requireArguments();
 		byte[] b = args.getByteArray(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No group ID in args");
 		blogId = new GroupId(b);

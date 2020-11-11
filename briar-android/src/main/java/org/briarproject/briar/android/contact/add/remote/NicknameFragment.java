@@ -31,6 +31,7 @@ import javax.inject.Inject;
 
 import androidx.annotation.StringRes;
 import androidx.appcompat.app.AlertDialog.Builder;
+import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -117,7 +118,8 @@ public class NicknameFragment extends BaseFragment {
 		addButton.setVisibility(INVISIBLE);
 		progressBar.setVisibility(VISIBLE);
 
-		viewModel.getAddContactResult().observe(this, result -> {
+		LifecycleOwner owner = getViewLifecycleOwner();
+		viewModel.getAddContactResult().observe(owner, result -> {
 			if (result == null) return;
 			if (result.hasError())
 				handleException(name, requireNonNull(result.getException()));
