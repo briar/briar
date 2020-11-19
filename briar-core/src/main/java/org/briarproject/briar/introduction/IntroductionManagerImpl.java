@@ -465,7 +465,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), meta.isRead(), status.isSent(), status.isSeen(),
 				sessionId, author, text, !meta.isAvailableToAnswer(),
-				authorInfo);
+				authorInfo, rm.getAutoDeleteTimer());
 	}
 
 	private IntroductionResponse parseInvitationResponse(Transaction txn,
@@ -503,7 +503,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		}
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),
 				meta.isLocal(), meta.isRead(), status.isSent(), status.isSeen(),
-				sessionId, accept, author, authorInfo, role, canSucceed);
+				sessionId, accept, author, authorInfo, role, canSucceed,
+				meta.getAutoDeleteTimer());
 	}
 
 	private void removeSessionWithIntroducer(Transaction txn,
