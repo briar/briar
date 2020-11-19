@@ -20,7 +20,9 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
+import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
@@ -48,9 +50,10 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	@Override
-	public BdfDictionary encodeRequestMetadata(long timestamp) {
-		BdfDictionary meta =
-				encodeMetadata(REQUEST, null, timestamp, false, false, false);
+	public BdfDictionary encodeRequestMetadata(long timestamp,
+			long autoDeleteTimer) {
+		BdfDictionary meta = encodeMetadata(REQUEST, null, timestamp,
+				false, false, false, autoDeleteTimer);
 		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, false);
 		return meta;
 	}
@@ -58,7 +61,7 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public BdfDictionary encodeMetadata(MessageType type,
 			@Nullable SessionId sessionId, long timestamp, boolean local,
-			boolean read, boolean visible) {
+			boolean read, boolean visible, long autoDeleteTimer) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
 		if (sessionId != null)
@@ -69,6 +72,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		meta.put(MSG_KEY_LOCAL, local);
 		meta.put(MSG_KEY_READ, read);
 		meta.put(MSG_KEY_VISIBLE_IN_UI, visible);
+		if (autoDeleteTimer != NO_AUTO_DELETE_TIMER) {
+			meta.put(MSG_KEY_AUTO_DELETE_TIMER, autoDeleteTimer);
+		}
 		return meta;
 	}
 
