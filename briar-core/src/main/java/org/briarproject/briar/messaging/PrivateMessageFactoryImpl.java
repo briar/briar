@@ -16,6 +16,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.util.StringUtils.utf8IsTooLong;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
@@ -52,7 +53,7 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 		// Serialise the message
 		BdfList body = BdfList.of(PRIVATE_MESSAGE, text, attachmentList);
 		Message m = clientHelper.createMessage(groupId, timestamp, body);
-		return new PrivateMessage(m, text != null, headers, -1);
+		return new PrivateMessage(m, text != null, headers);
 	}
 
 	@Override
@@ -62,7 +63,8 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 		validateTextAndAttachmentHeaders(text, headers);
 		BdfList attachmentList = serialiseAttachmentHeaders(headers);
 		// Serialise the message
-		Long timer = autoDeleteTimer == -1 ? null : autoDeleteTimer;
+		Long timer = autoDeleteTimer == NO_AUTO_DELETE_TIMER ?
+				null : autoDeleteTimer;
 		BdfList body = BdfList.of(PRIVATE_MESSAGE, text, attachmentList, timer);
 		Message m = clientHelper.createMessage(groupId, timestamp, body);
 		return new PrivateMessage(m, text != null, headers, autoDeleteTimer);

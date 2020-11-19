@@ -9,9 +9,10 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
 @Immutable
 @NotNullByDefault
@@ -25,14 +26,14 @@ public class PrivateMessage {
 
 	/**
 	 * Constructor for private messages in the
-	 * {@link PrivateMessageFormat#TEXT TEXT} format.
+	 * {@link PrivateMessageFormat#TEXT_ONLY TEXT_ONLY} format.
 	 */
 	public PrivateMessage(Message message) {
 		this.message = message;
 		hasText = true;
 		attachmentHeaders = emptyList();
-		autoDeleteTimer = -1;
-		format = TEXT;
+		autoDeleteTimer = NO_AUTO_DELETE_TIMER;
+		format = TEXT_ONLY;
 	}
 
 	/**
@@ -44,7 +45,7 @@ public class PrivateMessage {
 		this.message = message;
 		this.hasText = hasText;
 		this.attachmentHeaders = headers;
-		autoDeleteTimer = -1;
+		autoDeleteTimer = NO_AUTO_DELETE_TIMER;
 		format = TEXT_IMAGES;
 	}
 

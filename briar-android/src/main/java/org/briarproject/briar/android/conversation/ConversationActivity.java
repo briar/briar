@@ -138,7 +138,7 @@ import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
-import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -270,7 +270,7 @@ public class ConversationActivity extends BriarActivity
 			sendController = new TextAttachmentController(textInputView,
 					imagePreview, this, viewModel);
 			observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
-				if (format != null && format != TEXT) {
+				if (format != TEXT_ONLY) {
 					// TODO: remove cast when removing feature flag
 					((TextAttachmentController) sendController)
 							.setImagesSupported();
