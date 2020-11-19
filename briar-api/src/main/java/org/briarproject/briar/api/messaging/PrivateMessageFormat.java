@@ -6,7 +6,7 @@ public enum PrivateMessageFormat {
 	 * First version of the private message format, which doesn't support
 	 * image attachments or auto-deletion.
 	 */
-	TEXT,
+	TEXT_ONLY,
 
 	/**
 	 * Second version of the private message format, which supports image

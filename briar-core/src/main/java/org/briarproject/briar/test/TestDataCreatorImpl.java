@@ -59,6 +59,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -361,7 +362,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private void createPrivateMessage(ContactId contactId, GroupId groupId,
 			String text, long timestamp, boolean local, boolean autoDelete)
 			throws DbException {
-		long timer = autoDelete ? MIN_AUTO_DELETE_TIMER_MS : -1;
+		long timer = autoDelete ?
+				MIN_AUTO_DELETE_TIMER_MS : NO_AUTO_DELETE_TIMER;
 		try {
 			PrivateMessage m = privateMessageFactory.createPrivateMessage(
 					groupId, timestamp, text, emptyList(), timer);
