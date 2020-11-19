@@ -103,7 +103,7 @@ class PrivateMessageValidator implements MessageValidator {
 
 	private BdfMessageContext validateLegacyPrivateMessage(Message m,
 			BdfList body) throws FormatException {
-		// Private message text
+		// Client version 0.0: Private message text
 		checkSize(body, 1);
 		String text = body.getString(0);
 		checkLength(text, 0, MAX_PRIVATE_MESSAGE_INCOMING_TEXT_LENGTH);
@@ -117,9 +117,9 @@ class PrivateMessageValidator implements MessageValidator {
 
 	private BdfMessageContext validatePrivateMessage(Message m, BdfList body)
 			throws FormatException {
-		// Version 0.1: Message type, optional private message text,
-		// attachment headers.
-		// Version 0.2: Message type, optional private message text,
+		// Client version 0.1 to 0.2: Message type, optional private message
+		// text, attachment headers.
+		// Client version 0.3: Message type, optional private message text,
 		// attachment headers, optional auto-delete timer.
 		checkSize(body, 3, 4);
 		String text = body.getOptionalString(1);
