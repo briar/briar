@@ -54,6 +54,7 @@ import javax.inject.Inject;
 import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.api.plugin.BluetoothConstants.UUID_BYTES;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
@@ -316,13 +317,16 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		long timestamp = clock.currentTimeMillis() - num * 60 * 1000;
 		String text = getRandomText();
 		boolean local = random.nextBoolean();
-		createPrivateMessage(groupId, text, timestamp, local);
+		boolean autoDelete = random.nextBoolean();
+		createPrivateMessage(groupId, text, timestamp, local, autoDelete);
 	}
 
 	private void createPrivateMessage(GroupId groupId, String text,
-			long timestamp, boolean local) throws DbException, FormatException {
-		PrivateMessage m = privateMessageFactory
-				.createPrivateMessage(groupId, timestamp, text, emptyList());
+			long timestamp, boolean local, boolean autoDelete)
+			throws DbException, FormatException {
+		long timer = autoDelete ? MIN_AUTO_DELETE_TIMER_MS : -1;
+		PrivateMessage m = privateMessageFactory.createPrivateMessage(groupId,
+				timestamp, text, emptyList(), timer);
 		BdfDictionary meta = new BdfDictionary();
 		meta.put("timestamp", timestamp);
 		meta.put("local", local);
