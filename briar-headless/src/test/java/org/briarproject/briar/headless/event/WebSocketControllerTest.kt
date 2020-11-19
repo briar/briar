@@ -97,7 +97,8 @@ internal class WebSocketControllerTest : ControllerTest() {
             author,
             text,
             false,
-            AuthorInfo(VERIFIED)
+            AuthorInfo(VERIFIED),
+            NO_AUTO_DELETE_TIMER
         )
         val introductionRequestEvent =
             IntroductionRequestReceivedEvent(introductionRequest, contact.id)

@@ -25,6 +25,7 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
@@ -89,8 +90,8 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testRequestMessageMetadata() throws FormatException {
-		BdfDictionary d = messageEncoder
-				.encodeRequestMetadata(timestamp, MIN_AUTO_DELETE_TIMER_MS);
+		BdfDictionary d = messageEncoder.encodeRequestMetadata(timestamp,
+				MIN_AUTO_DELETE_TIMER_MS);
 		MessageMetadata meta = messageParser.parseMetadata(d);
 
 		assertEquals(REQUEST, meta.getMessageType());
@@ -105,9 +106,8 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 
 	@Test
 	public void testMessageMetadata() throws FormatException {
-		BdfDictionary d = messageEncoder
-				.encodeMetadata(ABORT, sessionId, timestamp, false, true,
-						false, MAX_AUTO_DELETE_TIMER_MS);
+		BdfDictionary d = messageEncoder.encodeMetadata(ABORT, sessionId,
+				timestamp, false, true, false, MAX_AUTO_DELETE_TIMER_MS);
 		MessageMetadata meta = messageParser.parseMetadata(d);
 
 		assertEquals(ABORT, meta.getMessageType());
@@ -135,6 +135,42 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(previousMsgId, rm.getPreviousMessageId());
 		assertEquals(author, rm.getAuthor());
 		assertEquals(text, rm.getText());
+		assertEquals(NO_AUTO_DELETE_TIMER, rm.getAutoDeleteTimer());
+	}
+
+	@Test
+	public void testRequestMessageWithAutoDeleteTimer() throws FormatException {
+		Message m = messageEncoder.encodeRequestMessage(groupId, timestamp,
+				previousMsgId, author, text, MIN_AUTO_DELETE_TIMER_MS);
+		validator.validateMessage(m, group, clientHelper.toList(m));
+		RequestMessage rm =
+				messageParser.parseRequestMessage(m, clientHelper.toList(m));
+
+		assertEquals(m.getId(), rm.getMessageId());
+		assertEquals(m.getGroupId(), rm.getGroupId());
+		assertEquals(m.getTimestamp(), rm.getTimestamp());
+		assertEquals(previousMsgId, rm.getPreviousMessageId());
+		assertEquals(author, rm.getAuthor());
+		assertEquals(text, rm.getText());
+		assertEquals(MIN_AUTO_DELETE_TIMER_MS, rm.getAutoDeleteTimer());
+	}
+
+	@Test
+	public void testRequestMessageWithoutAutoDeleteTimer()
+			throws FormatException {
+		Message m = messageEncoder.encodeRequestMessage(groupId, timestamp,
+				previousMsgId, author, text, NO_AUTO_DELETE_TIMER);
+		validator.validateMessage(m, group, clientHelper.toList(m));
+		RequestMessage rm =
+				messageParser.parseRequestMessage(m, clientHelper.toList(m));
+
+		assertEquals(m.getId(), rm.getMessageId());
+		assertEquals(m.getGroupId(), rm.getGroupId());
+		assertEquals(m.getTimestamp(), rm.getTimestamp());
+		assertEquals(previousMsgId, rm.getPreviousMessageId());
+		assertEquals(author, rm.getAuthor());
+		assertEquals(text, rm.getText());
+		assertEquals(NO_AUTO_DELETE_TIMER, rm.getAutoDeleteTimer());
 	}
 
 	@Test
@@ -146,6 +182,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 				messageParser.parseRequestMessage(m, clientHelper.toList(m));
 
 		assertNull(rm.getPreviousMessageId());
+		assertEquals(NO_AUTO_DELETE_TIMER, rm.getAutoDeleteTimer());
 	}
 
 	@Test
@@ -158,6 +195,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 				messageParser.parseRequestMessage(m, clientHelper.toList(m));
 
 		assertNull(rm.getText());
+		assertEquals(NO_AUTO_DELETE_TIMER, rm.getAutoDeleteTimer());
 	}
 
 	@Test
@@ -183,6 +221,57 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 				am.getEphemeralPublicKey().getEncoded());
 		assertEquals(acceptTimestamp, am.getAcceptTimestamp());
 		assertEquals(transportProperties, am.getTransportProperties());
+		assertEquals(NO_AUTO_DELETE_TIMER, am.getAutoDeleteTimer());
+	}
+
+	@Test
+	public void testAcceptMessageWithAutoDeleteTimer() throws Exception {
+		Map<TransportId, TransportProperties> transportProperties =
+				getTransportPropertiesMap(2);
+
+		long acceptTimestamp = 1337L;
+		Message m = messageEncoder.encodeAcceptMessage(groupId, timestamp,
+				previousMsgId, sessionId, ephemeralPublicKey,
+				acceptTimestamp, transportProperties, MAX_AUTO_DELETE_TIMER_MS);
+		validator.validateMessage(m, group, clientHelper.toList(m));
+		AcceptMessage am =
+				messageParser.parseAcceptMessage(m, clientHelper.toList(m));
+
+		assertEquals(m.getId(), am.getMessageId());
+		assertEquals(m.getGroupId(), am.getGroupId());
+		assertEquals(m.getTimestamp(), am.getTimestamp());
+		assertEquals(previousMsgId, am.getPreviousMessageId());
+		assertEquals(sessionId, am.getSessionId());
+		assertArrayEquals(ephemeralPublicKey.getEncoded(),
+				am.getEphemeralPublicKey().getEncoded());
+		assertEquals(acceptTimestamp, am.getAcceptTimestamp());
+		assertEquals(transportProperties, am.getTransportProperties());
+		assertEquals(MAX_AUTO_DELETE_TIMER_MS, am.getAutoDeleteTimer());
+	}
+
+	@Test
+	public void testAcceptMessageWithoutAutoDeleteTimer() throws Exception {
+		Map<TransportId, TransportProperties> transportProperties =
+				getTransportPropertiesMap(2);
+
+		long acceptTimestamp = 1337L;
+		Message m = messageEncoder.encodeAcceptMessage(groupId, timestamp,
+				previousMsgId, sessionId, ephemeralPublicKey,
+				acceptTimestamp, transportProperties, NO_AUTO_DELETE_TIMER);
+		validator.validateMessage(m, group, clientHelper.toList(m));
+		AcceptMessage am =
+				messageParser.parseAcceptMessage(m, clientHelper.toList(m));
+
+		assertEquals(m.getId(), am.getMessageId());
+		assertEquals(m.getGroupId(), am.getGroupId());
+		assertEquals(m.getTimestamp(), am.getTimestamp());
+		assertEquals(previousMsgId, am.getPreviousMessageId());
+		assertEquals(sessionId, am.getSessionId());
+		assertArrayEquals(ephemeralPublicKey.getEncoded(),
+				am.getEphemeralPublicKey().getEncoded());
+		assertEquals(acceptTimestamp, am.getAcceptTimestamp());
+		assertEquals(transportProperties, am.getTransportProperties());
+		assertEquals(NO_AUTO_DELETE_TIMER, am.getAutoDeleteTimer());
 	}
 
 	@Test
@@ -199,6 +288,39 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(m.getTimestamp(), dm.getTimestamp());
 		assertEquals(previousMsgId, dm.getPreviousMessageId());
 		assertEquals(sessionId, dm.getSessionId());
+		assertEquals(NO_AUTO_DELETE_TIMER, dm.getAutoDeleteTimer());
+	}
+
+	@Test
+	public void testDeclineMessageWithAutoDeleteTimer() throws Exception {
+		Message m = messageEncoder.encodeDeclineMessage(groupId, timestamp,
+				previousMsgId, sessionId, MIN_AUTO_DELETE_TIMER_MS);
+		validator.validateMessage(m, group, clientHelper.toList(m));
+		DeclineMessage dm =
+				messageParser.parseDeclineMessage(m, clientHelper.toList(m));
+
+		assertEquals(m.getId(), dm.getMessageId());
+		assertEquals(m.getGroupId(), dm.getGroupId());
+		assertEquals(m.getTimestamp(), dm.getTimestamp());
+		assertEquals(previousMsgId, dm.getPreviousMessageId());
+		assertEquals(sessionId, dm.getSessionId());
+		assertEquals(MIN_AUTO_DELETE_TIMER_MS, dm.getAutoDeleteTimer());
+	}
+
+	@Test
+	public void testDeclineMessageWithoutAutoDeleteTimer() throws Exception {
+		Message m = messageEncoder.encodeDeclineMessage(groupId, timestamp,
+				previousMsgId, sessionId, NO_AUTO_DELETE_TIMER);
+		validator.validateMessage(m, group, clientHelper.toList(m));
+		DeclineMessage dm =
+				messageParser.parseDeclineMessage(m, clientHelper.toList(m));
+
+		assertEquals(m.getId(), dm.getMessageId());
+		assertEquals(m.getGroupId(), dm.getGroupId());
+		assertEquals(m.getTimestamp(), dm.getTimestamp());
+		assertEquals(previousMsgId, dm.getPreviousMessageId());
+		assertEquals(sessionId, dm.getSessionId());
+		assertEquals(NO_AUTO_DELETE_TIMER, dm.getAutoDeleteTimer());
 	}
 
 	@Test
@@ -217,6 +339,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(sessionId, am.getSessionId());
 		assertArrayEquals(mac, am.getMac());
 		assertArrayEquals(signature, am.getSignature());
+		assertEquals(NO_AUTO_DELETE_TIMER, am.getAutoDeleteTimer());
 	}
 
 	@Test
@@ -234,6 +357,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(previousMsgId, am.getPreviousMessageId());
 		assertEquals(sessionId, am.getSessionId());
 		assertArrayEquals(mac, am.getMac());
+		assertEquals(NO_AUTO_DELETE_TIMER, am.getAutoDeleteTimer());
 	}
 
 	@Test
@@ -250,5 +374,6 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertEquals(m.getTimestamp(), am.getTimestamp());
 		assertEquals(previousMsgId, am.getPreviousMessageId());
 		assertEquals(sessionId, am.getSessionId());
+		assertEquals(NO_AUTO_DELETE_TIMER, am.getAutoDeleteTimer());
 	}
 }

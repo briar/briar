@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.SessionId;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Collections.singletonList;
@@ -86,13 +87,8 @@ class IntroductionValidator extends BdfMessageValidator {
 		String text = body.getOptionalString(3);
 		checkLength(text, 1, MAX_INTRODUCTION_TEXT_LENGTH);
 
-		Long timer = null;
-		if (body.size() == 5) {
-			timer = body.getOptionalLong(4);
-			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
-					MAX_AUTO_DELETE_TIMER_MS);
-		}
-		if (timer == null) timer = NO_AUTO_DELETE_TIMER;
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 5) timer = validateTimer(body.getOptionalLong(4));
 
 		BdfDictionary meta =
 				messageEncoder.encodeRequestMetadata(m.getTimestamp(), timer);
@@ -131,13 +127,8 @@ class IntroductionValidator extends BdfMessageValidator {
 		clientHelper
 				.parseAndValidateTransportPropertiesMap(transportProperties);
 
-		Long timer = null;
-		if (body.size() == 7) {
-			timer = body.getOptionalLong(6);
-			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
-					MAX_AUTO_DELETE_TIMER_MS);
-		}
-		if (timer == null) timer = NO_AUTO_DELETE_TIMER;
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 7) timer = validateTimer(body.getOptionalLong(6));
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(ACCEPT, sessionId,
@@ -164,13 +155,8 @@ class IntroductionValidator extends BdfMessageValidator {
 		byte[] previousMessageId = body.getOptionalRaw(2);
 		checkLength(previousMessageId, UniqueId.LENGTH);
 
-		Long timer = null;
-		if (body.size() == 4) {
-			timer = body.getOptionalLong(3);
-			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
-					MAX_AUTO_DELETE_TIMER_MS);
-		}
-		if (timer == null) timer = NO_AUTO_DELETE_TIMER;
+		long timer = NO_AUTO_DELETE_TIMER;
+		if (body.size() == 4) timer = validateTimer(body.getOptionalLong(3));
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(type, sessionId,
@@ -251,4 +237,9 @@ class IntroductionValidator extends BdfMessageValidator {
 		}
 	}
 
+	private long validateTimer(@Nullable Long timer) throws FormatException {
+		if (timer == null) return NO_AUTO_DELETE_TIMER;
+		checkRange(timer, MIN_AUTO_DELETE_TIMER_MS, MAX_AUTO_DELETE_TIMER_MS);
+		return timer;
+	}
 }

@@ -25,9 +25,10 @@ public class IntroductionResponse extends ConversationResponse {
 	public IntroductionResponse(MessageId messageId, GroupId groupId, long time,
 			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, boolean accepted, Author author,
-			AuthorInfo introducedAuthorInfo, Role role, boolean canSucceed) {
+			AuthorInfo introducedAuthorInfo, Role role, boolean canSucceed,
+			long autoDeleteTimer) {
 		super(messageId, groupId, time, local, read, sent, seen, sessionId,
-				accepted);
+				accepted, autoDeleteTimer);
 		this.introducedAuthor = author;
 		this.introducedAuthorInfo = introducedAuthorInfo;
 		this.ourRole = role;

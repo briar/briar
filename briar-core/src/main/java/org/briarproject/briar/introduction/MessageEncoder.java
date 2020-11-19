@@ -31,17 +31,52 @@ interface MessageEncoder {
 
 	void setAvailableToAnswer(BdfDictionary meta, boolean available);
 
+	/**
+	 * Encodes a request message without an auto-delete timer.
+	 */
 	Message encodeRequestMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, Author author,
 			@Nullable String text);
 
+	/**
+	 * Encodes a request message with an optional auto-delete timer. This
+	 * requires the contact to support client version 0.1 or higher.
+	 */
+	Message encodeRequestMessage(GroupId contactGroupId, long timestamp,
+			@Nullable MessageId previousMessageId, Author author,
+			@Nullable String text, long autoDeleteTimer);
+
+	/**
+	 * Encodes an accept message without an auto-delete timer.
+	 */
 	Message encodeAcceptMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId,
 			PublicKey ephemeralPublicKey, long acceptTimestamp,
 			Map<TransportId, TransportProperties> transportProperties);
 
+	/**
+	 * Encodes an accept message with an optional auto-delete timer. This
+	 * requires the contact to support client version 0.1 or higher.
+	 */
+	Message encodeAcceptMessage(GroupId contactGroupId, long timestamp,
+			@Nullable MessageId previousMessageId, SessionId sessionId,
+			PublicKey ephemeralPublicKey, long acceptTimestamp,
+			Map<TransportId, TransportProperties> transportProperties,
+			long autoDeleteTimer);
+
+	/**
+	 * Encodes a decline message without an auto-delete timer.
+	 */
 	Message encodeDeclineMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId);
+
+	/**
+	 * Encodes a decline message with an optional auto-delete timer. This
+	 * requires the contact to support client version 0.1 or higher.
+	 */
+	Message encodeDeclineMessage(GroupId contactGroupId, long timestamp,
+			@Nullable MessageId previousMessageId, SessionId sessionId,
+			long autoDeleteTimer);
 
 	Message encodeAuthMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId,

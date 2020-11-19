@@ -7,6 +7,8 @@ import org.briarproject.briar.api.conversation.ConversationRequest;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+
 public abstract class InvitationRequest<S extends Shareable> extends
 		ConversationRequest<S> {
 
@@ -17,7 +19,7 @@ public abstract class InvitationRequest<S extends Shareable> extends
 			SessionId sessionId, S object, @Nullable String text,
 			boolean available, boolean canBeOpened) {
 		super(messageId, groupId, time, local, read, sent, seen, sessionId,
-				object, text, !available);
+				object, text, !available, NO_AUTO_DELETE_TIMER);
 		this.canBeOpened = canBeOpened;
 	}
 

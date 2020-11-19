@@ -12,18 +12,20 @@ public abstract class ConversationMessageHeader {
 
 	private final MessageId id;
 	private final GroupId groupId;
-	private final long timestamp;
-	private final boolean local, sent, seen, read;
+	private final long timestamp, autoDeleteTimer;
+	private final boolean local, read, sent, seen;
 
-	public ConversationMessageHeader(MessageId id, GroupId groupId, long timestamp,
-			boolean local, boolean read, boolean sent, boolean seen) {
+	public ConversationMessageHeader(MessageId id, GroupId groupId,
+			long timestamp, boolean local, boolean read, boolean sent,
+			boolean seen, long autoDeleteTimer) {
 		this.id = id;
 		this.groupId = groupId;
 		this.timestamp = timestamp;
 		this.local = local;
+		this.read = read;
 		this.sent = sent;
 		this.seen = seen;
-		this.read = read;
+		this.autoDeleteTimer = autoDeleteTimer;
 	}
 
 	public MessageId getId() {
@@ -55,4 +57,8 @@ public abstract class ConversationMessageHeader {
 	}
 
 	public abstract <T> T accept(ConversationMessageVisitor<T> v);
+
+	public long getAutoDeleteTimer() {
+		return autoDeleteTimer;
+	}
 }

@@ -45,6 +45,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.util.Collections.emptySet;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
@@ -1114,7 +1115,7 @@ public class IntroductionIntegrationTest
 						m.getTimestamp(), m.getPreviousMessageId(),
 						m.getSessionId(), m.getEphemeralPublicKey(),
 						m.getAcceptTimestamp(),
-						getTransportPropertiesMap(2))
+						getTransportPropertiesMap(2), NO_AUTO_DELETE_TIMER)
 		);
 	}
 
@@ -1125,7 +1126,7 @@ public class IntroductionIntegrationTest
 						m.getTimestamp(), m.getPreviousMessageId(),
 						m.getSessionId(), m.getEphemeralPublicKey(),
 						clock.currentTimeMillis(),
-						m.getTransportProperties())
+						m.getTransportProperties(), NO_AUTO_DELETE_TIMER)
 		);
 	}
 
@@ -1135,7 +1136,8 @@ public class IntroductionIntegrationTest
 				m -> new AcceptMessage(m.getMessageId(), m.getGroupId(),
 						m.getTimestamp(), m.getPreviousMessageId(),
 						m.getSessionId(), getAgreementPublicKey(),
-						m.getAcceptTimestamp(), m.getTransportProperties())
+						m.getAcceptTimestamp(), m.getTransportProperties(),
+						NO_AUTO_DELETE_TIMER)
 		);
 	}
 
@@ -1155,10 +1157,12 @@ public class IntroductionIntegrationTest
 
 		// introducer can not yet remove messages
 		assertFalse(deleteAllMessages1From0().allDeleted());
-		assertTrue(deleteAllMessages1From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages1From0().hasIntroductionSessionInProgress());
 		// introducee1 can not yet remove messages
 		assertFalse(deleteAllMessages0From1().allDeleted());
-		assertTrue(deleteAllMessages0From1().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages0From1().hasIntroductionSessionInProgress());
 
 		// sync second REQUEST message
 		sync0To2(1, true);
@@ -1166,10 +1170,12 @@ public class IntroductionIntegrationTest
 
 		// introducer can not yet remove messages
 		assertFalse(deleteAllMessages2From0().allDeleted());
-		assertTrue(deleteAllMessages2From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages2From0().hasIntroductionSessionInProgress());
 		// introducee2 can not yet remove messages
 		assertFalse(deleteAllMessages0From2().allDeleted());
-		assertTrue(deleteAllMessages0From2().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages0From2().hasIntroductionSessionInProgress());
 
 		// sync first ACCEPT message
 		sync1To0(1, true);
@@ -1177,7 +1183,8 @@ public class IntroductionIntegrationTest
 
 		// introducer can not yet remove messages
 		assertFalse(deleteAllMessages1From0().allDeleted());
-		assertTrue(deleteAllMessages1From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages1From0().hasIntroductionSessionInProgress());
 
 		// sync second ACCEPT message
 		sync2To0(1, true);
@@ -1185,7 +1192,8 @@ public class IntroductionIntegrationTest
 
 		// introducer can not yet remove messages
 		assertFalse(deleteAllMessages2From0().allDeleted());
-		assertTrue(deleteAllMessages2From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages2From0().hasIntroductionSessionInProgress());
 
 		// sync forwarded ACCEPT messages to introducees
 		sync0To1(1, true);
@@ -1193,10 +1201,12 @@ public class IntroductionIntegrationTest
 
 		// introducee1 can not yet remove messages
 		assertFalse(deleteAllMessages0From1().allDeleted());
-		assertTrue(deleteAllMessages0From1().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages0From1().hasIntroductionSessionInProgress());
 		// introducee2 can not yet remove messages
 		assertFalse(deleteAllMessages0From2().allDeleted());
-		assertTrue(deleteAllMessages0From2().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages0From2().hasIntroductionSessionInProgress());
 
 		// sync first AUTH and its forward
 		sync1To0(1, true);
@@ -1204,12 +1214,15 @@ public class IntroductionIntegrationTest
 
 		// introducer can not yet remove messages
 		assertFalse(deleteAllMessages1From0().allDeleted());
-		assertTrue(deleteAllMessages1From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages1From0().hasIntroductionSessionInProgress());
 		assertFalse(deleteAllMessages2From0().allDeleted());
-		assertTrue(deleteAllMessages2From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages2From0().hasIntroductionSessionInProgress());
 		// introducee2 can not yet remove messages
 		assertFalse(deleteAllMessages0From2().allDeleted());
-		assertTrue(deleteAllMessages0From2().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages0From2().hasIntroductionSessionInProgress());
 
 		// sync second AUTH and its forward as well as the following ACTIVATE
 		sync2To0(2, true);
@@ -1217,12 +1230,15 @@ public class IntroductionIntegrationTest
 
 		// introducer can not yet remove messages
 		assertFalse(deleteAllMessages1From0().allDeleted());
-		assertTrue(deleteAllMessages1From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages1From0().hasIntroductionSessionInProgress());
 		assertFalse(deleteAllMessages2From0().allDeleted());
-		assertTrue(deleteAllMessages2From0().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages2From0().hasIntroductionSessionInProgress());
 		// introducee1 can not yet remove messages
 		assertFalse(deleteAllMessages0From1().allDeleted());
-		assertTrue(deleteAllMessages0From1().hasIntroductionSessionInProgress());
+		assertTrue(
+				deleteAllMessages0From1().hasIntroductionSessionInProgress());
 
 		// sync second ACTIVATE and its forward
 		sync1To0(1, true);
@@ -1458,14 +1474,16 @@ public class IntroductionIntegrationTest
 		sendAcks(c1, c0, contactId0From1, 1);
 		assertTrue(deleteAllMessages1From0().allDeleted());
 		assertEquals(0, getMessages1From0().size());
-		assertTrue(deleteAllMessages1From0().allDeleted());  // a second time nothing happens
+		assertTrue(deleteAllMessages1From0()
+				.allDeleted());  // a second time nothing happens
 
 		// introducer can remove messages after getting ACK from introducee2
 		// if this succeeds, we still had the session object after delete above
 		sendAcks(c2, c0, contactId0From2, 1);
 		assertTrue(deleteAllMessages2From0().allDeleted());
 		assertEquals(0, getMessages2From0().size());
-		assertTrue(deleteAllMessages2From0().allDeleted());  // a second time nothing happens
+		assertTrue(deleteAllMessages2From0()
+				.allDeleted());  // a second time nothing happens
 
 		// no one should have aborted
 		assertFalse(listener0.aborted);
@@ -1489,7 +1507,8 @@ public class IntroductionIntegrationTest
 		Set<MessageId> toDelete1 = new HashSet<>();
 		toDelete1.add(messageId1);
 		assertFalse(deleteMessages1From0(toDelete1).allDeleted());
-		assertTrue(deleteMessages1From0(toDelete1).hasIntroductionSessionInProgress());
+		assertTrue(deleteMessages1From0(toDelete1)
+				.hasIntroductionSessionInProgress());
 
 		// deleting the introduction for introducee2 will fail as well
 		Collection<ConversationMessageHeader> m2From0 = getMessages2From0();
@@ -1498,7 +1517,8 @@ public class IntroductionIntegrationTest
 		Set<MessageId> toDelete2 = new HashSet<>();
 		toDelete2.add(messageId2);
 		assertFalse(deleteMessages2From0(toDelete2).allDeleted());
-		assertTrue(deleteMessages2From0(toDelete2).hasIntroductionSessionInProgress());
+		assertTrue(deleteMessages2From0(toDelete2)
+				.hasIntroductionSessionInProgress());
 
 		// sync REQUEST messages
 		sync0To1(1, true);
@@ -1508,9 +1528,11 @@ public class IntroductionIntegrationTest
 
 		// deleting introduction fails, because responses did not arrive
 		assertFalse(deleteMessages0From1(toDelete1).allDeleted());
-		assertTrue(deleteMessages0From1(toDelete1).hasIntroductionSessionInProgress());
+		assertTrue(deleteMessages0From1(toDelete1)
+				.hasIntroductionSessionInProgress());
 		assertFalse(deleteMessages0From2(toDelete2).allDeleted());
-		assertTrue(deleteMessages0From2(toDelete2).hasIntroductionSessionInProgress());
+		assertTrue(deleteMessages0From2(toDelete2)
+				.hasIntroductionSessionInProgress());
 
 		// remember response of introducee1 for future deletion
 		Collection<ConversationMessageHeader> m0From1 = getMessages0From1();
@@ -1570,7 +1592,8 @@ public class IntroductionIntegrationTest
 		// deleting introduction fails for introducee 2,
 		// because response is not yet selected for deletion
 		assertFalse(deleteMessages0From2(toDelete2).allDeleted());
-		assertTrue(deleteMessages0From2(toDelete2).hasNotAllIntroductionSelected());
+		assertTrue(deleteMessages0From2(toDelete2)
+				.hasNotAllIntroductionSelected());
 
 		// add response to be deleted as well
 		toDelete2.add(response2);
@@ -1588,7 +1611,8 @@ public class IntroductionIntegrationTest
 		// deleting introduction fails for introducee 1,
 		// because response is not yet selected for deletion
 		assertFalse(deleteMessages0From1(toDelete1).allDeleted());
-		assertTrue(deleteMessages0From1(toDelete1).hasNotAllIntroductionSelected());
+		assertTrue(deleteMessages0From1(toDelete1)
+				.hasNotAllIntroductionSelected());
 
 		// add response to be deleted as well
 		toDelete1.add(response1);
@@ -1730,7 +1754,8 @@ public class IntroductionIntegrationTest
 
 	@MethodsNotNullByDefault
 	@ParametersNotNullByDefault
-	private abstract class IntroductionListener implements EventListener {
+	private abstract static class IntroductionListener
+			implements EventListener {
 
 		volatile boolean aborted = false;
 		volatile Event latestEvent;

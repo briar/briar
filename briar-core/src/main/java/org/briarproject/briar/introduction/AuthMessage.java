@@ -7,6 +7,8 @@ import org.briarproject.briar.api.client.SessionId;
 
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+
 @Immutable
 @NotNullByDefault
 class AuthMessage extends AbstractIntroductionMessage {
@@ -17,7 +19,8 @@ class AuthMessage extends AbstractIntroductionMessage {
 	protected AuthMessage(MessageId messageId, GroupId groupId,
 			long timestamp, MessageId previousMessageId, SessionId sessionId,
 			byte[] mac, byte[] signature) {
-		super(messageId, groupId, timestamp, previousMessageId);
+		super(messageId, groupId, timestamp, previousMessageId,
+				NO_AUTO_DELETE_TIMER);
 		this.sessionId = sessionId;
 		this.mac = mac;
 		this.signature = signature;

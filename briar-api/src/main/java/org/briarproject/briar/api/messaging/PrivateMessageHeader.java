@@ -17,16 +17,14 @@ public class PrivateMessageHeader extends ConversationMessageHeader {
 
 	private final boolean hasText;
 	private final List<AttachmentHeader> attachmentHeaders;
-	private final long autoDeleteTimer;
 
 	public PrivateMessageHeader(MessageId id, GroupId groupId, long timestamp,
 			boolean local, boolean read, boolean sent, boolean seen,
 			boolean hasText, List<AttachmentHeader> headers,
 			long autoDeleteTimer) {
-		super(id, groupId, timestamp, local, read, sent, seen);
+		super(id, groupId, timestamp, local, read, sent, seen, autoDeleteTimer);
 		this.hasText = hasText;
 		this.attachmentHeaders = headers;
-		this.autoDeleteTimer = autoDeleteTimer;
 	}
 
 	public boolean hasText() {
@@ -35,10 +33,6 @@ public class PrivateMessageHeader extends ConversationMessageHeader {
 
 	public List<AttachmentHeader> getAttachmentHeaders() {
 		return attachmentHeaders;
-	}
-
-	public long getAutoDeleteTimer() {
-		return autoDeleteTimer;
 	}
 
 	@Override

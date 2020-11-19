@@ -16,13 +16,16 @@ abstract class AbstractIntroductionMessage {
 	private final long timestamp;
 	@Nullable
 	private final MessageId previousMessageId;
+	private final long autoDeleteTimer;
 
 	AbstractIntroductionMessage(MessageId messageId, GroupId groupId,
-			long timestamp, @Nullable MessageId previousMessageId) {
+			long timestamp, @Nullable MessageId previousMessageId,
+			long autoDeleteTimer) {
 		this.messageId = messageId;
 		this.groupId = groupId;
 		this.timestamp = timestamp;
 		this.previousMessageId = previousMessageId;
+		this.autoDeleteTimer = autoDeleteTimer;
 	}
 
 	MessageId getMessageId() {
@@ -42,4 +45,7 @@ abstract class AbstractIntroductionMessage {
 		return previousMessageId;
 	}
 
+	public long getAutoDeleteTimer() {
+		return autoDeleteTimer;
+	}
 }

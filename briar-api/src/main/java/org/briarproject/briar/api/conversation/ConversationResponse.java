@@ -16,8 +16,8 @@ public abstract class ConversationResponse extends ConversationMessageHeader {
 
 	public ConversationResponse(MessageId id, GroupId groupId, long time,
 			boolean local, boolean read, boolean sent, boolean seen,
-			SessionId sessionId, boolean accepted) {
-		super(id, groupId, time, local, read, sent, seen);
+			SessionId sessionId, boolean accepted, long autoDeleteTimer) {
+		super(id, groupId, time, local, read, sent, seen, autoDeleteTimer);
 		this.sessionId = sessionId;
 		this.accepted = accepted;
 	}

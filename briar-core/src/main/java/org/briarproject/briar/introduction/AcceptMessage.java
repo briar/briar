@@ -26,8 +26,10 @@ class AcceptMessage extends AbstractIntroductionMessage {
 			long timestamp, @Nullable MessageId previousMessageId,
 			SessionId sessionId, PublicKey ephemeralPublicKey,
 			long acceptTimestamp,
-			Map<TransportId, TransportProperties> transportProperties) {
-		super(messageId, groupId, timestamp, previousMessageId);
+			Map<TransportId, TransportProperties> transportProperties,
+			long autoDeleteTimer) {
+		super(messageId, groupId, timestamp, previousMessageId,
+				autoDeleteTimer);
 		this.sessionId = sessionId;
 		this.ephemeralPublicKey = ephemeralPublicKey;
 		this.acceptTimestamp = acceptTimestamp;
