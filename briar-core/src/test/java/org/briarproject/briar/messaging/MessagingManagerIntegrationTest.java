@@ -340,8 +340,9 @@ public class MessagingManagerIntegrationTest
 			BriarIntegrationTestComponent to, @Nullable String text,
 			List<AttachmentHeader> attachments) throws Exception {
 		GroupId g = from.getMessagingManager().getConversationId(contactId);
+		// TODO: Add tests for auto-deletion timer
 		PrivateMessage m = messageFactory.createPrivateMessage(g,
-				clock.currentTimeMillis(), text, attachments);
+				clock.currentTimeMillis(), text, attachments, -1);
 		from.getMessagingManager().addLocalMessage(m);
 		syncMessage(from, to, contactId, 1 + attachments.size(), true);
 		return m;

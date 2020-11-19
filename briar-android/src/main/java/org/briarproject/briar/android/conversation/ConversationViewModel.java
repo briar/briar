@@ -38,6 +38,7 @@ import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.api.messaging.PrivateMessageFormat;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 
@@ -57,11 +58,14 @@ import static androidx.lifecycle.Transformations.map;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 
 @NotNullByDefault
 public class ConversationViewModel extends DbViewModel
@@ -92,7 +96,7 @@ public class ConversationViewModel extends DbViewModel
 	private final LiveData<String> contactName = map(contactItem, c ->
 			UiUtils.getContactDisplayName(c.getContact()));
 	private final LiveData<GroupId> messagingGroupId;
-	private final MutableLiveData<Boolean> imageSupport =
+	private final MutableLiveData<PrivateMessageFormat> privateMessageFormat =
 			new MutableLiveData<>();
 	private final MutableLiveEvent<Boolean> showImageOnboarding =
 			new MutableLiveEvent<>();
@@ -241,11 +245,11 @@ public class ConversationViewModel extends DbViewModel
 		// messagingGroupId is loaded with the contact
 		observeForeverOnce(messagingGroupId, groupId -> {
 			requireNonNull(groupId);
-			observeForeverOnce(imageSupport, hasImageSupport -> {
-				requireNonNull(hasImageSupport);
-				createMessage(groupId, text, headers, timestamp,
-						hasImageSupport);
-			});
+			// TODO: Use the timer duration that was fetched when checking the
+			//  message format
+			observeForeverOnce(privateMessageFormat, format ->
+					createMessage(groupId, text, headers, timestamp,
+							format));
 		});
 	}
 
@@ -275,10 +279,10 @@ public class ConversationViewModel extends DbViewModel
 
 	@DatabaseExecutor
 	private void checkFeaturesAndOnboarding(ContactId c) throws DbException {
-		// check if images are supported
-		boolean imagesSupported = db.transactionWithResult(true, txn ->
-				messagingManager.contactSupportsImages(txn, c));
-		imageSupport.postValue(imagesSupported);
+		// check if images and auto-deletion are supported
+		PrivateMessageFormat format = db.transactionWithResult(true, txn ->
+				messagingManager.getContactMessageFormat(txn, c));
+		privateMessageFormat.postValue(format);
 
 		// check if introductions are supported
 		Collection<Contact> contacts = contactManager.getContacts();
@@ -287,7 +291,7 @@ public class ConversationViewModel extends DbViewModel
 
 		// we only show one onboarding dialog at a time
 		Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-		if (imagesSupported &&
+		if (format != TEXT &&
 				settings.getBoolean(SHOW_ONBOARDING_IMAGE, true)) {
 			onOnboardingShown(SHOW_ONBOARDING_IMAGE);
 			showImageOnboarding.postEvent(true);
@@ -308,15 +312,20 @@ public class ConversationViewModel extends DbViewModel
 	@UiThread
 	private void createMessage(GroupId groupId, @Nullable String text,
 			List<AttachmentHeader> headers, long timestamp,
-			boolean hasImageSupport) {
+			PrivateMessageFormat format) {
+		// TODO: Move this inside the DB transaction that stores the message
+		//  so we can look up the timer duration (if needed) in the same txn
 		try {
 			PrivateMessage pm;
-			if (hasImageSupport) {
+			if (format == TEXT) {
+				pm = privateMessageFactory.createLegacyPrivateMessage(
+						groupId, timestamp, requireNonNull(text));
+			} else if (format == TEXT_IMAGES) {
 				pm = privateMessageFactory.createPrivateMessage(groupId,
 						timestamp, text, headers);
 			} else {
-				pm = privateMessageFactory.createLegacyPrivateMessage(
-						groupId, timestamp, requireNonNull(text));
+				pm = privateMessageFactory.createPrivateMessage(groupId,
+						timestamp, text, headers, MIN_AUTO_DELETE_TIMER_MS);
 			}
 			storeMessage(pm);
 		} catch (FormatException e) {
@@ -336,7 +345,8 @@ public class ConversationViewModel extends DbViewModel
 				PrivateMessageHeader h = new PrivateMessageHeader(
 						message.getId(), message.getGroupId(),
 						message.getTimestamp(), true, true, false, false,
-						m.hasText(), m.getAttachmentHeaders());
+						m.hasText(), m.getAttachmentHeaders(),
+						m.getAutoDeleteTimer());
 				// TODO add text to cache when available here
 				addedHeader.postEvent(h);
 			} catch (DbException e) {
@@ -357,8 +367,8 @@ public class ConversationViewModel extends DbViewModel
 		return contactName;
 	}
 
-	LiveData<Boolean> hasImageSupport() {
-		return imageSupport;
+	LiveData<PrivateMessageFormat> getPrivateMessageFormat() {
+		return privateMessageFormat;
 	}
 
 	LiveEvent<Boolean> showImageOnboarding() {
