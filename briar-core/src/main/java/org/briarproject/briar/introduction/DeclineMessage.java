@@ -16,8 +16,9 @@ class DeclineMessage extends AbstractIntroductionMessage {
 
 	protected DeclineMessage(MessageId messageId, GroupId groupId,
 			long timestamp, @Nullable MessageId previousMessageId,
-			SessionId sessionId) {
-		super(messageId, groupId, timestamp, previousMessageId);
+			SessionId sessionId, long autoDeleteTimer) {
+		super(messageId, groupId, timestamp, previousMessageId,
+				autoDeleteTimer);
 		this.sessionId = sessionId;
 	}
 
