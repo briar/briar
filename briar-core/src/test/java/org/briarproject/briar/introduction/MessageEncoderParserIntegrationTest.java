@@ -23,6 +23,8 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
@@ -88,7 +90,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 	@Test
 	public void testRequestMessageMetadata() throws FormatException {
 		BdfDictionary d = messageEncoder
-				.encodeRequestMetadata(timestamp);
+				.encodeRequestMetadata(timestamp, MIN_AUTO_DELETE_TIMER_MS);
 		MessageMetadata meta = messageParser.parseMetadata(d);
 
 		assertEquals(REQUEST, meta.getMessageType());
@@ -98,13 +100,14 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertFalse(meta.isRead());
 		assertFalse(meta.isVisibleInConversation());
 		assertFalse(meta.isAvailableToAnswer());
+		assertEquals(MIN_AUTO_DELETE_TIMER_MS, meta.getAutoDeleteTimer());
 	}
 
 	@Test
 	public void testMessageMetadata() throws FormatException {
 		BdfDictionary d = messageEncoder
 				.encodeMetadata(ABORT, sessionId, timestamp, false, true,
-						false);
+						false, MAX_AUTO_DELETE_TIMER_MS);
 		MessageMetadata meta = messageParser.parseMetadata(d);
 
 		assertEquals(ABORT, meta.getMessageType());
@@ -114,6 +117,7 @@ public class MessageEncoderParserIntegrationTest extends BrambleTestCase {
 		assertTrue(meta.isRead());
 		assertFalse(meta.isVisibleInConversation());
 		assertFalse(meta.isAvailableToAnswer());
+		assertEquals(MAX_AUTO_DELETE_TIMER_MS, meta.getAutoDeleteTimer());
 	}
 
 	@Test

@@ -64,4 +64,9 @@ public class ValidationUtils {
 		if (dictionary != null && dictionary.size() != size)
 			throw new FormatException();
 	}
+
+	public static void checkRange(@Nullable Long l, long min, long max)
+			throws FormatException {
+		if (l != null && (l < min || l > max)) throw new FormatException();
+	}
 }
