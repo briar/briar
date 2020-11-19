@@ -29,6 +29,7 @@ import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AU
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
+import static org.briarproject.bramble.util.ValidationUtils.checkRange;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
@@ -137,10 +138,10 @@ class PrivateMessageValidator implements MessageValidator {
 			checkLength(contentType, 1, MAX_CONTENT_TYPE_BYTES);
 		}
 		Long timer = null;
-		if (body.size() == 4) timer = body.getOptionalLong(3);
-		if (timer != null && (timer < MIN_AUTO_DELETE_TIMER_MS ||
-				timer > MAX_AUTO_DELETE_TIMER_MS)) {
-			throw new FormatException();
+		if (body.size() == 4) {
+			timer = body.getOptionalLong(3);
+			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
+					MAX_AUTO_DELETE_TIMER_MS);
 		}
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();

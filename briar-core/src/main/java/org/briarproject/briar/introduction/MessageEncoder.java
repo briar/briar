@@ -18,11 +18,12 @@ import javax.annotation.Nullable;
 @NotNullByDefault
 interface MessageEncoder {
 
-	BdfDictionary encodeRequestMetadata(long timestamp);
+	BdfDictionary encodeRequestMetadata(long timestamp,
+			long autoDeleteTimer);
 
 	BdfDictionary encodeMetadata(MessageType type,
 			@Nullable SessionId sessionId, long timestamp, boolean local,
-			boolean read, boolean visible);
+			boolean read, boolean visible, long autoDeleteTimer);
 
 	void addSessionId(BdfDictionary meta, SessionId sessionId);
 
