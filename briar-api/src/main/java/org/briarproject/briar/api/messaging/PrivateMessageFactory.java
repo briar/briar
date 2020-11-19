@@ -19,4 +19,7 @@ public interface PrivateMessageFactory {
 			@Nullable String text, List<AttachmentHeader> headers)
 			throws FormatException;
 
+	PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
+			@Nullable String text, List<AttachmentHeader> headers,
+			long autoDeleteTimer) throws FormatException;
 }

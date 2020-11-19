@@ -47,21 +47,42 @@ class PrivateMessageFactoryImpl implements PrivateMessageFactory {
 	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
 			@Nullable String text, List<AttachmentHeader> headers)
 			throws FormatException {
-		// Validate the arguments
+		validateTextAndAttachmentHeaders(text, headers);
+		BdfList attachmentList = serialiseAttachmentHeaders(headers);
+		// Serialise the message
+		BdfList body = BdfList.of(PRIVATE_MESSAGE, text, attachmentList);
+		Message m = clientHelper.createMessage(groupId, timestamp, body);
+		return new PrivateMessage(m, text != null, headers, -1);
+	}
+
+	@Override
+	public PrivateMessage createPrivateMessage(GroupId groupId, long timestamp,
+			@Nullable String text, List<AttachmentHeader> headers,
+			long autoDeleteTimer) throws FormatException {
+		validateTextAndAttachmentHeaders(text, headers);
+		BdfList attachmentList = serialiseAttachmentHeaders(headers);
+		// Serialise the message
+		Long timer = autoDeleteTimer == -1 ? null : autoDeleteTimer;
+		BdfList body = BdfList.of(PRIVATE_MESSAGE, text, attachmentList, timer);
+		Message m = clientHelper.createMessage(groupId, timestamp, body);
+		return new PrivateMessage(m, text != null, headers, autoDeleteTimer);
+	}
+
+	private void validateTextAndAttachmentHeaders(@Nullable String text,
+			List<AttachmentHeader> headers) {
 		if (text == null) {
 			if (headers.isEmpty()) throw new IllegalArgumentException();
 		} else if (utf8IsTooLong(text, MAX_PRIVATE_MESSAGE_TEXT_LENGTH)) {
 			throw new IllegalArgumentException();
 		}
-		// Serialise the attachment headers
+	}
+
+	private BdfList serialiseAttachmentHeaders(List<AttachmentHeader> headers) {
 		BdfList attachmentList = new BdfList();
 		for (AttachmentHeader a : headers) {
 			attachmentList.add(
 					BdfList.of(a.getMessageId(), a.getContentType()));
 		}
-		// Serialise the message
-		BdfList body = BdfList.of(PRIVATE_MESSAGE, text, attachmentList);
-		Message m = clientHelper.createMessage(groupId, timestamp, body);
-		return new PrivateMessage(m, text != null, headers);
+		return attachmentList;
 	}
 }

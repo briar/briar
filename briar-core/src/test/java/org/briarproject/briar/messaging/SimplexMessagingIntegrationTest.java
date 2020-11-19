@@ -123,7 +123,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		PrivateMessageFactory privateMessageFactory =
 				device.getPrivateMessageFactory();
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, "Hi!", singletonList(attachmentHeader));
+				groupId, timestamp, "Hi!", singletonList(attachmentHeader), -1);
 		messagingManager.addLocalMessage(message);
 	}
 

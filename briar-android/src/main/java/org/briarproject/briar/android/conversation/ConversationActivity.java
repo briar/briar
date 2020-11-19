@@ -138,6 +138,7 @@ import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -268,15 +269,11 @@ public class ConversationActivity extends BriarActivity
 			ImagePreview imagePreview = findViewById(R.id.imagePreview);
 			sendController = new TextAttachmentController(textInputView,
 					imagePreview, this, viewModel);
-			viewModel.hasImageSupport().observe(this, new Observer<Boolean>() {
-				@Override
-				public void onChanged(@Nullable Boolean hasSupport) {
-					if (hasSupport != null && hasSupport) {
-						// TODO: remove cast when removing feature flag
-						((TextAttachmentController) sendController)
-								.setImagesSupported();
-						viewModel.hasImageSupport().removeObserver(this);
-					}
+			observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
+				if (format != null && format != TEXT) {
+					// TODO: remove cast when removing feature flag
+					((TextAttachmentController) sendController)
+							.setImagesSupported();
 				}
 			});
 		} else {
@@ -640,8 +637,8 @@ public class ConversationActivity extends BriarActivity
 				supportFinishAfterTransition();
 			}
 		} else if (e instanceof ConversationMessageReceivedEvent) {
-			ConversationMessageReceivedEvent p =
-					(ConversationMessageReceivedEvent) e;
+			ConversationMessageReceivedEvent<?> p =
+					(ConversationMessageReceivedEvent<?>) e;
 			if (p.getContactId().equals(contactId)) {
 				LOG.info("Message received, adding");
 				onNewConversationMessage(p.getMessageHeader());

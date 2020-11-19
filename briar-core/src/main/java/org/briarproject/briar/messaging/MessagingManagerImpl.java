@@ -36,6 +36,7 @@ import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
+import org.briarproject.briar.api.messaging.PrivateMessageFormat;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
@@ -59,11 +60,15 @@ import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERE
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 import static org.briarproject.briar.messaging.MessagingConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_MSG_TYPE;
@@ -193,9 +198,10 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
 		boolean local = meta.getBoolean(MSG_KEY_LOCAL);
 		boolean read = meta.getBoolean(MSG_KEY_READ);
+		long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER, -1L);
 		PrivateMessageHeader header =
 				new PrivateMessageHeader(m.getId(), groupId, timestamp, local,
-						read, false, false, hasText, headers);
+						read, false, false, hasText, headers, timer);
 		ContactId contactId = getContactId(txn, groupId);
 		PrivateMessageReceivedEvent event =
 				new PrivateMessageReceivedEvent(header, contactId);
@@ -204,8 +210,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	private List<AttachmentHeader> parseAttachmentHeaders(GroupId g,
-			BdfDictionary meta)
-			throws FormatException {
+			BdfDictionary meta) throws FormatException {
 		BdfList attachmentHeaders = meta.getList(MSG_KEY_ATTACHMENT_HEADERS);
 		int length = attachmentHeaders.size();
 		List<AttachmentHeader> headers = new ArrayList<>(length);
@@ -232,7 +237,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			meta.put(MSG_KEY_TIMESTAMP, m.getMessage().getTimestamp());
 			meta.put(MSG_KEY_LOCAL, true);
 			meta.put(MSG_KEY_READ, true);
-			if (!m.isLegacyFormat()) {
+			if (m.getFormat() != TEXT) {
 				meta.put(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE);
 				meta.put(MSG_KEY_HAS_TEXT, m.hasText());
 				BdfList headers = new BdfList();
@@ -241,6 +246,10 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 							BdfList.of(a.getMessageId(), a.getContentType()));
 				}
 				meta.put(MSG_KEY_ATTACHMENT_HEADERS, headers);
+				if (m.getFormat() == TEXT_IMAGES_AUTO_DELETE) {
+					long timer = m.getAutoDeleteTimer();
+					if (timer != -1) meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
+				}
 			}
 			// Mark attachments as shared and permanent now we're ready to send
 			for (AttachmentHeader a : m.getAttachmentHeaders()) {
@@ -353,12 +362,13 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				if (messageType == null) {
 					headers.add(new PrivateMessageHeader(id, g, timestamp,
 							local, read, s.isSent(), s.isSeen(), true,
-							emptyList()));
+							emptyList(), -1));
 				} else {
 					boolean hasText = meta.getBoolean(MSG_KEY_HAS_TEXT);
+					long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER, -1L);
 					headers.add(new PrivateMessageHeader(id, g, timestamp,
 							local, read, s.isSent(), s.isSeen(), hasText,
-							parseAttachmentHeaders(g, meta)));
+							parseAttachmentHeaders(g, meta), timer));
 				}
 			} catch (FormatException e) {
 				throw new DbException(e);
@@ -399,12 +409,13 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	}
 
 	@Override
-	public boolean contactSupportsImages(Transaction txn, ContactId c)
-			throws DbException {
+	public PrivateMessageFormat getContactMessageFormat(Transaction txn,
+			ContactId c) throws DbException {
 		int minorVersion = clientVersioningManager
 				.getClientMinorVersion(txn, c, CLIENT_ID, 0);
-		// support was added in 0.1
-		return minorVersion > 0;
+		if (minorVersion >= 3) return TEXT_IMAGES_AUTO_DELETE;
+		else if (minorVersion >= 1) return TEXT_IMAGES;
+		else return TEXT;
 	}
 
 	@Override
