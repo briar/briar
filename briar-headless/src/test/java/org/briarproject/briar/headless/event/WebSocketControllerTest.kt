@@ -6,6 +6,7 @@ import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER
 import org.briarproject.bramble.api.identity.AuthorInfo
 import org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.bramble.test.ImmediateExecutor
@@ -41,7 +42,8 @@ internal class WebSocketControllerTest : ControllerTest() {
             true,
             true,
             true,
-            emptyList()
+            emptyList(),
+            NO_AUTO_DELETE_TIMER
         )
     private val event = PrivateMessageReceivedEvent(header, contact.id)
     private val outputEvent = OutputEvent(EVENT_CONVERSATION_MESSAGE, event.output(text))

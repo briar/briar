@@ -4,7 +4,14 @@ import io.javalin.http.BadRequestResponse
 import io.javalin.http.Context
 import io.javalin.http.NotFoundResponse
 import io.javalin.plugin.json.JavalinJson.toJson
-import io.mockk.*
+import io.mockk.CapturingSlot
+import io.mockk.Runs
+import io.mockk.every
+import io.mockk.just
+import io.mockk.mockk
+import io.mockk.mockkStatic
+import io.mockk.runs
+import org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER
 import org.briarproject.bramble.api.contact.ContactId
 import org.briarproject.bramble.api.db.NoSuchContactException
 import org.briarproject.bramble.api.identity.AuthorInfo
@@ -62,7 +69,8 @@ internal class MessagingControllerImplTest : ControllerTest() {
             true,
             true,
             true,
-            emptyList()
+            emptyList(),
+            NO_AUTO_DELETE_TIMER
         )
     private val sessionId = SessionId(getRandomId())
     private val privateMessage = PrivateMessage(message)

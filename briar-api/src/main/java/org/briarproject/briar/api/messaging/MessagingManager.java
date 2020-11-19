@@ -30,7 +30,7 @@ public interface MessagingManager extends ConversationClient {
 	/**
 	 * The current minor version of the messaging client.
 	 */
-	int MINOR_VERSION = 2;
+	int MINOR_VERSION = 3;
 
 	/**
 	 * Stores a local private message.
@@ -77,12 +77,8 @@ public interface MessagingManager extends ConversationClient {
 	Attachment getAttachment(AttachmentHeader h) throws DbException;
 
 	/**
-	 * Returns true if the contact with the given {@link ContactId} does support
-	 * image attachments.
-	 *
-	 * Added: 2019-01-01
+	 * Returns the private message format supported by the given contact.
 	 */
-	boolean contactSupportsImages(Transaction txn, ContactId c)
+	PrivateMessageFormat getContactMessageFormat(Transaction txn, ContactId c)
 			throws DbException;
-
 }
