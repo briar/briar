@@ -110,6 +110,23 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	@Override
+	public Message encodeRequestMessage(GroupId contactGroupId, long timestamp,
+			@Nullable MessageId previousMessageId, Author author,
+			@Nullable String text, long autoDeleteTimer) {
+		if (text != null && text.isEmpty()) {
+			throw new IllegalArgumentException();
+		}
+		BdfList body = BdfList.of(
+				REQUEST.getValue(),
+				previousMessageId,
+				clientHelper.toList(author),
+				text,
+				encodeTimer(autoDeleteTimer)
+		);
+		return createMessage(contactGroupId, timestamp, body);
+	}
+
+	@Override
 	public Message encodeAcceptMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId,
 			PublicKey ephemeralPublicKey, long acceptTimestamp,
@@ -126,10 +143,45 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	@Override
+	public Message encodeAcceptMessage(GroupId contactGroupId, long timestamp,
+			@Nullable MessageId previousMessageId, SessionId sessionId,
+			PublicKey ephemeralPublicKey, long acceptTimestamp,
+			Map<TransportId, TransportProperties> transportProperties,
+			long autoDeleteTimer) {
+		BdfList body = BdfList.of(
+				ACCEPT.getValue(),
+				sessionId,
+				previousMessageId,
+				ephemeralPublicKey.getEncoded(),
+				acceptTimestamp,
+				clientHelper.toDictionary(transportProperties),
+				encodeTimer(autoDeleteTimer)
+		);
+		return createMessage(contactGroupId, timestamp, body);
+	}
+
+	@Override
 	public Message encodeDeclineMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId) {
-		return encodeMessage(DECLINE, contactGroupId, sessionId, timestamp,
-				previousMessageId);
+		BdfList body = BdfList.of(
+				DECLINE.getValue(),
+				sessionId,
+				previousMessageId
+		);
+		return createMessage(contactGroupId, timestamp, body);
+	}
+
+	@Override
+	public Message encodeDeclineMessage(GroupId contactGroupId, long timestamp,
+			@Nullable MessageId previousMessageId, SessionId sessionId,
+			long autoDeleteTimer) {
+		BdfList body = BdfList.of(
+				DECLINE.getValue(),
+				sessionId,
+				previousMessageId,
+				encodeTimer(autoDeleteTimer)
+		);
+		return createMessage(contactGroupId, timestamp, body);
 	}
 
 	@Override
@@ -162,15 +214,8 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public Message encodeAbortMessage(GroupId contactGroupId, long timestamp,
 			@Nullable MessageId previousMessageId, SessionId sessionId) {
-		return encodeMessage(ABORT, contactGroupId, sessionId, timestamp,
-				previousMessageId);
-	}
-
-	private Message encodeMessage(MessageType type, GroupId contactGroupId,
-			SessionId sessionId, long timestamp,
-			@Nullable MessageId previousMessageId) {
 		BdfList body = BdfList.of(
-				type.getValue(),
+				ABORT.getValue(),
 				sessionId,
 				previousMessageId
 		);
@@ -187,4 +232,8 @@ class MessageEncoderImpl implements MessageEncoder {
 		}
 	}
 
+	@Nullable
+	private Long encodeTimer(long autoDeleteTimer) {
+		return autoDeleteTimer == NO_AUTO_DELETE_TIMER ? null : autoDeleteTimer;
+	}
 }
