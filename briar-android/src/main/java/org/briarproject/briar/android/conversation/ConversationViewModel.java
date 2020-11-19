@@ -58,7 +58,6 @@ import static androidx.lifecycle.Transformations.map;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -245,11 +244,8 @@ public class ConversationViewModel extends DbViewModel
 		// messagingGroupId is loaded with the contact
 		observeForeverOnce(messagingGroupId, groupId -> {
 			requireNonNull(groupId);
-			// TODO: Use the timer duration that was fetched when checking the
-			//  message format
 			observeForeverOnce(privateMessageFormat, format ->
-					createMessage(groupId, text, headers, timestamp,
-							format));
+					createMessage(groupId, text, headers, timestamp, format));
 		});
 	}
 
@@ -313,8 +309,6 @@ public class ConversationViewModel extends DbViewModel
 	private void createMessage(GroupId groupId, @Nullable String text,
 			List<AttachmentHeader> headers, long timestamp,
 			PrivateMessageFormat format) {
-		// TODO: Move this inside the DB transaction that stores the message
-		//  so we can look up the timer duration (if needed) in the same txn
 		try {
 			PrivateMessage pm;
 			if (format == TEXT) {
@@ -324,8 +318,9 @@ public class ConversationViewModel extends DbViewModel
 				pm = privateMessageFactory.createPrivateMessage(groupId,
 						timestamp, text, headers);
 			} else {
+				// TODO: Look up auto-delete timer
 				pm = privateMessageFactory.createPrivateMessage(groupId,
-						timestamp, text, headers, MIN_AUTO_DELETE_TIMER_MS);
+						timestamp, text, headers, -1);
 			}
 			storeMessage(pm);
 		} catch (FormatException e) {
