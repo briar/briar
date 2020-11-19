@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
@@ -40,7 +41,7 @@ import static org.briarproject.briar.introduction.MessageType.REQUEST;
 
 @Immutable
 @NotNullByDefault
-abstract class AbstractProtocolEngine<S extends Session>
+abstract class AbstractProtocolEngine<S extends Session<?>>
 		implements ProtocolEngine<S> {
 
 	protected final DatabaseComponent db;
@@ -140,9 +141,11 @@ abstract class AbstractProtocolEngine<S extends Session>
 	private void sendMessage(Transaction txn, MessageType type,
 			SessionId sessionId, Message m, boolean visibleInConversation)
 			throws DbException {
+		// TODO: If message is visible in conversation, look up current
+		//  auto-delete timer and include it in message
 		BdfDictionary meta = messageEncoder
 				.encodeMetadata(type, sessionId, m.getTimestamp(), true, true,
-						visibleInConversation);
+						visibleInConversation, NO_AUTO_DELETE_TIMER);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
@@ -150,9 +153,10 @@ abstract class AbstractProtocolEngine<S extends Session>
 		}
 	}
 
-	void broadcastIntroductionResponseReceivedEvent(Transaction txn, Session s,
-			AuthorId sender, Author otherAuthor, AbstractIntroductionMessage m,
-			boolean canSucceed) throws DbException {
+	void broadcastIntroductionResponseReceivedEvent(Transaction txn,
+			Session<?> s, AuthorId sender, Author otherAuthor,
+			AbstractIntroductionMessage m, boolean canSucceed)
+			throws DbException {
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c = contactManager.getContact(txn, sender, localAuthorId);
 		AuthorInfo otherAuthorInfo =
