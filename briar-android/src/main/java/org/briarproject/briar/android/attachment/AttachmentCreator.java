@@ -6,7 +6,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.util.Collection;
 import java.util.List;

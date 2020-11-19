@@ -22,7 +22,7 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.security.GeneralSecurityException;
 import java.util.List;

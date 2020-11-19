@@ -28,7 +28,7 @@ import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.client.NamedGroup;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.util.Collection;
 import java.util.List;

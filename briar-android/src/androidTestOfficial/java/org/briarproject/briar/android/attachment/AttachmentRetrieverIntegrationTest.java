@@ -2,8 +2,8 @@ package org.briarproject.briar.android.attachment;
 
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.messaging.Attachment;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.api.media.Attachment;
+import org.briarproject.briar.api.media.AttachmentHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 

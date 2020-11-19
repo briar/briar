@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.messaging;
+package org.briarproject.briar.api.media;
 
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;

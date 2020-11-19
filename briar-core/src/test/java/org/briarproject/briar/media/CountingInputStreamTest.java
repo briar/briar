@@ -1,4 +1,4 @@
-package org.briarproject.briar.messaging;
+package org.briarproject.briar.media;
 
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;

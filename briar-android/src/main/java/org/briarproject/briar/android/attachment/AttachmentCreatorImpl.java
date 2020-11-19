@@ -10,9 +10,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
-import org.briarproject.briar.api.messaging.Attachment;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
-import org.briarproject.briar.api.messaging.FileTooBigException;
+import org.briarproject.briar.api.media.Attachment;
+import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.media.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.jsoup.UnsupportedMimeTypeException;
 

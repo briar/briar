@@ -3,6 +3,7 @@ package org.briarproject.briar.api.messaging;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.util.List;
 

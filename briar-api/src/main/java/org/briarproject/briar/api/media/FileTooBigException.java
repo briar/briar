@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.messaging;
+package org.briarproject.briar.api.media;
 
 import java.io.IOException;
 

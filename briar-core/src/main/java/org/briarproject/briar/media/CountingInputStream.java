@@ -1,4 +1,4 @@
-package org.briarproject.briar.messaging;
+package org.briarproject.briar.media;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -13,19 +13,19 @@ import javax.annotation.concurrent.NotThreadSafe;
  */
 @NotThreadSafe
 @NotNullByDefault
-class CountingInputStream extends InputStream {
+public class CountingInputStream extends InputStream {
 
 	private final InputStream delegate;
 	private final long maxBytesToRead;
 
 	private long bytesRead = 0;
 
-	CountingInputStream(InputStream delegate, long maxBytesToRead) {
+	public CountingInputStream(InputStream delegate, long maxBytesToRead) {
 		this.delegate = delegate;
 		this.maxBytesToRead = maxBytesToRead;
 	}
 
-	long getBytesRead() {
+	public long getBytesRead() {
 		return bytesRead;
 	}
 

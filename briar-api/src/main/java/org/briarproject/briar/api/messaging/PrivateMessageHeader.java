@@ -5,6 +5,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.ConversationMessageVisitor;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.util.List;
 

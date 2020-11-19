@@ -8,7 +8,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.EmojiTextInputView.TextInputListener;
-import org.briarproject.briar.api.messaging.AttachmentHeader;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.util.List;
 
