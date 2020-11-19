@@ -25,6 +25,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
@@ -92,12 +93,12 @@ public class MessageSizeIntegrationTest extends BriarTestCase {
 					getRandomString(MAX_CONTENT_TYPE_BYTES)));
 		}
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, text, headers);
+				groupId, timestamp, text, headers, MAX_AUTO_DELETE_TIMER_MS);
 		// Check the size of the serialised message
 		int length = message.getMessage().getRawLength();
 		assertTrue(length > UniqueId.LENGTH + 8
 				+ MAX_PRIVATE_MESSAGE_TEXT_LENGTH + MAX_ATTACHMENTS_PER_MESSAGE
-				* (UniqueId.LENGTH + MAX_CONTENT_TYPE_BYTES));
+				* (UniqueId.LENGTH + MAX_CONTENT_TYPE_BYTES) + 4);
 		assertTrue(length <= MAX_RECORD_PAYLOAD_BYTES);
 	}
 

@@ -9,44 +9,65 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Collections.emptyList;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
 
 @Immutable
 @NotNullByDefault
 public class PrivateMessage {
 
 	private final Message message;
-	private final boolean legacyFormat, hasText;
+	private final boolean hasText;
 	private final List<AttachmentHeader> attachmentHeaders;
+	private final long autoDeleteTimer;
+	private final PrivateMessageFormat format;
 
 	/**
-	 * Constructor for private messages in the legacy format, which does not
-	 * support attachments.
+	 * Constructor for private messages in the
+	 * {@link PrivateMessageFormat#TEXT TEXT} format.
 	 */
 	public PrivateMessage(Message message) {
 		this.message = message;
-		legacyFormat = true;
 		hasText = true;
 		attachmentHeaders = emptyList();
+		autoDeleteTimer = -1;
+		format = TEXT;
 	}
 
 	/**
-	 * Constructor for private messages in the current format, which supports
-	 * attachments.
+	 * Constructor for private messages in the
+	 * {@link PrivateMessageFormat#TEXT_IMAGES TEXT_IMAGES} format.
 	 */
 	public PrivateMessage(Message message, boolean hasText,
 			List<AttachmentHeader> headers) {
 		this.message = message;
 		this.hasText = hasText;
 		this.attachmentHeaders = headers;
-		legacyFormat = false;
+		autoDeleteTimer = -1;
+		format = TEXT_IMAGES;
+	}
+
+	/**
+	 * Constructor for private messages in the
+	 * {@link PrivateMessageFormat#TEXT_IMAGES_AUTO_DELETE TEXT_IMAGES_AUTO_DELETE}
+	 * format.
+	 */
+	public PrivateMessage(Message message, boolean hasText,
+			List<AttachmentHeader> headers, long autoDeleteTimer) {
+		this.message = message;
+		this.hasText = hasText;
+		this.attachmentHeaders = headers;
+		this.autoDeleteTimer = autoDeleteTimer;
+		format = TEXT_IMAGES_AUTO_DELETE;
 	}
 
 	public Message getMessage() {
 		return message;
 	}
 
-	public boolean isLegacyFormat() {
-		return legacyFormat;
+	public PrivateMessageFormat getFormat() {
+		return format;
 	}
 
 	public boolean hasText() {
@@ -55,5 +76,9 @@ public class PrivateMessage {
 
 	public List<AttachmentHeader> getAttachmentHeaders() {
 		return attachmentHeaders;
+	}
+
+	public long getAutoDeleteTimer() {
+		return autoDeleteTimer;
 	}
 }
