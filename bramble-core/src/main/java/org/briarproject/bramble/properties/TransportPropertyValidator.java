@@ -15,6 +15,9 @@ import org.briarproject.bramble.api.system.Clock;
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.plugin.TransportId.MAX_TRANSPORT_ID_LENGTH;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_LOCAL;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_TRANSPORT_ID;
+import static org.briarproject.bramble.api.properties.TransportPropertyConstants.MSG_KEY_VERSION;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 
@@ -43,9 +46,9 @@ class TransportPropertyValidator extends BdfMessageValidator {
 		clientHelper.parseAndValidateTransportProperties(dictionary);
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
-		meta.put("transportId", transportId);
-		meta.put("version", version);
-		meta.put("local", false);
+		meta.put(MSG_KEY_TRANSPORT_ID, transportId);
+		meta.put(MSG_KEY_VERSION, version);
+		meta.put(MSG_KEY_LOCAL, false);
 		return new BdfMessageContext(meta);
 	}
 }
