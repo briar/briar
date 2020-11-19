@@ -53,13 +53,14 @@ import androidx.lifecycle.Transformations;
 import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
-import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
 @NotNullByDefault
 public class ConversationViewModel extends AndroidViewModel
@@ -256,7 +257,7 @@ public class ConversationViewModel extends AndroidViewModel
 
 		// we only show one onboarding dialog at a time
 		Settings settings = settingsManager.getSettings(SETTINGS_NAMESPACE);
-		if (format != TEXT &&
+		if (format != TEXT_ONLY &&
 				settings.getBoolean(SHOW_ONBOARDING_IMAGE, true)) {
 			onOnboardingShown(SHOW_ONBOARDING_IMAGE);
 			showImageOnboarding.postEvent(true);
@@ -280,7 +281,7 @@ public class ConversationViewModel extends AndroidViewModel
 			PrivateMessageFormat format) {
 		try {
 			PrivateMessage pm;
-			if (format == TEXT) {
+			if (format == TEXT_ONLY) {
 				pm = privateMessageFactory.createLegacyPrivateMessage(
 						groupId, timestamp, requireNonNull(text));
 			} else if (format == TEXT_IMAGES) {
@@ -289,7 +290,7 @@ public class ConversationViewModel extends AndroidViewModel
 			} else {
 				// TODO: Look up auto-delete timer
 				pm = privateMessageFactory.createPrivateMessage(groupId,
-						timestamp, text, headers, -1);
+						timestamp, text, headers, NO_AUTO_DELETE_TIMER);
 			}
 			storeMessage(pm);
 		} catch (FormatException e) {
