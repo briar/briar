@@ -18,10 +18,14 @@ import org.briarproject.briar.api.client.SessionId;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
+import static org.briarproject.bramble.util.ValidationUtils.checkRange;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
@@ -52,13 +56,14 @@ class IntroductionValidator extends BdfMessageValidator {
 				return validateRequestMessage(m, body);
 			case ACCEPT:
 				return validateAcceptMessage(m, body);
+			case DECLINE:
+				return validateDeclineMessage(type, m, body);
 			case AUTH:
 				return validateAuthMessage(m, body);
 			case ACTIVATE:
 				return validateActivateMessage(m, body);
-			case DECLINE:
 			case ABORT:
-				return validateOtherMessage(type, m, body);
+				return validateAbortMessage(type, m, body);
 			default:
 				throw new FormatException();
 		}
@@ -66,7 +71,11 @@ class IntroductionValidator extends BdfMessageValidator {
 
 	private BdfMessageContext validateRequestMessage(Message m, BdfList body)
 			throws FormatException {
-		checkSize(body, 4);
+		// Client version 0.0: Message type, optional previous message ID,
+		// author, optional text.
+		// Client version 0.1: Message type, optional previous message ID,
+		// author, optional text, optional auto-delete timer.
+		checkSize(body, 4, 5);
 
 		byte[] previousMessageId = body.getOptionalRaw(1);
 		checkLength(previousMessageId, UniqueId.LENGTH);
@@ -77,8 +86,16 @@ class IntroductionValidator extends BdfMessageValidator {
 		String text = body.getOptionalString(3);
 		checkLength(text, 1, MAX_INTRODUCTION_TEXT_LENGTH);
 
+		Long timer = null;
+		if (body.size() == 5) {
+			timer = body.getOptionalLong(4);
+			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
+					MAX_AUTO_DELETE_TIMER_MS);
+		}
+		if (timer == null) timer = NO_AUTO_DELETE_TIMER;
+
 		BdfDictionary meta =
-				messageEncoder.encodeRequestMetadata(m.getTimestamp());
+				messageEncoder.encodeRequestMetadata(m.getTimestamp(), timer);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -89,7 +106,12 @@ class IntroductionValidator extends BdfMessageValidator {
 
 	private BdfMessageContext validateAcceptMessage(Message m, BdfList body)
 			throws FormatException {
-		checkSize(body, 6);
+		// Client version 0.0: Message type, session ID, optional previous
+		// message ID, ephemeral public key, timestamp, transport properties.
+		// Client version 0.1: Message type, session ID, optional previous
+		// message ID, ephemeral public key, timestamp, transport properties,
+		// optional auto-delete timer.
+		checkSize(body, 6, 7);
 
 		byte[] sessionIdBytes = body.getRaw(1);
 		checkLength(sessionIdBytes, UniqueId.LENGTH);
@@ -109,9 +131,50 @@ class IntroductionValidator extends BdfMessageValidator {
 		clientHelper
 				.parseAndValidateTransportPropertiesMap(transportProperties);
 
+		Long timer = null;
+		if (body.size() == 7) {
+			timer = body.getOptionalLong(6);
+			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
+					MAX_AUTO_DELETE_TIMER_MS);
+		}
+		if (timer == null) timer = NO_AUTO_DELETE_TIMER;
+
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(ACCEPT, sessionId,
-				m.getTimestamp(), false, false, false);
+				m.getTimestamp(), false, false, false, timer);
+		if (previousMessageId == null) {
+			return new BdfMessageContext(meta);
+		} else {
+			MessageId dependency = new MessageId(previousMessageId);
+			return new BdfMessageContext(meta, singletonList(dependency));
+		}
+	}
+
+	private BdfMessageContext validateDeclineMessage(MessageType type,
+			Message m, BdfList body) throws FormatException {
+		// Client version 0.0: Message type, session ID, optional previous
+		// message ID.
+		// Client version 0.1: Message type, session ID, optional previous
+		// message ID, optional auto-delete timer.
+		checkSize(body, 3, 4);
+
+		byte[] sessionIdBytes = body.getRaw(1);
+		checkLength(sessionIdBytes, UniqueId.LENGTH);
+
+		byte[] previousMessageId = body.getOptionalRaw(2);
+		checkLength(previousMessageId, UniqueId.LENGTH);
+
+		Long timer = null;
+		if (body.size() == 4) {
+			timer = body.getOptionalLong(3);
+			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
+					MAX_AUTO_DELETE_TIMER_MS);
+		}
+		if (timer == null) timer = NO_AUTO_DELETE_TIMER;
+
+		SessionId sessionId = new SessionId(sessionIdBytes);
+		BdfDictionary meta = messageEncoder.encodeMetadata(type, sessionId,
+				m.getTimestamp(), false, false, false, timer);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -138,7 +201,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(AUTH, sessionId,
-				m.getTimestamp(), false, false, false);
+				m.getTimestamp(), false, false, false, NO_AUTO_DELETE_TIMER);
 		MessageId dependency = new MessageId(previousMessageId);
 		return new BdfMessageContext(meta, singletonList(dependency));
 	}
@@ -158,7 +221,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(ACTIVATE, sessionId,
-				m.getTimestamp(), false, false, false);
+				m.getTimestamp(), false, false, false, NO_AUTO_DELETE_TIMER);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {
@@ -167,7 +230,7 @@ class IntroductionValidator extends BdfMessageValidator {
 		}
 	}
 
-	private BdfMessageContext validateOtherMessage(MessageType type,
+	private BdfMessageContext validateAbortMessage(MessageType type,
 			Message m, BdfList body) throws FormatException {
 		checkSize(body, 3);
 
@@ -179,7 +242,7 @@ class IntroductionValidator extends BdfMessageValidator {
 
 		SessionId sessionId = new SessionId(sessionIdBytes);
 		BdfDictionary meta = messageEncoder.encodeMetadata(type, sessionId,
-				m.getTimestamp(), false, false, false);
+				m.getTimestamp(), false, false, false, NO_AUTO_DELETE_TIMER);
 		if (previousMessageId == null) {
 			return new BdfMessageContext(meta);
 		} else {

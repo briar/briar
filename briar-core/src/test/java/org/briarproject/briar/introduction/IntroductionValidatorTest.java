@@ -6,20 +6,29 @@ import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
+import org.briarproject.bramble.api.plugin.TransportId;
+import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.ValidatorTestCase;
 import org.briarproject.briar.api.client.SessionId;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import java.util.Map;
+
 import javax.annotation.Nullable;
 
+import static java.util.Collections.singletonMap;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_AGREEMENT_PUBLIC_KEY_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.bramble.test.TestUtils.getTransportId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
@@ -44,9 +53,12 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	private final BdfDictionary meta = new BdfDictionary();
 	private final PublicKey ephemeralPublicKey = getAgreementPublicKey();
 	private final long acceptTimestamp = 42;
+	private final TransportId transportId = getTransportId();
 	private final BdfDictionary transportProperties = BdfDictionary.of(
-			new BdfEntry("transportId",  new BdfDictionary())
+			new BdfEntry(transportId.getString(), new BdfDictionary())
 	);
+	private final Map<TransportId, TransportProperties> transportPropertiesMap =
+			singletonMap(transportId, new TransportProperties());
 	private final byte[] mac = getRandomBytes(MAC_BYTES);
 	private final byte[] signature = getRandomBytes(MAX_SIGNATURE_BYTES);
 
@@ -60,7 +72,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 				authorList, text);
 
 		expectParseAuthor(authorList, author);
-		expectEncodeRequestMetadata();
+		expectEncodeRequestMetadata(NO_AUTO_DELETE_TIMER);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
@@ -72,7 +84,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(REQUEST.getValue(), null, authorList, text);
 
 		expectParseAuthor(authorList, author);
-		expectEncodeRequestMetadata();
+		expectEncodeRequestMetadata(NO_AUTO_DELETE_TIMER);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
@@ -84,11 +96,40 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(REQUEST.getValue(), null, authorList, null);
 
 		expectParseAuthor(authorList, author);
-		expectEncodeRequestMetadata();
+		expectEncodeRequestMetadata(NO_AUTO_DELETE_TIMER);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
 		assertExpectedContext(messageContext, null);
+	}
+
+	@Test
+	public void testAcceptsRequestWithNullAutoDeleteTimer() throws Exception {
+		testAcceptsRequestWithAutoDeleteTimer(null);
+	}
+
+	@Test
+	public void testAcceptsRequestWithMinAutoDeleteTimer() throws Exception {
+		testAcceptsRequestWithAutoDeleteTimer(MIN_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsRequestWithMaxAutoDeleteTimer() throws Exception {
+		testAcceptsRequestWithAutoDeleteTimer(MAX_AUTO_DELETE_TIMER_MS);
+	}
+
+	private void testAcceptsRequestWithAutoDeleteTimer(@Nullable Long timer)
+			throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), previousMsgId.getBytes(),
+				authorList, text, timer);
+
+		expectParseAuthor(authorList, author);
+		long autoDeleteTimer = timer == null ? NO_AUTO_DELETE_TIMER : timer;
+		expectEncodeRequestMetadata(autoDeleteTimer);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
 	}
 
 	@Test(expected = FormatException.class)
@@ -99,8 +140,8 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForRequest() throws Exception {
-		BdfList body =
-				BdfList.of(REQUEST.getValue(), null, authorList, text, null);
+		BdfList body = BdfList.of(REQUEST.getValue(), null, authorList, text,
+				null, null);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -119,6 +160,32 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		validator.validateMessage(message, group, body);
 	}
 
+	@Test(expected = FormatException.class)
+	public void testRejectsRequestWithNonLongAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), previousMsgId.getBytes(),
+				authorList, text, "foo");
+		expectParseAuthor(authorList, author);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsRequestWithTooSmallAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), previousMsgId.getBytes(),
+				authorList, text, MIN_AUTO_DELETE_TIMER_MS - 1);
+		expectParseAuthor(authorList, author);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsRequestWithTooBigAutoDeleteTimer() throws Exception {
+		BdfList body = BdfList.of(REQUEST.getValue(), previousMsgId.getBytes(),
+				authorList, text, MAX_AUTO_DELETE_TIMER_MS + 1);
+		expectParseAuthor(authorList, author);
+		validator.validateMessage(message, group, body);
+	}
+
 	//
 	// Introduction ACCEPT
 	//
@@ -129,11 +196,38 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
 				acceptTimestamp, transportProperties);
 		expectParsePublicKey();
-		context.checking(new Expectations() {{
-			oneOf(clientHelper).parseAndValidateTransportPropertiesMap(
-					transportProperties);
-		}});
-		expectEncodeMetadata(ACCEPT);
+		expectParseTransportProperties();
+		expectEncodeMetadata(ACCEPT, NO_AUTO_DELETE_TIMER);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test
+	public void testAcceptsAcceptWithNullAutoDeleteTimer() throws Exception {
+		testAcceptsAcceptWithAutoDeleteTimer(null);
+	}
+
+	@Test
+	public void testAcceptsAcceptWithMinAutoDeleteTimer() throws Exception {
+		testAcceptsAcceptWithAutoDeleteTimer(MIN_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsAcceptWithMaxAutoDeleteTimer() throws Exception {
+		testAcceptsAcceptWithAutoDeleteTimer(MAX_AUTO_DELETE_TIMER_MS);
+	}
+
+	private void testAcceptsAcceptWithAutoDeleteTimer(@Nullable Long timer)
+			throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
+				acceptTimestamp, transportProperties, timer);
+		expectParsePublicKey();
+		expectParseTransportProperties();
+		long autoDeleteTimer = timer == null ? NO_AUTO_DELETE_TIMER : timer;
+		expectEncodeMetadata(ACCEPT, autoDeleteTimer);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
@@ -152,7 +246,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	public void testRejectsTooLongBodyForAccept() throws Exception {
 		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
-				acceptTimestamp, transportProperties, null);
+				acceptTimestamp, transportProperties, null, null);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -200,6 +294,40 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		validator.validateMessage(message, group, body);
 	}
 
+	@Test(expected = FormatException.class)
+	public void testRejectsAcceptWithNonLongAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
+				acceptTimestamp, transportProperties, "foo");
+		expectParsePublicKey();
+		expectParseTransportProperties();
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAcceptWithTooSmallAutoDeleteTimer()
+			throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
+				acceptTimestamp, transportProperties,
+				MIN_AUTO_DELETE_TIMER_MS - 1);
+		expectParsePublicKey();
+		expectParseTransportProperties();
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAcceptWithTooBigAutoDeleteTimer() throws Exception {
+		BdfList body = BdfList.of(ACCEPT.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), ephemeralPublicKey.getEncoded(),
+				acceptTimestamp, transportProperties,
+				MAX_AUTO_DELETE_TIMER_MS + 1);
+		expectParsePublicKey();
+		expectParseTransportProperties();
+		validator.validateMessage(message, group, body);
+	}
+
 	//
 	// Introduction DECLINE
 	//
@@ -209,7 +337,35 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes());
 
-		expectEncodeMetadata(DECLINE);
+		expectEncodeMetadata(DECLINE, NO_AUTO_DELETE_TIMER);
+		BdfMessageContext messageContext =
+				validator.validateMessage(message, group, body);
+
+		assertExpectedContext(messageContext, previousMsgId);
+	}
+
+	@Test
+	public void testAcceptsDeclineWithNullAutoDeleteTimer() throws Exception {
+		testAcceptsDeclineWithAutoDeleteTimer(null);
+	}
+
+	@Test
+	public void testAcceptsDeclineWithMinAutoDeleteTimer() throws Exception {
+		testAcceptsDeclineWithAutoDeleteTimer(MIN_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsDeclineWithMaxAutoDeleteTimer() throws Exception {
+		testAcceptsDeclineWithAutoDeleteTimer(MAX_AUTO_DELETE_TIMER_MS);
+	}
+
+	private void testAcceptsDeclineWithAutoDeleteTimer(@Nullable Long timer)
+			throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), timer);
+
+		long autoDeleteTimer = timer == null ? NO_AUTO_DELETE_TIMER : timer;
+		expectEncodeMetadata(DECLINE, autoDeleteTimer);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
@@ -225,7 +381,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 	@Test(expected = FormatException.class)
 	public void testRejectsTooLongBodyForDecline() throws Exception {
 		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
-				previousMsgId.getBytes(), null);
+				previousMsgId.getBytes(), null, null);
 		validator.validateMessage(message, group, body);
 	}
 
@@ -242,6 +398,28 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		validator.validateMessage(message, group, body);
 	}
 
+	@Test(expected = FormatException.class)
+	public void testRejectsNonLongAutoDeleteTimerForDecline() throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), "foo");
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooSmallAutoDeleteTimerForDecline()
+			throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), MIN_AUTO_DELETE_TIMER_MS - 1);
+		validator.validateMessage(message, group, body);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsTooBigAutoDeleteTimerForDecline() throws Exception {
+		BdfList body = BdfList.of(DECLINE.getValue(), sessionId.getBytes(),
+				previousMsgId.getBytes(), MAX_AUTO_DELETE_TIMER_MS + 1);
+		validator.validateMessage(message, group, body);
+	}
+
 	//
 	// Introduction AUTH
 	//
@@ -251,7 +429,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(AUTH.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(), mac, signature);
 
-		expectEncodeMetadata(AUTH);
+		expectEncodeMetadata(AUTH, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
@@ -340,7 +518,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(ACTIVATE.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes(), mac);
 
-		expectEncodeMetadata(ACTIVATE);
+		expectEncodeMetadata(ACTIVATE, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
@@ -398,7 +576,7 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 		BdfList body = BdfList.of(ABORT.getValue(), sessionId.getBytes(),
 				previousMsgId.getBytes());
 
-		expectEncodeMetadata(ABORT);
+		expectEncodeMetadata(ABORT, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext messageContext =
 				validator.validateMessage(message, group, body);
 
@@ -442,17 +620,28 @@ public class IntroductionValidatorTest extends ValidatorTestCase {
 			will(returnValue(ephemeralPublicKey));
 		}});
 	}
-	private void expectEncodeRequestMetadata() {
+
+	private void expectParseTransportProperties() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(messageEncoder).encodeRequestMetadata(message.getTimestamp());
+			oneOf(clientHelper).parseAndValidateTransportPropertiesMap(
+					transportProperties);
+			will(returnValue(transportPropertiesMap));
+		}});
+	}
+
+	private void expectEncodeRequestMetadata(long autoDeleteTimer) {
+		context.checking(new Expectations() {{
+			oneOf(messageEncoder).encodeRequestMetadata(message.getTimestamp(),
+					autoDeleteTimer);
 			will(returnValue(meta));
 		}});
 	}
 
-	private void expectEncodeMetadata(MessageType type) {
+	private void expectEncodeMetadata(MessageType type, long autoDeleteTimer) {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, sessionId,
-					message.getTimestamp(), false, false, false);
+					message.getTimestamp(), false, false, false,
+					autoDeleteTimer);
 			will(returnValue(meta));
 		}});
 	}

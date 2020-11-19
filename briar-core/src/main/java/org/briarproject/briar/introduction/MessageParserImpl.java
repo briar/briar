@@ -19,7 +19,9 @@ import java.util.Map;
 
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
+import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.introduction.IntroductionConstants.MSG_KEY_MESSAGE_TYPE;
@@ -65,8 +67,9 @@ class MessageParserImpl implements MessageParser {
 		boolean read = d.getBoolean(MSG_KEY_READ);
 		boolean visible = d.getBoolean(MSG_KEY_VISIBLE_IN_UI);
 		boolean available = d.getBoolean(MSG_KEY_AVAILABLE_TO_ANSWER, false);
+		long timer = d.getLong(MSG_KEY_AUTO_DELETE_TIMER, NO_AUTO_DELETE_TIMER);
 		return new MessageMetadata(type, sessionId, timestamp, local, read,
-				visible, available);
+				visible, available, timer);
 	}
 
 	@Override

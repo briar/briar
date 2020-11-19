@@ -31,7 +31,7 @@ public interface IntroductionManager extends ConversationClient {
 	/**
 	 * The current minor version of the introduction client.
 	 */
-	int MINOR_VERSION = 0;
+	int MINOR_VERSION = 1;
 
 	/**
 	 * Sends two initial introduction messages.
