@@ -18,8 +18,9 @@ class RequestMessage extends AbstractIntroductionMessage {
 
 	RequestMessage(MessageId messageId, GroupId groupId, long timestamp,
 			@Nullable MessageId previousMessageId, Author author,
-			@Nullable String text) {
-		super(messageId, groupId, timestamp, previousMessageId);
+			@Nullable String text, long autoDeleteTimer) {
+		super(messageId, groupId, timestamp, previousMessageId,
+				autoDeleteTimer);
 		this.author = author;
 		this.text = text;
 	}
