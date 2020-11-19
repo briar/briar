@@ -20,6 +20,8 @@ import org.junit.Test;
 
 import java.io.InputStream;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
@@ -36,6 +38,7 @@ import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
+import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_LOCAL;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_MSG_TYPE;
@@ -389,6 +392,48 @@ public class PrivateMessageValidatorTest extends BrambleMockTestCase {
 		expectParseList(BdfList.of(ATTACHMENT + 1, contentType));
 
 		validator.validateMessage(message, group);
+	}
+
+	@Test
+	public void testAcceptsNullTimerForPrivateMessage() throws Exception {
+		testAcceptsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), null), noAttachmentsMeta);
+	}
+
+	@Test(expected = InvalidMessageException.class)
+	public void testRejectsNonLongTimerForPrivateMessage() throws Exception {
+		testRejectsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), "foo"));
+	}
+
+	@Test(expected = InvalidMessageException.class)
+	public void testRejectsTooSmallTimerForPrivateMessage() throws Exception {
+		testRejectsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MIN_AUTO_DELETE_TIMER_MS - 1));
+	}
+
+	@Test(expected = InvalidMessageException.class)
+	public void testRejectsTooBigTimerForPrivateMessage() throws Exception {
+		testRejectsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MAX_AUTO_DELETE_TIMER_MS + 1));
+	}
+
+	@Test
+	public void testAcceptsMinTimerForPrivateMessage() throws Exception {
+		BdfDictionary minTimerMeta = new BdfDictionary(noAttachmentsMeta);
+		minTimerMeta.put(MSG_KEY_AUTO_DELETE_TIMER, MIN_AUTO_DELETE_TIMER_MS);
+
+		testAcceptsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MIN_AUTO_DELETE_TIMER_MS), minTimerMeta);
+	}
+
+	@Test
+	public void testAcceptsMaxTimerForPrivateMessage() throws Exception {
+		BdfDictionary maxTimerMeta = new BdfDictionary(noAttachmentsMeta);
+		maxTimerMeta.put(MSG_KEY_AUTO_DELETE_TIMER, MAX_AUTO_DELETE_TIMER_MS);
+
+		testAcceptsPrivateMessage(BdfList.of(PRIVATE_MESSAGE, text,
+				new BdfList(), MAX_AUTO_DELETE_TIMER_MS), maxTimerMeta);
 	}
 
 	private void testRejectsLegacyMessage(BdfList body) throws Exception {
