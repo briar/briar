@@ -33,6 +33,7 @@ import static java.util.Collections.emptySet;
 import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
@@ -111,8 +112,8 @@ public class MessagingManagerIntegrationTest
 		assertTrue(m1.hasText());
 		assertEquals(0, m0.getAttachmentHeaders().size());
 		assertEquals(0, m1.getAttachmentHeaders().size());
-		assertEquals(-1, m0.getAutoDeleteTimer());
-		assertEquals(-1, m1.getAutoDeleteTimer());
+		assertEquals(NO_AUTO_DELETE_TIMER, m0.getAutoDeleteTimer());
+		assertEquals(NO_AUTO_DELETE_TIMER, m1.getAutoDeleteTimer());
 		assertTrue(m0.isRead());
 		assertFalse(m1.isRead());
 		assertGroupCounts(c0, 1, 0);
@@ -148,8 +149,8 @@ public class MessagingManagerIntegrationTest
 		assertFalse(m1.hasText());
 		assertEquals(1, m0.getAttachmentHeaders().size());
 		assertEquals(1, m1.getAttachmentHeaders().size());
-		assertEquals(-1, m0.getAutoDeleteTimer());
-		assertEquals(-1, m1.getAutoDeleteTimer());
+		assertEquals(NO_AUTO_DELETE_TIMER, m0.getAutoDeleteTimer());
+		assertEquals(NO_AUTO_DELETE_TIMER, m1.getAutoDeleteTimer());
 		assertTrue(m0.isRead());
 		assertFalse(m1.isRead());
 		assertGroupCounts(c0, 1, 0);
@@ -374,7 +375,7 @@ public class MessagingManagerIntegrationTest
 	private PrivateMessage sendMessage(BriarIntegrationTestComponent from,
 			BriarIntegrationTestComponent to, @Nullable String text,
 			List<AttachmentHeader> attachments) throws Exception {
-		return sendMessage(from, to, text, attachments, -1);
+		return sendMessage(from, to, text, attachments, NO_AUTO_DELETE_TIMER);
 	}
 
 	private PrivateMessage sendMessage(BriarIntegrationTestComponent from,

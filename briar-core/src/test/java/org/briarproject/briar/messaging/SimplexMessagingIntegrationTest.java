@@ -34,6 +34,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
@@ -123,7 +124,8 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 		PrivateMessageFactory privateMessageFactory =
 				device.getPrivateMessageFactory();
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
-				groupId, timestamp, "Hi!", singletonList(attachmentHeader), -1);
+				groupId, timestamp, "Hi!", singletonList(attachmentHeader),
+				NO_AUTO_DELETE_TIMER);
 		messagingManager.addLocalMessage(message);
 	}
 

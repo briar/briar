@@ -55,14 +55,15 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
-import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
@@ -198,7 +199,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		long timestamp = meta.getLong(MSG_KEY_TIMESTAMP);
 		boolean local = meta.getBoolean(MSG_KEY_LOCAL);
 		boolean read = meta.getBoolean(MSG_KEY_READ);
-		long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER, -1L);
+		long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER,
+				NO_AUTO_DELETE_TIMER);
 		PrivateMessageHeader header =
 				new PrivateMessageHeader(m.getId(), groupId, timestamp, local,
 						read, false, false, hasText, headers, timer);
@@ -237,7 +239,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			meta.put(MSG_KEY_TIMESTAMP, m.getMessage().getTimestamp());
 			meta.put(MSG_KEY_LOCAL, true);
 			meta.put(MSG_KEY_READ, true);
-			if (m.getFormat() != TEXT) {
+			if (m.getFormat() != TEXT_ONLY) {
 				meta.put(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE);
 				meta.put(MSG_KEY_HAS_TEXT, m.hasText());
 				BdfList headers = new BdfList();
@@ -248,7 +250,9 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				meta.put(MSG_KEY_ATTACHMENT_HEADERS, headers);
 				if (m.getFormat() == TEXT_IMAGES_AUTO_DELETE) {
 					long timer = m.getAutoDeleteTimer();
-					if (timer != -1) meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
+					if (timer != NO_AUTO_DELETE_TIMER) {
+						meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
+					}
 				}
 			}
 			// Mark attachments as shared and permanent now we're ready to send
@@ -362,10 +366,11 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				if (messageType == null) {
 					headers.add(new PrivateMessageHeader(id, g, timestamp,
 							local, read, s.isSent(), s.isSeen(), true,
-							emptyList(), -1));
+							emptyList(), NO_AUTO_DELETE_TIMER));
 				} else {
 					boolean hasText = meta.getBoolean(MSG_KEY_HAS_TEXT);
-					long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER, -1L);
+					long timer = meta.getLong(MSG_KEY_AUTO_DELETE_TIMER,
+							NO_AUTO_DELETE_TIMER);
 					headers.add(new PrivateMessageHeader(id, g, timestamp,
 							local, read, s.isSent(), s.isSeen(), hasText,
 							parseAttachmentHeaders(g, meta), timer));
@@ -415,7 +420,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				.getClientMinorVersion(txn, c, CLIENT_ID, 0);
 		if (minorVersion >= 3) return TEXT_IMAGES_AUTO_DELETE;
 		else if (minorVersion >= 1) return TEXT_IMAGES;
-		else return TEXT;
+		else return TEXT_ONLY;
 	}
 
 	@Override
