@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
+import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -24,6 +25,7 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
@@ -41,6 +43,7 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
+		AvatarModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
 		ForumModule.class,
@@ -54,6 +57,8 @@ public interface BriarIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
+
+	void inject(AvatarModule.EagerSingletons init);
 
 	void inject(BlogModule.EagerSingletons init);
 
@@ -74,6 +79,8 @@ public interface BriarIntegrationTestComponent
 	EventBus getEventBus();
 
 	IdentityManager getIdentityManager();
+
+	AvatarManager getAvatarManager();
 
 	ClientHelper getClientHelper();
 
@@ -117,6 +124,7 @@ public interface BriarIntegrationTestComponent
 				BriarIntegrationTestComponent c) {
 			BrambleCoreIntegrationTestEagerSingletons.Helper
 					.injectEagerSingletons(c);
+			c.inject(new AvatarModule.EagerSingletons());
 			c.inject(new BlogModule.EagerSingletons());
 			c.inject(new ForumModule.EagerSingletons());
 			c.inject(new GroupInvitationModule.EagerSingletons());
