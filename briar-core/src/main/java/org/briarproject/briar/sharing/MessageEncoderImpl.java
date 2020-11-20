@@ -14,11 +14,13 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
+import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_INVITATION_ACCEPTED;
 import static org.briarproject.briar.sharing.SharingConstants.MSG_KEY_LOCAL;
@@ -45,7 +47,8 @@ class MessageEncoderImpl implements MessageEncoder {
 	@Override
 	public BdfDictionary encodeMetadata(MessageType type,
 			GroupId shareableId, long timestamp, boolean local, boolean read,
-			boolean visible, boolean available, boolean accepted) {
+			boolean visible, boolean available, boolean accepted,
+			long autoDeleteTimer) {
 		BdfDictionary meta = new BdfDictionary();
 		meta.put(MSG_KEY_MESSAGE_TYPE, type.getValue());
 		meta.put(MSG_KEY_SHAREABLE_ID, shareableId);
@@ -55,6 +58,9 @@ class MessageEncoderImpl implements MessageEncoder {
 		meta.put(MSG_KEY_VISIBLE_IN_UI, visible);
 		meta.put(MSG_KEY_AVAILABLE_TO_ANSWER, available);
 		meta.put(MSG_KEY_INVITATION_ACCEPTED, accepted);
+		if (autoDeleteTimer != NO_AUTO_DELETE_TIMER) {
+			meta.put(MSG_KEY_AUTO_DELETE_TIMER, autoDeleteTimer);
+		}
 		return meta;
 	}
 
@@ -94,6 +100,27 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	@Override
+	public Message encodeInviteMessage(GroupId contactGroupId, long timestamp,
+			@Nullable MessageId previousMessageId, BdfList descriptor,
+			@Nullable String text, long autoDeleteTimer) {
+		if (text != null && text.isEmpty())
+			throw new IllegalArgumentException();
+		BdfList body = BdfList.of(
+				INVITE.getValue(),
+				previousMessageId,
+				descriptor,
+				text,
+				encodeTimer(autoDeleteTimer)
+		);
+		try {
+			return messageFactory.createMessage(contactGroupId, timestamp,
+					clientHelper.toByteArray(body));
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	@Override
 	public Message encodeAcceptMessage(GroupId contactGroupId,
 			GroupId shareableId, long timestamp,
 			@Nullable MessageId previousMessageId) {
@@ -102,11 +129,27 @@ class MessageEncoderImpl implements MessageEncoder {
 	}
 
 	@Override
+	public Message encodeAcceptMessage(GroupId contactGroupId,
+			GroupId shareableId, long timestamp,
+			@Nullable MessageId previousMessageId, long autoDeleteTimer) {
+		return encodeMessage(ACCEPT, contactGroupId, shareableId, timestamp,
+				previousMessageId, autoDeleteTimer);
+	}
+
+	@Override
 	public Message encodeDeclineMessage(GroupId contactGroupId,
 			GroupId shareableId, long timestamp,
 			@Nullable MessageId previousMessageId) {
 		return encodeMessage(DECLINE, contactGroupId, shareableId, timestamp,
 				previousMessageId);
+	}
+
+	@Override
+	public Message encodeDeclineMessage(GroupId contactGroupId,
+			GroupId shareableId, long timestamp,
+			@Nullable MessageId previousMessageId, long autoDeleteTimer) {
+		return encodeMessage(DECLINE, contactGroupId, shareableId, timestamp,
+				previousMessageId, autoDeleteTimer);
 	}
 
 	@Override
@@ -141,4 +184,25 @@ class MessageEncoderImpl implements MessageEncoder {
 		}
 	}
 
+	private Message encodeMessage(MessageType type, GroupId contactGroupId,
+			GroupId shareableId, long timestamp,
+			@Nullable MessageId previousMessageId, long autoDeleteTimer) {
+		BdfList body = BdfList.of(
+				type.getValue(),
+				shareableId,
+				previousMessageId,
+				encodeTimer(autoDeleteTimer)
+		);
+		try {
+			return messageFactory.createMessage(contactGroupId, timestamp,
+					clientHelper.toByteArray(body));
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
+
+	@Nullable
+	private Long encodeTimer(long autoDeleteTimer) {
+		return autoDeleteTimer == NO_AUTO_DELETE_TIMER ? null : autoDeleteTimer;
+	}
 }

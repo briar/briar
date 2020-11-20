@@ -8,13 +8,13 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
+import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -22,9 +22,6 @@ import org.briarproject.briar.api.conversation.ConversationRequest;
 
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
-
-import static org.briarproject.briar.api.blog.BlogManager.CLIENT_ID;
-import static org.briarproject.briar.api.blog.BlogManager.MAJOR_VERSION;
 
 @Immutable
 @NotNullByDefault
@@ -41,8 +38,9 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			MessageTracker messageTracker, Clock clock, BlogManager blogManager,
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, messageEncoder,
-				messageParser, messageTracker, clock, CLIENT_ID,
-				MAJOR_VERSION);
+				messageParser, messageTracker, clock,
+				BlogSharingManager.CLIENT_ID, BlogSharingManager.MAJOR_VERSION,
+				BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION);
 		this.blogManager = blogManager;
 		this.invitationFactory = invitationFactory;
 	}
@@ -52,7 +50,8 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			ContactId contactId, boolean available, boolean canBeOpened) {
 		ConversationRequest<Blog> request = invitationFactory
 				.createInvitationRequest(false, false, true, false, m,
-						contactId, available, canBeOpened);
+						contactId, available, canBeOpened,
+						m.getAutoDeleteTimer());
 		return new BlogInvitationRequestReceivedEvent(request, contactId);
 	}
 
@@ -62,7 +61,7 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, false, false,
-						true, m.getShareableId());
+						true, m.getShareableId(), m.getAutoDeleteTimer());
 		return new BlogInvitationResponseReceivedEvent(response, contactId);
 	}
 
@@ -72,13 +71,8 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 		BlogInvitationResponse response = invitationFactory
 				.createInvitationResponse(m.getId(), m.getContactGroupId(),
 						m.getTimestamp(), false, false, false, false,
-						false, m.getShareableId());
+						false, m.getShareableId(), m.getAutoDeleteTimer());
 		return new BlogInvitationResponseReceivedEvent(response, contactId);
-	}
-
-	@Override
-	protected ClientId getShareableClientId() {
-		return CLIENT_ID;
 	}
 
 	@Override
