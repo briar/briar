@@ -28,6 +28,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -57,14 +58,15 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private final MessageEncoder messageEncoder;
 	private final MessageTracker messageTracker;
 	private final Clock clock;
-	private final ClientId shareableClientId;
-	private final int shareableClientVersion;
+	private final ClientId sharingClientId, shareableClientId;
+	private final int sharingClientMajorVersion, shareableClientMajorVersion;
 
 	ProtocolEngineImpl(DatabaseComponent db, ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			MessageEncoder messageEncoder, MessageParser<S> messageParser,
 			MessageTracker messageTracker, Clock clock,
-			ClientId shareableClientId, int shareableClientVersion) {
+			ClientId sharingClientId, int sharingClientMajorVersion,
+			ClientId shareableClientId, int shareableClientMajorVersion) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.clientVersioningManager = clientVersioningManager;
@@ -72,8 +74,10 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		this.messageParser = messageParser;
 		this.messageTracker = messageTracker;
 		this.clock = clock;
+		this.sharingClientId = sharingClientId;
+		this.sharingClientMajorVersion = sharingClientMajorVersion;
 		this.shareableClientId = shareableClientId;
-		this.shareableClientVersion = shareableClientVersion;
+		this.shareableClientMajorVersion = shareableClientMajorVersion;
 	}
 
 	@Override
@@ -121,9 +125,21 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throw new DbException(e); // Invalid group descriptor
 		}
 		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
-		Message m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
-				localTimestamp, s.getLastLocalMessageId(), descriptor, text);
-		sendMessage(txn, m, INVITE, s.getShareableId(), true);
+		Message m;
+		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
+			// TODO: Look up the current auto-delete timer
+			long timer = NO_AUTO_DELETE_TIMER;
+			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
+					localTimestamp, s.getLastLocalMessageId(), descriptor,
+					text, timer);
+			sendMessage(txn, m, INVITE, s.getShareableId(), true, timer);
+		} else {
+			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
+					localTimestamp, s.getLastLocalMessageId(), descriptor,
+					text);
+			sendMessage(txn, m, INVITE, s.getShareableId(), true,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
@@ -173,12 +189,23 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	protected abstract void addShareable(Transaction txn, MessageId inviteId)
 			throws DbException, FormatException;
 
-	private Message sendAcceptMessage(Transaction txn, Session session)
+	private Message sendAcceptMessage(Transaction txn, Session s)
 			throws DbException {
-		Message m = messageEncoder.encodeAcceptMessage(
-				session.getContactGroupId(), session.getShareableId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, ACCEPT, session.getShareableId(), true);
+		Message m;
+		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
+			// TODO: Look up the current auto-delete timer
+			long timer = NO_AUTO_DELETE_TIMER;
+			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
+					s.getShareableId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId(), timer);
+			sendMessage(txn, m, ACCEPT, s.getShareableId(), true, timer);
+		} else {
+			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
+					s.getShareableId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId());
+			sendMessage(txn, m, ACCEPT, s.getShareableId(), true,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
@@ -215,12 +242,23 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 				s.getInviteTimestamp());
 	}
 
-	private Message sendDeclineMessage(Transaction txn, Session session)
+	private Message sendDeclineMessage(Transaction txn, Session s)
 			throws DbException {
-		Message m = messageEncoder.encodeDeclineMessage(
-				session.getContactGroupId(), session.getShareableId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, DECLINE, session.getShareableId(), true);
+		Message m;
+		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
+			// TODO: Look up the current auto-delete timer
+			long timer = NO_AUTO_DELETE_TIMER;
+			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
+					s.getShareableId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId(), timer);
+			sendMessage(txn, m, DECLINE, s.getShareableId(), true, timer);
+		} else {
+			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
+					s.getShareableId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId());
+			sendMessage(txn, m, DECLINE, s.getShareableId(), true,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
@@ -263,7 +301,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		Message m = messageEncoder.encodeLeaveMessage(
 				session.getContactGroupId(), session.getShareableId(),
 				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, LEAVE, session.getShareableId(), false);
+		sendMessage(txn, m, LEAVE, session.getShareableId(), false,
+				NO_AUTO_DELETE_TIMER);
 		return m;
 	}
 
@@ -547,26 +586,25 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throws DbException {
 		if (!db.containsGroup(txn, g)) return false;
 		Group group = db.getGroup(txn, g);
-		return group.getClientId().equals(getShareableClientId());
+		return group.getClientId().equals(shareableClientId);
 	}
-
-	protected abstract ClientId getShareableClientId();
 
 	private Message sendAbortMessage(Transaction txn, Session session)
 			throws DbException {
 		Message m = messageEncoder.encodeAbortMessage(
 				session.getContactGroupId(), session.getShareableId(),
 				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, ABORT, session.getShareableId(), false);
+		sendMessage(txn, m, ABORT, session.getShareableId(), false,
+				NO_AUTO_DELETE_TIMER);
 		return m;
 	}
 
 	private void sendMessage(Transaction txn, Message m, MessageType type,
-			GroupId shareableId, boolean visibleInConversation)
-			throws DbException {
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(type, shareableId, m.getTimestamp(), true, true,
-						visibleInConversation, false, false);
+			GroupId shareableId, boolean visibleInConversation,
+			long autoDeleteTimer) throws DbException {
+		BdfDictionary meta = messageEncoder.encodeMetadata(type, shareableId,
+				m.getTimestamp(), true, true, visibleInConversation, false,
+				false, autoDeleteTimer);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
@@ -612,7 +650,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Apply min of preferred visibility and client's visibility
 		ContactId contactId = getContactId(txn, session.getContactGroupId());
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				contactId, shareableClientId, shareableClientVersion);
+				contactId, shareableClientId, shareableClientMajorVersion);
 		Visibility min = Visibility.min(preferred, client);
 		db.setGroupVisibility(txn, contactId, session.getShareableId(), min);
 	}
@@ -637,4 +675,20 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 						session.getInviteTimestamp()) + 1);
 	}
 
+	boolean contactSupportsAutoDeletion(Transaction txn, GroupId contactGroupId)
+			throws DbException {
+		try {
+			BdfDictionary meta = clientHelper
+					.getGroupMetadataAsDictionary(txn, contactGroupId);
+			int contactId = meta.getLong(GROUP_KEY_CONTACT_ID).intValue();
+			ContactId c = new ContactId(contactId);
+			int minorVersion = clientVersioningManager
+					.getClientMinorVersion(txn, c, sharingClientId,
+							sharingClientMajorVersion);
+			// Auto-delete was added in client version 0.1
+			return minorVersion >= 1;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
 }
