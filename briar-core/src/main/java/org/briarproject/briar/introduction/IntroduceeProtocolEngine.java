@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
+import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
@@ -76,10 +77,11 @@ class IntroduceeProtocolEngine
 			Clock clock,
 			IntroductionCrypto crypto,
 			KeyManager keyManager,
-			TransportPropertyManager transportPropertyManager) {
+			TransportPropertyManager transportPropertyManager,
+			ClientVersioningManager clientVersioningManager) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
 				messageTracker, identityManager, messageParser, messageEncoder,
-				clock);
+				clientVersioningManager, clock);
 		this.crypto = crypto;
 		this.keyManager = keyManager;
 		this.transportPropertyManager = transportPropertyManager;
@@ -258,7 +260,7 @@ class IntroduceeProtocolEngine
 		IntroductionRequest request = new IntroductionRequest(m.getMessageId(),
 				m.getGroupId(), m.getTimestamp(), false, false, false, false,
 				s.getSessionId(), m.getAuthor(), m.getText(), false,
-				authorInfo);
+				authorInfo, m.getAutoDeleteTimer());
 		IntroductionRequestReceivedEvent e =
 				new IntroductionRequestReceivedEvent(request, c.getId());
 		txn.attach(e);
