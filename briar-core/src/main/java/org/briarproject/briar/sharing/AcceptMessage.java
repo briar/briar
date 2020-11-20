@@ -9,11 +9,13 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class AcceptMessage extends SharingMessage {
+class AcceptMessage extends DeletableSharingMessage {
 
 	AcceptMessage(MessageId id, @Nullable MessageId previousMessageId,
-			GroupId contactGroupId, GroupId shareableId, long timestamp) {
-		super(id, contactGroupId, shareableId, timestamp, previousMessageId);
+			GroupId contactGroupId, GroupId shareableId, long timestamp,
+			long autoDeleteTimer) {
+		super(id, contactGroupId, shareableId, timestamp, previousMessageId,
+				autoDeleteTimer);
 	}
 
 }

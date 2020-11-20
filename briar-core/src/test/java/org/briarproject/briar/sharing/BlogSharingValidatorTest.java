@@ -8,10 +8,16 @@ import org.briarproject.briar.api.blog.Blog;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import javax.annotation.Nullable;
+
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
+import static org.junit.Assert.fail;
 
 public class BlogSharingValidatorTest extends SharingValidatorTest {
 
@@ -31,7 +37,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsInvitationWithText() throws Exception {
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeMetadata(INVITE, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, text));
 		assertExpectedContext(context, previousMsgId);
@@ -40,7 +46,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsInvitationWithNullText() throws Exception {
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeMetadata(INVITE, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, null));
 		assertExpectedContext(context, previousMsgId);
@@ -49,16 +55,64 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	@Test
 	public void testAcceptsInvitationWithNullPreviousMsgId() throws Exception {
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeMetadata(INVITE, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), null, descriptor, text));
 		assertExpectedContext(context, null);
 	}
 
 	@Test
+	public void testAcceptsInvitationWithMinAutoDeleteTimer() throws Exception {
+		testAcceptsInvitationWithAutoDeleteTimer(MIN_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsInvitationWithMaxAutoDeleteTimer() throws Exception {
+		testAcceptsInvitationWithAutoDeleteTimer(MAX_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsInvitationWithNullAutoDeleteTimer()
+			throws Exception {
+		testAcceptsInvitationWithAutoDeleteTimer(null);
+	}
+
+	private void testAcceptsInvitationWithAutoDeleteTimer(@Nullable Long timer)
+			throws Exception {
+		expectCreateBlog();
+		expectEncodeMetadata(INVITE,
+				timer == null ? NO_AUTO_DELETE_TIMER : timer);
+		BdfMessageContext context = validator.validateMessage(message, group,
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, text,
+						timer));
+		assertExpectedContext(context, previousMsgId);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvitationWithTooBigAutoDeleteTimer()
+			throws Exception {
+		testRejectsInvitationWithAutoDeleteTimer(MAX_AUTO_DELETE_TIMER_MS + 1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsInvitationWithTooSmallAutoDeleteTimer()
+			throws Exception {
+		testRejectsInvitationWithAutoDeleteTimer(MIN_AUTO_DELETE_TIMER_MS - 1);
+	}
+
+	private void testRejectsInvitationWithAutoDeleteTimer(Long timer)
+			throws Exception {
+		expectCreateBlog();
+		validator.validateMessage(message, group,
+				BdfList.of(INVITE.getValue(), previousMsgId, descriptor, text,
+						timer));
+		fail();
+	}
+
+	@Test
 	public void testAcceptsInvitationForRssBlog() throws Exception {
 		expectCreateRssBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeMetadata(INVITE, NO_AUTO_DELETE_TIMER);
 		BdfList rssDescriptor = BdfList.of(authorList, true);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, rssDescriptor,
@@ -93,7 +147,7 @@ public class BlogSharingValidatorTest extends SharingValidatorTest {
 	public void testAcceptsMinLengthText() throws Exception {
 		String shortText = getRandomString(1);
 		expectCreateBlog();
-		expectEncodeMetadata(INVITE);
+		expectEncodeMetadata(INVITE, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(INVITE.getValue(), previousMsgId, descriptor,
 						shortText));

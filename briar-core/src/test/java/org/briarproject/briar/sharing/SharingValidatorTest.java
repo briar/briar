@@ -16,6 +16,11 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
+import static java.util.Collections.emptyList;
+import static java.util.Collections.singletonList;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
@@ -24,7 +29,7 @@ import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public abstract class SharingValidatorTest extends ValidatorTestCase {
 
@@ -54,23 +59,84 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsAccept() throws Exception {
-		expectEncodeMetadata(ACCEPT);
+		expectEncodeMetadata(ACCEPT, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(ACCEPT.getValue(), groupId, previousMsgId));
 		assertExpectedContext(context, previousMsgId);
 	}
 
 	@Test
+	public void testAcceptsAcceptWithMinAutoDeleteTimer() throws Exception {
+		testAcceptsResponseWithAutoDeleteTimer(ACCEPT,
+				MIN_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsAcceptWithMaxAutoDeleteTimer() throws Exception {
+		testAcceptsResponseWithAutoDeleteTimer(ACCEPT,
+				MAX_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsAcceptWithNullAutoDeleteTimer() throws Exception {
+		testAcceptsResponseWithAutoDeleteTimer(ACCEPT, null);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAcceptWithTooBigAutoDeleteTimer() throws Exception {
+		testRejectsResponseWithAutoDeleteTimer(ACCEPT,
+				MAX_AUTO_DELETE_TIMER_MS + 1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsAcceptWithTooSmallAutoDeleteTimer()
+			throws Exception {
+		testRejectsResponseWithAutoDeleteTimer(ACCEPT,
+				MIN_AUTO_DELETE_TIMER_MS - 1);
+	}
+
+	@Test
 	public void testAcceptsDecline() throws Exception {
-		expectEncodeMetadata(DECLINE);
+		expectEncodeMetadata(DECLINE, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(DECLINE.getValue(), groupId, previousMsgId));
 		assertExpectedContext(context, previousMsgId);
 	}
 
 	@Test
+	public void testAcceptsDeclineWithMinAutoDeleteTimer() throws Exception {
+		testAcceptsResponseWithAutoDeleteTimer(DECLINE,
+				MIN_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsDeclineWithMaxAutoDeleteTimer() throws Exception {
+		testAcceptsResponseWithAutoDeleteTimer(DECLINE,
+				MAX_AUTO_DELETE_TIMER_MS);
+	}
+
+	@Test
+	public void testAcceptsDeclineWithNullAutoDeleteTimer() throws Exception {
+		testAcceptsResponseWithAutoDeleteTimer(DECLINE, null);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsDeclineWithTooBigAutoDeleteTimer()
+			throws Exception {
+		testRejectsResponseWithAutoDeleteTimer(DECLINE,
+				MAX_AUTO_DELETE_TIMER_MS + 1);
+	}
+
+	@Test(expected = FormatException.class)
+	public void testRejectsDeclineWithTooSmallAutoDeleteTimer()
+			throws Exception {
+		testRejectsResponseWithAutoDeleteTimer(DECLINE,
+				MIN_AUTO_DELETE_TIMER_MS - 1);
+	}
+
+	@Test
 	public void testAcceptsLeave() throws Exception {
-		expectEncodeMetadata(LEAVE);
+		expectEncodeMetadata(LEAVE, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(LEAVE.getValue(), groupId, previousMsgId));
 		assertExpectedContext(context, previousMsgId);
@@ -78,7 +144,7 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 
 	@Test
 	public void testAcceptsAbort() throws Exception {
-		expectEncodeMetadata(ABORT);
+		expectEncodeMetadata(ABORT, NO_AUTO_DELETE_TIMER);
 		BdfMessageContext context = validator.validateMessage(message, group,
 				BdfList.of(ABORT.getValue(), groupId, previousMsgId));
 		assertExpectedContext(context, previousMsgId);
@@ -141,10 +207,10 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 				BdfList.of(ABORT.getValue(), groupId, previousMsgId, 123));
 	}
 
-	void expectEncodeMetadata(MessageType type) {
+	void expectEncodeMetadata(MessageType type, long autoDeleteTimer) {
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, groupId, timestamp,
-					false, false, false, false, false);
+					false, false, false, false, false, autoDeleteTimer);
 			will(returnValue(meta));
 		}});
 	}
@@ -153,12 +219,26 @@ public abstract class SharingValidatorTest extends ValidatorTestCase {
 			@Nullable MessageId previousMsgId) {
 		Collection<MessageId> dependencies = messageContext.getDependencies();
 		if (previousMsgId == null) {
-			assertTrue(dependencies.isEmpty());
+			assertEquals(emptyList(), dependencies);
 		} else {
-			assertEquals(1, dependencies.size());
-			assertTrue(dependencies.contains(previousMsgId));
+			assertEquals(singletonList(previousMsgId), dependencies);
 		}
 		assertEquals(meta, messageContext.getDictionary());
 	}
 
+	private void testAcceptsResponseWithAutoDeleteTimer(MessageType type,
+			@Nullable Long timer) throws Exception {
+		expectEncodeMetadata(type,
+				timer == null ? NO_AUTO_DELETE_TIMER : timer);
+		BdfMessageContext context = validator.validateMessage(message, group,
+				BdfList.of(type.getValue(), groupId, previousMsgId, timer));
+		assertExpectedContext(context, previousMsgId);
+	}
+
+	private void testRejectsResponseWithAutoDeleteTimer(MessageType type,
+			long timer) throws FormatException {
+		validator.validateMessage(message, group,
+				BdfList.of(type.getValue(), groupId, previousMsgId, timer));
+		fail();
+	}
 }

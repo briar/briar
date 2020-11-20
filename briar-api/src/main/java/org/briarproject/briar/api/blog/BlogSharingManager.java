@@ -18,5 +18,5 @@ public interface BlogSharingManager extends SharingManager<Blog> {
 	/**
 	 * The current minor version of the blog sharing client.
 	 */
-	int MINOR_VERSION = 0;
+	int MINOR_VERSION = 1;
 }
