@@ -56,6 +56,7 @@ import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
@@ -67,7 +68,6 @@ import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONL
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
-import static org.briarproject.briar.messaging.MessagingConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_ATTACHMENT_HEADERS;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.messaging.MessagingConstants.MSG_KEY_HAS_TEXT;
@@ -136,13 +136,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
-		BdfDictionary d = new BdfDictionary();
-		d.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
-		try {
-			clientHelper.mergeGroupMetadata(txn, g.getId(), d);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 		// Initialize the group count with current time
 		messageTracker.initializeGroupCount(txn, g.getId());
 	}

@@ -31,7 +31,6 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
-import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -76,13 +75,6 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		this.clock = clock;
 	}
 
-	ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException, FormatException {
-		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
-				contactGroupId);
-		return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
-	}
-
 	boolean isSubscribedPrivateGroup(Transaction txn, GroupId g)
 			throws DbException {
 		if (!db.containsGroup(txn, g)) return false;
@@ -100,7 +92,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	void setPrivateGroupVisibility(Transaction txn, S session,
 			Visibility preferred) throws DbException, FormatException {
 		// Apply min of preferred visibility and client's visibility
-		ContactId contactId = getContactId(txn, session.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, session.getContactGroupId());
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				contactId, PrivateGroupManager.CLIENT_ID,
 				PrivateGroupManager.MAJOR_VERSION);
@@ -273,10 +266,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	boolean contactSupportsAutoDeletion(Transaction txn, GroupId contactGroupId)
 			throws DbException {
 		try {
-			BdfDictionary meta = clientHelper
-					.getGroupMetadataAsDictionary(txn, contactGroupId);
-			int contactId = meta.getLong(GROUP_KEY_CONTACT_ID).intValue();
-			ContactId c = new ContactId(contactId);
+			ContactId c = clientHelper.getContactId(txn, contactGroupId);
 			int minorVersion = clientVersioningManager
 					.getClientMinorVersion(txn, c,
 							GroupInvitationManager.CLIENT_ID,

@@ -230,7 +230,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// The timestamp must be higher than the last invite message, if any
 		if (m.getTimestamp() <= s.getInviteTimestamp()) return abort(txn, s);
 		// Check that the contact is the creator
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		Author contact = db.getContact(txn, contactId).getAuthor();
 		if (!contact.getId().equals(m.getCreator().getId()))
 			return abort(txn, s);

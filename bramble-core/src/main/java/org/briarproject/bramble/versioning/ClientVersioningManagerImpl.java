@@ -50,7 +50,6 @@ import static java.util.Collections.emptyList;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
-import static org.briarproject.bramble.versioning.ClientVersioningConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_LOCAL;
 import static org.briarproject.bramble.versioning.ClientVersioningConstants.MSG_KEY_UPDATE_VERSION;
 
@@ -161,13 +160,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 		db.addGroup(txn, g);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), SHARED);
 		// Attach the contact ID to the group
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
-		try {
-			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 		// Create and store the first local update
 		List<ClientVersion> versions = new ArrayList<>(clients);
 		Collections.sort(versions);
@@ -229,7 +222,7 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 			Map<ClientMajorVersion, Visibility> after =
 					getVisibilities(newLocalStates, newRemoteStates);
 			// Call hooks for any visibilities that have changed
-			ContactId c = getContactId(txn, m.getGroupId());
+			ContactId c = clientHelper.getContactId(txn, m.getGroupId());
 			if (!before.equals(after)) {
 				Contact contact = db.getContact(txn, c);
 				callVisibilityHooks(txn, contact, before, after);
@@ -519,17 +512,6 @@ class ClientVersioningManagerImpl implements ClientVersioningManager,
 			states.add(new ClientState(cv, false));
 		}
 		storeUpdate(txn, g, states, 1);
-	}
-
-	private ContactId getContactId(Transaction txn, GroupId g)
-			throws DbException {
-		try {
-			BdfDictionary meta =
-					clientHelper.getGroupMetadataAsDictionary(txn, g);
-			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
 	}
 
 	private List<ClientState> updateStatesFromRemoteStates(

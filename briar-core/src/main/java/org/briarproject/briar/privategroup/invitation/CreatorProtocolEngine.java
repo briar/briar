@@ -191,7 +191,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Share the private group with the contact
 		setPrivateGroupVisibility(txn, s, SHARED);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, m.getContactGroupId());
 		txn.attach(new GroupInvitationResponseReceivedEvent(
 				createInvitationResponse(m, true), contactId));
 		// Move to the JOINED state
@@ -213,7 +214,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, m.getContactGroupId());
 		txn.attach(new GroupInvitationResponseReceivedEvent(
 				createInvitationResponse(m, false), contactId));
 		// Move to the START state

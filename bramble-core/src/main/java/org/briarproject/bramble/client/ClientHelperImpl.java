@@ -2,11 +2,13 @@ package org.briarproject.bramble.client;
 
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.ClientHelper;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoComponent;
 import org.briarproject.bramble.api.crypto.KeyParser;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
+import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.BdfReader;
 import org.briarproject.bramble.api.data.BdfReaderFactory;
@@ -39,6 +41,7 @@ import java.util.Map.Entry;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.bramble.api.identity.Author.FORMAT_VERSION;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
@@ -389,4 +392,27 @@ class ClientHelperImpl implements ClientHelper {
 		return tpMap;
 	}
 
+	@Override
+	public ContactId getContactId(Transaction txn, GroupId contactGroupId)
+			throws DbException {
+		try {
+			BdfDictionary meta =
+					getGroupMetadataAsDictionary(txn, contactGroupId);
+			return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
+		} catch (FormatException e) {
+			throw new DbException(e); // Invalid group metadata
+		}
+	}
+
+	@Override
+	public void setContactId(Transaction txn, GroupId contactGroupId,
+			ContactId c) throws DbException {
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_CONTACT_ID, c.getInt()));
+		try {
+			mergeGroupMetadata(txn, contactGroupId, meta);
+		} catch (FormatException e) {
+			throw new AssertionError(e);
+		}
+	}
 }

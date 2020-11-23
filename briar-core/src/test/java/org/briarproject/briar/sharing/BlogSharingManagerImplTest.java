@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfEntry;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -41,7 +40,6 @@ import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
-import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
 
 public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 
@@ -117,8 +115,6 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectAddingContact(Transaction txn) throws Exception {
-		BdfDictionary meta = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
 		Map<MessageId, BdfDictionary> sessions = Collections.emptyMap();
 
 		context.checking(new Expectations() {{
@@ -134,7 +130,7 @@ public class BlogSharingManagerImplTest extends BrambleMockTestCase {
 					SHARED);
 			// Attach the contact ID to the group
 			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, contactGroup.getId(), meta);
+					.setContactId(txn, contactGroup.getId(), contactId);
 			// Get our blog and the contact's blog
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(localAuthor));

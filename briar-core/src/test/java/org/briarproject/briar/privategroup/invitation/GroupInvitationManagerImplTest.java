@@ -58,7 +58,6 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROU
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.CLIENT_ID;
 import static org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager.MAJOR_VERSION;
-import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -178,9 +177,6 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	}
 
 	private void expectAddingContact(Contact c) throws Exception {
-		BdfDictionary meta = BdfDictionary
-				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, c.getId().getInt()));
-
 		context.checking(new Expectations() {{
 			oneOf(contactGroupFactory).createContactGroup(CLIENT_ID,
 					MAJOR_VERSION, c);
@@ -192,7 +188,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).setGroupVisibility(txn, c.getId(), contactGroup.getId(),
 					SHARED);
 			oneOf(clientHelper)
-					.mergeGroupMetadata(txn, contactGroup.getId(), meta);
+					.setContactId(txn, contactGroup.getId(), contactId);
 			oneOf(db).getGroups(txn, PrivateGroupManager.CLIENT_ID,
 					PrivateGroupManager.MAJOR_VERSION);
 			will(returnValue(Collections.singletonList(privateGroup)));

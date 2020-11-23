@@ -37,7 +37,6 @@ import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
-import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.sharing.State.LOCAL_INVITED;
 import static org.briarproject.briar.sharing.State.LOCAL_LEFT;
 import static org.briarproject.briar.sharing.State.REMOTE_HANGING;
@@ -341,7 +340,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		txn.attach(getInvitationRequestReceivedEvent(m, contactId, available,
 				false));
 		// Move to the next state
@@ -367,7 +367,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		// Share the shareable with the contact
 		setShareableVisibility(txn, s, SHARED);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		txn.attach(
 				getInvitationRequestReceivedEvent(m, contactId, false, true));
 		// Move to the next state
@@ -411,7 +412,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, m.getContactGroupId());
 		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
 		// Move to the next state
 		return new Session(nextState, s.getContactGroupId(), s.getShareableId(),
@@ -469,7 +471,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			throw new DbException(e); // Invalid group metadata
 		}
 		// Broadcast an event
-		ContactId contactId = getContactId(txn, m.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, m.getContactGroupId());
 		txn.attach(getInvitationResponseReceivedEvent(m, contactId));
 		// Move to the next state
 		return new Session(START, s.getContactGroupId(), s.getShareableId(),
@@ -529,7 +532,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abortWithMessage(txn, s);
 		// Broadcast event informing that contact left
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		ContactLeftShareableEvent e = new ContactLeftShareableEvent(
 				s.getShareableId(), contactId);
 		txn.attach(e);
@@ -648,18 +652,12 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private void setShareableVisibility(Transaction txn, Session session,
 			Visibility preferred) throws DbException, FormatException {
 		// Apply min of preferred visibility and client's visibility
-		ContactId contactId = getContactId(txn, session.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, session.getContactGroupId());
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
 				contactId, shareableClientId, shareableClientMajorVersion);
 		Visibility min = Visibility.min(preferred, client);
 		db.setGroupVisibility(txn, contactId, session.getShareableId(), min);
-	}
-
-	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException, FormatException {
-		BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(txn,
-				contactGroupId);
-		return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
 	}
 
 	private boolean isInvalidDependency(Session session,
@@ -678,10 +676,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	boolean contactSupportsAutoDeletion(Transaction txn, GroupId contactGroupId)
 			throws DbException {
 		try {
-			BdfDictionary meta = clientHelper
-					.getGroupMetadataAsDictionary(txn, contactGroupId);
-			int contactId = meta.getLong(GROUP_KEY_CONTACT_ID).intValue();
-			ContactId c = new ContactId(contactId);
+			ContactId c = clientHelper.getContactId(txn, contactGroupId);
 			int minorVersion = clientVersioningManager
 					.getClientMinorVersion(txn, c, sharingClientId,
 							sharingClientMajorVersion);
