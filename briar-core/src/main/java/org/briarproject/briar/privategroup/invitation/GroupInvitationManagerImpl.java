@@ -159,7 +159,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		SessionId sessionId = getSessionId(meta.getPrivateGroupId());
 		StoredSession ss = getSession(txn, m.getGroupId(), sessionId);
 		// Handle the message
-		Session session;
+		Session<?> session;
 		MessageId storageId;
 		if (ss == null) {
 			session = handleFirstMessage(txn, m, body, meta);
@@ -189,7 +189,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				results.values().iterator().next());
 	}
 
-	private Session handleFirstMessage(Transaction txn, Message m, BdfList body,
+	private Session<?> handleFirstMessage(Transaction txn, Message m, BdfList body,
 			MessageMetadata meta) throws DbException, FormatException {
 		GroupId privateGroupId = meta.getPrivateGroupId();
 		MessageType type = meta.getMessageType();
@@ -206,7 +206,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private Session handleMessage(Transaction txn, Message m, BdfList body,
+	private Session<?> handleMessage(Transaction txn, Message m, BdfList body,
 			MessageMetadata meta, BdfDictionary bdfSession)
 			throws DbException, FormatException {
 		MessageType type = meta.getMessageType();
@@ -228,7 +228,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private <S extends Session> S handleMessage(Transaction txn, Message m,
+	private <S extends Session<?>> S handleMessage(Transaction txn, Message m,
 			BdfList body, MessageType type, S session, ProtocolEngine<S> engine)
 			throws DbException, FormatException {
 		if (type == INVITE) {
@@ -256,7 +256,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	private void storeSession(Transaction txn, MessageId storageId,
-			Session session) throws DbException, FormatException {
+			Session<?> session) throws DbException, FormatException {
 		BdfDictionary d = sessionEncoder.encodeSession(session);
 		clientHelper.mergeMessageMetadata(txn, storageId, d);
 	}
@@ -354,7 +354,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private <S extends Session> S handleAction(Transaction txn,
+	private <S extends Session<?>> S handleAction(Transaction txn,
 			LocalAction type, S session, ProtocolEngine<S> engine)
 			throws DbException {
 		if (type == LocalAction.INVITE) {
@@ -420,7 +420,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		return new GroupInvitationRequest(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), meta.isRead(),
 				status.isSent(), status.isSeen(), sessionId, pg,
-				invite.getText(), meta.isAvailableToAnswer(), canBeOpened);
+				invite.getText(), meta.isAvailableToAnswer(), canBeOpened,
+				invite.getAutoDeleteTimer());
 	}
 
 	private GroupInvitationResponse parseInvitationResponse(
@@ -430,7 +431,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		return new GroupInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), meta.isRead(),
 				status.isSent(), status.isSeen(), sessionId, accept,
-				meta.getPrivateGroupId());
+				meta.getPrivateGroupId(), meta.getAutoDeleteTimer());
 	}
 
 	@Override
@@ -508,7 +509,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			SessionId sessionId = getSessionId(privateGroupId);
 			StoredSession ss = getSession(txn, contactGroupId, sessionId);
 			// Create or parse the session
-			Session session;
+			Session<?> session;
 			MessageId storageId;
 			if (ss == null) {
 				// If there's no session the contact must be a peer,
@@ -543,7 +544,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				StoredSession ss = getSession(txn, contactGroupId, sessionId);
 				if (ss == null) continue; // No session for this contact
 				// Handle the action
-				Session session = handleAction(txn, LocalAction.LEAVE,
+				Session<?> session = handleAction(txn, LocalAction.LEAVE,
 						contactGroupId, ss.bdfSession);
 				// Store the updated session
 				storeSession(txn, ss.storageId, session);
@@ -553,7 +554,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 		}
 	}
 
-	private Session handleAction(Transaction txn, LocalAction a,
+	private Session<?> handleAction(Transaction txn, LocalAction a,
 			GroupId contactGroupId, BdfDictionary bdfSession)
 			throws DbException, FormatException {
 		Role role = sessionParser.getRole(bdfSession);
@@ -613,7 +614,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				.getMessageMetadataAsDictionary(txn, contactGroupId, query);
 		Map<GroupId, Visibility> m = new HashMap<>();
 		for (BdfDictionary d : results.values()) {
-			Session s = sessionParser.parseSession(contactGroupId, d);
+			Session<?> s = sessionParser.parseSession(contactGroupId, d);
 			m.put(s.getPrivateGroupId(), s.getState().getVisibility());
 		}
 		return m;
@@ -644,7 +645,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			Map<GroupId, DeletableSession> sessions = new HashMap<>();
 			for (BdfDictionary d : metadata.values()) {
 				if (!sessionParser.isSession(d)) continue;
-				Session session;
+				Session<?> session;
 				try {
 					session = sessionParser.parseSession(g, d);
 				} catch (FormatException e) {
@@ -673,7 +674,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 							getSessionId(messageMetadata.getPrivateGroupId());
 					StoredSession ss = getSession(txn1, g, sessionId);
 					if (ss == null) throw new DbException();
-					Session session = sessionParser
+					Session<?> session = sessionParser
 							.parseSession(g, metadata.get(ss.storageId));
 					sessions.put(session.getPrivateGroupId(),
 							new DeletableSession(session.getState()));
