@@ -37,7 +37,6 @@ import javax.annotation.concurrent.Immutable;
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
-import static org.briarproject.briar.introduction.IntroductionConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
@@ -241,10 +240,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	boolean contactSupportsAutoDeletion(Transaction txn, GroupId contactGroupId)
 			throws DbException {
 		try {
-			BdfDictionary meta = clientHelper
-					.getGroupMetadataAsDictionary(txn, contactGroupId);
-			int contactId = meta.getLong(GROUP_KEY_CONTACT_ID).intValue();
-			ContactId c = new ContactId(contactId);
+			ContactId c = clientHelper.getContactId(txn, contactGroupId);
 			int minorVersion = clientVersioningManager
 					.getClientMinorVersion(txn, c, CLIENT_ID, MAJOR_VERSION);
 			// Auto-delete was added in client version 0.1

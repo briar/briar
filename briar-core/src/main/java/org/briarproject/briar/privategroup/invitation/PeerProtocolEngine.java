@@ -355,7 +355,8 @@ class PeerProtocolEngine extends AbstractProtocolEngine<PeerSession> {
 
 	private void relationshipRevealed(Transaction txn, PeerSession s,
 			boolean byContact) throws DbException, FormatException {
-		ContactId contactId = getContactId(txn, s.getContactGroupId());
+		ContactId contactId =
+				clientHelper.getContactId(txn, s.getContactGroupId());
 		Contact contact = db.getContact(txn, contactId);
 		privateGroupManager.relationshipRevealed(txn, s.getPrivateGroupId(),
 				contact.getAuthor().getId(), byContact);

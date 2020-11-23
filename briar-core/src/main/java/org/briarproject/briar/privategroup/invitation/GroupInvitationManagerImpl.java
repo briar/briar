@@ -53,7 +53,6 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.START;
-import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -123,13 +122,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
-		try {
-			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 		// If the contact belongs to any private groups, create a peer session
 		for (Group pg : db.getGroups(txn, PrivateGroupManager.CLIENT_ID,
 				PrivateGroupManager.MAJOR_VERSION)) {
@@ -189,7 +182,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 				results.values().iterator().next());
 	}
 
-	private Session<?> handleFirstMessage(Transaction txn, Message m, BdfList body,
+	private Session<?> handleFirstMessage(Transaction txn, Message m,
+			BdfList body,
 			MessageMetadata meta) throws DbException, FormatException {
 		GroupId privateGroupId = meta.getPrivateGroupId();
 		MessageType type = meta.getMessageType();
