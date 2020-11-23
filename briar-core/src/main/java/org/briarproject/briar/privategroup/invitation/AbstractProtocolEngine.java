@@ -142,7 +142,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			throws DbException {
 		Message m;
 		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
-			// TODO: Look up the current auto-delete timer
+			// TODO: Look up the current auto-delete timer if the message is
+			//   visible in the UI (accepting an invitation)
 			long timer = NO_AUTO_DELETE_TIMER;
 			m = messageEncoder.encodeJoinMessage(s.getContactGroupId(),
 					s.getPrivateGroupId(), getLocalTimestamp(s),
@@ -163,7 +164,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			throws DbException {
 		Message m;
 		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
-			// TODO: Look up the current auto-delete timer
+			// TODO: Look up the current auto-delete timer if the message is
+			//   visible in the UI (declining an invitation)
 			long timer = NO_AUTO_DELETE_TIMER;
 			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
 					s.getPrivateGroupId(), getLocalTimestamp(s),
