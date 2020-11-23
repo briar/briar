@@ -45,6 +45,7 @@ import javax.annotation.Nullable;
 
 import static java.util.Arrays.asList;
 import static junit.framework.TestCase.fail;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getContact;
@@ -230,7 +231,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}});
 	}
 
-	private void expectStoreSession(Session session, MessageId storageId)
+	private void expectStoreSession(Session<?> session, MessageId storageId)
 			throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(sessionEncoder).encodeSession(session);
@@ -320,7 +321,8 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			throws Exception {
 		expectParseMessageMetadata();
 		expectGetSession(noResults, sessionId, contactGroup.getId());
-		Session session = expectHandleFirstMessage(role, messageMetadata, type);
+		Session<?> session =
+				expectHandleFirstMessage(role, messageMetadata, type);
 		if (session != null) {
 			expectCreateStorageId();
 			expectStoreSession(session, storageMessage.getId());
@@ -347,13 +349,13 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			BdfDictionary bdfSession) throws Exception {
 		expectParseMessageMetadata();
 		expectGetSession(oneResult, sessionId, contactGroup.getId());
-		Session session = expectHandleMessage(role, messageMetadata, bdfSession,
-				type);
+		Session<?> session =
+				expectHandleMessage(role, messageMetadata, bdfSession, type);
 		expectStoreSession(session, storageMessage.getId());
 	}
 
 	@Nullable
-	private Session expectHandleFirstMessage(Role role,
+	private Session<?> expectHandleFirstMessage(Role role,
 			MessageMetadata messageMetadata, MessageType type)
 			throws Exception {
 		context.checking(new Expectations() {{
@@ -382,7 +384,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Nullable
-	private Session expectHandleMessage(Role role,
+	private Session<?> expectHandleMessage(Role role,
 			MessageMetadata messageMetadata, BdfDictionary state,
 			MessageType type) throws Exception {
 		context.checking(new Expectations() {{
@@ -420,8 +422,9 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		}
 	}
 
-	private <S extends Session> void expectIndividualMessage(MessageType type,
-			ProtocolEngine<S> engine, S session) throws Exception {
+	private <S extends Session<?>> void expectIndividualMessage(
+			MessageType type, ProtocolEngine<S> engine, S session)
+			throws Exception {
 		if (type == INVITE) {
 			InviteMessage msg = context.mock(InviteMessage.class);
 			context.checking(new Expectations() {{
@@ -657,14 +660,14 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		long time1 = 1L, time2 = 2L;
 		MessageMetadata messageMetadata1 =
 				new MessageMetadata(INVITE, privateGroup.getId(), time1, true,
-						true, true, false, true);
+						true, true, false, true, NO_AUTO_DELETE_TIMER);
 		MessageMetadata messageMetadata2 =
 				new MessageMetadata(JOIN, privateGroup.getId(), time2, true,
-						true, true, true, false);
+						true, true, true, false, NO_AUTO_DELETE_TIMER);
 		InviteMessage invite =
 				new InviteMessage(message.getId(), contactGroup.getId(),
 						privateGroup.getId(), time1, "name", author,
-						new byte[0], null, new byte[0]);
+						new byte[0], null, new byte[0], NO_AUTO_DELETE_TIMER);
 		PrivateGroup pg =
 				new PrivateGroup(privateGroup, invite.getGroupName(),
 						invite.getCreator(), invite.getSalt());
@@ -731,11 +734,11 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		InviteMessage inviteMessage1 =
 				new InviteMessage(message.getId(), contactGroup.getId(),
 						privateGroup.getId(), time1, groupName, author, salt,
-						null, getRandomBytes(5));
+						null, getRandomBytes(5), NO_AUTO_DELETE_TIMER);
 		InviteMessage inviteMessage2 =
 				new InviteMessage(message2.getId(), contactGroup.getId(),
 						privateGroup.getId(), time2, groupName, author, salt,
-						null, getRandomBytes(5));
+						null, getRandomBytes(5), NO_AUTO_DELETE_TIMER);
 		PrivateGroup pg = new PrivateGroup(privateGroup, groupName,
 				author, salt);
 
