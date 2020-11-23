@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class InviteMessage extends GroupInvitationMessage {
+class InviteMessage extends DeletableGroupInvitationMessage {
 
 	private final String groupName;
 	private final Author creator;
@@ -20,8 +20,8 @@ class InviteMessage extends GroupInvitationMessage {
 
 	InviteMessage(MessageId id, GroupId contactGroupId, GroupId privateGroupId,
 			long timestamp, String groupName, Author creator, byte[] salt,
-			@Nullable String text, byte[] signature) {
-		super(id, contactGroupId, privateGroupId, timestamp);
+			@Nullable String text, byte[] signature, long autoDeleteTimer) {
+		super(id, contactGroupId, privateGroupId, timestamp, autoDeleteTimer);
 		this.groupName = groupName;
 		this.creator = creator;
 		this.salt = salt;

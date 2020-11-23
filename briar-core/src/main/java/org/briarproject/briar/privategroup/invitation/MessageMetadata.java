@@ -11,12 +11,12 @@ class MessageMetadata {
 
 	private final MessageType type;
 	private final GroupId privateGroupId;
-	private final long timestamp;
+	private final long timestamp, autoDeleteTimer;
 	private final boolean local, read, visible, available, accepted;
 
 	MessageMetadata(MessageType type, GroupId privateGroupId,
 			long timestamp, boolean local, boolean read, boolean visible,
-			boolean available, boolean accepted) {
+			boolean available, boolean accepted, long autoDeleteTimer) {
 		this.privateGroupId = privateGroupId;
 		this.type = type;
 		this.timestamp = timestamp;
@@ -25,6 +25,7 @@ class MessageMetadata {
 		this.visible = visible;
 		this.available = available;
 		this.accepted = accepted;
+		this.autoDeleteTimer = autoDeleteTimer;
 	}
 
 	MessageType getMessageType() {
@@ -64,4 +65,7 @@ class MessageMetadata {
 		return accepted;
 	}
 
+	public long getAutoDeleteTimer() {
+		return autoDeleteTimer;
+	}
 }

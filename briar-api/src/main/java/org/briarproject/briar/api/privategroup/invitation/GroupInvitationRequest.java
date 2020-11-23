@@ -11,8 +11,6 @@ import org.briarproject.briar.api.sharing.InvitationRequest;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
-
 @Immutable
 @NotNullByDefault
 public class GroupInvitationRequest extends InvitationRequest<PrivateGroup> {
@@ -20,9 +18,10 @@ public class GroupInvitationRequest extends InvitationRequest<PrivateGroup> {
 	public GroupInvitationRequest(MessageId id, GroupId groupId, long time,
 			boolean local, boolean read, boolean sent, boolean seen,
 			SessionId sessionId, PrivateGroup shareable,
-			@Nullable String text, boolean available, boolean canBeOpened) {
+			@Nullable String text, boolean available, boolean canBeOpened,
+			long autoDeleteTimer) {
 		super(id, groupId, time, local, read, sent, seen, sessionId, shareable,
-				text, available, canBeOpened, NO_AUTO_DELETE_TIMER);
+				text, available, canBeOpened, autoDeleteTimer);
 	}
 
 	@Override

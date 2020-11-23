@@ -5,6 +5,7 @@ import org.briarproject.briar.api.client.ProtocolStateException;
 import org.jmock.Expectations;
 import org.junit.Test;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -77,7 +78,6 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			oneOf(messageTracker).trackOutgoingMessage(txn, message);
 		}});
 		expectSendInviteMessage(text);
-		expectGetLocalTimestamp(messageTimestamp);
 	}
 
 	@Test(expected = ProtocolStateException.class)
@@ -289,7 +289,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 		JoinMessage invalidJoinMessage =
 				new JoinMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp + 1, messageId);
+						inviteTimestamp + 1, messageId, NO_AUTO_DELETE_TIMER);
 
 		expectAbortWhenSubscribedToGroup();
 		CreatorSession newSession =
@@ -303,7 +303,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		JoinMessage properJoinMessage =
 				new JoinMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, inviteTimestamp + 1,
-						lastRemoteMessageId);
+						lastRemoteMessageId, NO_AUTO_DELETE_TIMER);
 
 		expectSendJoinMessage(properJoinMessage, false);
 		expectMarkMessageVisibleInUi(properJoinMessage.getId());
@@ -343,7 +343,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	public void testOnLeaveMessageFromStart() throws Exception {
 		LeaveMessage leaveMessage =
 				new LeaveMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp, lastLocalMessageId);
+						inviteTimestamp, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		CreatorSession session = getDefaultSession(START);
 
 		expectAbortWhenSubscribedToGroup();
@@ -377,7 +378,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 			throws Exception {
 		LeaveMessage invalidLeaveMessage =
 				new LeaveMessage(messageId, contactGroupId, privateGroupId,
-						inviteTimestamp + 1, lastLocalMessageId);
+						inviteTimestamp + 1, lastLocalMessageId,
+						NO_AUTO_DELETE_TIMER);
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectAbortWhenSubscribedToGroup();
@@ -392,7 +394,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		LeaveMessage properLeaveMessage =
 				new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
 						privateGroupId, inviteTimestamp + 1,
-						lastRemoteMessageId);
+						lastRemoteMessageId, NO_AUTO_DELETE_TIMER);
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectMarkMessageVisibleInUi(properLeaveMessage.getId());

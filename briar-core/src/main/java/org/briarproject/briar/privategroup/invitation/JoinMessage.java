@@ -9,14 +9,15 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class JoinMessage extends GroupInvitationMessage {
+class JoinMessage extends DeletableGroupInvitationMessage {
 
 	@Nullable
 	private final MessageId previousMessageId;
 
 	JoinMessage(MessageId id, GroupId contactGroupId, GroupId privateGroupId,
-			long timestamp, @Nullable MessageId previousMessageId) {
-		super(id, contactGroupId, privateGroupId, timestamp);
+			long timestamp, @Nullable MessageId previousMessageId,
+			long autoDeleteTimer) {
+		super(id, contactGroupId, privateGroupId, timestamp, autoDeleteTimer);
 		this.previousMessageId = previousMessageId;
 	}
 
