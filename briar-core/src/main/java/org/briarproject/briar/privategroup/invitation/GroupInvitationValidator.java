@@ -21,16 +21,13 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import java.security.GeneralSecurityException;
 import java.util.Collections;
 
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
-import static org.briarproject.bramble.util.ValidationUtils.checkRange;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
+import static org.briarproject.bramble.util.ValidationUtils.validateAutoDeleteTimer;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
@@ -91,7 +88,9 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		byte[] signature = body.getRaw(5);
 		checkLength(signature, 1, MAX_SIGNATURE_LENGTH);
 		long timer = NO_AUTO_DELETE_TIMER;
-		if (body.size() == 7) timer = validateTimer(body.getOptionalLong(6));
+		if (body.size() == 7) {
+			timer = validateAutoDeleteTimer(body.getOptionalLong(6));
+		}
 
 		// Validate the creator and create the private group
 		Author creator = clientHelper.parseAndValidateAuthor(creatorList);
@@ -128,7 +127,9 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		byte[] previousMessageId = body.getOptionalRaw(2);
 		checkLength(previousMessageId, UniqueId.LENGTH);
 		long timer = NO_AUTO_DELETE_TIMER;
-		if (body.size() == 4) timer = validateTimer(body.getOptionalLong(3));
+		if (body.size() == 4) {
+			timer = validateAutoDeleteTimer(body.getOptionalLong(3));
+		}
 
 		BdfDictionary meta = messageEncoder.encodeMetadata(JOIN,
 				new GroupId(privateGroupId), m.getTimestamp(), false, false,
@@ -154,7 +155,9 @@ class GroupInvitationValidator extends BdfMessageValidator {
 		byte[] previousMessageId = body.getOptionalRaw(2);
 		checkLength(previousMessageId, UniqueId.LENGTH);
 		long timer = NO_AUTO_DELETE_TIMER;
-		if (body.size() == 4) timer = validateTimer(body.getOptionalLong(3));
+		if (body.size() == 4) {
+			timer = validateAutoDeleteTimer(body.getOptionalLong(3));
+		}
 
 		BdfDictionary meta = messageEncoder.encodeMetadata(LEAVE,
 				new GroupId(privateGroupId), m.getTimestamp(), false, false,
@@ -177,11 +180,5 @@ class GroupInvitationValidator extends BdfMessageValidator {
 				new GroupId(privateGroupId), m.getTimestamp(), false, false,
 				false, false, false, NO_AUTO_DELETE_TIMER);
 		return new BdfMessageContext(meta);
-	}
-
-	private long validateTimer(@Nullable Long timer) throws FormatException {
-		if (timer == null) return NO_AUTO_DELETE_TIMER;
-		checkRange(timer, MIN_AUTO_DELETE_TIMER_MS, MAX_AUTO_DELETE_TIMER_MS);
-		return timer;
 	}
 }

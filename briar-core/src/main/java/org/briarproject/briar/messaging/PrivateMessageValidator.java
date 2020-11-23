@@ -24,13 +24,12 @@ import java.io.InputStream;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
-import static org.briarproject.bramble.util.ValidationUtils.checkRange;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
+import static org.briarproject.bramble.util.ValidationUtils.validateAutoDeleteTimer;
 import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
@@ -137,11 +136,9 @@ class PrivateMessageValidator implements MessageValidator {
 			String contentType = header.getString(1);
 			checkLength(contentType, 1, MAX_CONTENT_TYPE_BYTES);
 		}
-		Long timer = null;
+		long timer = NO_AUTO_DELETE_TIMER;
 		if (body.size() == 4) {
-			timer = body.getOptionalLong(3);
-			checkRange(timer, MIN_AUTO_DELETE_TIMER_MS,
-					MAX_AUTO_DELETE_TIMER_MS);
+			timer = validateAutoDeleteTimer(body.getOptionalLong(3));
 		}
 		// Return the metadata
 		BdfDictionary meta = new BdfDictionary();
@@ -151,7 +148,9 @@ class PrivateMessageValidator implements MessageValidator {
 		meta.put(MSG_KEY_MSG_TYPE, PRIVATE_MESSAGE);
 		meta.put(MSG_KEY_HAS_TEXT, text != null);
 		meta.put(MSG_KEY_ATTACHMENT_HEADERS, headers);
-		if (timer != null) meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
+		if (timer != NO_AUTO_DELETE_TIMER) {
+			meta.put(MSG_KEY_AUTO_DELETE_TIMER, timer);
+		}
 		return new BdfMessageContext(meta);
 	}
 
