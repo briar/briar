@@ -180,6 +180,7 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_CONTENT_TYPE, contentType)
 		);
 
+		expectGetOurGroup(txn);
 		context.checking(new Expectations() {{
 			oneOf(metadataParser).parse(meta);
 			will(returnValue(d));
@@ -211,6 +212,7 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_CONTENT_TYPE, contentType)
 		);
 
+		expectGetOurGroup(txn);
 		context.checking(new Expectations() {{
 			oneOf(metadataParser).parse(meta);
 			will(returnValue(d));
@@ -241,6 +243,7 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 				new BdfEntry(MSG_KEY_CONTENT_TYPE, contentType)
 		);
 
+		expectGetOurGroup(txn);
 		context.checking(new Expectations() {{
 			oneOf(metadataParser).parse(meta);
 			will(returnValue(d));
@@ -254,6 +257,14 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 
 		// no event to broadcast
 		assertEquals(0, txn.getActions().size());
+	}
+
+	@Test(expected = InvalidMessageException.class)
+	public void testIncomingMessageInOwnGroup()
+			throws DbException, InvalidMessageException, FormatException {
+		Transaction txn = new Transaction(null, false);
+		expectGetOurGroup(txn);
+		avatarManager.incomingMessage(txn, ourMsg, meta);
 	}
 
 	@Test

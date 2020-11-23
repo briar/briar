@@ -135,6 +135,11 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 	@Override
 	public boolean incomingMessage(Transaction txn, Message m, Metadata meta)
 			throws DbException, InvalidMessageException {
+		Group ourGroup = getOurGroup(txn);
+		if (m.getGroupId().equals(ourGroup.getId())) {
+			throw new InvalidMessageException(
+					"Received incoming message in my avatar group");
+		}
 		try {
 			// Find the latest update, if any
 			BdfDictionary d = metadataParser.parse(meta);
