@@ -23,14 +23,14 @@ import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 
 import java.util.Map;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
-import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -39,7 +39,7 @@ import static org.briarproject.briar.privategroup.invitation.MessageType.LEAVE;
 
 @Immutable
 @NotNullByDefault
-abstract class AbstractProtocolEngine<S extends Session>
+abstract class AbstractProtocolEngine<S extends Session<?>>
 		implements ProtocolEngine<S> {
 
 	protected final DatabaseComponent db;
@@ -90,6 +90,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		return group.getClientId().equals(PrivateGroupManager.CLIENT_ID);
 	}
 
+	@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 	boolean isValidDependency(S session, @Nullable MessageId dependency) {
 		MessageId expected = session.getLastRemoteMessageId();
 		if (dependency == null) return expected == null;
@@ -101,44 +102,81 @@ abstract class AbstractProtocolEngine<S extends Session>
 		// Apply min of preferred visibility and client's visibility
 		ContactId contactId = getContactId(txn, session.getContactGroupId());
 		Visibility client = clientVersioningManager.getClientVisibility(txn,
-				contactId, CLIENT_ID, MAJOR_VERSION);
+				contactId, PrivateGroupManager.CLIENT_ID,
+				PrivateGroupManager.MAJOR_VERSION);
 		Visibility min = Visibility.min(preferred, client);
 		db.setGroupVisibility(txn, contactId, session.getPrivateGroupId(), min);
 	}
 
-	Message sendInviteMessage(Transaction txn, S session,
+	Message sendInviteMessage(Transaction txn, S s,
 			@Nullable String text, long timestamp, byte[] signature)
 			throws DbException {
-		Group g = db.getGroup(txn, session.getPrivateGroupId());
+		Group g = db.getGroup(txn, s.getPrivateGroupId());
 		PrivateGroup privateGroup;
 		try {
 			privateGroup = privateGroupFactory.parsePrivateGroup(g);
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group descriptor
 		}
-		Message m = messageEncoder.encodeInviteMessage(
-				session.getContactGroupId(), privateGroup.getId(),
-				timestamp, privateGroup.getName(), privateGroup.getCreator(),
-				privateGroup.getSalt(), text, signature);
-		sendMessage(txn, m, INVITE, privateGroup.getId(), true);
+		Message m;
+		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
+			// TODO: Look up the current auto-delete timer
+			long timer = NO_AUTO_DELETE_TIMER;
+			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
+					privateGroup.getId(), timestamp, privateGroup.getName(),
+					privateGroup.getCreator(), privateGroup.getSalt(), text,
+					signature, timer);
+			sendMessage(txn, m, INVITE, privateGroup.getId(), true, timer);
+		} else {
+			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
+					privateGroup.getId(), timestamp, privateGroup.getName(),
+					privateGroup.getCreator(), privateGroup.getSalt(), text,
+					signature);
+			sendMessage(txn, m, INVITE, privateGroup.getId(), true,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
-	Message sendJoinMessage(Transaction txn, S session, boolean visibleInUi)
+	Message sendJoinMessage(Transaction txn, S s, boolean visibleInUi)
 			throws DbException {
-		Message m = messageEncoder.encodeJoinMessage(
-				session.getContactGroupId(), session.getPrivateGroupId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, JOIN, session.getPrivateGroupId(), visibleInUi);
+		Message m;
+		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
+			// TODO: Look up the current auto-delete timer
+			long timer = NO_AUTO_DELETE_TIMER;
+			m = messageEncoder.encodeJoinMessage(s.getContactGroupId(),
+					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId(), timer);
+			sendMessage(txn, m, JOIN, s.getPrivateGroupId(), visibleInUi,
+					timer);
+		} else {
+			m = messageEncoder.encodeJoinMessage(s.getContactGroupId(),
+					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId());
+			sendMessage(txn, m, JOIN, s.getPrivateGroupId(), visibleInUi,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
-	Message sendLeaveMessage(Transaction txn, S session, boolean visibleInUi)
+	Message sendLeaveMessage(Transaction txn, S s, boolean visibleInUi)
 			throws DbException {
-		Message m = messageEncoder.encodeLeaveMessage(
-				session.getContactGroupId(), session.getPrivateGroupId(),
-				getLocalTimestamp(session), session.getLastLocalMessageId());
-		sendMessage(txn, m, LEAVE, session.getPrivateGroupId(), visibleInUi);
+		Message m;
+		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
+			// TODO: Look up the current auto-delete timer
+			long timer = NO_AUTO_DELETE_TIMER;
+			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
+					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId(), timer);
+			sendMessage(txn, m, LEAVE, s.getPrivateGroupId(), visibleInUi,
+					timer);
+		} else {
+			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
+					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getLastLocalMessageId());
+			sendMessage(txn, m, LEAVE, s.getPrivateGroupId(), visibleInUi,
+					NO_AUTO_DELETE_TIMER);
+		}
 		return m;
 	}
 
@@ -146,7 +184,8 @@ abstract class AbstractProtocolEngine<S extends Session>
 		Message m = messageEncoder.encodeAbortMessage(
 				session.getContactGroupId(), session.getPrivateGroupId(),
 				getLocalTimestamp(session));
-		sendMessage(txn, m, ABORT, session.getPrivateGroupId(), false);
+		sendMessage(txn, m, ABORT, session.getPrivateGroupId(), false,
+				NO_AUTO_DELETE_TIMER);
 		return m;
 	}
 
@@ -217,11 +256,11 @@ abstract class AbstractProtocolEngine<S extends Session>
 	}
 
 	private void sendMessage(Transaction txn, Message m, MessageType type,
-			GroupId privateGroupId, boolean visibleInConversation)
-			throws DbException {
-		BdfDictionary meta = messageEncoder
-				.encodeMetadata(type, privateGroupId, m.getTimestamp(), true,
-						true, visibleInConversation, false, false);
+			GroupId privateGroupId, boolean visibleInConversation,
+			long autoDeleteTimer) throws DbException {
+		BdfDictionary meta = messageEncoder.encodeMetadata(type,
+				privateGroupId, m.getTimestamp(), true, true,
+				visibleInConversation, false, false, autoDeleteTimer);
 		try {
 			clientHelper.addLocalMessage(txn, m, meta, true, false);
 		} catch (FormatException e) {
@@ -229,4 +268,21 @@ abstract class AbstractProtocolEngine<S extends Session>
 		}
 	}
 
+	boolean contactSupportsAutoDeletion(Transaction txn, GroupId contactGroupId)
+			throws DbException {
+		try {
+			BdfDictionary meta = clientHelper
+					.getGroupMetadataAsDictionary(txn, contactGroupId);
+			int contactId = meta.getLong(GROUP_KEY_CONTACT_ID).intValue();
+			ContactId c = new ContactId(contactId);
+			int minorVersion = clientVersioningManager
+					.getClientMinorVersion(txn, c,
+							GroupInvitationManager.CLIENT_ID,
+							GroupInvitationManager.MAJOR_VERSION);
+			// Auto-delete was added in client version 0.1
+			return minorVersion >= 1;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
 }

@@ -22,8 +22,10 @@ import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.jmock.Expectations;
 
+import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.test.TestUtils.getContact;
@@ -35,8 +37,6 @@ import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
-import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT_ID;
-import static org.briarproject.briar.api.privategroup.PrivateGroupManager.MAJOR_VERSION;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -67,7 +67,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	final ContactId contactId = contact.getId();
 	final Author author = contact.getAuthor();
 	final GroupId contactGroupId = new GroupId(getRandomId());
-	final Group privateGroupGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
+	final Group privateGroupGroup = getGroup(PrivateGroupManager.CLIENT_ID,
+			PrivateGroupManager.MAJOR_VERSION);
 	final GroupId privateGroupId = privateGroupGroup.getId();
 	final PrivateGroup privateGroup = new PrivateGroup(privateGroupGroup,
 			getRandomString(MAX_GROUP_NAME_LENGTH), author,
@@ -80,30 +81,34 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	final long messageTimestamp = message.getTimestamp();
 	final long inviteTimestamp = messageTimestamp - 1;
 	final long localTimestamp = inviteTimestamp - 1;
+	final BdfDictionary groupMeta = BdfDictionary.of(
+			new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
 
 	final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
 					privateGroupId, 0L, privateGroup.getName(),
 					privateGroup.getCreator(), privateGroup.getSalt(),
 					getRandomString(MAX_GROUP_INVITATION_TEXT_LENGTH),
-					signature);
+					signature, NO_AUTO_DELETE_TIMER);
 	final JoinMessage joinMessage =
 			new JoinMessage(new MessageId(getRandomId()), contactGroupId,
-					privateGroupId, 0L, lastRemoteMessageId);
+					privateGroupId, 0L, lastRemoteMessageId,
+					NO_AUTO_DELETE_TIMER);
 	final LeaveMessage leaveMessage =
 			new LeaveMessage(new MessageId(getRandomId()), contactGroupId,
-					privateGroupId, 0L, lastRemoteMessageId);
+					privateGroupId, 0L, lastRemoteMessageId,
+					NO_AUTO_DELETE_TIMER);
 	final AbortMessage abortMessage =
 			new AbortMessage(messageId, contactGroupId, privateGroupId,
 					inviteTimestamp + 1);
 
-	void assertSessionConstantsUnchanged(Session s1, Session s2) {
+	void assertSessionConstantsUnchanged(Session<?> s1, Session<?> s2) {
 		assertEquals(s1.getRole(), s2.getRole());
 		assertEquals(s1.getContactGroupId(), s2.getContactGroupId());
 		assertEquals(s1.getPrivateGroupId(), s2.getPrivateGroupId());
 	}
 
-	void assertSessionRecordedSentMessage(Session s) {
+	void assertSessionRecordedSentMessage(Session<?> s) {
 		assertEquals(messageId, s.getLastLocalMessageId());
 		assertEquals(lastRemoteMessageId, s.getLastRemoteMessageId());
 		assertEquals(messageTimestamp, s.getLocalTimestamp());
@@ -118,11 +123,13 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	void expectSendInviteMessage(String text) throws Exception {
+		expectCheckWhetherContactSupportsAutoDeletion();
+		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
-			oneOf(messageEncoder)
-					.encodeInviteMessage(contactGroupId, privateGroupId,
-							inviteTimestamp, privateGroup.getName(), author,
-							privateGroup.getSalt(), text, signature);
+			oneOf(messageEncoder).encodeInviteMessage(contactGroupId,
+					privateGroupId, inviteTimestamp, privateGroup.getName(),
+					author, privateGroup.getSalt(), text, signature,
+					NO_AUTO_DELETE_TIMER);
 			will(returnValue(message));
 		}});
 		expectSendMessage(INVITE, true);
@@ -130,22 +137,24 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	void expectSendJoinMessage(JoinMessage m, boolean visible)
 			throws Exception {
+		expectCheckWhetherContactSupportsAutoDeletion();
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeJoinMessage(m.getContactGroupId(),
 					m.getPrivateGroupId(), m.getTimestamp(),
-					lastLocalMessageId);
+					lastLocalMessageId, NO_AUTO_DELETE_TIMER);
 			will(returnValue(message));
 		}});
 		expectSendMessage(JOIN, visible);
 	}
 
 	void expectSendLeaveMessage(boolean visible) throws Exception {
+		expectCheckWhetherContactSupportsAutoDeletion();
 		expectGetLocalTimestamp(messageTimestamp);
 		context.checking(new Expectations() {{
-			oneOf(messageEncoder)
-					.encodeLeaveMessage(contactGroupId, privateGroupId,
-							messageTimestamp, lastLocalMessageId);
+			oneOf(messageEncoder).encodeLeaveMessage(contactGroupId,
+					privateGroupId, messageTimestamp, lastLocalMessageId,
+					NO_AUTO_DELETE_TIMER);
 			will(returnValue(message));
 		}});
 		expectSendMessage(LEAVE, visible);
@@ -167,7 +176,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		BdfDictionary meta = BdfDictionary.of(new BdfEntry("me", "ta"));
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeMetadata(type, privateGroupId,
-					message.getTimestamp(), true, true, visible, false, false);
+					message.getTimestamp(), true, true, visible, false, false,
+					NO_AUTO_DELETE_TIMER);
 			will(returnValue(meta));
 			oneOf(clientHelper).addLocalMessage(txn, message, meta, true,
 					false);
@@ -178,7 +188,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		expectGetContactId();
 		context.checking(new Expectations() {{
 			oneOf(clientVersioningManager).getClientVisibility(txn, contactId,
-					CLIENT_ID, MAJOR_VERSION);
+					PrivateGroupManager.CLIENT_ID,
+					PrivateGroupManager.MAJOR_VERSION);
 			will(returnValue(SHARED));
 			oneOf(db).setGroupVisibility(txn, contactId, privateGroupId, v);
 		}});
@@ -218,4 +229,15 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
+	void expectCheckWhetherContactSupportsAutoDeletion() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroupId);
+			will(returnValue(groupMeta));
+			oneOf(clientVersioningManager).getClientMinorVersion(txn, contactId,
+					GroupInvitationManager.CLIENT_ID,
+					GroupInvitationManager.MAJOR_VERSION);
+			will(returnValue(GroupInvitationManager.MINOR_VERSION));
+		}});
+	}
 }

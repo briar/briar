@@ -9,17 +9,16 @@ import org.briarproject.briar.api.sharing.InvitationResponse;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
-
 @Immutable
 @NotNullByDefault
 public class GroupInvitationResponse extends InvitationResponse {
 
 	public GroupInvitationResponse(MessageId id, GroupId groupId, long time,
 			boolean local, boolean read, boolean sent, boolean seen,
-			SessionId sessionId, boolean accept, GroupId shareableId) {
+			SessionId sessionId, boolean accept, GroupId shareableId,
+			long autoDeleteTimer) {
 		super(id, groupId, time, local, read, sent, seen, sessionId,
-				accept, shareableId, NO_AUTO_DELETE_TIMER);
+				accept, shareableId, autoDeleteTimer);
 	}
 
 	@Override
