@@ -10,7 +10,7 @@ import javax.annotation.concurrent.Immutable;
 
 @Immutable
 @NotNullByDefault
-class InviteMessage<S extends Shareable> extends SharingMessage {
+class InviteMessage<S extends Shareable> extends DeletableSharingMessage {
 
 	private final S shareable;
 	@Nullable
@@ -18,9 +18,9 @@ class InviteMessage<S extends Shareable> extends SharingMessage {
 
 	InviteMessage(MessageId id, @Nullable MessageId previousMessageId,
 			GroupId contactGroupId, S shareable, @Nullable String text,
-			long timestamp) {
+			long timestamp, long autoDeleteTimer) {
 		super(id, contactGroupId, shareable.getId(), timestamp,
-				previousMessageId);
+				previousMessageId, autoDeleteTimer);
 		if (text != null && text.isEmpty())
 			throw new IllegalArgumentException();
 		this.shareable = shareable;

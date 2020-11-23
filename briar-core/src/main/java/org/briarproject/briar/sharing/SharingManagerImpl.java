@@ -368,7 +368,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 		return invitationFactory
 				.createInvitationRequest(meta.isLocal(), status.isSent(),
 						status.isSeen(), meta.isRead(), invite, c,
-						meta.isAvailableToAnswer(), canBeOpened);
+						meta.isAvailableToAnswer(), canBeOpened,
+						meta.getAutoDeleteTimer());
 	}
 
 	private InvitationResponse parseInvitationResponse(GroupId contactGroupId,
@@ -376,7 +377,8 @@ abstract class SharingManagerImpl<S extends Shareable>
 			boolean accept) {
 		return invitationFactory.createInvitationResponse(m, contactGroupId,
 				meta.getTimestamp(), meta.isLocal(), status.isSent(),
-				status.isSeen(), meta.isRead(), accept, meta.getShareableId());
+				status.isSeen(), meta.isRead(), accept, meta.getShareableId(),
+				meta.getAutoDeleteTimer());
 	}
 
 	@Override
