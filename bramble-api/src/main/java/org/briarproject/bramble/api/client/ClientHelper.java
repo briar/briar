@@ -1,6 +1,7 @@
 package org.briarproject.bramble.api.client;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.PrivateKey;
 import org.briarproject.bramble.api.crypto.PublicKey;
 import org.briarproject.bramble.api.data.BdfDictionary;
@@ -119,4 +120,17 @@ public interface ClientHelper {
 	Map<TransportId, TransportProperties> parseAndValidateTransportPropertiesMap(
 			BdfDictionary properties) throws FormatException;
 
+	/**
+	 * Retrieves the contact ID from the group metadata of the given contact
+	 * group.
+	 */
+	ContactId getContactId(Transaction txn, GroupId contactGroupId)
+		throws DbException, FormatException;
+
+	/**
+	 * Stores the given contact ID in the group metadata of the given contact
+	 * group.
+	 */
+	void setContactId(Transaction txn, GroupId contactGroupId, ContactId c)
+		throws DbException;
 }

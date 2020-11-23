@@ -60,7 +60,6 @@ import static org.briarproject.briar.introduction.IntroduceeState.REMOTE_DECLINE
 import static org.briarproject.briar.introduction.IntroducerState.A_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.B_DECLINED;
 import static org.briarproject.briar.introduction.IntroducerState.START;
-import static org.briarproject.briar.introduction.IntroductionConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.introduction.MessageType.ABORT;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
@@ -140,13 +139,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				c.getId(), CLIENT_ID, MAJOR_VERSION);
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
-		try {
-			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 	}
 
 	@Override
@@ -187,7 +180,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		}
 		StoredSession ss = getSession(txn, sessionId);
 		// Handle the message
-		Session session;
+		Session<?> session;
 		MessageId storageId;
 		if (ss == null) {
 			if (meta.getMessageType() != REQUEST) throw new FormatException();
@@ -215,7 +208,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	private IntroduceeSession createNewIntroduceeSession(Transaction txn,
 			Message m, BdfList body) throws DbException, FormatException {
-		ContactId introducerId = getContactId(txn, m.getGroupId());
+		ContactId introducerId = clientHelper.getContactId(txn, m.getGroupId());
 		Author introducer = db.getContact(txn, introducerId).getAuthor();
 		Author local = identityManager.getLocalAuthor(txn);
 		Author remote = messageParser.parseRequestMessage(m, body).getAuthor();
@@ -227,7 +220,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 						remote);
 	}
 
-	private <S extends Session> S handleMessage(Transaction txn, Message m,
+	private <S extends Session<?>> S handleMessage(Transaction txn, Message m,
 			BdfList body, MessageType type, S session, ProtocolEngine<S> engine)
 			throws DbException, FormatException {
 		if (type == REQUEST) {
@@ -267,13 +260,6 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				results.values().iterator().next());
 	}
 
-	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
-			throws DbException, FormatException {
-		BdfDictionary meta =
-				clientHelper.getGroupMetadataAsDictionary(txn, contactGroupId);
-		return new ContactId(meta.getLong(GROUP_KEY_CONTACT_ID).intValue());
-	}
-
 	private MessageId createStorageId(Transaction txn) throws DbException {
 		Message m = clientHelper
 				.createMessageForStoringMetadata(localGroup.getId());
@@ -282,7 +268,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	private void storeSession(Transaction txn, MessageId storageId,
-			Session session) throws DbException {
+			Session<?> session) throws DbException {
 		BdfDictionary d;
 		if (session.getRole() == INTRODUCER) {
 			d = sessionEncoder
@@ -670,7 +656,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		try {
 			StoredSession ss = getSession(txn, sessionId);
 			if (ss == null) throw new AssertionError();
-			Session s;
+			Session<?> s;
 			Role role = sessionParser.getRole(ss.bdfSession);
 			if (role == INTRODUCER) {
 				s = sessionParser.parseIntroducerSession(ss.bdfSession);
