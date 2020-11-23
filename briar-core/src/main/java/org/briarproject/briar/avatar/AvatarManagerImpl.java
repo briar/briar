@@ -175,8 +175,6 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 		Transaction txn = db.startTransaction(true);
 		try {
 			groupId = getOurGroup(txn).getId();
-			// TODO this might not be the latest anymore at the end of this method
-			//  Can we run everything in one transaction? Probably not.
 			latest = findLatest(txn, groupId);
 			db.commitTransaction(txn);
 		} finally {
@@ -184,7 +182,6 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 		}
 		long version = latest == null ? 0 : latest.version + 1;
 		// 0.0: Message Type, Version, Content-Type
-		// TODO do we need to add the message type explicitly?
 		BdfList list = BdfList.of(MSG_TYPE_UPDATE, version, contentType);
 		byte[] descriptor = clientHelper.toByteArray(list);
 		// add BdfList and stream content to body
@@ -202,16 +199,23 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 		meta.put(MSG_KEY_VERSION, version);
 		meta.put(MSG_KEY_CONTENT_TYPE, contentType);
 		meta.put(MSG_KEY_DESCRIPTOR_LENGTH, descriptor.length);
-		// send message
-		db.transaction(false, txn2 -> {
-			if (latest != null) {
-				// delete previous update
-				db.deleteMessage(txn2, latest.messageId);
-				db.deleteMessageMetadata(txn2, latest.messageId);
+		// save/send avatar and delete old one
+		return db.transactionWithResult(false, txn2 -> {
+			// re-query latest update as it might have changed since last query
+			LatestUpdate newLatest = findLatest(txn2, groupId);
+			if (newLatest != null && newLatest.version > version) {
+				// latest update is newer than our own
+				// no need to store or delete anything, just return latest
+				return new AttachmentHeader(newLatest.messageId,
+						newLatest.contentType);
+			} else if (newLatest != null) {
+				// delete latest update if it has the same or lower version
+				db.deleteMessage(txn2, newLatest.messageId);
+				db.deleteMessageMetadata(txn2, newLatest.messageId);
 			}
 			clientHelper.addLocalMessage(txn2, m, meta, true, false);
+			return new AttachmentHeader(m.getId(), contentType);
 		});
-		return new AttachmentHeader(m.getId(), contentType);
 	}
 
 	@Nullable

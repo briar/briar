@@ -294,7 +294,7 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).createMessage(with(equal(localGroupId)),
 					with(equal(now)), with(any(byte[].class)));
 			will(returnValue(newMsg));
-			oneOf(db).transaction(with(false), withDbRunnable(txn2));
+			oneOf(db).transactionWithResult(with(false), withDbCallable(txn2));
 			oneOf(db).deleteMessage(txn2, ourMsg.getId());
 			oneOf(db).deleteMessageMetadata(txn2, ourMsg.getId());
 			oneOf(clientHelper)
@@ -302,10 +302,48 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 		}});
 		expectGetOurGroup(txn);
 		expectFindLatest(txn, localGroupId, ourMsg.getId(), metaDict);
+		expectFindLatest(txn2, localGroupId, ourMsg.getId(), metaDict);
 
 		AttachmentHeader header =
 				avatarManager.addAvatar(contentType, inputStream);
 		assertEquals(newMsg.getId(), header.getMessageId());
+		assertEquals(contentType, header.getContentType());
+	}
+
+	@Test
+	public void testAddAvatarConcurrently() throws Exception {
+		byte[] avatarBytes = getRandomBytes(42);
+		InputStream inputStream = new ByteArrayInputStream(avatarBytes);
+		Transaction txn = new Transaction(null, true);
+		Transaction txn2 = new Transaction(null, false);
+		long latestVersion = metaDict.getLong(MSG_KEY_VERSION);
+		Message newMsg = getMessage(localGroupId);
+		BdfDictionary newMeta = BdfDictionary.of(
+				new BdfEntry(MSG_KEY_VERSION, latestVersion + 2),
+				new BdfEntry(MSG_KEY_CONTENT_TYPE, contentType),
+				new BdfEntry(MSG_KEY_DESCRIPTOR_LENGTH, 0)
+		);
+		context.checking(new DbExpectations() {{
+			oneOf(db).startTransaction(true);
+			will(returnValue(txn));
+			oneOf(db).commitTransaction(txn);
+			oneOf(db).endTransaction(txn);
+			oneOf(clientHelper).toByteArray(with(any(BdfList.class)));
+			oneOf(clock).currentTimeMillis();
+			oneOf(clientHelper).createMessage(with(equal(localGroupId)),
+					with(any(long.class)), with(any(byte[].class)));
+			will(returnValue(newMsg));
+			oneOf(db).transactionWithResult(with(false), withDbCallable(txn2));
+			// no deletion or storing happening
+		}});
+		expectGetOurGroup(txn);
+		expectFindLatest(txn, localGroupId, ourMsg.getId(), metaDict);
+		// second query for latest update returns higher version
+		expectFindLatest(txn2, localGroupId, ourMsg.getId(), newMeta);
+
+		AttachmentHeader header =
+				avatarManager.addAvatar(contentType, inputStream);
+		assertEquals(ourMsg.getId(), header.getMessageId());
 		assertEquals(contentType, header.getContentType());
 	}
 
