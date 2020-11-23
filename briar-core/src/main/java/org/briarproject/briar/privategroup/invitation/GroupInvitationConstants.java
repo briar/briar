@@ -2,9 +2,6 @@ package org.briarproject.briar.privategroup.invitation;
 
 interface GroupInvitationConstants {
 
-	// Group metadata keys
-	String GROUP_KEY_CONTACT_ID = "contactId";
-
 	// Message metadata keys
 	String MSG_KEY_MESSAGE_TYPE = "messageType";
 	String MSG_KEY_PRIVATE_GROUP_ID = "privateGroupId";

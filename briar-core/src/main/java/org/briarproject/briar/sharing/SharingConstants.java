@@ -4,9 +4,6 @@ import org.briarproject.briar.client.MessageTrackerConstants;
 
 interface SharingConstants {
 
-	// Group metadata keys
-	String GROUP_KEY_CONTACT_ID = "contactId";
-
 	// Message metadata keys
 	String MSG_KEY_MESSAGE_TYPE = "messageType";
 	String MSG_KEY_SHAREABLE_ID = "shareableId";

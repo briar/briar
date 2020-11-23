@@ -37,7 +37,6 @@ import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
-import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
@@ -81,8 +80,6 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	final long messageTimestamp = message.getTimestamp();
 	final long inviteTimestamp = messageTimestamp - 1;
 	final long localTimestamp = inviteTimestamp - 1;
-	final BdfDictionary groupMeta = BdfDictionary.of(
-			new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
 
 	final InviteMessage inviteMessage =
 			new InviteMessage(new MessageId(getRandomId()), contactGroupId,
@@ -196,12 +193,9 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	void expectGetContactId() throws Exception {
-		BdfDictionary groupMeta = BdfDictionary
-				.of(new BdfEntry(GROUP_KEY_CONTACT_ID, contactId.getInt()));
 		context.checking(new Expectations() {{
-			oneOf(clientHelper)
-					.getGroupMetadataAsDictionary(txn, contactGroupId);
-			will(returnValue(groupMeta));
+			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			will(returnValue(contactId));
 		}});
 	}
 
@@ -231,9 +225,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	void expectCheckWhetherContactSupportsAutoDeletion() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
-					contactGroupId);
-			will(returnValue(groupMeta));
+			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			will(returnValue(contactId));
 			oneOf(clientVersioningManager).getClientMinorVersion(txn, contactId,
 					GroupInvitationManager.CLIENT_ID,
 					GroupInvitationManager.MAJOR_VERSION);
