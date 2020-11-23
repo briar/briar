@@ -34,11 +34,11 @@ public class AvatarModule {
 	AvatarValidator provideAvatarValidator(ValidationManager validationManager,
 			BdfReaderFactory bdfReaderFactory, MetadataEncoder metadataEncoder,
 			Clock clock) {
-		AvatarValidator introductionValidator =
+		AvatarValidator avatarValidator =
 				new AvatarValidator(bdfReaderFactory, metadataEncoder, clock);
 		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
-				introductionValidator);
-		return introductionValidator;
+				avatarValidator);
+		return avatarValidator;
 	}
 
 	@Provides

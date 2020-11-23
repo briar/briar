@@ -96,7 +96,8 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 					clock);
 
 	@Test
-	public void testOpenDatabaseHook() throws DbException, FormatException {
+	public void testOpenDatabaseHookWhenGroupExists()
+			throws DbException, FormatException {
 		Transaction txn = new Transaction(null, false);
 
 		// local group already exists, so nothing more to do
@@ -108,6 +109,11 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(true));
 		}});
 		avatarManager.onDatabaseOpened(txn);
+	}
+
+	@Test
+	public void testOpenDatabaseHook() throws DbException, FormatException {
+		Transaction txn = new Transaction(null, false);
 
 		// local group does not exist, so we need to set things up for contacts
 		expectCreateGroup(localAuthor.getId(), localGroup);
@@ -149,27 +155,29 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 	}
 
 	@Test
-	public void testOnClientVisibilityChanging() throws DbException {
+	public void testOnClientVisibilityChangingVisible() throws DbException {
+		testOnClientVisibilityChanging(VISIBLE);
+	}
+
+	@Test
+	public void testOnClientVisibilityChangingShared() throws DbException {
+		testOnClientVisibilityChanging(SHARED);
+	}
+
+	@Test
+	public void testOnClientVisibilityChangingInvisible() throws DbException {
+		testOnClientVisibilityChanging(INVISIBLE);
+	}
+
+	private void testOnClientVisibilityChanging(Visibility v)
+			throws DbException {
 		Transaction txn = new Transaction(null, false);
 
 		expectGetOurGroup(txn);
 		expectCreateGroup(contact.getAuthor().getId(), contactGroup);
-		expectSetGroupVisibility(txn, contact.getId(), localGroupId, VISIBLE);
-		expectSetGroupVisibility(txn, contact.getId(), contactGroupId, VISIBLE);
-		avatarManager.onClientVisibilityChanging(txn, contact, VISIBLE);
-
-		expectGetOurGroup(txn);
-		expectCreateGroup(contact.getAuthor().getId(), contactGroup);
-		expectSetGroupVisibility(txn, contact.getId(), localGroupId, SHARED);
-		expectSetGroupVisibility(txn, contact.getId(), contactGroupId, SHARED);
-		avatarManager.onClientVisibilityChanging(txn, contact, SHARED);
-
-		expectGetOurGroup(txn);
-		expectCreateGroup(contact.getAuthor().getId(), contactGroup);
-		expectSetGroupVisibility(txn, contact.getId(), localGroupId, INVISIBLE);
-		expectSetGroupVisibility(txn, contact.getId(), contactGroupId,
-				INVISIBLE);
-		avatarManager.onClientVisibilityChanging(txn, contact, INVISIBLE);
+		expectSetGroupVisibility(txn, contact.getId(), localGroupId, v);
+		expectSetGroupVisibility(txn, contact.getId(), contactGroupId, v);
+		avatarManager.onClientVisibilityChanging(txn, contact, v);
 	}
 
 	@Test
