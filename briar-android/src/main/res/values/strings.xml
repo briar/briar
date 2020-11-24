@@ -453,6 +453,13 @@
 	<string name="blogs_rss_feeds_manage_empty_state">No RSS feeds to show\n\nTap the + icon to import a feed</string>
 	<string name="blogs_rss_feeds_manage_error">There was a problem loading your feeds. Please try again later.</string>
 
+	<!-- Settings Profile Picture -->
+	<string name="change_profile_picture">Tap to change your profile picture</string>
+	<string name="dialog_confirm_profile_picture_title">Please confirm</string>
+	<string name="dialog_confirm_profile_picture_question">Do you want to use this image as your profile picture?</string>
+	<string name="dialog_confirm_profile_picture_remark">Only your contacts can see your profile image</string>
+	<string name="dialog_confirm_profile_picture_set">Set picture</string>
+
 	<!-- Settings Display -->
 	<string name="pref_language_title">Language &amp; region</string>
 	<string name="pref_language_changed">This setting will take effect when you restart Briar. Please sign out and restart Briar.</string>

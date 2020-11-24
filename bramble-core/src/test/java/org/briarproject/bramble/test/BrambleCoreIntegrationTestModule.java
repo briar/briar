@@ -22,6 +22,17 @@ public class BrambleCoreIntegrationTestModule {
 
 	@Provides
 	FeatureFlags provideFeatureFlags() {
-		return () -> true;
+		return new FeatureFlags() {
+
+			@Override
+			public boolean shouldEnableImageAttachments() {
+				return true;
+			}
+
+			@Override
+			public boolean shouldEnableProfilePictures() {
+				return true;
+			}
+		};
 	}
 }

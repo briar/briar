@@ -67,6 +67,7 @@ import org.briarproject.briar.android.privategroup.reveal.RevealContactsFragment
 import org.briarproject.briar.android.reporting.CrashFragment;
 import org.briarproject.briar.android.reporting.CrashReportActivity;
 import org.briarproject.briar.android.reporting.ReportFormFragment;
+import org.briarproject.briar.android.settings.ConfirmAvatarDialogFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 import org.briarproject.briar.android.settings.SettingsFragment;
 import org.briarproject.briar.android.sharing.BlogInvitationActivity;
@@ -238,5 +239,7 @@ public interface ActivityComponent {
 	void inject(ReportFormFragment reportFormFragment);
 
 	void inject(CrashFragment crashFragment);
+
+	void inject(ConfirmAvatarDialogFragment fragment);
 
 }

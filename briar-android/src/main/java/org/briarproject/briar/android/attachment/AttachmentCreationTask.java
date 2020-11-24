@@ -105,10 +105,10 @@ class AttachmentCreationTask {
 		if (is == null) throw new IOException();
 		is = imageCompressor
 				.compressImage(is, contentType);
-		contentType = "image/jpeg";
 		long timestamp = System.currentTimeMillis();
 		AttachmentHeader h = messagingManager
-				.addLocalAttachment(groupId, timestamp, contentType, is);
+				.addLocalAttachment(groupId, timestamp,
+						ImageCompressor.MIME_TYPE, is);
 		tryToClose(is, LOG, WARNING);
 		logDuration(LOG, "Storing attachment", start);
 		return h;

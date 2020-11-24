@@ -9,9 +9,14 @@ import java.io.InputStream;
 public interface ImageCompressor {
 
 	/**
+	 * The MIME type of compressed images
+	 */
+	String MIME_TYPE = "image/jpeg";
+
+	/**
 	 * Load an image from {@code is}, compress it and return an InputStream
 	 * from which the resulting image can be read. The image will be compressed
-	 * such that it fits into a message.
+	 * as a JPEG image such that it fits into a message.
 	 *
 	 * @param is the stream to read the source image from
 	 * @param contentType the mimetype of the source image such as "image/jpeg"
@@ -23,8 +28,8 @@ public interface ImageCompressor {
 
 	/**
 	 * Compress an image and return an InputStream from which the resulting
-	 * image can be read. The image will be compressed such that it fits into
-	 * a message.
+	 * image can be read. The image will be compressed as a JPEG image such that
+	 * it fits into a message.
 	 *
 	 * @param bitmap the source image
 	 * @return a stream from which the resulting image can be read

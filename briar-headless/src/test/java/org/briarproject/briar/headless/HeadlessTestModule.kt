@@ -76,7 +76,10 @@ internal class HeadlessTestModule(private val appDir: File) {
     internal fun provideObjectMapper() = ObjectMapper()
 
     @Provides
-    internal fun provideFeatureFlags() = FeatureFlags { false }
+    internal fun provideFeatureFlags() = object : FeatureFlags {
+        override fun shouldEnableImageAttachments() = false
+        override fun shouldEnableProfilePictures() = false
+    }
 
     @Provides
     internal fun provideTestAvatarCreator() = TestAvatarCreator { null }
