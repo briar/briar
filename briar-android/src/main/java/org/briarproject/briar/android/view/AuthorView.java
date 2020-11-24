@@ -8,10 +8,13 @@ import android.view.LayoutInflater;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
+
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.api.identity.AuthorInfo;
 
 import javax.annotation.Nullable;
 
@@ -24,10 +27,11 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
-import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
-import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
+import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 
 @UiThread
 public class AuthorView extends ConstraintLayout {
@@ -74,8 +78,19 @@ public class AuthorView extends ConstraintLayout {
 	public void setAuthor(Author author, AuthorInfo authorInfo) {
 		authorName
 				.setText(getContactDisplayName(author, authorInfo.getAlias()));
-		IdenticonDrawable d = new IdenticonDrawable(author.getId().getBytes());
-		avatar.setImageDrawable(d);
+		IdenticonDrawable identicon =
+				new IdenticonDrawable(author.getId().getBytes());
+		if (authorInfo.getAvatarHeader() == null) {
+			avatar.setImageDrawable(identicon);
+		} else {
+			GlideApp.with(avatar)
+					.load(authorInfo.getAvatarHeader())
+					.diskCacheStrategy(DiskCacheStrategy.NONE)
+					.error(identicon)
+					.transition(withCrossFade())
+					.into(avatar)
+					.waitForLayout();
+		}
 
 		if (authorInfo.getStatus() != NONE) {
 			trustIndicator.setTrustLevel(authorInfo.getStatus());
@@ -117,10 +132,10 @@ public class AuthorView extends ConstraintLayout {
 
 	/**
 	 * Styles this view for a different persona.
-	 *
+	 * <p>
 	 * Attention: RSS_FEED and RSS_FEED_REBLOGGED change the avatar
-	 *            and override the one set by
-	 *            {@link AuthorView#setAuthor(Author, AuthorInfo)}.
+	 * and override the one set by
+	 * {@link AuthorView#setAuthor(Author, AuthorInfo)}.
 	 */
 	public void setPersona(int persona) {
 		switch (persona) {

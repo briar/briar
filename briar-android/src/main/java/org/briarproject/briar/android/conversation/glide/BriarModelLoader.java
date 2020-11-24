@@ -8,7 +8,7 @@ import com.bumptech.glide.signature.ObjectKey;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.io.InputStream;
 
@@ -17,7 +17,7 @@ import javax.inject.Inject;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public final class BriarModelLoader
-		implements ModelLoader<AttachmentItem, InputStream> {
+		implements ModelLoader<AttachmentHeader, InputStream> {
 
 	@Inject
 	BriarDataFetcherFactory dataFetcherFactory;
@@ -27,7 +27,7 @@ public final class BriarModelLoader
 	}
 
 	@Override
-	public LoadData<InputStream> buildLoadData(AttachmentItem model, int width,
+	public LoadData<InputStream> buildLoadData(AttachmentHeader model, int width,
 			int height, Options options) {
 		ObjectKey key = new ObjectKey(model.getMessageId());
 		BriarDataFetcher dataFetcher =
@@ -36,7 +36,7 @@ public final class BriarModelLoader
 	}
 
 	@Override
-	public boolean handles(AttachmentItem model) {
+	public boolean handles(AttachmentHeader model) {
 		return true;
 	}
 }

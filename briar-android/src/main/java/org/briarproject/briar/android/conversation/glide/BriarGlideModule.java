@@ -10,7 +10,7 @@ import com.bumptech.glide.module.AppGlideModule;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.io.InputStream;
 
@@ -28,7 +28,7 @@ public final class BriarGlideModule extends AppGlideModule {
 		BriarApplication app =
 				(BriarApplication) context.getApplicationContext();
 		BriarModelLoaderFactory factory = new BriarModelLoaderFactory(app);
-		registry.prepend(AttachmentItem.class, InputStream.class, factory);
+		registry.prepend(AttachmentHeader.class, InputStream.class, factory);
 	}
 
 	@Override

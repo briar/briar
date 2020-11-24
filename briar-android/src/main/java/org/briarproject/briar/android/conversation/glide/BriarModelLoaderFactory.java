@@ -6,13 +6,13 @@ import com.bumptech.glide.load.model.MultiModelLoaderFactory;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.io.InputStream;
 
 @NotNullByDefault
 class BriarModelLoaderFactory
-		implements ModelLoaderFactory<AttachmentItem, InputStream> {
+		implements ModelLoaderFactory<AttachmentHeader, InputStream> {
 
 	private final BriarApplication app;
 
@@ -21,7 +21,7 @@ class BriarModelLoaderFactory
 	}
 
 	@Override
-	public ModelLoader<AttachmentItem, InputStream> build(
+	public ModelLoader<AttachmentHeader, InputStream> build(
 			MultiModelLoaderFactory multiFactory) {
 		return new BriarModelLoader(app);
 	}
