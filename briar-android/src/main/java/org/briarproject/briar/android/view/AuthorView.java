@@ -9,7 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.briarproject.bramble.api.identity.Author;
-import org.briarproject.bramble.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.util.UiUtils;
 
@@ -24,8 +24,8 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
 

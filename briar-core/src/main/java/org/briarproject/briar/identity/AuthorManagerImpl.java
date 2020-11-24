@@ -1,0 +1,56 @@
+package org.briarproject.briar.identity;
+
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
+
+import java.util.Collection;
+
+import javax.annotation.concurrent.ThreadSafe;
+import javax.inject.Inject;
+
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNKNOWN;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
+
+@ThreadSafe
+@NotNullByDefault
+class AuthorManagerImpl implements AuthorManager {
+
+	private final DatabaseComponent db;
+	private final IdentityManager identityManager;
+
+	@Inject
+	AuthorManagerImpl(DatabaseComponent db, IdentityManager identityManager) {
+		this.db = db;
+		this.identityManager = identityManager;
+	}
+
+	@Override
+	public AuthorInfo getAuthorInfo(AuthorId a) throws DbException {
+		return db.transactionWithResult(true, txn -> getAuthorInfo(txn, a));
+	}
+
+	@Override
+	public AuthorInfo getAuthorInfo(Transaction txn, AuthorId authorId)
+			throws DbException {
+		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
+		if (localAuthor.getId().equals(authorId))
+			return new AuthorInfo(OURSELVES);
+		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
+		if (contacts.isEmpty()) return new AuthorInfo(UNKNOWN);
+		if (contacts.size() > 1) throw new AssertionError();
+		Contact c = contacts.iterator().next();
+		if (c.isVerified()) return new AuthorInfo(VERIFIED, c.getAlias());
+		else return new AuthorInfo(UNVERIFIED, c.getAlias());
+	}
+
+}

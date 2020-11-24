@@ -5,6 +5,7 @@ import org.briarproject.bramble.BrambleCoreModule;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.identity.IdentityModule;
 
 import javax.inject.Singleton;
 
@@ -16,6 +17,7 @@ import dagger.Component;
 		BrambleCoreModule.class,
 		BriarClientModule.class,
 		ForumModule.class,
+		IdentityModule.class,
 		MessagingModule.class
 })
 interface MessageSizeIntegrationTestComponent

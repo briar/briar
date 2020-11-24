@@ -6,8 +6,8 @@ import io.mockk.CapturingSlot
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
-import org.briarproject.bramble.api.identity.AuthorInfo
-import org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED
+import org.briarproject.briar.api.identity.AuthorInfo
+import org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED
 import org.briarproject.bramble.test.ImmediateExecutor
 import org.briarproject.bramble.test.TestUtils.getRandomId
 import org.briarproject.briar.api.client.SessionId

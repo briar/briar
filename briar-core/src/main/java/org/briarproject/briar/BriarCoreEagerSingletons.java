@@ -3,6 +3,7 @@ package org.briarproject.briar;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
@@ -18,6 +19,8 @@ public interface BriarCoreEagerSingletons {
 	void inject(ForumModule.EagerSingletons init);
 
 	void inject(GroupInvitationModule.EagerSingletons init);
+
+	void inject(IdentityModule.EagerSingletons init);
 
 	void inject(IntroductionModule.EagerSingletons init);
 
@@ -37,6 +40,7 @@ public interface BriarCoreEagerSingletons {
 			c.inject(new MessagingModule.EagerSingletons());
 			c.inject(new PrivateGroupModule.EagerSingletons());
 			c.inject(new SharingModule.EagerSingletons());
+			c.inject(new IdentityModule.EagerSingletons());
 			c.inject(new IntroductionModule.EagerSingletons());
 		}
 	}

@@ -3,7 +3,6 @@ package org.briarproject.briar.forum;
 import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfIncomingMessageHook;
 import org.briarproject.bramble.api.client.ClientHelper;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
@@ -12,7 +11,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
@@ -28,6 +26,8 @@ import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -45,30 +45,30 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_LOCAL;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @ThreadSafe
 @NotNullByDefault
 class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
-	private final ContactManager contactManager;
+	private final AuthorManager authorManager;
 	private final ForumFactory forumFactory;
 	private final ForumPostFactory forumPostFactory;
 	private final MessageTracker messageTracker;
 	private final List<RemoveForumHook> removeHooks;
 
 	@Inject
-	ForumManagerImpl(DatabaseComponent db, ContactManager contactManager,
-			ClientHelper clientHelper, MetadataParser metadataParser,
+	ForumManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+			MetadataParser metadataParser, AuthorManager authorManager,
 			ForumFactory forumFactory, ForumPostFactory forumPostFactory,
 			MessageTracker messageTracker) {
 		super(db, clientHelper, metadataParser);
-		this.contactManager = contactManager;
+		this.authorManager = authorManager;
 		this.forumFactory = forumFactory;
 		this.forumPostFactory = forumPostFactory;
 		this.messageTracker = messageTracker;
@@ -213,7 +213,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 				// get information for all authors
 				Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 				for (AuthorId id : authors) {
-					authorInfos.put(id, contactManager.getAuthorInfo(txn, id));
+					authorInfos.put(id, authorManager.getAuthorInfo(txn, id));
 				}
 				// Parse the metadata
 				for (Entry<MessageId, BdfDictionary> entry :
@@ -275,7 +275,7 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 		Author author = clientHelper.parseAndValidateAuthor(authorList);
 		AuthorInfo authorInfo = authorInfos.get(author.getId());
 		if (authorInfo == null)
-			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
+			authorInfo = authorManager.getAuthorInfo(txn, author.getId());
 		boolean read = meta.getBoolean(MSG_KEY_READ);
 
 		return new ForumPostHeader(id, parentId, timestamp, author, authorInfo,

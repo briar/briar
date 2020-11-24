@@ -21,7 +21,7 @@ import java.util.Iterator;
 
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;

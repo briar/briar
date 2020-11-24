@@ -11,7 +11,6 @@ import org.briarproject.bramble.api.db.PendingContactExistsException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -219,16 +218,6 @@ public interface ContactManager {
 	 */
 	boolean contactExists(AuthorId remoteAuthorId, AuthorId localAuthorId)
 			throws DbException;
-
-	/**
-	 * Returns the {@link AuthorInfo} for the given author.
-	 */
-	AuthorInfo getAuthorInfo(AuthorId a) throws DbException;
-
-	/**
-	 * Returns the {@link AuthorInfo} for the given author.
-	 */
-	AuthorInfo getAuthorInfo(Transaction txn, AuthorId a) throws DbException;
 
 	interface ContactHook {
 

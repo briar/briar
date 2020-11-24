@@ -12,7 +12,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.TransportId;
@@ -22,6 +21,8 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
 import org.briarproject.briar.api.introduction.event.IntroductionResponseReceivedEvent;
 
@@ -48,6 +49,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 	protected final ContactGroupFactory contactGroupFactory;
 	protected final MessageTracker messageTracker;
 	protected final IdentityManager identityManager;
+	protected final AuthorManager authorManager;
 	protected final MessageParser messageParser;
 	protected final MessageEncoder messageEncoder;
 	protected final Clock clock;
@@ -59,6 +61,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 			ContactGroupFactory contactGroupFactory,
 			MessageTracker messageTracker,
 			IdentityManager identityManager,
+			AuthorManager authorManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
 			Clock clock) {
@@ -68,6 +71,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		this.contactGroupFactory = contactGroupFactory;
 		this.messageTracker = messageTracker;
 		this.identityManager = identityManager;
+		this.authorManager = authorManager;
 		this.messageParser = messageParser;
 		this.messageEncoder = messageEncoder;
 		this.clock = clock;
@@ -152,7 +156,7 @@ abstract class AbstractProtocolEngine<S extends Session>
 		AuthorId localAuthorId = identityManager.getLocalAuthor(txn).getId();
 		Contact c = contactManager.getContact(txn, sender, localAuthorId);
 		AuthorInfo otherAuthorInfo =
-				contactManager.getAuthorInfo(txn, otherAuthor.getId());
+				authorManager.getAuthorInfo(txn, otherAuthor.getId());
 		IntroductionResponse response =
 				new IntroductionResponse(m.getMessageId(), m.getGroupId(),
 						m.getTimestamp(), false, false, false, false,

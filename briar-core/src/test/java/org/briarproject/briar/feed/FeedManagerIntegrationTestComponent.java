@@ -10,6 +10,7 @@ import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.feed.FeedManager;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
+import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.test.TestDnsModule;
 
 import javax.inject.Singleton;
@@ -23,6 +24,7 @@ import dagger.Component;
 		BlogModule.class,
 		BriarClientModule.class,
 		FeedModule.class,
+		IdentityModule.class,
 		TestDnsModule.class,
 		TestSocksModule.class,
 })

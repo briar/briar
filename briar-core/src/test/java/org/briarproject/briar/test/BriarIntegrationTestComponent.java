@@ -29,6 +29,7 @@ import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
+import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
@@ -48,6 +49,7 @@ import dagger.Component;
 		BriarClientModule.class,
 		ForumModule.class,
 		GroupInvitationModule.class,
+		IdentityModule.class,
 		IntroductionModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
@@ -65,6 +67,8 @@ public interface BriarIntegrationTestComponent
 	void inject(ForumModule.EagerSingletons init);
 
 	void inject(GroupInvitationModule.EagerSingletons init);
+
+	void inject(IdentityModule.EagerSingletons init);
 
 	void inject(IntroductionModule.EagerSingletons init);
 
@@ -128,6 +132,7 @@ public interface BriarIntegrationTestComponent
 			c.inject(new BlogModule.EagerSingletons());
 			c.inject(new ForumModule.EagerSingletons());
 			c.inject(new GroupInvitationModule.EagerSingletons());
+			c.inject(new IdentityModule.EagerSingletons());
 			c.inject(new IntroductionModule.EagerSingletons());
 			c.inject(new MessagingModule.EagerSingletons());
 			c.inject(new PrivateGroupModule.EagerSingletons());

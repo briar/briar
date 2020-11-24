@@ -15,8 +15,6 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
-import org.briarproject.bramble.api.identity.AuthorInfo.Status;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
@@ -27,6 +25,9 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorInfo.Status;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
@@ -54,9 +55,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNVERIFIED;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.briar.api.privategroup.MessageType.JOIN;
 import static org.briarproject.briar.api.privategroup.MessageType.POST;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
@@ -84,6 +85,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	private final PrivateGroupFactory privateGroupFactory;
 	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
+	private final AuthorManager authorManager;
 	private final MessageTracker messageTracker;
 	private final List<PrivateGroupHook> hooks;
 
@@ -92,11 +94,12 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			MetadataParser metadataParser, DatabaseComponent db,
 			PrivateGroupFactory privateGroupFactory,
 			ContactManager contactManager, IdentityManager identityManager,
-			MessageTracker messageTracker) {
+			AuthorManager authorManager, MessageTracker messageTracker) {
 		super(db, clientHelper, metadataParser);
 		this.privateGroupFactory = privateGroupFactory;
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;
+		this.authorManager = authorManager;
 		this.messageTracker = messageTracker;
 		hooks = new CopyOnWriteArrayList<>();
 	}
@@ -336,7 +339,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			// get information for all authors
 			Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 			for (AuthorId id : authors) {
-				authorInfos.put(id, contactManager.getAuthorInfo(txn, id));
+				authorInfos.put(id, authorManager.getAuthorInfo(txn, id));
 			}
 			// get current visibilities for join messages
 			Map<Author, Visibility> visibilities = getMembers(txn, g);
@@ -378,7 +381,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		if (authorInfos.containsKey(member.getId())) {
 			authorInfo = authorInfos.get(member.getId());
 		} else {
-			authorInfo = contactManager.getAuthorInfo(txn, member.getId());
+			authorInfo = authorManager.getAuthorInfo(txn, member.getId());
 		}
 		boolean read = meta.getBoolean(KEY_READ);
 
@@ -408,7 +411,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			for (Entry<Author, Visibility> m : authors.entrySet()) {
 				Author a = m.getKey();
 				AuthorInfo authorInfo =
-						contactManager.getAuthorInfo(txn, a.getId());
+						authorManager.getAuthorInfo(txn, a.getId());
 				Status status = authorInfo.getStatus();
 				Visibility v = m.getValue();
 				ContactId c = null;

@@ -1,4 +1,4 @@
-package org.briarproject.bramble.api.identity;
+package org.briarproject.briar.api.identity;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 
@@ -50,6 +50,7 @@ public class AuthorInfo {
 	public boolean equals(Object o) {
 		if (!(o instanceof AuthorInfo)) return false;
 		AuthorInfo info = (AuthorInfo) o;
+		//noinspection EqualsReplaceableByObjectsCall
 		return status == info.status &&
 				(alias == null ? info.alias == null : alias.equals(info.alias));
 	}

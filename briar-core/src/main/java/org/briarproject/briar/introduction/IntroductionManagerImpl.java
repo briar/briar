@@ -16,7 +16,6 @@ import org.briarproject.bramble.api.db.Metadata;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
@@ -33,6 +32,8 @@ import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -83,6 +84,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	private final IntroduceeProtocolEngine introduceeEngine;
 	private final IntroductionCrypto crypto;
 	private final IdentityManager identityManager;
+	private final AuthorManager authorManager;
 
 	private final Group localGroup;
 
@@ -101,7 +103,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 			IntroducerProtocolEngine introducerEngine,
 			IntroduceeProtocolEngine introduceeEngine,
 			IntroductionCrypto crypto,
-			IdentityManager identityManager) {
+			IdentityManager identityManager,
+			AuthorManager authorManager) {
 		super(db, clientHelper, metadataParser, messageTracker);
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
@@ -113,6 +116,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		this.introduceeEngine = introduceeEngine;
 		this.crypto = crypto;
 		this.identityManager = identityManager;
+		this.authorManager = authorManager;
 		this.localGroup =
 				contactGroupFactory.createLocalGroup(CLIENT_ID, MAJOR_VERSION);
 	}
@@ -455,7 +459,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		Author author = rm.getAuthor();
 		AuthorInfo authorInfo = authorInfos.get(author.getId());
 		if (authorInfo == null) {
-			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
+			authorInfo = authorManager.getAuthorInfo(txn, author.getId());
 			authorInfos.put(author.getId(), authorInfo);
 		}
 		return new IntroductionRequest(m, contactGroupId, meta.getTimestamp(),
@@ -494,7 +498,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 		} else throw new AssertionError();
 		AuthorInfo authorInfo = authorInfos.get(author.getId());
 		if (authorInfo == null) {
-			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
+			authorInfo = authorManager.getAuthorInfo(txn, author.getId());
 			authorInfos.put(author.getId(), authorInfo);
 		}
 		return new IntroductionResponse(m, contactGroupId, meta.getTimestamp(),

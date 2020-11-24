@@ -1,10 +1,10 @@
-package org.briarproject.bramble.api.identity;
+package org.briarproject.briar.api.identity;
 
 import org.briarproject.bramble.test.BrambleTestCase;
 import org.junit.Test;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.VERIFIED;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 

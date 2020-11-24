@@ -4,7 +4,6 @@ import org.briarproject.bramble.api.FormatException;
 import org.briarproject.bramble.api.client.BdfIncomingMessageHook;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
-import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
@@ -15,7 +14,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager.OpenDatabaseHook;
@@ -33,6 +31,8 @@ import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogPostHeader;
 import org.briarproject.briar.api.blog.MessageType;
 import org.briarproject.briar.api.blog.event.BlogPostAddedEvent;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
@@ -50,7 +50,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_COMMENT;
 import static org.briarproject.briar.api.blog.BlogConstants.KEY_ORIGINAL_MSG_ID;
@@ -65,25 +64,26 @@ import static org.briarproject.briar.api.blog.MessageType.COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.POST;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_COMMENT;
 import static org.briarproject.briar.api.blog.MessageType.WRAPPED_POST;
+import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
 
 @NotNullByDefault
 class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		OpenDatabaseHook, ContactHook {
 
-	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
+	private final AuthorManager authorManager;
 	private final BlogFactory blogFactory;
 	private final BlogPostFactory blogPostFactory;
 	private final List<RemoveBlogHook> removeHooks;
 
 	@Inject
-	BlogManagerImpl(DatabaseComponent db, ContactManager contactManager,
-			IdentityManager identityManager, ClientHelper clientHelper,
+	BlogManagerImpl(DatabaseComponent db, IdentityManager identityManager,
+			AuthorManager authorManager, ClientHelper clientHelper,
 			MetadataParser metadataParser, BlogFactory blogFactory,
 			BlogPostFactory blogPostFactory) {
 		super(db, clientHelper, metadataParser);
-		this.contactManager = contactManager;
 		this.identityManager = identityManager;
+		this.authorManager = authorManager;
 		this.blogFactory = blogFactory;
 		this.blogPostFactory = blogPostFactory;
 		removeHooks = new CopyOnWriteArrayList<>();
@@ -519,7 +519,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 			Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 			for (AuthorId authorId : authors) {
 				authorInfos.put(authorId,
-						contactManager.getAuthorInfo(txn, authorId));
+						authorManager.getAuthorInfo(txn, authorId));
 			}
 			// get post headers
 			for (Entry<MessageId, BdfDictionary> entry : metadata.entrySet()) {
@@ -586,7 +586,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		} else if (authorInfos.containsKey(author.getId())) {
 			authorInfo = authorInfos.get(author.getId());
 		} else {
-			authorInfo = contactManager.getAuthorInfo(txn, author.getId());
+			authorInfo = authorManager.getAuthorInfo(txn, author.getId());
 		}
 
 		boolean read = meta.getBoolean(KEY_READ, false);

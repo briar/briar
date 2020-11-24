@@ -6,8 +6,8 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import org.briarproject.bramble.api.identity.AuthorInfo
-import org.briarproject.bramble.api.identity.AuthorInfo.Status.OURSELVES
+import org.briarproject.briar.api.identity.AuthorInfo
+import org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES
 import org.briarproject.bramble.api.sync.MessageId
 import org.briarproject.bramble.identity.output
 import org.briarproject.bramble.util.StringUtils.getRandomString
