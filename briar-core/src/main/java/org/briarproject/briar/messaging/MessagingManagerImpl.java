@@ -35,14 +35,13 @@ import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.media.FileTooBigException;
-import org.briarproject.briar.api.media.InvalidAttachmentException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
+import org.briarproject.briar.media.AttachmentReader;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -402,23 +401,7 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 
 	@Override
 	public Attachment getAttachment(AttachmentHeader h) throws DbException {
-		// TODO: Support large messages
-		MessageId m = h.getMessageId();
-		byte[] body = clientHelper.getMessage(m).getBody();
-		try {
-			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
-			Long messageType = meta.getOptionalLong(MSG_KEY_MSG_TYPE);
-			if (messageType == null || messageType != ATTACHMENT)
-				throw new InvalidAttachmentException();
-			String contentType = meta.getString(MSG_KEY_CONTENT_TYPE);
-			if (!contentType.equals(h.getContentType()))
-				throw new InvalidAttachmentException();
-			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
-			return new Attachment(h, new ByteArrayInputStream(body, offset,
-					body.length - offset));
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
+		return AttachmentReader.getAttachment(clientHelper, h);
 	}
 
 	@Override

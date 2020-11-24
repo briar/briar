@@ -33,9 +33,8 @@ import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
 import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.media.FileTooBigException;
-import org.briarproject.briar.api.media.InvalidAttachmentException;
+import org.briarproject.briar.media.AttachmentReader;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -254,19 +253,7 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 
 	@Override
 	public Attachment getAvatar(AttachmentHeader h) throws DbException {
-		MessageId m = h.getMessageId();
-		byte[] body = clientHelper.getMessage(m).getBody();
-		try {
-			BdfDictionary meta = clientHelper.getMessageMetadataAsDictionary(m);
-			String contentType = meta.getString(MSG_KEY_CONTENT_TYPE);
-			if (!contentType.equals(h.getContentType()))
-				throw new InvalidAttachmentException();
-			int offset = meta.getLong(MSG_KEY_DESCRIPTOR_LENGTH).intValue();
-			return new Attachment(h, new ByteArrayInputStream(body, offset,
-					body.length - offset));
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
+		return AttachmentReader.getAttachment(clientHelper, h);
 	}
 
 	@Nullable
