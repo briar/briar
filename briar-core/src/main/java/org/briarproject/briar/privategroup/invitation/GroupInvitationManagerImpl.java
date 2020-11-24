@@ -183,8 +183,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 	}
 
 	private Session<?> handleFirstMessage(Transaction txn, Message m,
-			BdfList body,
-			MessageMetadata meta) throws DbException, FormatException {
+			BdfList body, MessageMetadata meta)
+			throws DbException, FormatException {
 		GroupId privateGroupId = meta.getPrivateGroupId();
 		MessageType type = meta.getMessageType();
 		if (type == INVITE) {
