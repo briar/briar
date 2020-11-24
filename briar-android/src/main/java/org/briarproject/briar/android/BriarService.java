@@ -14,6 +14,8 @@ import android.content.ServiceConnection;
 import android.os.Binder;
 import android.os.IBinder;
 
+import com.bumptech.glide.Glide;
+
 import org.briarproject.bramble.api.account.AccountManager;
 import org.briarproject.bramble.api.crypto.SecretKey;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -246,6 +248,7 @@ public class BriarService extends Service {
 			LOG.info("Trim memory: near end of LRU list");
 		} else if (level == TRIM_MEMORY_RUNNING_MODERATE) {
 			LOG.info("Trim memory: running moderately low");
+			Glide.get(getApplicationContext()).clearMemory();
 		} else if (level == TRIM_MEMORY_RUNNING_LOW) {
 			LOG.info("Trim memory: running low");
 		} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
