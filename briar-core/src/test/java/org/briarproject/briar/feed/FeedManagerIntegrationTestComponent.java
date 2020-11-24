@@ -8,6 +8,7 @@ import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.bramble.test.TestSocksModule;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.feed.FeedManager;
+import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.identity.IdentityModule;
@@ -21,6 +22,7 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
+		AvatarModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
 		FeedModule.class,
@@ -32,6 +34,8 @@ interface FeedManagerIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(FeedManagerIntegrationTest testCase);
+
+	void inject(AvatarModule.EagerSingletons init);
 
 	void inject(BlogModule.EagerSingletons init);
 
@@ -51,6 +55,7 @@ interface FeedManagerIntegrationTestComponent
 				FeedManagerIntegrationTestComponent c) {
 			BrambleCoreIntegrationTestEagerSingletons.Helper
 					.injectEagerSingletons(c);
+			c.inject(new AvatarModule.EagerSingletons());
 			c.inject(new BlogModule.EagerSingletons());
 			c.inject(new FeedModule.EagerSingletons());
 		}

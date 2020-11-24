@@ -55,7 +55,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.concurrent.ThreadSafe;
 import javax.inject.Inject;
 
-import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
 import static org.briarproject.briar.api.privategroup.MessageType.JOIN;
@@ -211,32 +210,32 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public GroupMessageHeader addLocalMessage(GroupMessage m)
 			throws DbException {
-		Transaction txn = db.startTransaction(false);
-		try {
-			// store message and metadata
-			BdfDictionary meta = new BdfDictionary();
-			meta.put(KEY_TYPE, POST.getInt());
-			if (m.getParent() != null)
-				meta.put(KEY_PARENT_MSG_ID, m.getParent());
-			addMessageMetadata(meta, m);
-			GroupId g = m.getMessage().getGroupId();
-			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
-					false);
+		return db.transactionWithResult(false, txn -> {
+			try {
+				return addLocalMessage(txn, m);
+			} catch (FormatException e) {
+				throw new DbException(e);
+			}
+		});
+	}
 
-			// track message
-			setPreviousMsgId(txn, g, m.getMessage().getId());
-			messageTracker.trackOutgoingMessage(txn, m.getMessage());
-
-			// broadcast event
-			attachGroupMessageAddedEvent(txn, m.getMessage(), meta, true);
-
-			db.commitTransaction(txn);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
-		}
-		AuthorInfo authorInfo = new AuthorInfo(OURSELVES);
+	private GroupMessageHeader addLocalMessage(Transaction txn, GroupMessage m)
+			throws DbException, FormatException {
+		// store message and metadata
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(KEY_TYPE, POST.getInt());
+		if (m.getParent() != null)
+			meta.put(KEY_PARENT_MSG_ID, m.getParent());
+		addMessageMetadata(meta, m);
+		GroupId g = m.getMessage().getGroupId();
+		clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
+				false);
+		// track message
+		setPreviousMsgId(txn, g, m.getMessage().getId());
+		messageTracker.trackOutgoingMessage(txn, m.getMessage());
+		// broadcast event
+		attachGroupMessageAddedEvent(txn, m.getMessage(), meta, true);
+		AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
 		return new GroupMessageHeader(m.getMessage().getGroupId(),
 				m.getMessage().getId(), m.getParent(),
 				m.getMessage().getTimestamp(), m.getMember(), authorInfo, true);

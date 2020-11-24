@@ -1,5 +1,6 @@
 package org.briarproject.briar;
 
+import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.feed.DnsModule;
@@ -16,6 +17,7 @@ import org.briarproject.briar.test.TestModule;
 import dagger.Module;
 
 @Module(includes = {
+		AvatarModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
 		FeedModule.class,

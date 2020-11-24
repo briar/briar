@@ -219,12 +219,11 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 
 	@Nullable
 	@Override
-	public AttachmentHeader getAvatarHeader(Contact c) throws DbException {
+	public AttachmentHeader getAvatarHeader(Transaction txn, Contact c)
+			throws DbException {
 		try {
 			Group g = getGroup(c.getAuthor().getId());
-			return db.transactionWithNullableResult(true, txn ->
-					getAvatarHeader(txn, g.getId())
-			);
+			return getAvatarHeader(txn, g.getId());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -232,12 +231,11 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 
 	@Nullable
 	@Override
-	public AttachmentHeader getMyAvatarHeader() throws DbException {
+	public AttachmentHeader getMyAvatarHeader(Transaction txn)
+			throws DbException {
 		try {
-			return db.transactionWithNullableResult(true, txn -> {
-				Group g = getOurGroup(txn);
-				return getAvatarHeader(txn, g.getId());
-			});
+			Group g = getOurGroup(txn);
+			return getAvatarHeader(txn, g.getId());
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}

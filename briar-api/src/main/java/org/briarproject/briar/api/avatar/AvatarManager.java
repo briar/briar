@@ -2,6 +2,7 @@ package org.briarproject.briar.api.avatar;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.briar.api.media.Attachment;
@@ -42,13 +43,14 @@ public interface AvatarManager {
 	 * or null if none is known.
 	 */
 	@Nullable
-	AttachmentHeader getAvatarHeader(Contact c) throws DbException;
+	AttachmentHeader getAvatarHeader(Transaction txn, Contact c)
+			throws DbException;
 
 	/**
 	 * Returns our current profile image header or null if none has been added.
 	 */
 	@Nullable
-	AttachmentHeader getMyAvatarHeader() throws DbException;
+	AttachmentHeader getMyAvatarHeader(Transaction txn) throws DbException;
 
 	/**
 	 * Returns the profile image attachment for the given header.

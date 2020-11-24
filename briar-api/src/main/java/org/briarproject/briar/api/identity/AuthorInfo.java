@@ -1,6 +1,7 @@
 package org.briarproject.briar.api.identity;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -20,14 +21,18 @@ public class AuthorInfo {
 	private final Status status;
 	@Nullable
 	private final String alias;
+	@Nullable
+	private final AttachmentHeader avatarHeader;
 
-	public AuthorInfo(Status status, @Nullable String alias) {
+	public AuthorInfo(Status status, @Nullable String alias,
+			@Nullable AttachmentHeader avatarHeader) {
 		this.status = status;
 		this.alias = alias;
+		this.avatarHeader = avatarHeader;
 	}
 
 	public AuthorInfo(Status status) {
-		this(status, null);
+		this(status, null, null);
 	}
 
 	public Status getStatus() {
@@ -37,6 +42,11 @@ public class AuthorInfo {
 	@Nullable
 	public String getAlias() {
 		return alias;
+	}
+
+	@Nullable
+	public AttachmentHeader getAvatarHeader() {
+		return avatarHeader;
 	}
 
 	@Override
@@ -52,6 +62,11 @@ public class AuthorInfo {
 		AuthorInfo info = (AuthorInfo) o;
 		//noinspection EqualsReplaceableByObjectsCall
 		return status == info.status &&
-				(alias == null ? info.alias == null : alias.equals(info.alias));
+				// aliases are equal
+				(alias == null ? info.alias == null :
+						alias.equals(info.alias)) &&
+				// avatars are equal
+				(avatarHeader == null ? info.avatarHeader == null :
+						avatarHeader.equals(info.avatarHeader));
 	}
 }

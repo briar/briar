@@ -1,5 +1,6 @@
 package org.briarproject.briar;
 
+import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
@@ -11,6 +12,8 @@ import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.briar.sharing.SharingModule;
 
 public interface BriarCoreEagerSingletons {
+
+	void inject(AvatarModule.EagerSingletons init);
 
 	void inject(BlogModule.EagerSingletons init);
 
@@ -33,6 +36,7 @@ public interface BriarCoreEagerSingletons {
 	class Helper {
 
 		public static void injectEagerSingletons(BriarCoreEagerSingletons c) {
+			c.inject(new AvatarModule.EagerSingletons());
 			c.inject(new BlogModule.EagerSingletons());
 			c.inject(new FeedModule.EagerSingletons());
 			c.inject(new ForumModule.EagerSingletons());

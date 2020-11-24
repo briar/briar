@@ -8,8 +8,10 @@ import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
+import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.util.Collection;
 
@@ -27,11 +29,14 @@ class AuthorManagerImpl implements AuthorManager {
 
 	private final DatabaseComponent db;
 	private final IdentityManager identityManager;
+	private final AvatarManager avatarManager;
 
 	@Inject
-	AuthorManagerImpl(DatabaseComponent db, IdentityManager identityManager) {
+	AuthorManagerImpl(DatabaseComponent db, IdentityManager identityManager,
+			AvatarManager avatarManager) {
 		this.db = db;
 		this.identityManager = identityManager;
+		this.avatarManager = avatarManager;
 	}
 
 	@Override
@@ -43,14 +48,21 @@ class AuthorManagerImpl implements AuthorManager {
 	public AuthorInfo getAuthorInfo(Transaction txn, AuthorId authorId)
 			throws DbException {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
-		if (localAuthor.getId().equals(authorId))
-			return new AuthorInfo(OURSELVES);
+		if (localAuthor.getId().equals(authorId)) return getMyAuthorInfo(txn);
 		Collection<Contact> contacts = db.getContactsByAuthorId(txn, authorId);
 		if (contacts.isEmpty()) return new AuthorInfo(UNKNOWN);
 		if (contacts.size() > 1) throw new AssertionError();
 		Contact c = contacts.iterator().next();
-		if (c.isVerified()) return new AuthorInfo(VERIFIED, c.getAlias());
-		else return new AuthorInfo(UNVERIFIED, c.getAlias());
+		AttachmentHeader avatar = avatarManager.getAvatarHeader(txn, c);
+		if (c.isVerified())
+			return new AuthorInfo(VERIFIED, c.getAlias(), avatar);
+		else return new AuthorInfo(UNVERIFIED, c.getAlias(), avatar);
+	}
+
+	@Override
+	public AuthorInfo getMyAuthorInfo(Transaction txn) throws DbException {
+		AttachmentHeader avatar = avatarManager.getMyAvatarHeader(txn);
+		return new AuthorInfo(OURSELVES, null, avatar);
 	}
 
 }

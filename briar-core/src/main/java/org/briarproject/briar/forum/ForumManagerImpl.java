@@ -49,7 +49,6 @@ import static org.briarproject.briar.api.forum.ForumConstants.KEY_AUTHOR;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_LOCAL;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_PARENT;
 import static org.briarproject.briar.api.forum.ForumConstants.KEY_TIMESTAMP;
-import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 
 @ThreadSafe
@@ -127,23 +126,27 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public ForumPostHeader addLocalPost(ForumPost p) throws DbException {
-		db.transaction(false, txn -> {
+		return db.transactionWithResult(false, txn -> {
 			try {
-				BdfDictionary meta = new BdfDictionary();
-				meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
-				if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
-				Author a = p.getAuthor();
-				meta.put(KEY_AUTHOR, clientHelper.toList(a));
-				meta.put(KEY_LOCAL, true);
-				meta.put(MSG_KEY_READ, true);
-				clientHelper.addLocalMessage(txn, p.getMessage(), meta, true,
-						false);
-				messageTracker.trackOutgoingMessage(txn, p.getMessage());
+				return addLocalPost(txn, p);
 			} catch (FormatException e) {
 				throw new AssertionError(e);
 			}
 		});
-		AuthorInfo authorInfo = new AuthorInfo(OURSELVES);
+	}
+
+	private ForumPostHeader addLocalPost(Transaction txn, ForumPost p)
+			throws DbException, FormatException {
+		BdfDictionary meta = new BdfDictionary();
+		meta.put(KEY_TIMESTAMP, p.getMessage().getTimestamp());
+		if (p.getParent() != null) meta.put(KEY_PARENT, p.getParent());
+		Author a = p.getAuthor();
+		meta.put(KEY_AUTHOR, clientHelper.toList(a));
+		meta.put(KEY_LOCAL, true);
+		meta.put(MSG_KEY_READ, true);
+		clientHelper.addLocalMessage(txn, p.getMessage(), meta, true, false);
+		messageTracker.trackOutgoingMessage(txn, p.getMessage());
+		AuthorInfo authorInfo = authorManager.getMyAuthorInfo(txn);
 		return new ForumPostHeader(p.getMessage().getId(), p.getParent(),
 				p.getMessage().getTimestamp(), p.getAuthor(), authorInfo, true);
 	}
