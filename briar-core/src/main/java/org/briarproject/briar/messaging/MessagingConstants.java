@@ -2,9 +2,6 @@ package org.briarproject.briar.messaging;
 
 interface MessagingConstants {
 
-	// Metadata keys for groups
-	String GROUP_KEY_CONTACT_ID = "contactId";
-
 	// Metadata keys for messages
 	String MSG_KEY_TIMESTAMP = "timestamp";
 	String MSG_KEY_LOCAL = "local";

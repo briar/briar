@@ -52,7 +52,6 @@ import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
 import static org.briarproject.briar.sharing.MessageType.LEAVE;
-import static org.briarproject.briar.sharing.SharingConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.sharing.State.SHARING;
 
 @NotNullByDefault
@@ -114,13 +113,7 @@ abstract class SharingManagerImpl<S extends Shareable>
 				c.getId(), getClientId(), getMajorVersion());
 		db.setGroupVisibility(txn, c.getId(), g.getId(), client);
 		// Attach the contact ID to the group
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(GROUP_KEY_CONTACT_ID, c.getId().getInt());
-		try {
-			clientHelper.mergeGroupMetadata(txn, g.getId(), meta);
-		} catch (FormatException e) {
-			throw new AssertionError(e);
-		}
+		clientHelper.setContactId(txn, g.getId(), c.getId());
 	}
 
 	@Override
