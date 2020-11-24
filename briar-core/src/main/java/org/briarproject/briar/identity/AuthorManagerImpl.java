@@ -60,6 +60,11 @@ class AuthorManagerImpl implements AuthorManager {
 	}
 
 	@Override
+	public AuthorInfo getMyAuthorInfo() throws DbException {
+		return db.transactionWithResult(true, this::getMyAuthorInfo);
+	}
+
+	@Override
 	public AuthorInfo getMyAuthorInfo(Transaction txn) throws DbException {
 		AttachmentHeader avatar = avatarManager.getMyAvatarHeader(txn);
 		return new AuthorInfo(OURSELVES, null, avatar);

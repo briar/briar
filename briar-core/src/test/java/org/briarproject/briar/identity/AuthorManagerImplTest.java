@@ -106,7 +106,6 @@ public class AuthorManagerImplTest extends BrambleMockTestCase {
 	public void testGetAuthorInfoOurselves() throws DbException {
 		Transaction txn = new Transaction(null, true);
 
-		// check ourselves
 		context.checking(new Expectations() {{
 			oneOf(identityManager).getLocalAuthor(txn);
 			will(returnValue(localAuthor));
@@ -117,6 +116,22 @@ public class AuthorManagerImplTest extends BrambleMockTestCase {
 
 		AuthorInfo authorInfo =
 				authorManager.getAuthorInfo(txn, localAuthor.getId());
+		assertEquals(OURSELVES, authorInfo.getStatus());
+		assertNull(authorInfo.getAlias());
+		assertEquals(avatarHeader, authorInfo.getAvatarHeader());
+	}
+
+	@Test
+	public void testGetMyAuthorInfo() throws DbException {
+		Transaction txn = new Transaction(null, true);
+
+		context.checking(new Expectations() {{
+			oneOf(avatarManager).getMyAvatarHeader(txn);
+			will(returnValue(avatarHeader));
+		}});
+
+		AuthorInfo authorInfo =
+				authorManager.getMyAuthorInfo(txn);
 		assertEquals(OURSELVES, authorInfo.getStatus());
 		assertNull(authorInfo.getAlias());
 		assertEquals(avatarHeader, authorInfo.getAvatarHeader());

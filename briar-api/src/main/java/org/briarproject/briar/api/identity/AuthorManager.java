@@ -22,5 +22,10 @@ public interface AuthorManager {
 	/**
 	 * Returns the {@link AuthorInfo} for the {@link LocalAuthor}.
 	 */
+	AuthorInfo getMyAuthorInfo() throws DbException;
+
+	/**
+	 * Returns the {@link AuthorInfo} for the {@link LocalAuthor}.
+	 */
 	AuthorInfo getMyAuthorInfo(Transaction txn) throws DbException;
 }
