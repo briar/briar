@@ -31,7 +31,6 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
@@ -234,10 +233,9 @@ public class ConversationActivity extends BriarActivity
 		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
 		toolbarTitle = toolbar.findViewById(R.id.contactName);
 
-		observeOnce(viewModel.getContactItem(), this, c -> {
-			requireNonNull(c);
-			AuthorId authorId = c.getContact().getAuthor().getId();
-			setAvatar(toolbarAvatar, authorId, c.getAuthorInfo());
+		observeOnce(viewModel.getContactItem(), this, contactItem -> {
+			requireNonNull(contactItem);
+			setAvatar(toolbarAvatar, contactItem);
 		});
 		viewModel.getContactDisplayName().observe(this, contactName -> {
 			requireNonNull(contactName);

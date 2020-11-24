@@ -165,10 +165,8 @@ public class IntroductionMessageFragment extends BaseFragment
 			contact2 = c2.getContact();
 
 			// set avatars
-			setAvatar(ui.avatar1, c1.getContact().getAuthor().getId(),
-					c1.getAuthorInfo());
-			setAvatar(ui.avatar2, c2.getContact().getAuthor().getId(),
-					c2.getAuthorInfo());
+			setAvatar(ui.avatar1, c1);
+			setAvatar(ui.avatar2, c2);
 
 			// set contact names
 			ui.contactName1.setText(getContactDisplayName(c1.getContact()));

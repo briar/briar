@@ -5,7 +5,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.contact.BaseContactListAdapter.OnContactClickListener;
@@ -40,8 +39,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 	}
 
 	protected void bind(I item, @Nullable OnContactClickListener<I> listener) {
-		Author author = item.getContact().getAuthor();
-		setAvatar(avatar, author.getId(), item.getAuthorInfo());
+		setAvatar(avatar, item);
 		name.setText(getContactDisplayName(item.getContact()));
 
 		if (bulb != null) {

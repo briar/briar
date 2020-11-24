@@ -13,6 +13,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.api.identity.AuthorInfo;
@@ -111,6 +112,11 @@ public class AuthorView extends ConstraintLayout {
 					.into(v)
 					.waitForLayout();
 		}
+	}
+
+	public static void setAvatar(ImageView v, ContactItem contactItem) {
+		AuthorId authorId = contactItem.getContact().getAuthor().getId();
+		setAvatar(v, authorId, contactItem.getAuthorInfo());
 	}
 
 	public void setDate(long date) {
