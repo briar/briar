@@ -53,6 +53,17 @@ class AuthorManagerImpl implements AuthorManager {
 		if (contacts.isEmpty()) return new AuthorInfo(UNKNOWN);
 		if (contacts.size() > 1) throw new AssertionError();
 		Contact c = contacts.iterator().next();
+		return getAuthorInfo(txn, c);
+	}
+
+	@Override
+	public AuthorInfo getAuthorInfo(Contact c) throws DbException {
+		return db.transactionWithResult(true, txn -> getAuthorInfo(txn, c));
+	}
+
+	@Override
+	public AuthorInfo getAuthorInfo(Transaction txn, Contact c)
+			throws DbException {
 		AttachmentHeader avatar = avatarManager.getAvatarHeader(txn, c);
 		if (c.isVerified())
 			return new AuthorInfo(VERIFIED, c.getAlias(), avatar);

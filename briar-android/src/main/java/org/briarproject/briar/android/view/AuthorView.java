@@ -11,6 +11,7 @@ import android.widget.TextView;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 
 import org.briarproject.bramble.api.identity.Author;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.conversation.glide.GlideApp;
 import org.briarproject.briar.android.util.UiUtils;
@@ -27,7 +28,6 @@ import im.delight.android.identicons.IdenticonDrawable;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 import static android.graphics.Typeface.BOLD;
 import static android.util.TypedValue.COMPLEX_UNIT_PX;
-import static com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions.withCrossFade;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.resolveAttribute;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
@@ -78,19 +78,7 @@ public class AuthorView extends ConstraintLayout {
 	public void setAuthor(Author author, AuthorInfo authorInfo) {
 		authorName
 				.setText(getContactDisplayName(author, authorInfo.getAlias()));
-		IdenticonDrawable identicon =
-				new IdenticonDrawable(author.getId().getBytes());
-		if (authorInfo.getAvatarHeader() == null) {
-			avatar.setImageDrawable(identicon);
-		} else {
-			GlideApp.with(avatar)
-					.load(authorInfo.getAvatarHeader())
-					.diskCacheStrategy(DiskCacheStrategy.NONE)
-					.error(identicon)
-					.transition(withCrossFade())
-					.into(avatar)
-					.waitForLayout();
-		}
+		setAvatar(avatar, author.getId(), authorInfo);
 
 		if (authorInfo.getStatus() != NONE) {
 			trustIndicator.setTrustLevel(authorInfo.getStatus());
@@ -107,6 +95,22 @@ public class AuthorView extends ConstraintLayout {
 
 		invalidate();
 		requestLayout();
+	}
+
+	public static void setAvatar(ImageView v, AuthorId id, AuthorInfo info) {
+		IdenticonDrawable identicon = new IdenticonDrawable(id.getBytes());
+		if (info.getAvatarHeader() == null) {
+			GlideApp.with(v)
+					.clear(v);
+			v.setImageDrawable(identicon);
+		} else {
+			GlideApp.with(v)
+					.load(info.getAvatarHeader())
+					.diskCacheStrategy(DiskCacheStrategy.NONE)
+					.error(identicon)
+					.into(v)
+					.waitForLayout();
+		}
 	}
 
 	public void setDate(long date) {

@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
@@ -59,12 +60,13 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	CreateGroupControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			@CryptoExecutor Executor cryptoExecutor,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
-			IdentityManager identityManager, PrivateGroupFactory groupFactory,
+			AuthorManager authorManager, IdentityManager identityManager,
+			PrivateGroupFactory groupFactory,
 			GroupMessageFactory groupMessageFactory,
 			PrivateGroupManager groupManager,
 			GroupInvitationFactory groupInvitationFactory,
 			GroupInvitationManager groupInvitationManager, Clock clock) {
-		super(dbExecutor, lifecycleManager, contactManager);
+		super(dbExecutor, lifecycleManager, contactManager, authorManager);
 		this.cryptoExecutor = cryptoExecutor;
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;
@@ -176,7 +178,6 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 						// Continue
 					}
 				}
-				//noinspection ConstantConditions
 				handler.onResult(null);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);

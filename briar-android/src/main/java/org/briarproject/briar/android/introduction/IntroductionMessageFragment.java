@@ -18,10 +18,13 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
 import org.briarproject.briar.api.media.AttachmentHeader;
 
@@ -33,7 +36,6 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import de.hdodenhof.circleimageview.CircleImageView;
-import im.delight.android.identicons.IdenticonDrawable;
 
 import static android.app.Activity.RESULT_OK;
 import static android.view.View.GONE;
@@ -43,6 +45,7 @@ import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
+import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -64,6 +67,8 @@ public class IntroductionMessageFragment extends BaseFragment
 	// Fields that are accessed from background threads must be volatile
 	@Inject
 	protected volatile ContactManager contactManager;
+	@Inject
+	protected volatile AuthorManager authorManager;
 	@Inject
 	protected volatile IntroductionManager introductionManager;
 
@@ -137,11 +142,16 @@ public class IntroductionMessageFragment extends BaseFragment
 	private void prepareToSetUpViews(int contactId1, int contactId2) {
 		introductionActivity.runOnDbThread(() -> {
 			try {
-				Contact c1 = contactManager.getContact(
-						new ContactId(contactId1));
-				Contact c2 = contactManager.getContact(
-						new ContactId(contactId2));
-				boolean possible = introductionManager.canIntroduce(c1, c2);
+				Contact contact1 =
+						contactManager.getContact(new ContactId(contactId1));
+				Contact contact2 =
+						contactManager.getContact(new ContactId(contactId2));
+				AuthorInfo a1 = authorManager.getAuthorInfo(contact1);
+				AuthorInfo a2 = authorManager.getAuthorInfo(contact2);
+				boolean possible =
+						introductionManager.canIntroduce(contact1, contact2);
+				ContactItem c1 = new ContactItem(contact1, a1);
+				ContactItem c2 = new ContactItem(contact2, a2);
 				setUpViews(c1, c2, possible);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -149,20 +159,20 @@ public class IntroductionMessageFragment extends BaseFragment
 		});
 	}
 
-	private void setUpViews(Contact c1, Contact c2, boolean possible) {
+	private void setUpViews(ContactItem c1, ContactItem c2, boolean possible) {
 		introductionActivity.runOnUiThreadUnlessDestroyed(() -> {
-			contact1 = c1;
-			contact2 = c2;
+			contact1 = c1.getContact();
+			contact2 = c2.getContact();
 
 			// set avatars
-			ui.avatar1.setImageDrawable(new IdenticonDrawable(
-					c1.getAuthor().getId().getBytes()));
-			ui.avatar2.setImageDrawable(new IdenticonDrawable(
-					c2.getAuthor().getId().getBytes()));
+			setAvatar(ui.avatar1, c1.getContact().getAuthor().getId(),
+					c1.getAuthorInfo());
+			setAvatar(ui.avatar2, c2.getContact().getAuthor().getId(),
+					c2.getAuthorInfo());
 
 			// set contact names
-			ui.contactName1.setText(getContactDisplayName(c1));
-			ui.contactName2.setText(getContactDisplayName(c2));
+			ui.contactName1.setText(getContactDisplayName(c1.getContact()));
+			ui.contactName2.setText(getContactDisplayName(c2.getContact()));
 
 			// hide progress bar
 			ui.progressBar.setVisibility(GONE);

@@ -4,6 +4,7 @@ import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
+import org.briarproject.briar.api.identity.AuthorInfo;
 
 import javax.annotation.concurrent.Immutable;
 
@@ -16,29 +17,29 @@ public class ContactListItem extends ContactItem
 	private final long timestamp;
 	private final int unread;
 
-	public ContactListItem(Contact contact, boolean connected,
-			GroupCount count) {
-		super(contact, connected);
+	public ContactListItem(Contact contact, AuthorInfo authorInfo,
+			boolean connected, GroupCount count) {
+		super(contact, authorInfo, connected);
 		this.empty = count.getMsgCount() == 0;
 		this.unread = count.getUnreadCount();
 		this.timestamp = count.getLatestMsgTime();
 	}
 
-	private ContactListItem(Contact contact, boolean connected, boolean empty,
-			int unread, long timestamp) {
-		super(contact, connected);
+	private ContactListItem(Contact contact, AuthorInfo authorInfo,
+			boolean connected, boolean empty, int unread, long timestamp) {
+		super(contact, authorInfo, connected);
 		this.empty = empty;
 		this.timestamp = timestamp;
 		this.unread = unread;
 	}
 
 	ContactListItem(ContactListItem item, boolean connected) {
-		this(item.getContact(), connected, item.empty, item.unread,
-				item.timestamp);
+		this(item.getContact(), item.getAuthorInfo(), connected, item.empty,
+				item.unread, item.timestamp);
 	}
 
 	ContactListItem(ContactListItem item, ConversationMessageHeader h) {
-		this(item.getContact(), item.isConnected(), false,
+		this(item.getContact(), item.getAuthorInfo(), item.isConnected(), false,
 				h.isRead() ? item.unread : item.unread + 1,
 				Math.max(h.getTimestamp(), item.timestamp));
 	}

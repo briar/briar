@@ -14,9 +14,9 @@ import javax.annotation.Nullable;
 
 import androidx.annotation.UiThread;
 import androidx.recyclerview.widget.RecyclerView;
-import im.delight.android.identicons.IdenticonDrawable;
 
 import static org.briarproject.briar.android.util.UiUtils.getContactDisplayName;
+import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 
 @UiThread
 @NotNullByDefault
@@ -41,8 +41,7 @@ public class ContactItemViewHolder<I extends ContactItem>
 
 	protected void bind(I item, @Nullable OnContactClickListener<I> listener) {
 		Author author = item.getContact().getAuthor();
-		avatar.setImageDrawable(
-				new IdenticonDrawable(author.getId().getBytes()));
+		setAvatar(avatar, author.getId(), item.getAuthorInfo());
 		name.setText(getContactDisplayName(item.getContact()));
 
 		if (bulb != null) {

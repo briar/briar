@@ -15,6 +15,7 @@ import org.briarproject.briar.android.contactselection.ContactSelectorController
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.conversation.ConversationManager;
+import org.briarproject.briar.api.identity.AuthorManager;
 
 import java.util.Collection;
 import java.util.concurrent.Executor;
@@ -42,9 +43,10 @@ class ShareBlogControllerImpl extends ContactSelectorControllerImpl
 	@Inject
 	ShareBlogControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
+			AuthorManager authorManager,
 			ConversationManager conversationManager,
 			BlogSharingManager blogSharingManager, Clock clock) {
-		super(dbExecutor, lifecycleManager, contactManager);
+		super(dbExecutor, lifecycleManager, contactManager, authorManager);
 		this.conversationManager = conversationManager;
 		this.blogSharingManager = blogSharingManager;
 		this.clock = clock;

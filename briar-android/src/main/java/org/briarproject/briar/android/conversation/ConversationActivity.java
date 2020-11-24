@@ -31,6 +31,7 @@ import org.briarproject.bramble.api.db.NoSuchContactException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
+import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
@@ -106,7 +107,6 @@ import androidx.recyclerview.selection.StorageStrategy;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import de.hdodenhof.circleimageview.CircleImageView;
-import im.delight.android.identicons.IdenticonDrawable;
 import uk.co.samuelwall.materialtaptargetprompt.MaterialTapTargetPrompt;
 
 import static android.os.Build.VERSION.SDK_INT;
@@ -134,6 +134,7 @@ import static org.briarproject.briar.android.conversation.ImageActivity.DATE;
 import static org.briarproject.briar.android.conversation.ImageActivity.ITEM_ID;
 import static org.briarproject.briar.android.conversation.ImageActivity.NAME;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
+import static org.briarproject.briar.android.view.AuthorView.setAvatar;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 
@@ -233,10 +234,10 @@ public class ConversationActivity extends BriarActivity
 		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
 		toolbarTitle = toolbar.findViewById(R.id.contactName);
 
-		observeOnce(viewModel.getContactAuthorId(), this, authorId -> {
-			requireNonNull(authorId);
-			toolbarAvatar.setImageDrawable(
-					new IdenticonDrawable(authorId.getBytes()));
+		observeOnce(viewModel.getContactItem(), this, c -> {
+			requireNonNull(c);
+			AuthorId authorId = c.getContact().getAuthor().getId();
+			setAvatar(toolbarAvatar, authorId, c.getAuthorInfo());
 		});
 		viewModel.getContactDisplayName().observe(this, contactName -> {
 			requireNonNull(contactName);
@@ -366,7 +367,7 @@ public class ConversationActivity extends BriarActivity
 			}
 		});
 		// enable alias action if available
-		observeOnce(viewModel.getContact(), this, contact ->
+		observeOnce(viewModel.getContactItem(), this, contact ->
 				menu.findItem(R.id.action_set_alias).setEnabled(true));
 
 		return super.onCreateOptionsMenu(menu);

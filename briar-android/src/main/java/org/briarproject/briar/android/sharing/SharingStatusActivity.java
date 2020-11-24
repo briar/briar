@@ -20,6 +20,8 @@ import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
 import org.briarproject.briar.android.contact.ContactItem;
 import org.briarproject.briar.android.view.BriarRecyclerView;
+import org.briarproject.briar.api.identity.AuthorInfo;
+import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
@@ -42,6 +44,8 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 abstract class SharingStatusActivity extends BriarActivity
 		implements EventListener {
 
+	@Inject
+	AuthorManager authorManager;
 	@Inject
 	ConnectionRegistry connectionRegistry;
 	@Inject
@@ -134,8 +138,9 @@ abstract class SharingStatusActivity extends BriarActivity
 			try {
 				List<ContactItem> contactItems = new ArrayList<>();
 				for (Contact c : getSharedWith()) {
+					AuthorInfo authorInfo = authorManager.getAuthorInfo(c);
 					boolean online = connectionRegistry.isConnected(c.getId());
-					ContactItem item = new ContactItem(c, online);
+					ContactItem item = new ContactItem(c, authorInfo, online);
 					contactItems.add(item);
 				}
 				displaySharedWith(contactItems);
