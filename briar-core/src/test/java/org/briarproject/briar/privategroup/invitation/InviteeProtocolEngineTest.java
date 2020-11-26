@@ -13,7 +13,6 @@ import org.junit.Test;
 import java.util.Collections;
 import java.util.Map;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.bramble.api.sync.Group.Visibility.VISIBLE;
@@ -22,6 +21,7 @@ import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.ACCEPTED;
 import static org.briarproject.briar.privategroup.invitation.InviteeState.DISSOLVED;

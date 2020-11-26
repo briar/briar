@@ -9,11 +9,11 @@ import org.junit.Test;
 
 import javax.annotation.Nullable;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.forum.ForumConstants.FORUM_SALT_LENGTH;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_NAME_LENGTH;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;

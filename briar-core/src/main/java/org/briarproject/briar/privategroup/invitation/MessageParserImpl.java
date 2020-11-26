@@ -18,7 +18,7 @@ import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.GroupInvitationConstants.MSG_KEY_AVAILABLE_TO_ANSWER;
