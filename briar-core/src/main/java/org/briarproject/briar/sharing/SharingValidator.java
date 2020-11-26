@@ -18,12 +18,12 @@ import org.briarproject.bramble.api.system.Clock;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.bramble.util.ValidationUtils.validateAutoDeleteTimer;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.sharing.SharingConstants.MAX_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.sharing.MessageType.INVITE;
+import static org.briarproject.briar.util.ValidationUtils.validateAutoDeleteTimer;
 
 @Immutable
 @NotNullByDefault

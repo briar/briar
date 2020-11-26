@@ -1,4 +1,4 @@
-package org.briarproject.bramble.api.autodelete;
+package org.briarproject.briar.api.autodelete;
 
 import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.concurrent.TimeUnit.MINUTES;
