@@ -9,7 +9,7 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;

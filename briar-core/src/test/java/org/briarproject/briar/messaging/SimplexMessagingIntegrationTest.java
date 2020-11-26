@@ -34,12 +34,12 @@ import java.util.concurrent.CountDownLatch;
 
 import static java.util.Collections.singletonList;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {

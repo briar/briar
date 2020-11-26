@@ -18,11 +18,11 @@ import javax.annotation.Nullable;
 
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;

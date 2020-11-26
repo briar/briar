@@ -23,11 +23,10 @@ import java.util.Collections;
 
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_SIGNATURE_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.bramble.util.ValidationUtils.validateAutoDeleteTimer;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.GROUP_SALT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_INVITATION_TEXT_LENGTH;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_NAME_LENGTH;
@@ -36,6 +35,7 @@ import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;
 import static org.briarproject.briar.privategroup.invitation.MessageType.LEAVE;
+import static org.briarproject.briar.util.ValidationUtils.validateAutoDeleteTimer;
 
 @Immutable
 @NotNullByDefault

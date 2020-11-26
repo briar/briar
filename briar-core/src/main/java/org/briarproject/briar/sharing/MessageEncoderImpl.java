@@ -14,7 +14,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.sharing.MessageType.ABORT;
 import static org.briarproject.briar.sharing.MessageType.ACCEPT;
 import static org.briarproject.briar.sharing.MessageType.DECLINE;

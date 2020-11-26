@@ -25,7 +25,6 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_AUTHOR_NAME_LENGTH;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
@@ -35,6 +34,7 @@ import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.attachment.MediaConstants.MAX_IMAGE_SIZE;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;

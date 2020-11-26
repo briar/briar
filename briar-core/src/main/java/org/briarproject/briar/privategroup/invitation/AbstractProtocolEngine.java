@@ -30,7 +30,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
 import static org.briarproject.briar.privategroup.invitation.MessageType.JOIN;

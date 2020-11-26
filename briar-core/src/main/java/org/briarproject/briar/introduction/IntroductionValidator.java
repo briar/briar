@@ -18,17 +18,17 @@ import org.briarproject.briar.api.client.SessionId;
 import javax.annotation.concurrent.Immutable;
 
 import static java.util.Collections.singletonList;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAC_BYTES;
 import static org.briarproject.bramble.api.crypto.CryptoConstants.MAX_SIGNATURE_BYTES;
 import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_KEY_LENGTH;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.bramble.util.ValidationUtils.validateAutoDeleteTimer;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.introduction.IntroductionConstants.MAX_INTRODUCTION_TEXT_LENGTH;
 import static org.briarproject.briar.introduction.MessageType.ACCEPT;
 import static org.briarproject.briar.introduction.MessageType.ACTIVATE;
 import static org.briarproject.briar.introduction.MessageType.AUTH;
+import static org.briarproject.briar.util.ValidationUtils.validateAutoDeleteTimer;
 
 
 @Immutable
