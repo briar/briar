@@ -20,6 +20,8 @@ import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_AUTO_DELETE_TIMER;
 
@@ -83,6 +85,11 @@ class AutoDeleteManagerImpl
 	@Override
 	public void setAutoDeleteTimer(Transaction txn, ContactId c, long timer)
 			throws DbException {
+		if (timer != NO_AUTO_DELETE_TIMER &&
+				(timer < MIN_AUTO_DELETE_TIMER_MS ||
+						timer > MAX_AUTO_DELETE_TIMER_MS)) {
+			throw new IllegalArgumentException();
+		}
 		try {
 			Group g = getGroup(db.getContact(txn, c));
 			BdfDictionary meta = BdfDictionary.of(
