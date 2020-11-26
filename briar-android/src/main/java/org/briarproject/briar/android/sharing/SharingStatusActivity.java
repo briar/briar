@@ -44,10 +44,12 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 abstract class SharingStatusActivity extends BriarActivity
 		implements EventListener {
 
+	// objects accessed from background thread need to be volatile
 	@Inject
-	AuthorManager authorManager;
+	volatile AuthorManager authorManager;
 	@Inject
-	ConnectionRegistry connectionRegistry;
+	volatile ConnectionRegistry connectionRegistry;
+
 	@Inject
 	EventBus eventBus;
 

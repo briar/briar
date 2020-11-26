@@ -251,8 +251,10 @@ public class BriarService extends Service {
 			Glide.get(getApplicationContext()).clearMemory();
 		} else if (level == TRIM_MEMORY_RUNNING_LOW) {
 			LOG.info("Trim memory: running low");
+			// TODO investigate if we can clear Glide cache here as well
 		} else if (level == TRIM_MEMORY_RUNNING_CRITICAL) {
 			LOG.warning("Trim memory: running critically low");
+			// TODO investigate if we can clear Glide cache here as well
 			// If we're not in the foreground, clear the UI to save memory
 			if (app.isRunningInBackground()) hideUi();
 		} else if (LOG.isLoggable(INFO)) {
