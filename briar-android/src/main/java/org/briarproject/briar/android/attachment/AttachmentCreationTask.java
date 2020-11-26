@@ -35,7 +35,7 @@ import static org.briarproject.bramble.util.IoUtils.tryToClose;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
+import static org.briarproject.briar.api.media.MediaConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
 class AttachmentCreationTask {

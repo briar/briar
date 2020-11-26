@@ -21,6 +21,7 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
+import org.briarproject.briar.api.media.AttachmentReader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -31,6 +32,7 @@ import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
+import org.briarproject.briar.media.MediaModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
@@ -51,6 +53,7 @@ import dagger.Component;
 		GroupInvitationModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
+		MediaModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class
@@ -83,6 +86,8 @@ public interface BriarIntegrationTestComponent
 	EventBus getEventBus();
 
 	IdentityManager getIdentityManager();
+
+	AttachmentReader getAttachmentReader();
 
 	AvatarManager getAvatarManager();
 

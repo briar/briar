@@ -8,10 +8,8 @@ import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
-import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.media.FileTooBigException;
-import org.briarproject.briar.api.media.InvalidAttachmentException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -70,15 +68,6 @@ public interface MessagingManager extends ConversationClient {
 	 */
 	@Nullable
 	String getMessageText(MessageId m) throws DbException;
-
-	/**
-	 * Returns the attachment with the given attachment header.
-	 *
-	 * @throws InvalidAttachmentException If the header refers to a message
-	 * that is not an attachment, or to an attachment that does not have the
-	 * expected content type
-	 */
-	Attachment getAttachment(AttachmentHeader h) throws DbException;
 
 	/**
 	 * Returns true if the contact with the given {@link ContactId} does support

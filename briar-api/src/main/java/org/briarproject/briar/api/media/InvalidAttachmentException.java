@@ -11,4 +11,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
  */
 @NotNullByDefault
 public class InvalidAttachmentException extends DbException {
+	public InvalidAttachmentException() {
+		super();
+	}
+
+	public InvalidAttachmentException(Throwable t) {
+		super(t);
+	}
 }

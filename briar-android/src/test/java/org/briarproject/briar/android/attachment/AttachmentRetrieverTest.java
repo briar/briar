@@ -5,7 +5,7 @@ import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.ImmediateExecutor;
 import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
-import org.briarproject.briar.api.messaging.MessagingManager;
+import org.briarproject.briar.api.media.AttachmentReader;
 import org.jmock.Expectations;
 import org.jmock.lib.legacy.ClassImposteriser;
 import org.junit.Test;
@@ -32,11 +32,11 @@ public class AttachmentRetrieverTest extends BrambleMockTestCase {
 
 	public AttachmentRetrieverTest() {
 		context.setImposteriser(ClassImposteriser.INSTANCE);
-		MessagingManager messagingManager =
-				context.mock(MessagingManager.class);
+		AttachmentReader attachmentReader =
+				context.mock(AttachmentReader.class);
 		imageSizeCalculator = context.mock(ImageSizeCalculator.class);
 		Executor dbExecutor = new ImmediateExecutor();
-		retriever = new AttachmentRetrieverImpl(dbExecutor, messagingManager,
+		retriever = new AttachmentRetrieverImpl(dbExecutor, attachmentReader,
 				dimensions, imageHelper, imageSizeCalculator);
 	}
 

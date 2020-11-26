@@ -30,7 +30,7 @@ import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

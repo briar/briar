@@ -23,11 +23,11 @@ import static org.briarproject.bramble.test.TestUtils.getClientId;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.bramble.test.TestUtils.getMessage;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_TYPE_UPDATE;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.junit.Assert.assertEquals;
 
 public class AvatarValidatorTest extends BrambleMockTestCase {

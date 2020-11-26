@@ -30,10 +30,8 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
-import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.media.FileTooBigException;
-import org.briarproject.briar.media.AttachmentReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -49,8 +47,8 @@ import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.avatar.AvatarConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_TYPE_UPDATE;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 
 @Immutable
 @NotNullByDefault
@@ -247,11 +245,6 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 		LatestUpdate latest = findLatest(txn, groupId);
 		if (latest == null) return null;
 		return new AttachmentHeader(latest.messageId, latest.contentType);
-	}
-
-	@Override
-	public Attachment getAvatar(AttachmentHeader h) throws DbException {
-		return AttachmentReader.getAttachment(clientHelper, h);
 	}
 
 	@Nullable

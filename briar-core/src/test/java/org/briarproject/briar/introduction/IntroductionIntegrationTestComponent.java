@@ -7,6 +7,7 @@ import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
+import org.briarproject.briar.media.MediaModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
@@ -28,6 +29,7 @@ import dagger.Component;
 		GroupInvitationModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
+		MediaModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class

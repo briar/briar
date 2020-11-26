@@ -5,7 +5,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
-import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.io.IOException;
@@ -51,9 +50,4 @@ public interface AvatarManager {
 	 */
 	@Nullable
 	AttachmentHeader getMyAvatarHeader(Transaction txn) throws DbException;
-
-	/**
-	 * Returns the profile image attachment for the given header.
-	 */
-	Attachment getAvatar(AttachmentHeader h) throws DbException;
 }

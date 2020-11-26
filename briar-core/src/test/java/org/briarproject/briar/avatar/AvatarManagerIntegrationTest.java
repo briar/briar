@@ -4,6 +4,7 @@ import org.briarproject.bramble.test.TestDatabaseConfigModule;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.media.AttachmentReader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -17,7 +18,7 @@ import java.io.InputStream;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -27,6 +28,7 @@ public class AvatarManagerIntegrationTest
 		extends BriarIntegrationTest<BriarIntegrationTestComponent> {
 
 	private AvatarManager avatarManager0, avatarManager1;
+	private AttachmentReader attachmentReader0, attachmentReader1;
 
 	private final String contentType = getRandomString(MAX_CONTENT_TYPE_BYTES);
 
@@ -36,6 +38,8 @@ public class AvatarManagerIntegrationTest
 		super.setUp();
 		avatarManager0 = c0.getAvatarManager();
 		avatarManager1 = c1.getAvatarManager();
+		attachmentReader0 = c0.getAttachmentReader();
+		attachmentReader1 = c1.getAttachmentReader();
 	}
 
 	@Override
@@ -90,7 +94,7 @@ public class AvatarManagerIntegrationTest
 		assertNotNull(header0.getMessageId());
 
 		// 0 can retrieve their own avatar
-		Attachment attachment0 = avatarManager0.getAvatar(header0);
+		Attachment attachment0 = attachmentReader0.getAttachment(header0);
 		assertEquals(contentType, attachment0.getHeader().getContentType());
 		assertStreamMatches(avatar0bytes, attachment0.getStream());
 
@@ -105,7 +109,8 @@ public class AvatarManagerIntegrationTest
 		assertNotNull(header0From1.getMessageId());
 
 		// 1 can retrieve 0's avatar
-		Attachment attachment0From1 = avatarManager1.getAvatar(header0From1);
+		Attachment attachment0From1 =
+				attachmentReader1.getAttachment(header0From1);
 		assertEquals(contentType,
 				attachment0From1.getHeader().getContentType());
 		assertStreamMatches(avatar0bytes, attachment0From1.getStream());
@@ -127,7 +132,8 @@ public class AvatarManagerIntegrationTest
 		assertNotNull(header1From0.getMessageId());
 
 		// 0 can retrieve 1's avatar
-		Attachment attachment1From0 = avatarManager0.getAvatar(header1From0);
+		Attachment attachment1From0 =
+				attachmentReader0.getAttachment(header1From0);
 		assertEquals(contentType1,
 				attachment1From0.getHeader().getContentType());
 		assertStreamMatches(avatar1bytes, attachment1From0.getStream());
@@ -144,7 +150,7 @@ public class AvatarManagerIntegrationTest
 		AttachmentHeader header0 = db0.transactionWithResult(true,
 				txn -> avatarManager0.getMyAvatarHeader(txn));
 		assertNotNull(header0);
-		Attachment attachment0 = avatarManager0.getAvatar(header0);
+		Attachment attachment0 = attachmentReader0.getAttachment(header0);
 		assertStreamMatches(avatar0bytes, attachment0.getStream());
 
 		// send the avatar from 0 to 1
@@ -154,7 +160,8 @@ public class AvatarManagerIntegrationTest
 		AttachmentHeader header0From1 = db1.transactionWithNullableResult(true,
 				txn -> avatarManager1.getAvatarHeader(txn, contact0From1));
 		assertNotNull(header0From1);
-		Attachment attachment0From1 = avatarManager1.getAvatar(header0From1);
+		Attachment attachment0From1 =
+				attachmentReader1.getAttachment(header0From1);
 		assertStreamMatches(avatar0bytes, attachment0From1.getStream());
 
 		// 0 adds a new avatar
@@ -167,7 +174,7 @@ public class AvatarManagerIntegrationTest
 		header0 = db0.transactionWithResult(true,
 				txn -> avatarManager0.getMyAvatarHeader(txn));
 		assertNotNull(header0);
-		attachment0 = avatarManager0.getAvatar(header0);
+		attachment0 = attachmentReader0.getAttachment(header0);
 		assertStreamMatches(avatar0bytes2, attachment0.getStream());
 
 		// send the new avatar from 0 to 1
@@ -177,7 +184,7 @@ public class AvatarManagerIntegrationTest
 		header0From1 = db1.transactionWithNullableResult(true,
 				txn -> avatarManager1.getAvatarHeader(txn, contact0From1));
 		assertNotNull(header0From1);
-		attachment0From1 = avatarManager1.getAvatar(header0From1);
+		attachment0From1 = attachmentReader1.getAttachment(header0From1);
 		assertStreamMatches(avatar0bytes2, attachment0From1.getStream());
 	}
 

@@ -4,13 +4,12 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.data.DataFetcher;
 
-import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.api.media.Attachment;
-import org.briarproject.briar.media.AttachmentReader;
+import org.briarproject.briar.api.media.AttachmentReader;
 
 import java.io.InputStream;
 import java.util.concurrent.Executor;
@@ -31,7 +30,7 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	private final static Logger LOG =
 			getLogger(BriarDataFetcher.class.getName());
 
-	private final ClientHelper clientHelper;
+	private final AttachmentReader attachmentReader;
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 	private final AttachmentItem attachment;
@@ -41,9 +40,9 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 	private volatile boolean cancel = false;
 
 	@Inject
-	BriarDataFetcher(ClientHelper clientHelper,
+	BriarDataFetcher(AttachmentReader attachmentReader,
 			@DatabaseExecutor Executor dbExecutor, AttachmentItem attachment) {
-		this.clientHelper = clientHelper;
+		this.attachmentReader = attachmentReader;
 		this.dbExecutor = dbExecutor;
 		this.attachment = attachment;
 	}
@@ -54,8 +53,8 @@ class BriarDataFetcher implements DataFetcher<InputStream> {
 		dbExecutor.execute(() -> {
 			if (cancel) return;
 			try {
-				Attachment a = AttachmentReader
-						.getAttachment(clientHelper, attachment.getHeader());
+				Attachment a =
+						attachmentReader.getAttachment(attachment.getHeader());
 				inputStream = a.getStream();
 				callback.onDataReady(inputStream);
 			} catch (DbException e) {

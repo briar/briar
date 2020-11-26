@@ -32,7 +32,6 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.conversation.DeletionResult;
-import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.media.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -40,7 +39,6 @@ import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 import org.briarproject.briar.api.messaging.event.PrivateMessageReceivedEvent;
-import org.briarproject.briar.media.AttachmentReader;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,8 +58,8 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_L
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.briar.client.MessageTrackerConstants.MSG_KEY_READ;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.messaging.MessageTypes.ATTACHMENT;
 import static org.briarproject.briar.messaging.MessageTypes.PRIVATE_MESSAGE;
 import static org.briarproject.briar.messaging.MessagingConstants.GROUP_KEY_CONTACT_ID;
@@ -397,11 +395,6 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
-	}
-
-	@Override
-	public Attachment getAttachment(AttachmentHeader h) throws DbException {
-		return AttachmentReader.getAttachment(clientHelper, h);
 	}
 
 	@Override

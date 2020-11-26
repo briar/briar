@@ -9,7 +9,7 @@ import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.NONE;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 

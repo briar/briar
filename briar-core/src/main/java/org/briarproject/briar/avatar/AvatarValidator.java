@@ -26,11 +26,11 @@ import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_L
 import static org.briarproject.bramble.api.transport.TransportConstants.MAX_CLOCK_DIFFERENCE;
 import static org.briarproject.bramble.util.ValidationUtils.checkLength;
 import static org.briarproject.bramble.util.ValidationUtils.checkSize;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_TYPE_UPDATE;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 
 @Immutable
 @NotNullByDefault

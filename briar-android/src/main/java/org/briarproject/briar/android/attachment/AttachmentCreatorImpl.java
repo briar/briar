@@ -36,7 +36,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
-import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_IMAGE_SIZE;
+import static org.briarproject.briar.api.media.MediaConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
 class AttachmentCreatorImpl implements AttachmentCreator {
