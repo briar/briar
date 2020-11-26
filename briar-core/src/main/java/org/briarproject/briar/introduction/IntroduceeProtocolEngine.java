@@ -26,6 +26,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
@@ -80,10 +81,12 @@ class IntroduceeProtocolEngine
 			IntroductionCrypto crypto,
 			KeyManager keyManager,
 			TransportPropertyManager transportPropertyManager,
-			ClientVersioningManager clientVersioningManager) {
+			ClientVersioningManager clientVersioningManager,
+			AutoDeleteManager autoDeleteManager) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
 				messageTracker, identityManager, authorManager, messageParser,
-				messageEncoder, clientVersioningManager, clock);
+				messageEncoder, clientVersioningManager, autoDeleteManager,
+				clock);
 		this.crypto = crypto;
 		this.keyManager = keyManager;
 		this.transportPropertyManager = transportPropertyManager;

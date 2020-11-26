@@ -40,6 +40,11 @@ public interface MessagingManager extends ConversationClient {
 	void addLocalMessage(PrivateMessage m) throws DbException;
 
 	/**
+	 * Stores a local private message.
+	 */
+	void addLocalMessage(Transaction txn, PrivateMessage m) throws DbException;
+
+	/**
 	 * Stores a local attachment message.
 	 *
 	 * @throws FileTooBigException If the attachment is too big

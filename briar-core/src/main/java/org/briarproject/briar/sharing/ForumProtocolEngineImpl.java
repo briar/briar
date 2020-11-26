@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 import org.briarproject.briar.api.forum.Forum;
@@ -32,15 +33,19 @@ class ForumProtocolEngineImpl extends ProtocolEngineImpl<Forum> {
 			invitationFactory;
 
 	@Inject
-	ForumProtocolEngineImpl(DatabaseComponent db,
+	ForumProtocolEngineImpl(
+			DatabaseComponent db,
 			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
-			MessageEncoder messageEncoder, MessageParser<Forum> messageParser,
-			MessageTracker messageTracker, Clock clock,
+			MessageEncoder messageEncoder,
+			MessageParser<Forum> messageParser,
+			MessageTracker messageTracker,
+			AutoDeleteManager autoDeleteManager,
+			Clock clock,
 			ForumManager forumManager,
 			InvitationFactory<Forum, ForumInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, messageEncoder,
-				messageParser, messageTracker, clock,
+				messageParser, messageTracker, autoDeleteManager, clock,
 				ForumSharingManager.CLIENT_ID,
 				ForumSharingManager.MAJOR_VERSION,
 				ForumManager.CLIENT_ID, ForumManager.MAJOR_VERSION);

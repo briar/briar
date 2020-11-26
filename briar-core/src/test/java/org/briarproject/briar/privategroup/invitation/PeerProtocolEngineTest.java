@@ -27,7 +27,7 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 			new PeerProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, clock);
+					messageEncoder, messageTracker, autoDeleteManager, clock);
 
 	private PeerSession getDefaultSession(PeerState state) {
 		return new PeerSession(contactGroupId, privateGroupId,

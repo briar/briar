@@ -27,6 +27,7 @@ import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
 import org.briarproject.briar.attachment.AttachmentModule;
+import org.briarproject.briar.autodelete.AutoDeleteModule;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
@@ -46,6 +47,8 @@ import dagger.Component;
 @Component(modules = {
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
+		AttachmentModule.class,
+		AutoDeleteModule.class,
 		AvatarModule.class,
 		BlogModule.class,
 		BriarClientModule.class,
@@ -53,7 +56,6 @@ import dagger.Component;
 		GroupInvitationModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
-		AttachmentModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class

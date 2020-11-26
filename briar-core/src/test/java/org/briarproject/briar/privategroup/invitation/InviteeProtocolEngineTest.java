@@ -43,7 +43,7 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			new InviteeProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, clock);
+					messageEncoder, messageTracker, autoDeleteManager, clock);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 
 	private InviteeSession getDefaultSession(InviteeState state) {

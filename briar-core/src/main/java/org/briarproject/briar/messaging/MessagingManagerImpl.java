@@ -227,7 +227,12 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 
 	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
-		Transaction txn = db.startTransaction(false);
+		db.transaction(false, txn -> addLocalMessage(txn, m));
+	}
+
+	@Override
+	public void addLocalMessage(Transaction txn, PrivateMessage m)
+			throws DbException {
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(MSG_KEY_TIMESTAMP, m.getMessage().getTimestamp());
@@ -257,11 +262,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
 					false);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 
