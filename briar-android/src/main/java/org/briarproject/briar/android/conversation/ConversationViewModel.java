@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -28,6 +29,7 @@ import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
@@ -58,7 +60,6 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
-import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
@@ -84,6 +85,7 @@ public class ConversationViewModel extends AndroidViewModel
 	private final PrivateMessageFactory privateMessageFactory;
 	private final AttachmentRetriever attachmentRetriever;
 	private final AttachmentCreator attachmentCreator;
+	private final AutoDeleteManager autoDeleteManager;
 
 	@Nullable
 	private ContactId contactId = null;
@@ -116,7 +118,8 @@ public class ConversationViewModel extends AndroidViewModel
 			SettingsManager settingsManager,
 			PrivateMessageFactory privateMessageFactory,
 			AttachmentRetriever attachmentRetriever,
-			AttachmentCreator attachmentCreator) {
+			AttachmentCreator attachmentCreator,
+			AutoDeleteManager autoDeleteManager) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.db = db;
@@ -127,6 +130,7 @@ public class ConversationViewModel extends AndroidViewModel
 		this.privateMessageFactory = privateMessageFactory;
 		this.attachmentRetriever = attachmentRetriever;
 		this.attachmentCreator = attachmentCreator;
+		this.autoDeleteManager = autoDeleteManager;
 		messagingGroupId = Transformations
 				.map(contact, c -> messagingManager.getContactGroup(c).getId());
 		contactDeleted.setValue(false);
@@ -215,7 +219,8 @@ public class ConversationViewModel extends AndroidViewModel
 		observeForeverOnce(messagingGroupId, groupId -> {
 			requireNonNull(groupId);
 			observeForeverOnce(privateMessageFormat, format ->
-					createMessage(groupId, text, headers, timestamp, format));
+					storeMessage(requireNonNull(contactId), groupId, text,
+							headers, timestamp, format));
 		});
 	}
 
@@ -275,45 +280,50 @@ public class ConversationViewModel extends AndroidViewModel
 		settingsManager.mergeSettings(settings, SETTINGS_NAMESPACE);
 	}
 
-	@UiThread
-	private void createMessage(GroupId groupId, @Nullable String text,
+	private PrivateMessage createMessage(Transaction txn, ContactId c,
+			GroupId groupId, @Nullable String text,
 			List<AttachmentHeader> headers, long timestamp,
-			PrivateMessageFormat format) {
+			PrivateMessageFormat format) throws DbException {
 		try {
-			PrivateMessage pm;
 			if (format == TEXT_ONLY) {
-				pm = privateMessageFactory.createLegacyPrivateMessage(
+				return privateMessageFactory.createLegacyPrivateMessage(
 						groupId, timestamp, requireNonNull(text));
 			} else if (format == TEXT_IMAGES) {
-				pm = privateMessageFactory.createPrivateMessage(groupId,
+				return privateMessageFactory.createPrivateMessage(groupId,
 						timestamp, text, headers);
 			} else {
-				// TODO: Look up auto-delete timer
-				pm = privateMessageFactory.createPrivateMessage(groupId,
-						timestamp, text, headers, NO_AUTO_DELETE_TIMER);
+				long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+				return privateMessageFactory.createPrivateMessage(groupId,
+						timestamp, text, headers, timer);
 			}
-			storeMessage(pm);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
 		}
 	}
 
 	@UiThread
-	private void storeMessage(PrivateMessage m) {
-		attachmentCreator.onAttachmentsSent(m.getMessage().getId());
+	private void storeMessage(ContactId c, GroupId groupId,
+			@Nullable String text, List<AttachmentHeader> headers,
+			long timestamp, PrivateMessageFormat format) {
 		dbExecutor.execute(() -> {
 			try {
-				long start = now();
-				messagingManager.addLocalMessage(m);
-				logDuration(LOG, "Storing message", start);
-				Message message = m.getMessage();
-				PrivateMessageHeader h = new PrivateMessageHeader(
-						message.getId(), message.getGroupId(),
-						message.getTimestamp(), true, true, false, false,
-						m.hasText(), m.getAttachmentHeaders(),
-						m.getAutoDeleteTimer());
-				// TODO add text to cache when available here
-				addedHeader.postEvent(h);
+				db.transaction(false, txn -> {
+					long start = now();
+					PrivateMessage m = createMessage(txn, c, groupId, text,
+							headers, timestamp, format);
+					messagingManager.addLocalMessage(txn, m);
+					logDuration(LOG, "Storing message", start);
+					Message message = m.getMessage();
+					PrivateMessageHeader h = new PrivateMessageHeader(
+							message.getId(), message.getGroupId(),
+							message.getTimestamp(), true, true, false, false,
+							m.hasText(), m.getAttachmentHeaders(),
+							m.getAutoDeleteTimer());
+					// TODO add text to cache when available here
+					MessageId id = message.getId();
+					txn.attach(() -> attachmentCreator.onAttachmentsSent(id));
+					addedHeader.postEvent(h);
+				});
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}

@@ -18,6 +18,7 @@ import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.sharing.Shareable;
@@ -56,22 +57,31 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private final ClientVersioningManager clientVersioningManager;
 	private final MessageEncoder messageEncoder;
 	private final MessageTracker messageTracker;
+	private final AutoDeleteManager autoDeleteManager;
 	private final Clock clock;
 	private final ClientId sharingClientId, shareableClientId;
 	private final int sharingClientMajorVersion, shareableClientMajorVersion;
 
-	ProtocolEngineImpl(DatabaseComponent db, ClientHelper clientHelper,
+	ProtocolEngineImpl(
+			DatabaseComponent db,
+			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
-			MessageEncoder messageEncoder, MessageParser<S> messageParser,
-			MessageTracker messageTracker, Clock clock,
-			ClientId sharingClientId, int sharingClientMajorVersion,
-			ClientId shareableClientId, int shareableClientMajorVersion) {
+			MessageEncoder messageEncoder,
+			MessageParser<S> messageParser,
+			MessageTracker messageTracker,
+			AutoDeleteManager autoDeleteManager,
+			Clock clock,
+			ClientId sharingClientId,
+			int sharingClientMajorVersion,
+			ClientId shareableClientId,
+			int shareableClientMajorVersion) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.clientVersioningManager = clientVersioningManager;
 		this.messageEncoder = messageEncoder;
 		this.messageParser = messageParser;
 		this.messageTracker = messageTracker;
+		this.autoDeleteManager = autoDeleteManager;
 		this.clock = clock;
 		this.sharingClientId = sharingClientId;
 		this.sharingClientMajorVersion = sharingClientMajorVersion;
@@ -125,9 +135,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		}
 		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
 		Message m;
-		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
-			// TODO: Look up the current auto-delete timer
-			long timer = NO_AUTO_DELETE_TIMER;
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		if (contactSupportsAutoDeletion(txn, c)) {
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
 			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 					localTimestamp, s.getLastLocalMessageId(), descriptor,
 					text, timer);
@@ -191,9 +201,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Message sendAcceptMessage(Transaction txn, Session s)
 			throws DbException {
 		Message m;
-		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
-			// TODO: Look up the current auto-delete timer
-			long timer = NO_AUTO_DELETE_TIMER;
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		if (contactSupportsAutoDeletion(txn, c)) {
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
 			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
 					s.getShareableId(), getLocalTimestamp(s),
 					s.getLastLocalMessageId(), timer);
@@ -244,9 +254,9 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Message sendDeclineMessage(Transaction txn, Session s)
 			throws DbException {
 		Message m;
-		if (contactSupportsAutoDeletion(txn, s.getContactGroupId())) {
-			// TODO: Look up the current auto-delete timer
-			long timer = NO_AUTO_DELETE_TIMER;
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		if (contactSupportsAutoDeletion(txn, c)) {
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
 			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
 					s.getShareableId(), getLocalTimestamp(s),
 					s.getLastLocalMessageId(), timer);
@@ -673,17 +683,20 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 						session.getInviteTimestamp()) + 1);
 	}
 
-	boolean contactSupportsAutoDeletion(Transaction txn, GroupId contactGroupId)
+	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
 			throws DbException {
 		try {
-			ContactId c = clientHelper.getContactId(txn, contactGroupId);
-			int minorVersion = clientVersioningManager
-					.getClientMinorVersion(txn, c, sharingClientId,
-							sharingClientMajorVersion);
-			// Auto-delete was added in client version 0.1
-			return minorVersion >= 1;
+			return clientHelper.getContactId(txn, contactGroupId);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
+	}
+
+	private boolean contactSupportsAutoDeletion(Transaction txn, ContactId c)
+			throws DbException {
+		int minorVersion = clientVersioningManager.getClientMinorVersion(txn, c,
+				sharingClientId, sharingClientMajorVersion);
+		// Auto-delete was added in client version 0.1
+		return minorVersion >= 1;
 	}
 }
