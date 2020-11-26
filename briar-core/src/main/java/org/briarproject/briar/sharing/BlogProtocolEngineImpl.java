@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogInvitationResponse;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -32,13 +33,19 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			invitationFactory;
 
 	@Inject
-	BlogProtocolEngineImpl(DatabaseComponent db, ClientHelper clientHelper,
+	BlogProtocolEngineImpl(
+			DatabaseComponent db,
+			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
-			MessageEncoder messageEncoder, MessageParser<Blog> messageParser,
-			MessageTracker messageTracker, Clock clock, BlogManager blogManager,
+			MessageEncoder messageEncoder,
+			MessageParser<Blog> messageParser,
+			MessageTracker messageTracker,
+			AutoDeleteManager autoDeleteManager,
+			Clock clock,
+			BlogManager blogManager,
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, messageEncoder,
-				messageParser, messageTracker, clock,
+				messageParser, messageTracker, autoDeleteManager, clock,
 				BlogSharingManager.CLIENT_ID, BlogSharingManager.MAJOR_VERSION,
 				BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION);
 		this.blogManager = blogManager;
