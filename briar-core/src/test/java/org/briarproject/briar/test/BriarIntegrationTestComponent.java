@@ -57,6 +57,8 @@ public interface BriarIntegrationTestComponent
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
 
+	void inject(AutoDeleteModule.EagerSingletons init);
+
 	void inject(BlogModule.EagerSingletons init);
 
 	void inject(ForumModule.EagerSingletons init);
@@ -119,6 +121,7 @@ public interface BriarIntegrationTestComponent
 				BriarIntegrationTestComponent c) {
 			BrambleCoreIntegrationTestEagerSingletons.Helper
 					.injectEagerSingletons(c);
+			c.inject(new AutoDeleteModule.EagerSingletons());
 			c.inject(new BlogModule.EagerSingletons());
 			c.inject(new ForumModule.EagerSingletons());
 			c.inject(new GroupInvitationModule.EagerSingletons());
