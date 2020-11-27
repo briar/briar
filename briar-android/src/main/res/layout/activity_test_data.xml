@@ -72,13 +72,43 @@
 			app:layout_constraintTop_toBottomOf="@+id/textViewMessages" />
 
 		<TextView
+			android:id="@+id/textViewAvatars"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:layout_margin="@dimen/margin_medium"
+			android:text="Percentage of contacts with profile pictures"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/seekBarMessages" />
+
+		<SeekBar
+			android:id="@+id/seekBarAvatars"
+			android:layout_width="0dp"
+			android:layout_height="wrap_content"
+			android:max="100"
+			android:paddingTop="5dp"
+			android:progress="75"
+			app:layout_constraintEnd_toStartOf="@+id/textViewAvatarsSb"
+			app:layout_constraintStart_toStartOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewAvatars" />
+
+		<TextView
+			android:id="@+id/textViewAvatarsSb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:ems="2"
+			android:text="75"
+			app:layout_constraintBottom_toBottomOf="@+id/seekBarAvatars"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintTop_toBottomOf="@+id/textViewAvatars" />
+
+		<TextView
 			android:id="@+id/textViewBlogPosts"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
 			android:layout_margin="@dimen/margin_medium"
 			android:text="Number of blog posts"
 			app:layout_constraintStart_toStartOf="parent"
-			app:layout_constraintTop_toBottomOf="@+id/seekBarMessages" />
+			app:layout_constraintTop_toBottomOf="@+id/seekBarAvatars" />
 
 		<SeekBar
 			android:id="@+id/seekBarBlogPosts"

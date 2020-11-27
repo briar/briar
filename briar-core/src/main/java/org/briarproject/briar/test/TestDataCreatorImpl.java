@@ -124,12 +124,15 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	@Override
 	public void createTestData(int numContacts, int numPrivateMsgs,
-			int numBlogPosts, int numForums, int numForumPosts) {
+			int avatarPercent, int numBlogPosts, int numForums,
+			int numForumPosts) {
 		if (numContacts == 0) throw new IllegalArgumentException();
+		if (avatarPercent < 0 || avatarPercent > 100)
+			throw new IllegalArgumentException();
 		ioExecutor.execute(() -> {
 			try {
 				createTestDataOnIoExecutor(numContacts, numPrivateMsgs,
-						numBlogPosts, numForums, numForumPosts);
+						avatarPercent, numBlogPosts, numForums, numForumPosts);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
@@ -138,9 +141,9 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	@IoExecutor
 	private void createTestDataOnIoExecutor(int numContacts, int numPrivateMsgs,
-			int numBlogPosts, int numForums, int numForumPosts)
-			throws DbException {
-		List<Contact> contacts = createContacts(numContacts);
+			int avatarPercent, int numBlogPosts, int numForums,
+			int numForumPosts) throws DbException {
+		List<Contact> contacts = createContacts(numContacts, avatarPercent);
 		createPrivateMessages(contacts, numPrivateMsgs);
 		createBlogPosts(contacts, numBlogPosts);
 		List<Forum> forums = createForums(contacts, numForums);
@@ -149,19 +152,21 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		}
 	}
 
-	private List<Contact> createContacts(int numContacts) throws DbException {
+	private List<Contact> createContacts(int numContacts, int avatarPercent)
+			throws DbException {
 		List<Contact> contacts = new ArrayList<>(numContacts);
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		for (int i = 0; i < numContacts; i++) {
 			LocalAuthor remote = getRandomAuthor();
-			Contact contact = addContact(localAuthor.getId(), remote);
+			Contact contact =
+					addContact(localAuthor.getId(), remote, avatarPercent);
 			contacts.add(contact);
 		}
 		return contacts;
 	}
 
-	private Contact addContact(AuthorId localAuthorId, LocalAuthor remote)
-			throws DbException {
+	private Contact addContact(AuthorId localAuthorId, LocalAuthor remote,
+			int avatarPercent) throws DbException {
 		// prepare to add contact
 		SecretKey secretKey = getSecretKey();
 		long timestamp = clock.currentTimeMillis();
@@ -181,7 +186,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			transportPropertyManager.addRemoteProperties(txn, contactId, props);
 			return db.getContact(txn, contactId);
 		});
-		if (random.nextInt(3) < 2) addAvatar(contact);
+		if (random.nextInt(100) + 1 < avatarPercent) addAvatar(contact);
 
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Added contact " + remote.getName() +
@@ -192,10 +197,11 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	}
 
 	@Override
-	public Contact addContact(String name) throws DbException {
+	public Contact addContact(String name, boolean avatar) throws DbException {
 		LocalAuthor localAuthor = identityManager.getLocalAuthor();
 		LocalAuthor remote = authorFactory.createLocalAuthor(name);
-		return addContact(localAuthor.getId(), remote);
+		int avatarPercent = avatar ? 100 : 0;
+		return addContact(localAuthor.getId(), remote, avatarPercent);
 	}
 
 	private String getRandomAuthorName() {
