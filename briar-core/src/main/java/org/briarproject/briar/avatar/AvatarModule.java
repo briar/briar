@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.sync.validation.ValidationManager;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.avatar.AvatarManager;
+import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -39,6 +40,13 @@ public class AvatarModule {
 		validationManager.registerMessageValidator(CLIENT_ID, MAJOR_VERSION,
 				avatarValidator);
 		return avatarValidator;
+	}
+
+	@Provides
+	@Singleton
+	AvatarMessageEncoder provideMessageEncoder(
+			AvatarMessageEncoderImpl messageEncoder) {
+		return messageEncoder;
 	}
 
 	@Provides

@@ -1,12 +1,12 @@
 package org.briarproject.briar.avatar;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
-import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -24,10 +24,10 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
+import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
 import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.jmock.Expectations;
@@ -54,11 +54,10 @@ import static org.briarproject.bramble.util.StringUtils.getRandomString;
 import static org.briarproject.briar.api.avatar.AvatarManager.CLIENT_ID;
 import static org.briarproject.briar.api.avatar.AvatarManager.MAJOR_VERSION;
 import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
-import static org.briarproject.briar.avatar.AvatarConstants.GROUP_KEY_CONTACT_ID;
-import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
-import static org.briarproject.briar.avatar.AvatarConstants.MSG_TYPE_UPDATE;
 import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.avatar.AvatarConstants.GROUP_KEY_CONTACT_ID;
+import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 
@@ -73,7 +72,8 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 	private final MetadataParser metadataParser =
 			context.mock(MetadataParser.class);
 	private final GroupFactory groupFactory = context.mock(GroupFactory.class);
-	private final Clock clock = context.mock(Clock.class);
+	private final AvatarMessageEncoder avatarMessageEncoder =
+			context.mock(AvatarMessageEncoder.class);
 
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final GroupId localGroupId = localGroup.getId();
@@ -93,11 +93,10 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 	private final AvatarManagerImpl avatarManager =
 			new AvatarManagerImpl(db, identityManager, clientHelper,
 					clientVersioningManager, metadataParser, groupFactory,
-					clock);
+					avatarMessageEncoder);
 
 	@Test
-	public void testOpenDatabaseHookWhenGroupExists()
-			throws DbException, FormatException {
+	public void testOpenDatabaseHookWhenGroupExists() throws DbException {
 		Transaction txn = new Transaction(null, false);
 
 		// local group already exists, so nothing more to do
@@ -269,7 +268,7 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 
 	@Test(expected = InvalidMessageException.class)
 	public void testIncomingMessageInOwnGroup()
-			throws DbException, InvalidMessageException, FormatException {
+			throws DbException, InvalidMessageException {
 		Transaction txn = new Transaction(null, false);
 		expectGetOurGroup(txn);
 		avatarManager.incomingMessage(txn, ourMsg, meta);
@@ -283,8 +282,6 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 		Transaction txn2 = new Transaction(null, false);
 		long latestVersion = metaDict.getLong(MSG_KEY_VERSION);
 		long version = latestVersion + 1;
-		BdfList list = BdfList.of(MSG_TYPE_UPDATE, version, contentType);
-		long now = System.currentTimeMillis();
 		Message newMsg = getMessage(localGroupId);
 		BdfDictionary newMeta = BdfDictionary.of(
 				new BdfEntry(MSG_KEY_VERSION, version),
@@ -296,12 +293,9 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
-			oneOf(clientHelper).toByteArray(list);
-			oneOf(clock).currentTimeMillis();
-			will(returnValue(now));
-			oneOf(clientHelper).createMessage(with(equal(localGroupId)),
-					with(equal(now)), with(any(byte[].class)));
-			will(returnValue(newMsg));
+			oneOf(avatarMessageEncoder).encodeUpdateMessage(localGroupId,
+					version, contentType, inputStream);
+			will(returnValue(new Pair<>(newMsg, newMeta)));
 			oneOf(db).transactionWithResult(with(false), withDbCallable(txn2));
 			oneOf(db).deleteMessage(txn2, ourMsg.getId());
 			oneOf(db).deleteMessageMetadata(txn2, ourMsg.getId());
@@ -336,11 +330,9 @@ public class AvatarManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(txn));
 			oneOf(db).commitTransaction(txn);
 			oneOf(db).endTransaction(txn);
-			oneOf(clientHelper).toByteArray(with(any(BdfList.class)));
-			oneOf(clock).currentTimeMillis();
-			oneOf(clientHelper).createMessage(with(equal(localGroupId)),
-					with(any(long.class)), with(any(byte[].class)));
-			will(returnValue(newMsg));
+			oneOf(avatarMessageEncoder).encodeUpdateMessage(localGroupId,
+					latestVersion + 1, contentType, inputStream);
+			will(returnValue(new Pair<>(newMsg, newMeta)));
 			oneOf(db).transactionWithResult(with(false), withDbCallable(txn2));
 			// no deletion or storing happening
 		}});

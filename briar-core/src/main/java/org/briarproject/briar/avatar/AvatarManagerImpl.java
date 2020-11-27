@@ -1,12 +1,12 @@
 package org.briarproject.briar.avatar;
 
 import org.briarproject.bramble.api.FormatException;
+import org.briarproject.bramble.api.Pair;
 import org.briarproject.bramble.api.client.ClientHelper;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.contact.ContactManager.ContactHook;
 import org.briarproject.bramble.api.data.BdfDictionary;
-import org.briarproject.bramble.api.data.BdfList;
 import org.briarproject.bramble.api.data.MetadataParser;
 import org.briarproject.bramble.api.db.DatabaseComponent;
 import org.briarproject.bramble.api.db.DbException;
@@ -25,15 +25,13 @@ import org.briarproject.bramble.api.sync.InvalidMessageException;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.avatar.AvatarManager;
+import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
 import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
 import org.briarproject.briar.api.media.AttachmentHeader;
-import org.briarproject.briar.api.media.FileTooBigException;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
@@ -42,13 +40,9 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
-import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.avatar.AvatarConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
-import static org.briarproject.briar.avatar.AvatarConstants.MSG_TYPE_UPDATE;
-import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 
 @Immutable
 @NotNullByDefault
@@ -61,7 +55,7 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 	private final ClientVersioningManager clientVersioningManager;
 	private final MetadataParser metadataParser;
 	private final GroupFactory groupFactory;
-	private final Clock clock;
+	private final AvatarMessageEncoder avatarMessageEncoder;
 
 	@Inject
 	AvatarManagerImpl(
@@ -71,14 +65,14 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 			ClientVersioningManager clientVersioningManager,
 			MetadataParser metadataParser,
 			GroupFactory groupFactory,
-			Clock clock) {
+			AvatarMessageEncoder avatarMessageEncoder) {
 		this.db = db;
 		this.identityManager = identityManager;
 		this.clientHelper = clientHelper;
 		this.clientVersioningManager = clientVersioningManager;
 		this.metadataParser = metadataParser;
 		this.groupFactory = groupFactory;
-		this.clock = clock;
+		this.avatarMessageEncoder = avatarMessageEncoder;
 	}
 
 	@Override
@@ -178,24 +172,11 @@ class AvatarManagerImpl implements AvatarManager, OpenDatabaseHook, ContactHook,
 			db.endTransaction(txn);
 		}
 		long version = latest == null ? 0 : latest.version + 1;
-		// 0.0: Message Type, Version, Content-Type
-		BdfList list = BdfList.of(MSG_TYPE_UPDATE, version, contentType);
-		byte[] descriptor = clientHelper.toByteArray(list);
-		// add BdfList and stream content to body
-		ByteArrayOutputStream bodyOut = new ByteArrayOutputStream();
-		bodyOut.write(descriptor);
-		copyAndClose(in, bodyOut);
-		if (bodyOut.size() > MAX_MESSAGE_BODY_LENGTH)
-			throw new FileTooBigException();
-		// assemble message
-		byte[] body = bodyOut.toByteArray();
-		long timestamp = clock.currentTimeMillis();
-		Message m = clientHelper.createMessage(groupId, timestamp, body);
-		// add metadata to message
-		BdfDictionary meta = new BdfDictionary();
-		meta.put(MSG_KEY_VERSION, version);
-		meta.put(MSG_KEY_CONTENT_TYPE, contentType);
-		meta.put(MSG_KEY_DESCRIPTOR_LENGTH, descriptor.length);
+		// encode message and metadata
+		Pair<Message, BdfDictionary> encodedMessage = avatarMessageEncoder
+				.encodeUpdateMessage(groupId, version, contentType, in);
+		Message m = encodedMessage.getFirst();
+		BdfDictionary meta = encodedMessage.getSecond();
 		// save/send avatar and delete old one
 		return db.transactionWithResult(false, txn2 -> {
 			// re-query latest update as it might have changed since last query
