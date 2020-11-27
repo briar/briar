@@ -186,7 +186,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			transportPropertyManager.addRemoteProperties(txn, contactId, props);
 			return db.getContact(txn, contactId);
 		});
-		if (random.nextInt(100) + 1 < avatarPercent) addAvatar(contact);
+		if (random.nextInt(100) + 1 <= avatarPercent) addAvatar(contact);
 
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Added contact " + remote.getName() +
