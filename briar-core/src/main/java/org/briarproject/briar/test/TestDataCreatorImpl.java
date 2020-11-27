@@ -20,9 +20,13 @@ import org.briarproject.bramble.api.plugin.TransportId;
 import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Group;
+import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.api.avatar.AvatarManager;
+import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
 import org.briarproject.briar.api.blog.Blog;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
@@ -33,8 +37,11 @@ import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
+import org.briarproject.briar.api.test.TestAvatarCreator;
 import org.briarproject.briar.api.test.TestDataCreator;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,6 +73,7 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	private final AuthorFactory authorFactory;
 	private final Clock clock;
+	private final GroupFactory groupFactory;
 	private final PrivateMessageFactory privateMessageFactory;
 	private final BlogPostFactory blogPostFactory;
 
@@ -76,6 +84,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 	private final MessagingManager messagingManager;
 	private final BlogManager blogManager;
 	private final ForumManager forumManager;
+	private final TestAvatarCreator testAvatarCreator;
+	private final AvatarMessageEncoder avatarMessageEncoder;
 
 	@IoExecutor
 	private final Executor ioExecutor;
@@ -85,14 +95,19 @@ public class TestDataCreatorImpl implements TestDataCreator {
 
 	@Inject
 	TestDataCreatorImpl(AuthorFactory authorFactory, Clock clock,
+			GroupFactory groupFactory,
 			PrivateMessageFactory privateMessageFactory,
 			BlogPostFactory blogPostFactory, DatabaseComponent db,
 			IdentityManager identityManager, ContactManager contactManager,
 			TransportPropertyManager transportPropertyManager,
 			MessagingManager messagingManager, BlogManager blogManager,
-			ForumManager forumManager, @IoExecutor Executor ioExecutor) {
+			ForumManager forumManager,
+			TestAvatarCreator testAvatarCreator,
+			AvatarMessageEncoder avatarMessageEncoder,
+			@IoExecutor Executor ioExecutor) {
 		this.authorFactory = authorFactory;
 		this.clock = clock;
+		this.groupFactory = groupFactory;
 		this.privateMessageFactory = privateMessageFactory;
 		this.blogPostFactory = blogPostFactory;
 		this.db = db;
@@ -102,6 +117,8 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		this.messagingManager = messagingManager;
 		this.blogManager = blogManager;
 		this.forumManager = forumManager;
+		this.testAvatarCreator = testAvatarCreator;
+		this.avatarMessageEncoder = avatarMessageEncoder;
 		this.ioExecutor = ioExecutor;
 	}
 
@@ -164,10 +181,11 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			transportPropertyManager.addRemoteProperties(txn, contactId, props);
 			return db.getContact(txn, contactId);
 		});
+		if (random.nextInt(3) < 2) addAvatar(contact);
 
 		if (LOG.isLoggable(INFO)) {
 			LOG.info("Added contact " + remote.getName() +
-					" with transport properties: " + props.toString());
+					" with transport properties: " + props);
 		}
 		localAuthors.put(contact, remote);
 		return contact;
@@ -250,13 +268,11 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		if (random.nextInt(5) == 0) {
 			sb.append("10.");
 			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(255));
 		} else {
 			sb.append("192.168.");
-			sb.append(random.nextInt(2)).append('.');
-			sb.append(random.nextInt(255));
 		}
+		sb.append(random.nextInt(2)).append('.');
+		sb.append(random.nextInt(255));
 		// port
 		sb.append(':').append(getRandomPortNumber());
 		return sb.toString();
@@ -274,6 +290,26 @@ public class TestDataCreatorImpl implements TestDataCreator {
 			else sb.append((char) (random.nextInt(26) + 'a'));
 		}
 		return sb.toString();
+	}
+
+	private void addAvatar(Contact c) throws DbException {
+		AuthorId authorId = c.getAuthor().getId();
+		GroupId groupId = groupFactory.createGroup(AvatarManager.CLIENT_ID,
+				AvatarManager.MAJOR_VERSION, authorId.getBytes()).getId();
+		InputStream is = testAvatarCreator.getAvatarInputStream();
+		if (is == null) return;
+		Message m;
+		try {
+			m = avatarMessageEncoder.encodeUpdateMessage(groupId, 0,
+					"image/jpeg", is).getFirst();
+		} catch (IOException e) {
+			throw new DbException(e);
+		}
+		db.transaction(false, txn -> {
+			// TODO: Do this properly via clients without breaking encapsulation
+			db.setGroupVisibility(txn, c.getId(), groupId, SHARED);
+			db.receiveMessage(txn, c.getId(), m);
+		});
 	}
 
 	// TODO: Do this properly via clients without breaking encapsulation
