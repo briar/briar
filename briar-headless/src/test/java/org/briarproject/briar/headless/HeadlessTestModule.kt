@@ -18,6 +18,7 @@ import org.briarproject.bramble.system.DefaultTaskSchedulerModule
 import org.briarproject.bramble.system.DefaultWakefulIoExecutorModule
 import org.briarproject.bramble.system.JavaSystemModule
 import org.briarproject.bramble.test.TestSecureRandomModule
+import org.briarproject.briar.api.test.TestAvatarCreator
 import org.briarproject.briar.headless.blogs.HeadlessBlogModule
 import org.briarproject.briar.headless.contact.HeadlessContactModule
 import org.briarproject.briar.headless.event.HeadlessEventModule
@@ -76,4 +77,7 @@ internal class HeadlessTestModule(private val appDir: File) {
 
     @Provides
     internal fun provideFeatureFlags() = FeatureFlags { false }
+
+    @Provides
+    internal fun provideTestAvatarCreator() = TestAvatarCreator { null }
 }
