@@ -89,8 +89,7 @@ class ConversationManagerImpl implements ConversationManager {
 
 	@Override
 	public DeletionResult deleteMessages(ContactId c,
-			Collection<MessageId> toDelete)
-			throws DbException {
+			Collection<MessageId> toDelete) throws DbException {
 		return db.transactionWithResult(false, txn -> {
 			DeletionResult result = new DeletionResult();
 			for (ConversationClient client : clients) {
