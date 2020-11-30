@@ -44,6 +44,11 @@ public interface ConversationManager {
 	GroupCount getGroupCount(ContactId c) throws DbException;
 
 	/**
+	 * Returns the unified group count for all private conversation messages.
+	 */
+	GroupCount getGroupCount(Transaction txn, ContactId c) throws DbException;
+
+	/**
 	 * Deletes all messages exchanged with the given contact.
 	 */
 	DeletionResult deleteAllMessages(ContactId c) throws DbException;
