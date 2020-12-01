@@ -753,16 +753,8 @@ public class ConversationActivity extends BriarActivity
 			List<AttachmentHeader> attachmentHeaders) {
 		if (isNullOrEmpty(text) && attachmentHeaders.isEmpty())
 			throw new AssertionError();
-		long timestamp = System.currentTimeMillis();
-		timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
-		viewModel.sendMessage(text, attachmentHeaders, timestamp);
+		viewModel.sendMessage(text, attachmentHeaders);
 		textInputView.clearText();
-	}
-
-	private long getMinTimestampForNewMessage() {
-		// Don't use an earlier timestamp than the newest message
-		ConversationItem item = adapter.getLastItem();
-		return item == null ? 0 : item.getTime() + 1;
 	}
 
 	private void onAddedPrivateMessage(@Nullable PrivateMessageHeader h) {
@@ -969,13 +961,11 @@ public class ConversationActivity extends BriarActivity
 			adapter.notifyItemChanged(position, item);
 		}
 		runOnDbThread(() -> {
-			long timestamp = System.currentTimeMillis();
-			timestamp = Math.max(timestamp, getMinTimestampForNewMessage());
 			try {
 				switch (item.getRequestType()) {
 					case INTRODUCTION:
 						respondToIntroductionRequest(item.getSessionId(),
-								accept, timestamp);
+								accept);
 						break;
 					case FORUM:
 						respondToForumRequest(item.getSessionId(), accept);
@@ -1051,9 +1041,8 @@ public class ConversationActivity extends BriarActivity
 
 	@DatabaseExecutor
 	private void respondToIntroductionRequest(SessionId sessionId,
-			boolean accept, long time) throws DbException {
-		introductionManager.respondToIntroduction(contactId, sessionId, time,
-				accept);
+			boolean accept) throws DbException {
+		introductionManager.respondToIntroduction(contactId, sessionId, accept);
 	}
 
 	@DatabaseExecutor

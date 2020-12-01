@@ -23,7 +23,6 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
@@ -31,6 +30,7 @@ import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.introduction.IntroductionRequest;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.api.introduction.event.IntroductionRequestReceivedEvent;
@@ -43,6 +43,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.introduction.IntroduceeState.AWAIT_AUTH;
@@ -75,15 +76,16 @@ class IntroduceeProtocolEngine
 			IdentityManager identityManager,
 			MessageParser messageParser,
 			MessageEncoder messageEncoder,
-			Clock clock,
 			IntroductionCrypto crypto,
 			KeyManager keyManager,
 			TransportPropertyManager transportPropertyManager,
 			ClientVersioningManager clientVersioningManager,
-			AutoDeleteManager autoDeleteManager) {
+			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
 				messageTracker, identityManager, messageParser, messageEncoder,
-				clientVersioningManager, autoDeleteManager, clock);
+				clientVersioningManager, autoDeleteManager,
+				conversationManager);
 		this.crypto = crypto;
 		this.keyManager = keyManager;
 		this.transportPropertyManager = transportPropertyManager;
@@ -91,18 +93,18 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onRequestAction(Transaction txn,
-			IntroduceeSession session, @Nullable String text, long timestamp) {
+			IntroduceeSession session, @Nullable String text) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
 	@Override
 	public IntroduceeSession onAcceptAction(Transaction txn,
-			IntroduceeSession session, long timestamp) throws DbException {
+			IntroduceeSession session) throws DbException {
 		switch (session.getState()) {
 			case AWAIT_RESPONSES:
 			case REMOTE_DECLINED:
 			case REMOTE_ACCEPTED:
-				return onLocalAccept(txn, session, timestamp);
+				return onLocalAccept(txn, session);
 			case START:
 			case LOCAL_DECLINED:
 			case LOCAL_ACCEPTED:
@@ -116,12 +118,12 @@ class IntroduceeProtocolEngine
 
 	@Override
 	public IntroduceeSession onDeclineAction(Transaction txn,
-			IntroduceeSession session, long timestamp) throws DbException {
+			IntroduceeSession session) throws DbException {
 		switch (session.getState()) {
 			case AWAIT_RESPONSES:
 			case REMOTE_DECLINED:
 			case REMOTE_ACCEPTED:
-				return onLocalDecline(txn, session, timestamp);
+				return onLocalDecline(txn, session);
 			case START:
 			case LOCAL_DECLINED:
 			case LOCAL_ACCEPTED:
@@ -272,7 +274,7 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onLocalAccept(Transaction txn,
-			IntroduceeSession s, long timestamp) throws DbException {
+			IntroduceeSession s) throws DbException {
 		// Mark the request message unavailable to answer
 		markRequestsUnavailableToAnswer(txn, s);
 
@@ -284,7 +286,7 @@ class IntroduceeProtocolEngine
 				transportPropertyManager.getLocalProperties(txn);
 
 		// Send a ACCEPT message
-		long localTimestamp = Math.max(timestamp + 1, getLocalTimestamp(s));
+		long localTimestamp = getLocalTimestamp(txn, s);
 		Message sent = sendAcceptMessage(txn, s, localTimestamp, publicKey,
 				localTimestamp, transportProperties, true);
 		// Track the message
@@ -309,12 +311,12 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onLocalDecline(Transaction txn,
-			IntroduceeSession s, long timestamp) throws DbException {
+			IntroduceeSession s) throws DbException {
 		// Mark the request message unavailable to answer
 		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send a DECLINE message
-		long localTimestamp = Math.max(timestamp + 1, getLocalTimestamp(s));
+		long localTimestamp = getLocalTimestamp(txn, s);
 		Message sent = sendDeclineMessage(txn, s, localTimestamp, true);
 
 		// Track the message
@@ -412,8 +414,8 @@ class IntroduceeProtocolEngine
 			return abort(txn, s);
 		}
 		if (s.getState() != AWAIT_AUTH) throw new AssertionError();
-		Message sent = sendAuthMessage(txn, s, getLocalTimestamp(s), mac,
-				signature);
+		long localTimestamp = getLocalTimestamp(txn, s);
+		Message sent = sendAuthMessage(txn, s, localTimestamp, mac, signature);
 		return IntroduceeSession.addLocalAuth(s, AWAIT_AUTH, sent, masterKey,
 				aliceMacKey, bobMacKey);
 	}
@@ -464,7 +466,8 @@ class IntroduceeProtocolEngine
 
 		// send ACTIVATE message with a MAC
 		byte[] mac = crypto.activateMac(s);
-		Message sent = sendActivateMessage(txn, s, getLocalTimestamp(s), mac);
+		long localTimestamp = getLocalTimestamp(txn, s);
+		Message sent = sendActivateMessage(txn, s, localTimestamp, mac);
 
 		// Move to AWAIT_ACTIVATE state and clear key material from session
 		return IntroduceeSession.awaitActivate(s, m, sent, keys);
@@ -515,7 +518,8 @@ class IntroduceeProtocolEngine
 		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send an ABORT message
-		Message sent = sendAbortMessage(txn, s, getLocalTimestamp(s));
+		long localTimestamp = getLocalTimestamp(txn, s);
+		Message sent = sendAbortMessage(txn, s, localTimestamp);
 
 		// Broadcast abort event for testing
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
@@ -530,9 +534,18 @@ class IntroduceeProtocolEngine
 		return isInvalidDependency(s.getLastRemoteMessageId(), dependency);
 	}
 
-	private long getLocalTimestamp(IntroduceeSession s) {
-		return getLocalTimestamp(s.getLocalTimestamp(),
-				s.getRequestTimestamp());
+	/**
+	 * Returns a timestamp for an outgoing message, which is later than the
+	 * timestamp of any message sent or received so far in the conversation
+	 * or the session.
+	 */
+	private long getLocalTimestamp(Transaction txn, IntroduceeSession s)
+			throws DbException {
+		long conversationTimestamp =
+				getTimestampForOutgoingMessage(txn, s.getContactGroupId());
+		long sessionTimestamp =
+				max(s.getLocalTimestamp(), s.getRequestTimestamp()) + 1;
+		return max(conversationTimestamp, sessionTimestamp);
 	}
 
 	private void addSessionId(Transaction txn, MessageId m, SessionId sessionId)

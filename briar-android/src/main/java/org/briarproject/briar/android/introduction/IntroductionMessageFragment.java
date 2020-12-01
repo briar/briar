@@ -211,8 +211,7 @@ public class IntroductionMessageFragment extends BaseFragment
 		introductionActivity.runOnDbThread(() -> {
 			// actually make the introduction
 			try {
-				long timestamp = System.currentTimeMillis();
-				introductionManager.makeIntroduction(c1, c2, text, timestamp);
+				introductionManager.makeIntroduction(c1, c2, text);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				introductionError();
