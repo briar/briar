@@ -22,7 +22,7 @@ public interface SharingManager<S extends Shareable>
 	 * including optional text.
 	 */
 	void sendInvitation(GroupId shareableId, ContactId contactId,
-			@Nullable String text, long timestamp) throws DbException;
+			@Nullable String text) throws DbException;
 
 	/**
 	 * Responds to a pending group invitation

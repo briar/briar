@@ -50,7 +50,7 @@ public interface ConversationManager {
 
 	/**
 	 * Returns a timestamp for an outgoing message, which is later than the
-	 * timestamp of any visible message sent or received so far.
+	 * timestamp of any message in the conversation with the given contact.
 	 */
 	long getTimestampForOutgoingMessage(Transaction txn, ContactId c)
 			throws DbException;

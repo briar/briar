@@ -126,8 +126,7 @@ public class ForumSharingIntegrationTest
 	public void testSuccessfulSharing() throws Exception {
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// check that request message state is correct
 		Collection<ConversationMessageHeader> messages = getMessages1From0();
@@ -191,8 +190,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testDeclinedSharing() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 
 		// sync request message
 		sync0To1(1, true);
@@ -243,8 +242,8 @@ public class ForumSharingIntegrationTest
 
 		// send a new invitation again after re-adding the forum
 		db0.transaction(false, txn -> forumManager0.addForum(txn, forum));
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 
 		// reset listener state for new request
 		listener1.requestReceived = false;
@@ -259,8 +258,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testInviteeLeavesAfterFinished() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				"Hi!", clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -322,8 +321,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSharerLeavesAfterFinished() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 
 		// sync request message
 		sync0To1(1, true);
@@ -383,8 +382,8 @@ public class ForumSharingIntegrationTest
 
 		// send a new invitation again after re-adding the forum
 		db0.transaction(false, txn -> forumManager0.addForum(txn, forum));
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 
 		// reset listener state for new request
 		listener1.requestReceived = false;
@@ -399,8 +398,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSharerLeavesBeforeResponse() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 
 		// sharer un-subscribes from forum
 		forumManager0.removeForum(forum);
@@ -420,8 +419,7 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, null,
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From0, null);
 
 		// sync request message
 		sync0To1(1, true);
@@ -445,8 +443,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSharingSameForumWithEachOther() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				"Hi!", clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -471,10 +469,9 @@ public class ForumSharingIntegrationTest
 		assertEquals(1, forumManager1.getForums().size());
 
 		// invitee now shares same forum back
-		forumSharingManager1.sendInvitation(forum.getId(),
-				contactId0From1,
-				"I am re-sharing this forum with you.",
-				clock.currentTimeMillis());
+		forumSharingManager1
+				.sendInvitation(forum.getId(), contactId0From1,
+						"I am re-sharing this forum with you.");
 
 		// assert that the last invitation wasn't send
 		assertEquals(2, c1.getMessageTracker().getGroupCount(group.getId())
@@ -485,8 +482,8 @@ public class ForumSharingIntegrationTest
 	public void testSharingSameForumWithEachOtherBeforeAccept()
 			throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				"Hi!", clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertRequestReceived(listener1, contactId0From1);
@@ -501,10 +498,9 @@ public class ForumSharingIntegrationTest
 				.getMsgCount());
 
 		// invitee now shares same forum back
-		forumSharingManager1.sendInvitation(forum.getId(),
-				contactId0From1,
-				"I am re-sharing this forum with you.",
-				clock.currentTimeMillis());
+		forumSharingManager1
+				.sendInvitation(forum.getId(), contactId0From1,
+						"I am re-sharing this forum with you.");
 
 		// assert that the last invitation wasn't send
 		assertEquals(1, c1.getMessageTracker().getGroupCount(group.getId())
@@ -518,13 +514,12 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// invitee now shares same forum back
-		forumSharingManager1.sendInvitation(forum.getId(),
-				contactId0From1, "I am re-sharing this forum with you.",
-				clock.currentTimeMillis());
+		forumSharingManager1
+				.sendInvitation(forum.getId(), contactId0From1,
+						"I am re-sharing this forum with you.");
 
 		// only now sync request message
 		sync0To1(1, true);
@@ -554,8 +549,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testContactRemoved() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				"Hi!", clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -597,8 +592,7 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -626,8 +620,7 @@ public class ForumSharingIntegrationTest
 
 		// send invitation
 		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -637,8 +630,7 @@ public class ForumSharingIntegrationTest
 		// second sharer sends invitation for same forum
 		assertNotNull(contactId1From2);
 		forumSharingManager2
-				.sendInvitation(forum.getId(), contactId1From2, null,
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From2, null);
 
 		// sync second request message
 		sync2To1(1, true);
@@ -680,8 +672,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSyncAfterReSharing() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				"Hi!", clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -745,8 +737,7 @@ public class ForumSharingIntegrationTest
 
 		// send invitation again
 		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -787,8 +778,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSessionResetAfterAbort() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				"Hi!", clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
 
 		// sync request message
 		sync0To1(1, true);
@@ -836,8 +827,7 @@ public class ForumSharingIntegrationTest
 
 		// new invitation is possible now
 		forumSharingManager0
-				.sendInvitation(forum.getId(), contactId1From0, null,
-						clock.currentTimeMillis());
+				.sendInvitation(forum.getId(), contactId1From0, null);
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 		assertRequestReceived(listener1, contactId0From1);
@@ -859,8 +849,8 @@ public class ForumSharingIntegrationTest
 	public void testDeletingAllMessagesWhenCompletingSession()
 			throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
@@ -909,8 +899,8 @@ public class ForumSharingIntegrationTest
 		sync1To0(1, true);
 
 		// sending invitation is possible again
-		forumSharingManager1.sendInvitation(forum.getId(), contactId0From1,
-				null, clock.currentTimeMillis());
+		forumSharingManager1
+				.sendInvitation(forum.getId(), contactId0From1, null);
 		sync1To0(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
@@ -944,8 +934,8 @@ public class ForumSharingIntegrationTest
 	public void testDeletingAllMessagesAfterDecline()
 			throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
@@ -969,8 +959,8 @@ public class ForumSharingIntegrationTest
 		assertEquals(0, getMessages0From1().size());
 
 		// re-sending invitation is possible
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
@@ -984,8 +974,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testDeletingSomeMessages() throws Exception {
 		// send invitation
-		forumSharingManager0.sendInvitation(forum.getId(), contactId1From0,
-				null, clock.currentTimeMillis());
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, null);
 		sync0To1(1, true);
 		eventWaiter.await(TIMEOUT, 1);
 
@@ -996,7 +986,8 @@ public class ForumSharingIntegrationTest
 		Set<MessageId> toDelete = new HashSet<>();
 		toDelete.add(messageId);
 		assertFalse(deleteMessages1From0(toDelete).allDeleted());
-		assertTrue(deleteMessages1From0(toDelete).hasInvitationSessionInProgress());
+		assertTrue(deleteMessages1From0(toDelete)
+				.hasInvitationSessionInProgress());
 
 		// decline invitation
 		respondToRequest(contactId0From1, true);
@@ -1006,9 +997,11 @@ public class ForumSharingIntegrationTest
 		// both can still not delete the invitation,
 		// because the response was not selected for deletion as well
 		assertFalse(deleteMessages1From0(toDelete).allDeleted());
-		assertTrue(deleteMessages1From0(toDelete).hasNotAllInvitationSelected());
+		assertTrue(
+				deleteMessages1From0(toDelete).hasNotAllInvitationSelected());
 		assertFalse(deleteMessages0From1(toDelete).allDeleted());
-		assertTrue(deleteMessages0From1(toDelete).hasNotAllInvitationSelected());
+		assertTrue(
+				deleteMessages0From1(toDelete).hasNotAllInvitationSelected());
 
 		// after selecting response, both messages can be deleted
 		m0 = getMessages1From0();
@@ -1023,8 +1016,10 @@ public class ForumSharingIntegrationTest
 
 		// 1 can still not delete the messages, as last one has not been ACKed
 		assertFalse(deleteMessages0From1(toDelete).allDeleted());
-		assertFalse(deleteMessages0From1(toDelete).hasNotAllInvitationSelected());
-		assertTrue(deleteMessages0From1(toDelete).hasInvitationSessionInProgress());
+		assertFalse(
+				deleteMessages0From1(toDelete).hasNotAllInvitationSelected());
+		assertTrue(deleteMessages0From1(toDelete)
+				.hasInvitationSessionInProgress());
 
 		// 0 sends an ACK to their last message
 		sendAcks(c0, c1, contactId1From0, 1);
