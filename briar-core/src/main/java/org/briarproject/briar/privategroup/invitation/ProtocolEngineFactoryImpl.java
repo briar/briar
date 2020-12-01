@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -30,6 +31,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 	private final MessageEncoder messageEncoder;
 	private final MessageTracker messageTracker;
 	private final AutoDeleteManager autoDeleteManager;
+	private final ConversationManager conversationManager;
 	private final Clock clock;
 
 	@Inject
@@ -45,6 +47,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 			MessageEncoder messageEncoder,
 			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager,
 			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
@@ -57,6 +60,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 		this.messageEncoder = messageEncoder;
 		this.messageTracker = messageTracker;
 		this.autoDeleteManager = autoDeleteManager;
+		this.conversationManager = conversationManager;
 		this.clock = clock;
 	}
 
@@ -66,7 +70,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 				clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
 				messageParser, messageEncoder, messageTracker,
-				autoDeleteManager, clock);
+				autoDeleteManager, conversationManager, clock);
 	}
 
 	@Override
@@ -75,7 +79,7 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 				clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
 				messageParser, messageEncoder, messageTracker,
-				autoDeleteManager, clock);
+				autoDeleteManager, conversationManager, clock);
 	}
 
 	@Override
@@ -84,6 +88,6 @@ class ProtocolEngineFactoryImpl implements ProtocolEngineFactory {
 				clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
 				messageParser, messageEncoder, messageTracker,
-				autoDeleteManager, clock);
+				autoDeleteManager, conversationManager, clock);
 	}
 }

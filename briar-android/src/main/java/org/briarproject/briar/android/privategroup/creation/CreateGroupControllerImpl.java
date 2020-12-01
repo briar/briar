@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -15,6 +16,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
@@ -36,6 +38,8 @@ import javax.inject.Inject;
 import androidx.annotation.Nullable;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.api.nullsafety.NullSafety.requireNonNull;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
@@ -44,9 +48,11 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		implements CreateGroupController {
 
 	private static final Logger LOG =
-			Logger.getLogger(CreateGroupControllerImpl.class.getName());
+			getLogger(CreateGroupControllerImpl.class.getName());
 
 	private final Executor cryptoExecutor;
+	private final TransactionManager db;
+	private final ConversationManager conversationManager;
 	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
 	private final PrivateGroupFactory groupFactory;
@@ -57,17 +63,25 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	private final Clock clock;
 
 	@Inject
-	CreateGroupControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	CreateGroupControllerImpl(
+			@DatabaseExecutor Executor dbExecutor,
 			@CryptoExecutor Executor cryptoExecutor,
-			LifecycleManager lifecycleManager, ContactManager contactManager,
-			AuthorManager authorManager, IdentityManager identityManager,
+			TransactionManager db,
+			ConversationManager conversationManager,
+			LifecycleManager lifecycleManager,
+			ContactManager contactManager,
+			AuthorManager authorManager,
+			IdentityManager identityManager,
 			PrivateGroupFactory groupFactory,
 			GroupMessageFactory groupMessageFactory,
 			PrivateGroupManager groupManager,
 			GroupInvitationFactory groupInvitationFactory,
-			GroupInvitationManager groupInvitationManager, Clock clock) {
+			GroupInvitationManager groupInvitationManager,
+			Clock clock) {
 		super(dbExecutor, lifecycleManager, contactManager, authorManager);
 		this.cryptoExecutor = cryptoExecutor;
+		this.db = db;
+		this.conversationManager = conversationManager;
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;
 		this.groupFactory = groupFactory;
@@ -131,16 +145,24 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 			ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				LocalAuthor localAuthor = identityManager.getLocalAuthor();
-				List<Contact> contacts = new ArrayList<>();
-				for (ContactId c : contactIds) {
-					try {
-						contacts.add(contactManager.getContact(c));
-					} catch (NoSuchContactException e) {
-						// Continue
+				db.transaction(true, txn -> {
+					List<InvitationContext> contexts = new ArrayList<>();
+					LocalAuthor localAuthor =
+							identityManager.getLocalAuthor(txn);
+					for (ContactId c : contactIds) {
+						try {
+							Contact contact = contactManager.getContact(txn, c);
+							long timestamp = conversationManager
+									.getTimestampForOutgoingMessage(txn, c);
+							contexts.add(
+									new InvitationContext(contact, timestamp));
+						} catch (NoSuchContactException e) {
+							// Continue
+						}
 					}
-				}
-				signInvitations(g, localAuthor, contacts, text, handler);
+					txn.attach(() -> signInvitations(g, localAuthor, contexts,
+							text, handler));
+				});
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				handler.onException(e);
@@ -149,16 +171,13 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	}
 
 	private void signInvitations(GroupId g, LocalAuthor localAuthor,
-			Collection<Contact> contacts, @Nullable String text,
+			List<InvitationContext> contexts, @Nullable String text,
 			ResultExceptionHandler<Void, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			long timestamp = clock.currentTimeMillis();
-			List<InvitationContext> contexts = new ArrayList<>();
-			for (Contact c : contacts) {
-				byte[] signature = groupInvitationFactory.signInvitation(c, g,
-						timestamp, localAuthor.getPrivateKey());
-				contexts.add(new InvitationContext(c.getId(), timestamp,
-						signature));
+			for (InvitationContext ctx : contexts) {
+				ctx.signature = groupInvitationFactory.signInvitation(
+						ctx.contact, g, timestamp, localAuthor.getPrivateKey());
 			}
 			sendInvitations(g, contexts, text, handler);
 		});
@@ -172,8 +191,9 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				for (InvitationContext context : contexts) {
 					try {
 						groupInvitationManager.sendInvitation(g,
-								context.contactId, text, context.timestamp,
-								context.signature);
+								context.contact.getId(), text,
+								context.timestamp,
+								requireNonNull(context.signature));
 					} catch (NoSuchContactException e) {
 						// Continue
 					}
@@ -188,15 +208,14 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 
 	private static class InvitationContext {
 
-		private final ContactId contactId;
+		private final Contact contact;
 		private final long timestamp;
-		private final byte[] signature;
+		@Nullable
+		private byte[] signature = null;
 
-		private InvitationContext(ContactId contactId, long timestamp,
-				byte[] signature) {
-			this.contactId = contactId;
+		private InvitationContext(Contact contact, long timestamp) {
+			this.contact = contact;
 			this.timestamp = timestamp;
-			this.signature = signature;
 		}
 	}
 }

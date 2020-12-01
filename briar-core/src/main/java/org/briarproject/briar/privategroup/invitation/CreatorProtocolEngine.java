@@ -15,6 +15,7 @@ import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -24,6 +25,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationRespons
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static java.lang.Math.max;
 import static org.briarproject.bramble.api.sync.Group.Visibility.INVISIBLE;
 import static org.briarproject.bramble.api.sync.Group.Visibility.SHARED;
 import static org.briarproject.briar.privategroup.invitation.CreatorState.DISSOLVED;
@@ -49,11 +51,12 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 			MessageEncoder messageEncoder,
 			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager,
 			Clock clock) {
 		super(db, clientHelper, clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
 				messageParser, messageEncoder, messageTracker,
-				autoDeleteManager, clock);
+				autoDeleteManager, conversationManager, clock);
 	}
 
 	@Override
@@ -159,7 +162,7 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the INVITED state
-		long localTimestamp = Math.max(timestamp, getLocalTimestamp(s));
+		long localTimestamp = max(timestamp, getLocalTimestamp(txn, s));
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), localTimestamp,
 				timestamp, INVITED);
