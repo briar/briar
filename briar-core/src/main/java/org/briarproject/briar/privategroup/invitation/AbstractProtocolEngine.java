@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
@@ -31,6 +32,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
+import static java.lang.Math.max;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.privategroup.invitation.MessageType.ABORT;
 import static org.briarproject.briar.privategroup.invitation.MessageType.INVITE;
@@ -54,6 +56,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	private final MessageParser messageParser;
 	private final MessageEncoder messageEncoder;
 	private final AutoDeleteManager autoDeleteManager;
+	private final ConversationManager conversationManager;
 	private final Clock clock;
 
 	AbstractProtocolEngine(
@@ -68,6 +71,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			MessageEncoder messageEncoder,
 			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager,
 			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
@@ -80,6 +84,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		this.messageEncoder = messageEncoder;
 		this.messageTracker = messageTracker;
 		this.autoDeleteManager = autoDeleteManager;
+		this.conversationManager = conversationManager;
 		this.clock = clock;
 	}
 
@@ -142,6 +147,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	Message sendJoinMessage(Transaction txn, S s, boolean visibleInUi)
 			throws DbException {
 		Message m;
+		long localTimestamp = getLocalTimestamp(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if manually accepting an invitation
@@ -149,13 +155,13 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 					? autoDeleteManager.getAutoDeleteTimer(txn, c)
 					: NO_AUTO_DELETE_TIMER;
 			m = messageEncoder.encodeJoinMessage(s.getContactGroupId(),
-					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getPrivateGroupId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
 			sendMessage(txn, m, JOIN, s.getPrivateGroupId(), visibleInUi,
 					timer);
 		} else {
 			m = messageEncoder.encodeJoinMessage(s.getContactGroupId(),
-					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getPrivateGroupId(), localTimestamp,
 					s.getLastLocalMessageId());
 			sendMessage(txn, m, JOIN, s.getPrivateGroupId(), visibleInUi,
 					NO_AUTO_DELETE_TIMER);
@@ -166,6 +172,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	Message sendLeaveMessage(Transaction txn, S s, boolean visibleInUi)
 			throws DbException {
 		Message m;
+		long localTimestamp = getLocalTimestamp(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if manually accepting an invitation
@@ -173,13 +180,13 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 					? autoDeleteManager.getAutoDeleteTimer(txn, c)
 					: NO_AUTO_DELETE_TIMER;
 			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
-					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getPrivateGroupId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
 			sendMessage(txn, m, LEAVE, s.getPrivateGroupId(), visibleInUi,
 					timer);
 		} else {
 			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
-					s.getPrivateGroupId(), getLocalTimestamp(s),
+					s.getPrivateGroupId(), localTimestamp,
 					s.getLastLocalMessageId());
 			sendMessage(txn, m, LEAVE, s.getPrivateGroupId(), visibleInUi,
 					NO_AUTO_DELETE_TIMER);
@@ -190,7 +197,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	Message sendAbortMessage(Transaction txn, S session) throws DbException {
 		Message m = messageEncoder.encodeAbortMessage(
 				session.getContactGroupId(), session.getPrivateGroupId(),
-				getLocalTimestamp(session));
+				getLocalTimestamp(txn, session));
 		sendMessage(txn, m, ABORT, session.getPrivateGroupId(), false,
 				NO_AUTO_DELETE_TIMER);
 		return m;
@@ -246,7 +253,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				invite.getGroupName(), invite.getCreator(), invite.getSalt());
 		long timestamp =
-				Math.max(clock.currentTimeMillis(), invite.getTimestamp() + 1);
+				max(clock.currentTimeMillis(), invite.getTimestamp() + 1);
 		// TODO: Create the join message on the crypto executor
 		LocalAuthor member = identityManager.getLocalAuthor(txn);
 		GroupMessage joinMessage = groupMessageFactory.createJoinMessage(
@@ -256,10 +263,18 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 				.addPrivateGroup(txn, privateGroup, joinMessage, false);
 	}
 
-	long getLocalTimestamp(S session) {
-		return Math.max(clock.currentTimeMillis(),
-				Math.max(session.getLocalTimestamp(),
-						session.getInviteTimestamp()) + 1);
+	/**
+	 * Returns a timestamp for an outgoing message, which is later than the
+	 * timestamp of any message sent or received so far in the conversation
+	 * or the session.
+	 */
+	long getLocalTimestamp(Transaction txn, S s) throws DbException {
+		ContactId c = getContactId(txn, s.getContactGroupId());
+		long conversationTimestamp =
+				conversationManager.getTimestampForOutgoingMessage(txn, c);
+		long sessionTimestamp =
+				max(s.getLocalTimestamp(), s.getInviteTimestamp()) + 1;
+		return max(conversationTimestamp, sessionTimestamp);
 	}
 
 	private void sendMessage(Transaction txn, Message m, MessageType type,

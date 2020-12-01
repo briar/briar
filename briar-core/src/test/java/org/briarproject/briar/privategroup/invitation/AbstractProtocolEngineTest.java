@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -62,6 +63,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	final MessageTracker messageTracker = context.mock(MessageTracker.class);
 	final AutoDeleteManager autoDeleteManager =
 			context.mock(AutoDeleteManager.class);
+	final ConversationManager conversationManager =
+			context.mock(ConversationManager.class);
 	final Clock clock = context.mock(Clock.class);
 
 	final Transaction txn = new Transaction(null, false);
@@ -115,9 +118,12 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		assertEquals(inviteTimestamp, s.getInviteTimestamp());
 	}
 
-	void expectGetLocalTimestamp(long time) {
+	void expectGetLocalTimestamp(long time) throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(clock).currentTimeMillis();
+			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			will(returnValue(contactId));
+			oneOf(conversationManager)
+					.getTimestampForOutgoingMessage(txn, contactId);
 			will(returnValue(time));
 		}});
 	}
