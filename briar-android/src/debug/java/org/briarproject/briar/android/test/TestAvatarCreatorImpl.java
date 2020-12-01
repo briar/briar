@@ -14,17 +14,15 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
+import org.briarproject.briar.android.attachment.ImageCompressor;
 import org.briarproject.briar.api.test.TestAvatarCreator;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
 
 import javax.annotation.Nullable;
-
-import static android.graphics.Bitmap.CompressFormat.JPEG;
-import static org.briarproject.briar.api.media.MediaConstants.MAX_IMAGE_SIZE;
+import javax.inject.Inject;
 
 public class TestAvatarCreatorImpl implements TestAvatarCreator {
 	private final int WIDTH = 800;
@@ -34,20 +32,18 @@ public class TestAvatarCreatorImpl implements TestAvatarCreator {
 	private final float[] hsv = new float[3];
 	private final Random random = new Random();
 
+	private final ImageCompressor imageCompressor;
+
+	@Inject
+	TestAvatarCreatorImpl(ImageCompressor imageCompressor) {
+		this.imageCompressor = imageCompressor;
+	}
+
 	@Nullable
 	@Override
-	public InputStream getAvatarInputStream() {
+	public InputStream getAvatarInputStream() throws IOException {
 		Bitmap bitmap = generateBitmap();
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-		// TODO maybe use ImageCompressor once available standalone
-		for (int quality = 100; quality >= 0; quality -= 10) {
-			if (!bitmap.compress(JPEG, quality, out)) return null;
-			if (out.size() <= MAX_IMAGE_SIZE) {
-				return new ByteArrayInputStream(out.toByteArray());
-			}
-			out.reset();
-		}
-		return new ByteArrayInputStream(out.toByteArray());
+		return imageCompressor.compressImage(bitmap);
 	}
 
 	private Bitmap generateBitmap() {

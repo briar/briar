@@ -302,7 +302,13 @@ public class TestDataCreatorImpl implements TestDataCreator {
 		AuthorId authorId = c.getAuthor().getId();
 		GroupId groupId = groupFactory.createGroup(AvatarManager.CLIENT_ID,
 				AvatarManager.MAJOR_VERSION, authorId.getBytes()).getId();
-		InputStream is = testAvatarCreator.getAvatarInputStream();
+		InputStream is;
+		try {
+			is = testAvatarCreator.getAvatarInputStream();
+		} catch (IOException e) {
+			logException(LOG, WARNING, e);
+			return;
+		}
 		if (is == null) return;
 		Message m;
 		try {

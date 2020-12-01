@@ -23,6 +23,12 @@ public class AttachmentModule {
 	}
 
 	@Provides
+	ImageCompressor provideImageCompressor(
+			ImageCompressorImpl imageCompressor) {
+		return imageCompressor;
+	}
+
+	@Provides
 	AttachmentDimensions provideAttachmentDimensions(Application app) {
 		return getAttachmentDimensions(app.getResources());
 	}

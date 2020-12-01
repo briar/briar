@@ -187,8 +187,9 @@ public class AppModule {
 	}
 
 	@Provides
-	TestAvatarCreator provideTestAvatarCreator() {
-		return new TestAvatarCreatorImpl();
+	TestAvatarCreator provideTestAvatarCreator(
+			TestAvatarCreatorImpl testAvatarCreator) {
+		return testAvatarCreator;
 	}
 
 	@Provides

@@ -17,11 +17,16 @@ import static org.junit.Assert.fail;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(Parameterized.class)
-public class PngSuiteAttachmentCreationTaskTest
-		extends AbstractAttachmentCreationTaskTest {
+public class PngSuiteImageCompressorTest
+		extends AbstractImageCompressorTest {
 
 	private static final Logger LOG =
-			getLogger(PngSuiteAttachmentCreationTaskTest.class.getName());
+			getLogger(PngSuiteImageCompressorTest.class.getName());
+
+	@Override
+	protected void inject(AbstractImageCompressorComponent component) {
+		component.inject(this);
+	}
 
 	@Parameters
 	public static Iterable<String> data() throws IOException {
@@ -34,14 +39,14 @@ public class PngSuiteAttachmentCreationTaskTest
 
 	private final String filename;
 
-	public PngSuiteAttachmentCreationTaskTest(String filename) {
+	public PngSuiteImageCompressorTest(String filename) {
 		this.filename = filename;
 	}
 
 	@Test
 	public void testPngSuiteCompress() throws Exception {
 		assumeTrue(isOptionalTestEnabled(
-				PngSuiteAttachmentCreationTaskTest.class));
+				PngSuiteImageCompressorTest.class));
 		LOG.info("Testing " + filename);
 		if (filename.startsWith("x")) {
 			try {

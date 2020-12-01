@@ -9,8 +9,13 @@ import static android.os.Build.VERSION.SDK_INT;
 import static org.junit.Assume.assumeTrue;
 
 @RunWith(AndroidJUnit4.class)
-public class AttachmentCreationTaskTest
-		extends AbstractAttachmentCreationTaskTest {
+public class ImageCompressorTest
+		extends AbstractImageCompressorTest {
+
+	@Override
+	protected void inject(AbstractImageCompressorComponent component) {
+		component.inject(this);
+	}
 
 	@Test
 	public void testCompressSmallPng() throws Exception {

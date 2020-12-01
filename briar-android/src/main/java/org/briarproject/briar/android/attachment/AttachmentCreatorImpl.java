@@ -41,7 +41,7 @@ import static org.briarproject.briar.api.media.MediaConstants.MAX_IMAGE_SIZE;
 @NotNullByDefault
 class AttachmentCreatorImpl implements AttachmentCreator {
 
-	private static Logger LOG =
+	private static final Logger LOG =
 			getLogger(AttachmentCreatorImpl.class.getName());
 
 	private final Application app;
@@ -49,7 +49,7 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	private final Executor ioExecutor;
 	private final MessagingManager messagingManager;
 	private final AttachmentRetriever retriever;
-	private final ImageSizeCalculator imageSizeCalculator;
+	private final ImageCompressor imageCompressor;
 
 	private final CopyOnWriteArrayList<Uri> uris = new CopyOnWriteArrayList<>();
 	private final CopyOnWriteArrayList<AttachmentItemResult> itemResults =
@@ -64,12 +64,12 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 	@Inject
 	AttachmentCreatorImpl(Application app, @IoExecutor Executor ioExecutor,
 			MessagingManager messagingManager, AttachmentRetriever retriever,
-			ImageSizeCalculator imageSizeCalculator) {
+			ImageCompressor imageCompressor) {
 		this.app = app;
 		this.ioExecutor = ioExecutor;
 		this.messagingManager = messagingManager;
 		this.retriever = retriever;
-		this.imageSizeCalculator = imageSizeCalculator;
+		this.imageCompressor = imageCompressor;
 	}
 
 	@Override
@@ -89,7 +89,7 @@ class AttachmentCreatorImpl implements AttachmentCreator {
 			if (id == null) throw new IllegalStateException();
 			boolean needsSize = uris.size() == 1;
 			task = new AttachmentCreationTask(messagingManager,
-					app.getContentResolver(), this, imageSizeCalculator, id,
+					app.getContentResolver(), this, imageCompressor, id,
 					uris, needsSize);
 			ioExecutor.execute(() -> task.storeAttachments());
 		});
