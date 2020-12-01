@@ -165,10 +165,9 @@ class IntroductionViewModel extends ContactsViewModel {
 		runOnDbThread(() -> {
 			// actually make the introduction
 			try {
-				long timestamp = System.currentTimeMillis();
 				introductionManager.makeIntroduction(
 						info.getContact1().getContact(),
-						info.getContact2().getContact(), text, timestamp);
+						info.getContact2().getContact(), text);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				androidExecutor.runOnUiThread(() -> Toast.makeText(

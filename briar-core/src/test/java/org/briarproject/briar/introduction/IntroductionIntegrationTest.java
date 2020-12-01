@@ -140,11 +140,9 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		Contact introducee1 = contact1From0;
 		Contact introducee2 = contact2From0;
-		introductionManager0
-				.makeIntroduction(introducee1, introducee2, "Hi!", time);
+		introductionManager0.makeIntroduction(introducee1, introducee2, "Hi!");
 
 		// check that messages are tracked properly
 		Group g1 = introductionManager0.getContactGroup(introducee1);
@@ -264,11 +262,9 @@ public class IntroductionIntegrationTest
 		addListeners(false, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		Contact introducee1 = contact1From0;
 		Contact introducee2 = contact2From0;
-		introductionManager0
-				.makeIntroduction(introducee1, introducee2, null, time);
+		introductionManager0.makeIntroduction(introducee1, introducee2, null);
 
 		// sync request messages
 		sync0To1(1, true);
@@ -356,9 +352,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, false);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync request messages
 		sync0To1(1, true);
@@ -412,9 +407,8 @@ public class IntroductionIntegrationTest
 		addListeners(false, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync request messages
 		sync0To1(1, true);
@@ -438,9 +432,8 @@ public class IntroductionIntegrationTest
 		assertFalse(listener1.aborted);
 		assertFalse(listener2.aborted);
 
-		time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync request messages
 		sync0To1(1, true);
@@ -457,9 +450,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// sync first request message
 		sync0To1(1, true);
@@ -482,7 +474,7 @@ public class IntroductionIntegrationTest
 
 		// answer request manually
 		introductionManager2.respondToIntroduction(contactId0From2,
-				listener2.sessionId, time, true);
+				listener2.sessionId, true);
 
 		// sync second response and AUTH
 		sync2To0(2, true);
@@ -518,11 +510,10 @@ public class IntroductionIntegrationTest
 		listener2.answerRequests = false;
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		Contact introducee1 = contact1From0;
 		Contact introducee2 = contact2From0;
 		introductionManager0
-				.makeIntroduction(introducee1, introducee2, null, time);
+				.makeIntroduction(introducee1, introducee2, null);
 
 		// sync request messages
 		sync0To1(1, true);
@@ -564,7 +555,7 @@ public class IntroductionIntegrationTest
 
 		// answer request manually
 		introductionManager2.respondToIntroduction(contactId0From2,
-				listener2.sessionId, time, false);
+				listener2.sessionId, false);
 
 		// now introducee2 should have returned to the START state
 		introduceeSession = getIntroduceeSession(c2);
@@ -611,9 +602,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, false);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact1From0, null, time);
+				.makeIntroduction(contact1From0, contact1From0, null);
 
 		// sync request messages
 		sync0To1(1, false);
@@ -637,9 +627,8 @@ public class IntroductionIntegrationTest
 				.canIntroduce(contact1From0, contact2From0));
 
 		// make the introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// no more introduction allowed while the existing one is in progress
 		assertFalse(introductionManager0
@@ -647,7 +636,7 @@ public class IntroductionIntegrationTest
 
 		// try it anyway and fail
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 	}
 
 	@Test
@@ -661,9 +650,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make the introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync REQUEST messages
 		sync0To1(1, true);
@@ -719,9 +707,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make the introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync REQUEST messages
 		sync0To1(1, true);
@@ -766,9 +753,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make the introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync REQUEST to introducee1
 		sync0To1(1, true);
@@ -803,9 +789,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make the introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync REQUEST to introducee1
 		sync0To1(1, true);
@@ -838,9 +823,8 @@ public class IntroductionIntegrationTest
 		addListeners(false, true);
 
 		// make the introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync REQUEST to introducee1
 		sync0To1(1, true);
@@ -873,9 +857,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make the introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// sync REQUEST messages
 		sync0To1(1, true);
@@ -914,9 +897,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// sync first request message
 		sync0To1(1, true);
@@ -943,9 +925,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// sync first request message
 		sync0To1(1, true);
@@ -987,9 +968,8 @@ public class IntroductionIntegrationTest
 	@Test
 	public void testIntroductionAfterReAddingContacts() throws Exception {
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// 0 and 1 remove and re-add each other
 		contactManager0.removeContact(contactId1From0);
@@ -1016,9 +996,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make new introduction
-		time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, null, time);
+				.makeIntroduction(contact1From0, contact2From0, null);
 
 		// introduction should sync and not be INVALID or PENDING
 		sync0To1(1, true);
@@ -1032,9 +1011,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// sync request messages
 		sync0To1(1, true);
@@ -1147,9 +1125,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// sync first REQUEST message
 		sync0To1(1, true);
@@ -1292,7 +1269,7 @@ public class IntroductionIntegrationTest
 		assertTrue(introductionManager0
 				.canIntroduce(contact1From0, contact2From0));
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Ho!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Ho!");
 		sync0To1(1, true);
 		sync0To2(1, true);
 
@@ -1332,9 +1309,8 @@ public class IntroductionIntegrationTest
 		addListeners(false, false);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// sync REQUEST messages
 		sync0To1(1, true);
@@ -1399,9 +1375,8 @@ public class IntroductionIntegrationTest
 		// a new introduction is still possible
 		assertTrue(introductionManager0
 				.canIntroduce(contact1From0, contact2From0));
-		time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Ho!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Ho!");
 		sync0To1(1, true);
 		sync0To2(1, true);
 
@@ -1428,9 +1403,8 @@ public class IntroductionIntegrationTest
 		addListeners(false, false);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Hi!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// sync REQUEST messages
 		sync0To1(1, true);
@@ -1458,9 +1432,8 @@ public class IntroductionIntegrationTest
 		// a new introduction is still possible
 		assertTrue(introductionManager0
 				.canIntroduce(contact1From0, contact2From0));
-		time = clock.currentTimeMillis();
 		introductionManager0
-				.makeIntroduction(contact1From0, contact2From0, "Ho!", time);
+				.makeIntroduction(contact1From0, contact2From0, "Ho!");
 		sync0To1(1, true);
 		sync0To2(1, true);
 
@@ -1496,9 +1469,8 @@ public class IntroductionIntegrationTest
 		addListeners(false, false);
 
 		// make introduction
-		long time = clock.currentTimeMillis();
-		introductionManager0.makeIntroduction(contact1From0, contact2From0,
-				"Hi!", time);
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
 
 		// deleting the introduction for introducee1 will fail
 		Collection<ConversationMessageHeader> m1From0 = getMessages1From0();
@@ -1795,16 +1767,13 @@ public class IntroductionIntegrationTest
 				IntroductionRequest ir = introEvent.getMessageHeader();
 				ContactId contactId = introEvent.getContactId();
 				sessionId = ir.getSessionId();
-				long time = clock.currentTimeMillis();
 				try {
 					if (introducee == 1 && answerRequests) {
-						introductionManager1
-								.respondToIntroduction(contactId, sessionId,
-										time, accept);
+						introductionManager1.respondToIntroduction(contactId,
+								sessionId, accept);
 					} else if (introducee == 2 && answerRequests) {
-						introductionManager2
-								.respondToIntroduction(contactId, sessionId,
-										time, accept);
+						introductionManager2.respondToIntroduction(contactId,
+								sessionId, accept);
 					}
 				} catch (DbException exception) {
 					eventWaiter.rethrow(exception);

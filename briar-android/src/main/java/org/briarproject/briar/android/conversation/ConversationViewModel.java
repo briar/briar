@@ -35,6 +35,7 @@ import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.messaging.MessagingManager;
@@ -90,6 +91,7 @@ public class ConversationViewModel extends DbViewModel
 	private final AttachmentRetriever attachmentRetriever;
 	private final AttachmentCreator attachmentCreator;
 	private final AutoDeleteManager autoDeleteManager;
+	private final ConversationManager conversationManager;
 
 	@Nullable
 	private ContactId contactId = null;
@@ -125,7 +127,8 @@ public class ConversationViewModel extends DbViewModel
 			PrivateMessageFactory privateMessageFactory,
 			AttachmentRetriever attachmentRetriever,
 			AttachmentCreator attachmentCreator,
-			AutoDeleteManager autoDeleteManager) {
+			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.db = db;
 		this.eventBus = eventBus;
@@ -137,6 +140,7 @@ public class ConversationViewModel extends DbViewModel
 		this.attachmentRetriever = attachmentRetriever;
 		this.attachmentCreator = attachmentCreator;
 		this.autoDeleteManager = autoDeleteManager;
+		this.conversationManager = conversationManager;
 		messagingGroupId = map(contactItem, c ->
 				messagingManager.getContactGroup(c.getContact()).getId());
 		contactDeleted.setValue(false);
@@ -244,14 +248,13 @@ public class ConversationViewModel extends DbViewModel
 	}
 
 	@UiThread
-	void sendMessage(@Nullable String text,
-			List<AttachmentHeader> headers, long timestamp) {
+	void sendMessage(@Nullable String text, List<AttachmentHeader> headers) {
 		// messagingGroupId is loaded with the contact
 		observeForeverOnce(messagingGroupId, groupId -> {
 			requireNonNull(groupId);
 			observeForeverOnce(privateMessageFormat, format ->
 					storeMessage(requireNonNull(contactId), groupId, text,
-							headers, timestamp, format));
+							headers, format));
 		});
 	}
 
@@ -313,8 +316,10 @@ public class ConversationViewModel extends DbViewModel
 
 	private PrivateMessage createMessage(Transaction txn, ContactId c,
 			GroupId groupId, @Nullable String text,
-			List<AttachmentHeader> headers, long timestamp,
-			PrivateMessageFormat format) throws DbException {
+			List<AttachmentHeader> headers, PrivateMessageFormat format)
+			throws DbException {
+		long timestamp =
+				conversationManager.getTimestampForOutgoingMessage(txn, c);
 		try {
 			if (format == TEXT_ONLY) {
 				return privateMessageFactory.createLegacyPrivateMessage(
@@ -335,13 +340,13 @@ public class ConversationViewModel extends DbViewModel
 	@UiThread
 	private void storeMessage(ContactId c, GroupId groupId,
 			@Nullable String text, List<AttachmentHeader> headers,
-			long timestamp, PrivateMessageFormat format) {
+			PrivateMessageFormat format) {
 		runOnDbThread(() -> {
 			try {
 				db.transaction(false, txn -> {
 					long start = now();
 					PrivateMessage m = createMessage(txn, c, groupId, text,
-							headers, timestamp, format);
+							headers, format);
 					messagingManager.addLocalMessage(txn, m);
 					logDuration(LOG, "Storing message", start);
 					Message message = m.getMessage();

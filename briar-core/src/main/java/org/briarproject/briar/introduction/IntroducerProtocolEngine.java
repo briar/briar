@@ -12,11 +12,11 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.event.IntroductionAbortedEvent;
 import org.briarproject.briar.introduction.IntroducerSession.Introducee;
@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
+import static java.lang.Math.max;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_ACTIVATES;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_ACTIVATE_A;
 import static org.briarproject.briar.introduction.IntroducerState.AWAIT_ACTIVATE_B;
@@ -56,20 +57,20 @@ class IntroducerProtocolEngine
 			MessageEncoder messageEncoder,
 			ClientVersioningManager clientVersioningManager,
 			AutoDeleteManager autoDeleteManager,
-			Clock clock) {
+			ConversationManager conversationManager) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
 				messageTracker, identityManager, authorManager, messageParser,
 				messageEncoder, clientVersioningManager, autoDeleteManager,
-				clock);
+				conversationManager);
 	}
 
 	@Override
 	public IntroducerSession onRequestAction(Transaction txn,
-			IntroducerSession s, @Nullable String text, long timestamp)
+			IntroducerSession s, @Nullable String text)
 			throws DbException {
 		switch (s.getState()) {
 			case START:
-				return onLocalRequest(txn, s, text, timestamp);
+				return onLocalRequest(txn, s, text);
 			case AWAIT_RESPONSES:
 			case AWAIT_RESPONSE_A:
 			case AWAIT_RESPONSE_B:
@@ -89,37 +90,24 @@ class IntroducerProtocolEngine
 
 	@Override
 	public IntroducerSession onAcceptAction(Transaction txn,
-			IntroducerSession s, long timestamp) {
+			IntroducerSession s) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
 	@Override
 	public IntroducerSession onDeclineAction(Transaction txn,
-			IntroducerSession s, long timestamp) {
+			IntroducerSession s) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
 	IntroducerSession onIntroduceeRemoved(Transaction txn,
 			Introducee remainingIntroducee, IntroducerSession session)
 			throws DbException {
-		// abort session
-		IntroducerSession s = abort(txn, session);
-		// reset information for introducee that was removed
-		Introducee introduceeA, introduceeB;
-		if (remainingIntroducee.author.equals(s.getIntroduceeA().author)) {
-			introduceeA = s.getIntroduceeA();
-			introduceeB =
-					new Introducee(s.getSessionId(), s.getIntroduceeB().groupId,
-							s.getIntroduceeB().author);
-		} else if (remainingIntroducee.author
-				.equals(s.getIntroduceeB().author)) {
-			introduceeA =
-					new Introducee(s.getSessionId(), s.getIntroduceeA().groupId,
-							s.getIntroduceeA().author);
-			introduceeB = s.getIntroduceeB();
-		} else throw new DbException();
+		// abort session with remaining introducee
+		IntroducerSession s = abort(txn, session, remainingIntroducee);
 		return new IntroducerSession(s.getSessionId(), s.getState(),
-				s.getRequestTimestamp(), introduceeA, introduceeB);
+				s.getRequestTimestamp(), s.getIntroduceeA(),
+				s.getIntroduceeB());
 	}
 
 	@Override
@@ -229,13 +217,11 @@ class IntroducerProtocolEngine
 	}
 
 	private IntroducerSession onLocalRequest(Transaction txn,
-			IntroducerSession s, @Nullable String text, long timestamp)
-			throws DbException {
+			IntroducerSession s, @Nullable String text) throws DbException {
 		// Send REQUEST messages
-		long maxIntroduceeTimestamp =
-				Math.max(getLocalTimestamp(s, s.getIntroduceeA()),
-						getLocalTimestamp(s, s.getIntroduceeB()));
-		long localTimestamp = Math.max(timestamp, maxIntroduceeTimestamp);
+		long timestampA = getLocalTimestamp(txn, s, s.getIntroduceeA());
+		long timestampB = getLocalTimestamp(txn, s, s.getIntroduceeB());
+		long localTimestamp = max(timestampA, timestampB);
 		Message sentA = sendRequestMessage(txn, s.getIntroduceeA(),
 				localTimestamp, s.getIntroduceeB().author, text);
 		Message sentB = sendRequestMessage(txn, s.getIntroduceeB(),
@@ -275,11 +261,10 @@ class IntroducerProtocolEngine
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long timestamp = getLocalTimestamp(s, i);
-		Message sent =
-				sendAcceptMessage(txn, i, timestamp, m.getEphemeralPublicKey(),
-						m.getAcceptTimestamp(), m.getTransportProperties(),
-						false);
+		long localTimestamp = getLocalTimestamp(txn, s, i);
+		Message sent = sendAcceptMessage(txn, i, localTimestamp,
+				m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
+				m.getTransportProperties(), false);
 
 		// Create the next state
 		IntroducerState state = AWAIT_AUTHS;
@@ -336,7 +321,8 @@ class IntroducerProtocolEngine
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		Message sent = sendAcceptMessage(txn, i, getLocalTimestamp(s, i),
+		long localTimestamp = getLocalTimestamp(txn, s, i);
+		Message sent = sendAcceptMessage(txn, i, localTimestamp,
 				m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
 				m.getTransportProperties(), false);
 
@@ -387,8 +373,8 @@ class IntroducerProtocolEngine
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long timestamp = getLocalTimestamp(s, i);
-		Message sent = sendDeclineMessage(txn, i, timestamp, false);
+		long localTimestamp = getLocalTimestamp(txn, s, i);
+		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
 
 		// Create the next state
 		IntroducerState state = START;
@@ -439,8 +425,8 @@ class IntroducerProtocolEngine
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long timestamp = getLocalTimestamp(s, i);
-		Message sent = sendDeclineMessage(txn, i, timestamp, false);
+		long localTimestamp = getLocalTimestamp(txn, s, i);
+		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
 
 		Introducee introduceeA, introduceeB;
 		Author sender, other;
@@ -480,8 +466,8 @@ class IntroducerProtocolEngine
 
 		// Forward AUTH message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long timestamp = getLocalTimestamp(s, i);
-		Message sent = sendAuthMessage(txn, i, timestamp, m.getMac(),
+		long localTimestamp = getLocalTimestamp(txn, s, i);
+		Message sent = sendAuthMessage(txn, i, localTimestamp, m.getMac(),
 				m.getSignature());
 
 		// Move to the next state
@@ -516,8 +502,8 @@ class IntroducerProtocolEngine
 
 		// Forward ACTIVATE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long timestamp = getLocalTimestamp(s, i);
-		Message sent = sendActivateMessage(txn, i, timestamp, m.getMac());
+		long localTimestamp = getLocalTimestamp(txn, s, i);
+		Message sent = sendActivateMessage(txn, i, localTimestamp, m.getMac());
 
 		// Move to the next state
 		IntroducerState state = START;
@@ -539,8 +525,9 @@ class IntroducerProtocolEngine
 			IntroducerSession s, AbortMessage m) throws DbException {
 		// Forward ABORT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long timestamp = getLocalTimestamp(s, i);
-		Message sent = sendAbortMessage(txn, i, timestamp);
+		long localTimestamp = max(i.getLocalTimestamp(),
+				s.getRequestTimestamp()) + 1;
+		Message sent = sendAbortMessage(txn, i, localTimestamp);
 
 		// Broadcast abort event for testing
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
@@ -558,15 +545,42 @@ class IntroducerProtocolEngine
 				s.getRequestTimestamp(), introduceeA, introduceeB);
 	}
 
-	private IntroducerSession abort(Transaction txn,
-			IntroducerSession s) throws DbException {
+	private IntroducerSession abort(Transaction txn, IntroducerSession s,
+			Introducee remainingIntroducee) throws DbException {
+		// Broadcast abort event for testing
+		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
+
+		// Send an ABORT message to the remaining introducee
+		long localTimestamp = getLocalTimestamp(txn, s, remainingIntroducee);
+		Message sent =
+				sendAbortMessage(txn, remainingIntroducee, localTimestamp);
+		// Reset the session back to initial state
+		Introducee introduceeA = s.getIntroduceeA();
+		Introducee introduceeB = s.getIntroduceeB();
+		if (remainingIntroducee.author.equals(introduceeA.author)) {
+			introduceeA = new Introducee(introduceeA, sent);
+			introduceeB = new Introducee(s.getSessionId(), introduceeB.groupId,
+					introduceeB.author);
+		} else if (remainingIntroducee.author.equals(introduceeB.author)) {
+			introduceeA = new Introducee(s.getSessionId(), introduceeA.groupId,
+					introduceeA.author);
+			introduceeB = new Introducee(introduceeB, sent);
+		} else {
+			throw new DbException();
+		}
+		return new IntroducerSession(s.getSessionId(), START,
+				s.getRequestTimestamp(), introduceeA, introduceeB);
+	}
+
+	private IntroducerSession abort(Transaction txn, IntroducerSession s)
+			throws DbException {
 		// Broadcast abort event for testing
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Send an ABORT message to both introducees
-		long timestampA = getLocalTimestamp(s, s.getIntroduceeA());
+		long timestampA = getLocalTimestamp(txn, s, s.getIntroduceeA());
 		Message sentA = sendAbortMessage(txn, s.getIntroduceeA(), timestampA);
-		long timestampB = getLocalTimestamp(s, s.getIntroduceeB());
+		long timestampB = getLocalTimestamp(txn, s, s.getIntroduceeB());
 		Message sentB = sendAbortMessage(txn, s.getIntroduceeB(), timestampB);
 		// Reset the session back to initial state
 		Introducee introduceeA = new Introducee(s.getIntroduceeA(), sentA);
@@ -596,9 +610,17 @@ class IntroducerProtocolEngine
 		return isInvalidDependency(expected, dependency);
 	}
 
-	private long getLocalTimestamp(IntroducerSession s, PeerSession p) {
-		return getLocalTimestamp(p.getLocalTimestamp(),
-				s.getRequestTimestamp());
+	/**
+	 * Returns a timestamp for an outgoing message, which is later than the
+	 * timestamp of any message sent or received so far in the conversation
+	 * or the session.
+	 */
+	private long getLocalTimestamp(Transaction txn, IntroducerSession s,
+			PeerSession p) throws DbException {
+		long conversationTimestamp =
+				getTimestampForOutgoingMessage(txn, p.getContactGroupId());
+		long sessionTimestamp =
+				max(p.getLocalTimestamp(), s.getRequestTimestamp()) + 1;
+		return max(conversationTimestamp, sessionTimestamp);
 	}
-
 }

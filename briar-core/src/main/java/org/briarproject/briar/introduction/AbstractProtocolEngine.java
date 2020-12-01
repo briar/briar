@@ -20,11 +20,11 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.introduction.IntroductionResponse;
@@ -61,7 +61,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	protected final MessageEncoder messageEncoder;
 	protected final ClientVersioningManager clientVersioningManager;
 	protected final AutoDeleteManager autoDeleteManager;
-	protected final Clock clock;
+	protected final ConversationManager conversationManager;
 
 	AbstractProtocolEngine(
 			DatabaseComponent db,
@@ -75,7 +75,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			MessageEncoder messageEncoder,
 			ClientVersioningManager clientVersioningManager,
 			AutoDeleteManager autoDeleteManager,
-			Clock clock) {
+			ConversationManager conversationManager) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.contactManager = contactManager;
@@ -87,7 +87,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		this.messageEncoder = messageEncoder;
 		this.clientVersioningManager = clientVersioningManager;
 		this.autoDeleteManager = autoDeleteManager;
-		this.clock = clock;
+		this.conversationManager = conversationManager;
 	}
 
 	Message sendRequestMessage(Transaction txn, PeerSession s,
@@ -231,14 +231,10 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		return !dependency.equals(lastRemoteMessageId);
 	}
 
-	long getLocalTimestamp(long localTimestamp, long requestTimestamp) {
-		return Math.max(
-				clock.currentTimeMillis(),
-				Math.max(
-						localTimestamp,
-						requestTimestamp
-				) + 1
-		);
+	long getTimestampForOutgoingMessage(Transaction txn, GroupId contactGroupId)
+			throws DbException {
+		ContactId c = getContactId(txn, contactGroupId);
+		return conversationManager.getTimestampForOutgoingMessage(txn, c);
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
