@@ -315,8 +315,8 @@ class IntroductionManagerImpl extends ConversationClientImpl
 	}
 
 	@Override
-	public void makeIntroduction(Contact c1, Contact c2, @Nullable String text,
-			long timestamp) throws DbException {
+	public void makeIntroduction(Contact c1, Contact c2, @Nullable String text)
+			throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
 			// Look up the session, if there is one
@@ -348,8 +348,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 				storageId = ss.storageId;
 			}
 			// Handle the request action
-			session = introducerEngine
-					.onRequestAction(txn, session, text, timestamp);
+			session = introducerEngine.onRequestAction(txn, session, text);
 			// Store the updated session
 			storeSession(txn, storageId, session);
 			db.commitTransaction(txn);
@@ -362,7 +361,7 @@ class IntroductionManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void respondToIntroduction(ContactId contactId, SessionId sessionId,
-			long timestamp, boolean accept) throws DbException {
+			boolean accept) throws DbException {
 		Transaction txn = db.startTransaction(false);
 		try {
 			// Look up the session
@@ -380,11 +379,9 @@ class IntroductionManagerImpl extends ConversationClientImpl
 					.parseIntroduceeSession(contactGroupId, ss.bdfSession);
 			// Handle the join or leave action
 			if (accept) {
-				session = introduceeEngine
-						.onAcceptAction(txn, session, timestamp);
+				session = introduceeEngine.onAcceptAction(txn, session);
 			} else {
-				session = introduceeEngine
-						.onDeclineAction(txn, session, timestamp);
+				session = introduceeEngine.onDeclineAction(txn, session);
 			}
 			// Store the updated session
 			storeSession(txn, ss.storageId, session);
