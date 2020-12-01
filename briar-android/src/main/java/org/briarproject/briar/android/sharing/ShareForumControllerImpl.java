@@ -10,10 +10,8 @@ import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.briar.android.controller.handler.ExceptionHandler;
-import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.identity.AuthorManager;
 
@@ -26,6 +24,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @Immutable
@@ -34,22 +33,17 @@ class ShareForumControllerImpl extends ContactSelectorControllerImpl
 		implements ShareForumController {
 
 	private final static Logger LOG =
-			Logger.getLogger(ShareForumControllerImpl.class.getName());
+			getLogger(ShareForumControllerImpl.class.getName());
 
-	private final ConversationManager conversationManager;
 	private final ForumSharingManager forumSharingManager;
-	private final Clock clock;
 
 	@Inject
 	ShareForumControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, ContactManager contactManager,
 			AuthorManager authorManager,
-			ConversationManager conversationManager,
-			ForumSharingManager forumSharingManager, Clock clock) {
+			ForumSharingManager forumSharingManager) {
 		super(dbExecutor, lifecycleManager, contactManager, authorManager);
-		this.conversationManager = conversationManager;
 		this.forumSharingManager = forumSharingManager;
-		this.clock = clock;
 	}
 
 	@Override
@@ -64,10 +58,7 @@ class ShareForumControllerImpl extends ContactSelectorControllerImpl
 			try {
 				for (ContactId c : contacts) {
 					try {
-						long time = Math.max(clock.currentTimeMillis(),
-								conversationManager.getGroupCount(c)
-										.getLatestMsgTime() + 1);
-						forumSharingManager.sendInvitation(g, c, text, time);
+						forumSharingManager.sendInvitation(g, c, text);
 					} catch (NoSuchContactException | NoSuchGroupException e) {
 						logException(LOG, WARNING, e);
 					}
