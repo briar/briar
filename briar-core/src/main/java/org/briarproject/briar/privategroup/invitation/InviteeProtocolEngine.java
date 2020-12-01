@@ -17,6 +17,7 @@ import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -42,7 +43,8 @@ import static org.briarproject.briar.privategroup.invitation.InviteeState.START;
 @NotNullByDefault
 class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 
-	InviteeProtocolEngine(DatabaseComponent db,
+	InviteeProtocolEngine(
+			DatabaseComponent db,
 			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
 			PrivateGroupManager privateGroupManager,
@@ -53,11 +55,12 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 			MessageEncoder messageEncoder,
 			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
+			ConversationManager conversationManager,
 			Clock clock) {
 		super(db, clientHelper, clientVersioningManager, privateGroupManager,
 				privateGroupFactory, groupMessageFactory, identityManager,
 				messageParser, messageEncoder, messageTracker,
-				autoDeleteManager, clock);
+				autoDeleteManager, conversationManager, clock);
 	}
 
 	@Override
