@@ -49,6 +49,13 @@ public interface ConversationManager {
 	GroupCount getGroupCount(Transaction txn, ContactId c) throws DbException;
 
 	/**
+	 * Returns a timestamp for an outgoing message, which is later than the
+	 * timestamp of any visible message sent or received so far.
+	 */
+	long getTimestampForOutgoingMessage(Transaction txn, ContactId c)
+			throws DbException;
+
+	/**
 	 * Deletes all messages exchanged with the given contact.
 	 */
 	DeletionResult deleteAllMessages(ContactId c) throws DbException;
