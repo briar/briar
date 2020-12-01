@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.Blog;
@@ -19,6 +18,7 @@ import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.blog.event.BlogInvitationRequestReceivedEvent;
 import org.briarproject.briar.api.blog.event.BlogInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationRequest;
 
 import javax.annotation.concurrent.Immutable;
@@ -41,13 +41,14 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			MessageParser<Blog> messageParser,
 			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
-			Clock clock,
+			ConversationManager conversationManager,
 			BlogManager blogManager,
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, messageEncoder,
-				messageParser, messageTracker, autoDeleteManager, clock,
-				BlogSharingManager.CLIENT_ID, BlogSharingManager.MAJOR_VERSION,
-				BlogManager.CLIENT_ID, BlogManager.MAJOR_VERSION);
+				messageParser, messageTracker, autoDeleteManager,
+				conversationManager, BlogSharingManager.CLIENT_ID,
+				BlogSharingManager.MAJOR_VERSION, BlogManager.CLIENT_ID,
+				BlogManager.MAJOR_VERSION);
 		this.blogManager = blogManager;
 		this.invitationFactory = invitationFactory;
 	}

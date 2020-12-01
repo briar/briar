@@ -122,8 +122,7 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
 
 		// invitee has own blog and that of the sharer
 		assertEquals(2, blogManager1.getBlogs().size());
@@ -213,8 +212,8 @@ public class BlogSharingIntegrationTest
 		blogManager0.addBlog(rssBlog);
 
 		// send invitation
-		blogSharingManager0.sendInvitation(rssBlog.getId(), contactId1From0,
-				"Hi!", clock.currentTimeMillis());
+		blogSharingManager0
+				.sendInvitation(rssBlog.getId(), contactId1From0, "Hi!");
 
 		// invitee has own blog and that of the sharer
 		assertEquals(2, blogManager1.getBlogs().size());
@@ -285,8 +284,7 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, null,
-						clock.currentTimeMillis());
+				.sendInvitation(blog2.getId(), contactId1From0, null);
 
 		// sync first request message
 		sync0To1(1, true);
@@ -341,8 +339,7 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
 
 		// sync first request message
 		sync0To1(1, true);
@@ -398,8 +395,7 @@ public class BlogSharingIntegrationTest
 
 		// sharer sends invitation for 2's blog to 1
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
 
 		// sync first request message
 		sync0To1(1, true);
@@ -436,8 +432,7 @@ public class BlogSharingIntegrationTest
 
 		// send invitation
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
 
 		// sync first request message
 		sync0To1(1, true);
@@ -515,8 +510,7 @@ public class BlogSharingIntegrationTest
 
 		// sharer sends invitation for 2's blog to 1
 		blogSharingManager0
-				.sendInvitation(blog2.getId(), contactId1From0, "Hi!",
-						clock.currentTimeMillis());
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
 
 		// sync first request message
 		sync0To1(1, true);
