@@ -65,7 +65,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 
 	@Override
 	public InviteeSession onInviteAction(Transaction txn, InviteeSession s,
-			@Nullable String text, long timestamp, byte[] signature) {
+			@Nullable String text, long timestamp, byte[] signature,
+			long autoDeleteTimer) {
 		throw new UnsupportedOperationException(); // Invalid in this role
 	}
 
