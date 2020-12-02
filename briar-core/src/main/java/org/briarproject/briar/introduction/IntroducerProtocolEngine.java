@@ -525,8 +525,7 @@ class IntroducerProtocolEngine
 			IntroducerSession s, AbortMessage m) throws DbException {
 		// Forward ABORT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = max(i.getLocalTimestamp(),
-				s.getRequestTimestamp()) + 1;
+		long localTimestamp = getLocalTimestamp(txn, s, i);
 		Message sent = sendAbortMessage(txn, i, localTimestamp);
 
 		// Broadcast abort event for testing
