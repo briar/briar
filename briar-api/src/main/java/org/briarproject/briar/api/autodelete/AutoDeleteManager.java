@@ -24,8 +24,26 @@ public interface AutoDeleteManager {
 	 */
 	int MINOR_VERSION = 0;
 
-	long getAutoDeleteTimer(Transaction txn, ContactId c) throws DbException;
+	/**
+	 * Returns the auto-delete timer duration for the given contact, for use in
+	 * a message with the given timestamp. The timestamp is stored.
+	 */
+	long getAutoDeleteTimer(Transaction txn, ContactId c, long timestamp)
+			throws DbException;
 
+	/**
+	 * Sets the auto-delete timer duration for the given contact.
+	 */
 	void setAutoDeleteTimer(Transaction txn, ContactId c, long timer)
 			throws DbException;
+
+	/**
+	 * Receives an auto-delete timer duration from the given contact, carried
+	 * in a message with the given timestamp. The local timer is set to the
+	 * same duration unless it has been
+	 * {@link #setAutoDeleteTimer(Transaction, ContactId, long) changed} more
+	 * recently than the remote timer.
+	 */
+	void receiveAutoDeleteTimer(Transaction txn, ContactId c, long timer,
+			long timestamp) throws DbException;
 }
