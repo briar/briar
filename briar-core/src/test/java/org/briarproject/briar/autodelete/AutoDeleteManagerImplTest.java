@@ -18,12 +18,18 @@ import static org.briarproject.bramble.api.client.ContactGroupConstants.GROUP_KE
 import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getGroup;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MAX_AUTO_DELETE_TIMER_MS;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.autodelete.AutoDeleteManager.CLIENT_ID;
 import static org.briarproject.briar.api.autodelete.AutoDeleteManager.MAJOR_VERSION;
-import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_PREVIOUS_TIMER;
+import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_TIMER;
+import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_TIMESTAMP;
+import static org.briarproject.briar.autodelete.AutoDeleteConstants.NO_PREVIOUS_TIMER;
 import static org.junit.Assert.assertEquals;
 
+// Thank you, I'm using them for readability
+@SuppressWarnings("UnnecessaryLocalVariable")
 public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
@@ -35,6 +41,7 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 	private final Group localGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Group contactGroup = getGroup(CLIENT_ID, MAJOR_VERSION);
 	private final Contact contact = getContact();
+	private final long now = System.currentTimeMillis();
 
 	private final AutoDeleteManagerImpl autoDeleteManager;
 
@@ -113,15 +120,44 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 	@Test
 	public void testStoresTimer() throws Exception {
 		Transaction txn = new Transaction(null, false);
-		long timer = MAX_AUTO_DELETE_TIMER_MS;
-		BdfDictionary meta = BdfDictionary.of(
-				new BdfEntry(GROUP_KEY_AUTO_DELETE_TIMER, timer));
+		long oldTimer = MIN_AUTO_DELETE_TIMER_MS;
+		long newTimer = MAX_AUTO_DELETE_TIMER_MS;
+		BdfDictionary oldMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMER, oldTimer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER),
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now));
+		BdfDictionary newMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMER, newTimer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, oldTimer));
 
 		expectGetContact(txn);
 		expectGetContactGroup();
 		context.checking(new Expectations() {{
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(oldMeta));
 			oneOf(clientHelper).mergeGroupMetadata(txn,
-					contactGroup.getId(), meta);
+					contactGroup.getId(), newMeta);
+		}});
+
+		autoDeleteManager.setAutoDeleteTimer(txn, contact.getId(), newTimer);
+	}
+
+	@Test
+	public void testDoesNotStoreTimerIfUnchanged() throws Exception {
+		Transaction txn = new Transaction(null, false);
+		long timer = MAX_AUTO_DELETE_TIMER_MS;
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMER, timer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER),
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now));
+
+		expectGetContact(txn);
+		expectGetContactGroup();
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(meta));
 		}});
 
 		autoDeleteManager.setAutoDeleteTimer(txn, contact.getId(), timer);
@@ -133,7 +169,10 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 		long timer = MAX_AUTO_DELETE_TIMER_MS;
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt()),
-				new BdfEntry(GROUP_KEY_AUTO_DELETE_TIMER, timer));
+				new BdfEntry(GROUP_KEY_TIMER, timer));
+		BdfDictionary newMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER));
 
 		expectGetContact(txn);
 		expectGetContactGroup();
@@ -141,10 +180,12 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
 					contactGroup.getId());
 			will(returnValue(meta));
+			oneOf(clientHelper).mergeGroupMetadata(txn, contactGroup.getId(),
+					newMeta);
 		}});
 
-		assertEquals(timer,
-				autoDeleteManager.getAutoDeleteTimer(txn, contact.getId()));
+		assertEquals(timer, autoDeleteManager
+				.getAutoDeleteTimer(txn, contact.getId(), now));
 	}
 
 	@Test
@@ -152,6 +193,44 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 		Transaction txn = new Transaction(null, false);
 		BdfDictionary meta = BdfDictionary.of(
 				new BdfEntry(GROUP_KEY_CONTACT_ID, contact.getId().getInt()));
+		BdfDictionary newMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER));
+
+		expectGetContact(txn);
+		expectGetContactGroup();
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(meta));
+			oneOf(clientHelper).mergeGroupMetadata(txn, contactGroup.getId(),
+					newMeta);
+		}});
+
+		assertEquals(NO_AUTO_DELETE_TIMER, autoDeleteManager
+				.getAutoDeleteTimer(txn, contact.getId(), now));
+	}
+
+	@Test
+	public void testIgnoresReceivedTimerWithEarlierTimestamp()
+			throws Exception {
+		testIgnoresReceivedTimerWithTimestamp(now - 1);
+	}
+
+	@Test
+	public void testIgnoresReceivedTimerWithEqualTimestamp() throws Exception {
+		testIgnoresReceivedTimerWithTimestamp(now);
+	}
+
+	private void testIgnoresReceivedTimerWithTimestamp(long remoteTimestamp)
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+		long localTimer = MIN_AUTO_DELETE_TIMER_MS;
+		long remoteTimer = MAX_AUTO_DELETE_TIMER_MS;
+		BdfDictionary meta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMER, localTimer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER),
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now));
 
 		expectGetContact(txn);
 		expectGetContactGroup();
@@ -161,8 +240,99 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(meta));
 		}});
 
-		assertEquals(NO_AUTO_DELETE_TIMER,
-				autoDeleteManager.getAutoDeleteTimer(txn, contact.getId()));
+		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
+				remoteTimer, remoteTimestamp);
+	}
+
+	@Test
+	public void testMirrorsRemoteTimestampIfNoUnsentChange() throws Exception {
+		Transaction txn = new Transaction(null, false);
+		long localTimer = MIN_AUTO_DELETE_TIMER_MS;
+		long remoteTimer = MAX_AUTO_DELETE_TIMER_MS;
+		long remoteTimestamp = now + 1;
+		BdfDictionary oldMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMER, localTimer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER),
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now));
+		// The timestamp should be updated and the timer should be mirrored
+		BdfDictionary newMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMESTAMP, remoteTimestamp),
+				new BdfEntry(GROUP_KEY_TIMER, remoteTimer));
+
+		expectGetContact(txn);
+		expectGetContactGroup();
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(oldMeta));
+			oneOf(clientHelper).mergeGroupMetadata(txn,
+					contactGroup.getId(), newMeta);
+		}});
+
+		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
+				remoteTimer, remoteTimestamp);
+	}
+
+	@Test
+	public void testDoesNotMirrorUnchangedRemoteTimestampIfUnsentChange()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+		long localTimer = MIN_AUTO_DELETE_TIMER_MS;
+		long remoteTimer = MAX_AUTO_DELETE_TIMER_MS;
+		long remoteTimestamp = now + 1;
+		BdfDictionary oldMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMER, localTimer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, remoteTimer),
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now));
+		// The timestamp should be updated but the timer should not revert
+		BdfDictionary newMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMESTAMP, remoteTimestamp));
+
+		expectGetContact(txn);
+		expectGetContactGroup();
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(oldMeta));
+			oneOf(clientHelper).mergeGroupMetadata(txn,
+					contactGroup.getId(), newMeta);
+		}});
+
+		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
+				remoteTimer, remoteTimestamp);
+	}
+
+	@Test
+	public void testMirrorsChangedRemoteTimestampIfUnsentChange()
+			throws Exception {
+		Transaction txn = new Transaction(null, false);
+		long localTimer = MIN_AUTO_DELETE_TIMER_MS;
+		long oldRemoteTimer = MAX_AUTO_DELETE_TIMER_MS;
+		long newRemoteTimer = MAX_AUTO_DELETE_TIMER_MS - 1;
+		long remoteTimestamp = now + 1;
+		BdfDictionary oldMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMER, localTimer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, oldRemoteTimer),
+				new BdfEntry(GROUP_KEY_TIMESTAMP, now));
+		// The timestamp should be updated , the timer should be mirrored and
+		// the previous timer should be cleared
+		BdfDictionary newMeta = BdfDictionary.of(
+				new BdfEntry(GROUP_KEY_TIMESTAMP, remoteTimestamp),
+				new BdfEntry(GROUP_KEY_TIMER, newRemoteTimer),
+				new BdfEntry(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER));
+
+		expectGetContact(txn);
+		expectGetContactGroup();
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getGroupMetadataAsDictionary(txn,
+					contactGroup.getId());
+			will(returnValue(oldMeta));
+			oneOf(clientHelper).mergeGroupMetadata(txn,
+					contactGroup.getId(), newMeta);
+		}});
+
+		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
+				newRemoteTimer, remoteTimestamp);
 	}
 
 	private void expectGetContact(Transaction txn) throws Exception {
