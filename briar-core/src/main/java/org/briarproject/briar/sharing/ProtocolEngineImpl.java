@@ -142,7 +142,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					localTimestamp);
 			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 					localTimestamp, s.getLastLocalMessageId(), descriptor,
 					text, timer);
@@ -209,7 +210,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					localTimestamp);
 			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
 					s.getShareableId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
@@ -263,7 +265,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					localTimestamp);
 			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
 					s.getShareableId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
