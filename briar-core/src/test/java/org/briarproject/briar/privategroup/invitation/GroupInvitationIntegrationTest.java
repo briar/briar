@@ -27,6 +27,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -687,7 +688,8 @@ public class GroupInvitationIntegrationTest
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
 				privateGroup.getId(), timestamp, author0.getPrivateKey());
 		groupInvitationManager0.sendInvitation(privateGroup.getId(),
-				contactId1From0, text, timestamp, signature);
+				contactId1From0, text, timestamp, signature,
+				NO_AUTO_DELETE_TIMER);
 	}
 
 }

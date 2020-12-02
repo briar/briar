@@ -115,8 +115,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	}
 
 	Message sendInviteMessage(Transaction txn, S s,
-			@Nullable String text, long timestamp, byte[] signature)
-			throws DbException {
+			@Nullable String text, long timestamp, byte[] signature,
+			long timer) throws DbException {
 		Group g = db.getGroup(txn, s.getPrivateGroupId());
 		PrivateGroup privateGroup;
 		try {
@@ -127,7 +127,6 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		Message m;
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
 			m = messageEncoder.encodeInviteMessage(s.getContactGroupId(),
 					privateGroup.getId(), timestamp, privateGroup.getName(),
 					privateGroup.getCreator(), privateGroup.getSalt(), text,

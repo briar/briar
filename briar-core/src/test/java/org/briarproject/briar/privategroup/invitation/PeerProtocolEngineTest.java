@@ -40,43 +40,43 @@ public class PeerProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromStart() {
 		engine.onInviteAction(txn, getDefaultSession(START), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromAwaitMember() {
 		engine.onInviteAction(txn, getDefaultSession(AWAIT_MEMBER), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromNeitherJoined() {
 		engine.onInviteAction(txn, getDefaultSession(NEITHER_JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromLocalJoined() {
 		engine.onInviteAction(txn, getDefaultSession(LOCAL_JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromBothJoined() {
 		engine.onInviteAction(txn, getDefaultSession(BOTH_JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromLocalLeft() {
 		engine.onInviteAction(txn, getDefaultSession(LOCAL_LEFT), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromError() {
 		engine.onInviteAction(txn, getDefaultSession(ERROR), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	// onJoinAction

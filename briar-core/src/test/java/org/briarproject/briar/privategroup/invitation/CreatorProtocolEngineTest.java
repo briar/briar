@@ -44,7 +44,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectOnLocalInvite(text);
 		CreatorSession newSession =
 				engine.onInviteAction(txn, session, text, inviteTimestamp,
-						signature);
+						signature, NO_AUTO_DELETE_TIMER);
 		assertEquals(INVITED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertNull(newSession.getLastRemoteMessageId());
@@ -61,7 +61,7 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		expectOnLocalInvite(null);
 		CreatorSession newSession =
 				engine.onInviteAction(txn, session, null, inviteTimestamp,
-						signature);
+						signature, NO_AUTO_DELETE_TIMER);
 		assertEquals(INVITED, newSession.getState());
 		assertEquals(messageId, newSession.getLastLocalMessageId());
 		assertNull(newSession.getLastRemoteMessageId());
@@ -84,31 +84,31 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromInvited() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(INVITED), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromJoined() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(JOINED), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromLeft() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(LEFT), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromDissolved() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(DISSOLVED), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = ProtocolStateException.class)
 	public void testOnInviteActionFromError() throws Exception {
 		engine.onInviteAction(txn, getDefaultSession(ERROR), null,
-				inviteTimestamp, signature);
+				inviteTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	// onJoinAction

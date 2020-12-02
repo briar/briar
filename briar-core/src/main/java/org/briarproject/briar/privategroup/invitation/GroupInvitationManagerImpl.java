@@ -257,8 +257,8 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 
 	@Override
 	public void sendInvitation(GroupId privateGroupId, ContactId c,
-			@Nullable String text, long timestamp, byte[] signature)
-			throws DbException {
+			@Nullable String text, long timestamp, byte[] signature,
+			long autoDeleteTimer) throws DbException {
 		SessionId sessionId = getSessionId(privateGroupId);
 		Transaction txn = db.startTransaction(false);
 		try {
@@ -281,7 +281,7 @@ class GroupInvitationManagerImpl extends ConversationClientImpl
 			}
 			// Handle the invite action
 			session = creatorEngine.onInviteAction(txn, session, text,
-					timestamp, signature);
+					timestamp, signature, autoDeleteTimer);
 			// Store the updated session
 			storeSession(txn, storageId, session);
 			db.commitTransaction(txn);

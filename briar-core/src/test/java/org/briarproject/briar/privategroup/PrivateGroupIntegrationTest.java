@@ -24,6 +24,7 @@ import java.util.Collection;
 
 import javax.annotation.Nullable;
 
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.privategroup.Visibility.INVISIBLE;
 import static org.briarproject.briar.api.privategroup.Visibility.REVEALED_BY_CONTACT;
@@ -220,8 +221,8 @@ public class PrivateGroupIntegrationTest
 		byte[] signature = groupInvitationFactory
 				.signInvitation(contact, groupId0, timestamp,
 						author0.getPrivateKey());
-		groupInvitationManager0
-				.sendInvitation(groupId0, c, text, timestamp, signature);
+		groupInvitationManager0.sendInvitation(groupId0, c, text, timestamp,
+				signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	private GroupMember getGroupMember(PrivateGroupManager groupManager,
