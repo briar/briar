@@ -96,7 +96,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		Message m;
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					timestamp);
 			m = messageEncoder.encodeRequestMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), author, text, timer);
 			sendMessage(txn, REQUEST, s.getSessionId(), m, true, timer);
@@ -116,7 +117,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		Message m;
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					timestamp);
 			m = messageEncoder.encodeAcceptMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), s.getSessionId(),
 					ephemeralPublicKey, acceptTimestamp, transportProperties,
@@ -137,7 +139,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		Message m;
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
-			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+					timestamp);
 			m = messageEncoder.encodeDeclineMessage(s.getContactGroupId(),
 					timestamp, s.getLastLocalMessageId(), s.getSessionId(),
 					timer);
