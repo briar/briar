@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchContactException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
@@ -16,6 +17,7 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.contactselection.ContactSelectorControllerImpl;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
@@ -51,6 +53,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 
 	private final Executor cryptoExecutor;
 	private final TransactionManager db;
+	private final AutoDeleteManager autoDeleteManager;
 	private final ConversationManager conversationManager;
 	private final ContactManager contactManager;
 	private final IdentityManager identityManager;
@@ -66,6 +69,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 			@DatabaseExecutor Executor dbExecutor,
 			@CryptoExecutor Executor cryptoExecutor,
 			TransactionManager db,
+			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
 			LifecycleManager lifecycleManager,
 			ContactManager contactManager,
@@ -79,6 +83,7 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		super(dbExecutor, lifecycleManager, contactManager);
 		this.cryptoExecutor = cryptoExecutor;
 		this.db = db;
+		this.autoDeleteManager = autoDeleteManager;
 		this.conversationManager = conversationManager;
 		this.contactManager = contactManager;
 		this.identityManager = identityManager;
@@ -144,20 +149,10 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 		runOnDbThread(() -> {
 			try {
 				db.transaction(true, txn -> {
-					List<InvitationContext> contexts = new ArrayList<>();
 					LocalAuthor localAuthor =
 							identityManager.getLocalAuthor(txn);
-					for (ContactId c : contactIds) {
-						try {
-							Contact contact = contactManager.getContact(txn, c);
-							long timestamp = conversationManager
-									.getTimestampForOutgoingMessage(txn, c);
-							contexts.add(
-									new InvitationContext(contact, timestamp));
-						} catch (NoSuchContactException e) {
-							// Continue
-						}
-					}
+					List<InvitationContext> contexts =
+							createInvitationContexts(txn, contactIds);
 					txn.attach(() -> signInvitations(g, localAuthor, contexts,
 							text, handler));
 				});
@@ -166,6 +161,23 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				handler.onException(e);
 			}
 		});
+	}
+
+	private List<InvitationContext> createInvitationContexts(Transaction txn,
+			Collection<ContactId> contactIds) throws DbException {
+		List<InvitationContext> contexts = new ArrayList<>();
+		for (ContactId c : contactIds) {
+			try {
+				Contact contact = contactManager.getContact(txn, c);
+				long timestamp = conversationManager
+						.getTimestampForOutgoingMessage(txn, c);
+				long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+				contexts.add(new InvitationContext(contact, timestamp, timer));
+			} catch (NoSuchContactException e) {
+				// Continue
+			}
+		}
+		return contexts;
 	}
 
 	private void signInvitations(GroupId g, LocalAuthor localAuthor,
@@ -186,12 +198,12 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 			ResultExceptionHandler<Void, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				for (InvitationContext context : contexts) {
+				for (InvitationContext ctx : contexts) {
 					try {
 						groupInvitationManager.sendInvitation(g,
-								context.contact.getId(), text,
-								context.timestamp,
-								requireNonNull(context.signature));
+								ctx.contact.getId(), text, ctx.timestamp,
+								requireNonNull(ctx.signature),
+								ctx.autoDeleteTimer);
 					} catch (NoSuchContactException e) {
 						// Continue
 					}
@@ -207,13 +219,15 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 	private static class InvitationContext {
 
 		private final Contact contact;
-		private final long timestamp;
+		private final long timestamp, autoDeleteTimer;
 		@Nullable
 		private byte[] signature = null;
 
-		private InvitationContext(Contact contact, long timestamp) {
+		private InvitationContext(Contact contact, long timestamp,
+				long autoDeleteTimer) {
 			this.contact = contact;
 			this.timestamp = timestamp;
+			this.autoDeleteTimer = autoDeleteTimer;
 		}
 	}
 }
