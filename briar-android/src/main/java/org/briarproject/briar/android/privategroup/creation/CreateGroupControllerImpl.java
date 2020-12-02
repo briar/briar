@@ -173,7 +173,8 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 				Contact contact = contactManager.getContact(txn, c);
 				long timestamp = conversationManager
 						.getTimestampForOutgoingMessage(txn, c);
-				long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+				long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+						timestamp);
 				contexts.add(new InvitationContext(contact, timestamp, timer));
 			} catch (NoSuchContactException e) {
 				// Continue

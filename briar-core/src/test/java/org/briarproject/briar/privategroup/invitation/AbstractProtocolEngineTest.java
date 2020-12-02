@@ -256,7 +256,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	void expectGetAutoDeleteTimer() throws Exception {
 		context.checking(new Expectations() {{
-			oneOf(autoDeleteManager).getAutoDeleteTimer(txn, contactId);
+			oneOf(autoDeleteManager).getAutoDeleteTimer(txn, contactId,
+					localTimestamp);
 			will(returnValue(NO_AUTO_DELETE_TIMER));
 		}});
 	}

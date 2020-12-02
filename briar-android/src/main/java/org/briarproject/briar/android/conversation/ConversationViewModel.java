@@ -328,7 +328,8 @@ public class ConversationViewModel extends DbViewModel
 				return privateMessageFactory.createPrivateMessage(groupId,
 						timestamp, text, headers);
 			} else {
-				long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
+				long timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+						timestamp);
 				return privateMessageFactory.createPrivateMessage(groupId,
 						timestamp, text, headers, timer);
 			}
