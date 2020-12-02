@@ -61,11 +61,12 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 
 	@Override
 	public CreatorSession onInviteAction(Transaction txn, CreatorSession s,
-			@Nullable String text, long timestamp, byte[] signature)
-			throws DbException {
+			@Nullable String text, long timestamp, byte[] signature,
+			long autoDeleteTimer) throws DbException {
 		switch (s.getState()) {
 			case START:
-				return onLocalInvite(txn, s, text, timestamp, signature);
+				return onLocalInvite(txn, s, text, timestamp, signature,
+						autoDeleteTimer);
 			case INVITED:
 			case JOINED:
 			case LEFT:
@@ -155,10 +156,11 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 	}
 
 	private CreatorSession onLocalInvite(Transaction txn, CreatorSession s,
-			@Nullable String text, long timestamp, byte[] signature)
-			throws DbException {
+			@Nullable String text, long timestamp, byte[] signature,
+			long autoDeleteTimer) throws DbException {
 		// Send an INVITE message
-		Message sent = sendInviteMessage(txn, s, text, timestamp, signature);
+		Message sent = sendInviteMessage(txn, s, text, timestamp, signature,
+				autoDeleteTimer);
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the INVITED state
