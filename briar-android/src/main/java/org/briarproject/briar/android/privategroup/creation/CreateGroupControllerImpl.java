@@ -174,10 +174,10 @@ class CreateGroupControllerImpl extends ContactSelectorControllerImpl
 			List<InvitationContext> contexts, @Nullable String text,
 			ResultExceptionHandler<Void, DbException> handler) {
 		cryptoExecutor.execute(() -> {
-			long timestamp = clock.currentTimeMillis();
 			for (InvitationContext ctx : contexts) {
 				ctx.signature = groupInvitationFactory.signInvitation(
-						ctx.contact, g, timestamp, localAuthor.getPrivateKey());
+						ctx.contact, g, ctx.timestamp,
+						localAuthor.getPrivateKey());
 			}
 			sendInvitations(g, contexts, text, handler);
 		});
