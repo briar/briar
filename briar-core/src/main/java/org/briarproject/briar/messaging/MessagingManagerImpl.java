@@ -58,10 +58,10 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
 import static java.util.Collections.emptyList;
-import static org.briarproject.bramble.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.api.sync.validation.MessageState.DELIVERED;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
@@ -229,7 +229,12 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 
 	@Override
 	public void addLocalMessage(PrivateMessage m) throws DbException {
-		Transaction txn = db.startTransaction(false);
+		db.transaction(false, txn -> addLocalMessage(txn, m));
+	}
+
+	@Override
+	public void addLocalMessage(Transaction txn, PrivateMessage m)
+			throws DbException {
 		try {
 			BdfDictionary meta = new BdfDictionary();
 			meta.put(MSG_KEY_TIMESTAMP, m.getMessage().getTimestamp());
@@ -259,11 +264,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 			clientHelper.addLocalMessage(txn, m.getMessage(), meta, true,
 					false);
 			messageTracker.trackOutgoingMessage(txn, m.getMessage());
-			db.commitTransaction(txn);
 		} catch (FormatException e) {
 			throw new AssertionError(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 

@@ -24,6 +24,7 @@ import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.autodelete.AutoDeleteModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
@@ -39,6 +40,7 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
+		AutoDeleteModule.class,
 		BrambleCoreIntegrationTestModule.class,
 		BrambleCoreModule.class,
 		BlogModule.class,
@@ -54,6 +56,8 @@ public interface BriarIntegrationTestComponent
 		extends BrambleCoreIntegrationTestEagerSingletons {
 
 	void inject(BriarIntegrationTest<BriarIntegrationTestComponent> init);
+
+	void inject(AutoDeleteModule.EagerSingletons init);
 
 	void inject(BlogModule.EagerSingletons init);
 
@@ -117,6 +121,7 @@ public interface BriarIntegrationTestComponent
 				BriarIntegrationTestComponent c) {
 			BrambleCoreIntegrationTestEagerSingletons.Helper
 					.injectEagerSingletons(c);
+			c.inject(new AutoDeleteModule.EagerSingletons());
 			c.inject(new BlogModule.EagerSingletons());
 			c.inject(new ForumModule.EagerSingletons());
 			c.inject(new GroupInvitationModule.EagerSingletons());
