@@ -482,7 +482,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 		context.checking(new Expectations() {{
 			oneOf(creatorEngine).onInviteAction(with(txn),
 					with(any(CreatorSession.class)), with(text), with(time),
-					with(signature));
+					with(signature), with(NO_AUTO_DELETE_TIMER));
 			will(returnValue(creatorSession));
 		}});
 		expectStoreSession(creatorSession, storageMessage.getId());
@@ -491,7 +491,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).endTransaction(txn);
 		}});
 		groupInvitationManager.sendInvitation(privateGroup.getId(), contactId,
-				text, time, signature);
+				text, time, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test
@@ -514,7 +514,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			will(returnValue(creatorSession));
 			oneOf(creatorEngine).onInviteAction(with(txn),
 					with(any(CreatorSession.class)), with(text), with(time),
-					with(signature));
+					with(signature), with(NO_AUTO_DELETE_TIMER));
 			will(returnValue(creatorSession));
 		}});
 		expectStoreSession(creatorSession, storageMessage.getId());
@@ -523,7 +523,7 @@ public class GroupInvitationManagerImplTest extends BrambleMockTestCase {
 			oneOf(db).endTransaction(txn);
 		}});
 		groupInvitationManager.sendInvitation(privateGroup.getId(), contactId,
-				text, time, signature);
+				text, time, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = IllegalArgumentException.class)
