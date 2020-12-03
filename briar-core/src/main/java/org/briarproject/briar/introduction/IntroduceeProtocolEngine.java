@@ -343,9 +343,6 @@ class IntroduceeProtocolEngine
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
 
-		// Receive the auto-delete timer
-		receiveAutoDeleteTimer(txn, m);
-
 		// Determine next state
 		IntroduceeState state =
 				s.getState() == AWAIT_RESPONSES ? REMOTE_ACCEPTED : AWAIT_AUTH;
