@@ -21,6 +21,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -60,6 +61,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	protected final ClientVersioningManager clientVersioningManager;
 	protected final AutoDeleteManager autoDeleteManager;
 	protected final ConversationManager conversationManager;
+	protected final Clock clock;
 
 	AbstractProtocolEngine(
 			DatabaseComponent db,
@@ -72,7 +74,8 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 			MessageEncoder messageEncoder,
 			ClientVersioningManager clientVersioningManager,
 			AutoDeleteManager autoDeleteManager,
-			ConversationManager conversationManager) {
+			ConversationManager conversationManager,
+			Clock clock) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.contactManager = contactManager;
@@ -84,6 +87,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		this.clientVersioningManager = clientVersioningManager;
 		this.autoDeleteManager = autoDeleteManager;
 		this.conversationManager = conversationManager;
+		this.clock = clock;
 	}
 
 	Message sendRequestMessage(Transaction txn, PeerSession s,

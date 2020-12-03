@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.Blog;
@@ -42,11 +43,12 @@ class BlogProtocolEngineImpl extends ProtocolEngineImpl<Blog> {
 			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
+			Clock clock,
 			BlogManager blogManager,
 			InvitationFactory<Blog, BlogInvitationResponse> invitationFactory) {
 		super(db, clientHelper, clientVersioningManager, messageEncoder,
 				messageParser, messageTracker, autoDeleteManager,
-				conversationManager, BlogSharingManager.CLIENT_ID,
+				conversationManager, clock, BlogSharingManager.CLIENT_ID,
 				BlogSharingManager.MAJOR_VERSION, BlogManager.CLIENT_ID,
 				BlogManager.MAJOR_VERSION);
 		this.blogManager = blogManager;

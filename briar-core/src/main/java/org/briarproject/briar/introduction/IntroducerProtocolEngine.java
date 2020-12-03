@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -55,11 +56,12 @@ class IntroducerProtocolEngine
 			MessageEncoder messageEncoder,
 			ClientVersioningManager clientVersioningManager,
 			AutoDeleteManager autoDeleteManager,
-			ConversationManager conversationManager) {
+			ConversationManager conversationManager,
+			Clock clock) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
 				messageTracker, identityManager, messageParser, messageEncoder,
 				clientVersioningManager, autoDeleteManager,
-				conversationManager);
+				conversationManager, clock);
 	}
 
 	@Override
@@ -217,8 +219,10 @@ class IntroducerProtocolEngine
 	private IntroducerSession onLocalRequest(Transaction txn,
 			IntroducerSession s, @Nullable String text) throws DbException {
 		// Send REQUEST messages
-		long timestampA = getLocalTimestamp(txn, s, s.getIntroduceeA());
-		long timestampB = getLocalTimestamp(txn, s, s.getIntroduceeB());
+		long timestampA =
+				getTimestampForVisibleMessage(txn, s, s.getIntroduceeA());
+		long timestampB =
+				getTimestampForVisibleMessage(txn, s, s.getIntroduceeB());
 		long localTimestamp = max(timestampA, timestampB);
 		Message sentA = sendRequestMessage(txn, s.getIntroduceeA(),
 				localTimestamp, s.getIntroduceeB().author, text);
@@ -259,7 +263,8 @@ class IntroducerProtocolEngine
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = getLocalTimestamp(txn, s, i);
+		// The message will be visible to the introducee
+		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
 		Message sent = sendAcceptMessage(txn, i, localTimestamp,
 				m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
 				m.getTransportProperties(), false);
@@ -319,7 +324,8 @@ class IntroducerProtocolEngine
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = getLocalTimestamp(txn, s, i);
+		// The message will be visible to the introducee
+		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
 		Message sent = sendAcceptMessage(txn, i, localTimestamp,
 				m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
 				m.getTransportProperties(), false);
@@ -371,7 +377,8 @@ class IntroducerProtocolEngine
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = getLocalTimestamp(txn, s, i);
+		// The message will be visible to the introducee
+		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
 		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
 
 		// Create the next state
@@ -423,7 +430,8 @@ class IntroducerProtocolEngine
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = getLocalTimestamp(txn, s, i);
+		// The message will be visible to the introducee
+		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
 		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
 
 		Introducee introduceeA, introduceeB;
@@ -464,7 +472,7 @@ class IntroducerProtocolEngine
 
 		// Forward AUTH message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = getLocalTimestamp(txn, s, i);
+		long localTimestamp = getTimestampForInvisibleMessage(s, i);
 		Message sent = sendAuthMessage(txn, i, localTimestamp, m.getMac(),
 				m.getSignature());
 
@@ -500,7 +508,7 @@ class IntroducerProtocolEngine
 
 		// Forward ACTIVATE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = getLocalTimestamp(txn, s, i);
+		long localTimestamp = getTimestampForInvisibleMessage(s, i);
 		Message sent = sendActivateMessage(txn, i, localTimestamp, m.getMac());
 
 		// Move to the next state
@@ -523,7 +531,7 @@ class IntroducerProtocolEngine
 			IntroducerSession s, AbortMessage m) throws DbException {
 		// Forward ABORT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		long localTimestamp = getLocalTimestamp(txn, s, i);
+		long localTimestamp = getTimestampForInvisibleMessage(s, i);
 		Message sent = sendAbortMessage(txn, i, localTimestamp);
 
 		// Broadcast abort event for testing
@@ -548,7 +556,8 @@ class IntroducerProtocolEngine
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Send an ABORT message to the remaining introducee
-		long localTimestamp = getLocalTimestamp(txn, s, remainingIntroducee);
+		long localTimestamp =
+				getTimestampForInvisibleMessage(s, remainingIntroducee);
 		Message sent =
 				sendAbortMessage(txn, remainingIntroducee, localTimestamp);
 		// Reset the session back to initial state
@@ -575,9 +584,11 @@ class IntroducerProtocolEngine
 		txn.attach(new IntroductionAbortedEvent(s.getSessionId()));
 
 		// Send an ABORT message to both introducees
-		long timestampA = getLocalTimestamp(txn, s, s.getIntroduceeA());
+		long timestampA =
+				getTimestampForInvisibleMessage(s, s.getIntroduceeA());
 		Message sentA = sendAbortMessage(txn, s.getIntroduceeA(), timestampA);
-		long timestampB = getLocalTimestamp(txn, s, s.getIntroduceeB());
+		long timestampB =
+				getTimestampForInvisibleMessage(s, s.getIntroduceeB());
 		Message sentB = sendAbortMessage(txn, s.getIntroduceeB(), timestampB);
 		// Reset the session back to initial state
 		Introducee introduceeA = new Introducee(s.getIntroduceeA(), sentA);
@@ -608,16 +619,32 @@ class IntroducerProtocolEngine
 	}
 
 	/**
-	 * Returns a timestamp for an outgoing message, which is later than the
-	 * timestamp of any message sent or received so far in the conversation
-	 * or the session.
+	 * Returns a timestamp for a visible outgoing message. The timestamp is
+	 * later than the timestamp of any message sent or received so far in the
+	 * conversation, and later than the {@link
+	 * #getSessionTimestamp(IntroducerSession, PeerSession) session timestamp}.
 	 */
-	private long getLocalTimestamp(Transaction txn, IntroducerSession s,
-			PeerSession p) throws DbException {
+	private long getTimestampForVisibleMessage(Transaction txn,
+			IntroducerSession s, PeerSession p) throws DbException {
 		long conversationTimestamp =
 				getTimestampForOutgoingMessage(txn, p.getContactGroupId());
-		long sessionTimestamp =
-				max(p.getLocalTimestamp(), s.getRequestTimestamp()) + 1;
-		return max(conversationTimestamp, sessionTimestamp);
+		return max(conversationTimestamp, getSessionTimestamp(s, p) + 1);
+	}
+
+	/**
+	 * Returns a timestamp for an invisible outgoing message. The timestamp is
+	 * later than the {@link #getSessionTimestamp(IntroducerSession, PeerSession)
+	 * session timestamp}.
+	 */
+	private long getTimestampForInvisibleMessage(IntroducerSession s,
+			PeerSession p) {
+		return max(clock.currentTimeMillis(), getSessionTimestamp(s, p) + 1);
+	}
+
+	/**
+	 * Returns the latest timestamp of any message sent so far in the session.
+	 */
+	private long getSessionTimestamp(IntroducerSession s, PeerSession p) {
+		return max(p.getLocalTimestamp(), s.getRequestTimestamp());
 	}
 }
