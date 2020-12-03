@@ -48,7 +48,6 @@ public class SettingsActivity extends BriarActivity {
 			ViewModelProvider provider =
 					new ViewModelProvider(this, viewModelFactory);
 			settingsViewModel = provider.get(SettingsViewModel.class);
-			settingsViewModel.onCreate();
 
 			settingsViewModel.getOwnIdentityInfo().observe(this, us -> {
 				TextView textViewUserName = findViewById(R.id.username);

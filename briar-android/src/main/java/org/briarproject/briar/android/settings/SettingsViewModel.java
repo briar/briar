@@ -61,10 +61,8 @@ class SettingsViewModel extends AndroidViewModel {
 		this.avatarManager = avatarManager;
 		this.authorManager = authorManager;
 		this.dbExecutor = dbExecutor;
-	}
 
-	void onCreate() {
-		if (ownIdentityInfo.getValue() == null) loadOwnIdentityInfo();
+		loadOwnIdentityInfo();
 	}
 
 	LiveData<OwnIdentityInfo> getOwnIdentityInfo() {

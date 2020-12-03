@@ -62,7 +62,6 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 		ViewModelProvider provider =
 				new ViewModelProvider(activity, viewModelFactory);
 		settingsViewModel = provider.get(SettingsViewModel.class);
-		settingsViewModel.onCreate();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
