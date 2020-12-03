@@ -118,7 +118,14 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		assertEquals(inviteTimestamp, s.getInviteTimestamp());
 	}
 
-	void expectGetLocalTimestamp(long time) throws Exception {
+	void expectGetTimestampForInvisibleMessage(long time) {
+		context.checking(new Expectations() {{
+			oneOf(clock).currentTimeMillis();
+			will(returnValue(time));
+		}});
+	}
+
+	void expectGetTimestampForVisibleMessage(long time) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).getContactId(txn, contactGroupId);
 			will(returnValue(contactId));
@@ -129,7 +136,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	void expectSendInviteMessage(String text) throws Exception {
-		expectGetLocalTimestamp(messageTimestamp);
+		expectGetTimestampForVisibleMessage(messageTimestamp);
 		expectCheckWhetherContactSupportsAutoDeletion();
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeInviteMessage(contactGroupId,
@@ -143,7 +150,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	void expectSendJoinMessage(JoinMessage m, boolean visible)
 			throws Exception {
-		expectGetLocalTimestamp(messageTimestamp);
+		if (visible) expectGetTimestampForVisibleMessage(messageTimestamp);
+		else expectGetTimestampForInvisibleMessage(messageTimestamp);
 		expectCheckWhetherContactSupportsAutoDeletion();
 		if (visible) expectGetAutoDeleteTimer();
 		context.checking(new Expectations() {{
@@ -156,7 +164,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	void expectSendLeaveMessage(boolean visible) throws Exception {
-		expectGetLocalTimestamp(messageTimestamp);
+		if (visible) expectGetTimestampForVisibleMessage(messageTimestamp);
+		else expectGetTimestampForInvisibleMessage(messageTimestamp);
 		expectCheckWhetherContactSupportsAutoDeletion();
 		if (visible) expectGetAutoDeleteTimer();
 		context.checking(new Expectations() {{
@@ -169,7 +178,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	void expectSendAbortMessage() throws Exception {
-		expectGetLocalTimestamp(messageTimestamp);
+		expectGetTimestampForInvisibleMessage(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.encodeAbortMessage(contactGroupId, privateGroupId,
