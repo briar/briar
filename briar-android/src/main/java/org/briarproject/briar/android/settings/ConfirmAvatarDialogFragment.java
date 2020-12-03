@@ -63,7 +63,8 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 				new ViewModelProvider(activity, viewModelFactory);
 		settingsViewModel = provider.get(SettingsViewModel.class);
 
-		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+		AlertDialog.Builder builder =
+				new AlertDialog.Builder(activity, R.style.BriarDialogTheme);
 
 		LayoutInflater inflater = LayoutInflater.from(getContext());
 		final View view =
