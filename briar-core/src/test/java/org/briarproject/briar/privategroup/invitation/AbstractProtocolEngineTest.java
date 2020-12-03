@@ -153,7 +153,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		if (visible) expectGetTimestampForVisibleMessage(messageTimestamp);
 		else expectGetTimestampForInvisibleMessage(messageTimestamp);
 		expectCheckWhetherContactSupportsAutoDeletion();
-		if (visible) expectGetAutoDeleteTimer();
+		if (visible) expectGetAutoDeleteTimer(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeJoinMessage(m.getContactGroupId(),
 					m.getPrivateGroupId(), m.getTimestamp(),
@@ -167,7 +167,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		if (visible) expectGetTimestampForVisibleMessage(messageTimestamp);
 		else expectGetTimestampForInvisibleMessage(messageTimestamp);
 		expectCheckWhetherContactSupportsAutoDeletion();
-		if (visible) expectGetAutoDeleteTimer();
+		if (visible) expectGetAutoDeleteTimer(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeLeaveMessage(contactGroupId,
 					privateGroupId, messageTimestamp, lastLocalMessageId,
@@ -254,11 +254,28 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	void expectGetAutoDeleteTimer() throws Exception {
+	void expectGetAutoDeleteTimer(long timestamp) throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(autoDeleteManager).getAutoDeleteTimer(txn, contactId,
-					localTimestamp);
+					timestamp);
 			will(returnValue(NO_AUTO_DELETE_TIMER));
+		}});
+	}
+
+	void expectTrackUnreadMessage(long timestamp) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(messageTracker).trackMessage(txn, contactGroupId, timestamp,
+					false);
+		}});
+	}
+
+	void expectReceiveAutoDeleteTimer(DeletableGroupInvitationMessage m)
+			throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			will(returnValue(contactId));
+			oneOf(autoDeleteManager).receiveAutoDeleteTimer(txn, contactId,
+					m.getAutoDeleteTimer(), m.getTimestamp());
 		}});
 	}
 }

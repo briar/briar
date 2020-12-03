@@ -260,6 +260,8 @@ class IntroducerProtocolEngine
 		// Track the incoming message
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
@@ -321,6 +323,8 @@ class IntroducerProtocolEngine
 		// Track the incoming message
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
@@ -374,6 +378,8 @@ class IntroducerProtocolEngine
 		// Track the incoming message
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
@@ -427,6 +433,8 @@ class IntroducerProtocolEngine
 		// Track the incoming message
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());

@@ -366,9 +366,9 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 		}});
 		expectMarkMessageVisibleInUi(properInviteMessage.getId());
 		expectMarkMessageAvailableToAnswer(properInviteMessage.getId(), true);
+		expectTrackUnreadMessage(properInviteMessage.getTimestamp());
+		expectReceiveAutoDeleteTimer(properInviteMessage);
 		context.checking(new Expectations() {{
-			oneOf(messageTracker).trackMessage(txn, contactGroupId,
-					properInviteMessage.getTimestamp(), false);
 			oneOf(privateGroupFactory)
 					.createPrivateGroup(properInviteMessage.getGroupName(),
 							properInviteMessage.getCreator(),
