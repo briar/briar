@@ -19,7 +19,6 @@ import org.briarproject.briar.api.identity.AuthorManager;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.Executor;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.inject.Inject;
@@ -29,6 +28,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.Arrays.asList;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 
@@ -77,7 +77,7 @@ class SettingsViewModel extends AndroidViewModel {
 				ownIdentityInfo.postValue(
 						new OwnIdentityInfo(localAuthor, authorInfo));
 			} catch (DbException e) {
-				LogUtils.logException(LOG, Level.WARNING, e);
+				LogUtils.logException(LOG, WARNING, e);
 			}
 		});
 	}
@@ -87,7 +87,7 @@ class SettingsViewModel extends AndroidViewModel {
 			try {
 				trySetAvatar(uri);
 			} catch (IOException | DbException e) {
-				LogUtils.logException(LOG, Level.WARNING, e);
+				LogUtils.logException(LOG, WARNING, e);
 			}
 		});
 	}
