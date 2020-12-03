@@ -308,11 +308,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 
 		expectSendJoinMessage(properJoinMessage, false);
 		expectMarkMessageVisibleInUi(properJoinMessage.getId());
-		context.checking(new Expectations() {{
-			oneOf(messageTracker)
-					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
-							false);
-		}});
+		expectTrackUnreadMessage(properJoinMessage.getTimestamp());
+		expectReceiveAutoDeleteTimer(properJoinMessage);
 		expectGetContactId();
 		expectSetPrivateGroupVisibility(SHARED);
 		CreatorSession newSession =
@@ -399,11 +396,8 @@ public class CreatorProtocolEngineTest extends AbstractProtocolEngineTest {
 		CreatorSession session = getDefaultSession(INVITED);
 
 		expectMarkMessageVisibleInUi(properLeaveMessage.getId());
-		context.checking(new Expectations() {{
-			oneOf(messageTracker)
-					.trackMessage(txn, contactGroupId, inviteTimestamp + 1,
-							false);
-		}});
+		expectTrackUnreadMessage(properLeaveMessage.getTimestamp());
+		expectReceiveAutoDeleteTimer(properLeaveMessage);
 		expectGetContactId();
 		CreatorSession newSession =
 				engine.onLeaveMessage(txn, session, properLeaveMessage);

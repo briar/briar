@@ -251,6 +251,8 @@ class InviteeProtocolEngine extends AbstractProtocolEngine<InviteeSession> {
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Broadcast an event
 		PrivateGroup privateGroup = privateGroupFactory.createPrivateGroup(
 				m.getGroupName(), m.getCreator(), m.getSalt());

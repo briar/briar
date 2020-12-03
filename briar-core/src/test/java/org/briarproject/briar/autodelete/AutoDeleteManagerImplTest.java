@@ -28,8 +28,7 @@ import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_TI
 import static org.briarproject.briar.autodelete.AutoDeleteConstants.NO_PREVIOUS_TIMER;
 import static org.junit.Assert.assertEquals;
 
-// Thank you, I'm using them for readability
-@SuppressWarnings("UnnecessaryLocalVariable")
+@SuppressWarnings("UnnecessaryLocalVariable") // Using them for readability
 public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 
 	private final DatabaseComponent db = context.mock(DatabaseComponent.class);
