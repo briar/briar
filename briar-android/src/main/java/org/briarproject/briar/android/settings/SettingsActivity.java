@@ -62,9 +62,7 @@ public class SettingsActivity extends BriarActivity {
 			});
 
 			View avatarGroup = findViewById(R.id.avatarGroup);
-			avatarGroup.setOnClickListener(e -> {
-				selectAvatarImage();
-			});
+			avatarGroup.setOnClickListener(e -> selectAvatarImage());
 		} else {
 			View view = findViewById(R.id.avatarGroup);
 			view.setVisibility(View.GONE);
