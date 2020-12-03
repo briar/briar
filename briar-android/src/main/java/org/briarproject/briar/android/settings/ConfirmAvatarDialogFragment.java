@@ -9,11 +9,13 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BaseActivity;
 
 import javax.inject.Inject;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
@@ -21,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import static java.util.Objects.requireNonNull;
 
+@MethodsNotNullByDefault
 public class ConfirmAvatarDialogFragment extends DialogFragment {
 
 	final static String TAG = ConfirmAvatarDialogFragment.class.getName();
@@ -43,11 +46,12 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 	}
 
 	@Override
-	public void onAttach(Context ctx) {
+	public void onAttach(@NonNull Context ctx) {
 		super.onAttach(ctx);
 		((BaseActivity) requireActivity()).getActivityComponent().inject(this);
 	}
 
+	@Override
 	public Dialog onCreateDialog(Bundle savedInstanceState) {
 		Bundle args = requireArguments();
 		String argUri = requireNonNull(args.getString(ARG_URI));
@@ -71,9 +75,7 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 				.setMessage(R.string.dialog_confirm_profile_picture_question);
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setPositiveButton(R.string.dialog_confirm_profile_picture_set,
-				(dialog, id) -> {
-					settingsViewModel.setAvatar(uri);
-				});
+				(dialog, id) -> settingsViewModel.setAvatar(uri));
 
 		ImageView imageView = view.findViewById(R.id.image);
 		imageView.setImageResource(R.drawable.contact_connected);
