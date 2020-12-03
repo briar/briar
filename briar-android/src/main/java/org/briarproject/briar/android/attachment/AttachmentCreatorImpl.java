@@ -14,7 +14,6 @@ import org.briarproject.briar.api.media.Attachment;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.media.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
-import org.jsoup.UnsupportedMimeTypeException;
 
 import java.io.IOException;
 import java.util.ArrayList;

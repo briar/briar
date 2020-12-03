@@ -11,10 +11,10 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.LogUtils;
 import org.briarproject.briar.android.attachment.ImageCompressor;
+import org.briarproject.briar.android.attachment.UnsupportedMimeTypeException;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
-import org.jsoup.UnsupportedMimeTypeException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -101,8 +101,7 @@ class SettingsViewModel extends AndroidViewModel {
 		String contentType = contentResolver.getType(uri);
 		if (contentType == null) throw new IOException("null content type");
 		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
-			String uriString = uri.toString();
-			throw new UnsupportedMimeTypeException("", contentType, uriString);
+			throw new UnsupportedMimeTypeException(contentType, uri);
 		}
 		InputStream is = contentResolver.openInputStream(uri);
 		if (is == null) throw new IOException(

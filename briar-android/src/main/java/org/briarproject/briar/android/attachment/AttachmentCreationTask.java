@@ -9,7 +9,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
-import org.jsoup.UnsupportedMimeTypeException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -98,8 +97,7 @@ class AttachmentCreationTask {
 		String contentType = contentResolver.getType(uri);
 		if (contentType == null) throw new IOException("null content type");
 		if (!asList(getSupportedImageContentTypes()).contains(contentType)) {
-			String uriString = uri.toString();
-			throw new UnsupportedMimeTypeException("", contentType, uriString);
+			throw new UnsupportedMimeTypeException(contentType, uri);
 		}
 		InputStream is = contentResolver.openInputStream(uri);
 		if (is == null) throw new IOException();
