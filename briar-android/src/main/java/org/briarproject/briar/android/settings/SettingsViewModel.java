@@ -33,7 +33,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.AndroidUtils.getSupportedImageContentTypes;
 
 @NotNullByDefault
-public class SettingsViewModel extends AndroidViewModel {
+class SettingsViewModel extends AndroidViewModel {
 
 	private final static Logger LOG =
 			getLogger(SettingsViewModel.class.getName());
