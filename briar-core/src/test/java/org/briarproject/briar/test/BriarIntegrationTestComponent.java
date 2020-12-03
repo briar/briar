@@ -13,6 +13,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
 import org.briarproject.briar.api.attachment.AttachmentReader;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -130,6 +131,8 @@ public interface BriarIntegrationTestComponent
 	BlogFactory getBlogFactory();
 
 	ConnectionManager getConnectionManager();
+
+	AutoDeleteManager getAutoDeleteManager();
 
 	class Helper {
 
