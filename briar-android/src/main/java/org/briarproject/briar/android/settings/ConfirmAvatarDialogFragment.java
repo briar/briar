@@ -66,9 +66,9 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-		LayoutInflater factory = LayoutInflater.from(getContext());
+		LayoutInflater inflater = LayoutInflater.from(getContext());
 		final View view =
-				factory.inflate(R.layout.fragment_confirm_avatar_dialog, null);
+				inflater.inflate(R.layout.fragment_confirm_avatar_dialog, null);
 		builder.setView(view);
 
 		builder.setTitle(R.string.dialog_confirm_profile_picture_title)
