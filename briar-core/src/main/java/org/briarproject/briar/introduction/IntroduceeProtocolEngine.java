@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.properties.TransportProperties;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.transport.KeyManager;
 import org.briarproject.bramble.api.transport.KeySetId;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
@@ -83,11 +84,12 @@ class IntroduceeProtocolEngine
 			TransportPropertyManager transportPropertyManager,
 			ClientVersioningManager clientVersioningManager,
 			AutoDeleteManager autoDeleteManager,
-			ConversationManager conversationManager) {
+			ConversationManager conversationManager,
+			Clock clock) {
 		super(db, clientHelper, contactManager, contactGroupFactory,
 				messageTracker, identityManager, authorManager, messageParser,
 				messageEncoder, clientVersioningManager, autoDeleteManager,
-				conversationManager);
+				conversationManager, clock);
 		this.crypto = crypto;
 		this.keyManager = keyManager;
 		this.transportPropertyManager = transportPropertyManager;
@@ -287,8 +289,8 @@ class IntroduceeProtocolEngine
 		Map<TransportId, TransportProperties> transportProperties =
 				transportPropertyManager.getLocalProperties(txn);
 
-		// Send a ACCEPT message
-		long localTimestamp = getLocalTimestamp(txn, s);
+		// Send an ACCEPT message
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		Message sent = sendAcceptMessage(txn, s, localTimestamp, publicKey,
 				localTimestamp, transportProperties, true);
 		// Track the message
@@ -318,7 +320,7 @@ class IntroduceeProtocolEngine
 		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send a DECLINE message
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		Message sent = sendDeclineMessage(txn, s, localTimestamp, true);
 
 		// Track the message
@@ -416,7 +418,7 @@ class IntroduceeProtocolEngine
 			return abort(txn, s);
 		}
 		if (s.getState() != AWAIT_AUTH) throw new AssertionError();
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = getTimestampForInvisibleMessage(s);
 		Message sent = sendAuthMessage(txn, s, localTimestamp, mac, signature);
 		return IntroduceeSession.addLocalAuth(s, AWAIT_AUTH, sent, masterKey,
 				aliceMacKey, bobMacKey);
@@ -466,7 +468,7 @@ class IntroduceeProtocolEngine
 
 		// send ACTIVATE message with a MAC
 		byte[] mac = crypto.activateMac(s);
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = getTimestampForInvisibleMessage(s);
 		Message sent = sendActivateMessage(txn, s, localTimestamp, mac);
 
 		// Move to AWAIT_ACTIVATE state and clear key material from session
@@ -518,7 +520,7 @@ class IntroduceeProtocolEngine
 		markRequestsUnavailableToAnswer(txn, s);
 
 		// Send an ABORT message
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = getTimestampForInvisibleMessage(s);
 		Message sent = sendAbortMessage(txn, s, localTimestamp);
 
 		// Broadcast abort event for testing
@@ -535,17 +537,33 @@ class IntroduceeProtocolEngine
 	}
 
 	/**
-	 * Returns a timestamp for an outgoing message, which is later than the
-	 * timestamp of any message sent or received so far in the conversation
-	 * or the session.
+	 * Returns a timestamp for a visible outgoing message. The timestamp is
+	 * later than the timestamp of any message sent or received so far in the
+	 * conversation, and later than the {@link
+	 * #getSessionTimestamp(IntroduceeSession) session timestamp}.
 	 */
-	private long getLocalTimestamp(Transaction txn, IntroduceeSession s)
-			throws DbException {
+	private long getTimestampForVisibleMessage(Transaction txn,
+			IntroduceeSession s) throws DbException {
 		long conversationTimestamp =
 				getTimestampForOutgoingMessage(txn, s.getContactGroupId());
-		long sessionTimestamp =
-				max(s.getLocalTimestamp(), s.getRequestTimestamp()) + 1;
-		return max(conversationTimestamp, sessionTimestamp);
+		return max(conversationTimestamp, getSessionTimestamp(s) + 1);
+	}
+
+	/**
+	 * Returns a timestamp for an invisible outgoing message. The timestamp is
+	 * later than the {@link #getSessionTimestamp(IntroduceeSession) session
+	 * timestamp}.
+	 */
+	private long getTimestampForInvisibleMessage(IntroduceeSession s) {
+		return max(clock.currentTimeMillis(), getSessionTimestamp(s) + 1);
+	}
+
+	/**
+	 * Returns the latest timestamp of any message sent so far in the session,
+	 * and any request message received so far in the session.
+	 */
+	private long getSessionTimestamp(IntroduceeSession s) {
+		return max(s.getLocalTimestamp(), s.getRequestTimestamp());
 	}
 
 	private void addSessionId(Transaction txn, MessageId m, SessionId sessionId)

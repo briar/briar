@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.sync.Group.Visibility;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -60,6 +61,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private final MessageTracker messageTracker;
 	private final AutoDeleteManager autoDeleteManager;
 	private final ConversationManager conversationManager;
+	private final Clock clock;
 	private final ClientId sharingClientId, shareableClientId;
 	private final int sharingClientMajorVersion, shareableClientMajorVersion;
 
@@ -72,6 +74,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 			MessageTracker messageTracker,
 			AutoDeleteManager autoDeleteManager,
 			ConversationManager conversationManager,
+			Clock clock,
 			ClientId sharingClientId,
 			int sharingClientMajorVersion,
 			ClientId shareableClientId,
@@ -84,6 +87,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		this.messageTracker = messageTracker;
 		this.autoDeleteManager = autoDeleteManager;
 		this.conversationManager = conversationManager;
+		this.clock = clock;
 		this.sharingClientId = sharingClientId;
 		this.sharingClientMajorVersion = sharingClientMajorVersion;
 		this.shareableClientId = shareableClientId;
@@ -134,8 +138,8 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 		} catch (FormatException e) {
 			throw new DbException(e); // Invalid group descriptor
 		}
-		long localTimestamp = getLocalTimestamp(txn, s);
 		Message m;
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
@@ -202,7 +206,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Message sendAcceptMessage(Transaction txn, Session s)
 			throws DbException {
 		Message m;
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
@@ -256,7 +260,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	private Message sendDeclineMessage(Transaction txn, Session s)
 			throws DbException {
 		Message m;
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = getTimestampForVisibleMessage(txn, s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			long timer = autoDeleteManager.getAutoDeleteTimer(txn, c);
@@ -310,7 +314,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 
 	private Message sendLeaveMessage(Transaction txn, Session session)
 			throws DbException {
-		long localTimestamp = getLocalTimestamp(txn, session);
+		long localTimestamp = getTimestampForInvisibleMessage(session);
 		Message m = messageEncoder.encodeLeaveMessage(
 				session.getContactGroupId(), session.getShareableId(),
 				localTimestamp, session.getLastLocalMessageId());
@@ -609,7 +613,7 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 
 	private Message sendAbortMessage(Transaction txn, Session session)
 			throws DbException {
-		long localTimestamp = getLocalTimestamp(txn, session);
+		long localTimestamp = getTimestampForInvisibleMessage(session);
 		Message m = messageEncoder.encodeAbortMessage(
 				session.getContactGroupId(), session.getShareableId(),
 				localTimestamp, session.getLastLocalMessageId());
@@ -683,18 +687,33 @@ abstract class ProtocolEngineImpl<S extends Shareable>
 	}
 
 	/**
-	 * Returns a timestamp for an outgoing message, which is later than the
-	 * timestamp of any message sent or received so far in the conversation
-	 * or the session.
+	 * Returns a timestamp for a visible outgoing message. The timestamp is
+	 * later than the timestamp of any message sent or received so far in the
+	 * conversation, and later than the {@link #getSessionTimestamp(Session)
+	 * session timestamp}.
 	 */
-	private long getLocalTimestamp(Transaction txn, Session session)
+	private long getTimestampForVisibleMessage(Transaction txn, Session s)
 			throws DbException {
-		ContactId c = getContactId(txn, session.getContactGroupId());
+		ContactId c = getContactId(txn, s.getContactGroupId());
 		long conversationTimestamp =
 				conversationManager.getTimestampForOutgoingMessage(txn, c);
-		long sessionTimestamp = max(session.getLocalTimestamp(),
-				session.getInviteTimestamp()) + 1;
-		return max(conversationTimestamp, sessionTimestamp);
+		return max(conversationTimestamp, getSessionTimestamp(s) + 1);
+	}
+
+	/**
+	 * Returns a timestamp for an invisible outgoing message. The timestamp is
+	 * later than the {@link #getSessionTimestamp(Session) session timestamp}.
+	 */
+	private long getTimestampForInvisibleMessage(Session s) {
+		return max(clock.currentTimeMillis(), getSessionTimestamp(s) + 1);
+	}
+
+	/**
+	 * Returns the latest timestamp of any message sent so far in the session,
+	 * and any invite message sent or received so far in the session.
+	 */
+	private long getSessionTimestamp(Session s) {
+		return max(s.getLocalTimestamp(), s.getInviteTimestamp());
 	}
 
 	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
