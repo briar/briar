@@ -63,6 +63,7 @@ import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -94,9 +95,6 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 
 	private LifecycleManager lifecycleManager0, lifecycleManager1,
 			lifecycleManager2;
-	private SecretKey rootKey0_1 = getSecretKey();
-	private SecretKey rootKey0_2 = getSecretKey();
-	private SecretKey rootKey1_2 = getSecretKey();
 
 	@Inject
 	protected Clock clock;
@@ -137,6 +135,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	private final String AUTHOR0 = "Author 0";
 	private final String AUTHOR1 = "Author 1";
 	private final String AUTHOR2 = "Author 2";
+	private final SecretKey rootKey0_1 = getSecretKey();
+	private final SecretKey rootKey0_2 = getSecretKey();
+	private final SecretKey rootKey1_2 = getSecretKey();
 
 	protected File t0Dir = new File(testDir, AUTHOR0);
 	protected File t1Dir = new File(testDir, AUTHOR1);
@@ -451,4 +452,17 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 		contactManager2.removeContact(contactId1From2);
 	}
 
+	protected void setAutoDeleteTimer(BriarIntegrationTestComponent component,
+			ContactId contactId) throws DbException {
+		component.getDatabaseComponent().transaction(false, txn ->
+				component.getAutoDeleteManager().setAutoDeleteTimer(txn,
+						contactId, MIN_AUTO_DELETE_TIMER_MS));
+	}
+
+	protected long getAutoDeleteTimer(BriarIntegrationTestComponent component,
+			ContactId contactId) throws DbException {
+		return component.getDatabaseComponent().transactionWithResult(true,
+				txn -> component.getAutoDeleteManager().getAutoDeleteTimer(txn,
+						contactId));
+	}
 }
