@@ -56,13 +56,25 @@
 			tools:text="Dec 24, 13:37" />
 
 		<ImageView
+			android:id="@+id/bomb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="4dp"
+			android:layout_marginLeft="4dp"
+			app:layout_constraintBottom_toBottomOf="@+id/time"
+			app:layout_constraintStart_toEndOf="@+id/time"
+			app:layout_constraintTop_toTopOf="@+id/time"
+			app:srcCompat="@drawable/ic_bomb"
+			tools:ignore="ContentDescription" />
+
+		<ImageView
 			android:id="@+id/status"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_marginStart="@dimen/margin_medium"
-			android:layout_marginLeft="@dimen/margin_medium"
+			android:layout_marginStart="4dp"
+			android:layout_marginLeft="4dp"
 			app:layout_constraintBottom_toBottomOf="@+id/time"
-			app:layout_constraintStart_toEndOf="@+id/time"
+			app:layout_constraintStart_toEndOf="@+id/bomb"
 			app:layout_constraintTop_toTopOf="@+id/time"
 			tools:ignore="ContentDescription"
 			tools:src="@drawable/message_delivered" />
