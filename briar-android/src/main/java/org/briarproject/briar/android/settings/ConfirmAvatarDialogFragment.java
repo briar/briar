@@ -78,7 +78,6 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 				(dialog, id) -> settingsViewModel.setAvatar(uri));
 
 		ImageView imageView = view.findViewById(R.id.image);
-		imageView.setImageResource(R.drawable.contact_connected);
 		imageView.setImageURI(uri);
 
 		TextView textViewUserName = view.findViewById(R.id.username);
