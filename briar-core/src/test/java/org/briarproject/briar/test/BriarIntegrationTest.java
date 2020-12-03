@@ -460,9 +460,9 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	protected long getAutoDeleteTimer(BriarIntegrationTestComponent component,
-			ContactId contactId) throws DbException {
-		return component.getDatabaseComponent().transactionWithResult(true,
+			ContactId contactId, long timestamp) throws DbException {
+		return component.getDatabaseComponent().transactionWithResult(false,
 				txn -> component.getAutoDeleteManager().getAutoDeleteTimer(txn,
-						contactId));
+						contactId, timestamp));
 	}
 }

@@ -743,7 +743,7 @@ public class GroupInvitationIntegrationTest
 			throws DbException {
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
 				privateGroup.getId(), timestamp, author0.getPrivateKey());
-		long timer = getAutoDeleteTimer(c0, contactId1From0);
+		long timer = getAutoDeleteTimer(c0, contactId1From0, timestamp);
 		groupInvitationManager0.sendInvitation(privateGroup.getId(),
 				contactId1From0, text, timestamp, signature, timer);
 	}
