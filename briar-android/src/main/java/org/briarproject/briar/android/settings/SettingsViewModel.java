@@ -74,9 +74,8 @@ class SettingsViewModel extends AndroidViewModel {
 			try {
 				LocalAuthor localAuthor = identityManager.getLocalAuthor();
 				AuthorInfo authorInfo = authorManager.getMyAuthorInfo();
-				ownIdentityInfo
-						.postValue(
-								new OwnIdentityInfo(localAuthor, authorInfo));
+				ownIdentityInfo.postValue(
+						new OwnIdentityInfo(localAuthor, authorInfo));
 			} catch (DbException e) {
 				LogUtils.logException(LOG, Level.WARNING, e);
 			}
