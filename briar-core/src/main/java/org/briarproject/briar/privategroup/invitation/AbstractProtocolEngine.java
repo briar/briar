@@ -146,7 +146,9 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	Message sendJoinMessage(Transaction txn, S s, boolean visibleInUi)
 			throws DbException {
 		Message m;
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = visibleInUi
+				? getTimestampForVisibleMessage(txn, s)
+				: getTimestampForInvisibleMessage(s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if manually accepting an invitation
@@ -171,7 +173,9 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	Message sendLeaveMessage(Transaction txn, S s, boolean visibleInUi)
 			throws DbException {
 		Message m;
-		long localTimestamp = getLocalTimestamp(txn, s);
+		long localTimestamp = visibleInUi
+				? getTimestampForVisibleMessage(txn, s)
+				: getTimestampForInvisibleMessage(s);
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if manually accepting an invitation
@@ -196,7 +200,7 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	Message sendAbortMessage(Transaction txn, S session) throws DbException {
 		Message m = messageEncoder.encodeAbortMessage(
 				session.getContactGroupId(), session.getPrivateGroupId(),
-				getLocalTimestamp(txn, session));
+				getTimestampForInvisibleMessage(session));
 		sendMessage(txn, m, ABORT, session.getPrivateGroupId(), false,
 				NO_AUTO_DELETE_TIMER);
 		return m;
@@ -263,17 +267,33 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	}
 
 	/**
-	 * Returns a timestamp for an outgoing message, which is later than the
-	 * timestamp of any message sent or received so far in the conversation
-	 * or the session.
+	 * Returns a timestamp for a visible outgoing message. The timestamp is
+	 * later than the timestamp of any message sent or received so far in the
+	 * conversation, and later than the {@link #getSessionTimestamp(Session)
+	 * session timestamp}.
 	 */
-	long getLocalTimestamp(Transaction txn, S s) throws DbException {
+	long getTimestampForVisibleMessage(Transaction txn, S s)
+			throws DbException {
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		long conversationTimestamp =
 				conversationManager.getTimestampForOutgoingMessage(txn, c);
-		long sessionTimestamp =
-				max(s.getLocalTimestamp(), s.getInviteTimestamp()) + 1;
-		return max(conversationTimestamp, sessionTimestamp);
+		return max(conversationTimestamp, getSessionTimestamp(s) + 1);
+	}
+
+	/**
+	 * Returns a timestamp for an invisible outgoing message. The timestamp is
+	 * later than the {@link #getSessionTimestamp(Session) session timestamp}.
+	 */
+	long getTimestampForInvisibleMessage(S s) {
+		return max(clock.currentTimeMillis(), getSessionTimestamp(s) + 1);
+	}
+
+	/**
+	 * Returns the latest timestamp of any message sent so far in the session,
+	 * and any invite message sent or received so far in the session.
+	 */
+	private long getSessionTimestamp(S s) {
+		return max(s.getLocalTimestamp(), s.getInviteTimestamp());
 	}
 
 	private void sendMessage(Transaction txn, Message m, MessageType type,

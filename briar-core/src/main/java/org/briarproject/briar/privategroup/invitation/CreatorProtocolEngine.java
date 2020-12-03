@@ -164,7 +164,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Track the message
 		messageTracker.trackOutgoingMessage(txn, sent);
 		// Move to the INVITED state
-		long localTimestamp = max(timestamp, getLocalTimestamp(txn, s));
+		long localTimestamp =
+				max(timestamp, getTimestampForVisibleMessage(txn, s));
 		return new CreatorSession(s.getContactGroupId(), s.getPrivateGroupId(),
 				sent.getId(), s.getLastRemoteMessageId(), localTimestamp,
 				timestamp, INVITED);
