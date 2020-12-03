@@ -22,7 +22,7 @@ abstract class ConversationItem {
 	protected String text;
 	private final MessageId id;
 	private final GroupId groupId;
-	private final long time;
+	private final long time, autoDeleteTimer;
 	private final boolean isIncoming;
 	private boolean read, sent, seen;
 
@@ -32,6 +32,7 @@ abstract class ConversationItem {
 		this.id = h.getId();
 		this.groupId = h.getGroupId();
 		this.time = h.getTimestamp();
+		this.autoDeleteTimer = h.getAutoDeleteTimer();
 		this.read = h.isRead();
 		this.sent = h.isSent();
 		this.seen = h.isSeen();
@@ -66,6 +67,10 @@ abstract class ConversationItem {
 
 	long getTime() {
 		return time;
+	}
+
+	public long getAutoDeleteTimer() {
+		return autoDeleteTimer;
 	}
 
 	/**

@@ -68,6 +68,16 @@
 			android:layout_height="wrap_content"
 			tools:text="Dec 24, 13:37" />
 
+		<ImageView
+			android:id="@+id/bomb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="4dp"
+			android:layout_marginEnd="4dp"
+			app:srcCompat="@drawable/ic_bomb"
+			app:tint="?android:attr/textColorSecondary"
+			tools:ignore="ContentDescription" />
+
 	</LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

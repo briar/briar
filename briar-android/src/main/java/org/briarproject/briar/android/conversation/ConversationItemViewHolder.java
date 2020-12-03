@@ -12,8 +12,11 @@ import androidx.annotation.UiThread;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.RecyclerView.ViewHolder;
 
+import static android.view.View.GONE;
+import static android.view.View.VISIBLE;
 import static org.briarproject.bramble.util.StringUtils.trim;
 import static org.briarproject.briar.android.util.UiUtils.formatDate;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 
 @UiThread
 @NotNullByDefault
@@ -26,6 +29,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	private final OutItemViewHolder outViewHolder;
 	private final TextView text;
 	protected final TextView time;
+	private final View bomb;
 	@Nullable
 	private String itemKey = null;
 
@@ -38,6 +42,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 		layout = v.findViewById(R.id.layout);
 		text = v.findViewById(R.id.text);
 		time = v.findViewById(R.id.time);
+		bomb = v.findViewById(R.id.bomb);
 	}
 
 	@CallSuper
@@ -51,6 +56,9 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 
 		long timestamp = item.getTime();
 		time.setText(formatDate(time.getContext(), timestamp));
+
+		boolean showBomb = item.getAutoDeleteTimer() != NO_AUTO_DELETE_TIMER;
+		bomb.setVisibility(showBomb ? VISIBLE : GONE);
 
 		if (outViewHolder != null) outViewHolder.bind(item);
 	}

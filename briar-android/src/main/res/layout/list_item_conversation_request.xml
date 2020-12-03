@@ -68,9 +68,26 @@
 			style="@style/TextMessage.Timestamp"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintEnd_toStartOf="@+id/bomb"
+			app:layout_constraintHorizontal_bias="1.0"
+			app:layout_constraintHorizontal_chainStyle="packed"
+			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/acceptButton"
 			tools:text="Dec 24, 13:37" />
+
+		<ImageView
+			android:id="@+id/bomb"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_marginStart="4dp"
+			android:layout_marginLeft="4dp"
+			app:layout_constraintEnd_toEndOf="parent"
+			app:layout_constraintStart_toEndOf="@+id/time"
+			app:layout_constraintTop_toBottomOf="@+id/acceptButton"
+			app:srcCompat="@drawable/ic_bomb"
+			app:tint="?android:attr/textColorSecondary"
+			tools:ignore="ContentDescription"
+			tools:visibility="visible" />
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
