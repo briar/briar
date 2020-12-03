@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
@@ -39,6 +40,7 @@ import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
 import org.briarproject.briar.api.android.LockManager;
 import org.briarproject.briar.api.android.ScreenFilterMonitor;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.blog.BlogSharingManager;
@@ -168,6 +170,10 @@ public interface AndroidComponent
 	FeatureFlags featureFlags();
 
 	AndroidWakeLockManager wakeLockManager();
+
+	TransactionManager transactionManager();
+
+	AutoDeleteManager autoDeleteManager();
 
 	void inject(SignInReminderReceiver briarService);
 

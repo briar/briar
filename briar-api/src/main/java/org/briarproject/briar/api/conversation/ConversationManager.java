@@ -44,6 +44,18 @@ public interface ConversationManager {
 	GroupCount getGroupCount(ContactId c) throws DbException;
 
 	/**
+	 * Returns the unified group count for all private conversation messages.
+	 */
+	GroupCount getGroupCount(Transaction txn, ContactId c) throws DbException;
+
+	/**
+	 * Returns a timestamp for an outgoing message, which is later than the
+	 * timestamp of any message in the conversation with the given contact.
+	 */
+	long getTimestampForOutgoingMessage(Transaction txn, ContactId c)
+			throws DbException;
+
+	/**
 	 * Deletes all messages exchanged with the given contact.
 	 */
 	DeletionResult deleteAllMessages(ContactId c) throws DbException;

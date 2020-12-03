@@ -43,7 +43,8 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 			new InviteeProtocolEngine(db, clientHelper, clientVersioningManager,
 					privateGroupManager, privateGroupFactory,
 					groupMessageFactory, identityManager, messageParser,
-					messageEncoder, messageTracker, autoDeleteManager, clock);
+					messageEncoder, messageTracker, autoDeleteManager,
+					conversationManager, clock);
 	private final LocalAuthor localAuthor = getLocalAuthor();
 
 	private InviteeSession getDefaultSession(InviteeState state) {
@@ -57,43 +58,43 @@ public class InviteeProtocolEngineTest extends AbstractProtocolEngineTest {
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromStart() {
 		engine.onInviteAction(txn, getDefaultSession(START), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromLeft() {
 		engine.onInviteAction(txn, getDefaultSession(ACCEPTED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromInvited() {
 		engine.onInviteAction(txn, getDefaultSession(INVITED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromDissolved() {
 		engine.onInviteAction(txn, getDefaultSession(DISSOLVED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromAccepted() {
 		engine.onInviteAction(txn, getDefaultSession(ACCEPTED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromJoined() {
 		engine.onInviteAction(txn, getDefaultSession(JOINED), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void testOnInviteActionFromError() {
 		engine.onInviteAction(txn, getDefaultSession(ERROR), null,
-				messageTimestamp, signature);
+				messageTimestamp, signature, NO_AUTO_DELETE_TIMER);
 	}
 
 	// onJoinAction

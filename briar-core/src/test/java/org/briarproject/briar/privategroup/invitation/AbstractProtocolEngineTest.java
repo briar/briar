@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupFactory;
@@ -62,6 +63,8 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	final MessageTracker messageTracker = context.mock(MessageTracker.class);
 	final AutoDeleteManager autoDeleteManager =
 			context.mock(AutoDeleteManager.class);
+	final ConversationManager conversationManager =
+			context.mock(ConversationManager.class);
 	final Clock clock = context.mock(Clock.class);
 
 	final Transaction txn = new Transaction(null, false);
@@ -115,16 +118,26 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		assertEquals(inviteTimestamp, s.getInviteTimestamp());
 	}
 
-	void expectGetLocalTimestamp(long time) {
+	void expectGetTimestampForInvisibleMessage(long time) {
 		context.checking(new Expectations() {{
 			oneOf(clock).currentTimeMillis();
 			will(returnValue(time));
 		}});
 	}
 
+	void expectGetTimestampForVisibleMessage(long time) throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(clientHelper).getContactId(txn, contactGroupId);
+			will(returnValue(contactId));
+			oneOf(conversationManager)
+					.getTimestampForOutgoingMessage(txn, contactId);
+			will(returnValue(time));
+		}});
+	}
+
 	void expectSendInviteMessage(String text) throws Exception {
-		expectCheckWhetherContactSupportsAutoDeletion(true);
-		expectGetLocalTimestamp(messageTimestamp);
+		expectGetTimestampForVisibleMessage(messageTimestamp);
+		expectCheckWhetherContactSupportsAutoDeletion();
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeInviteMessage(contactGroupId,
 					privateGroupId, inviteTimestamp, privateGroup.getName(),
@@ -137,8 +150,10 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 
 	void expectSendJoinMessage(JoinMessage m, boolean visible)
 			throws Exception {
-		expectCheckWhetherContactSupportsAutoDeletion(visible);
-		expectGetLocalTimestamp(messageTimestamp);
+		if (visible) expectGetTimestampForVisibleMessage(messageTimestamp);
+		else expectGetTimestampForInvisibleMessage(messageTimestamp);
+		expectCheckWhetherContactSupportsAutoDeletion();
+		if (visible) expectGetAutoDeleteTimer();
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeJoinMessage(m.getContactGroupId(),
 					m.getPrivateGroupId(), m.getTimestamp(),
@@ -149,8 +164,10 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	void expectSendLeaveMessage(boolean visible) throws Exception {
-		expectCheckWhetherContactSupportsAutoDeletion(visible);
-		expectGetLocalTimestamp(messageTimestamp);
+		if (visible) expectGetTimestampForVisibleMessage(messageTimestamp);
+		else expectGetTimestampForInvisibleMessage(messageTimestamp);
+		expectCheckWhetherContactSupportsAutoDeletion();
+		if (visible) expectGetAutoDeleteTimer();
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder).encodeLeaveMessage(contactGroupId,
 					privateGroupId, messageTimestamp, lastLocalMessageId,
@@ -161,7 +178,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 	}
 
 	void expectSendAbortMessage() throws Exception {
-		expectGetLocalTimestamp(messageTimestamp);
+		expectGetTimestampForInvisibleMessage(messageTimestamp);
 		context.checking(new Expectations() {{
 			oneOf(messageEncoder)
 					.encodeAbortMessage(contactGroupId, privateGroupId,
@@ -226,8 +243,7 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 		}});
 	}
 
-	void expectCheckWhetherContactSupportsAutoDeletion(boolean visible)
-			throws Exception {
+	void expectCheckWhetherContactSupportsAutoDeletion() throws Exception {
 		context.checking(new Expectations() {{
 			oneOf(clientHelper).getContactId(txn, contactGroupId);
 			will(returnValue(contactId));
@@ -235,10 +251,13 @@ abstract class AbstractProtocolEngineTest extends BrambleMockTestCase {
 					GroupInvitationManager.CLIENT_ID,
 					GroupInvitationManager.MAJOR_VERSION);
 			will(returnValue(GroupInvitationManager.MINOR_VERSION));
-			if (visible) {
-				oneOf(autoDeleteManager).getAutoDeleteTimer(txn, contactId);
-				will(returnValue(NO_AUTO_DELETE_TIMER));
-			}
+		}});
+	}
+
+	void expectGetAutoDeleteTimer() throws Exception {
+		context.checking(new Expectations() {{
+			oneOf(autoDeleteManager).getAutoDeleteTimer(txn, contactId);
+			will(returnValue(NO_AUTO_DELETE_TIMER));
 		}});
 	}
 }
