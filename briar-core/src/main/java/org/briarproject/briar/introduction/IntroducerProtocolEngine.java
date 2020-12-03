@@ -265,8 +265,8 @@ class IntroducerProtocolEngine
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		// The message will be visible to the introducee
-		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
+		// The forwarded message will not be visible to the introducee
+		long localTimestamp = getTimestampForInvisibleMessage(s, i);
 		Message sent = sendAcceptMessage(txn, i, localTimestamp,
 				m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
 				m.getTransportProperties(), false);
@@ -326,8 +326,8 @@ class IntroducerProtocolEngine
 
 		// Forward ACCEPT message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		// The message will be visible to the introducee
-		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
+		// The forwarded message will not be visible to the introducee
+		long localTimestamp = getTimestampForInvisibleMessage(s, i);
 		Message sent = sendAcceptMessage(txn, i, localTimestamp,
 				m.getEphemeralPublicKey(), m.getAcceptTimestamp(),
 				m.getTransportProperties(), false);
@@ -379,7 +379,7 @@ class IntroducerProtocolEngine
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		// The message will be visible to the introducee
+		// The forwarded message will be visible to the introducee
 		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
 		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
 
@@ -432,7 +432,7 @@ class IntroducerProtocolEngine
 
 		// Forward DECLINE message
 		Introducee i = getOtherIntroducee(s, m.getGroupId());
-		// The message will be visible to the introducee
+		// The forwarded message will be visible to the introducee
 		long localTimestamp = getTimestampForVisibleMessage(txn, s, i);
 		Message sent = sendDeclineMessage(txn, i, localTimestamp, false);
 
