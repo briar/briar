@@ -39,7 +39,7 @@ import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANS
 import static org.briarproject.bramble.test.TestUtils.deleteTestDirectory;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTestDirectory;
-import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.junit.Assert.assertTrue;
 
 public class SimplexMessagingIntegrationTest extends BriarTestCase {
@@ -125,7 +125,7 @@ public class SimplexMessagingIntegrationTest extends BriarTestCase {
 				device.getPrivateMessageFactory();
 		PrivateMessage message = privateMessageFactory.createPrivateMessage(
 				groupId, timestamp, "Hi!", singletonList(attachmentHeader),
-				NO_AUTO_DELETE_TIMER);
+				MIN_AUTO_DELETE_TIMER_MS);
 		messagingManager.addLocalMessage(message);
 	}
 

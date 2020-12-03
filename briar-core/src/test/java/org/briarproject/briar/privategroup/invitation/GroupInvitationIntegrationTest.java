@@ -27,7 +27,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 
 import static java.util.Collections.emptySet;
-import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -166,6 +166,33 @@ public class GroupInvitationIntegrationTest
 	}
 
 	@Test
+	public void testInvitationDeclineWithAutoDelete() throws Exception {
+		// 0 and 1 set an auto-delete timer for their conversation
+		setAutoDeleteTimer(c0, contactId1From0);
+		setAutoDeleteTimer(c1, contactId0From1);
+
+		// Send invitation
+		sendInvitation(clock.currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// Decline invitation
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, false);
+		sync1To0(1, true);
+
+		// Group was not added
+		assertTrue(groupManager1.getPrivateGroups().isEmpty());
+
+		// All visible messages between 0 and 1 should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages1From0()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From1()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+	}
+
+	@Test
 	public void testInvitationAccept() throws Exception {
 		long timestamp = clock.currentTimeMillis();
 		sendInvitation(timestamp, null);
@@ -221,6 +248,35 @@ public class GroupInvitationIntegrationTest
 		Collection<PrivateGroup> groups = groupManager1.getPrivateGroups();
 		assertEquals(1, groups.size());
 		assertEquals(privateGroup, groups.iterator().next());
+	}
+
+	@Test
+	public void testInvitationAcceptWithAutoDelete() throws Exception {
+		// 0 and 1 set an auto-delete timer for their conversation
+		setAutoDeleteTimer(c0, contactId1From0);
+		setAutoDeleteTimer(c1, contactId0From1);
+
+		// Send invitation
+		sendInvitation(clock.currentTimeMillis(), null);
+		sync0To1(1, true);
+
+		// Accept invitation
+		groupInvitationManager1
+				.respondToInvitation(contactId0From1, privateGroup, true);
+		sync1To0(1, true);
+
+		// Group was added
+		Collection<PrivateGroup> groups = groupManager1.getPrivateGroups();
+		assertEquals(1, groups.size());
+		assertEquals(privateGroup, groups.iterator().next());
+
+		// All visible messages between 0 and 1 should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages1From0()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From1()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
 	}
 
 	@Test
@@ -687,9 +743,9 @@ public class GroupInvitationIntegrationTest
 			throws DbException {
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
 				privateGroup.getId(), timestamp, author0.getPrivateKey());
+		long timer = getAutoDeleteTimer(c0, contactId1From0);
 		groupInvitationManager0.sendInvitation(privateGroup.getId(),
-				contactId1From0, text, timestamp, signature,
-				NO_AUTO_DELETE_TIMER);
+				contactId1From0, text, timestamp, signature, timer);
 	}
 
 }

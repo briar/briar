@@ -30,6 +30,7 @@ import org.junit.rules.ExpectedException;
 
 import java.util.Collection;
 
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.blog.BlogSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.blog.BlogSharingManager.MAJOR_VERSION;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
@@ -201,6 +202,41 @@ public class BlogSharingIntegrationTest
 		// group message count is still correct
 		assertGroupCount(messageTracker0, g, 2, 1);
 		assertGroupCount(messageTracker1, g, 2, 1);
+	}
+
+	@Test
+	public void testSuccessfulSharingWithAutoDelete() throws Exception {
+		// Initialize and let invitee accept all requests
+		listenToEvents(true);
+
+		// Set an auto-delete timer for the conversation
+		setAutoDeleteTimer(c0, contactId1From0);
+		setAutoDeleteTimer(c1, contactId0From1);
+
+		// Send invitation
+		blogSharingManager0
+				.sendInvitation(blog2.getId(), contactId1From0, "Hi!");
+
+		// Sync first request message
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// Sync response back
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// Blog was added successfully
+		assertEquals(0, blogSharingManager0.getInvitations().size());
+		assertEquals(3, blogManager1.getBlogs().size());
+		assertTrue(blogManager1.getBlogs().contains(blog2));
+
+		// All visible messages should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages1From0()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From1()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
 	}
 
 	@Test
@@ -647,4 +683,15 @@ public class BlogSharingIntegrationTest
 		c2.getEventBus().addListener(listener2);
 	}
 
+	private Collection<ConversationMessageHeader> getMessages1From0()
+			throws DbException {
+		return db0.transactionWithResult(true, txn ->
+				blogSharingManager0.getMessageHeaders(txn, contactId1From0));
+	}
+
+	private Collection<ConversationMessageHeader> getMessages0From1()
+			throws DbException {
+		return db1.transactionWithResult(true, txn ->
+				blogSharingManager1.getMessageHeaders(txn, contactId0From1));
+	}
 }

@@ -44,6 +44,7 @@ import javax.annotation.Nullable;
 import static java.util.Collections.emptySet;
 import static junit.framework.Assert.assertNotNull;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.forum.ForumSharingManager.CLIENT_ID;
 import static org.briarproject.briar.api.forum.ForumSharingManager.MAJOR_VERSION;
 import static org.briarproject.briar.test.BriarTestUtils.assertGroupCount;
@@ -185,6 +186,41 @@ public class ForumSharingIntegrationTest
 		assertFalse(forumSharingManager0.canBeShared(forum.getId(), c1));
 		Contact c0 = contactManager1.getContact(contactId0From1);
 		assertFalse(forumSharingManager1.canBeShared(forum.getId(), c0));
+	}
+
+	@Test
+	public void testSuccessfulSharingWithAutoDelete() throws Exception {
+		// Set an auto-delete timer for the conversation
+		setAutoDeleteTimer(c0, contactId1From0);
+		setAutoDeleteTimer(c1, contactId0From1);
+
+		// Send invitation
+		forumSharingManager0
+				.sendInvitation(forum.getId(), contactId1From0, "Hi!");
+
+		// Sync request message
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// Invitee accepts
+		respondToRequest(contactId0From1, true);
+
+		// Sync response back
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+		assertResponseReceived(listener0, contactId1From0, true);
+
+		// Forum was added successfully
+		assertEquals(0, forumSharingManager0.getInvitations().size());
+		assertEquals(1, forumManager1.getForums().size());
+
+		// All visible messages should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages1From0()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From1()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
 	}
 
 	@Test

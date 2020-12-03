@@ -50,6 +50,7 @@ import static org.briarproject.bramble.test.TestUtils.getAgreementPublicKey;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.test.TestUtils.getTransportProperties;
 import static org.briarproject.bramble.test.TestUtils.getTransportPropertiesMap;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.introduction.IntroductionManager.CLIENT_ID;
 import static org.briarproject.briar.api.introduction.IntroductionManager.MAJOR_VERSION;
@@ -255,6 +256,71 @@ public class IntroductionIntegrationTest
 		assertGroupCount(messageTracker0, g2.getId(), 2, 1);
 		assertGroupCount(messageTracker1, g1.getId(), 2, 1);
 		assertGroupCount(messageTracker2, g2.getId(), 2, 1);
+	}
+
+	@Test
+	public void testIntroductionSessionWithAutoDelete() throws Exception {
+		addListeners(true, true);
+
+		// 0 and 1 set an auto-delete timer for their conversation
+		setAutoDeleteTimer(c0, contactId1From0);
+		setAutoDeleteTimer(c1, contactId0From1);
+
+		// Make introduction
+		introductionManager0
+				.makeIntroduction(contact1From0, contact2From0, "Hi!");
+
+		// Sync first REQUEST message
+		sync0To1(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// Sync second REQUEST message
+		sync0To2(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// Sync first ACCEPT message
+		sync1To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// Sync second ACCEPT message
+		sync2To0(1, true);
+		eventWaiter.await(TIMEOUT, 1);
+
+		// Sync forwarded ACCEPT messages to introducees
+		sync0To1(1, true);
+		sync0To2(1, true);
+
+		// Sync first AUTH and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// Sync second AUTH and its forward as well as the following ACTIVATE
+		sync2To0(2, true);
+		sync0To1(2, true);
+
+		// Sync second ACTIVATE and its forward
+		sync1To0(1, true);
+		sync0To2(1, true);
+
+		// Wait for introduction to succeed
+		eventWaiter.await(TIMEOUT, 2);
+		assertTrue(listener1.succeeded);
+		assertTrue(listener2.succeeded);
+
+		// All visible messages between 0 and 1 should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages1From0()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From1()) {
+			assertEquals(MIN_AUTO_DELETE_TIMER_MS, h.getAutoDeleteTimer());
+		}
+		// No visible messages between 0 and 2 should have auto-delete timers
+		for (ConversationMessageHeader h : getMessages2From0()) {
+			assertEquals(NO_AUTO_DELETE_TIMER, h.getAutoDeleteTimer());
+		}
+		for (ConversationMessageHeader h : getMessages0From2()) {
+			assertEquals(NO_AUTO_DELETE_TIMER, h.getAutoDeleteTimer());
+		}
 	}
 
 	@Test
