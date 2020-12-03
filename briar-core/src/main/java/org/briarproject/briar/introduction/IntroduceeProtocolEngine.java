@@ -259,6 +259,9 @@ class IntroduceeProtocolEngine
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
 
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
+
 		// Broadcast IntroductionRequestReceivedEvent
 		LocalAuthor localAuthor = identityManager.getLocalAuthor(txn);
 		Contact c = contactManager.getContact(txn, s.getIntroducer().getId(),
@@ -334,14 +337,16 @@ class IntroduceeProtocolEngine
 	}
 
 	private IntroduceeSession onRemoteAccept(Transaction txn,
-			IntroduceeSession s, AcceptMessage m)
-			throws DbException {
+			IntroduceeSession s, AcceptMessage m) throws DbException {
 		// The timestamp must be higher than the last request message
 		if (m.getTimestamp() <= s.getRequestTimestamp())
 			return abort(txn, s);
 		// The dependency, if any, must be the last remote message
 		if (isInvalidDependency(s, m.getPreviousMessageId()))
 			return abort(txn, s);
+
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 
 		// Determine next state
 		IntroduceeState state =
@@ -371,6 +376,9 @@ class IntroduceeProtocolEngine
 		// Track the incoming message
 		messageTracker
 				.trackMessage(txn, m.getGroupId(), m.getTimestamp(), false);
+
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 
 		// Broadcast IntroductionResponseReceivedEvent
 		broadcastIntroductionResponseReceivedEvent(txn, s,

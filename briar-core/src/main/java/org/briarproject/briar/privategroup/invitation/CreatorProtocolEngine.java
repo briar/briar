@@ -201,6 +201,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Share the private group with the contact
 		setPrivateGroupVisibility(txn, s, SHARED);
 		// Broadcast an event
@@ -226,6 +228,8 @@ class CreatorProtocolEngine extends AbstractProtocolEngine<CreatorSession> {
 		// Track the message
 		messageTracker.trackMessage(txn, m.getContactGroupId(),
 				m.getTimestamp(), false);
+		// Receive the auto-delete timer
+		receiveAutoDeleteTimer(txn, m);
 		// Broadcast an event
 		ContactId contactId =
 				clientHelper.getContactId(txn, m.getContactGroupId());

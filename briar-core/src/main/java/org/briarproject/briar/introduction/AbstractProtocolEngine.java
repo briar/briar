@@ -244,6 +244,13 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		return conversationManager.getTimestampForOutgoingMessage(txn, c);
 	}
 
+	void receiveAutoDeleteTimer(Transaction txn, AbstractIntroductionMessage m)
+			throws DbException {
+		ContactId c = getContactId(txn, m.getGroupId());
+		autoDeleteManager.receiveAutoDeleteTimer(txn, c, m.getAutoDeleteTimer(),
+				m.getTimestamp());
+	}
+
 	private ContactId getContactId(Transaction txn, GroupId contactGroupId)
 			throws DbException {
 		try {
