@@ -115,19 +115,15 @@ public class TextAttachmentController extends TextSendController
 			builder.show();
 			return;
 		}
-		Intent intent = getAttachFileIntent();
+		Intent intent = UiUtils.createSelectImageIntent(true);
 		if (attachmentListener.getLifecycle().getCurrentState() != DESTROYED) {
 			attachmentListener.onAttachImage(intent);
 		}
 	}
 
-	private Intent getAttachFileIntent() {
-		return UiUtils.createSelectImageIntent(true);
-	}
-
 	/**
-	 * This is called with the result Intent
-	 * returned by the Activity started with {@link #getAttachFileIntent()}.
+	 * This is called with the result Intent returned by the Activity started
+	 * with {@link UiUtils#createSelectImageIntent(boolean)}.
 	 * <p>
 	 * This method must be called at most once per call to
 	 * {@link AttachmentListener#onAttachImage(Intent)}.
