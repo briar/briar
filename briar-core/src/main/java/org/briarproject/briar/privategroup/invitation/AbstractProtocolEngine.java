@@ -300,6 +300,13 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		return max(s.getLocalTimestamp(), s.getInviteTimestamp());
 	}
 
+	void receiveAutoDeleteTimer(Transaction txn,
+			DeletableGroupInvitationMessage m) throws DbException {
+		ContactId c = getContactId(txn, m.getContactGroupId());
+		autoDeleteManager.receiveAutoDeleteTimer(txn, c, m.getAutoDeleteTimer(),
+				m.getTimestamp());
+	}
+
 	private void sendMessage(Transaction txn, Message m, MessageType type,
 			GroupId privateGroupId, boolean visibleInConversation,
 			long autoDeleteTimer) throws DbException {

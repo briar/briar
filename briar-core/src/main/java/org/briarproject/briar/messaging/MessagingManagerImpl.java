@@ -29,6 +29,7 @@ import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.attachment.FileTooBigException;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
@@ -87,18 +88,24 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 	private final MessageTracker messageTracker;
 	private final ClientVersioningManager clientVersioningManager;
 	private final ContactGroupFactory contactGroupFactory;
+	private final AutoDeleteManager autoDeleteManager;
 
 	@Inject
-	MessagingManagerImpl(DatabaseComponent db, ClientHelper clientHelper,
+	MessagingManagerImpl(
+			DatabaseComponent db,
+			ClientHelper clientHelper,
 			ClientVersioningManager clientVersioningManager,
-			MetadataParser metadataParser, MessageTracker messageTracker,
-			ContactGroupFactory contactGroupFactory) {
+			MetadataParser metadataParser,
+			MessageTracker messageTracker,
+			ContactGroupFactory contactGroupFactory,
+			AutoDeleteManager autoDeleteManager) {
 		this.db = db;
 		this.clientHelper = clientHelper;
 		this.metadataParser = metadataParser;
 		this.messageTracker = messageTracker;
 		this.clientVersioningManager = clientVersioningManager;
 		this.contactGroupFactory = contactGroupFactory;
+		this.autoDeleteManager = autoDeleteManager;
 	}
 
 	@Override
@@ -203,6 +210,8 @@ class MessagingManagerImpl implements MessagingManager, IncomingMessageHook,
 				new PrivateMessageReceivedEvent(header, contactId);
 		txn.attach(event);
 		messageTracker.trackIncomingMessage(txn, m);
+		autoDeleteManager.receiveAutoDeleteTimer(txn, contactId, timer,
+				timestamp);
 	}
 
 	private List<AttachmentHeader> parseAttachmentHeaders(GroupId g,
