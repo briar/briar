@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Nicht unterstütztes Bildformat: %s</string>
   <string name="set_contact_alias">Kontaktnamen ändern</string>
   <string name="set_contact_alias_hint">Name des Kontakts</string>
-  <string name="set_alias_button">Ändern</string>
+  <string name="change">Ändern</string>
   <string name="delete_all_messages">Alle Nachrichten löschen</string>
   <string name="dialog_title_delete_all_messages">Löschen der Nachrichten bestätigen</string>
   <string name="dialog_message_delete_all_messages">Bist du sicher, dass du alle Nachrichten löschen willst?</string>

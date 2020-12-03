@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Képformátum nem támogatott: %s</string>
   <string name="set_contact_alias">Kapcsolat nevének megváltoztatása</string>
   <string name="set_contact_alias_hint">Kapcsolat neve</string>
-  <string name="set_alias_button">Módosítás</string>
+  <string name="change">Módosítás</string>
   <string name="delete_all_messages">Minden üzenet törlése</string>
   <string name="dialog_title_delete_all_messages">Üzenet törlés megerősítése</string>
   <string name="dialog_message_delete_all_messages">Biztos, hogy szeretné törölni összes üzenetét?</string>

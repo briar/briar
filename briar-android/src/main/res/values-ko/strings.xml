@@ -146,7 +146,7 @@
   <string name="image_attach_error_invalid_mime_type">%s는 지원되지 않는 이미지 형식입니다.</string>
   <string name="set_contact_alias">연락처 이름 바꾸기</string>
   <string name="set_contact_alias_hint">연락처 이름</string>
-  <string name="set_alias_button">바꾸기</string>
+  <string name="change">바꾸기</string>
   <string name="delete_all_messages">모든 메시지 지우기</string>
   <string name="dialog_title_delete_all_messages">메시지 삭제 확인</string>
   <string name="dialog_message_delete_all_messages">정말로 모든 메시지를 지우려고 하시나요?</string>

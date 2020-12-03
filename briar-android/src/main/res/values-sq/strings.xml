@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Format i pambuluar figure: %s</string>
   <string name="set_contact_alias">Ndryshoni emër kontakti</string>
   <string name="set_contact_alias_hint">Emër kontakti</string>
-  <string name="set_alias_button">Ndryshoje</string>
+  <string name="change">Ndryshoje</string>
   <string name="delete_all_messages">Fshiji krejt mesazhet</string>
   <string name="dialog_title_delete_all_messages">Ripohoni Fshirje Mesazhesh</string>
   <string name="dialog_message_delete_all_messages">Jeni i sigurt se doni të fshihen krejt mesazhet?</string>

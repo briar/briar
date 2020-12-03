@@ -141,6 +141,7 @@
 	<string name="send">Send</string>
 	<string name="allow">Allow</string>
 	<string name="open">Open</string>
+	<string name="change">Change</string>
 	<string name="no_data">No data</string>
 	<string name="ellipsis">…</string>
 	<string name="text_too_long">The entered text is too long</string>
@@ -164,7 +165,6 @@
 	<string name="image_attach_error_invalid_mime_type">Image format unsupported: %s</string>
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
-	<string name="set_alias_button">Change</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>

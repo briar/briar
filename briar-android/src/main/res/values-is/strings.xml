@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Myndskráarsnið er ekki stutt: %s</string>
   <string name="set_contact_alias">Breyta nafni tengiliðar</string>
   <string name="set_contact_alias_hint">Nafn tengiliðar</string>
-  <string name="set_alias_button">Breyta</string>
+  <string name="change">Breyta</string>
   <string name="delete_all_messages">Eyða öllum skilaboðum</string>
   <string name="dialog_title_delete_all_messages">Staðfesta eyðingu skilaboða</string>
   <string name="dialog_message_delete_all_messages">Ertu viss um að þú viljir eyða öllum skilaboðum?</string>

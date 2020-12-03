@@ -132,7 +132,7 @@
   <string name="image_attach_error_invalid_mime_type">Формат зображення непідтримуваний: %s</string>
   <string name="set_contact_alias">Змінити ім\'я контакту</string>
   <string name="set_contact_alias_hint">Назва контакту</string>
-  <string name="set_alias_button">Змінити</string>
+  <string name="change">Змінити</string>
   <string name="dialog_title_not_all_messages_deleted">Не вдалося видалити всі повідомлення</string>
   <string name="delete_contact">Вилучити контакт</string>
   <string name="dialog_title_delete_contact">Підтвердити вилучення контакту</string>

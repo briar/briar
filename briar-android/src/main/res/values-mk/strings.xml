@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Форматот на сликата не е поддржан: %s</string>
   <string name="set_contact_alias">Промена на име на контакт</string>
   <string name="set_contact_alias_hint">Име на контакт</string>
-  <string name="set_alias_button">Промени</string>
+  <string name="change">Промени</string>
   <string name="delete_all_messages">Избриши ги сите пораки</string>
   <string name="dialog_title_delete_all_messages">Потврди бришење на порака</string>
   <string name="dialog_message_delete_all_messages">Дали сте сигурни дека сакате да ги избришете сите пораки?</string>

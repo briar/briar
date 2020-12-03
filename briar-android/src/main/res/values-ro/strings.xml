@@ -156,7 +156,7 @@
   <string name="image_attach_error_invalid_mime_type">Format de imagine incompatibil: %s</string>
   <string name="set_contact_alias">Schimbă nume contact</string>
   <string name="set_contact_alias_hint">Nume contact</string>
-  <string name="set_alias_button">Modifică</string>
+  <string name="change">Modifică</string>
   <string name="delete_all_messages">Șterge toate mesajele</string>
   <string name="dialog_title_delete_all_messages">Confirmare ștergere mesaj</string>
   <string name="dialog_message_delete_all_messages">Sigur doriți să ștergeți toate mesajele?</string>

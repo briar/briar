@@ -56,7 +56,7 @@
 			style="@style/BriarButtonFlat.Positive"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:text="@string/set_alias_button" />
+			android:text="@string/change" />
 
 	</LinearLayout>
 

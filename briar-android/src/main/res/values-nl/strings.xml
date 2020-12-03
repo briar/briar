@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Bestandsformaat wordt niet ondersteund: %s</string>
   <string name="set_contact_alias">Verander naam van contact</string>
   <string name="set_contact_alias_hint">Contactnaam</string>
-  <string name="set_alias_button">Wijzigen</string>
+  <string name="change">Wijzigen</string>
   <string name="delete_all_messages">Verwijder alle berichten</string>
   <string name="dialog_title_delete_all_messages">Bevestig verwijderen berichten</string>
   <string name="dialog_message_delete_all_messages">Weet je zeker dat je alle berichten wil verwijderen?</string>

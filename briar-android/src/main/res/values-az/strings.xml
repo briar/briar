@@ -125,7 +125,7 @@
   <string name="image_attach_error_invalid_mime_type">Şəkil formatı dəstəklənmir: %s</string>
   <string name="set_contact_alias">Kontakt adı dəyişdirin</string>
   <string name="set_contact_alias_hint">Əlaqə adı</string>
-  <string name="set_alias_button">Dəyiş</string>
+  <string name="change">Dəyiş</string>
   <string name="delete_all_messages">Bütün mesajları sil</string>
   <string name="dialog_title_delete_all_messages">Silməyi təsdiq et</string>
   <string name="dialog_message_delete_all_messages">Bütün mesajları silmək istədiyinizə əminsinizmi? </string>

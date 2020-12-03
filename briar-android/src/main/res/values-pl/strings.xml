@@ -132,7 +132,7 @@
   <string name="image_attach_error_invalid_mime_type">Format obrazu jest nieobsługiwany: %s</string>
   <string name="set_contact_alias">Zmień nazwę kontaktu</string>
   <string name="set_contact_alias_hint">Nazwa kontaktu</string>
-  <string name="set_alias_button">Zmień</string>
+  <string name="change">Zmień</string>
   <string name="dialog_title_not_all_messages_deleted">Nie mogłem usunąć wszystkich wiadomości</string>
   <string name="delete_contact">Usuń kontakt</string>
   <string name="dialog_title_delete_contact">Potwierdź usunięcie kontaktu</string>

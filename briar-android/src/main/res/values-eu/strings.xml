@@ -127,7 +127,7 @@
   <string name="image_attach_error_invalid_mime_type">Onartu gabeko irudi formatua: %s</string>
   <string name="set_contact_alias">Aldatu kontaktuaren izena</string>
   <string name="set_contact_alias_hint">Kontaktuaren izena</string>
-  <string name="set_alias_button">Aldatu</string>
+  <string name="change">Aldatu</string>
   <string name="delete_all_messages">Ezabatu mezu guztiak</string>
   <string name="dialog_title_delete_all_messages">Baieztatu mezuak ezabatzea</string>
   <string name="dialog_message_delete_all_messages">Ziur mezu guztiak ezabatu nahi dituzula?</string>

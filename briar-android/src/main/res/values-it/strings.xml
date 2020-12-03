@@ -151,7 +151,7 @@
   <string name="image_attach_error_invalid_mime_type">Formato immagine non supportato: %s</string>
   <string name="set_contact_alias">Cambia il nome del contatto</string>
   <string name="set_contact_alias_hint">Nome contatto</string>
-  <string name="set_alias_button">Cambia</string>
+  <string name="change">Cambia</string>
   <string name="delete_all_messages">Elimina tutti i messaggi</string>
   <string name="dialog_title_delete_all_messages">Conferma l\'eliminazione dei messaggi</string>
   <string name="dialog_message_delete_all_messages">Sei sicuro di voler eliminare tutti i messaggi?</string>

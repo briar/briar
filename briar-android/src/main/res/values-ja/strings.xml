@@ -117,7 +117,7 @@
   <string name="image_attach_error_invalid_mime_type">サポートされていない画像形式：%s</string>
   <string name="set_contact_alias">連絡先を変更</string>
   <string name="set_contact_alias_hint">連絡先名</string>
-  <string name="set_alias_button">変更</string>
+  <string name="change">変更</string>
   <string name="delete_contact">この連絡先を削除</string>
   <string name="dialog_title_delete_contact">連絡先の削除時に確認</string>
   <string name="dialog_message_delete_contact">この連絡先と、この連絡先とのすべてのメッセージを削除してもよろしいですか？</string>

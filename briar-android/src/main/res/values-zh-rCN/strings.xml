@@ -146,7 +146,7 @@
   <string name="image_attach_error_invalid_mime_type">不支持的图片格式：%s</string>
   <string name="set_contact_alias">更改联系人姓名</string>
   <string name="set_contact_alias_hint">联系人姓名</string>
-  <string name="set_alias_button">更改</string>
+  <string name="change">更改</string>
   <string name="delete_all_messages">删除全部消息</string>
   <string name="dialog_title_delete_all_messages">确认删除消息</string>
   <string name="dialog_message_delete_all_messages">您确定要删除所有消息吗？</string>

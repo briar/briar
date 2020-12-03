@@ -171,7 +171,7 @@
   <string name="image_attach_error_invalid_mime_type">نوع ملف الصورة غير مدعوم : %s</string>
   <string name="set_contact_alias">تعديل إسم جهة الاتصال</string>
   <string name="set_contact_alias_hint">اسم جهة الاتصال</string>
-  <string name="set_alias_button">تعديل</string>
+  <string name="change">تعديل</string>
   <string name="delete_all_messages">حذف جميع الرّسائل </string>
   <string name="dialog_title_delete_all_messages">تأكيد حذف الرّسالة</string>
   <string name="dialog_message_delete_all_messages">هل أنتم متأكّدون من حذف جميع الرّسائل؟ </string>

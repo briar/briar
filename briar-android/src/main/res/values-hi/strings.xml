@@ -122,7 +122,7 @@
   <string name="image_attach_error_invalid_mime_type">छवि प्रारूप असमर्थित: %s</string>
   <string name="set_contact_alias">संपर्क नाम बदलें</string>
   <string name="set_contact_alias_hint">संपर्क नाम</string>
-  <string name="set_alias_button">परिवर्तन</string>
+  <string name="change">परिवर्तन</string>
   <string name="delete_contact">संपर्क मिटा दें</string>
   <string name="dialog_title_delete_contact">संपर्क हटाने की पुष्टि करें</string>
   <string name="dialog_message_delete_contact">क्या आप निश्चित हैं कि आप इस संपर्क और सभी संदेशों को इस संपर्क से निकाला जाना चाहते हैं?</string>

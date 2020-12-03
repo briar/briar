@@ -143,7 +143,7 @@ Umepoteza nenosiri.</string>
   <string name="image_attach_error_invalid_mime_type">Mfumo wa taswira hauendani: %s</string>
   <string name="set_contact_alias">Badilisha jina lako la mawasiliano </string>
   <string name="set_contact_alias_hint">Jina la mawasiliano </string>
-  <string name="set_alias_button">Badili</string>
+  <string name="change">Badili</string>
   <string name="delete_all_messages">Futa jumbe zote</string>
   <string name="dialog_title_delete_all_messages">Hakiki ufutaji  wa ujumbe</string>
   <string name="dialog_message_delete_all_messages">Je, unauhakika wa kufuta jumbe zote?</string>
