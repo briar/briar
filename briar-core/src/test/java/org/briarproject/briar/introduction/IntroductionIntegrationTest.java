@@ -263,8 +263,8 @@ public class IntroductionIntegrationTest
 		addListeners(true, true);
 
 		// 0 and 1 set an auto-delete timer for their conversation
-		setAutoDeleteTimer(c0, contactId1From0);
-		setAutoDeleteTimer(c1, contactId0From1);
+		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
+		setAutoDeleteTimer(c1, contactId0From1, MIN_AUTO_DELETE_TIMER_MS);
 
 		// Make introduction
 		introductionManager0
