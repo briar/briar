@@ -30,6 +30,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.test.TestTransportConnectionReader;
 import org.briarproject.bramble.test.TestTransportConnectionWriter;
 import org.briarproject.bramble.test.TestUtils;
+import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogPostFactory;
 import org.briarproject.briar.api.client.MessageTracker;
@@ -63,7 +64,6 @@ import static org.briarproject.bramble.api.sync.validation.MessageState.PENDING;
 import static org.briarproject.bramble.test.TestPluginConfigModule.SIMPLEX_TRANSPORT_ID;
 import static org.briarproject.bramble.test.TestUtils.getSecretKey;
 import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -453,16 +453,21 @@ public abstract class BriarIntegrationTest<C extends BriarIntegrationTestCompone
 	}
 
 	protected void setAutoDeleteTimer(BriarIntegrationTestComponent component,
-			ContactId contactId) throws DbException {
-		component.getDatabaseComponent().transaction(false, txn ->
-				component.getAutoDeleteManager().setAutoDeleteTimer(txn,
-						contactId, MIN_AUTO_DELETE_TIMER_MS));
+			ContactId contactId, long timer) throws DbException {
+		DatabaseComponent db = component.getDatabaseComponent();
+		AutoDeleteManager autoDeleteManager = component.getAutoDeleteManager();
+
+		db.transaction(false, txn ->
+				autoDeleteManager.setAutoDeleteTimer(txn, contactId, timer));
 	}
 
 	protected long getAutoDeleteTimer(BriarIntegrationTestComponent component,
 			ContactId contactId, long timestamp) throws DbException {
-		return component.getDatabaseComponent().transactionWithResult(false,
-				txn -> component.getAutoDeleteManager().getAutoDeleteTimer(txn,
-						contactId, timestamp));
+		DatabaseComponent db = component.getDatabaseComponent();
+		AutoDeleteManager autoDeleteManager = component.getAutoDeleteManager();
+
+		return db.transactionWithResult(false,
+				txn -> autoDeleteManager.getAutoDeleteTimer(txn, contactId,
+						timestamp));
 	}
 }

@@ -191,8 +191,8 @@ public class ForumSharingIntegrationTest
 	@Test
 	public void testSuccessfulSharingWithAutoDelete() throws Exception {
 		// Set an auto-delete timer for the conversation
-		setAutoDeleteTimer(c0, contactId1From0);
-		setAutoDeleteTimer(c1, contactId0From1);
+		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
+		setAutoDeleteTimer(c1, contactId0From1, MIN_AUTO_DELETE_TIMER_MS);
 
 		// Send invitation
 		forumSharingManager0
