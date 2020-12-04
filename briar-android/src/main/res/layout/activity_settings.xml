@@ -20,7 +20,6 @@
 				style="@style/BriarAvatar"
 				android:layout_width="@dimen/listitem_picture_size"
 				android:layout_height="@dimen/listitem_picture_size"
-				android:layout_gravity="bottom|left|start"
 				android:layout_margin="16dp"
 				app:layout_constraintBottom_toBottomOf="parent"
 				app:layout_constraintStart_toStartOf="parent"
