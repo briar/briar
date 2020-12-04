@@ -168,8 +168,8 @@ public class GroupInvitationIntegrationTest
 	@Test
 	public void testInvitationDeclineWithAutoDelete() throws Exception {
 		// 0 and 1 set an auto-delete timer for their conversation
-		setAutoDeleteTimer(c0, contactId1From0);
-		setAutoDeleteTimer(c1, contactId0From1);
+		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
+		setAutoDeleteTimer(c1, contactId0From1, MIN_AUTO_DELETE_TIMER_MS);
 
 		// Send invitation
 		sendInvitation(clock.currentTimeMillis(), null);
@@ -253,8 +253,8 @@ public class GroupInvitationIntegrationTest
 	@Test
 	public void testInvitationAcceptWithAutoDelete() throws Exception {
 		// 0 and 1 set an auto-delete timer for their conversation
-		setAutoDeleteTimer(c0, contactId1From0);
-		setAutoDeleteTimer(c1, contactId0From1);
+		setAutoDeleteTimer(c0, contactId1From0, MIN_AUTO_DELETE_TIMER_MS);
+		setAutoDeleteTimer(c1, contactId0From1, MIN_AUTO_DELETE_TIMER_MS);
 
 		// Send invitation
 		sendInvitation(clock.currentTimeMillis(), null);
@@ -743,7 +743,7 @@ public class GroupInvitationIntegrationTest
 			throws DbException {
 		byte[] signature = groupInvitationFactory.signInvitation(contact1From0,
 				privateGroup.getId(), timestamp, author0.getPrivateKey());
-		long timer = getAutoDeleteTimer(c0, contactId1From0);
+		long timer = getAutoDeleteTimer(c0, contactId1From0, timestamp);
 		groupInvitationManager0.sendInvitation(privateGroup.getId(),
 				contactId1From0, text, timestamp, signature, timer);
 	}

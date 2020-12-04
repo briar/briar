@@ -152,9 +152,11 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if manually accepting an invitation
-			long timer = visibleInUi
-					? autoDeleteManager.getAutoDeleteTimer(txn, c)
-					: NO_AUTO_DELETE_TIMER;
+			long timer = NO_AUTO_DELETE_TIMER;
+			if (visibleInUi) {
+				timer = autoDeleteManager
+						.getAutoDeleteTimer(txn, c, localTimestamp);
+			}
 			m = messageEncoder.encodeJoinMessage(s.getContactGroupId(),
 					s.getPrivateGroupId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
@@ -179,9 +181,11 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 		ContactId c = getContactId(txn, s.getContactGroupId());
 		if (contactSupportsAutoDeletion(txn, c)) {
 			// Set auto-delete timer if manually accepting an invitation
-			long timer = visibleInUi
-					? autoDeleteManager.getAutoDeleteTimer(txn, c)
-					: NO_AUTO_DELETE_TIMER;
+			long timer = NO_AUTO_DELETE_TIMER;
+			if (visibleInUi) {
+				timer = autoDeleteManager.getAutoDeleteTimer(txn, c,
+						localTimestamp);
+			}
 			m = messageEncoder.encodeLeaveMessage(s.getContactGroupId(),
 					s.getPrivateGroupId(), localTimestamp,
 					s.getLastLocalMessageId(), timer);
@@ -294,6 +298,13 @@ abstract class AbstractProtocolEngine<S extends Session<?>>
 	 */
 	private long getSessionTimestamp(S s) {
 		return max(s.getLocalTimestamp(), s.getInviteTimestamp());
+	}
+
+	void receiveAutoDeleteTimer(Transaction txn,
+			DeletableGroupInvitationMessage m) throws DbException {
+		ContactId c = getContactId(txn, m.getContactGroupId());
+		autoDeleteManager.receiveAutoDeleteTimer(txn, c, m.getAutoDeleteTimer(),
+				m.getTimestamp());
 	}
 
 	private void sendMessage(Transaction txn, Message m, MessageType type,
