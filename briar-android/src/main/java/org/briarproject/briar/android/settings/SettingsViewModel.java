@@ -8,6 +8,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.identity.LocalAuthor;
+import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.LogUtils;
 import org.briarproject.briar.android.attachment.ImageCompressor;
@@ -42,6 +43,8 @@ class SettingsViewModel extends AndroidViewModel {
 	private final AvatarManager avatarManager;
 	private final AuthorManager authorManager;
 	private final ImageCompressor imageCompressor;
+	@IoExecutor
+	private final Executor ioExecutor;
 	@DatabaseExecutor
 	private final Executor dbExecutor;
 
@@ -54,12 +57,14 @@ class SettingsViewModel extends AndroidViewModel {
 			AvatarManager avatarManager,
 			AuthorManager authorManager,
 			ImageCompressor imageCompressor,
+			@IoExecutor Executor ioExecutor,
 			@DatabaseExecutor Executor dbExecutor) {
 		super(application);
 		this.identityManager = identityManager;
 		this.imageCompressor = imageCompressor;
 		this.avatarManager = avatarManager;
 		this.authorManager = authorManager;
+		this.ioExecutor = ioExecutor;
 		this.dbExecutor = dbExecutor;
 
 		loadOwnIdentityInfo();
@@ -83,16 +88,16 @@ class SettingsViewModel extends AndroidViewModel {
 	}
 
 	void setAvatar(Uri uri) {
-		dbExecutor.execute(() -> {
+		ioExecutor.execute(() -> {
 			try {
 				trySetAvatar(uri);
-			} catch (IOException | DbException e) {
+			} catch (IOException e) {
 				LogUtils.logException(LOG, WARNING, e);
 			}
 		});
 	}
 
-	private void trySetAvatar(Uri uri) throws IOException, DbException {
+	private void trySetAvatar(Uri uri) throws IOException {
 		ContentResolver contentResolver =
 				getApplication().getContentResolver();
 		String contentType = contentResolver.getType(uri);
@@ -103,10 +108,17 @@ class SettingsViewModel extends AndroidViewModel {
 		InputStream is = contentResolver.openInputStream(uri);
 		if (is == null) throw new IOException(
 				"ContentResolver returned null when opening InputStream");
-		is = imageCompressor
+		InputStream compressed = imageCompressor
 				.compressImage(is, contentType);
-		avatarManager.addAvatar(ImageCompressor.MIME_TYPE, is);
-		loadOwnIdentityInfo();
+
+		dbExecutor.execute(() -> {
+			try {
+				avatarManager.addAvatar(ImageCompressor.MIME_TYPE, compressed);
+				loadOwnIdentityInfo();
+			} catch (IOException | DbException e) {
+				LogUtils.logException(LOG, WARNING, e);
+			}
+		});
 	}
 
 }
