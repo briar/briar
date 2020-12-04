@@ -46,8 +46,6 @@ public class BlogManagerIntegrationTest
 	public void setUp() throws Exception {
 		super.setUp();
 
-		author0 = identityManager0.getLocalAuthor();
-		author1 = identityManager1.getLocalAuthor();
 		String rssTitle = getRandomString(MAX_AUTHOR_NAME_LENGTH);
 		rssAuthor = c0.getAuthorFactory().createLocalAuthor(rssTitle);
 
