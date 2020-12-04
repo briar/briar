@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.FeatureFlags;
 import org.briarproject.briar.R;
@@ -21,6 +22,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.lifecycle.ViewModelProvider;
 import de.hdodenhof.circleimageview.CircleImageView;
 
+import static android.widget.Toast.LENGTH_LONG;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_AVATAR_IMAGE;
 
 public class SettingsActivity extends BriarActivity {
@@ -57,6 +59,14 @@ public class SettingsActivity extends BriarActivity {
 				textViewUserName.setText(us.getLocalAuthor().getName());
 				AuthorView.setAvatar(imageViewAvatar,
 						us.getLocalAuthor().getId(), us.getAuthorInfo());
+			});
+
+			settingsViewModel.getSetAvatarFailed().observe(this, failed -> {
+				if (failed) {
+					Toast.makeText(this,
+							R.string.change_profile_picture_failed_message,
+							LENGTH_LONG).show();
+				}
 			});
 
 			View avatarGroup = findViewById(R.id.avatarGroup);

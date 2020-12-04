@@ -51,6 +51,9 @@ class SettingsViewModel extends AndroidViewModel {
 	private final MutableLiveData<OwnIdentityInfo> ownIdentityInfo =
 			new MutableLiveData<>();
 
+	private final MutableLiveData<Boolean> setAvatarFailed =
+			new MutableLiveData<>();
+
 	@Inject
 	SettingsViewModel(Application application,
 			IdentityManager identityManager,
@@ -74,6 +77,10 @@ class SettingsViewModel extends AndroidViewModel {
 		return ownIdentityInfo;
 	}
 
+	public MutableLiveData<Boolean> getSetAvatarFailed() {
+		return setAvatarFailed;
+	}
+
 	private void loadOwnIdentityInfo() {
 		dbExecutor.execute(() -> {
 			try {
@@ -93,6 +100,7 @@ class SettingsViewModel extends AndroidViewModel {
 				trySetAvatar(uri);
 			} catch (IOException e) {
 				LogUtils.logException(LOG, WARNING, e);
+				setAvatarFailed.postValue(true);
 			}
 		});
 	}
@@ -117,6 +125,7 @@ class SettingsViewModel extends AndroidViewModel {
 				loadOwnIdentityInfo();
 			} catch (IOException | DbException e) {
 				LogUtils.logException(LOG, WARNING, e);
+				setAvatarFailed.postValue(true);
 			}
 		});
 	}
