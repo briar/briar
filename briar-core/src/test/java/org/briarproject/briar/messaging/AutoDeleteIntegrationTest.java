@@ -22,6 +22,7 @@ import java.util.Collection;
 import java.util.List;
 
 import static java.util.Collections.emptyList;
+import static java.util.Collections.sort;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.MIN_AUTO_DELETE_TIMER_MS;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.junit.Assert.assertEquals;
@@ -229,11 +230,11 @@ public class AutoDeleteIntegrationTest
 				txn -> autoDeleteManager.getAutoDeleteTimer(txn, contactId));
 	}
 
+	@SuppressWarnings({"UseCompareMethod", "Java8ListSort"}) // Animal Sniffer
 	private List<ConversationMessageHeader> sortHeaders(
 			Collection<ConversationMessageHeader> in) {
 		List<ConversationMessageHeader> out = new ArrayList<>(in);
-		//noinspection UseCompareMethod
-		out.sort((a, b) ->
+		sort(out, (a, b) ->
 				Long.valueOf(a.getTimestamp()).compareTo(b.getTimestamp()));
 		return out;
 	}
