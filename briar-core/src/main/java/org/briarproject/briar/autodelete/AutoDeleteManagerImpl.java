@@ -79,6 +79,19 @@ class AutoDeleteManagerImpl
 	}
 
 	@Override
+	public long getAutoDeleteTimer(Transaction txn, ContactId c)
+			throws DbException {
+		try {
+			Group g = getGroup(db.getContact(txn, c));
+			BdfDictionary meta =
+					clientHelper.getGroupMetadataAsDictionary(txn, g.getId());
+			return meta.getLong(GROUP_KEY_TIMER, NO_AUTO_DELETE_TIMER);
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
+	@Override
 	public long getAutoDeleteTimer(Transaction txn, ContactId c, long timestamp)
 			throws DbException {
 		try {

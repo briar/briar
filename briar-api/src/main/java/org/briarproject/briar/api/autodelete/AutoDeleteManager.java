@@ -25,6 +25,13 @@ public interface AutoDeleteManager {
 	int MINOR_VERSION = 0;
 
 	/**
+	 * Returns the auto-delete timer duration for the given contact. Use
+	 * {@link #getAutoDeleteTimer(Transaction, ContactId, long)} if the timer
+	 * will be used in an outgoing message.
+	 */
+	long getAutoDeleteTimer(Transaction txn, ContactId c) throws DbException;
+
+	/**
 	 * Returns the auto-delete timer duration for the given contact, for use in
 	 * a message with the given timestamp. The timestamp is stored.
 	 */
