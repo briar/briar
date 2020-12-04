@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout  xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -10,6 +10,7 @@
 	<de.hdodenhof.circleimageview.CircleImageView
 		android:id="@+id/image"
 		style="@style/BriarAvatar"
+		android:layout_marginTop="@dimen/listitem_vertical_margin"
 		android:layout_width="@dimen/listitem_picture_size"
 		android:layout_height="@dimen/listitem_picture_size"
 		android:layout_gravity="bottom|left|start"
@@ -18,6 +19,7 @@
 		tools:src="@mipmap/ic_launcher_round" />
 
 	<TextView
+		android:layout_marginTop="@dimen/listitem_vertical_margin"
 		android:id="@+id/username"
 		android:layout_width="wrap_content"
 		android:layout_height="0dp"
@@ -39,4 +41,4 @@
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/image" />
 
-</androidx.constraintlayout.widget.ConstraintLayout >
+</androidx.constraintlayout.widget.ConstraintLayout>

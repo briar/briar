@@ -72,9 +72,8 @@ public class ConfirmAvatarDialogFragment extends DialogFragment {
 		builder.setView(view);
 
 		builder.setTitle(R.string.dialog_confirm_profile_picture_title);
-		builder.setMessage(R.string.dialog_confirm_profile_picture_question);
 		builder.setNegativeButton(R.string.cancel, null);
-		builder.setPositiveButton(R.string.dialog_confirm_profile_picture_set,
+		builder.setPositiveButton(R.string.change,
 				(dialog, id) -> settingsViewModel.setAvatar(uri));
 
 		ImageView imageView = view.findViewById(R.id.image);
