@@ -165,6 +165,7 @@
 	<string name="image_attach_error_invalid_mime_type">Image format unsupported: %s</string>
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
+	<string name="menu_item_auto_delete">Disappearing messages</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>
