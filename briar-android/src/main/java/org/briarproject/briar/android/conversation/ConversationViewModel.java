@@ -54,6 +54,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import static java.util.Objects.requireNonNull;
+import static java.util.concurrent.TimeUnit.DAYS;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -61,6 +62,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_NAMESPACE;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
+import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
@@ -330,6 +332,20 @@ public class ConversationViewModel extends AndroidViewModel
 					txn.attach(() -> attachmentCreator.onAttachmentsSent(id));
 					addedHeader.postEvent(h);
 				});
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	void setAutoDeleteTimerEnabled(boolean enabled) {
+		final long timer = enabled ? DAYS.toMillis(7) : NO_AUTO_DELETE_TIMER;
+		// ContactId is set before menu gets inflated and UI interaction
+		final ContactId c = requireNonNull(contactId);
+		dbExecutor.execute(() -> {
+			try {
+				db.transaction(false, txn ->
+						autoDeleteManager.setAutoDeleteTimer(txn, c, timer));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}

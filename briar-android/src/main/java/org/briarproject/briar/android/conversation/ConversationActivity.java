@@ -140,6 +140,7 @@ import static org.briarproject.briar.android.util.UiUtils.getBulbTransitionName;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
+import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_IMAGES_AUTO_DELETE;
 import static org.briarproject.briar.api.messaging.PrivateMessageFormat.TEXT_ONLY;
 
 @MethodsNotNullByDefault
@@ -381,6 +382,11 @@ public class ConversationActivity extends BriarActivity
 		// enable alias action if available
 		observeOnce(viewModel.getContact(), this, contact ->
 				menu.findItem(R.id.action_set_alias).setEnabled(true));
+		// show auto-delete timer setting only, if contacts supports it
+		observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
+			boolean visible = format == TEXT_IMAGES_AUTO_DELETE;
+			menu.findItem(R.id.action_auto_delete).setVisible(visible);
+		});
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -401,6 +407,11 @@ public class ConversationActivity extends BriarActivity
 			case R.id.action_set_alias:
 				AliasDialogFragment.newInstance().show(
 						getSupportFragmentManager(), AliasDialogFragment.TAG);
+				return true;
+			case R.id.action_auto_delete:
+				boolean enabled = !item.isChecked();
+				viewModel.setAutoDeleteTimerEnabled(enabled);
+				item.setChecked(enabled);
 				return true;
 			case R.id.action_delete_all_messages:
 				askToDeleteAllMessages();
