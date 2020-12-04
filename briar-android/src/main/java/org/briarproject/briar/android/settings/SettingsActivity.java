@@ -49,15 +49,14 @@ public class SettingsActivity extends BriarActivity {
 					new ViewModelProvider(this, viewModelFactory);
 			settingsViewModel = provider.get(SettingsViewModel.class);
 
-			settingsViewModel.getOwnIdentityInfo().observe(this, us -> {
-				TextView textViewUserName = findViewById(R.id.username);
-				textViewUserName.setText(us.getLocalAuthor().getName());
+			TextView textViewUserName = findViewById(R.id.username);
+			CircleImageView imageViewAvatar =
+					findViewById(R.id.avatarImage);
 
-				CircleImageView imageViewAvatar =
-						findViewById(R.id.avatarImage);
-				AuthorView
-						.setAvatar(imageViewAvatar, us.getLocalAuthor().getId(),
-								us.getAuthorInfo());
+			settingsViewModel.getOwnIdentityInfo().observe(this, us -> {
+				textViewUserName.setText(us.getLocalAuthor().getName());
+				AuthorView.setAvatar(imageViewAvatar,
+						us.getLocalAuthor().getId(), us.getAuthorInfo());
 			});
 
 			View avatarGroup = findViewById(R.id.avatarGroup);
