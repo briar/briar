@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 import androidx.annotation.LayoutRes;
+import androidx.lifecycle.LiveData;
 
 import static org.briarproject.bramble.util.StringUtils.toHexString;
 
@@ -24,9 +25,11 @@ abstract class ConversationItem {
 	private final GroupId groupId;
 	private final long time, autoDeleteTimer;
 	private final boolean isIncoming;
-	private boolean read, sent, seen;
+	private final LiveData<String> contactName;
+	private boolean read, sent, seen, showTimerNotice, timerMirrored;
 
-	ConversationItem(@LayoutRes int layoutRes, ConversationMessageHeader h) {
+	ConversationItem(@LayoutRes int layoutRes, ConversationMessageHeader h,
+			LiveData<String> contactName) {
 		this.layoutRes = layoutRes;
 		this.text = null;
 		this.id = h.getId();
@@ -37,6 +40,9 @@ abstract class ConversationItem {
 		this.sent = h.isSent();
 		this.seen = h.isSeen();
 		this.isIncoming = !h.isLocal();
+		this.contactName = contactName;
+		this.showTimerNotice = false;
+		this.timerMirrored = false;
 	}
 
 	@LayoutRes
@@ -116,4 +122,44 @@ abstract class ConversationItem {
 		return isIncoming;
 	}
 
+	public LiveData<String> getContactName() {
+		return contactName;
+	}
+
+	/**
+	 * Set this to true when {@link #getAutoDeleteTimer()} has changed
+	 * since the last message from the same peer.
+	 *
+	 * @return true if the value was set, false if it was already set.
+	 */
+	boolean setTimerNoticeVisible(boolean visible) {
+		if (this.showTimerNotice != visible) {
+			this.showTimerNotice = visible;
+			return true;
+		}
+		return false;
+	}
+
+	boolean isTimerNoticeVisible() {
+		return showTimerNotice;
+	}
+
+	/**
+	 * Set this to true when {@link #getAutoDeleteTimer()} has changed
+	 * to the same timer of the last message
+	 * from the other peer in this conversation.
+	 *
+	 * @return true if the value was set, false if it was already set.
+	 */
+	public boolean setTimerMirrored(boolean timerMirrored) {
+		if (this.timerMirrored != timerMirrored) {
+			this.timerMirrored = timerMirrored;
+			return true;
+		}
+		return false;
+	}
+
+	public boolean wasTimerMirrored() {
+		return timerMirrored;
+	}
 }

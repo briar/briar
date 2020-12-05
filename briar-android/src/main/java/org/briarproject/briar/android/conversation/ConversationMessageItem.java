@@ -10,6 +10,7 @@ import javax.annotation.concurrent.NotThreadSafe;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
 
 @NotThreadSafe
 @NotNullByDefault
@@ -18,8 +19,8 @@ class ConversationMessageItem extends ConversationItem {
 	private final List<AttachmentItem> attachments;
 
 	ConversationMessageItem(@LayoutRes int layoutRes, PrivateMessageHeader h,
-			List<AttachmentItem> attachments) {
-		super(layoutRes, h);
+			LiveData<String> contactName, List<AttachmentItem> attachments) {
+		super(layoutRes, h, contactName);
 		this.attachments = attachments;
 	}
 

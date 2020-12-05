@@ -1,10 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@drawable/list_item_background_selectable">
+	android:background="@drawable/list_item_background_selectable"
+	android:orientation="vertical"
+	android:paddingTop="@dimen/message_bubble_margin">
+
+	<include layout="@layout/list_item_conversation_top_notice_out" />
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
@@ -98,4 +102,4 @@
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
-</FrameLayout>
+</LinearLayout>

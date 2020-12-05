@@ -166,6 +166,14 @@
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
 	<string name="menu_item_auto_delete">Disappearing messages</string>
+	<string name="auto_delete_msg_you_enabled">You turned on disappearing messages. Your messages will disappear after 7 days.</string>
+	<string name="auto_delete_msg_you_disabled">You turned off disappearing messages. Your messages will not disappear.</string>
+	<string name="auto_delete_msg_you_enabled_mirrored">Your messages will disappear after 7 days.</string>
+	<string name="auto_delete_msg_you_disabled_mirrored">Your messages will not disappear.</string>
+	<string name="auto_delete_msg_contact_enabled">%1$s turned on disappearing messages. %2$s\'s messages will disappear after 7 days.</string>
+	<string name="auto_delete_msg_contact_disabled">%1$s turned off disappearing messages. %2$s\'s messages will not disappear.</string>
+	<string name="auto_delete_msg_contact_enabled_mirrored">%1$s\'s messages will disappear after 7 days.</string>
+	<string name="auto_delete_msg_contact_disabled_mirrored">%1$s\'s messages will not disappear.</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>

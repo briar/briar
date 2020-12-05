@@ -5,8 +5,9 @@
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
 	android:background="@drawable/list_item_background_selectable"
-	android:orientation="vertical"
-	android:paddingTop="@dimen/message_bubble_margin">
+	android:orientation="vertical">
+
+	<include layout="@layout/list_item_conversation_top_notice_in" />
 
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/msgText"
@@ -15,11 +16,13 @@
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/message_bubble_margin_tail"
 		android:layout_marginLeft="@dimen/message_bubble_margin_tail"
+		android:layout_marginTop="@dimen/message_bubble_margin"
 		android:layout_marginEnd="@dimen/message_bubble_margin_non_tail"
 		android:layout_marginRight="@dimen/message_bubble_margin_non_tail"
 		android:background="@drawable/msg_in_top"
 		android:elevation="@dimen/message_bubble_elevation"
-		tools:text="Short message" />
+		tools:text="Short message"
+		tools:visibility="visible" />
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"

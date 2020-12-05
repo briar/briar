@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.conversation;
 
+import android.content.Context;
 import android.view.View;
 import android.widget.TextView;
 
@@ -27,7 +28,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	protected final ConstraintLayout layout;
 	@Nullable
 	private final OutItemViewHolder outViewHolder;
-	private final TextView text;
+	private final TextView topNotice, text;
 	protected final TextView time;
 	private final View bomb;
 	@Nullable
@@ -39,6 +40,7 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 		this.listener = listener;
 		this.outViewHolder = isIncoming ? null : new OutItemViewHolder(v);
 		root = v;
+		topNotice = v.findViewById(R.id.topNotice);
 		layout = v.findViewById(R.id.layout);
 		text = v.findViewById(R.id.text);
 		time = v.findViewById(R.id.time);
@@ -49,6 +51,8 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	void bind(ConversationItem item, boolean selected) {
 		itemKey = item.getKey();
 		root.setActivated(selected);
+
+		setTopNotice(item);
 
 		if (item.getText() != null) {
 			text.setText(trim(item.getText()));
@@ -70,6 +74,44 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 	@Nullable
 	String getItemKey() {
 		return itemKey;
+	}
+
+	private void setTopNotice(ConversationItem item) {
+		if (item.isTimerNoticeVisible()) {
+			Context ctx = itemView.getContext();
+			topNotice.setVisibility(VISIBLE);
+			boolean enabled = item.getAutoDeleteTimer() != NO_AUTO_DELETE_TIMER;
+			String text;
+			if (item.isIncoming()) {
+				String name = item.getContactName().getValue();
+				if (item.wasTimerMirrored()) {
+					int strRes = enabled ?
+							R.string.auto_delete_msg_contact_enabled_mirrored :
+							R.string.auto_delete_msg_contact_disabled_mirrored;
+					text = ctx.getString(strRes, name);
+				} else {
+					int strRes = enabled ?
+							R.string.auto_delete_msg_contact_enabled :
+							R.string.auto_delete_msg_contact_disabled;
+					text = ctx.getString(strRes, name, name);
+				}
+			} else {
+				int strRes;
+				if (item.wasTimerMirrored()) {
+					strRes = enabled ?
+							R.string.auto_delete_msg_you_enabled_mirrored :
+							R.string.auto_delete_msg_you_disabled_mirrored;
+				} else {
+					strRes = enabled ?
+							R.string.auto_delete_msg_you_enabled :
+							R.string.auto_delete_msg_you_disabled;
+				}
+				text = ctx.getString(strRes);
+			}
+			topNotice.setText(text);
+		} else {
+			topNotice.setVisibility(GONE);
+		}
 	}
 
 }
