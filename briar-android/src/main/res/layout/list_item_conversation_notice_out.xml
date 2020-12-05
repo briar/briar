@@ -8,6 +8,8 @@
 	android:orientation="vertical"
 	android:paddingTop="@dimen/message_bubble_margin">
 
+	<include layout="@layout/list_item_conversation_top_notice_out" />
+
 	<com.vanniktech.emoji.EmojiTextView
 		android:id="@+id/msgText"
 		style="@style/TextMessage"
@@ -15,12 +17,14 @@
 		android:layout_height="wrap_content"
 		android:layout_marginStart="@dimen/message_bubble_margin_non_tail"
 		android:layout_marginLeft="@dimen/message_bubble_margin_non_tail"
+		android:layout_marginTop="@dimen/message_bubble_margin"
 		android:layout_marginEnd="@dimen/message_bubble_margin_tail"
 		android:layout_marginRight="@dimen/message_bubble_margin_tail"
 		android:background="@drawable/msg_out_top"
 		android:elevation="@dimen/message_bubble_elevation"
 		android:textColor="@color/briar_text_primary_inverse"
-		tools:text="This is a long long long message that spans over several lines.\n\nIt ends here." />
+		tools:text="This is a long long long message that spans over several lines.\n\nIt ends here."
+		tools:visibility="visible" />
 
 	<androidx.constraintlayout.widget.ConstraintLayout
 		android:id="@+id/layout"
