@@ -69,10 +69,10 @@
 	</com.google.android.material.appbar.AppBarLayout>
 
 	<fragment
-		app:layout_behavior="@string/appbar_scrolling_view_behavior"
 		android:id="@+id/fragment"
 		android:name="org.briarproject.briar.android.settings.SettingsFragment"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent" />
+		android:layout_height="match_parent"
+		app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
