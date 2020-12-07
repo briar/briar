@@ -61,13 +61,14 @@ public class SettingsActivity extends BriarActivity {
 						us.getLocalAuthor().getId(), us.getAuthorInfo());
 			});
 
-			settingsViewModel.getSetAvatarFailed().observe(this, failed -> {
-				if (failed) {
-					Toast.makeText(this,
-							R.string.change_profile_picture_failed_message,
-							LENGTH_LONG).show();
-				}
-			});
+			settingsViewModel.getSetAvatarFailed()
+					.observeEvent(this, failed -> {
+						if (failed) {
+							Toast.makeText(this,
+									R.string.change_profile_picture_failed_message,
+									LENGTH_LONG).show();
+						}
+					});
 
 			View avatarGroup = findViewById(R.id.avatarGroup);
 			avatarGroup.setOnClickListener(e -> selectAvatarImage());

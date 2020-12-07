@@ -13,6 +13,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.util.LogUtils;
 import org.briarproject.briar.android.attachment.ImageCompressor;
 import org.briarproject.briar.android.attachment.UnsupportedMimeTypeException;
+import org.briarproject.briar.android.viewmodel.LiveEvent;
+import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
@@ -51,8 +53,8 @@ class SettingsViewModel extends AndroidViewModel {
 	private final MutableLiveData<OwnIdentityInfo> ownIdentityInfo =
 			new MutableLiveData<>();
 
-	private final MutableLiveData<Boolean> setAvatarFailed =
-			new MutableLiveData<>();
+	private final MutableLiveEvent<Boolean> setAvatarFailed =
+			new MutableLiveEvent<>();
 
 	@Inject
 	SettingsViewModel(Application application,
@@ -77,7 +79,7 @@ class SettingsViewModel extends AndroidViewModel {
 		return ownIdentityInfo;
 	}
 
-	public MutableLiveData<Boolean> getSetAvatarFailed() {
+	public LiveEvent<Boolean> getSetAvatarFailed() {
 		return setAvatarFailed;
 	}
 
@@ -100,7 +102,7 @@ class SettingsViewModel extends AndroidViewModel {
 				trySetAvatar(uri);
 			} catch (IOException e) {
 				LogUtils.logException(LOG, WARNING, e);
-				setAvatarFailed.postValue(true);
+				setAvatarFailed.postEvent(true);
 			}
 		});
 	}
@@ -125,7 +127,7 @@ class SettingsViewModel extends AndroidViewModel {
 				loadOwnIdentityInfo();
 			} catch (IOException | DbException e) {
 				LogUtils.logException(LOG, WARNING, e);
-				setAvatarFailed.postValue(true);
+				setAvatarFailed.postEvent(true);
 			}
 		});
 	}
