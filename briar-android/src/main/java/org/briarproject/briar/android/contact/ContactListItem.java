@@ -2,6 +2,7 @@ package org.briarproject.briar.android.contact;
 
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
 import org.briarproject.briar.api.identity.AuthorInfo;
@@ -42,6 +43,17 @@ public class ContactListItem extends ContactItem
 		this(item.getContact(), item.getAuthorInfo(), item.isConnected(), false,
 				h.isRead() ? item.unread : item.unread + 1,
 				Math.max(h.getTimestamp(), item.timestamp));
+	}
+
+	/**
+	 * Creates a new copy of the given item with a new avatar
+	 * referenced by the given attachment header.
+	 */
+	ContactListItem(ContactListItem item,
+			AttachmentHeader attachmentHeader) {
+		this(item.getContact(), new AuthorInfo(item.getAuthorInfo().getStatus(),
+						item.getAuthorInfo().getAlias(), attachmentHeader),
+				item.isConnected(), item.empty, item.unread, item.timestamp);
 	}
 
 	boolean isEmpty() {

@@ -25,6 +25,7 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.conversation.ConversationMessageHeader;
@@ -139,6 +140,10 @@ class ContactListViewModel extends DbViewModel implements EventListener {
 		} else if (e instanceof PendingContactAddedEvent ||
 				e instanceof PendingContactRemovedEvent) {
 			checkForPendingContacts();
+		} else if (e instanceof AvatarUpdatedEvent) {
+			AvatarUpdatedEvent a = (AvatarUpdatedEvent) e;
+			updateItem(a.getContactId(), item -> new ContactListItem(item,
+					a.getAttachmentHeader()), false);
 		}
 	}
 
