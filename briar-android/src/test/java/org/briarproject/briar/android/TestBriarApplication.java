@@ -75,6 +75,10 @@ public class TestBriarApplication extends Application
 	}
 
 	@Override
+	public void triggerFeedback() {
+	}
+
+	@Override
 	public boolean isRunningInBackground() {
 		return false;
 	}

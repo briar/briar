@@ -568,9 +568,21 @@
 	<string name="include_debug_report_crash">Include anonymous data about the crash</string>
 	<string name="include_debug_report_feedback">Include anonymous data about this device</string>
 	<string name="could_not_load_report_data">Could not load report data.</string>
+	<string name="dev_report_basic_info">Basic information</string>
+	<string name="dev_report_device_info">Device information</string>
+	<string name="dev_report_time_info">Time information</string>
+	<string name="dev_report_memory">Memory</string>
+	<string name="dev_report_storage">Storage</string>
+	<string name="dev_report_connectivity">Connectivity</string>
+	<string name="dev_report_build_config">Build configuration</string>
+	<string name="dev_report_logcat">App log</string>
+	<string name="dev_report_device_features">Device Features</string>
 	<string name="send_report">Send report</string>
 	<string name="close">Close</string>
+	<string name="dev_report_sending">Trying to send feedback now…</string>
+	<string name="dev_report_sent">Feedback sent.</string>
 	<string name="dev_report_saved">Report saved. It will be sent the next time you log into Briar.</string>
+	<string name="dev_report_error">Error: Sending report failed.</string>
 
 	<!-- Sign Out -->
 	<string name="progress_title_logout">Signing out of Briar…</string>

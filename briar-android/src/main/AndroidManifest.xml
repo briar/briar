@@ -68,14 +68,24 @@
 			android:exported="false"></service>
 
 		<activity
-			android:name="org.briarproject.briar.android.reporting.DevReportActivity"
+			android:name="org.briarproject.briar.android.reporting.CrashReportActivity"
 			android:excludeFromRecents="true"
 			android:exported="false"
 			android:finishOnTaskLaunch="true"
 			android:label="@string/crash_report_title"
 			android:launchMode="singleInstance"
+			android:process=":briar_error_handler"
 			android:theme="@style/BriarTheme.NoActionBar"
-			android:windowSoftInputMode="adjustResize|stateHidden"></activity>
+			android:windowSoftInputMode="adjustResize|stateHidden" />
+		<activity
+			android:name="org.briarproject.briar.android.reporting.FeedbackActivity"
+			android:excludeFromRecents="true"
+			android:exported="false"
+			android:finishOnTaskLaunch="true"
+			android:label="@string/feedback_title"
+			android:launchMode="singleInstance"
+			android:theme="@style/BriarTheme.NoActionBar"
+			android:windowSoftInputMode="adjustResize|stateHidden" />
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.ExpiredActivity"

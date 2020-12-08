@@ -18,7 +18,7 @@ import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
-import org.briarproject.briar.android.reporting.DevReportActivity;
+import org.briarproject.briar.android.reporting.CrashReportActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
@@ -50,7 +50,7 @@ import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 
 /**
  * Warning: Some activities don't extend {@link BaseActivity}.
- *          E.g. {@link DevReportActivity}
+ *          E.g. {@link CrashReportActivity}
  */
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault

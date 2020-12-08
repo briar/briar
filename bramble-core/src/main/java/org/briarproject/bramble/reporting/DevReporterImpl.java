@@ -29,6 +29,7 @@ import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 import javax.net.SocketFactory;
 
+import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
 
@@ -100,11 +101,12 @@ class DevReporterImpl implements DevReporter, EventListener {
 	}
 
 	@Override
-	public void sendReports() {
+	public int sendReports() {
 		File reportDir = devConfig.getReportDir();
 		File[] reports = reportDir.listFiles();
+		int reportsSent = 0;
 		if (reports == null || reports.length == 0)
-			return; // No reports to send
+			return reportsSent; // No reports to send
 
 		LOG.info("Sending reports to developers");
 		for (File f : reports) {
@@ -116,13 +118,15 @@ class DevReporterImpl implements DevReporter, EventListener {
 				in = new FileInputStream(f);
 				IoUtils.copyAndClose(in, out);
 				f.delete();
+				reportsSent++;
 			} catch (IOException e) {
 				LOG.log(WARNING, "Failed to send reports", e);
 				tryToClose(out, LOG, WARNING);
 				tryToClose(in, LOG, WARNING);
-				return;
+				return reportsSent;
 			}
 		}
-		LOG.info("Reports sent");
+		if (LOG.isLoggable(INFO)) LOG.info(reportsSent + " report(s) sent");
+		return reportsSent;
 	}
 }

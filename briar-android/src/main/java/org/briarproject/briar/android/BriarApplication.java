@@ -23,5 +23,7 @@ public interface BriarApplication extends BrambleApplication {
 
 	SharedPreferences getDefaultSharedPreferences();
 
+	void triggerFeedback();
+
 	boolean isRunningInBackground();
 }

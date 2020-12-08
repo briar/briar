@@ -27,13 +27,11 @@ import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.acra.ACRA;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
@@ -343,12 +341,6 @@ public class UiUtils {
 		if (SDK_INT < 28) return false;
 		FingerprintManagerCompat fm = FingerprintManagerCompat.from(ctx);
 		return fm.hasEnrolledFingerprints() && fm.isHardwareDetected();
-	}
-
-	public static void triggerFeedback(AndroidExecutor androidExecutor) {
-		androidExecutor.runOnBackgroundThread(
-				() -> ACRA.getErrorReporter()
-						.handleException(new UserFeedback(), false));
 	}
 
 	public static boolean enterPressed(int actionId,

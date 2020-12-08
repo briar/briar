@@ -64,7 +64,6 @@ dependencyVerification {
         'androidx.viewpager:viewpager:1.0.0:viewpager-1.0.0.aar:147af4e14a1984010d8f155e5e19d781f03c1d70dfed02a8e0d18428b8fc8682',
         'backport-util-concurrent:backport-util-concurrent:3.1:backport-util-concurrent-3.1.jar:f5759b7fcdfc83a525a036deedcbd32e5b536b625ebc282426f16ca137eb5902',
         'cglib:cglib:3.2.0:cglib-3.2.0.jar:adb13bab79712ad6bdf1bd59f2a3918018a8016e722e8a357065afb9e6690861',
-        'ch.acra:acra:4.11:acra-4.11.aar:21ca06be074749c9aaf3f7df67fcbe3695e633b92e691f025af55cabde22e551',
         'classworlds:classworlds:1.1-alpha-2:classworlds-1.1-alpha-2.jar:2bf4e59f3acd106fea6145a9a88fe8956509f8b9c0fdd11eb96fee757269e3f3',
         'com.almworks.sqlite4java:sqlite4java:0.282:sqlite4java-0.282.jar:9e1d8dd83ca6003f841e3af878ce2dc7c22497493a7bb6d1b62ec1b0d0a83c05',
         'com.android.tools.analytics-library:protos:27.1.1:protos-27.1.1.jar:13f77e73762e58ab372d140b3a6be6903aea9775b62dd14fbc62d4cc7069c9a4',
