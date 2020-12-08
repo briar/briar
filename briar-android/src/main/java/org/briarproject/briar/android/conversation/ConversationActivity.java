@@ -233,7 +233,7 @@ public class ConversationActivity extends BriarActivity
 		toolbarStatus = toolbar.findViewById(R.id.contactStatus);
 		toolbarTitle = toolbar.findViewById(R.id.contactName);
 
-		observeOnce(viewModel.getContactItem(), this, contactItem -> {
+		viewModel.getContactItem().observe(this, contactItem -> {
 			requireNonNull(contactItem);
 			setAvatar(toolbarAvatar, contactItem);
 		});

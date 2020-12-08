@@ -31,6 +31,7 @@ import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
+import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
 import org.briarproject.briar.api.identity.AuthorInfo;
 import org.briarproject.briar.api.identity.AuthorManager;
 import org.briarproject.briar.api.media.AttachmentHeader;
@@ -151,7 +152,31 @@ public class ConversationViewModel extends DbViewModel
 				runOnDbThread(() -> attachmentRetriever
 						.loadAttachmentItem(a.getMessageId()));
 			}
+		} else if (e instanceof AvatarUpdatedEvent) {
+			AvatarUpdatedEvent a = (AvatarUpdatedEvent) e;
+			if (a.getContactId().equals(contactId)) {
+				LOG.info("Avatar updated");
+				updateAvatar(a);
+			}
 		}
+	}
+
+	@UiThread
+	private void updateAvatar(AvatarUpdatedEvent a) {
+		// Make sure that contactItem has been set by the task initiated
+		// by loadContact() before we update the avatar.
+		observeForeverOnce(contactItem, oldContactItem -> {
+			requireNonNull(oldContactItem);
+
+			AuthorInfo oldAuthorInfo = oldContactItem.getAuthorInfo();
+
+			AuthorInfo newAuthorInfo = new AuthorInfo(oldAuthorInfo.getStatus(),
+					oldAuthorInfo.getAlias(), a.getAttachmentHeader());
+			ContactItem newContactItem =
+					new ContactItem(oldContactItem.getContact(), newAuthorInfo);
+
+			contactItem.setValue(newContactItem);
+		});
 	}
 
 	/**
