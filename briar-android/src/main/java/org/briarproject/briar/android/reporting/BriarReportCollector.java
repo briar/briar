@@ -93,9 +93,7 @@ class BriarReportCollector {
 		MultiReportInfo basicInfo = new MultiReportInfo()
 				.add("Package name", packageName)
 				.add("Version name", versionName)
-				.add("Version code", versionCode)
-				.add("Android version", Build.VERSION.RELEASE)
-				.add("Android SDK API", String.valueOf(SDK_INT));
+				.add("Version code", versionCode);
 		// print stacktrace of Throwable if this is not feedback
 		if (t != null) {
 			final Writer sw = new StringWriter();
@@ -112,6 +110,8 @@ class BriarReportCollector {
 
 	private ReportItem getDeviceInfo() {
 		MultiReportInfo deviceInfo = new MultiReportInfo()
+				.add("Android version", Build.VERSION.RELEASE)
+				.add("Android SDK API", String.valueOf(SDK_INT))
 				.add("Product", Build.PRODUCT)
 				.add("Model", Build.MODEL)
 				.add("Brand", Build.BRAND);
