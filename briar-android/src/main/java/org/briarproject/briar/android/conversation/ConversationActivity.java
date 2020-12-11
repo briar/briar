@@ -416,7 +416,10 @@ public class ConversationActivity extends BriarActivity
 				item.setChecked(enabled);
 				return true;
 			case R.id.action_conversation_settings:
-				// TODO: show settings
+				if (contactId == null) return false;
+				intent = new Intent(this, ConversationSettingsActivity.class);
+				intent.putExtra(CONTACT_ID, contactId.getInt());
+				startActivity(intent);
 				return true;
 			case R.id.action_delete_all_messages:
 				askToDeleteAllMessages();

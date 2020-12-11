@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<SwitchPreference
+		android:defaultValue="true"
+		android:key="pref_key_lock"
+		android:summary="@string/disappearing_messages_summary"
+		android:title="@string/disappearing_messages_title"
+		app:iconSpaceReserved="false"/>
+
+		<Preference
+			android:defaultValue="false"
+			android:enabled="false"
+			android:key="pref_key_purge"
+			android:summary="@string/disappearing_messages_timeout_summary"
+			android:title="@string/disappearing_messages_timeout_title"
+			app:iconSpaceReserved="false"/>
+
+</PreferenceScreen>
