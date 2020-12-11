@@ -141,7 +141,7 @@ class BriarReportCollector {
 		if (startTime > -1) {
 			timeInfo.add("AppStartTime", formatTime(startTime));
 		}
-		return new ReportItem("DeviceInfo", R.string.dev_report_time_info,
+		return new ReportItem("TimeInfo", R.string.dev_report_time_info,
 				timeInfo);
 	}
 
