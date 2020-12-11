@@ -94,9 +94,9 @@ class ReportData {
 
 	@NotNullByDefault
 	static class MultiReportInfo implements ReportInfo {
-		private final Map<String, String> map = new TreeMap<>();
+		private final Map<String, Object> map = new TreeMap<>();
 
-		MultiReportInfo add(String key, @Nullable String value) {
+		MultiReportInfo add(String key, @Nullable Object value) {
 			map.put(key, value == null ? "null" : value);
 			return this;
 		}
@@ -104,10 +104,10 @@ class ReportData {
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			for (Map.Entry<String, String> entry : map.entrySet()) {
+			for (Map.Entry<String, Object> entry : map.entrySet()) {
 				sb
 						.append(entry.getKey())
-						.append("=")
+						.append(": ")
 						.append(entry.getValue())
 						.append("\n");
 			}

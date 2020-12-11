@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.pm.FeatureInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -38,6 +39,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
@@ -54,7 +56,9 @@ import static android.net.ConnectivityManager.TYPE_WIFI;
 import static android.net.wifi.WifiManager.WIFI_STATE_ENABLED;
 import static android.os.Build.VERSION.SDK_INT;
 import static androidx.core.content.ContextCompat.getSystemService;
+import static java.util.Locale.US;
 import static java.util.Objects.requireNonNull;
+import static java.util.TimeZone.getTimeZone;
 import static org.briarproject.bramble.util.AndroidUtils.getBluetoothAddressAndMethod;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
@@ -89,20 +93,21 @@ class BriarReportCollector {
 	private ReportItem getBasicInfo(@Nullable Throwable t) {
 		String packageName = ctx.getPackageName();
 		PackageManager pm = ctx.getPackageManager();
-		String versionName, versionCode;
+		String versionName;
+		int versionCode;
 		try {
 			PackageInfo packageInfo = pm.getPackageInfo(packageName, 0);
 			versionName = packageInfo.versionName;
-			versionCode = String.valueOf(packageInfo.versionCode);
-		} catch (PackageManager.NameNotFoundException e) {
+			versionCode = packageInfo.versionCode;
+		} catch (NameNotFoundException e) {
 			versionName = e.toString();
-			versionCode = "?";
+			versionCode = 0;
 		}
 		MultiReportInfo basicInfo = new MultiReportInfo()
 				.add("PackageName", packageName)
 				.add("VersionName", versionName)
 				.add("VersionCode", versionCode)
-				.add("isCrashReport", String.valueOf(t != null));
+				.add("IsCrashReport", t != null);
 		return new ReportItem("BasicInfo", R.string.dev_report_basic_info,
 				basicInfo, false);
 	}
@@ -110,7 +115,7 @@ class BriarReportCollector {
 	private ReportItem getDeviceInfo() {
 		MultiReportInfo deviceInfo = new MultiReportInfo()
 				.add("AndroidVersion", Build.VERSION.RELEASE)
-				.add("AndroidApi", String.valueOf(SDK_INT))
+				.add("AndroidApi", SDK_INT)
 				.add("Product", Build.PRODUCT)
 				.add("Model", Build.MODEL)
 				.add("Brand", Build.BRAND);
@@ -141,7 +146,10 @@ class BriarReportCollector {
 	}
 
 	private String formatTime(long time) {
-		return new Date(time) + " (" + time + ")";
+		SimpleDateFormat format =
+				new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", US);
+		format.setTimeZone(getTimeZone("UTC"));
+		return format.format(new Date(time));
 	}
 
 	private ReportItem getMemory() {
@@ -151,24 +159,15 @@ class BriarReportCollector {
 		ActivityManager am = getSystemService(ctx, ActivityManager.class);
 		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 		requireNonNull(am).getMemoryInfo(mem);
-		String systemTotal = (mem.totalMem / 1024 / 1024) + " MiB";
-		String systemFree = (mem.availMem / 1024 / 1024) + " MiB";
-		String systemThreshold = (mem.threshold / 1024 / 1024) + " MiB";
-		memInfo.add("SystemMemoryTotal", systemTotal);
-		memInfo.add("SystemMemoryFree", systemFree);
-		memInfo.add("SystemMemoryThreshold", systemThreshold);
+		memInfo.add("SystemMemoryTotal", mem.totalMem);
+		memInfo.add("SystemMemoryFree", mem.availMem);
+		memInfo.add("SystemMemoryThreshold", mem.threshold);
 
 		// Virtual machine memory
 		Runtime runtime = Runtime.getRuntime();
-		long heap = runtime.totalMemory();
-		long heapFree = runtime.freeMemory();
-		long heapMax = runtime.maxMemory();
-		String vmMemoryAllocated = (heap / 1024 / 1024) + " MiB";
-		String vmMemoryFree = (heapFree / 1024 / 1024) + " MiB";
-		String vmMemoryMax = (heapMax / 1024 / 1024) + " MiB";
-		memInfo.add("VirtualMachineMemoryAllocated", vmMemoryAllocated);
-		memInfo.add("VirtualMachineMemoryFree", vmMemoryFree);
-		memInfo.add("VirtualMachineMemoryMaximum", vmMemoryMax);
+		memInfo.add("VirtualMachineMemoryAllocated", runtime.totalMemory());
+		memInfo.add("VirtualMachineMemoryFree", runtime.freeMemory());
+		memInfo.add("VirtualMachineMemoryMaximum", runtime.maxMemory());
 
 		return new ReportItem("Memory", R.string.dev_report_memory, memInfo);
 	}
@@ -178,21 +177,13 @@ class BriarReportCollector {
 
 		// Internal storage
 		File root = Environment.getRootDirectory();
-		long rootTotal = root.getTotalSpace();
-		long rootFree = root.getFreeSpace();
-		storageInfo.add("InternalStorageTotal",
-				(rootTotal / 1024 / 1024) + " MiB");
-		storageInfo.add("InternalStorageFree",
-				(rootFree / 1024 / 1024) + " MiB");
+		storageInfo.add("InternalStorageTotal", root.getTotalSpace());
+		storageInfo.add("InternalStorageFree", root.getFreeSpace());
 
 		// External storage (SD card)
 		File sd = Environment.getExternalStorageDirectory();
-		long sdTotal = sd.getTotalSpace();
-		long sdFree = sd.getFreeSpace();
-		storageInfo.add("ExternalStorageTotal",
-				(sdTotal / 1024 / 1024) + " MiB");
-		storageInfo.add("ExternalStorageFree",
-				(sdFree / 1024 / 1024) + " MiB");
+		storageInfo.add("ExternalStorageTotal", sd.getTotalSpace());
+		storageInfo.add("ExternalStorageFree", sd.getFreeSpace());
 
 		return new ReportItem("Storage", R.string.dev_report_storage,
 				storageInfo);
@@ -206,13 +197,15 @@ class BriarReportCollector {
 				getSystemService(ctx, ConnectivityManager.class));
 		NetworkInfo mobile = cm.getNetworkInfo(TYPE_MOBILE);
 		boolean mobileAvailable = mobile != null && mobile.isAvailable();
+		connectivityInfo.add("MobileDataAvailable", mobileAvailable);
+
 		// Is mobile data enabled?
 		boolean mobileEnabled = false;
 		try {
 			Class<?> clazz = Class.forName(cm.getClass().getName());
 			Method method = clazz.getDeclaredMethod("getMobileDataEnabled");
 			method.setAccessible(true);
-			mobileEnabled = (Boolean) method.invoke(cm);
+			mobileEnabled = (Boolean) requireNonNull(method.invoke(cm));
 		} catch (ClassNotFoundException
 				| NoSuchMethodException
 				| IllegalArgumentException
@@ -221,42 +214,30 @@ class BriarReportCollector {
 			connectivityInfo
 					.add("MobileDataReflectionException", e.toString());
 		}
+		connectivityInfo.add("MobileDataEnabled", mobileEnabled);
+
 		// Is mobile data connected ?
 		boolean mobileConnected = mobile != null && mobile.isConnected();
-
-		String mobileStatus;
-		if (mobileAvailable) mobileStatus = "Available, ";
-		else mobileStatus = "Not available, ";
-		if (mobileEnabled) mobileStatus += "enabled, ";
-		else mobileStatus += "not enabled, ";
-		if (mobileConnected) mobileStatus += "connected";
-		else mobileStatus += "not connected";
-		connectivityInfo.add("MobileDataStatus", mobileStatus);
+		connectivityInfo.add("MobileDataConnected", mobileConnected);
 
 		// Is wifi available?
 		NetworkInfo wifi = cm.getNetworkInfo(TYPE_WIFI);
 		boolean wifiAvailable = wifi != null && wifi.isAvailable();
+		connectivityInfo.add("WifiAvailable", wifiAvailable);
+
 		// Is wifi enabled?
 		WifiManager wm = getSystemService(ctx, WifiManager.class);
 		boolean wifiEnabled = wm != null &&
 				wm.getWifiState() == WIFI_STATE_ENABLED;
+		connectivityInfo.add("WifiEnabled", wifiEnabled);
+
 		// Is wifi connected?
 		boolean wifiConnected = wifi != null && wifi.isConnected();
-
-		String wifiStatus;
-		if (wifiAvailable) wifiStatus = "Available, ";
-		else wifiStatus = "Not available, ";
-		if (wifiEnabled) wifiStatus += "enabled, ";
-		else wifiStatus += "not enabled, ";
-		if (wifiConnected) wifiStatus += "connected";
-		else wifiStatus += "not connected";
-		connectivityInfo.add("WiFiStatus", wifiStatus);
+		connectivityInfo.add("WifiConnected", wifiConnected);
 
 		// Is wifi direct supported?
-		String wifiDirectStatus = "Supported";
-		if (ctx.getSystemService(WIFI_P2P_SERVICE) == null)
-			wifiDirectStatus = "NotSupported";
-		connectivityInfo.add("WiFiDirect", wifiDirectStatus);
+		boolean wifiDirect = ctx.getSystemService(WIFI_P2P_SERVICE) != null;
+		connectivityInfo.add("WiFiDirectSupported", wifiDirect);
 
 		if (wm != null) {
 			WifiInfo wifiInfo = wm.getConnectionInfo();
@@ -269,8 +250,8 @@ class BriarReportCollector {
 				ipBytes[3] = (byte) ((ip >> 24) & 0xFF);
 				try {
 					InetAddress address = InetAddress.getByAddress(ipBytes);
-					connectivityInfo
-							.add("Wi-FiAddress", scrubInetAddress(address));
+					connectivityInfo.add("WiFiAddress",
+							scrubInetAddress(address));
 				} catch (UnknownHostException ignored) {
 					// Should only be thrown if address has illegal length
 				}
@@ -280,40 +261,35 @@ class BriarReportCollector {
 		// Is Bluetooth available?
 		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 		if (bt == null) {
-			connectivityInfo.add("BluetoothStatus", "Not available");
+			connectivityInfo.add("BluetoothAvailable", false);
 		} else {
+			connectivityInfo.add("BluetoothAvailable", true);
+
 			// Is Bluetooth enabled?
 			@SuppressLint("HardwareIds")
 			boolean btEnabled = bt.isEnabled()
 					&& !isNullOrEmpty(bt.getAddress());
+			connectivityInfo.add("BluetoothEnabled", btEnabled);
+
 			// Is Bluetooth connectable?
 			int scanMode = bt.getScanMode();
 			boolean btConnectable = scanMode == SCAN_MODE_CONNECTABLE ||
 					scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
+			connectivityInfo.add("BluetoothConnectable", btConnectable);
+
 			// Is Bluetooth discoverable?
 			boolean btDiscoverable =
 					scanMode == SCAN_MODE_CONNECTABLE_DISCOVERABLE;
-
-			String btStatus;
-			if (btEnabled) btStatus = "Available, enabled, ";
-			else btStatus = "Available, not enabled, ";
-			if (btConnectable) btStatus += "connectable, ";
-			else btStatus += "not connectable, ";
-			if (btDiscoverable) btStatus += "discoverable";
-			else btStatus += "not discoverable";
-			connectivityInfo.add("BluetoothStatus", btStatus);
+			connectivityInfo.add("BluetoothDiscoverable", btDiscoverable);
 
 			if (SDK_INT >= 21) {
 				// Is Bluetooth LE scanning and advertising supported?
 				boolean btLeScan = bt.getBluetoothLeScanner() != null;
+				connectivityInfo.add("BluetoothLeScanningSupported", btLeScan);
 				boolean btLeAdvertise =
 						bt.getBluetoothLeAdvertiser() != null;
-				String btLeStatus;
-				if (btLeScan) btLeStatus = "Scanning, ";
-				else btLeStatus = "No scanning, ";
-				if (btLeAdvertise) btLeStatus += "advertising";
-				else btLeStatus += "no advertising";
-				connectivityInfo.add("BluetoothLeStatus", btLeStatus);
+				connectivityInfo.add("BluetoothLeAdvertisingSupported",
+						btLeAdvertise);
 			}
 
 			Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
@@ -329,11 +305,10 @@ class BriarReportCollector {
 	private ReportItem getBuildConfig() {
 		MultiReportInfo buildConfig = new MultiReportInfo()
 				.add("GitHash", BuildConfig.GitHash)
-				.add("BUILD_TYPE", BuildConfig.BUILD_TYPE)
-				.add("FLAVOR", BuildConfig.FLAVOR)
-				.add("DEBUG", String.valueOf(BuildConfig.DEBUG))
-				.add("BuildTimestamp",
-						String.valueOf(BuildConfig.BuildTimestamp));
+				.add("BuildType", BuildConfig.BUILD_TYPE)
+				.add("Flavor", BuildConfig.FLAVOR)
+				.add("Debug", BuildConfig.DEBUG)
+				.add("BuildTimestamp", formatTime(BuildConfig.BuildTimestamp));
 		return new ReportItem("BuildConfig", R.string.dev_report_build_config,
 				buildConfig);
 	}
@@ -356,7 +331,7 @@ class BriarReportCollector {
 		for (FeatureInfo feature : features) {
 			String featureName = feature.name;
 			if (featureName != null) {
-				deviceFeatures.add(featureName, "true");
+				deviceFeatures.add(featureName, true);
 			} else {
 				deviceFeatures.add("glEsVersion", feature.getGlEsVersion());
 			}

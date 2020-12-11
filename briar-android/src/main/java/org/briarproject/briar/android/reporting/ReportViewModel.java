@@ -126,8 +126,8 @@ public class ReportViewModel extends AndroidViewModel {
 		ReportData data = requireNonNull(reportData.getValue());
 		if (!isNullOrEmpty(comment) || isNullOrEmpty(email)) {
 			MultiReportInfo userInfo = new MultiReportInfo();
-			if (!isNullOrEmpty(comment)) userInfo.add("comment", comment);
-			if (!isNullOrEmpty(email)) userInfo.add("email", email);
+			if (!isNullOrEmpty(comment)) userInfo.add("Comment", comment);
+			if (!isNullOrEmpty(email)) userInfo.add("Email", email);
 			data.add(new ReportData.ReportItem("UserInfo", 0, userInfo, false));
 		}
 
