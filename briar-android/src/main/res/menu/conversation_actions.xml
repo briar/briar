@@ -25,6 +25,13 @@
 		tools:visible="true" />
 
 	<item
+		android:id="@+id/action_conversation_settings"
+		android:title="@string/menu_item_conversation_settings"
+		android:visible="false"
+		app:showAsAction="never"
+		tools:visible="true" />
+
+	<item
 		android:id="@+id/action_delete_all_messages"
 		android:title="@string/delete_all_messages"
 		app:showAsAction="never" />

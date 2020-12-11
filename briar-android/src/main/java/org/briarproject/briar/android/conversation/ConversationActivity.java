@@ -386,6 +386,8 @@ public class ConversationActivity extends BriarActivity
 		observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
 			boolean visible = format == TEXT_IMAGES_AUTO_DELETE;
 			menu.findItem(R.id.action_auto_delete).setVisible(visible);
+			menu.findItem(R.id.action_conversation_settings)
+					.setVisible(visible);
 		});
 
 		return super.onCreateOptionsMenu(menu);
@@ -412,6 +414,9 @@ public class ConversationActivity extends BriarActivity
 				boolean enabled = !item.isChecked();
 				viewModel.setAutoDeleteTimerEnabled(enabled);
 				item.setChecked(enabled);
+				return true;
+			case R.id.action_conversation_settings:
+				// TODO: show settings
 				return true;
 			case R.id.action_delete_all_messages:
 				askToDeleteAllMessages();
