@@ -1,40 +1,38 @@
 package org.briarproject.briar.android.reporting;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Process;
 import android.widget.Toast;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.AndroidComponent;
-import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.android.Localizer;
+import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.activity.BaseActivity;
+import org.briarproject.briar.android.fragment.BaseFragment;
+import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 import org.briarproject.briar.android.logout.HideUiActivity;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
-import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static android.widget.Toast.LENGTH_LONG;
 import static java.util.Objects.requireNonNull;
-import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class CrashReportActivity extends AppCompatActivity {
+public class CrashReportActivity extends BaseActivity
+		implements BaseFragmentListener {
 
-	static final String EXTRA_THROWABLE = "throwable";
-	static final String EXTRA_APP_START_TIME = "appStartTime";
+	public static final String EXTRA_THROWABLE = "throwable";
+	public static final String EXTRA_APP_START_TIME = "appStartTime";
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -42,21 +40,21 @@ public class CrashReportActivity extends AppCompatActivity {
 	private ReportViewModel viewModel;
 
 	@Override
+	public void injectActivity(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		if (PREVENT_SCREENSHOTS) getWindow().addFlags(FLAG_SECURE);
 		setContentView(R.layout.activity_dev_report);
-
-		AndroidComponent androidComponent =
-				((BriarApplication) getApplication()).getApplicationComponent();
-		androidComponent.inject(this);
 
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(ReportViewModel.class);
 		Intent intent = getIntent();
 		Throwable t = (Throwable) intent.getSerializableExtra(EXTRA_THROWABLE);
-		long appStartTime = intent.getLongExtra(EXTRA_APP_START_TIME, 0);
-		viewModel.init(requireNonNull(t), appStartTime);
+		long appStartTime = intent.getLongExtra(EXTRA_APP_START_TIME, -1);
+		viewModel.init(t, appStartTime);
 		viewModel.getShowReport().observeEvent(this, show -> {
 			if (show) displayFragment(true);
 		});
@@ -74,8 +72,8 @@ public class CrashReportActivity extends AppCompatActivity {
 	}
 
 	@Override
-	protected void attachBaseContext(Context base) {
-		super.attachBaseContext(Localizer.getInstance().setLocale(base));
+	public void runOnDbThread(Runnable runnable) {
+		throw new AssertionError("deprecated!!!");
 	}
 
 	@Override
@@ -84,7 +82,7 @@ public class CrashReportActivity extends AppCompatActivity {
 	}
 
 	void displayFragment(boolean showReportForm) {
-		Fragment f;
+		BaseFragment f;
 		if (showReportForm) {
 			f = new ReportFormFragment();
 			requireNonNull(getSupportActionBar()).show();
@@ -93,7 +91,7 @@ public class CrashReportActivity extends AppCompatActivity {
 			requireNonNull(getSupportActionBar()).hide();
 		}
 		getSupportFragmentManager().beginTransaction()
-				.replace(R.id.fragmentContainer, f, f.getTag())
+				.replace(R.id.fragmentContainer, f, f.getUniqueTag())
 				.commit();
 	}
 
@@ -104,6 +102,10 @@ public class CrashReportActivity extends AppCompatActivity {
 					| FLAG_ACTIVITY_NO_ANIMATION
 					| FLAG_ACTIVITY_CLEAR_TASK);
 			startActivity(i);
+			// crash reports run in their own process that we should kill now
+			// otherwise it keeps running and e.g. doesn't pick up theme changes
+			Process.killProcess(Process.myPid());
+			System.exit(10);
 		}
 		finish();
 	}

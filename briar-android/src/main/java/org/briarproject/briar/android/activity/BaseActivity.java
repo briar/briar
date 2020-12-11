@@ -18,7 +18,6 @@ import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.fragment.ScreenFilterDialogFragment;
-import org.briarproject.briar.android.reporting.CrashReportActivity;
 import org.briarproject.briar.android.util.UiUtils;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout;
 import org.briarproject.briar.android.widget.TapSafeFrameLayout.OnTapFilteredListener;
@@ -50,7 +49,6 @@ import static org.briarproject.briar.android.util.UiUtils.hideSoftKeyboard;
 
 /**
  * Warning: Some activities don't extend {@link BaseActivity}.
- *          E.g. {@link CrashReportActivity}
  */
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -123,6 +121,7 @@ public abstract class BaseActivity extends AppCompatActivity
 		return new ActivityModule(this);
 	}
 
+	// TODO use a test module where this is used in tests
 	protected ForumModule getForumModule() {
 		return new ForumModule();
 	}

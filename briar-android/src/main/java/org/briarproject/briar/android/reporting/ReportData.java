@@ -10,11 +10,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import javax.annotation.concurrent.Immutable;
+import javax.annotation.concurrent.NotThreadSafe;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.StringRes;
 
+@NotThreadSafe
+@NotNullByDefault
 class ReportData {
 
 	private final ArrayList<ReportItem> items = new ArrayList<>();
@@ -28,7 +30,6 @@ class ReportData {
 		return items;
 	}
 
-	@NonNull
 	public JSONObject toJson(boolean includeReport) throws JSONException {
 		JSONObject json = new JSONObject();
 		for (ReportItem item : items) {
@@ -48,7 +49,7 @@ class ReportData {
 		final int nameRes;
 		final ReportInfo info;
 		final boolean isOptional;
-		volatile boolean isIncluded = true;
+		boolean isIncluded = true;
 
 		ReportItem(String name, int nameRes, ReportInfo info) {
 			this(name, nameRes, info, true);
@@ -91,7 +92,6 @@ class ReportData {
 		}
 	}
 
-	@Immutable
 	@NotNullByDefault
 	static class MultiReportInfo implements ReportInfo {
 		private final Map<String, String> map = new TreeMap<>();

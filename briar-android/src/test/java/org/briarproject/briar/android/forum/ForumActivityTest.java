@@ -8,7 +8,6 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.AuthorInfo;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.briarproject.briar.android.threaded.ThreadItemList;
@@ -36,7 +35,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, application = TestBriarApplication.class)
+@Config(sdk = 21)
 public class ForumActivityTest {
 
 	private final static MessageId[] MESSAGE_IDS = new MessageId[6];

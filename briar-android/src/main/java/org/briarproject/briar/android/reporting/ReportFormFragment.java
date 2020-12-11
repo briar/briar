@@ -15,14 +15,12 @@ import android.widget.Toast;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.AndroidComponent;
-import org.briarproject.briar.android.BriarApplication;
+import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.fragment.BaseFragment;
 
 import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -34,7 +32,9 @@ import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ReportFormFragment extends Fragment {
+public class ReportFormFragment extends BaseFragment {
+
+	public final static String TAG = ReportFormFragment.class.getName();
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -51,14 +51,15 @@ public class ReportFormFragment extends Fragment {
 	private MenuItem sendReport;
 
 	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	@Override
 	public void onCreate(@Nullable Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
-		FragmentActivity a = requireActivity();
-		BriarApplication app = (BriarApplication) a.getApplicationContext();
-		AndroidComponent androidComponent = app.getApplicationComponent();
-		androidComponent.inject(this);
-		viewModel = new ViewModelProvider(a, viewModelFactory)
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
 				.get(ReportViewModel.class);
 	}
 
@@ -129,6 +130,11 @@ public class ReportFormFragment extends Fragment {
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	@Override
+	public String getUniqueTag() {
+		return TAG;
 	}
 
 	private void sendReport() {

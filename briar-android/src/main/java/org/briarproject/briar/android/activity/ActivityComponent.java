@@ -66,6 +66,9 @@ import org.briarproject.briar.android.privategroup.memberlist.GroupMemberModule;
 import org.briarproject.briar.android.privategroup.reveal.GroupRevealModule;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsFragment;
+import org.briarproject.briar.android.reporting.CrashFragment;
+import org.briarproject.briar.android.reporting.CrashReportActivity;
+import org.briarproject.briar.android.reporting.ReportFormFragment;
 import org.briarproject.briar.android.settings.SettingsActivity;
 import org.briarproject.briar.android.settings.SettingsFragment;
 import org.briarproject.briar.android.sharing.BlogInvitationActivity;
@@ -184,6 +187,8 @@ public interface ActivityComponent {
 
 	void inject(PendingContactListActivity activity);
 
+	void inject(CrashReportActivity crashReportActivity);
+
 	// Fragments
 
 	void inject(AuthorNameFragment fragment);
@@ -233,5 +238,9 @@ public interface ActivityComponent {
 	void inject(AliasDialogFragment aliasDialogFragment);
 
 	void inject(ImageFragment imageFragment);
+
+	void inject(ReportFormFragment reportFormFragment);
+
+	void inject(CrashFragment crashFragment);
 
 }

@@ -4,8 +4,7 @@ import android.app.Application;
 import android.os.Handler;
 import android.os.Looper;
 
-import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
-import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.Plugin;
 import org.briarproject.bramble.api.plugin.PluginManager;
 import org.briarproject.bramble.api.plugin.TorConstants;
@@ -13,7 +12,6 @@ import org.briarproject.bramble.api.reporting.DevReporter;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
-import org.briarproject.briar.android.util.UserFeedback;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.json.JSONException;
@@ -26,6 +24,7 @@ import java.util.logging.Logger;
 import javax.inject.Inject;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
@@ -38,8 +37,7 @@ import static org.briarproject.bramble.api.plugin.Plugin.State.ACTIVE;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
-@MethodsNotNullByDefault
-@ParametersNotNullByDefault
+@NotNullByDefault
 public class ReportViewModel extends AndroidViewModel {
 
 	private static final Logger LOG =
@@ -68,11 +66,11 @@ public class ReportViewModel extends AndroidViewModel {
 		this.pluginManager = pluginManager;
 	}
 
-	void init(Throwable throwable, long appStartTime) {
-		isFeedback = throwable instanceof UserFeedback;
+	void init(@Nullable Throwable t, long appStartTime) {
+		isFeedback = t == null;
 		if (reportData.getValue() == null) new SingleShotAndroidExecutor(() -> {
-			Throwable t = isFeedback ? null : throwable;
-			reportData.postValue(collector.collectReportData(t, appStartTime));
+			ReportData data = collector.collectReportData(t, appStartTime);
+			reportData.postValue(data);
 		}).start();
 	}
 

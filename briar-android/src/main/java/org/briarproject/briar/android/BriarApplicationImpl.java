@@ -152,11 +152,6 @@ public class BriarApplicationImpl extends Application
 	}
 
 	@Override
-	public void triggerFeedback() {
-		exceptionHandler.feedback();
-	}
-
-	@Override
 	public boolean isRunningInBackground() {
 		RunningAppProcessInfo info = new RunningAppProcessInfo();
 		ActivityManager.getMyMemoryState(info);

@@ -7,7 +7,6 @@ import com.google.android.material.textfield.TextInputLayout;
 
 import org.briarproject.bramble.api.crypto.DecryptionResult;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +35,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @RunWith(RobolectricTestRunner.class)
-@Config(sdk = 21, application = TestBriarApplication.class)
+@Config(sdk = 21)
 public class ChangePasswordActivityTest {
 
 	private ChangePasswordActivity changePasswordActivity;

@@ -30,7 +30,6 @@ import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.Localizer;
 import org.briarproject.briar.android.util.UiUtils;
 
@@ -93,6 +92,7 @@ import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGT
 import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
 import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
+import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.BLOG_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.CONTACT_CHANNEL_ID;
 import static org.briarproject.briar.api.android.AndroidNotificationManager.FORUM_CHANNEL_ID;
@@ -226,9 +226,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		Preference prefFeedback =
 				requireNonNull(findPreference("pref_key_send_feedback"));
 		prefFeedback.setOnPreferenceClickListener(preference -> {
-			BriarApplication app =
-					(BriarApplication) requireContext().getApplicationContext();
-			app.triggerFeedback();
+			triggerFeedback(requireContext());
 			return true;
 		});
 

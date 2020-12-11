@@ -33,9 +33,6 @@ import org.briarproject.briar.BriarCoreModule;
 import org.briarproject.briar.android.attachment.AttachmentModule;
 import org.briarproject.briar.android.conversation.glide.BriarModelLoader;
 import org.briarproject.briar.android.login.SignInReminderReceiver;
-import org.briarproject.briar.android.reporting.CrashFragment;
-import org.briarproject.briar.android.reporting.CrashReportActivity;
-import org.briarproject.briar.android.reporting.ReportFormFragment;
 import org.briarproject.briar.android.view.EmojiTextInputView;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.android.DozeWatchdog;
@@ -174,10 +171,6 @@ public interface AndroidComponent
 	void inject(SignInReminderReceiver briarService);
 
 	void inject(BriarService briarService);
-
-	void inject(CrashReportActivity crashReportActivity);
-	void inject(ReportFormFragment reportFormFragment);
-	void inject(CrashFragment crashFragment);
 
 	void inject(NotificationCleanupService notificationCleanupService);
 

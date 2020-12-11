@@ -3,7 +3,6 @@ package org.briarproject.briar.android.account;
 import android.view.View;
 
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.TestBriarApplication;
 import org.briarproject.briar.android.login.StrengthMeter;
 import org.hamcrest.Description;
 import org.hamcrest.Matcher;
@@ -42,7 +41,7 @@ import static org.briarproject.briar.android.login.StrengthMeter.YELLOW;
 import static org.hamcrest.Matchers.not;
 
 @RunWith(AndroidJUnit4.class)
-@Config(sdk = 21, application = TestBriarApplication.class)
+@Config(sdk = 21)
 public class SetupActivityTest {
 
 	@Rule

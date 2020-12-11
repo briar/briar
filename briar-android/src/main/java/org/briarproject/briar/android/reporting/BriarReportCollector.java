@@ -21,12 +21,14 @@ import android.os.Build;
 import android.os.Environment;
 
 import org.briarproject.bramble.api.Pair;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.BuildConfig;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.logging.BriefLogFormatter;
 import org.briarproject.briar.android.reporting.ReportData.MultiReportInfo;
 import org.briarproject.briar.android.reporting.ReportData.ReportItem;
+import org.briarproject.briar.android.reporting.ReportData.SingleReportInfo;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -39,6 +41,8 @@ import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.logging.Formatter;
 import java.util.logging.LogRecord;
+
+import javax.annotation.concurrent.Immutable;
 
 import androidx.annotation.Nullable;
 
@@ -56,6 +60,8 @@ import static org.briarproject.bramble.util.PrivacyUtils.scrubInetAddress;
 import static org.briarproject.bramble.util.PrivacyUtils.scrubMacAddress;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
+@Immutable
+@NotNullByDefault
 class BriarReportCollector {
 
 	private final Context ctx;
@@ -66,9 +72,11 @@ class BriarReportCollector {
 
 	public ReportData collectReportData(@Nullable Throwable t,
 			long appStartTime) {
-		return new ReportData()
+		ReportData reportData = new ReportData()
 				.add(getBasicInfo(t))
-				.add(getDeviceInfo())
+				.add(getDeviceInfo());
+		if (t != null) reportData.add(getStacktrace(t));
+		return reportData
 				.add(getTimeInfo(appStartTime))
 				.add(getMemory())
 				.add(getStorage())
@@ -91,27 +99,18 @@ class BriarReportCollector {
 			versionCode = "?";
 		}
 		MultiReportInfo basicInfo = new MultiReportInfo()
-				.add("Package name", packageName)
-				.add("Version name", versionName)
-				.add("Version code", versionCode);
-		// print stacktrace of Throwable if this is not feedback
-		if (t != null) {
-			final Writer sw = new StringWriter();
-			final PrintWriter printWriter = new PrintWriter(sw);
-			if (!isNullOrEmpty(t.getMessage())) {
-				printWriter.println(t.getMessage());
-			}
-			t.printStackTrace(printWriter);
-			basicInfo.add("stracktrace", sw.toString());
-		}
+				.add("PackageName", packageName)
+				.add("VersionName", versionName)
+				.add("VersionCode", versionCode)
+				.add("isCrashReport", String.valueOf(t != null));
 		return new ReportItem("BasicInfo", R.string.dev_report_basic_info,
 				basicInfo, false);
 	}
 
 	private ReportItem getDeviceInfo() {
 		MultiReportInfo deviceInfo = new MultiReportInfo()
-				.add("Android version", Build.VERSION.RELEASE)
-				.add("Android SDK API", String.valueOf(SDK_INT))
+				.add("AndroidVersion", Build.VERSION.RELEASE)
+				.add("AndroidApi", String.valueOf(SDK_INT))
 				.add("Product", Build.PRODUCT)
 				.add("Model", Build.MODEL)
 				.add("Brand", Build.BRAND);
@@ -119,10 +118,24 @@ class BriarReportCollector {
 				deviceInfo);
 	}
 
+	private ReportItem getStacktrace(Throwable t) {
+		final Writer sw = new StringWriter();
+		final PrintWriter printWriter = new PrintWriter(sw);
+		if (!isNullOrEmpty(t.getMessage())) {
+			printWriter.println(t.getMessage());
+		}
+		t.printStackTrace(printWriter);
+		SingleReportInfo stacktrace = new SingleReportInfo(sw.toString());
+		return new ReportItem("Stacktrace", R.string.dev_report_stacktrace,
+				stacktrace);
+	}
+
 	private ReportItem getTimeInfo(long startTime) {
 		MultiReportInfo timeInfo = new MultiReportInfo()
-				.add("App start time", formatTime(startTime))
-				.add("Crash time", formatTime(System.currentTimeMillis()));
+				.add("ReportTime", formatTime(System.currentTimeMillis()));
+		if (startTime > -1) {
+			timeInfo.add("AppStartTime", formatTime(startTime));
+		}
 		return new ReportItem("DeviceInfo", R.string.dev_report_time_info,
 				timeInfo);
 	}
@@ -132,52 +145,58 @@ class BriarReportCollector {
 	}
 
 	private ReportItem getMemory() {
+		MultiReportInfo memInfo = new MultiReportInfo();
+
 		// System memory
 		ActivityManager am = getSystemService(ctx, ActivityManager.class);
 		ActivityManager.MemoryInfo mem = new ActivityManager.MemoryInfo();
 		requireNonNull(am).getMemoryInfo(mem);
-		String systemMemory;
-		systemMemory = (mem.totalMem / 1024 / 1024) + " MiB total, "
-				+ (mem.availMem / 1024 / 1204) + " MiB free, "
-				+ (mem.threshold / 1024 / 1024) + " MiB threshold";
+		String systemTotal = (mem.totalMem / 1024 / 1024) + " MiB";
+		String systemFree = (mem.availMem / 1024 / 1024) + " MiB";
+		String systemThreshold = (mem.threshold / 1024 / 1024) + " MiB";
+		memInfo.add("SystemMemoryTotal", systemTotal);
+		memInfo.add("SystemMemoryFree", systemFree);
+		memInfo.add("SystemMemoryThreshold", systemThreshold);
 
 		// Virtual machine memory
 		Runtime runtime = Runtime.getRuntime();
 		long heap = runtime.totalMemory();
 		long heapFree = runtime.freeMemory();
 		long heapMax = runtime.maxMemory();
-		String vmMemory = (heap / 1024 / 1024) + " MiB allocated, "
-				+ (heapFree / 1024 / 1024) + " MiB free, "
-				+ (heapMax / 1024 / 1024) + " MiB maximum";
+		String vmMemoryAllocated = (heap / 1024 / 1024) + " MiB";
+		String vmMemoryFree = (heapFree / 1024 / 1024) + " MiB";
+		String vmMemoryMax = (heapMax / 1024 / 1024) + " MiB";
+		memInfo.add("VirtualMachineMemoryAllocated", vmMemoryAllocated);
+		memInfo.add("VirtualMachineMemoryFree", vmMemoryFree);
+		memInfo.add("VirtualMachineMemoryMaximum", vmMemoryMax);
 
-		MultiReportInfo memInfo = new MultiReportInfo()
-				.add("System memory", systemMemory)
-				.add("Virtual machine memory", vmMemory);
 		return new ReportItem("Memory", R.string.dev_report_memory, memInfo);
 	}
 
 	private ReportItem getStorage() {
+		MultiReportInfo storageInfo = new MultiReportInfo();
+
 		// Internal storage
 		File root = Environment.getRootDirectory();
 		long rootTotal = root.getTotalSpace();
 		long rootFree = root.getFreeSpace();
-		String internal = (rootTotal / 1024 / 1024) + " MiB total, "
-				+ (rootFree / 1024 / 1024) + " MiB free";
+		storageInfo.add("InternalStorageTotal",
+				(rootTotal / 1024 / 1024) + " MiB");
+		storageInfo.add("InternalStorageFree",
+				(rootFree / 1024 / 1024) + " MiB");
 
 		// External storage (SD card)
 		File sd = Environment.getExternalStorageDirectory();
 		long sdTotal = sd.getTotalSpace();
 		long sdFree = sd.getFreeSpace();
-		String external = (sdTotal / 1024 / 1024) + " MiB total, "
-				+ (sdFree / 1024 / 1024) + " MiB free";
+		storageInfo.add("ExternalStorageTotal",
+				(sdTotal / 1024 / 1024) + " MiB");
+		storageInfo.add("ExternalStorageFree",
+				(sdFree / 1024 / 1024) + " MiB");
 
-		MultiReportInfo storageInfo = new MultiReportInfo()
-				.add("Internal storage", internal)
-				.add("External storage", external);
 		return new ReportItem("Storage", R.string.dev_report_storage,
 				storageInfo);
 	}
-
 
 	private ReportItem getConnectivity() {
 		MultiReportInfo connectivityInfo = new MultiReportInfo();
@@ -193,7 +212,6 @@ class BriarReportCollector {
 			Class<?> clazz = Class.forName(cm.getClass().getName());
 			Method method = clazz.getDeclaredMethod("getMobileDataEnabled");
 			method.setAccessible(true);
-			//noinspection ConstantConditions
 			mobileEnabled = (Boolean) method.invoke(cm);
 		} catch (ClassNotFoundException
 				| NoSuchMethodException
@@ -201,7 +219,7 @@ class BriarReportCollector {
 				| InvocationTargetException
 				| IllegalAccessException e) {
 			connectivityInfo
-					.add("Mobile data reflection exception", e.toString());
+					.add("MobileDataReflectionException", e.toString());
 		}
 		// Is mobile data connected ?
 		boolean mobileConnected = mobile != null && mobile.isConnected();
@@ -213,7 +231,7 @@ class BriarReportCollector {
 		else mobileStatus += "not enabled, ";
 		if (mobileConnected) mobileStatus += "connected";
 		else mobileStatus += "not connected";
-		connectivityInfo.add("Mobile data status", mobileStatus);
+		connectivityInfo.add("MobileDataStatus", mobileStatus);
 
 		// Is wifi available?
 		NetworkInfo wifi = cm.getNetworkInfo(TYPE_WIFI);
@@ -232,13 +250,13 @@ class BriarReportCollector {
 		else wifiStatus += "not enabled, ";
 		if (wifiConnected) wifiStatus += "connected";
 		else wifiStatus += "not connected";
-		connectivityInfo.add("Wi-Fi status", wifiStatus);
+		connectivityInfo.add("WiFiStatus", wifiStatus);
 
 		// Is wifi direct supported?
 		String wifiDirectStatus = "Supported";
 		if (ctx.getSystemService(WIFI_P2P_SERVICE) == null)
-			wifiDirectStatus = "Not supported";
-		connectivityInfo.add("Wi-Fi Direct", wifiDirectStatus);
+			wifiDirectStatus = "NotSupported";
+		connectivityInfo.add("WiFiDirect", wifiDirectStatus);
 
 		if (wm != null) {
 			WifiInfo wifiInfo = wm.getConnectionInfo();
@@ -252,7 +270,7 @@ class BriarReportCollector {
 				try {
 					InetAddress address = InetAddress.getByAddress(ipBytes);
 					connectivityInfo
-							.add("Wi-Fi address", scrubInetAddress(address));
+							.add("Wi-FiAddress", scrubInetAddress(address));
 				} catch (UnknownHostException ignored) {
 					// Should only be thrown if address has illegal length
 				}
@@ -262,7 +280,7 @@ class BriarReportCollector {
 		// Is Bluetooth available?
 		BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
 		if (bt == null) {
-			connectivityInfo.add("Bluetooth status", "Not available");
+			connectivityInfo.add("BluetoothStatus", "Not available");
 		} else {
 			// Is Bluetooth enabled?
 			@SuppressLint("HardwareIds")
@@ -283,7 +301,7 @@ class BriarReportCollector {
 			else btStatus += "not connectable, ";
 			if (btDiscoverable) btStatus += "discoverable";
 			else btStatus += "not discoverable";
-			connectivityInfo.add("Bluetooth status", btStatus);
+			connectivityInfo.add("BluetoothStatus", btStatus);
 
 			if (SDK_INT >= 21) {
 				// Is Bluetooth LE scanning and advertising supported?
@@ -295,14 +313,14 @@ class BriarReportCollector {
 				else btLeStatus = "No scanning, ";
 				if (btLeAdvertise) btLeStatus += "advertising";
 				else btLeStatus += "no advertising";
-				connectivityInfo.add("Bluetooth LE status", btLeStatus);
+				connectivityInfo.add("BluetoothLeStatus", btLeStatus);
 			}
 
 			Pair<String, String> p = getBluetoothAddressAndMethod(ctx, bt);
 			String address = p.getFirst();
 			String method = p.getSecond();
-			connectivityInfo.add("Bluetooth address", scrubMacAddress(address));
-			connectivityInfo.add("Bluetooth address method", method);
+			connectivityInfo.add("BluetoothAddress", scrubMacAddress(address));
+			connectivityInfo.add("BluetoothAddressMethod", method);
 		}
 		return new ReportItem("Connectivity", R.string.dev_report_connectivity,
 				connectivityInfo);

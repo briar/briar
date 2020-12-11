@@ -10,13 +10,10 @@ import android.widget.TextView;
 
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.BriarApplication;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.fragment.BaseFragment;
-
-import javax.inject.Inject;
+import org.briarproject.briar.android.util.UiUtils;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
@@ -40,9 +37,6 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 		f.setArguments(args);
 		return f;
 	}
-
-	@Inject
-	AndroidExecutor androidExecutor;
 
 	@Override
 	public String getUniqueTag() {
@@ -88,10 +82,8 @@ public class ContactExchangeErrorFragment extends BaseFragment {
 	}
 
 	private void triggerFeedback() {
-		BriarApplication app =
-				(BriarApplication) requireContext().getApplicationContext();
+		UiUtils.triggerFeedback(requireContext());
 		finish();
-		app.triggerFeedback();
 	}
 
 }
