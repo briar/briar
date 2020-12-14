@@ -2,6 +2,8 @@ package org.briarproject.briar.android.reporting;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Process;
 import android.widget.Toast;
 
@@ -104,8 +106,10 @@ public class CrashReportActivity extends BaseActivity
 			startActivity(i);
 			// crash reports run in their own process that we should kill now
 			// otherwise it keeps running and e.g. doesn't pick up theme changes
-			Process.killProcess(Process.myPid());
-			System.exit(10);
+			new Handler(Looper.getMainLooper()).postDelayed(() -> {
+				Process.killProcess(Process.myPid());
+				// kill the process with some delay to keep the Toast visible
+			}, 5000);
 		}
 		finish();
 	}
