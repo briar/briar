@@ -27,14 +27,13 @@ import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputLayout;
 
-import org.acra.ACRA;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.reporting.FeedbackActivity;
 import org.briarproject.briar.android.view.ArticleMovementMethod;
 import org.briarproject.briar.android.widget.LinkDialogFragment;
 
@@ -51,6 +50,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.content.ContextCompat;
 import androidx.core.hardware.fingerprint.FingerprintManagerCompat;
 import androidx.core.text.HtmlCompat;
+import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -92,6 +92,8 @@ import static java.util.Objects.requireNonNull;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static org.briarproject.briar.BuildConfig.APPLICATION_ID;
 import static org.briarproject.briar.android.TestingConstants.EXPIRY_DATE;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_APP_START_TIME;
+import static org.briarproject.briar.android.reporting.CrashReportActivity.EXTRA_THROWABLE;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
@@ -345,10 +347,18 @@ public class UiUtils {
 		return fm.hasEnrolledFingerprints() && fm.isHardwareDetected();
 	}
 
-	public static void triggerFeedback(AndroidExecutor androidExecutor) {
-		androidExecutor.runOnBackgroundThread(
-				() -> ACRA.getErrorReporter()
-						.handleException(new UserFeedback(), false));
+	public static void triggerFeedback(Context ctx) {
+		startDevReportActivity(ctx, FeedbackActivity.class, null, null);
+	}
+
+	public static void startDevReportActivity(Context ctx,
+			Class<? extends FragmentActivity> activity, @Nullable Throwable t,
+			@Nullable Long appStartTime) {
+		final Intent dialogIntent = new Intent(ctx, activity);
+		dialogIntent.setFlags(FLAG_ACTIVITY_NEW_TASK);
+		dialogIntent.putExtra(EXTRA_THROWABLE, t);
+		dialogIntent.putExtra(EXTRA_APP_START_TIME, appStartTime);
+		ctx.startActivity(dialogIntent);
 	}
 
 	public static boolean enterPressed(int actionId,

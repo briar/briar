@@ -8,13 +8,36 @@ import android.view.ViewGroup;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.activity.ActivityComponent;
+import org.briarproject.briar.android.fragment.BaseFragment;
+
+import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class CrashFragment extends Fragment {
+public class CrashFragment extends BaseFragment {
+
+	public final static String TAG = CrashFragment.class.getName();
+
+	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+
+	@Override
+	public void injectFragment(ActivityComponent component) {
+		component.inject(this);
+	}
+
+	private ReportViewModel viewModel;
+
+	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		viewModel = new ViewModelProvider(requireActivity(), viewModelFactory)
+				.get(ReportViewModel.class);
+	}
 
 	@Nullable
 	@Override
@@ -25,15 +48,16 @@ public class CrashFragment extends Fragment {
 				.inflate(R.layout.fragment_crash, container, false);
 
 		v.findViewById(R.id.acceptButton).setOnClickListener(view ->
-				getDevReportActivity().displayFragment(true));
+				viewModel.showReport());
 		v.findViewById(R.id.declineButton).setOnClickListener(view ->
-				getDevReportActivity().closeReport());
+				viewModel.closeReport());
 
 		return v;
 	}
 
-	private DevReportActivity getDevReportActivity() {
-		return (DevReportActivity) requireActivity();
+	@Override
+	public String getUniqueTag() {
+		return TAG;
 	}
 
 }

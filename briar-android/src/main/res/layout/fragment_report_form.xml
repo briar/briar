@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
@@ -79,19 +79,20 @@
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintTop_toBottomOf="@+id/user_email_layout" />
 
-		<LinearLayout
-			android:id="@+id/report_content"
+		<androidx.recyclerview.widget.RecyclerView
+			android:id="@+id/list"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:gravity="center_horizontal"
 			android:orientation="vertical"
 			android:paddingStart="@dimen/margin_large"
 			android:paddingTop="@dimen/margin_small"
 			android:paddingEnd="@dimen/margin_large"
-			android:paddingBottom="@dimen/listitem_height_one_line_avatar"
+			android:paddingBottom="@dimen/margin_large"
 			android:visibility="gone"
+			app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
 			app:layout_constraintStart_toStartOf="parent"
 			app:layout_constraintTop_toBottomOf="@id/include_debug_report"
+			tools:listitem="@layout/list_item_crash"
 			tools:visibility="visible" />
 
 		<ProgressBar
@@ -99,8 +100,7 @@
 			style="?android:attr/progressBarStyleLarge"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:indeterminate="true"
-			android:visibility="gone"
+			android:visibility="invisible"
 			app:layout_constraintBottom_toBottomOf="parent"
 			app:layout_constraintEnd_toEndOf="parent"
 			app:layout_constraintStart_toStartOf="parent"
@@ -109,4 +109,4 @@
 
 	</androidx.constraintlayout.widget.ConstraintLayout>
 
-</ScrollView>
+</androidx.core.widget.NestedScrollView>

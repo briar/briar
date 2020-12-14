@@ -26,7 +26,6 @@ import org.briarproject.bramble.api.plugin.TorConstants;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
-import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.LocationUtils;
 import org.briarproject.bramble.plugin.tor.CircumventionProvider;
 import org.briarproject.bramble.util.StringUtils;
@@ -72,6 +71,7 @@ import static android.provider.Settings.EXTRA_CHANNEL_ID;
 import static android.provider.Settings.System.DEFAULT_NOTIFICATION_URI;
 import static android.widget.Toast.LENGTH_SHORT;
 import static androidx.core.view.ViewCompat.LAYOUT_DIRECTION_LTR;
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.api.plugin.Plugin.PREF_PLUGIN_ENABLE;
@@ -166,9 +166,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 	@Inject
 	CircumventionProvider circumventionProvider;
 
-	@Inject
-	AndroidExecutor androidExecutor;
-
 	@Override
 	public void onAttach(Context context) {
 		super.onAttach(context);
@@ -226,11 +223,12 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		screenLock.setOnPreferenceChangeListener(this);
 		screenLockTimeout.setOnPreferenceChangeListener(this);
 
-		findPreference("pref_key_send_feedback").setOnPreferenceClickListener(
-				preference -> {
-					triggerFeedback(androidExecutor);
-					return true;
-				});
+		Preference prefFeedback =
+				requireNonNull(findPreference("pref_key_send_feedback"));
+		prefFeedback.setOnPreferenceClickListener(preference -> {
+			triggerFeedback(requireContext());
+			return true;
+		});
 
 		if (SDK_INT < 27) {
 			// remove System Default Theme option from preference entries
@@ -245,17 +243,15 @@ public class SettingsFragment extends PreferenceFragmentCompat
 			values.remove(getString(R.string.pref_theme_system_value));
 			theme.setEntryValues(values.toArray(new CharSequence[0]));
 		}
+		Preference explode = requireNonNull(findPreference("pref_key_explode"));
 		if (IS_DEBUG_BUILD) {
-			findPreference("pref_key_explode").setOnPreferenceClickListener(
-					preference -> {
-						throw new RuntimeException("Boom!");
-					}
-			);
+			explode.setOnPreferenceClickListener(preference -> {
+				throw new RuntimeException("Boom!");
+			});
 		} else {
-			findPreference("pref_key_explode").setVisible(false);
+			explode.setVisible(false);
 			findPreference("pref_key_test_data").setVisible(false);
-			PreferenceGroup testing =
-					findPreference("pref_key_explode").getParent();
+			PreferenceGroup testing = explode.getParent();
 			if (testing == null) throw new AssertionError();
 			testing.setVisible(false);
 		}
