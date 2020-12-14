@@ -39,9 +39,11 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
+import static android.os.Build.VERSION.SDK_INT;
 import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 import static android.view.WindowManager.LayoutParams.FLAG_SECURE;
 import static androidx.lifecycle.Lifecycle.State.STARTED;
+import static java.util.Collections.emptyList;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.briar.android.TestingConstants.PREVENT_SCREENSHOTS;
@@ -201,9 +203,15 @@ public abstract class BaseActivity extends AppCompatActivity
 		// If the dialog is already visible, filter the tap
 		ScreenFilterDialogFragment f = findDialogFragment();
 		if (f != null && f.isVisible()) return false;
-		Collection<AppDetails> apps = screenFilterMonitor.getApps();
-		// If all overlay apps have been allowed, allow the tap
-		if (apps.isEmpty()) return true;
+		Collection<AppDetails> apps;
+		// querying all apps is only possible at API 29 and below
+		if (SDK_INT <= 29) {
+			apps = screenFilterMonitor.getApps();
+			// If all overlay apps have been allowed, allow the tap
+			if (apps.isEmpty()) return true;
+		} else {
+			apps = emptyList();
+		}
 		// Show dialog unless onSaveInstanceState() has been called, see #1112
 		FragmentManager fm = getSupportFragmentManager();
 		if (!fm.isStateSaved()) {
@@ -265,7 +273,12 @@ public abstract class BaseActivity extends AppCompatActivity
 	private void protectToolbar() {
 		findToolbar();
 		if (toolbar != null) {
-			boolean filter = !screenFilterMonitor.getApps().isEmpty();
+			boolean filter;
+			if (SDK_INT <= 29) {
+				filter = !screenFilterMonitor.getApps().isEmpty();
+			} else {
+				filter = true;
+			}
 			UiUtils.setFilterTouchesWhenObscured(toolbar, filter);
 		}
 	}

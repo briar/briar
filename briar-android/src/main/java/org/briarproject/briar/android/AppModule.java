@@ -198,7 +198,10 @@ public class AppModule {
 	ScreenFilterMonitor provideScreenFilterMonitor(
 			LifecycleManager lifecycleManager,
 			ScreenFilterMonitorImpl screenFilterMonitor) {
-		lifecycleManager.registerService(screenFilterMonitor);
+		if (SDK_INT <= 29) {
+			// this keeps track of installed apps and does not work on API 30+
+			lifecycleManager.registerService(screenFilterMonitor);
+		}
 		return screenFilterMonitor;
 	}
 
