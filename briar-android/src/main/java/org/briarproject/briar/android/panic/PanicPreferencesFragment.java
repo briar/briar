@@ -82,6 +82,7 @@ public class PanicPreferencesFragment extends PreferenceFragmentCompat
 		entries.add(0, getString(R.string.panic_app_setting_none));
 		entryValues.add(0, PACKAGE_NAME_NONE);
 
+		// only info.guardianproject.ripple is whitelisted in manifest
 		for (ResolveInfo resolveInfo : PanicResponder.resolveTriggerApps(pm)) {
 			if (resolveInfo.activityInfo == null)
 				continue;

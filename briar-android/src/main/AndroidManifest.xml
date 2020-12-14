@@ -443,4 +443,27 @@
 			android:theme="@style/BriarTheme" />
 
 	</application>
+
+	<queries>
+		<package android:name="info.guardianproject.ripple" />
+		<package android:name="com.huawei.systemmanager" />
+
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="https" />
+		</intent>
+		<intent>
+			<action android:name="android.intent.action.VIEW" />
+			<data android:scheme="http" />
+		</intent>
+		<!-- white-listing the intents below does not seem necessary,
+		but they are still included in case modified Android versions require it -->
+		<intent>
+			<action android:name="android.bluetooth.adapter.action.REQUEST_DISCOVERABLE" />
+		</intent>
+		<intent>
+			<action android:name="android.settings.CHANNEL_NOTIFICATION_SETTINGS" />
+		</intent>
+	</queries>
+
 </manifest>
