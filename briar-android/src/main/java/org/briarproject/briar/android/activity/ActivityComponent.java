@@ -29,6 +29,7 @@ import org.briarproject.briar.android.contact.add.remote.PendingContactListActiv
 import org.briarproject.briar.android.conversation.AliasDialogFragment;
 import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.conversation.ConversationSettingsActivity;
+import org.briarproject.briar.android.conversation.ConversationSettingsFragment;
 import org.briarproject.briar.android.conversation.ImageActivity;
 import org.briarproject.briar.android.conversation.ImageFragment;
 import org.briarproject.briar.android.forum.CreateForumActivity;
@@ -236,5 +237,7 @@ public interface ActivityComponent {
 	void inject(AliasDialogFragment aliasDialogFragment);
 
 	void inject(ImageFragment imageFragment);
+
+	void inject(ConversationSettingsFragment conversationSettingsFragment);
 
 }
