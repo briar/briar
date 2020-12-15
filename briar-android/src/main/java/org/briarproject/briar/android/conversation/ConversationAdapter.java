@@ -112,40 +112,36 @@ class ConversationAdapter
 	public void add(ConversationItem item) {
 		items.beginBatchedUpdates();
 		items.add(item);
-		updateTimersInBatch(true);
+		updateTimersInBatch();
 		items.endBatchedUpdates();
 	}
 
 	@Override
 	public void addAll(Collection<ConversationItem> itemsToAdd) {
 		items.beginBatchedUpdates();
+		// there can be items already in the adapter
+		// SortedList takes care of duplicates and detecting changed items
 		items.addAll(itemsToAdd);
-		updateTimersInBatch(false);
+		updateTimersInBatch();
 		items.endBatchedUpdates();
 	}
 
-	private void updateTimersInBatch(boolean updateItems) {
+	private void updateTimersInBatch() {
 		long lastTimerIncoming = NO_AUTO_DELETE_TIMER;
 		long lastTimerOutgoing = NO_AUTO_DELETE_TIMER;
 		for (int i = 0; i < items.size(); i++) {
 			ConversationItem c = items.get(i);
 			boolean itemChanged;
 			boolean timerChanged;
-			boolean timerMirrored;
 			if (c.isIncoming()) {
 				timerChanged = lastTimerIncoming != c.getAutoDeleteTimer();
-				timerMirrored = timerChanged &&
-						lastTimerOutgoing == c.getAutoDeleteTimer();
 				lastTimerIncoming = c.getAutoDeleteTimer();
 			} else {
 				timerChanged = lastTimerOutgoing != c.getAutoDeleteTimer();
-				timerMirrored = timerChanged &&
-						lastTimerIncoming == c.getAutoDeleteTimer();
 				lastTimerOutgoing = c.getAutoDeleteTimer();
 			}
 			itemChanged = c.setTimerNoticeVisible(timerChanged);
-			itemChanged |= c.setTimerMirrored(timerMirrored);
-			if (itemChanged && updateItems) items.updateItemAt(i, c);
+			if (itemChanged) items.updateItemAt(i, c);
 		}
 	}
 

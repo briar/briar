@@ -26,7 +26,7 @@ abstract class ConversationItem {
 	private final long time, autoDeleteTimer;
 	private final boolean isIncoming;
 	private final LiveData<String> contactName;
-	private boolean read, sent, seen, showTimerNotice, timerMirrored;
+	private boolean read, sent, seen, showTimerNotice;
 
 	ConversationItem(@LayoutRes int layoutRes, ConversationMessageHeader h,
 			LiveData<String> contactName) {
@@ -42,7 +42,6 @@ abstract class ConversationItem {
 		this.isIncoming = !h.isLocal();
 		this.contactName = contactName;
 		this.showTimerNotice = false;
-		this.timerMirrored = false;
 	}
 
 	@LayoutRes
@@ -142,24 +141,5 @@ abstract class ConversationItem {
 
 	boolean isTimerNoticeVisible() {
 		return showTimerNotice;
-	}
-
-	/**
-	 * Set this to true when {@link #getAutoDeleteTimer()} has changed
-	 * to the same timer of the last message
-	 * from the other peer in this conversation.
-	 *
-	 * @return true if the value was set, false if it was already set.
-	 */
-	public boolean setTimerMirrored(boolean timerMirrored) {
-		if (this.timerMirrored != timerMirrored) {
-			this.timerMirrored = timerMirrored;
-			return true;
-		}
-		return false;
-	}
-
-	public boolean wasTimerMirrored() {
-		return timerMirrored;
 	}
 }
