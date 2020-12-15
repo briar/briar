@@ -84,28 +84,14 @@ abstract class ConversationItemViewHolder extends ViewHolder {
 			String text;
 			if (item.isIncoming()) {
 				String name = item.getContactName().getValue();
-				if (item.wasTimerMirrored()) {
-					int strRes = enabled ?
-							R.string.auto_delete_msg_contact_enabled_mirrored :
-							R.string.auto_delete_msg_contact_disabled_mirrored;
-					text = ctx.getString(strRes, name);
-				} else {
-					int strRes = enabled ?
-							R.string.auto_delete_msg_contact_enabled :
-							R.string.auto_delete_msg_contact_disabled;
-					text = ctx.getString(strRes, name, name);
-				}
+				int strRes = enabled ?
+						R.string.auto_delete_msg_contact_enabled :
+						R.string.auto_delete_msg_contact_disabled;
+				text = ctx.getString(strRes, name);
 			} else {
-				int strRes;
-				if (item.wasTimerMirrored()) {
-					strRes = enabled ?
-							R.string.auto_delete_msg_you_enabled_mirrored :
-							R.string.auto_delete_msg_you_disabled_mirrored;
-				} else {
-					strRes = enabled ?
-							R.string.auto_delete_msg_you_enabled :
-							R.string.auto_delete_msg_you_disabled;
-				}
+				int strRes = enabled ?
+						R.string.auto_delete_msg_you_enabled :
+						R.string.auto_delete_msg_you_disabled;
 				text = ctx.getString(strRes);
 			}
 			topNotice.setText(text);
