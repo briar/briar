@@ -5,11 +5,15 @@ import org.briarproject.bramble.api.client.ContactGroupFactory;
 import org.briarproject.bramble.api.contact.Contact;
 import org.briarproject.bramble.api.data.BdfDictionary;
 import org.briarproject.bramble.api.data.BdfEntry;
+import org.briarproject.bramble.api.db.CommitAction;
 import org.briarproject.bramble.api.db.DatabaseComponent;
+import org.briarproject.bramble.api.db.EventAction;
 import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.bramble.test.BrambleMockTestCase;
+import org.briarproject.briar.api.autodelete.event.AutoDeleteTimerMirroredEvent;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -27,6 +31,7 @@ import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_TI
 import static org.briarproject.briar.autodelete.AutoDeleteConstants.GROUP_KEY_TIMESTAMP;
 import static org.briarproject.briar.autodelete.AutoDeleteConstants.NO_PREVIOUS_TIMER;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 @SuppressWarnings("UnnecessaryLocalVariable") // Using them for readability
 public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
@@ -241,6 +246,9 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 
 		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
 				remoteTimer, remoteTimestamp);
+
+		// no events broadcast
+		assertTrue(txn.getActions().isEmpty());
 	}
 
 	@Test
@@ -270,6 +278,9 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 
 		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
 				remoteTimer, remoteTimestamp);
+
+		// assert that event is broadcast with new timer
+		assertEvent(txn, remoteTimer);
 	}
 
 	@Test
@@ -299,6 +310,9 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 
 		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
 				remoteTimer, remoteTimestamp);
+
+		// no events broadcast
+		assertTrue(txn.getActions().isEmpty());
 	}
 
 	@Test
@@ -332,6 +346,9 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 
 		autoDeleteManager.receiveAutoDeleteTimer(txn, contact.getId(),
 				newRemoteTimer, remoteTimestamp);
+
+		// assert that event is broadcast with new timer
+		assertEvent(txn, newRemoteTimer);
 	}
 
 	private void expectGetContact(Transaction txn) throws Exception {
@@ -347,5 +364,16 @@ public class AutoDeleteManagerImplTest extends BrambleMockTestCase {
 					contact.getAuthor().getId().getBytes());
 			will(returnValue(contactGroup));
 		}});
+	}
+
+	private void assertEvent(Transaction txn, long timer) {
+		assertEquals(1, txn.getActions().size());
+		CommitAction action = txn.getActions().get(0);
+		assertTrue(action instanceof EventAction);
+		Event event = ((EventAction) action).getEvent();
+		assertTrue(event instanceof AutoDeleteTimerMirroredEvent);
+		AutoDeleteTimerMirroredEvent e = (AutoDeleteTimerMirroredEvent) event;
+		assertEquals(contact.getId(), e.getContactId());
+		assertEquals(timer, e.getNewTimer());
 	}
 }
