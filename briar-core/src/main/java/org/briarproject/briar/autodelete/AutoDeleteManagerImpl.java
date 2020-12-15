@@ -16,6 +16,7 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.Group;
 import org.briarproject.bramble.api.sync.GroupFactory;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
+import org.briarproject.briar.api.autodelete.event.AutoDeleteTimerMirroredEvent;
 
 import java.util.logging.Logger;
 
@@ -155,6 +156,7 @@ class AutoDeleteManagerImpl
 					LOG.info("Mirroring auto-delete timer " + timer);
 				}
 				meta.put(GROUP_KEY_TIMER, timer);
+				txn.attach(new AutoDeleteTimerMirroredEvent(c, timer));
 			} else if (timer != oldTimer) {
 				// Their sent change trumps our unsent change. Mirror their
 				// timer and clear the previous timer to drop our unsent change
@@ -164,6 +166,7 @@ class AutoDeleteManagerImpl
 				}
 				meta.put(GROUP_KEY_TIMER, timer);
 				meta.put(GROUP_KEY_PREVIOUS_TIMER, NO_PREVIOUS_TIMER);
+				txn.attach(new AutoDeleteTimerMirroredEvent(c, timer));
 			}
 			// Always update the timestamp
 			meta.put(GROUP_KEY_TIMESTAMP, timestamp);
