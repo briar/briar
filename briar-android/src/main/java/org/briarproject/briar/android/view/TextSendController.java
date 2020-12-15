@@ -7,6 +7,7 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.view.EmojiTextInputView.TextInputListener;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
@@ -60,15 +61,26 @@ public class TextSendController implements TextInputListener {
 		updateViewState();
 	}
 
+	/**
+	 * Sets the current auto delete timer and updates the UI accordingly.
+	 * <p>
+	 * Attention: Works only in {@link ConversationActivity}.
+	 */
 	public void setAutoDeleteTimer(long timer) {
+		// this will need to be adapted when other screens
+		// besides the private conversation use auto delete timers
+		CompositeSendButton sendButton =
+				(CompositeSendButton) compositeSendButton;
 		// update hint
 		if (timer == NO_AUTO_DELETE_TIMER) {
 			textInput.setHint(defaultHint);
+			sendButton.setBombVisible(false);
 		} else {
 			// this might need to be adapted when other screens
 			// besides the private conversation use auto delete timers
 			defaultHint = textInput.getHint();
 			textInput.setHint(R.string.message_hint_auto_delete);
+			sendButton.setBombVisible(true);
 		}
 	}
 
