@@ -37,6 +37,19 @@
 		app:srcCompat="@drawable/social_send_now_white"
 		app:tint="@color/briar_accent" />
 
+	<ImageView
+		android:id="@+id/bombBadge"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end|bottom"
+		android:layout_margin="1dp"
+		android:background="@drawable/bomb_badge"
+		android:contentDescription="@string/auto_delete_msg_contact_enabled"
+		android:visibility="invisible"
+		app:srcCompat="@drawable/ic_bomb"
+		app:tint="@color/color_primary"
+		tools:visibility="visible" />
+
 	<ProgressBar
 		android:id="@+id/progressBar"
 		android:layout_width="@dimen/text_input_height"

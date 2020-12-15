@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import org.briarproject.briar.R;
@@ -19,9 +20,10 @@ import static java.util.Objects.requireNonNull;
 public class CompositeSendButton extends FrameLayout {
 
 	private final AppCompatImageButton sendButton, imageButton;
+	private final ImageView bombBadge;
 	private final ProgressBar progressBar;
 
-	private boolean hasImageSupport = false;
+	private boolean hasImageSupport = false, bombVisible = false;
 
 	public CompositeSendButton(@NonNull Context context,
 			@Nullable AttributeSet attrs) {
@@ -32,6 +34,7 @@ public class CompositeSendButton extends FrameLayout {
 
 		sendButton = findViewById(R.id.sendButton);
 		imageButton = findViewById(R.id.imageButton);
+		bombBadge = findViewById(R.id.bombBadge);
 		progressBar = findViewById(R.id.progressBar);
 	}
 
@@ -71,6 +74,11 @@ public class CompositeSendButton extends FrameLayout {
 		return hasImageSupport;
 	}
 
+	public void setBombVisible(boolean visible) {
+		bombVisible = visible;
+		bombBadge.setVisibility(visible ? VISIBLE : INVISIBLE);
+	}
+
 	public void showImageButton(boolean showImageButton, boolean sendEnabled) {
 		if (showImageButton) {
 			imageButton.setVisibility(VISIBLE);
@@ -78,6 +86,7 @@ public class CompositeSendButton extends FrameLayout {
 			sendButton.clearAnimation();
 			sendButton.animate().alpha(0f).withEndAction(() -> {
 				sendButton.setVisibility(INVISIBLE);
+				bombBadge.setVisibility(INVISIBLE);
 				imageButton.setEnabled(true);
 			}).start();
 			imageButton.clearAnimation();
@@ -88,7 +97,9 @@ public class CompositeSendButton extends FrameLayout {
 			sendButton.setEnabled(sendEnabled);
 			imageButton.setEnabled(false);
 			sendButton.clearAnimation();
-			sendButton.animate().alpha(1f).start();
+			sendButton.animate().alpha(1f).withEndAction(() -> {
+				if (bombVisible) bombBadge.setVisibility(VISIBLE);
+			}).start();
 			imageButton.clearAnimation();
 			imageButton.animate().alpha(0f).withEndAction(() ->
 					imageButton.setVisibility(INVISIBLE)
