@@ -157,7 +157,8 @@
 	<string name="no_contacts_action">Tap the + icon to add a contact</string>
 	<string name="date_no_private_messages">No messages.</string>
 	<string name="no_private_messages">No messages to show</string>
-	<string name="message_hint">Type message</string>
+	<string name="message_hint">New message</string>
+	<string name="message_hint_auto_delete">New disappearing message</string>
 	<string name="image_caption_hint">Add a caption (optional)</string>
 	<string name="image_attach">Attach image</string>
 	<string name="image_attach_error">Could not attach image(s)</string>
