@@ -1,5 +1,6 @@
 package org.briarproject.briar.android.view;
 
+import android.content.Context;
 import android.os.Parcelable;
 import android.view.View;
 
@@ -7,12 +8,12 @@ import com.google.android.material.snackbar.Snackbar;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.conversation.ConversationActivity;
 import org.briarproject.briar.android.view.EmojiTextInputView.TextInputListener;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
 
+import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
 
@@ -28,10 +29,12 @@ public class TextSendController implements TextInputListener {
 	protected final View compositeSendButton;
 	protected final SendListener listener;
 
-	protected boolean ready = true, textIsEmpty = true;
+	protected boolean textIsEmpty = true;
+	private boolean ready = true;
+	private long currentTimer = NO_AUTO_DELETE_TIMER;
 
+	private final CharSequence defaultHint;
 	private final boolean allowEmptyText;
-	private CharSequence defaultHint;
 
 	public TextSendController(TextInputView v, SendListener listener,
 			boolean allowEmptyText) {
@@ -63,31 +66,43 @@ public class TextSendController implements TextInputListener {
 
 	/**
 	 * Sets the current auto delete timer and updates the UI accordingly.
-	 * <p>
-	 * Attention: Works only in {@link ConversationActivity}.
 	 */
 	public void setAutoDeleteTimer(long timer) {
-		// this will need to be adapted when other screens
-		// besides the private conversation use auto delete timers
-		CompositeSendButton sendButton =
-				(CompositeSendButton) compositeSendButton;
-		// update hint
-		if (timer == NO_AUTO_DELETE_TIMER) {
-			textInput.setHint(defaultHint);
-			sendButton.setBombVisible(false);
-		} else {
-			// this might need to be adapted when other screens
-			// besides the private conversation use auto delete timers
-			defaultHint = textInput.getHint();
-			textInput.setHint(R.string.message_hint_auto_delete);
-			sendButton.setBombVisible(true);
+		currentTimer = timer;
+		updateViewState();
+	}
+
+	@CallSuper
+	protected void updateViewState() {
+		textInput.setEnabled(isTextInputEnabled());
+		textInput.setHint(getCurrentTextHint());
+		compositeSendButton.setEnabled(isSendButtonEnabled());
+		if (compositeSendButton instanceof CompositeSendButton) {
+			CompositeSendButton sendButton =
+					(CompositeSendButton) compositeSendButton;
+			sendButton.setBombVisible(isBombVisible());
 		}
 	}
 
-	protected void updateViewState() {
-		textInput.setEnabled(ready);
-		compositeSendButton
-				.setEnabled(ready && (!textIsEmpty || canSendEmptyText()));
+	protected boolean isTextInputEnabled() {
+		return ready;
+	}
+
+	protected boolean isSendButtonEnabled() {
+		return ready && (!textIsEmpty || canSendEmptyText());
+	}
+
+	protected boolean isBombVisible() {
+		return currentTimer != NO_AUTO_DELETE_TIMER;
+	}
+
+	protected CharSequence getCurrentTextHint() {
+		if (currentTimer == NO_AUTO_DELETE_TIMER) {
+			return defaultHint;
+		} else {
+			Context ctx = textInput.getContext();
+			return ctx.getString(R.string.message_hint_auto_delete);
+		}
 	}
 
 	protected final boolean canSend() {
