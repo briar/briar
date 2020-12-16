@@ -42,12 +42,11 @@
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:layout_gravity="end|bottom"
-		android:layout_margin="1dp"
-		android:background="@drawable/bomb_badge"
+		android:layout_margin="3dp"
 		android:contentDescription="@string/auto_delete_msg_contact_enabled"
 		android:visibility="invisible"
 		app:srcCompat="@drawable/ic_bomb"
-		app:tint="@color/color_primary"
+		app:tint="@color/briar_accent"
 		tools:visibility="visible" />
 
 	<ProgressBar
