@@ -23,7 +23,7 @@ public class CompositeSendButton extends FrameLayout {
 	private final ImageView bombBadge;
 	private final ProgressBar progressBar;
 
-	private boolean hasImageSupport = false, bombVisible = false;
+	private boolean hasImageSupport = false;
 
 	public CompositeSendButton(@NonNull Context context,
 			@Nullable AttributeSet attrs) {
@@ -75,7 +75,6 @@ public class CompositeSendButton extends FrameLayout {
 	}
 
 	public void setBombVisible(boolean visible) {
-		bombVisible = visible;
 		bombBadge.setVisibility(visible ? VISIBLE : INVISIBLE);
 	}
 
@@ -86,7 +85,6 @@ public class CompositeSendButton extends FrameLayout {
 			sendButton.clearAnimation();
 			sendButton.animate().alpha(0f).withEndAction(() -> {
 				sendButton.setVisibility(INVISIBLE);
-				bombBadge.setVisibility(INVISIBLE);
 				imageButton.setEnabled(true);
 			}).start();
 			imageButton.clearAnimation();
@@ -97,9 +95,7 @@ public class CompositeSendButton extends FrameLayout {
 			sendButton.setEnabled(sendEnabled);
 			imageButton.setEnabled(false);
 			sendButton.clearAnimation();
-			sendButton.animate().alpha(1f).withEndAction(() -> {
-				if (bombVisible) bombBadge.setVisibility(VISIBLE);
-			}).start();
+			sendButton.animate().alpha(1f).start();
 			imageButton.clearAnimation();
 			imageButton.animate().alpha(0f).withEndAction(() ->
 					imageButton.setVisibility(INVISIBLE)
