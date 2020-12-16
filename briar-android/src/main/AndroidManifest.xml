@@ -65,7 +65,7 @@
 
 		<service
 			android:name="org.briarproject.briar.android.NotificationCleanupService"
-			android:exported="false"></service>
+			android:exported="false" />
 
 		<activity
 			android:name="org.briarproject.briar.android.reporting.CrashReportActivity"
@@ -77,25 +77,31 @@
 			android:process=":briar_error_handler"
 			android:theme="@style/BriarTheme.NoActionBar"
 			android:windowSoftInputMode="adjustResize|stateHidden" />
+
 		<activity
 			android:name="org.briarproject.briar.android.reporting.FeedbackActivity"
 			android:exported="false"
 			android:label="@string/feedback_title"
+			android:parentActivityName="org.briarproject.briar.android.settings.SettingsActivity"
 			android:theme="@style/BriarTheme.NoActionBar"
-			android:windowSoftInputMode="adjustResize|stateHidden" />
+			android:windowSoftInputMode="adjustResize|stateHidden">
+			<meta-data
+				android:name="android.support.PARENT_ACTIVITY"
+				android:value="org.briarproject.briar.android.settings.SettingsActivity" />
+		</activity>
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.ExpiredActivity"
-			android:label="@string/app_name"></activity>
+			android:label="@string/app_name" />
 
 		<activity
 			android:name="org.briarproject.briar.android.login.StartupActivity"
-			android:label="@string/app_name"></activity>
+			android:label="@string/app_name" />
 
 		<activity
 			android:name="org.briarproject.briar.android.account.SetupActivity"
 			android:label="@string/setup_title"
-			android:windowSoftInputMode="adjustResize|stateAlwaysVisible"></activity>
+			android:windowSoftInputMode="adjustResize|stateAlwaysVisible" />
 
 		<activity
 			android:name="org.briarproject.briar.android.splash.SplashScreenActivity"
@@ -353,7 +359,7 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.StartupFailureActivity"
-			android:label="@string/startup_failed_activity_title"></activity>
+			android:label="@string/startup_failed_activity_title" />
 
 		<activity
 			android:name="org.briarproject.briar.android.settings.SettingsActivity"
@@ -419,11 +425,11 @@
 
 		<activity
 			android:name="org.briarproject.briar.android.logout.ExitActivity"
-			android:theme="@android:style/Theme.NoDisplay"></activity>
+			android:theme="@android:style/Theme.NoDisplay" />
 
 		<activity
 			android:name=".android.logout.HideUiActivity"
-			android:theme="@android:style/Theme.NoDisplay"></activity>
+			android:theme="@android:style/Theme.NoDisplay" />
 
 		<activity
 			android:name=".android.account.UnlockActivity"
