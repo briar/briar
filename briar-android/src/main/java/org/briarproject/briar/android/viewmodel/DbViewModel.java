@@ -1,4 +1,6 @@
-package org.briarproject.briar.android.controller;
+package org.briarproject.briar.android.viewmodel;
+
+import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
@@ -8,27 +10,31 @@ import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
 import javax.annotation.concurrent.Immutable;
-import javax.inject.Inject;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.AndroidViewModel;
+
+import static java.util.logging.Logger.getLogger;
 
 @Immutable
-@Deprecated
 @NotNullByDefault
-public class DbControllerImpl implements DbController {
+public abstract class DbViewModel extends AndroidViewModel {
 
-	private static final Logger LOG =
-			Logger.getLogger(DbControllerImpl.class.getName());
+	private static final Logger LOG = getLogger(DbViewModel.class.getName());
 
-	protected final Executor dbExecutor;
+	@DatabaseExecutor
+	private final Executor dbExecutor;
 	private final LifecycleManager lifecycleManager;
 
-	@Inject
-	public DbControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	public DbViewModel(
+			@NonNull Application application,
+			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager) {
+		super(application);
 		this.dbExecutor = dbExecutor;
 		this.lifecycleManager = lifecycleManager;
 	}
 
-	@Override
 	public void runOnDbThread(Runnable task) {
 		dbExecutor.execute(() -> {
 			try {
@@ -40,4 +46,5 @@ public class DbControllerImpl implements DbController {
 			}
 		});
 	}
+
 }

@@ -98,7 +98,6 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.selection.Selection;
 import androidx.recyclerview.selection.SelectionPredicates;
 import androidx.recyclerview.selection.SelectionTracker;
@@ -224,8 +223,9 @@ public class ConversationActivity extends BriarActivity
 		if (id == -1) throw new IllegalStateException();
 		contactId = new ContactId(id);
 
-		viewModel = ViewModelProviders.of(this, viewModelFactory)
+		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(ConversationViewModel.class);
+		viewModel.setContactId(contactId);
 		attachmentRetriever = viewModel.getAttachmentRetriever();
 
 		setContentView(R.layout.activity_conversation);
@@ -328,16 +328,6 @@ public class ConversationActivity extends BriarActivity
 		displayContactOnlineStatus();
 		viewModel.getContactDisplayName().observe(this, contactNameObserver);
 		list.startPeriodicUpdate();
-	}
-
-	@Override
-	public void onResume() {
-		super.onResume();
-		// Trigger loading of contact data, noop if data was loaded already.
-		//
-		// We can only start loading data *after* we are sure
-		// the user has signed in. After sign-in, onCreate() isn't run again.
-		if (signedIn()) viewModel.setContactId(contactId);
 	}
 
 	@Override

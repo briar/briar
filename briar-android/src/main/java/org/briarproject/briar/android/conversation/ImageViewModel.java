@@ -11,9 +11,11 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.lifecycle.IoExecutor;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.attachment.AttachmentItem;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.messaging.Attachment;
@@ -37,7 +39,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.lifecycle.AndroidViewModel;
 
 import static android.media.MediaScannerConnection.scanFile;
 import static android.os.Environment.DIRECTORY_PICTURES;
@@ -49,20 +50,18 @@ import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-public class ImageViewModel extends AndroidViewModel implements EventListener {
+public class ImageViewModel extends DbViewModel implements EventListener {
 
-	private static Logger LOG = getLogger(ImageViewModel.class.getName());
+	private static final Logger LOG = getLogger(ImageViewModel.class.getName());
 
 	private final MessagingManager messagingManager;
 	private final EventBus eventBus;
-	@DatabaseExecutor
-	private final Executor dbExecutor;
 	@IoExecutor
 	private final Executor ioExecutor;
 
 	private boolean receivedAttachmentsInitialized = false;
-	private HashMap<MessageId, MutableLiveEvent<Boolean>> receivedAttachments =
-			new HashMap<>();
+	private final HashMap<MessageId, MutableLiveEvent<Boolean>>
+			receivedAttachments = new HashMap<>();
 
 	/**
 	 * true means there was an error saving the image, false if image was saved.
@@ -75,13 +74,14 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 
 	@Inject
 	ImageViewModel(Application application,
-			MessagingManager messagingManager, EventBus eventBus,
+			MessagingManager messagingManager,
+			EventBus eventBus,
 			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
 			@IoExecutor Executor ioExecutor) {
-		super(application);
+		super(application, dbExecutor, lifecycleManager);
 		this.messagingManager = messagingManager;
 		this.eventBus = eventBus;
-		this.dbExecutor = dbExecutor;
 		this.ioExecutor = ioExecutor;
 
 		eventBus.addListener(this);
@@ -195,7 +195,7 @@ public class ImageViewModel extends AndroidViewModel implements EventListener {
 
 	private void saveImage(AttachmentItem attachment, OutputStreamProvider osp,
 			@Nullable Runnable afterCopy) {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				Attachment a =
 						messagingManager.getAttachment(attachment.getHeader());
