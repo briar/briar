@@ -548,10 +548,9 @@
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
 
 	<!-- Conversation Settings -->
-	<string name="disappearing_messages_title">Disappearing messages</string>
-	<string name="disappearing_messages_summary">Define a timeout after which messages self-destruct</string>
-	<string name="disappearing_messages_timeout_title">Self-destruct Timeout</string>
-	<string name="disappearing_messages_timeout_summary">7 days</string>
+	<string name="disappearing_messages_cat_title">Disappearing messages</string>
+	<string name="disappearing_messages_title">Let messages disappear automatically</string>
+	<string name="disappearing_messages_summary">Messages in this conversation will automatically disappear 7 days after being received. This applies both to messages you send to your contact as well as messages your contact sends to you.</string>
 
 	<!-- Settings Feedback -->
 	<string name="feedback_settings_title">Feedback</string>

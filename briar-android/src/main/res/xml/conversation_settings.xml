@@ -2,11 +2,17 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<SwitchPreference
-		android:defaultValue="true"
-		android:key="pref_key_disappearing_messages"
-		android:summary="@string/disappearing_messages_summary"
-		android:title="@string/disappearing_messages_title"
-		app:iconSpaceReserved="false" />
+	<PreferenceCategory
+		android:layout="@layout/preferences_category"
+		android:title="@string/disappearing_messages_cat_title">
+
+		<SwitchPreference
+			android:defaultValue="true"
+			android:key="pref_key_disappearing_messages"
+			android:summary="@string/disappearing_messages_summary"
+			android:title="@string/disappearing_messages_title"
+			app:iconSpaceReserved="false" />
+
+	</PreferenceCategory>
 
 </PreferenceScreen>
