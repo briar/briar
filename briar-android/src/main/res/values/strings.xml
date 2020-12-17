@@ -165,8 +165,7 @@
 	<string name="set_contact_alias">Change contact name</string>
 	<string name="set_contact_alias_hint">Contact name</string>
 	<string name="set_alias_button">Change</string>
-	<string name="menu_item_auto_delete">Disappearing messages</string>
-	<string name="menu_item_conversation_settings">Conversation settings</string>
+	<string name="menu_item_disappearing_messages">Disappearing messages</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>
@@ -548,8 +547,11 @@
 	<string name="cannot_load_ringtone">Cannot load ringtone</string>
 
 	<!-- Conversation Settings -->
+	<string name="disappearing_messages_title">Disappearing messages</string>
 	<string name="disappearing_messages_cat_title">Self-destructing messages</string>
-	<string name="disappearing_messages_explanation">You can configure disappearing messages here.
+	<string name="disappearing_messages_explanation_short">You can configure disappearing messages here.
+		Turning on this setting will make new messages to this conversation automatically disappear 7 days after being received.</string>
+	<string name="disappearing_messages_explanation_long">You can configure disappearing messages here.
 		Turning on this setting will make new messages to this conversation automatically disappear 7 days after being received.
 		This applies to messages you send to your contact as well as messages your contact sends to you.
 		Your contact can also change this setting for the both of you.
@@ -558,7 +560,6 @@
 		If you change this setting, it will apply to your messages immediately and to messages of
 		your contact once they receive any message from you after changing the setting.</string>
 	<string name="learn_more">Learn more</string>
-	<string name="disappearing_messages_title">Disappearing messages</string>
 	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear 7\u00A0days after being received.</string>
 
 	<!-- Settings Feedback -->

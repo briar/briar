@@ -385,7 +385,6 @@ public class ConversationActivity extends BriarActivity
 		// show auto-delete timer setting only, if contacts supports it
 		observeOnce(viewModel.getPrivateMessageFormat(), this, format -> {
 			boolean visible = format == TEXT_IMAGES_AUTO_DELETE;
-			menu.findItem(R.id.action_auto_delete).setVisible(visible);
 			menu.findItem(R.id.action_conversation_settings)
 					.setVisible(visible);
 		});
@@ -409,11 +408,6 @@ public class ConversationActivity extends BriarActivity
 			case R.id.action_set_alias:
 				AliasDialogFragment.newInstance().show(
 						getSupportFragmentManager(), AliasDialogFragment.TAG);
-				return true;
-			case R.id.action_auto_delete:
-				boolean enabled = !item.isChecked();
-				viewModel.setAutoDeleteTimerEnabled(enabled);
-				item.setChecked(enabled);
 				return true;
 			case R.id.action_conversation_settings:
 				if (contactId == null) return false;
