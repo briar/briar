@@ -9,25 +9,29 @@
 		android:id="@+id/imageViewBomb"
 		android:layout_width="64dp"
 		android:layout_height="64dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginBottom="8dp"
 		android:src="@drawable/ic_bomb"
 		app:layout_constraintBottom_toBottomOf="@+id/barrier"
 		app:layout_constraintEnd_toStartOf="@+id/imageViewDelivered"
-		app:layout_constraintHorizontal_bias="0.0"
 		app:layout_constraintHorizontal_chainStyle="packed"
 		app:layout_constraintStart_toStartOf="parent"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		app:tint="?attr/colorControlNormal" />
 
 	<ImageView
 		android:id="@+id/imageViewDelivered"
 		android:layout_width="64dp"
 		android:layout_height="64dp"
+		android:layout_marginTop="16dp"
+		android:layout_marginBottom="8dp"
 		android:src="@drawable/message_delivered"
 		app:layout_constraintBottom_toBottomOf="@+id/barrier"
 		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintHorizontal_bias="1.0"
 		app:layout_constraintHorizontal_chainStyle="packed"
 		app:layout_constraintStart_toEndOf="@+id/imageViewBomb"
-		app:layout_constraintTop_toTopOf="parent" />
+		app:layout_constraintTop_toTopOf="parent"
+		app:tint="?attr/colorControlNormal" />
 
 	<androidx.constraintlayout.widget.Barrier
 		android:id="@+id/barrier"
