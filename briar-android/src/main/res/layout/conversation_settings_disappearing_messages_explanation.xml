@@ -5,41 +5,28 @@
 	android:layout_height="wrap_content"
 	android:paddingHorizontal="@dimen/margin_large">
 
-	<TextView
-		android:id="@+id/textViewTimer"
-		android:layout_width="wrap_content"
-		android:layout_height="0dp"
-		android:gravity="center_vertical"
-		android:text="⏳"
-		android:textSize="40dp"
-		app:layout_constraintBottom_toTopOf="@+id/barrier"
-		app:layout_constraintEnd_toStartOf="@+id/textViewBomb"
-		app:layout_constraintStart_toEndOf="@+id/imageView2"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.0" />
-
-	<TextView
-		android:id="@+id/textViewBomb"
-		android:layout_width="0dp"
-		android:layout_height="0dp"
-		android:autoLink=""
-		android:gravity="center_vertical"
-		android:text="💣"
-		android:textSize="40dp"
-		app:layout_constraintBottom_toTopOf="@+id/barrier"
-		app:layout_constraintEnd_toEndOf="parent"
-		app:layout_constraintStart_toEndOf="@+id/textViewTimer"
-		app:layout_constraintTop_toTopOf="parent"
-		app:layout_constraintVertical_bias="0.0" />
+	<ImageView
+		android:id="@+id/imageViewBomb"
+		android:layout_width="64dp"
+		android:layout_height="64dp"
+		android:src="@drawable/ic_bomb"
+		app:layout_constraintBottom_toBottomOf="@+id/barrier"
+		app:layout_constraintEnd_toStartOf="@+id/imageViewDelivered"
+		app:layout_constraintHorizontal_bias="0.0"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintTop_toTopOf="parent" />
 
 	<ImageView
-		android:id="@+id/imageView2"
+		android:id="@+id/imageViewDelivered"
 		android:layout_width="64dp"
 		android:layout_height="64dp"
 		android:src="@drawable/message_delivered"
 		app:layout_constraintBottom_toBottomOf="@+id/barrier"
-		app:layout_constraintEnd_toStartOf="@+id/textViewTimer"
-		app:layout_constraintStart_toStartOf="parent"
+		app:layout_constraintEnd_toEndOf="parent"
+		app:layout_constraintHorizontal_bias="1.0"
+		app:layout_constraintHorizontal_chainStyle="packed"
+		app:layout_constraintStart_toEndOf="@+id/imageViewBomb"
 		app:layout_constraintTop_toTopOf="parent" />
 
 	<androidx.constraintlayout.widget.Barrier
