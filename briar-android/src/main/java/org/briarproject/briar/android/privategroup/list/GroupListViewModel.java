@@ -1,5 +1,7 @@
 package org.briarproject.briar.android.privategroup.list;
 
+import android.app.Application;
+
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -18,11 +20,11 @@ import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
-import org.briarproject.briar.android.controller.DbControllerImpl;
-import org.briarproject.briar.android.controller.handler.ExceptionHandler;
-import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
+import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
+import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
@@ -32,6 +34,7 @@ import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,10 +43,13 @@ import java.util.logging.Logger;
 
 import javax.inject.Inject;
 
-import androidx.annotation.CallSuper;
-import androidx.annotation.Nullable;
+import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
+import static java.util.Objects.requireNonNull;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
@@ -51,113 +57,86 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupManager.CLIENT
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class GroupListControllerImpl extends DbControllerImpl
-		implements GroupListController, EventListener {
+class GroupListViewModel extends DbViewModel implements EventListener {
 
 	private static final Logger LOG =
-			Logger.getLogger(GroupListControllerImpl.class.getName());
+			getLogger(GroupListViewModel.class.getName());
 
-	private final TransactionManager db;
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
 	private final ContactManager contactManager;
 	private final AndroidNotificationManager notificationManager;
 	private final EventBus eventBus;
 
-	// UI thread
-	@Nullable
-	private GroupListListener listener;
+	private final MutableLiveData<LiveResult<List<GroupItem>>> groupItems =
+			new MutableLiveData<>();
+	private final MutableLiveData<Integer> numInvitations =
+			new MutableLiveData<>();
 
 	@Inject
-	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
+	GroupListViewModel(Application application,
+			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
 			PrivateGroupManager groupManager,
 			GroupInvitationManager groupInvitationManager,
 			ContactManager contactManager,
 			AndroidNotificationManager notificationManager, EventBus eventBus) {
-		super(dbExecutor, lifecycleManager);
-		this.db = db;
+		super(application, dbExecutor, lifecycleManager, db);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
 		this.contactManager = contactManager;
 		this.notificationManager = notificationManager;
 		this.eventBus = eventBus;
+		this.eventBus.addListener(this);
 	}
 
 	@Override
-	public void setGroupListListener(GroupListListener listener) {
-		this.listener = listener;
+	protected void onCleared() {
+		super.onCleared();
+		eventBus.removeListener(this);
 	}
 
-	@Override
-	public void unsetGroupListListener(GroupListListener listener) {
-		if (this.listener == listener) this.listener = null;
-	}
-
-	@Override
-	@CallSuper
-	public void onStart() {
-		if (listener == null) throw new IllegalStateException();
-		eventBus.addListener(this);
+	void clearAllGroupMessageNotifications() {
 		notificationManager.clearAllGroupMessageNotifications();
 	}
 
 	@Override
-	@CallSuper
-	public void onStop() {
-		eventBus.removeListener(this);
-	}
-
-	@Override
-	@CallSuper
 	public void eventOccurred(Event e) {
-		if (listener == null) throw new IllegalStateException();
 		if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
 			LOG.info("Private group message added");
-			listener.onGroupMessageAdded(g.getHeader());
+			onGroupMessageAdded(g.getHeader());
 		} else if (e instanceof GroupInvitationRequestReceivedEvent) {
 			LOG.info("Private group invitation received");
-			listener.onGroupInvitationReceived();
+			loadNumInvitations();
 		} else if (e instanceof GroupAddedEvent) {
 			GroupAddedEvent g = (GroupAddedEvent) e;
 			ClientId id = g.getGroup().getClientId();
 			if (id.equals(CLIENT_ID)) {
 				LOG.info("Private group added");
-				listener.onGroupAdded(g.getGroup().getId());
+				loadGroups();
 			}
 		} else if (e instanceof GroupRemovedEvent) {
 			GroupRemovedEvent g = (GroupRemovedEvent) e;
 			ClientId id = g.getGroup().getClientId();
 			if (id.equals(CLIENT_ID)) {
 				LOG.info("Private group removed");
-				listener.onGroupRemoved(g.getGroup().getId());
+				onGroupRemoved(g.getGroup().getId());
 			}
 		} else if (e instanceof GroupDissolvedEvent) {
 			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
 			LOG.info("Private group dissolved");
-			listener.onGroupDissolved(g.getGroupId());
+			onGroupDissolved(g.getGroupId());
 		}
 	}
 
-	@Override
-	public void loadGroups(
-			ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
-		runOnDbThread(() -> {
-			try {
-				db.transaction(true, txn -> loadGroups(txn, handler));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
+	void loadGroups() {
+		loadList(this::loadGroups, groupItems::setValue);
 	}
 
 	@DatabaseExecutor
-	private void loadGroups(Transaction txn,
-			ResultExceptionHandler<Collection<GroupItem>, DbException> handler)
-			throws DbException {
+	private List<GroupItem> loadGroups(Transaction txn) throws DbException {
 		long start = now();
 		Collection<PrivateGroup> groups = groupManager.getPrivateGroups(txn);
 		List<GroupItem> items = new ArrayList<>(groups.size());
@@ -168,7 +147,7 @@ class GroupListControllerImpl extends DbControllerImpl
 				AuthorId authorId = g.getCreator().getId();
 				AuthorInfo authorInfo;
 				if (authorInfos.containsKey(authorId)) {
-					authorInfo = authorInfos.get(authorId);
+					authorInfo = requireNonNull(authorInfos.get(authorId));
 				} else {
 					authorInfo = contactManager.getAuthorInfo(txn, authorId);
 					authorInfos.put(authorId, authorInfo);
@@ -180,12 +159,49 @@ class GroupListControllerImpl extends DbControllerImpl
 				// Continue
 			}
 		}
+		Collections.sort(items);
 		logDuration(LOG, "Loading groups", start);
-		handler.onResult(items);
+		return items;
 	}
 
-	@Override
-	public void removeGroup(GroupId g, ExceptionHandler<DbException> handler) {
+	@UiThread
+	private void onGroupMessageAdded(GroupMessageHeader header) {
+		GroupId g = header.getGroupId();
+		List<GroupItem> list = updateListItem(groupItems,
+				itemToTest -> itemToTest.getId().equals(g),
+				itemToUpdate -> {
+					GroupItem newItem = new GroupItem(itemToUpdate);
+					newItem.addMessageHeader(header);
+					return newItem;
+				});
+		if (list == null) return;
+		// re-sort as the order of items may have changed
+		Collections.sort(list);
+		groupItems.setValue(new LiveResult<>(list));
+	}
+
+	@UiThread
+	private void onGroupDissolved(GroupId groupId) {
+		List<GroupItem> list = updateListItem(groupItems,
+				itemToTest -> itemToTest.getId().equals(groupId),
+				itemToUpdate -> {
+					GroupItem newItem = new GroupItem(itemToUpdate);
+					newItem.setDissolved();
+					return newItem;
+				});
+		if (list == null) return;
+		groupItems.setValue(new LiveResult<>(list));
+	}
+
+	@UiThread
+	private void onGroupRemoved(GroupId groupId) {
+		List<GroupItem> list =
+				removeListItem(groupItems, i -> i.getId().equals(groupId));
+		if (list == null) return;
+		groupItems.setValue(new LiveResult<>(list));
+	}
+
+	void removeGroup(GroupId g) {
 		runOnDbThread(() -> {
 			try {
 				long start = now();
@@ -193,23 +209,26 @@ class GroupListControllerImpl extends DbControllerImpl
 				logDuration(LOG, "Removing group", start);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
-				handler.onException(e);
 			}
 		});
 	}
 
-	@Override
-	public void loadAvailableGroups(
-			ResultExceptionHandler<Integer, DbException> handler) {
+	void loadNumInvitations() {
 		runOnDbThread(() -> {
 			try {
-				handler.onResult(
-						groupInvitationManager.getInvitations().size());
+				int i = groupInvitationManager.getInvitations().size();
+				numInvitations.postValue(i);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
-				handler.onException(e);
 			}
 		});
 	}
 
+	LiveData<LiveResult<List<GroupItem>>> getGroupItems() {
+		return groupItems;
+	}
+
+	LiveData<Integer> getNumInvitations() {
+		return numInvitations;
+	}
 }

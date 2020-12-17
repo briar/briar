@@ -31,6 +31,7 @@ import org.briarproject.briar.android.account.LockManagerImpl;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
+import org.briarproject.briar.android.privategroup.list.GroupListModule;
 import org.briarproject.briar.android.reporting.DevReportModule;
 import org.briarproject.briar.android.viewmodel.ViewModelModule;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -65,7 +66,9 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		LoginModule.class,
 		NavDrawerModule.class,
 		ViewModelModule.class,
-		DevReportModule.class
+		DevReportModule.class,
+		// below need to be within same scope as ViewModelProvider.Factory
+		GroupListModule.class,
 })
 public class AppModule {
 
