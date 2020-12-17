@@ -6,6 +6,14 @@
 		android:layout="@layout/preferences_category"
 		android:title="@string/disappearing_messages_cat_title">
 
+		<Preference
+			android:key="pref_key_disappearing_messages_explanation"
+			android:layout="@layout/conversation_settings_disappearing_messages_explanation"
+			android:selectable="false" />
+
+		<org.briarproject.briar.android.conversation.LinkPreference
+			android:key="pref_key_disappearing_messages_learn_more"/>
+
 		<SwitchPreference
 			android:defaultValue="true"
 			android:key="pref_key_disappearing_messages"

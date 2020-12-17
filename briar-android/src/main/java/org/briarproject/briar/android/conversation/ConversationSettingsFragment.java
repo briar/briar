@@ -29,6 +29,10 @@ public class ConversationSettingsFragment extends PreferenceFragmentCompat
 		implements Preference.OnPreferenceChangeListener {
 
 	private static final String DM_ENABLE = "pref_key_disappearing_messages";
+	private static final String DM_EXPLANATION =
+			"pref_key_disappearing_messages_explanation";
+	private static final String DM_LEARN_MORE =
+			"pref_key_disappearing_messages_learn_more";
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationSettingsFragment.class.getName());
