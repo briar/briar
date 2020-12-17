@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -85,10 +86,10 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 
 	@Inject
 	PluginViewModel(Application app, @DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager,
+			LifecycleManager lifecycleManager, TransactionManager db,
 			SettingsManager settingsManager, PluginManager pluginManager,
 			EventBus eventBus, NetworkManager networkManager) {
-		super(app, dbExecutor, lifecycleManager);
+		super(app, dbExecutor, lifecycleManager, db);
 		this.app = app;
 		this.settingsManager = settingsManager;
 		this.pluginManager = pluginManager;

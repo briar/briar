@@ -8,9 +8,9 @@ import androidx.annotation.Nullable;
 public class LiveResult<T> {
 
 	@Nullable
-	private T result;
+	private final T result;
 	@Nullable
-	private Exception exception;
+	private final Exception exception;
 
 	public LiveResult(T result) {
 		this.result = result;

@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.contact.event.PendingContactRemovedEvent;
 import org.briarproject.bramble.api.contact.event.PendingContactStateChangedEvent;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -56,10 +57,11 @@ public class PendingContactListViewModel extends DbViewModel
 	PendingContactListViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
+			TransactionManager db,
 			ContactManager contactManager,
 			RendezvousPoller rendezvousPoller,
 			EventBus eventBus) {
-		super(application, dbExecutor, lifecycleManager);
+		super(application, dbExecutor, lifecycleManager, db);
 		this.contactManager = contactManager;
 		this.rendezvousPoller = rendezvousPoller;
 		this.eventBus = eventBus;

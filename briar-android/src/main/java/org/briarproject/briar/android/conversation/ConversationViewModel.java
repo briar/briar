@@ -113,7 +113,7 @@ public class ConversationViewModel extends DbViewModel
 			PrivateMessageFactory privateMessageFactory,
 			AttachmentRetriever attachmentRetriever,
 			AttachmentCreator attachmentCreator) {
-		super(application, dbExecutor, lifecycleManager);
+		super(application, dbExecutor, lifecycleManager, db);
 		this.db = db;
 		this.eventBus = eventBus;
 		this.messagingManager = messagingManager;

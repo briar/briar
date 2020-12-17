@@ -7,6 +7,7 @@ import android.view.View;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -78,8 +79,9 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 			EventBus eventBus,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
+			TransactionManager db,
 			@IoExecutor Executor ioExecutor) {
-		super(application, dbExecutor, lifecycleManager);
+		super(application, dbExecutor, lifecycleManager, db);
 		this.messagingManager = messagingManager;
 		this.eventBus = eventBus;
 		this.ioExecutor = ioExecutor;

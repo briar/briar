@@ -4,6 +4,7 @@ import android.app.Application;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
@@ -51,8 +52,9 @@ public class NavDrawerViewModel extends DbViewModel {
 	NavDrawerViewModel(Application app,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
+			TransactionManager db,
 			SettingsManager settingsManager) {
-		super(app, dbExecutor, lifecycleManager);
+		super(app, dbExecutor, lifecycleManager, db);
 		this.settingsManager = settingsManager;
 	}
 
