@@ -270,22 +270,31 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	}
 
 	@Override
-	public Collection<PrivateGroup> getPrivateGroups() throws DbException {
-		Collection<Group> groups;
-		Transaction txn = db.startTransaction(true);
+	public Collection<PrivateGroup> getPrivateGroups(Transaction txn)
+			throws DbException {
+		Collection<Group> groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
+		Collection<PrivateGroup> privateGroups = new ArrayList<>(groups.size());
 		try {
-			groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
-			db.commitTransaction(txn);
-		} finally {
-			db.endTransaction(txn);
-		}
-		try {
-			Collection<PrivateGroup> privateGroups =
-					new ArrayList<>(groups.size());
 			for (Group g : groups) {
 				privateGroups.add(privateGroupFactory.parsePrivateGroup(g));
 			}
-			return privateGroups;
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+		return privateGroups;
+	}
+
+	@Override
+	public Collection<PrivateGroup> getPrivateGroups() throws DbException {
+		return db.transactionWithResult(true, this::getPrivateGroups);
+	}
+
+	@Override
+	public boolean isDissolved(Transaction txn, GroupId g) throws DbException {
+		try {
+			BdfDictionary meta =
+					clientHelper.getGroupMetadataAsDictionary(txn, g);
+			return meta.getBoolean(GROUP_KEY_DISSOLVED);
 		} catch (FormatException e) {
 			throw new DbException(e);
 		}
@@ -293,12 +302,7 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 
 	@Override
 	public boolean isDissolved(GroupId g) throws DbException {
-		try {
-			BdfDictionary meta = clientHelper.getGroupMetadataAsDictionary(g);
-			return meta.getBoolean(GROUP_KEY_DISSOLVED);
-		} catch (FormatException e) {
-			throw new DbException(e);
-		}
+		return db.transactionWithResult(true, txn -> isDissolved(txn, g));
 	}
 
 	@Override
@@ -403,7 +407,8 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			PrivateGroup privateGroup = getPrivateGroup(txn, g);
 			for (Entry<Author, Visibility> m : authors.entrySet()) {
 				Author a = m.getKey();
-				AuthorInfo authorInfo = contactManager.getAuthorInfo(txn, a.getId());
+				AuthorInfo authorInfo =
+						contactManager.getAuthorInfo(txn, a.getId());
 				Status status = authorInfo.getStatus();
 				Visibility v = m.getValue();
 				ContactId c = null;
@@ -448,6 +453,12 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 			if (member.equals(a)) return true;
 		}
 		return false;
+	}
+
+	@Override
+	public GroupCount getGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		return messageTracker.getGroupCount(txn, g);
 	}
 
 	@Override

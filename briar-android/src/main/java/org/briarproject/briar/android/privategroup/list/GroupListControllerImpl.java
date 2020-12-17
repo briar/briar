@@ -4,6 +4,8 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.NoSuchGroupException;
+import org.briarproject.bramble.api.db.Transaction;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -55,6 +57,7 @@ class GroupListControllerImpl extends DbControllerImpl
 	private static final Logger LOG =
 			Logger.getLogger(GroupListControllerImpl.class.getName());
 
+	private final TransactionManager db;
 	private final PrivateGroupManager groupManager;
 	private final GroupInvitationManager groupInvitationManager;
 	private final ContactManager contactManager;
@@ -67,11 +70,14 @@ class GroupListControllerImpl extends DbControllerImpl
 
 	@Inject
 	GroupListControllerImpl(@DatabaseExecutor Executor dbExecutor,
-			LifecycleManager lifecycleManager, PrivateGroupManager groupManager,
+			LifecycleManager lifecycleManager,
+			TransactionManager db,
+			PrivateGroupManager groupManager,
 			GroupInvitationManager groupInvitationManager,
 			ContactManager contactManager,
 			AndroidNotificationManager notificationManager, EventBus eventBus) {
 		super(dbExecutor, lifecycleManager);
+		this.db = db;
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
 		this.contactManager = contactManager;
@@ -140,37 +146,42 @@ class GroupListControllerImpl extends DbControllerImpl
 			ResultExceptionHandler<Collection<GroupItem>, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
-				long start = now();
-				Collection<PrivateGroup> groups =
-						groupManager.getPrivateGroups();
-				List<GroupItem> items = new ArrayList<>(groups.size());
-				Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
-				for (PrivateGroup g : groups) {
-					try {
-						GroupId id = g.getId();
-						AuthorId authorId = g.getCreator().getId();
-						AuthorInfo authorInfo;
-						if (authorInfos.containsKey(authorId)) {
-							authorInfo = authorInfos.get(authorId);
-						} else {
-							authorInfo = contactManager.getAuthorInfo(authorId);
-							authorInfos.put(authorId, authorInfo);
-						}
-						GroupCount count = groupManager.getGroupCount(id);
-						boolean dissolved = groupManager.isDissolved(id);
-						items.add(
-								new GroupItem(g, authorInfo, count, dissolved));
-					} catch (NoSuchGroupException e) {
-						// Continue
-					}
-				}
-				logDuration(LOG, "Loading groups", start);
-				handler.onResult(items);
+				db.transaction(true, txn -> loadGroups(txn, handler));
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				handler.onException(e);
 			}
 		});
+	}
+
+	@DatabaseExecutor
+	private void loadGroups(Transaction txn,
+			ResultExceptionHandler<Collection<GroupItem>, DbException> handler)
+			throws DbException {
+		long start = now();
+		Collection<PrivateGroup> groups = groupManager.getPrivateGroups(txn);
+		List<GroupItem> items = new ArrayList<>(groups.size());
+		Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
+		for (PrivateGroup g : groups) {
+			try {
+				GroupId id = g.getId();
+				AuthorId authorId = g.getCreator().getId();
+				AuthorInfo authorInfo;
+				if (authorInfos.containsKey(authorId)) {
+					authorInfo = authorInfos.get(authorId);
+				} else {
+					authorInfo = contactManager.getAuthorInfo(txn, authorId);
+					authorInfos.put(authorId, authorInfo);
+				}
+				GroupCount count = groupManager.getGroupCount(txn, id);
+				boolean dissolved = groupManager.isDissolved(txn, id);
+				items.add(new GroupItem(g, authorInfo, count, dissolved));
+			} catch (NoSuchGroupException e) {
+				// Continue
+			}
+		}
+		logDuration(LOG, "Loading groups", start);
+		handler.onResult(items);
 	}
 
 	@Override
