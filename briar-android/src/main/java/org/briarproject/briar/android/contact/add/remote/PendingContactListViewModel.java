@@ -19,6 +19,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.rendezvous.RendezvousPoller;
 import org.briarproject.bramble.api.rendezvous.event.RendezvousPollEvent;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 
 import java.util.ArrayList;
@@ -58,10 +59,11 @@ public class PendingContactListViewModel extends DbViewModel
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			ContactManager contactManager,
 			RendezvousPoller rendezvousPoller,
 			EventBus eventBus) {
-		super(application, dbExecutor, lifecycleManager, db);
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.contactManager = contactManager;
 		this.rendezvousPoller = rendezvousPoller;
 		this.eventBus = eventBus;

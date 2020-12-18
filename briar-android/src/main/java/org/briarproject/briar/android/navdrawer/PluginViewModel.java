@@ -29,6 +29,7 @@ import org.briarproject.bramble.api.plugin.event.TransportStateEvent;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.settings.event.SettingsUpdatedEvent;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 
 import java.util.concurrent.Executor;
@@ -87,9 +88,10 @@ public class PluginViewModel extends DbViewModel implements EventListener {
 	@Inject
 	PluginViewModel(Application app, @DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, TransactionManager db,
-			SettingsManager settingsManager, PluginManager pluginManager,
-			EventBus eventBus, NetworkManager networkManager) {
-		super(app, dbExecutor, lifecycleManager, db);
+			AndroidExecutor androidExecutor, SettingsManager settingsManager,
+			PluginManager pluginManager, EventBus eventBus,
+			NetworkManager networkManager) {
+		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.app = app;
 		this.settingsManager = settingsManager;
 		this.pluginManager = pluginManager;

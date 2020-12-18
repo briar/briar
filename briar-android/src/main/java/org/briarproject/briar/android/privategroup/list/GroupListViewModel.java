@@ -20,6 +20,7 @@ import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -78,11 +79,12 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			PrivateGroupManager groupManager,
 			GroupInvitationManager groupInvitationManager,
 			ContactManager contactManager,
 			AndroidNotificationManager notificationManager, EventBus eventBus) {
-		super(application, dbExecutor, lifecycleManager, db);
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.groupManager = groupManager;
 		this.groupInvitationManager = groupInvitationManager;
 		this.contactManager = contactManager;

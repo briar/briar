@@ -9,6 +9,7 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 
 import java.util.concurrent.Executor;
@@ -53,8 +54,9 @@ public class NavDrawerViewModel extends DbViewModel {
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			SettingsManager settingsManager) {
-		super(app, dbExecutor, lifecycleManager, db);
+		super(app, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.settingsManager = settingsManager;
 	}
 

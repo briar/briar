@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.lifecycle.IoExecutor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
@@ -80,8 +81,9 @@ public class ImageViewModel extends DbViewModel implements EventListener {
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			@IoExecutor Executor ioExecutor) {
-		super(application, dbExecutor, lifecycleManager, db);
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.messagingManager = messagingManager;
 		this.eventBus = eventBus;
 		this.ioExecutor = ioExecutor;

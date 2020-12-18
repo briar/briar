@@ -1,7 +1,6 @@
 package org.briarproject.briar.android.viewmodel;
 
 import android.app.Application;
-import android.os.Handler;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbCallable;
@@ -10,6 +9,7 @@ import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,6 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
-import static android.os.Looper.getMainLooper;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -42,16 +41,19 @@ public abstract class DbViewModel extends AndroidViewModel {
 	private final Executor dbExecutor;
 	private final LifecycleManager lifecycleManager;
 	private final TransactionManager db;
+	private final AndroidExecutor androidExecutor;
 
 	public DbViewModel(
 			@NonNull Application application,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
-			TransactionManager db) {
+			TransactionManager db,
+			AndroidExecutor androidExecutor) {
 		super(application);
 		this.dbExecutor = dbExecutor;
 		this.lifecycleManager = lifecycleManager;
 		this.db = db;
+		this.androidExecutor = androidExecutor;
 	}
 
 	/**
@@ -103,8 +105,8 @@ public abstract class DbViewModel extends AndroidViewModel {
 				Thread.currentThread().interrupt();
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
-				new Handler(getMainLooper())
-						.post(() -> uiUpdate.call(new LiveResult<>(e)));
+				androidExecutor.runOnUiThread(
+						() -> uiUpdate.call(new LiveResult<>(e)));
 			}
 		});
 	}

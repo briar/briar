@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.db.NoSuchPendingContactException;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.LiveResult;
@@ -54,8 +55,9 @@ public class AddContactViewModel extends DbViewModel {
 			ContactManager contactManager,
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
-			TransactionManager db) {
-		super(application, dbExecutor, lifecycleManager, db);
+			TransactionManager db,
+			AndroidExecutor androidExecutor) {
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.contactManager = contactManager;
 	}
 
