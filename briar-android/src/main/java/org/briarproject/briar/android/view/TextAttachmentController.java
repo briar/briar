@@ -174,6 +174,7 @@ public class TextAttachmentController extends TextSendController
 	private void onNewUris(boolean restart, List<Uri> newUris) {
 		if (newUris.isEmpty()) return;
 		if (loadingUris) throw new AssertionError();
+		if (textIsEmpty) onStartingMessage();
 		loadingUris = true;
 		if (newUris.size() > MAX_ATTACHMENTS_PER_MESSAGE) {
 			newUris = newUris.subList(0, MAX_ATTACHMENTS_PER_MESSAGE);
