@@ -152,8 +152,6 @@ public class GroupListFragment extends BaseFragment implements
 	 */
 	@Override
 	public void onClick(View v) {
-		// The snackbar dismisses itself when this is called
-		// and does not come back until the fragment gets recreated.
 		Intent i = new Intent(getContext(), GroupInvitationActivity.class);
 		startActivity(i);
 	}

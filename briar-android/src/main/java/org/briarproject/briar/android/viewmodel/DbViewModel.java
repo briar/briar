@@ -62,7 +62,7 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 * <p>
 	 * If you need a list of items to be displayed in a
 	 * {@link RecyclerView.Adapter},
-	 * use {@link #loadList(DbCallable, UiCallable)} instead.
+	 * use {@link #loadList(DbCallable, UiConsumer)} instead.
 	 */
 	protected void runOnDbThread(Runnable task) {
 		dbExecutor.execute(() -> {
@@ -92,13 +92,13 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 */
 	protected <T extends List<?>> void loadList(
 			DbCallable<T, DbException> task,
-			UiCallable<LiveResult<T>> uiUpdate) {
+			UiConsumer<LiveResult<T>> uiConsumer) {
 		dbExecutor.execute(() -> {
 			try {
 				lifecycleManager.waitForDatabase();
 				db.transaction(true, txn -> {
 					T t = task.call(txn);
-					txn.attach(() -> uiUpdate.call(new LiveResult<>(t)));
+					txn.attach(() -> uiConsumer.accept(new LiveResult<>(t)));
 				});
 			} catch (InterruptedException e) {
 				LOG.warning("Interrupted while waiting for database");
@@ -106,15 +106,15 @@ public abstract class DbViewModel extends AndroidViewModel {
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				androidExecutor.runOnUiThread(
-						() -> uiUpdate.call(new LiveResult<>(e)));
+						() -> uiConsumer.accept(new LiveResult<>(e)));
 			}
 		});
 	}
 
 	@NotNullByDefault
-	public interface UiCallable<T> {
+	public interface UiConsumer<T> {
 		@UiThread
-		void call(T t);
+		void accept(T t);
 	}
 
 	/**
@@ -130,10 +130,10 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 * </ul>
 	 */
 	@Nullable
-	protected <T> List<T> updateListItem(
+	protected <T> List<T> updateListItems(
 			LiveData<LiveResult<List<T>>> liveData, Function<T, Boolean> test,
 			Function<T, T> replacer) {
-		List<T> items = getList(liveData);
+		List<T> items = getListCopy(liveData);
 		if (items == null) return null;
 
 		ListIterator<T> iterator = items.listIterator();
@@ -161,9 +161,9 @@ public abstract class DbViewModel extends AndroidViewModel {
 	 * </ul>
 	 */
 	@Nullable
-	protected <T> List<T> removeListItem(
+	protected <T> List<T> removeListItems(
 			LiveData<LiveResult<List<T>>> liveData, Function<T, Boolean> test) {
-		List<T> items = getList(liveData);
+		List<T> items = getListCopy(liveData);
 		if (items == null) return null;
 
 		ListIterator<T> iterator = items.listIterator();
@@ -179,11 +179,12 @@ public abstract class DbViewModel extends AndroidViewModel {
 	}
 
 	/**
-	 * Retrieves the list of items from the given LiveData
+	 * Retrieves a copy of the list of items from the given LiveData
 	 * or null if it is not available.
+	 * The list copy can be safely mutated.
 	 */
 	@Nullable
-	private <T> List<T> getList(LiveData<LiveResult<List<T>>> liveData) {
+	private <T> List<T> getListCopy(LiveData<LiveResult<List<T>>> liveData) {
 		LiveResult<List<T>> value = liveData.getValue();
 		if (value == null) return null;
 		List<T> list = value.getResultOrNull();

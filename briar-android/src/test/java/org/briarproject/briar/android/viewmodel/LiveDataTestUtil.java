@@ -7,6 +7,7 @@ package org.briarproject.briar.android.viewmodel;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
@@ -15,12 +16,12 @@ import androidx.lifecycle.Observer;
 public class LiveDataTestUtil {
 	public static <T> T getOrAwaitValue(final LiveData<T> liveData)
 			throws InterruptedException {
-		final Object[] data = new Object[1];
+		final AtomicReference<T> data = new AtomicReference<>();
 		final CountDownLatch latch = new CountDownLatch(1);
 		Observer<T> observer = new Observer<T>() {
 			@Override
 			public void onChanged(@Nullable T o) {
-				data[0] = o;
+				data.set(o);
 				latch.countDown();
 				liveData.removeObserver(this);
 			}
@@ -30,7 +31,6 @@ public class LiveDataTestUtil {
 		if (!latch.await(2, TimeUnit.SECONDS)) {
 			throw new RuntimeException("LiveData value was never set.");
 		}
-		//noinspection unchecked
-		return (T) data[0];
+		return data.get();
 	}
 }

@@ -5,7 +5,6 @@ import android.app.Application;
 import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchGroupException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
@@ -152,22 +151,18 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 		List<GroupItem> items = new ArrayList<>(groups.size());
 		Map<AuthorId, AuthorInfo> authorInfos = new HashMap<>();
 		for (PrivateGroup g : groups) {
-			try {
-				GroupId id = g.getId();
-				AuthorId authorId = g.getCreator().getId();
-				AuthorInfo authorInfo;
-				if (authorInfos.containsKey(authorId)) {
-					authorInfo = requireNonNull(authorInfos.get(authorId));
-				} else {
-					authorInfo = contactManager.getAuthorInfo(txn, authorId);
-					authorInfos.put(authorId, authorInfo);
-				}
-				GroupCount count = groupManager.getGroupCount(txn, id);
-				boolean dissolved = groupManager.isDissolved(txn, id);
-				items.add(new GroupItem(g, authorInfo, count, dissolved));
-			} catch (NoSuchGroupException e) {
-				// Continue
+			GroupId id = g.getId();
+			AuthorId authorId = g.getCreator().getId();
+			AuthorInfo authorInfo;
+			if (authorInfos.containsKey(authorId)) {
+				authorInfo = requireNonNull(authorInfos.get(authorId));
+			} else {
+				authorInfo = contactManager.getAuthorInfo(txn, authorId);
+				authorInfos.put(authorId, authorInfo);
 			}
+			GroupCount count = groupManager.getGroupCount(txn, id);
+			boolean dissolved = groupManager.isDissolved(txn, id);
+			items.add(new GroupItem(g, authorInfo, count, dissolved));
 		}
 		Collections.sort(items);
 		logDuration(LOG, "Loading groups", start);
@@ -177,7 +172,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 	@UiThread
 	private void onGroupMessageAdded(GroupMessageHeader header) {
 		GroupId g = header.getGroupId();
-		List<GroupItem> list = updateListItem(groupItems,
+		List<GroupItem> list = updateListItems(groupItems,
 				itemToTest -> itemToTest.getId().equals(g),
 				itemToUpdate -> new GroupItem(itemToUpdate, header));
 		if (list == null) return;
@@ -188,7 +183,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 
 	@UiThread
 	private void onGroupDissolved(GroupId groupId) {
-		List<GroupItem> list = updateListItem(groupItems,
+		List<GroupItem> list = updateListItems(groupItems,
 				itemToTest -> itemToTest.getId().equals(groupId),
 				itemToUpdate -> new GroupItem(itemToUpdate, true));
 		if (list == null) return;
@@ -198,7 +193,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 	@UiThread
 	private void onGroupRemoved(GroupId groupId) {
 		List<GroupItem> list =
-				removeListItem(groupItems, i -> i.getId().equals(groupId));
+				removeListItems(groupItems, i -> i.getId().equals(groupId));
 		if (list == null) return;
 		groupItems.setValue(new LiveResult<>(list));
 	}
