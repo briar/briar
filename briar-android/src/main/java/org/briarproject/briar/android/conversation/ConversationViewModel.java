@@ -15,6 +15,7 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.AuthorId;
+import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.settings.Settings;
 import org.briarproject.bramble.api.settings.SettingsManager;
@@ -26,6 +27,7 @@ import org.briarproject.briar.android.attachment.AttachmentManager;
 import org.briarproject.briar.android.attachment.AttachmentResult;
 import org.briarproject.briar.android.attachment.AttachmentRetriever;
 import org.briarproject.briar.android.util.UiUtils;
+import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
 import org.briarproject.briar.api.messaging.AttachmentHeader;
@@ -44,7 +46,6 @@ import javax.inject.Inject;
 
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
-import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
@@ -59,10 +60,10 @@ import static org.briarproject.briar.android.settings.SettingsFragment.SETTINGS_
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
 
 @NotNullByDefault
-public class ConversationViewModel extends AndroidViewModel
+public class ConversationViewModel extends DbViewModel
 		implements EventListener, AttachmentManager {
 
-	private static Logger LOG =
+	private static final Logger LOG =
 			getLogger(ConversationViewModel.class.getName());
 
 	private static final String SHOW_ONBOARDING_IMAGE =
@@ -70,8 +71,6 @@ public class ConversationViewModel extends AndroidViewModel
 	private static final String SHOW_ONBOARDING_INTRODUCTION =
 			"showOnboardingIntroduction";
 
-	@DatabaseExecutor
-	private final Executor dbExecutor;
 	private final TransactionManager db;
 	private final EventBus eventBus;
 	private final MessagingManager messagingManager;
@@ -105,6 +104,7 @@ public class ConversationViewModel extends AndroidViewModel
 	@Inject
 	ConversationViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
+			LifecycleManager lifecycleManager,
 			TransactionManager db,
 			EventBus eventBus,
 			MessagingManager messagingManager,
@@ -113,8 +113,7 @@ public class ConversationViewModel extends AndroidViewModel
 			PrivateMessageFactory privateMessageFactory,
 			AttachmentRetriever attachmentRetriever,
 			AttachmentCreator attachmentCreator) {
-		super(application);
-		this.dbExecutor = dbExecutor;
+		super(application, dbExecutor, lifecycleManager);
 		this.db = db;
 		this.eventBus = eventBus;
 		this.messagingManager = messagingManager;
@@ -143,7 +142,7 @@ public class ConversationViewModel extends AndroidViewModel
 			AttachmentReceivedEvent a = (AttachmentReceivedEvent) e;
 			if (a.getContactId().equals(contactId)) {
 				LOG.info("Attachment received");
-				dbExecutor.execute(() -> attachmentRetriever
+				runOnDbThread(() -> attachmentRetriever
 						.loadAttachmentItem(a.getMessageId()));
 			}
 		}
@@ -163,7 +162,7 @@ public class ConversationViewModel extends AndroidViewModel
 	}
 
 	private void loadContact(ContactId contactId) {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				long start = now();
 				Contact c = contactManager.getContact(contactId);
@@ -181,7 +180,7 @@ public class ConversationViewModel extends AndroidViewModel
 	}
 
 	void markMessageRead(GroupId g, MessageId m) {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				long start = now();
 				messagingManager.setReadFlag(g, m, true);
@@ -193,7 +192,7 @@ public class ConversationViewModel extends AndroidViewModel
 	}
 
 	void setContactAlias(String alias) {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				contactManager.setContactAlias(requireNonNull(contactId),
 						alias.isEmpty() ? null : alias);
@@ -296,7 +295,7 @@ public class ConversationViewModel extends AndroidViewModel
 	@UiThread
 	private void storeMessage(PrivateMessage m) {
 		attachmentCreator.onAttachmentsSent(m.getMessage().getId());
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				long start = now();
 				messagingManager.addLocalMessage(m);
@@ -356,7 +355,7 @@ public class ConversationViewModel extends AndroidViewModel
 
 	@UiThread
 	void recheckFeaturesAndOnboarding(ContactId contactId) {
-		dbExecutor.execute(() -> {
+		runOnDbThread(() -> {
 			try {
 				checkFeaturesAndOnboarding(contactId);
 			} catch (DbException e) {

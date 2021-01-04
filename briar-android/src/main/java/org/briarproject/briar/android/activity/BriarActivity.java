@@ -129,10 +129,6 @@ public abstract class BriarActivity extends BaseActivity {
 		lockManager.onActivityStop();
 	}
 
-	protected boolean signedIn() {
-		return briarController.accountSignedIn();
-	}
-
 	/**
 	 * Sets the transition animations.
 	 *
