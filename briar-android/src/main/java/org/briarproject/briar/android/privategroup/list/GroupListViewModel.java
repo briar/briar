@@ -171,11 +171,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 		GroupId g = header.getGroupId();
 		List<GroupItem> list = updateListItem(groupItems,
 				itemToTest -> itemToTest.getId().equals(g),
-				itemToUpdate -> {
-					GroupItem newItem = new GroupItem(itemToUpdate);
-					newItem.addMessageHeader(header);
-					return newItem;
-				});
+				itemToUpdate -> new GroupItem(itemToUpdate, header));
 		if (list == null) return;
 		// re-sort as the order of items may have changed
 		Collections.sort(list);
@@ -186,11 +182,7 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 	private void onGroupDissolved(GroupId groupId) {
 		List<GroupItem> list = updateListItem(groupItems,
 				itemToTest -> itemToTest.getId().equals(groupId),
-				itemToUpdate -> {
-					GroupItem newItem = new GroupItem(itemToUpdate);
-					newItem.setDissolved();
-					return newItem;
-				});
+				itemToUpdate -> new GroupItem(itemToUpdate, true));
 		if (list == null) return;
 		groupItems.setValue(new LiveResult<>(list));
 	}

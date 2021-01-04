@@ -8,17 +8,19 @@ import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 
+import javax.annotation.concurrent.Immutable;
+
 import androidx.annotation.Nullable;
 
-// This class is not thread-safe
+@Immutable
 @NotNullByDefault
 class GroupItem implements Comparable<GroupItem> {
 
 	private final PrivateGroup privateGroup;
 	private final AuthorInfo authorInfo;
-	private int messageCount, unreadCount;
-	private long timestamp;
-	private boolean dissolved;
+	private final int messageCount, unreadCount;
+	private final long timestamp;
+	private final boolean dissolved;
 
 	GroupItem(PrivateGroup privateGroup, AuthorInfo authorInfo,
 			GroupCount count, boolean dissolved) {
@@ -30,23 +32,22 @@ class GroupItem implements Comparable<GroupItem> {
 		this.dissolved = dissolved;
 	}
 
-	GroupItem(GroupItem item) {
+	GroupItem(GroupItem item, GroupMessageHeader header) {
+		this.privateGroup = item.privateGroup;
+		this.authorInfo = item.authorInfo;
+		this.messageCount = item.messageCount + 1;
+		this.unreadCount = item.unreadCount + (header.isRead() ? 0 : 1);
+		this.timestamp = Math.max(header.getTimestamp(), item.timestamp);
+		this.dissolved = item.dissolved;
+	}
+
+	GroupItem(GroupItem item, boolean isDissolved) {
 		this.privateGroup = item.privateGroup;
 		this.authorInfo = item.authorInfo;
 		this.messageCount = item.messageCount;
 		this.unreadCount = item.unreadCount;
 		this.timestamp = item.timestamp;
-		this.dissolved = item.dissolved;
-	}
-
-	void addMessageHeader(GroupMessageHeader header) {
-		messageCount++;
-		if (header.getTimestamp() > timestamp) {
-			timestamp = header.getTimestamp();
-		}
-		if (!header.isRead()) {
-			unreadCount++;
-		}
+		this.dissolved = isDissolved;
 	}
 
 	GroupId getId() {
@@ -85,8 +86,9 @@ class GroupItem implements Comparable<GroupItem> {
 		return dissolved;
 	}
 
-	void setDissolved() {
-		dissolved = true;
+	@Override
+	public int hashCode() {
+		return getId().hashCode();
 	}
 
 	@Override
