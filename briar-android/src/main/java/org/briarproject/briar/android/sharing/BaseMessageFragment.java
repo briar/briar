@@ -15,7 +15,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.LargeTextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
 
@@ -62,6 +62,7 @@ public abstract class BaseMessageFragment extends BaseFragment
 
 	@StringRes
 	protected abstract int getButtonText();
+
 	@StringRes
 	protected abstract int getHintText();
 

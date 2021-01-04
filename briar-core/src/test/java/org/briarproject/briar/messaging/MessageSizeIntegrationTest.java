@@ -6,9 +6,9 @@ import org.briarproject.bramble.api.identity.AuthorFactory;
 import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostFactory;
-import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.messaging.PrivateMessage;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.test.BriarTestCase;
@@ -24,9 +24,9 @@ import static org.briarproject.bramble.api.identity.AuthorConstants.MAX_PUBLIC_K
 import static org.briarproject.bramble.api.record.Record.MAX_RECORD_PAYLOAD_BYTES;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_ATTACHMENTS_PER_MESSAGE;
-import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.messaging.MessagingConstants.MAX_PRIVATE_MESSAGE_TEXT_LENGTH;
 import static org.junit.Assert.assertTrue;
 

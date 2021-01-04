@@ -20,8 +20,8 @@ import org.briarproject.briar.android.attachment.AttachmentItem;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveEvent;
 import org.briarproject.briar.android.viewmodel.MutableLiveEvent;
-import org.briarproject.briar.api.media.Attachment;
-import org.briarproject.briar.api.media.AttachmentReader;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 
 import java.io.File;

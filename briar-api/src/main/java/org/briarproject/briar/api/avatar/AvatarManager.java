@@ -5,7 +5,7 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.attachment;
+package org.briarproject.briar.android.attachment.media;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

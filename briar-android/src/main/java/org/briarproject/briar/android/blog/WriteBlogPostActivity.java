@@ -19,10 +19,10 @@ import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.blog.BlogManager;
 import org.briarproject.briar.api.blog.BlogPost;
 import org.briarproject.briar.api.blog.BlogPostFactory;
-import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.security.GeneralSecurityException;
 import java.util.List;

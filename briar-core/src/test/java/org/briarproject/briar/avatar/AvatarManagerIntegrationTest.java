@@ -1,10 +1,10 @@
 package org.briarproject.briar.avatar;
 
 import org.briarproject.bramble.test.TestDatabaseConfigModule;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.avatar.AvatarManager;
-import org.briarproject.briar.api.media.Attachment;
-import org.briarproject.briar.api.media.AttachmentHeader;
-import org.briarproject.briar.api.media.AttachmentReader;
 import org.briarproject.briar.test.BriarIntegrationTest;
 import org.briarproject.briar.test.BriarIntegrationTestComponent;
 import org.briarproject.briar.test.DaggerBriarIntegrationTestComponent;
@@ -18,7 +18,7 @@ import java.io.InputStream;
 import static org.briarproject.bramble.test.TestUtils.getRandomBytes;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
-import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

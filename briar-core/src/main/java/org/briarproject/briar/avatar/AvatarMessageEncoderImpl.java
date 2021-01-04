@@ -8,8 +8,8 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
-import org.briarproject.briar.api.media.FileTooBigException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -20,8 +20,8 @@ import javax.inject.Inject;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 import static org.briarproject.bramble.util.IoUtils.copyAndClose;
-import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
-import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_DESCRIPTOR_LENGTH;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_TYPE_UPDATE;
 

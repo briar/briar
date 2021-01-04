@@ -10,7 +10,7 @@ import com.bumptech.glide.module.AppGlideModule;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.android.BriarApplication;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.io.InputStream;
 

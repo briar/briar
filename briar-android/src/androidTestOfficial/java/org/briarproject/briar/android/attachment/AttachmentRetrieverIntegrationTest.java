@@ -2,13 +2,17 @@ package org.briarproject.briar.android.attachment;
 
 import org.briarproject.bramble.api.UniqueId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.media.Attachment;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.android.attachment.media.ImageHelper;
+import org.briarproject.briar.android.attachment.media.ImageSizeCalculator;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.InputStream;
 import java.util.Random;
+
+import javax.inject.Inject;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -26,10 +30,21 @@ public class AttachmentRetrieverIntegrationTest {
 	);
 	private final MessageId msgId = new MessageId(getRandomId());
 
-	private final ImageHelper imageHelper = new ImageHelperImpl();
-	private final AttachmentRetriever retriever =
-			new AttachmentRetrieverImpl(null, null, dimensions, imageHelper,
-					new ImageSizeCalculator(imageHelper));
+	@Inject
+	ImageHelper imageHelper;
+	@Inject
+	ImageSizeCalculator imageSizeCalculator;
+
+	private final AttachmentRetriever retriever;
+
+	public AttachmentRetrieverIntegrationTest() {
+		AbstractAttachmentRetrieverComponent component =
+				DaggerAbstractAttachmentRetrieverComponent.builder().build();
+		component.inject(this);
+
+		retriever = new AttachmentRetrieverImpl(null, null, dimensions,
+				imageHelper, imageSizeCalculator);
+	}
 
 	@Test
 	public void testSmallJpegImage() throws Exception {

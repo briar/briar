@@ -27,10 +27,10 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.validation.IncomingMessageHook;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager;
 import org.briarproject.bramble.api.versioning.ClientVersioningManager.ClientVersioningHook;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.avatar.AvatarMessageEncoder;
 import org.briarproject.briar.api.avatar.event.AvatarUpdatedEvent;
-import org.briarproject.briar.api.media.AttachmentHeader;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import javax.inject.Inject;
 
-import static org.briarproject.briar.api.media.MediaConstants.MSG_KEY_CONTENT_TYPE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MSG_KEY_CONTENT_TYPE;
 import static org.briarproject.briar.avatar.AvatarConstants.GROUP_KEY_CONTACT_ID;
 import static org.briarproject.briar.avatar.AvatarConstants.MSG_KEY_VERSION;
 

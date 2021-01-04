@@ -14,7 +14,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
-import org.briarproject.briar.android.attachment.ImageCompressor;
+import org.briarproject.briar.android.attachment.media.ImageCompressor;
 import org.briarproject.briar.api.test.TestAvatarCreator;
 
 import java.io.IOException;

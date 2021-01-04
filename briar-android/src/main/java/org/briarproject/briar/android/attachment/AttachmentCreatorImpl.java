@@ -10,9 +10,10 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
-import org.briarproject.briar.api.media.Attachment;
-import org.briarproject.briar.api.media.AttachmentHeader;
-import org.briarproject.briar.api.media.FileTooBigException;
+import org.briarproject.briar.android.attachment.media.ImageCompressor;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.messaging.MessagingManager;
 
 import java.io.IOException;
@@ -35,7 +36,7 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.attachment.AttachmentItem.State.ERROR;
 import static org.briarproject.briar.android.util.UiUtils.observeForeverOnce;
-import static org.briarproject.briar.api.media.MediaConstants.MAX_IMAGE_SIZE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_IMAGE_SIZE;
 
 @NotNullByDefault
 class AttachmentCreatorImpl implements AttachmentCreator {

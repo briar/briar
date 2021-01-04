@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import javax.annotation.concurrent.Immutable;
 

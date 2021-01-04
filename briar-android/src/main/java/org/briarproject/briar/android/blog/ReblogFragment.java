@@ -20,7 +20,7 @@ import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.android.view.TextSendController.SendListener;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.List;
 
@@ -156,16 +156,16 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 			progressBar = v.findViewById(R.id.progressBar);
 			post = new BlogPostViewHolder(v.findViewById(R.id.postLayout),
 					true, new OnBlogPostClickListener() {
-						@Override
-						public void onBlogPostClick(BlogPostItem post) {
-							// do nothing
-						}
+				@Override
+				public void onBlogPostClick(BlogPostItem post) {
+					// do nothing
+				}
 
-						@Override
-						public void onAuthorClick(BlogPostItem post) {
-							// probably don't want to allow author clicks here
-						}
-					}, getFragmentManager());
+				@Override
+				public void onAuthorClick(BlogPostItem post) {
+					// probably don't want to allow author clicks here
+				}
+			}, getFragmentManager());
 			input = v.findViewById(R.id.inputText);
 		}
 	}

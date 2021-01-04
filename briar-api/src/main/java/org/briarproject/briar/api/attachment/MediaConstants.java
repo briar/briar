@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.media;
+package org.briarproject.briar.api.attachment;
 
 import static org.briarproject.bramble.api.sync.SyncConstants.MAX_MESSAGE_BODY_LENGTH;
 

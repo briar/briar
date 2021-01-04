@@ -1,7 +1,7 @@
 package org.briarproject.briar.api.identity;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;

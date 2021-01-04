@@ -2,8 +2,8 @@ package org.briarproject.briar.android.conversation.glide;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.api.media.AttachmentHeader;
-import org.briarproject.briar.api.media.AttachmentReader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 
 import java.util.concurrent.Executor;
 

@@ -1,4 +1,4 @@
-package org.briarproject.briar.media;
+package org.briarproject.briar.attachment;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 

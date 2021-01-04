@@ -1,9 +1,9 @@
-package org.briarproject.briar.android.attachment;
+package org.briarproject.briar.android.attachment.media;
 
 import com.bumptech.glide.util.MarkEnforcingInputStream;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.android.attachment.ImageHelper.DecodeResult;
+import org.briarproject.briar.android.attachment.media.ImageHelper.DecodeResult;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,20 +23,21 @@ import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-class ImageSizeCalculator {
+class ImageSizeCalculatorImpl implements ImageSizeCalculator {
 
 	private static final Logger LOG =
-			getLogger(ImageSizeCalculator.class.getName());
+			getLogger(ImageSizeCalculatorImpl.class.getName());
 
 	private static final int READ_LIMIT = 1024 * 8192;
 
 	private final ImageHelper imageHelper;
 
-	ImageSizeCalculator(ImageHelper imageHelper) {
+	ImageSizeCalculatorImpl(ImageHelper imageHelper) {
 		this.imageHelper = imageHelper;
 	}
 
-	Size getSize(InputStream is, String contentType) {
+	@Override
+	public Size getSize(InputStream is, String contentType) {
 		Size size = new Size();
 		is = new MarkEnforcingInputStream(is);
 		is.mark(READ_LIMIT);
@@ -49,7 +50,7 @@ class ImageSizeCalculator {
 				logException(LOG, WARNING, e);
 			}
 		}
-		if (size.error) {
+		if (size.hasError()) {
 			// need to mark again to re-add read limit
 			is.mark(READ_LIMIT);
 			try {

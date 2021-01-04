@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.properties.TransportPropertyManager;
 import org.briarproject.bramble.test.BrambleCoreIntegrationTestModule;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.blog.BlogFactory;
 import org.briarproject.briar.api.blog.BlogManager;
@@ -21,18 +22,17 @@ import org.briarproject.briar.api.conversation.ConversationManager;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.media.AttachmentReader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageFactory;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;
+import org.briarproject.briar.attachment.AttachmentModule;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
-import org.briarproject.briar.media.MediaModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
@@ -53,7 +53,7 @@ import dagger.Component;
 		GroupInvitationModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
-		MediaModule.class,
+		AttachmentModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class

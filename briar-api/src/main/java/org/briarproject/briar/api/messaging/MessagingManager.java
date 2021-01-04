@@ -7,9 +7,9 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.ClientId;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.FileTooBigException;
 import org.briarproject.briar.api.conversation.ConversationManager.ConversationClient;
-import org.briarproject.briar.api.media.AttachmentHeader;
-import org.briarproject.briar.api.media.FileTooBigException;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -72,7 +72,7 @@ public interface MessagingManager extends ConversationClient {
 	/**
 	 * Returns true if the contact with the given {@link ContactId} does support
 	 * image attachments.
-	 *
+	 * <p>
 	 * Added: 2019-01-01
 	 */
 	boolean contactSupportsImages(Transaction txn, ContactId c)

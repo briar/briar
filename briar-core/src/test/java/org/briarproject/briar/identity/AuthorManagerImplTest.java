@@ -11,9 +11,9 @@ import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.test.BrambleMockTestCase;
 import org.briarproject.bramble.test.DbExpectations;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.avatar.AvatarManager;
 import org.briarproject.briar.api.identity.AuthorInfo;
-import org.briarproject.briar.api.media.AttachmentHeader;
 import org.jmock.Expectations;
 import org.junit.Test;
 
@@ -26,11 +26,11 @@ import static org.briarproject.bramble.test.TestUtils.getContact;
 import static org.briarproject.bramble.test.TestUtils.getLocalAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
 import static org.briarproject.bramble.util.StringUtils.getRandomString;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.OURSELVES;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.UNVERIFIED;
 import static org.briarproject.briar.api.identity.AuthorInfo.Status.VERIFIED;
-import static org.briarproject.briar.api.media.MediaConstants.MAX_CONTENT_TYPE_BYTES;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 

@@ -1,6 +1,6 @@
-package org.briarproject.briar.media;
+package org.briarproject.briar.attachment;
 
-import org.briarproject.briar.api.media.AttachmentReader;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 
 import javax.inject.Singleton;
 
@@ -8,7 +8,7 @@ import dagger.Module;
 import dagger.Provides;
 
 @Module
-public class MediaModule {
+public class AttachmentModule {
 
 	@Provides
 	@Singleton

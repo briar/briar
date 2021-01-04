@@ -1,4 +1,4 @@
-package org.briarproject.briar.api.media;
+package org.briarproject.briar.api.attachment;
 
 import org.briarproject.bramble.api.db.DbException;
 

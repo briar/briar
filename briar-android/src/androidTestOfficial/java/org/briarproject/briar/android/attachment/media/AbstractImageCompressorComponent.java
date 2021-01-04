@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.attachment;
+package org.briarproject.briar.android.attachment.media;
 
 import javax.inject.Singleton;
 
@@ -6,7 +6,7 @@ import dagger.Component;
 
 @Singleton
 @Component(modules = {
-		AttachmentModule.class
+		MediaModule.class
 })
 interface AbstractImageCompressorComponent {
 

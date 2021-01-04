@@ -59,6 +59,7 @@ import org.briarproject.briar.android.view.TextAttachmentController.AttachmentLi
 import org.briarproject.briar.android.view.TextInputView;
 import org.briarproject.briar.android.view.TextSendController;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.blog.BlogSharingManager;
 import org.briarproject.briar.api.client.ProtocolStateException;
 import org.briarproject.briar.api.client.SessionId;
@@ -71,7 +72,6 @@ import org.briarproject.briar.api.conversation.DeletionResult;
 import org.briarproject.briar.api.conversation.event.ConversationMessageReceivedEvent;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.introduction.IntroductionManager;
-import org.briarproject.briar.api.media.AttachmentHeader;
 import org.briarproject.briar.api.messaging.MessagingManager;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationManager;

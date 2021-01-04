@@ -6,9 +6,12 @@ import org.briarproject.bramble.api.db.NoSuchMessageException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.attachment.AttachmentItem.State;
-import org.briarproject.briar.api.media.Attachment;
-import org.briarproject.briar.api.media.AttachmentHeader;
-import org.briarproject.briar.api.media.AttachmentReader;
+import org.briarproject.briar.android.attachment.media.ImageHelper;
+import org.briarproject.briar.android.attachment.media.ImageSizeCalculator;
+import org.briarproject.briar.android.attachment.media.Size;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentReader;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 
 import java.io.BufferedInputStream;
@@ -207,26 +210,30 @@ class AttachmentRetrieverImpl implements AttachmentRetriever {
 
 	private AttachmentItem createAttachmentItem(AttachmentHeader h, Size size) {
 		// calculate thumbnail size
-		Size thumbnailSize = new Size(defaultSize, defaultSize, size.mimeType);
-		if (!size.error) {
+		Size thumbnailSize =
+				new Size(defaultSize, defaultSize, size.getMimeType());
+		if (!size.hasError()) {
 			thumbnailSize =
-					getThumbnailSize(size.width, size.height, size.mimeType);
+					getThumbnailSize(size.getWidth(), size.getHeight(),
+							size.getMimeType());
 		}
 		// get file extension
-		String extension = imageHelper.getExtensionFromMimeType(size.mimeType);
-		boolean hasError = extension == null || size.error;
-		if (!h.getContentType().equals(size.mimeType)) {
+		String extension =
+				imageHelper.getExtensionFromMimeType(size.getMimeType());
+		boolean hasError = extension == null || size.hasError();
+		if (!h.getContentType().equals(size.getMimeType())) {
 			if (LOG.isLoggable(WARNING)) {
 				LOG.warning("Header has different mime type (" +
-						h.getContentType() + ") than image (" + size.mimeType +
-						").");
+						h.getContentType() + ") than image (" +
+						size.getMimeType() + ").");
 			}
 			hasError = true;
 		}
 		if (extension == null) extension = "";
 		State state = hasError ? ERROR : AVAILABLE;
-		return new AttachmentItem(h, size.width, size.height,
-				extension, thumbnailSize.width, thumbnailSize.height, state);
+		return new AttachmentItem(h, size.getWidth(), size.getHeight(),
+				extension, thumbnailSize.getWidth(), thumbnailSize.getHeight(),
+				state);
 	}
 
 	private Size getThumbnailSize(int width, int height, String mimeType) {

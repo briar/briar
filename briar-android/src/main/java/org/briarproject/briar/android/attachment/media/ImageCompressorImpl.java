@@ -1,4 +1,4 @@
-package org.briarproject.briar.android.attachment;
+package org.briarproject.briar.android.attachment.media;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,7 +18,7 @@ import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.IoUtils.tryToClose;
-import static org.briarproject.briar.api.media.MediaConstants.MAX_IMAGE_SIZE;
+import static org.briarproject.briar.api.attachment.MediaConstants.MAX_IMAGE_SIZE;
 
 class ImageCompressorImpl implements ImageCompressor {
 
@@ -68,10 +68,11 @@ class ImageCompressorImpl implements ImageCompressor {
 			throws IOException {
 		is = new BufferedInputStream(is);
 		Size size = imageSizeCalculator.getSize(is, contentType);
-		if (size.error) throw new IOException();
+		if (size.hasError()) throw new IOException();
 		if (LOG.isLoggable(INFO))
-			LOG.info("Original image size: " + size.width + "x" + size.height);
-		int dimension = Math.max(size.width, size.height);
+			LOG.info("Original image size: " + size.getWidth() + "x" +
+					size.getHeight());
+		int dimension = Math.max(size.getWidth(), size.getHeight());
 		int inSampleSize = 1;
 		while (dimension > maxSize) {
 			inSampleSize *= 2;

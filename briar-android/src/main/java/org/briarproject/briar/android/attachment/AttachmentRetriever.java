@@ -4,8 +4,8 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.briar.api.media.Attachment;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.Attachment;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 import org.briarproject.briar.api.messaging.PrivateMessageHeader;
 import org.briarproject.briar.api.messaging.event.AttachmentReceivedEvent;
 
@@ -49,10 +49,10 @@ public interface AttachmentRetriever {
 	 * Loads an {@link AttachmentItem}
 	 * that arrived via an {@link AttachmentReceivedEvent}
 	 * and notifies the associated {@link LiveData}.
-	 *
+	 * <p>
 	 * Note that you need to call {@link #getAttachmentItems(PrivateMessageHeader)}
 	 * first to get the LiveData.
-	 *
+	 * <p>
 	 * It is possible that no LiveData is available,
 	 * because the message of the AttachmentItem did not arrive, yet.
 	 * In this case, the load wil be deferred until the message arrives.

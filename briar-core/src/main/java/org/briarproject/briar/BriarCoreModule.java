@@ -1,5 +1,6 @@
 package org.briarproject.briar;
 
+import org.briarproject.briar.attachment.AttachmentModule;
 import org.briarproject.briar.avatar.AvatarModule;
 import org.briarproject.briar.blog.BlogModule;
 import org.briarproject.briar.client.BriarClientModule;
@@ -8,7 +9,6 @@ import org.briarproject.briar.feed.FeedModule;
 import org.briarproject.briar.forum.ForumModule;
 import org.briarproject.briar.identity.IdentityModule;
 import org.briarproject.briar.introduction.IntroductionModule;
-import org.briarproject.briar.media.MediaModule;
 import org.briarproject.briar.messaging.MessagingModule;
 import org.briarproject.briar.privategroup.PrivateGroupModule;
 import org.briarproject.briar.privategroup.invitation.GroupInvitationModule;
@@ -27,7 +27,7 @@ import dagger.Module;
 		GroupInvitationModule.class,
 		IdentityModule.class,
 		IntroductionModule.class,
-		MediaModule.class,
+		AttachmentModule.class,
 		MessagingModule.class,
 		PrivateGroupModule.class,
 		SharingModule.class,

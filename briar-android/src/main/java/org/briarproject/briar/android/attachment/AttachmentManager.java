@@ -3,7 +3,7 @@ package org.briarproject.briar.android.attachment;
 import android.net.Uri;
 
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.briar.api.media.AttachmentHeader;
+import org.briarproject.briar.api.attachment.AttachmentHeader;
 
 import java.util.Collection;
 import java.util.List;
