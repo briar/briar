@@ -144,6 +144,7 @@
 		<activity
 			android:name=".android.conversation.ConversationSettingsActivity"
 			android:parentActivityName="org.briarproject.briar.android.conversation.ConversationActivity"
+			android:label="@string/disappearing_messages_title"
 			android:theme="@style/BriarTheme">
 			<meta-data
 				android:name="android.support.PARENT_ACTIVITY"
