@@ -54,7 +54,6 @@ import androidx.preference.SwitchPreference;
 
 import static android.app.Activity.RESULT_OK;
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK;
-import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.content.Intent.FLAG_ACTIVITY_NEW_TASK;
 import static android.media.RingtoneManager.ACTION_RINGTONE_PICKER;
 import static android.media.RingtoneManager.EXTRA_RINGTONE_DEFAULT_URI;
@@ -89,7 +88,6 @@ import static org.briarproject.bramble.util.LogUtils.now;
 import static org.briarproject.briar.android.BriarApplication.ENTRY_ACTIVITY;
 import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_RINGTONE;
-import static org.briarproject.briar.android.navdrawer.NavDrawerActivity.SIGN_OUT_URI;
 import static org.briarproject.briar.android.util.UiUtils.getCountryDisplayName;
 import static org.briarproject.briar.android.util.UiUtils.hasScreenLock;
 import static org.briarproject.briar.android.util.UiUtils.triggerFeedback;
@@ -638,11 +636,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 		builder.setPositiveButton(R.string.sign_out_button,
 				(dialogInterface, i) -> {
 					language.setValue(newValue);
-					Intent intent = new Intent(getContext(), ENTRY_ACTIVITY);
-					intent.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-					intent.setData(SIGN_OUT_URI);
-					requireActivity().startActivity(intent);
-					requireActivity().finish();
+					listener.languageChanged();
 				});
 		builder.setNegativeButton(R.string.cancel, null);
 		builder.setCancelable(false);

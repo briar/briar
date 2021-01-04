@@ -118,4 +118,9 @@ public class SettingsActivity extends BriarActivity {
 				ConfirmAvatarDialogFragment.TAG);
 	}
 
+	void languageChanged() {
+		signOut(false, false);
+		finishAffinity();
+	}
+
 }
