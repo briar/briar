@@ -79,7 +79,7 @@ public class FeedPostFragment extends BasePostFragment {
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

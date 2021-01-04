@@ -59,7 +59,7 @@ public class ShareBlogActivity extends ShareActivity {
 						Toast.makeText(ShareBlogActivity.this,
 								R.string.blogs_sharing_error, LENGTH_SHORT)
 								.show();
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 

@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewGroup.LayoutParams;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -240,7 +239,7 @@ public abstract class BaseActivity extends AppCompatActivity
 	}
 
 	@UiThread
-	public void handleDbException(DbException e) {
+	public void handleException(Exception e) {
 		supportFinishAfterTransition();
 	}
 

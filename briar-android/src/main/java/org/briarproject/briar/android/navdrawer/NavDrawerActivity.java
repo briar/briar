@@ -17,7 +17,6 @@ import android.widget.TextView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.navigation.NavigationView.OnNavigationItemSelectedListener;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
@@ -365,7 +364,7 @@ public class NavDrawerActivity extends BriarActivity implements
 	}
 
 	@Override
-	public void handleDbException(DbException e) {
+	public void handleException(Exception e) {
 		// Do nothing for now
 	}
 

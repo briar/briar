@@ -59,7 +59,7 @@ public class ShareForumActivity extends ShareActivity {
 						Toast.makeText(ShareForumActivity.this,
 								R.string.forum_share_error, LENGTH_SHORT)
 								.show();
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

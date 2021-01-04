@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -23,8 +22,6 @@ import org.briarproject.briar.android.privategroup.invitation.GroupInvitationAct
 import org.briarproject.briar.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
-
-import java.util.List;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -78,15 +75,12 @@ public class GroupListFragment extends BaseFragment implements
 		list.setEmptyAction(R.string.groups_list_empty_action);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
-		viewModel.getGroupItems().observe(getViewLifecycleOwner(), result -> {
-			List<GroupItem> items = result.getResultOrNull();
-			if (items == null && result.getException() instanceof DbException) {
-				handleDbException((DbException) result.getException());
-			} else {
-				adapter.submitList(items);
-				if (requireNonNull(items).size() == 0) list.showData();
-			}
-		});
+		viewModel.getGroupItems().observe(getViewLifecycleOwner(), result ->
+				result.onError(this::handleException).onSuccess(items -> {
+					adapter.submitList(items);
+					if (requireNonNull(items).size() == 0) list.showData();
+				})
+		);
 
 		Snackbar snackbar = new BriarSnackbarBuilder()
 				.setAction(R.string.show, this)

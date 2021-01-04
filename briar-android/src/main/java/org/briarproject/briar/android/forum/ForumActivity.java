@@ -156,7 +156,7 @@ public class ForumActivity extends
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

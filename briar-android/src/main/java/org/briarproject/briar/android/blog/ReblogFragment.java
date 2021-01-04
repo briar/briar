@@ -101,7 +101,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 
@@ -128,7 +128,7 @@ public class ReblogFragment extends BaseFragment implements SendListener {
 				new UiExceptionHandler<DbException>(this) {
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 		finish();
