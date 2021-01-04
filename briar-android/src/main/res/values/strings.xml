@@ -176,6 +176,10 @@
 	<!-- The second placeholder at the end will add "Tap to learn more." -->
 	<string name="auto_delete_msg_contact_disabled">%1$s\'s messages will not disappear. %2$s</string>
 	<string name="tap_to_learn_more">Tap to learn more.</string>
+	<string name="auto_delete_changed_warning_title">Disappearing messages changed</string>
+	<string name="auto_delete_changed_warning_message_enabled">Since you started composing your message, disappearing messages have been enabled.</string>
+	<string name="auto_delete_changed_warning_message_disabled">Since you started composing your message, disappearing messages have been disabled.</string>
+	<string name="auto_delete_changed_warning_send">Send anyway</string>
 	<string name="delete_all_messages">Delete all messages</string>
 	<string name="dialog_title_delete_all_messages">Confirm Message Deletion</string>
 	<string name="dialog_message_delete_all_messages">Are you sure that you want to delete all messages?</string>

@@ -16,6 +16,7 @@ import java.util.List;
 import androidx.annotation.CallSuper;
 import androidx.annotation.Nullable;
 import androidx.annotation.UiThread;
+import androidx.appcompat.app.AlertDialog;
 
 import static com.google.android.material.snackbar.Snackbar.LENGTH_SHORT;
 import static java.util.Collections.emptyList;
@@ -32,6 +33,7 @@ public class TextSendController implements TextInputListener {
 	protected boolean textIsEmpty = true;
 	private boolean ready = true;
 	private long currentTimer = NO_AUTO_DELETE_TIMER;
+	private long expectedTimer = NO_AUTO_DELETE_TIMER;
 
 	private final CharSequence defaultHint;
 	private final boolean allowEmptyText;
@@ -49,6 +51,7 @@ public class TextSendController implements TextInputListener {
 	@Override
 	public void onTextIsEmptyChanged(boolean isEmpty) {
 		textIsEmpty = isEmpty;
+		if (!isEmpty) onStartingMessage();
 		updateViewState();
 	}
 
@@ -57,6 +60,15 @@ public class TextSendController implements TextInputListener {
 		if (canSend()) {
 			listener.onSendClick(textInput.getText(), emptyList());
 		}
+	}
+
+	/**
+	 * Call whenever the user starts a new message,
+	 * either by entering text or adding an attachment.
+	 * This updates the expected auto-delete timer to the current value.
+	 */
+	protected void onStartingMessage() {
+		expectedTimer = currentTimer;
 	}
 
 	public void setReady(boolean ready) {
@@ -111,11 +123,33 @@ public class TextSendController implements TextInputListener {
 					LENGTH_SHORT).show();
 			return false;
 		}
+		if (expectedTimer != currentTimer) {
+			boolean enabled = currentTimer != NO_AUTO_DELETE_TIMER;
+			showTimerChangedDialog(enabled);
+			return false;
+		}
 		return ready && (canSendEmptyText() || !textIsEmpty);
 	}
 
 	protected boolean canSendEmptyText() {
 		return allowEmptyText;
+	}
+
+	private void showTimerChangedDialog(boolean enabled) {
+		Context ctx = textInput.getContext();
+		int message =
+				enabled ? R.string.auto_delete_changed_warning_message_enabled :
+						R.string.auto_delete_changed_warning_message_disabled;
+		new AlertDialog.Builder(ctx, R.style.BriarDialogTheme)
+				.setTitle(R.string.auto_delete_changed_warning_title)
+				.setMessage(message)
+				.setPositiveButton(R.string.auto_delete_changed_warning_send,
+						(dialog, which) -> {
+							expectedTimer = currentTimer;
+							onSendEvent();
+						})
+				.setNegativeButton(R.string.cancel, null)
+				.show();
 	}
 
 	@Nullable
