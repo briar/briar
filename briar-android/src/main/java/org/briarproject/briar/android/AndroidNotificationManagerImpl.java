@@ -109,7 +109,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Nullable
 	private GroupId blockedGroup = null;
 	private boolean blockSignInReminder = false;
-	private boolean blockBlogs = false;
+	private boolean blockGroups = false, blockBlogs = false;
 	private long lastSound = 0;
 
 	private volatile Settings settings = new Settings();
@@ -223,8 +223,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 			if (s.getNamespace().equals(SETTINGS_NAMESPACE))
 				settings = s.getSettings();
 		} else if (e instanceof ConversationMessageReceivedEvent) {
-			ConversationMessageReceivedEvent p =
-					(ConversationMessageReceivedEvent) e;
+			ConversationMessageReceivedEvent<?> p =
+					(ConversationMessageReceivedEvent<?>) e;
 			showContactNotification(p.getContactId());
 		} else if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
@@ -385,6 +385,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void showGroupMessageNotification(GroupId g) {
+		if (blockGroups) return;
 		if (g.equals(blockedGroup)) return;
 		groupCounts.add(g);
 		updateGroupMessageNotification(true);
@@ -679,6 +680,17 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 		androidExecutor.runOnUiThread(() -> {
 			if (c.equals(blockedContact)) blockedContact = null;
 		});
+	}
+
+	@Override
+	public void blockAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockGroups = true);
+
+	}
+
+	@Override
+	public void unblockAllGroupMessageNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockGroups = false);
 	}
 
 	@Override

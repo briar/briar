@@ -101,7 +101,7 @@ public class GroupListFragment extends BaseFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		// TODO should we block all group message notifications as well?
+		viewModel.blockAllGroupMessageNotifications();
 		viewModel.clearAllGroupMessageNotifications();
 		// The attributes and sorting of the groups may have changed while we
 		// were stopped and we have no way finding out about them, so re-load
@@ -117,6 +117,7 @@ public class GroupListFragment extends BaseFragment implements
 	public void onStop() {
 		super.onStop();
 		list.stopPeriodicUpdate();
+		viewModel.unblockAllGroupMessageNotifications();
 	}
 
 	@Override

@@ -103,6 +103,14 @@ class GroupListViewModel extends DbViewModel implements EventListener {
 		notificationManager.clearAllGroupMessageNotifications();
 	}
 
+	void blockAllGroupMessageNotifications() {
+		notificationManager.blockAllGroupMessageNotifications();
+	}
+
+	void unblockAllGroupMessageNotifications() {
+		notificationManager.unblockAllGroupMessageNotifications();
+	}
+
 	@Override
 	public void eventOccurred(Event e) {
 		if (e instanceof GroupMessageAddedEvent) {
