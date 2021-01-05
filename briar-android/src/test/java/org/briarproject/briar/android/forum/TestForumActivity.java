@@ -27,7 +27,7 @@ public class TestForumActivity extends ForumActivity {
 		return forumController;
 	}
 
-	public ThreadItemAdapter<ForumItem> getAdapter() {
+	public ThreadItemAdapter<ForumPostItem> getAdapter() {
 		return adapter;
 	}
 
