@@ -109,7 +109,8 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	@Nullable
 	private GroupId blockedGroup = null;
 	private boolean blockSignInReminder = false;
-	private boolean blockGroups = false, blockBlogs = false;
+	private boolean blockForums = false, blockGroups = false,
+			blockBlogs = false;
 	private long lastSound = 0;
 
 	private volatile Settings settings = new Settings();
@@ -453,6 +454,7 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 
 	@UiThread
 	private void showForumPostNotification(GroupId g) {
+		if (blockForums) return;
 		if (g.equals(blockedGroup)) return;
 		forumCounts.add(g);
 		updateForumPostNotification(true);
@@ -683,9 +685,18 @@ class AndroidNotificationManagerImpl implements AndroidNotificationManager,
 	}
 
 	@Override
+	public void blockAllForumPostNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockForums = true);
+	}
+
+	@Override
+	public void unblockAllForumPostNotifications() {
+		androidExecutor.runOnUiThread((Runnable) () -> blockForums = false);
+	}
+
+	@Override
 	public void blockAllGroupMessageNotifications() {
 		androidExecutor.runOnUiThread((Runnable) () -> blockGroups = true);
-
 	}
 
 	@Override

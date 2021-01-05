@@ -92,11 +92,11 @@ class ForumListViewModel extends DbViewModel implements EventListener {
 	}
 
 	void blockAllForumPostNotifications() {
-		// TODO
+		notificationManager.blockAllForumPostNotifications();
 	}
 
 	void unblockAllForumPostNotifications() {
-		// TODO
+		notificationManager.unblockAllForumPostNotifications();
 	}
 
 	@Override
