@@ -121,6 +121,7 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
+		// TODO block all forum post notifications as well
 		notificationManager.clearAllForumPostNotifications();
 		loadForums();
 		loadAvailableForums();

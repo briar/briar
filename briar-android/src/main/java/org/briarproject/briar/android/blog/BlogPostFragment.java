@@ -58,7 +58,7 @@ public class BlogPostFragment extends BasePostFragment implements BlogListener {
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

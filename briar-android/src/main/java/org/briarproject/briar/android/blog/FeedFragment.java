@@ -156,7 +156,7 @@ public class FeedFragment extends BaseFragment implements
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}
@@ -187,7 +187,7 @@ public class FeedFragment extends BaseFragment implements
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}
@@ -242,7 +242,7 @@ public class FeedFragment extends BaseFragment implements
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				}
 		);

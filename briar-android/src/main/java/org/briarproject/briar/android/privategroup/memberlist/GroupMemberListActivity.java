@@ -124,7 +124,7 @@ public class GroupMemberListActivity extends BriarActivity
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

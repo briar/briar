@@ -12,57 +12,50 @@ import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.controller.handler.UiExceptionHandler;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.privategroup.creation.CreateGroupActivity;
 import org.briarproject.briar.android.privategroup.invitation.GroupInvitationActivity;
-import org.briarproject.briar.android.privategroup.list.GroupListController.GroupListListener;
 import org.briarproject.briar.android.privategroup.list.GroupViewHolder.OnGroupRemoveClickListener;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
-import org.briarproject.briar.api.privategroup.GroupMessageHeader;
-
-import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
+import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class GroupListFragment extends BaseFragment implements
-		GroupListListener, OnGroupRemoveClickListener, OnClickListener {
+		OnGroupRemoveClickListener, OnClickListener {
 
 	public final static String TAG = GroupListFragment.class.getName();
-	private static final Logger LOG = Logger.getLogger(TAG);
 
 	public static GroupListFragment newInstance() {
 		return new GroupListFragment();
 	}
 
 	@Inject
-	GroupListController controller;
+	ViewModelProvider.Factory viewModelFactory;
 
+	private GroupListViewModel viewModel;
 	private BriarRecyclerView list;
 	private GroupListAdapter adapter;
-	private Snackbar snackbar;
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
-		controller.setGroupListListener(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(GroupListViewModel.class);
 	}
 
 	@Nullable
@@ -75,17 +68,32 @@ public class GroupListFragment extends BaseFragment implements
 
 		View v = inflater.inflate(R.layout.list, container, false);
 
-		adapter = new GroupListAdapter(getActivity(), this);
+		adapter = new GroupListAdapter(this);
 		list = v.findViewById(R.id.list);
 		list.setEmptyImage(R.drawable.ic_empty_state_group_list);
 		list.setEmptyText(R.string.groups_list_empty);
 		list.setEmptyAction(R.string.groups_list_empty_action);
 		list.setLayoutManager(new LinearLayoutManager(getContext()));
 		list.setAdapter(adapter);
+		viewModel.getGroupItems().observe(getViewLifecycleOwner(), result ->
+				result.onError(this::handleException).onSuccess(items -> {
+					adapter.submitList(items);
+					if (requireNonNull(items).size() == 0) list.showData();
+				})
+		);
 
-		snackbar = new BriarSnackbarBuilder()
+		Snackbar snackbar = new BriarSnackbarBuilder()
 				.setAction(R.string.show, this)
 				.make(list, "", LENGTH_INDEFINITE);
+		viewModel.getNumInvitations().observe(getViewLifecycleOwner(), num -> {
+			if (num == 0) {
+				snackbar.dismiss();
+			} else {
+				snackbar.setText(getResources().getQuantityString(
+						R.plurals.groups_invitations_open, num, num));
+				if (!snackbar.isShownOrQueued()) snackbar.show();
+			}
+		});
 
 		return v;
 	}
@@ -93,25 +101,23 @@ public class GroupListFragment extends BaseFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		controller.onStart();
+		viewModel.blockAllGroupMessageNotifications();
+		viewModel.clearAllGroupMessageNotifications();
+		// The attributes and sorting of the groups may have changed while we
+		// were stopped and we have no way finding out about them, so re-load
+		// e.g. less unread messages in a group after viewing it.
+		viewModel.loadGroups();
+		// The number of invitations might have changed while we were stopped
+		// e.g. because of accepting an invitation which does not trigger event
+		viewModel.loadNumInvitations();
 		list.startPeriodicUpdate();
-		loadGroups();
-		loadAvailableGroups();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		controller.onStop();
 		list.stopPeriodicUpdate();
-		adapter.clear();
-		list.showProgressBar();
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		controller.unsetGroupListListener(this);
+		viewModel.unblockAllGroupMessageNotifications();
 	}
 
 	@Override
@@ -122,119 +128,23 @@ public class GroupListFragment extends BaseFragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.action_add_group:
-				Intent i = new Intent(getContext(), CreateGroupActivity.class);
-				startActivity(i);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == R.id.action_add_group) {
+			Intent i = new Intent(getContext(), CreateGroupActivity.class);
+			startActivity(i);
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@UiThread
 	@Override
 	public void onGroupRemoveClick(GroupItem item) {
-		controller.removeGroup(item.getId(),
-				new UiExceptionHandler<DbException>(this) {
-					// result handled by GroupRemovedEvent and onGroupRemoved()
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
-	}
-
-	@UiThread
-	@Override
-	public void onGroupMessageAdded(GroupMessageHeader header) {
-		adapter.incrementRevision();
-		int position = adapter.findItemPosition(header.getGroupId());
-		GroupItem item = adapter.getItemAt(position);
-		if (item != null) {
-			item.addMessageHeader(header);
-			adapter.updateItemAt(position, item);
-		}
-	}
-
-	@Override
-	public void onGroupInvitationReceived() {
-		loadAvailableGroups();
-	}
-
-	@UiThread
-	@Override
-	public void onGroupAdded(GroupId groupId) {
-		loadGroups();
-	}
-
-	@UiThread
-	@Override
-	public void onGroupRemoved(GroupId groupId) {
-		adapter.incrementRevision();
-		adapter.removeItem(groupId);
-	}
-
-	@Override
-	public void onGroupDissolved(GroupId groupId) {
-		adapter.incrementRevision();
-		int position = adapter.findItemPosition(groupId);
-		GroupItem item = adapter.getItemAt(position);
-		if (item != null) {
-			item.setDissolved();
-			adapter.updateItemAt(position, item);
-		}
+		viewModel.removeGroup(item.getId());
 	}
 
 	@Override
 	public String getUniqueTag() {
 		return TAG;
-	}
-
-	private void loadGroups() {
-		int revision = adapter.getRevision();
-		controller.loadGroups(
-				new UiResultExceptionHandler<Collection<GroupItem>, DbException>(
-						this) {
-					@Override
-					public void onResultUi(Collection<GroupItem> groups) {
-						if (revision == adapter.getRevision()) {
-							adapter.incrementRevision();
-							if (groups.isEmpty()) list.showData();
-							else adapter.replaceAll(groups);
-						} else {
-							LOG.info("Concurrent update, reloading");
-							loadGroups();
-						}
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
-	}
-
-	private void loadAvailableGroups() {
-		controller.loadAvailableGroups(
-				new UiResultExceptionHandler<Integer, DbException>(this) {
-					@Override
-					public void onResultUi(Integer num) {
-						if (num == 0) {
-							snackbar.dismiss();
-						} else {
-							snackbar.setText(getResources().getQuantityString(
-									R.plurals.groups_invitations_open, num,
-									num));
-							if (!snackbar.isShownOrQueued()) snackbar.show();
-						}
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
-					}
-				});
 	}
 
 	/**

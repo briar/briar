@@ -29,6 +29,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 
 	private final static float ALPHA = 0.42f;
 
+	private final Context ctx;
 	private final ViewGroup layout;
 	private final TextAvatarView avatar;
 	private final TextView name;
@@ -40,7 +41,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 
 	GroupViewHolder(View v) {
 		super(v);
-
+		ctx = v.getContext();
 		layout = (ViewGroup) v;
 		avatar = v.findViewById(R.id.avatarView);
 		name = v.findViewById(R.id.nameView);
@@ -51,8 +52,7 @@ class GroupViewHolder extends RecyclerView.ViewHolder {
 		remove = v.findViewById(R.id.removeButton);
 	}
 
-	void bindView(Context ctx, GroupItem group,
-			OnGroupRemoveClickListener listener) {
+	void bindView(GroupItem group, OnGroupRemoveClickListener listener) {
 		// Avatar
 		avatar.setText(group.getName().substring(0, 1));
 		avatar.setBackgroundBytes(group.getId().getBytes());

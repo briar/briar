@@ -69,6 +69,11 @@ public interface PrivateGroupManager {
 	/**
 	 * Returns true if the given private group has been dissolved.
 	 */
+	boolean isDissolved(Transaction txn, GroupId g) throws DbException;
+
+	/**
+	 * Returns true if the given private group has been dissolved.
+	 */
 	boolean isDissolved(GroupId g) throws DbException;
 
 	/**
@@ -92,6 +97,12 @@ public interface PrivateGroupManager {
 	Collection<PrivateGroup> getPrivateGroups() throws DbException;
 
 	/**
+	 * Returns all private groups the user is a member of.
+	 */
+	Collection<PrivateGroup> getPrivateGroups(Transaction txn)
+			throws DbException;
+
+	/**
 	 * Returns the text of the private group message with the given ID.
 	 */
 	String getMessageText(MessageId m) throws DbException;
@@ -110,6 +121,11 @@ public interface PrivateGroupManager {
 	 * Returns true if the given author is a member of the given private group.
 	 */
 	boolean isMember(Transaction txn, GroupId g, Author a) throws DbException;
+
+	/**
+	 * Returns the group count for the given private group.
+	 */
+	GroupCount getGroupCount(Transaction txn, GroupId g) throws DbException;
 
 	/**
 	 * Returns the group count for the given private group.

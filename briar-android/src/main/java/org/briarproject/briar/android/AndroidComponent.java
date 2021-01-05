@@ -14,6 +14,7 @@ import org.briarproject.bramble.api.contact.ContactManager;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.crypto.PasswordStrengthEstimator;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
+import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.keyagreement.KeyAgreementTask;
@@ -84,6 +85,8 @@ public interface AndroidComponent
 
 	@DatabaseExecutor
 	Executor databaseExecutor();
+
+	TransactionManager transactionManager();
 
 	MessageTracker messageTracker();
 

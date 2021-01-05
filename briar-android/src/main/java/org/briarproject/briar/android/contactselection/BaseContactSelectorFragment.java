@@ -133,7 +133,7 @@ public abstract class BaseContactSelectorFragment<I extends SelectableContactIte
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

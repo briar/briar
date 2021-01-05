@@ -60,7 +60,6 @@ import org.briarproject.briar.android.privategroup.creation.GroupInviteFragment;
 import org.briarproject.briar.android.privategroup.invitation.GroupInvitationActivity;
 import org.briarproject.briar.android.privategroup.invitation.GroupInvitationModule;
 import org.briarproject.briar.android.privategroup.list.GroupListFragment;
-import org.briarproject.briar.android.privategroup.list.GroupListModule;
 import org.briarproject.briar.android.privategroup.memberlist.GroupMemberListActivity;
 import org.briarproject.briar.android.privategroup.memberlist.GroupMemberModule;
 import org.briarproject.briar.android.privategroup.reveal.GroupRevealModule;
@@ -94,7 +93,6 @@ import dagger.Component;
 		ForumModule.class,
 		GroupInvitationModule.class,
 		GroupConversationModule.class,
-		GroupListModule.class,
 		GroupMemberModule.class,
 		GroupRevealModule.class,
 		SharingModule.class

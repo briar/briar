@@ -1,17 +1,18 @@
 package org.briarproject.briar.android.privategroup.list;
 
-import org.briarproject.briar.android.activity.ActivityScope;
+import org.briarproject.briar.android.viewmodel.ViewModelKey;
 
+import androidx.lifecycle.ViewModel;
+import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
+import dagger.multibindings.IntoMap;
 
 @Module
-public class GroupListModule {
+public abstract class GroupListModule {
 
-	@ActivityScope
-	@Provides
-	GroupListController provideGroupListController(
-			GroupListControllerImpl groupListController) {
-		return groupListController;
-	}
+	@Binds
+	@IntoMap
+	@ViewModelKey(GroupListViewModel.class)
+	abstract ViewModel bindGroupListViewModel(
+			GroupListViewModel groupListViewModel);
 }

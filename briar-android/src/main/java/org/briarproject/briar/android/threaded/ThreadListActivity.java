@@ -152,7 +152,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}
@@ -183,7 +183,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}
@@ -214,7 +214,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}
@@ -351,7 +351,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				};
 		getController().createAndStoreMessage(text, replyItem, handler);

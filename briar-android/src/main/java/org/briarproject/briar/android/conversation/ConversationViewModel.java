@@ -22,6 +22,7 @@ import org.briarproject.bramble.api.settings.SettingsManager;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.Message;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.briar.android.attachment.AttachmentCreator;
 import org.briarproject.briar.android.attachment.AttachmentManager;
 import org.briarproject.briar.android.attachment.AttachmentResult;
@@ -106,6 +107,7 @@ public class ConversationViewModel extends DbViewModel
 			@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager,
 			TransactionManager db,
+			AndroidExecutor androidExecutor,
 			EventBus eventBus,
 			MessagingManager messagingManager,
 			ContactManager contactManager,
@@ -113,7 +115,7 @@ public class ConversationViewModel extends DbViewModel
 			PrivateMessageFactory privateMessageFactory,
 			AttachmentRetriever attachmentRetriever,
 			AttachmentCreator attachmentCreator) {
-		super(application, dbExecutor, lifecycleManager);
+		super(application, dbExecutor, lifecycleManager, db, androidExecutor);
 		this.db = db;
 		this.eventBus = eventBus;
 		this.messagingManager = messagingManager;

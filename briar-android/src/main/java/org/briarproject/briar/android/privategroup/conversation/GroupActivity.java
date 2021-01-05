@@ -106,7 +106,7 @@ public class GroupActivity extends
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}
@@ -125,7 +125,7 @@ public class GroupActivity extends
 
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}
@@ -264,7 +264,7 @@ public class GroupActivity extends
 					// GroupRemovedEvent being fired
 					@Override
 					public void onExceptionUi(DbException exception) {
-						handleDbException(exception);
+						handleException(exception);
 					}
 				});
 	}

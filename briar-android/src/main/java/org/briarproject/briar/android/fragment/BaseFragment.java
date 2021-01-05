@@ -5,7 +5,6 @@ import android.content.Context;
 import android.os.Bundle;
 import android.view.MenuItem;
 
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.android.DestroyableContext;
@@ -77,7 +76,7 @@ public abstract class BaseFragment extends Fragment
 		void showNextFragment(BaseFragment f);
 
 		@UiThread
-		void handleDbException(DbException e);
+		void handleException(Exception e);
 	}
 
 	@CallSuper
@@ -100,8 +99,8 @@ public abstract class BaseFragment extends Fragment
 	}
 
 	@UiThread
-	protected void handleDbException(DbException e) {
-		listener.handleDbException(e);
+	protected void handleException(Exception e) {
+		listener.handleException(e);
 	}
 
 }
