@@ -14,6 +14,8 @@ public interface ScreenFilterMonitor {
 	 * SYSTEM_ALERT_WINDOW permission, excluding system apps, Google Play
 	 * Services, and any apps that have been allowed by calling
 	 * {@link #allowApps(Collection)}.
+	 *
+	 * Only works on SDK_INT 29 and below.
 	 */
 	@UiThread
 	Collection<AppDetails> getApps();
@@ -21,6 +23,8 @@ public interface ScreenFilterMonitor {
 	/**
 	 * Allows the apps with the given package names to use overlay windows.
 	 * They will not be returned by future calls to {@link #getApps()}.
+	 *
+	 * Only works on SDK_INT 29 and below.
 	 */
 	@UiThread
 	void allowApps(Collection<String> packageNames);
