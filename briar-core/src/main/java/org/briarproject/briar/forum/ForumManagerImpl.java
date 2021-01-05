@@ -165,8 +165,12 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 
 	@Override
 	public Collection<Forum> getForums() throws DbException {
-		Collection<Group> groups = db.transactionWithResult(true, txn ->
-				db.getGroups(txn, CLIENT_ID, MAJOR_VERSION));
+		return db.transactionWithResult(true, this::getForums);
+	}
+
+	@Override
+	public Collection<Forum> getForums(Transaction txn) throws DbException {
+		Collection<Group> groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
 		try {
 			List<Forum> forums = new ArrayList<>();
 			for (Group g : groups) forums.add(parseForum(g));
@@ -233,6 +237,12 @@ class ForumManagerImpl extends BdfIncomingMessageHook implements ForumManager {
 	@Override
 	public GroupCount getGroupCount(GroupId g) throws DbException {
 		return messageTracker.getGroupCount(g);
+	}
+
+	@Override
+	public GroupCount getGroupCount(Transaction txn, GroupId g)
+			throws DbException {
+		return messageTracker.getGroupCount(txn, g);
 	}
 
 	@Override
