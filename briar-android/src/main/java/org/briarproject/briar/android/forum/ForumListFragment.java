@@ -12,80 +12,48 @@ import android.view.ViewGroup;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import org.briarproject.bramble.api.contact.event.ContactRemovedEvent;
-import org.briarproject.bramble.api.db.DbException;
-import org.briarproject.bramble.api.db.NoSuchGroupException;
-import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.event.GroupAddedEvent;
-import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.fragment.BaseEventFragment;
+import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.android.sharing.ForumInvitationActivity;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
-import org.briarproject.briar.api.android.AndroidNotificationManager;
-import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.forum.Forum;
-import org.briarproject.briar.api.forum.ForumManager;
-import org.briarproject.briar.api.forum.ForumPostHeader;
-import org.briarproject.briar.api.forum.ForumSharingManager;
-import org.briarproject.briar.api.forum.event.ForumInvitationRequestReceivedEvent;
-import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.logging.Logger;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import androidx.annotation.UiThread;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static com.google.android.material.snackbar.Snackbar.LENGTH_INDEFINITE;
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.LogUtils.now;
-import static org.briarproject.briar.api.forum.ForumManager.CLIENT_ID;
+import static java.util.Objects.requireNonNull;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public class ForumListFragment extends BaseEventFragment implements
+public class ForumListFragment extends BaseFragment implements
 		OnClickListener {
 
 	public final static String TAG = ForumListFragment.class.getName();
-	private final static Logger LOG = Logger.getLogger(TAG);
 
+	private ForumListViewModel viewModel;
 	private BriarRecyclerView list;
-	private ForumListAdapter adapter;
 	private Snackbar snackbar;
+	private final ForumListAdapter adapter = new ForumListAdapter();
 
 	@Inject
-	AndroidNotificationManager notificationManager;
-
-	// Fields that are accessed from background threads must be volatile
-	@Inject
-	volatile ForumManager forumManager;
-	@Inject
-	volatile ForumSharingManager forumSharingManager;
+	ViewModelProvider.Factory viewModelFactory;
 
 	public static ForumListFragment newInstance() {
-
-		Bundle args = new Bundle();
-
-		ForumListFragment fragment = new ForumListFragment();
-		fragment.setArguments(args);
-		return fragment;
+		return new ForumListFragment();
 	}
 
 	@Override
 	public void injectFragment(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ForumListViewModel.class);
 	}
 
 	@Nullable
@@ -93,24 +61,35 @@ public class ForumListFragment extends BaseEventFragment implements
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
-
 		requireActivity().setTitle(R.string.forums_button);
 
-		View contentView =
-				inflater.inflate(R.layout.fragment_forum_list, container,
-						false);
+		View v = inflater.inflate(R.layout.fragment_forum_list, container,
+				false);
 
-		adapter = new ForumListAdapter(getActivity());
-
-		list = contentView.findViewById(R.id.forumList);
+		list = v.findViewById(R.id.forumList);
 		list.setLayoutManager(new LinearLayoutManager(getActivity()));
 		list.setAdapter(adapter);
+		viewModel.getForumListItems().observe(getViewLifecycleOwner(), result ->
+				result.onError(this::handleException).onSuccess(items -> {
+					adapter.submitList(items);
+					if (requireNonNull(items).size() == 0) list.showData();
+				})
+		);
 
 		snackbar = new BriarSnackbarBuilder()
 				.setAction(R.string.show, this)
 				.make(list, "", LENGTH_INDEFINITE);
+		viewModel.getNumInvitations().observe(getViewLifecycleOwner(), num -> {
+			if (num == 0) {
+				snackbar.dismiss();
+			} else {
+				snackbar.setText(getResources().getQuantityString(
+						R.plurals.forums_shared, num, num));
+				if (!snackbar.isShownOrQueued()) snackbar.show();
+			}
+		});
 
-		return contentView;
+		return v;
 	}
 
 	@Override
@@ -121,19 +100,23 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public void onStart() {
 		super.onStart();
-		// TODO block all forum post notifications as well
-		notificationManager.clearAllForumPostNotifications();
-		loadForums();
-		loadAvailableForums();
+		viewModel.blockAllForumPostNotifications();
+		viewModel.clearAllForumPostNotifications();
+		// The attributes and sorting of the forums may have changed while we
+		// were stopped and we have no way finding out about them, so re-load
+		// e.g. less unread posts in a forum after viewing it.
+		viewModel.loadForums();
+		// The number of invitations might have changed while we were stopped
+		// e.g. because of accepting an invitation which does not trigger event
+		viewModel.loadForumInvitations();
 		list.startPeriodicUpdate();
 	}
 
 	@Override
 	public void onStop() {
 		super.onStop();
-		adapter.clear();
-		list.showProgressBar();
 		list.stopPeriodicUpdate();
+		viewModel.unblockAllForumPostNotifications();
 	}
 
 	@Override
@@ -145,123 +128,12 @@ public class ForumListFragment extends BaseEventFragment implements
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case R.id.action_create_forum:
-				Intent intent =
-						new Intent(getContext(), CreateForumActivity.class);
-				startActivity(intent);
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == R.id.action_create_forum) {
+			Intent intent = new Intent(getContext(), CreateForumActivity.class);
+			startActivity(intent);
+			return true;
 		}
-	}
-
-	private void loadForums() {
-		int revision = adapter.getRevision();
-		listener.runOnDbThread(() -> {
-			try {
-				long start = now();
-				Collection<ForumListItem> forums = new ArrayList<>();
-				for (Forum f : forumManager.getForums()) {
-					try {
-						GroupCount count =
-								forumManager.getGroupCount(f.getId());
-						forums.add(new ForumListItem(f, count));
-					} catch (NoSuchGroupException e) {
-						// Continue
-					}
-				}
-				logDuration(LOG, "Full load", start);
-				displayForums(revision, forums);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	private void displayForums(int revision, Collection<ForumListItem> forums) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			if (revision == adapter.getRevision()) {
-				adapter.incrementRevision();
-				if (forums.isEmpty()) list.showData();
-				else adapter.replaceAll(forums);
-			} else {
-				LOG.info("Concurrent update, reloading");
-				loadForums();
-			}
-		});
-	}
-
-	private void loadAvailableForums() {
-		listener.runOnDbThread(() -> {
-			try {
-				long start = now();
-				int available = forumSharingManager.getInvitations().size();
-				logDuration(LOG, "Loading available", start);
-				displayAvailableForums(available);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	private void displayAvailableForums(int availableCount) {
-		runOnUiThreadUnlessDestroyed(() -> {
-			if (availableCount == 0) {
-				snackbar.dismiss();
-			} else {
-				snackbar.setText(getResources().getQuantityString(
-						R.plurals.forums_shared, availableCount,
-						availableCount));
-				if (!snackbar.isShownOrQueued()) snackbar.show();
-			}
-		});
-	}
-
-	@Override
-	public void eventOccurred(Event e) {
-		if (e instanceof ContactRemovedEvent) {
-			LOG.info("Contact removed, reloading available forums");
-			loadAvailableForums();
-		} else if (e instanceof GroupAddedEvent) {
-			GroupAddedEvent g = (GroupAddedEvent) e;
-			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
-				LOG.info("Forum added, reloading forums");
-				loadForums();
-			}
-		} else if (e instanceof GroupRemovedEvent) {
-			GroupRemovedEvent g = (GroupRemovedEvent) e;
-			if (g.getGroup().getClientId().equals(CLIENT_ID)) {
-				LOG.info("Forum removed, removing from list");
-				removeForum(g.getGroup().getId());
-			}
-		} else if (e instanceof ForumPostReceivedEvent) {
-			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
-			LOG.info("Forum post added, updating item");
-			updateItem(f.getGroupId(), f.getHeader());
-		} else if (e instanceof ForumInvitationRequestReceivedEvent) {
-			LOG.info("Forum invitation received, reloading available forums");
-			loadAvailableForums();
-		}
-	}
-
-	@UiThread
-	private void updateItem(GroupId g, ForumPostHeader m) {
-		adapter.incrementRevision();
-		int position = adapter.findItemPosition(g);
-		ForumListItem item = adapter.getItemAt(position);
-		if (item != null) {
-			item.addHeader(m);
-			adapter.updateItemAt(position, item);
-		}
-	}
-
-	@UiThread
-	private void removeForum(GroupId g) {
-		adapter.incrementRevision();
-		int position = adapter.findItemPosition(g);
-		ForumListItem item = adapter.getItemAt(position);
-		if (item != null) adapter.remove(item);
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

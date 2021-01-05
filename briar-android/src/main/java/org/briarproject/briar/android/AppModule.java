@@ -28,6 +28,7 @@ import org.briarproject.bramble.plugin.tor.AndroidTorPluginFactory;
 import org.briarproject.bramble.util.AndroidUtils;
 import org.briarproject.bramble.util.StringUtils;
 import org.briarproject.briar.android.account.LockManagerImpl;
+import org.briarproject.briar.android.forum.ForumModule;
 import org.briarproject.briar.android.keyagreement.ContactExchangeModule;
 import org.briarproject.briar.android.login.LoginModule;
 import org.briarproject.briar.android.navdrawer.NavDrawerModule;
@@ -68,6 +69,7 @@ import static org.briarproject.briar.android.TestingConstants.IS_DEBUG_BUILD;
 		ViewModelModule.class,
 		DevReportModule.class,
 		// below need to be within same scope as ViewModelProvider.Factory
+		ForumModule.BindsModule.class,
 		GroupListModule.class,
 })
 public class AppModule {

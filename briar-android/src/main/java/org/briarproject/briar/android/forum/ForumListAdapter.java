@@ -1,134 +1,47 @@
 package org.briarproject.briar.android.forum;
 
-import android.content.Context;
-import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
-import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.briar.R;
-import org.briarproject.briar.android.util.BriarAdapter;
-import org.briarproject.briar.android.util.UiUtils;
-import org.briarproject.briar.android.view.TextAvatarView;
-import org.briarproject.briar.api.forum.Forum;
 
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.DiffUtil.ItemCallback;
+import androidx.recyclerview.widget.ListAdapter;
 
-import static android.view.View.GONE;
-import static android.view.View.VISIBLE;
-import static androidx.recyclerview.widget.SortedList.INVALID_POSITION;
-import static org.briarproject.briar.android.activity.BriarActivity.GROUP_ID;
-import static org.briarproject.briar.android.activity.BriarActivity.GROUP_NAME;
+@NotNullByDefault
+class ForumListAdapter extends ListAdapter<ForumListItem, ForumViewHolder> {
 
-class ForumListAdapter
-		extends BriarAdapter<ForumListItem, ForumListAdapter.ForumViewHolder> {
-
-	ForumListAdapter(Context ctx) {
-		super(ctx, ForumListItem.class);
+	ForumListAdapter() {
+		super(new ForumListCallback());
 	}
 
 	@Override
 	public ForumViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-		View v = LayoutInflater.from(ctx).inflate(
+		View v = LayoutInflater.from(parent.getContext()).inflate(
 				R.layout.list_item_forum, parent, false);
 		return new ForumViewHolder(v);
 	}
 
 	@Override
-	public void onBindViewHolder(ForumViewHolder ui, int position) {
-		ForumListItem item = getItemAt(position);
-		if (item == null) return;
+	public void onBindViewHolder(ForumViewHolder viewHolder, int position) {
+		viewHolder.bind(getItem(position));
+	}
 
-		// Avatar
-		ui.avatar.setText(item.getForum().getName().substring(0, 1));
-		ui.avatar.setBackgroundBytes(item.getForum().getId().getBytes());
-		ui.avatar.setUnreadCount(item.getUnreadCount());
-
-		// Forum Name
-		ui.name.setText(item.getForum().getName());
-
-		// Post Count
-		int postCount = item.getPostCount();
-		if (postCount > 0) {
-			ui.postCount.setText(ctx.getResources()
-					.getQuantityString(R.plurals.posts, postCount,
-							postCount));
-		} else {
-			ui.postCount.setText(ctx.getString(R.string.no_posts));
+	@NotNullByDefault
+	private static class ForumListCallback extends ItemCallback<ForumListItem> {
+		@Override
+		public boolean areItemsTheSame(ForumListItem a, ForumListItem b) {
+			return a.equals(b);
 		}
 
-		// Date
-		if (item.isEmpty()) {
-			ui.date.setVisibility(GONE);
-		} else {
-			long timestamp = item.getTimestamp();
-			ui.date.setText(UiUtils.formatDate(ctx, timestamp));
-			ui.date.setVisibility(VISIBLE);
-		}
-
-		// Open Forum on Click
-		ui.layout.setOnClickListener(v -> {
-			Intent i = new Intent(ctx, ForumActivity.class);
-			Forum f = item.getForum();
-			i.putExtra(GROUP_ID, f.getId().getBytes());
-			i.putExtra(GROUP_NAME, f.getName());
-			ctx.startActivity(i);
-		});
-	}
-
-	@Override
-	public int compare(ForumListItem a, ForumListItem b) {
-		if (a == b) return 0;
-		// The forum with the newest message comes first
-		long aTime = a.getTimestamp(), bTime = b.getTimestamp();
-		if (aTime > bTime) return -1;
-		if (aTime < bTime) return 1;
-		// Break ties by forum name
-		String aName = a.getForum().getName();
-		String bName = b.getForum().getName();
-		return String.CASE_INSENSITIVE_ORDER.compare(aName, bName);
-	}
-
-	@Override
-	public boolean areContentsTheSame(ForumListItem a, ForumListItem b) {
-		return a.isEmpty() == b.isEmpty() &&
-				a.getTimestamp() == b.getTimestamp() &&
-				a.getUnreadCount() == b.getUnreadCount();
-	}
-
-	@Override
-	public boolean areItemsTheSame(ForumListItem a, ForumListItem b) {
-		return a.getForum().equals(b.getForum());
-	}
-
-	int findItemPosition(GroupId g) {
-		int count = getItemCount();
-		for (int i = 0; i < count; i++) {
-			ForumListItem item = getItemAt(i);
-			if (item != null && item.getForum().getGroup().getId().equals(g))
-				return i;
-		}
-		return INVALID_POSITION; // Not found
-	}
-
-	static class ForumViewHolder extends RecyclerView.ViewHolder {
-
-		private final ViewGroup layout;
-		private final TextAvatarView avatar;
-		private final TextView name;
-		private final TextView postCount;
-		private final TextView date;
-
-		private ForumViewHolder(View v) {
-			super(v);
-
-			layout = (ViewGroup) v;
-			avatar = v.findViewById(R.id.avatarView);
-			name = v.findViewById(R.id.forumNameView);
-			postCount = v.findViewById(R.id.postCountView);
-			date = v.findViewById(R.id.dateView);
+		@Override
+		public boolean areContentsTheSame(ForumListItem a, ForumListItem b) {
+			return a.isEmpty() == b.isEmpty() &&
+					a.getTimestamp() == b.getTimestamp() &&
+					a.getUnreadCount() == b.getUnreadCount();
 		}
 	}
+
 }
