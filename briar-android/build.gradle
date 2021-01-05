@@ -142,11 +142,9 @@ dependencies {
 	androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
 	androidTestAnnotationProcessor "com.google.dagger:dagger-compiler:2.24"
 	androidTestCompileOnly 'javax.annotation:jsr250-api:1.0'
-	androidTestImplementation 'junit:junit:4.12'
-	androidTestScreenshotImplementation('tools.fastlane:screengrab:1.2.0') {
-		// workaround for jetifier issue https://issuetracker.google.com/issues/123060356
-		exclude group: 'com.android.support.test.uiautomator'
-	}
+	androidTestImplementation 'junit:junit:4.13.1'
+	androidTestScreenshotImplementation 'tools.fastlane:screengrab:2.0.0'
+	androidTestScreenshotImplementation 'com.jraska:falcon:2.1.1'
 	androidTestScreenshotImplementation 'androidx.test.uiautomator:uiautomator:2.2.0'
 }
 
