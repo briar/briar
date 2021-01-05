@@ -2,7 +2,6 @@ package org.briarproject.bramble.system;
 
 import android.app.Application;
 import android.content.Context;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.PowerManager;
 
@@ -106,14 +105,21 @@ class AndroidWakeLockManagerImpl implements AndroidWakeLockManager {
 
 	private String getWakeLockTag(Context ctx) {
 		PackageManager pm = ctx.getPackageManager();
-		for (PackageInfo info : pm.getInstalledPackages(0)) {
-			String name = info.packageName.toLowerCase();
-			if (name.startsWith("com.huawei.powergenie")) {
-				return "LocationManagerService";
-			} else if (name.startsWith("com.evenwell.powermonitor")) {
-				return "AudioIn";
-			}
+		if (isInstalled(pm, "com.huawei.powergenie")) {
+			return "LocationManagerService";
+		} else if (isInstalled(pm, "com.evenwell.PowerMonitor")) {
+			return "AudioIn";
 		}
 		return ctx.getPackageName();
 	}
+
+	private boolean isInstalled(PackageManager pm, String packageName) {
+		try {
+			pm.getPackageInfo(packageName, 0);
+			return true;
+		} catch (PackageManager.NameNotFoundException e) {
+			return false;
+		}
+	}
+
 }
