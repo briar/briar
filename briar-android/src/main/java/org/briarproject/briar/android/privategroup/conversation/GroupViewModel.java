@@ -91,6 +91,16 @@ class GroupViewModel
 		});
 	}
 
+	void deletePrivateGroup() {
+		runOnDbThread(() -> {
+			try {
+				privateGroupManager.removePrivateGroup(groupId);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
 	LiveData<PrivateGroup> getPrivateGroup() {
 		return privateGroup;
 	}

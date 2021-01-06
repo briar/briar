@@ -99,11 +99,6 @@ class ForumControllerImpl extends
 	}
 
 	@Override
-	protected Forum loadNamedGroup() throws DbException {
-		return forumManager.getForum(getGroupId());
-	}
-
-	@Override
 	protected Collection<ForumPostHeader> loadHeaders() throws DbException {
 		return forumManager.getPostHeaders(getGroupId());
 	}
@@ -170,11 +165,6 @@ class ForumControllerImpl extends
 	@Override
 	protected ForumPostHeader addLocalMessage(ForumPost p) throws DbException {
 		return forumManager.addLocalPost(p);
-	}
-
-	@Override
-	protected void deleteNamedGroup(Forum forum) throws DbException {
-		forumManager.removeForum(forum);
 	}
 
 	@Override

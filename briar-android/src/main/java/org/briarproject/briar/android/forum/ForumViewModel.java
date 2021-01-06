@@ -1,6 +1,7 @@
 package org.briarproject.briar.android.forum;
 
 import android.app.Application;
+import android.widget.Toast;
 
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -14,6 +15,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.forum.Forum;
@@ -28,6 +30,7 @@ import javax.inject.Inject;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static android.widget.Toast.LENGTH_SHORT;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -77,6 +80,19 @@ class ForumViewModel extends ThreadListViewModel<Forum, ForumPostItem> {
 			}
 		});
 		return forum;
+	}
+
+	void deleteForum() {
+		runOnDbThread(() -> {
+			try {
+				Forum f = forumManager.getForum(groupId);
+				forumManager.removeForum(f);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+		Toast.makeText(getApplication(), R.string.forum_left_toast,
+				LENGTH_SHORT).show();
 	}
 
 }

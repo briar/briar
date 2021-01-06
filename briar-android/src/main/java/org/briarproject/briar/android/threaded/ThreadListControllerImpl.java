@@ -17,7 +17,6 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.DbControllerImpl;
-import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -130,9 +129,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		}
 	}
 
-	@DatabaseExecutor
-	protected abstract G loadNamedGroup() throws DbException;
-
 	@Override
 	public void loadItems(
 			ResultExceptionHandler<ThreadItemList<I>, DbException> handler) {
@@ -210,24 +206,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@DatabaseExecutor
 	protected abstract H addLocalMessage(M message) throws DbException;
-
-	@Override
-	public void deleteNamedGroup(ExceptionHandler<DbException> handler) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				G groupItem = loadNamedGroup();
-				deleteNamedGroup(groupItem);
-				logDuration(LOG, "Removing group", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
-	}
-
-	@DatabaseExecutor
-	protected abstract void deleteNamedGroup(G groupItem) throws DbException;
 
 	private ThreadItemList<I> buildItems(Collection<H> headers)
 			throws DbException {

@@ -6,15 +6,12 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.forum.ForumController.ForumListener;
 import org.briarproject.briar.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
@@ -33,7 +30,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
-import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_FORUM;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
@@ -149,7 +145,7 @@ public class ForumActivity extends
 	}
 
 	private void showUnsubscribeDialog() {
-		OnClickListener okListener = (dialog, which) -> deleteForum();
+		OnClickListener okListener = (dialog, which) -> viewModel.deleteForum();
 		AlertDialog.Builder builder = new AlertDialog.Builder(this,
 				R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.dialog_title_leave_forum));
@@ -157,22 +153,6 @@ public class ForumActivity extends
 		builder.setNegativeButton(R.string.dialog_button_leave, okListener);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
-	}
-
-	private void deleteForum() {
-		forumController.deleteNamedGroup(
-				new UiResultExceptionHandler<Void, DbException>(this) {
-					@Override
-					public void onResultUi(Void v) {
-						Toast.makeText(ForumActivity.this,
-								R.string.forum_left_toast, LENGTH_SHORT).show();
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
 	}
 
 	@Override

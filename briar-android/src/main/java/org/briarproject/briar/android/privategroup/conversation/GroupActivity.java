@@ -1,7 +1,5 @@
 package org.briarproject.briar.android.privategroup.conversation;
 
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -15,7 +13,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.controller.handler.UiExceptionHandler;
 import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteActivity;
@@ -45,7 +42,7 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 @ParametersNotNullByDefault
 public class GroupActivity extends
 		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageAdapter>
-		implements GroupListener, OnClickListener {
+		implements GroupListener {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
@@ -244,7 +241,8 @@ public class GroupActivity extends
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_leave_dialog_title));
 		builder.setMessage(getString(R.string.groups_leave_dialog_message));
-		builder.setNegativeButton(R.string.dialog_button_leave, this);
+		builder.setNegativeButton(R.string.dialog_button_leave,
+				(d, w) -> deleteGroup());
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
 	}
@@ -254,22 +252,16 @@ public class GroupActivity extends
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_dissolve_dialog_title));
 		builder.setMessage(getString(R.string.groups_dissolve_dialog_message));
-		builder.setNegativeButton(R.string.groups_dissolve_button, this);
+		builder.setNegativeButton(R.string.groups_dissolve_button,
+				(d, w) -> deleteGroup());
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
 	}
 
-	@Override
-	public void onClick(DialogInterface dialog, int which) {
-		controller.deleteNamedGroup(
-				new UiExceptionHandler<DbException>(this) {
-					// The activity is going to be destroyed by the
-					// GroupRemovedEvent being fired
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
+	private void deleteGroup() {
+		// The activity is going to be destroyed by the
+		// GroupRemovedEvent being fired
+		viewModel.deletePrivateGroup();
 	}
 
 	@Override

@@ -6,7 +6,6 @@ import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
-import org.briarproject.briar.android.controller.handler.ExceptionHandler;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.api.client.NamedGroup;
 
@@ -34,8 +33,6 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void createAndStoreMessage(String text, @Nullable I parentItem,
 			ResultExceptionHandler<I, DbException> handler);
-
-	void deleteNamedGroup(ExceptionHandler<DbException> handler);
 
 	interface ThreadListListener<I> extends ThreadListDataSource {
 

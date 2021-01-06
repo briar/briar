@@ -109,11 +109,6 @@ class GroupControllerImpl extends
 	}
 
 	@Override
-	protected PrivateGroup loadNamedGroup() throws DbException {
-		return privateGroupManager.getPrivateGroup(getGroupId());
-	}
-
-	@Override
 	protected Collection<GroupMessageHeader> loadHeaders() throws DbException {
 		return privateGroupManager.getHeaders(getGroupId());
 	}
@@ -194,11 +189,6 @@ class GroupControllerImpl extends
 	protected GroupMessageHeader addLocalMessage(GroupMessage message)
 			throws DbException {
 		return privateGroupManager.addLocalMessage(message);
-	}
-
-	@Override
-	protected void deleteNamedGroup(PrivateGroup group) throws DbException {
-		privateGroupManager.removePrivateGroup(group.getId());
 	}
 
 	@Override
