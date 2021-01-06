@@ -315,6 +315,16 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 		}
 	}
 
+	@Override
+	public String getMessageText(Transaction txn, MessageId m)
+			throws DbException {
+		try {
+			return getMessageText(clientHelper.getMessageAsList(txn, m));
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
 	private String getMessageText(BdfList body) throws FormatException {
 		// Message type (0), member (1), parent ID (2), previous message ID (3),
 		// text (4), signature (5)
@@ -324,8 +334,13 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 	@Override
 	public Collection<GroupMessageHeader> getHeaders(GroupId g)
 			throws DbException {
-		Collection<GroupMessageHeader> headers = new ArrayList<>();
-		Transaction txn = db.startTransaction(true);
+		return db.transactionWithResult(true, txn -> getHeaders(txn, g));
+	}
+
+	@Override
+	public List<GroupMessageHeader> getHeaders(Transaction txn, GroupId g)
+			throws DbException {
+		List<GroupMessageHeader> headers = new ArrayList<>();
 		try {
 			Map<MessageId, BdfDictionary> metadata =
 					clientHelper.getMessageMetadataAsDictionary(txn, g);
@@ -354,12 +369,9 @@ class PrivateGroupManagerImpl extends BdfIncomingMessageHook
 							meta, authorInfos));
 				}
 			}
-			db.commitTransaction(txn);
 			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
 	}
 

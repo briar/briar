@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 
 import java.util.Collection;
+import java.util.List;
 
 import javax.annotation.Nullable;
 
@@ -85,9 +86,20 @@ public interface ForumManager {
 	String getPostText(MessageId m) throws DbException;
 
 	/**
+	 * Returns the text of the forum post with the given ID.
+	 */
+	String getPostText(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the headers of all posts in the given forum.
 	 */
 	Collection<ForumPostHeader> getPostHeaders(GroupId g) throws DbException;
+
+	/**
+	 * Returns the headers of all posts in the given forum.
+	 */
+	List<ForumPostHeader> getPostHeaders(Transaction txn, GroupId g)
+			throws DbException;
 
 	/**
 	 * Registers a hook to be called whenever a forum is removed.

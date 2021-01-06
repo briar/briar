@@ -12,6 +12,7 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 
 import java.util.Collection;
+import java.util.List;
 
 @NotNullByDefault
 public interface PrivateGroupManager {
@@ -108,9 +109,20 @@ public interface PrivateGroupManager {
 	String getMessageText(MessageId m) throws DbException;
 
 	/**
+	 * Returns the text of the private group message with the given ID.
+	 */
+	String getMessageText(Transaction txn, MessageId m) throws DbException;
+
+	/**
 	 * Returns the headers of all messages in the given private group.
 	 */
 	Collection<GroupMessageHeader> getHeaders(GroupId g) throws DbException;
+
+	/**
+	 * Returns the headers of all messages in the given private group.
+	 */
+	List<GroupMessageHeader> getHeaders(Transaction txn, GroupId g)
+			throws DbException;
 
 	/**
 	 * Returns all members of the given private group.
