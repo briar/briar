@@ -2,37 +2,40 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Switch;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.TransactionManager;
+import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
+import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.fragment.BaseFragment;
 import org.briarproject.briar.api.autodelete.AutoDeleteManager;
 
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.preference.Preference;
-import androidx.preference.PreferenceFragmentCompat;
-import androidx.preference.SwitchPreference;
 
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.autodelete.AutoDeleteConstants.NO_AUTO_DELETE_TIMER;
 
-public class ConversationSettingsFragment extends PreferenceFragmentCompat
-		implements Preference.OnPreferenceChangeListener {
+@MethodsNotNullByDefault
+@ParametersNotNullByDefault
+public class ConversationSettingsFragment extends BaseFragment {
 
-	private static final String DM_ENABLE = "pref_key_disappearing_messages";
-	private static final String DM_EXPLANATION =
-			"pref_key_disappearing_messages_explanation";
-	private static final String DM_LEARN_MORE =
-			"pref_key_disappearing_messages_learn_more";
+	public static final String TAG =
+			ConversationSettingsFragment.class.getName();
 
 	private static final Logger LOG =
 			Logger.getLogger(ConversationSettingsFragment.class.getName());
@@ -52,9 +55,14 @@ public class ConversationSettingsFragment extends PreferenceFragmentCompat
 
 	private ConversationSettingsActivity listener;
 
-	private SwitchPreference enableDisappearingMessages;
+	private Switch switchDisappearingMessages;
 
 	private volatile boolean disappearingMessages = false;
+
+	@Override
+	public String getUniqueTag() {
+		return TAG;
+	}
 
 	@Override
 	public void onAttach(Context context) {
@@ -64,15 +72,25 @@ public class ConversationSettingsFragment extends PreferenceFragmentCompat
 	}
 
 	@Override
-	public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
-		addPreferencesFromResource(R.xml.conversation_settings);
+	public View onCreateView(LayoutInflater inflater,
+			@Nullable ViewGroup container,
+			@Nullable Bundle savedInstanceState) {
+		View contentView =
+				inflater.inflate(R.layout.fragment_conversation_settings,
+						container, false);
 
-		enableDisappearingMessages = findPreference(DM_ENABLE);
+		switchDisappearingMessages =
+				contentView.findViewById(R.id.switchDisappearingMessages);
 
-		enableDisappearingMessages.setOnPreferenceChangeListener(this);
+		switchDisappearingMessages
+				.setOnCheckedChangeListener((button, value) -> {
+					viewModel.setAutoDeleteTimerEnabled(value);
+				});
 
 		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
 				.get(ConversationViewModel.class);
+
+		return contentView;
 	}
 
 	private ConversationViewModel viewModel;
@@ -80,12 +98,8 @@ public class ConversationSettingsFragment extends PreferenceFragmentCompat
 	@Override
 	public void onStart() {
 		super.onStart();
-		setSettingsEnabled(false);
+		switchDisappearingMessages.setEnabled(false);
 		loadSettings();
-	}
-
-	private void setSettingsEnabled(boolean enabled) {
-		enableDisappearingMessages.setEnabled(enabled);
 	}
 
 	private void loadSettings() {
@@ -107,18 +121,9 @@ public class ConversationSettingsFragment extends PreferenceFragmentCompat
 
 	private void displaySettings() {
 		listener.runOnUiThreadUnlessDestroyed(() -> {
-			enableDisappearingMessages.setChecked(disappearingMessages);
-			setSettingsEnabled(true);
+			switchDisappearingMessages.setChecked(disappearingMessages);
+			switchDisappearingMessages.setEnabled(true);
 		});
-	}
-
-	@Override
-	public boolean onPreferenceChange(Preference preference, Object newValue) {
-		if (preference == enableDisappearingMessages) {
-			boolean dmSetting = (Boolean) newValue;
-			viewModel.setAutoDeleteTimerEnabled(dmSetting);
-		}
-		return true;
 	}
 
 }

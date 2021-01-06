@@ -10,6 +10,7 @@ import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
 import org.briarproject.briar.android.activity.BriarActivity;
+import org.briarproject.briar.android.fragment.BaseFragment.BaseFragmentListener;
 
 import javax.inject.Inject;
 
@@ -19,7 +20,8 @@ import androidx.lifecycle.ViewModelProviders;
 
 import static org.briarproject.briar.android.conversation.ConversationActivity.CONTACT_ID;
 
-public class ConversationSettingsActivity extends BriarActivity {
+public class ConversationSettingsActivity extends BriarActivity implements
+		BaseFragmentListener {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
