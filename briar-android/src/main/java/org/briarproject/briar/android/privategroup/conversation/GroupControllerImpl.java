@@ -211,20 +211,6 @@ class GroupControllerImpl extends
 	}
 
 	@Override
-	public void loadLocalAuthor(
-			ResultExceptionHandler<LocalAuthor, DbException> handler) {
-		runOnDbThread(() -> {
-			try {
-				LocalAuthor author = identityManager.getLocalAuthor();
-				handler.onResult(author);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
-	}
-
-	@Override
 	public void isDissolved(
 			ResultExceptionHandler<Boolean, DbException> handler) {
 		runOnDbThread(() -> {

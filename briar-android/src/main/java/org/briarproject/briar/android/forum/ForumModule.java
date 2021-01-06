@@ -19,6 +19,11 @@ public class ForumModule {
 		@IntoMap
 		@ViewModelKey(ForumListViewModel.class)
 		ViewModel bindForumListViewModel(ForumListViewModel forumListViewModel);
+
+		@Binds
+		@IntoMap
+		@ViewModelKey(ForumViewModel.class)
+		ViewModel bindForumViewModel(ForumViewModel forumViewModel);
 	}
 
 	@ActivityScope

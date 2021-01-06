@@ -39,11 +39,11 @@ import javax.inject.Inject;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.StringRes;
-import androidx.annotation.UiThread;
 import androidx.appcompat.app.ActionBar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 
 @MethodsNotNullByDefault
@@ -56,7 +56,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	protected static final String KEY_REPLY_ID = "replyId";
 
 	private static final Logger LOG =
-			Logger.getLogger(ThreadListActivity.class.getName());
+			getLogger(ThreadListActivity.class.getName());
 
 	protected A adapter;
 	private ThreadScrollListener<I> scrollListener;
@@ -71,6 +71,8 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	private MessageId replyId;
 
 	protected abstract ThreadListController<G, I> getController();
+
+	protected abstract ThreadListViewModel<G, I> getViewModel();
 
 	@Inject
 	protected SharingController sharingController;
@@ -87,6 +89,7 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 		if (b == null) throw new IllegalStateException("No GroupId in intent.");
 		groupId = new GroupId(b);
 		getController().setGroupId(groupId);
+		getViewModel().setGroupId(groupId);
 
 		textInput = findViewById(R.id.text_input_container);
 		sendController = new TextSendController(textInput, this, false);
@@ -141,24 +144,6 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 	}
 
 	protected abstract A createAdapter(LinearLayoutManager layoutManager);
-
-	protected void loadNamedGroup() {
-		getController().loadNamedGroup(
-				new UiResultExceptionHandler<G, DbException>(this) {
-					@Override
-					public void onResultUi(G groupItem) {
-						onNamedGroupLoaded(groupItem);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
-	}
-
-	@UiThread
-	protected abstract void onNamedGroupLoaded(G groupItem);
 
 	protected void loadItems() {
 		int revision = adapter.getRevision();
@@ -256,13 +241,11 @@ public abstract class ThreadListActivity<G extends NamedGroup, I extends ThreadI
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case android.R.id.home:
-				supportFinishAfterTransition();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		if (item.getItemId() == android.R.id.home) {
+			supportFinishAfterTransition();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

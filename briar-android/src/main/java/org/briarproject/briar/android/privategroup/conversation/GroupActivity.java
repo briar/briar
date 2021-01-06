@@ -11,7 +11,6 @@ import android.view.MenuItem;
 import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
@@ -24,6 +23,7 @@ import org.briarproject.briar.android.privategroup.memberlist.GroupMemberListAct
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
 import org.briarproject.briar.android.threaded.ThreadListController;
+import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.Visibility;
 
@@ -32,11 +32,13 @@ import javax.inject.Inject;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_GROUP_INVITE;
+import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_GROUP_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -46,7 +48,11 @@ public class GroupActivity extends
 		implements GroupListener, OnClickListener {
 
 	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+	@Inject
 	GroupController controller;
+
+	private GroupViewModel viewModel;
 
 	@Nullable
 	private Boolean isCreator = null;
@@ -57,11 +63,18 @@ public class GroupActivity extends
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(GroupViewModel.class);
 	}
 
 	@Override
 	protected ThreadListController<PrivateGroup, GroupMessageItem> getController() {
 		return controller;
+	}
+
+	@Override
+	protected ThreadListViewModel<PrivateGroup, GroupMessageItem> getViewModel() {
+		return viewModel;
 	}
 
 	@Override
@@ -73,7 +86,14 @@ public class GroupActivity extends
 		Intent i = getIntent();
 		String groupName = i.getStringExtra(GROUP_NAME);
 		if (groupName != null) setTitle(groupName);
-		loadNamedGroup();
+		observeOnce(viewModel.getPrivateGroup(), this, privateGroup ->
+				setTitle(privateGroup.getName())
+		);
+		observeOnce(viewModel.isCreator(), this, isCreator -> {
+			this.isCreator = isCreator; // TODO remove field
+			adapter.setPerspective(isCreator);
+			showMenuItems();
+		});
 
 		// Open member list on Toolbar click
 		if (toolbar != null) {
@@ -112,25 +132,6 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected void onNamedGroupLoaded(PrivateGroup group) {
-		setTitle(group.getName());
-		controller.loadLocalAuthor(
-				new UiResultExceptionHandler<LocalAuthor, DbException>(this) {
-					@Override
-					public void onResultUi(LocalAuthor author) {
-						isCreator = group.getCreator().equals(author);
-						adapter.setPerspective(isCreator);
-						showMenuItems();
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
-	}
-
-	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
@@ -155,42 +156,44 @@ public class GroupActivity extends
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		switch (item.getItemId()) {
-			case R.id.action_group_member_list:
-				Intent i1 = new Intent(this, GroupMemberListActivity.class);
-				i1.putExtra(GROUP_ID, groupId.getBytes());
-				startActivity(i1);
-				return true;
-			case R.id.action_group_reveal:
-				if (isCreator == null || isCreator)
-					throw new IllegalStateException();
-				Intent i2 = new Intent(this, RevealContactsActivity.class);
-				i2.putExtra(GROUP_ID, groupId.getBytes());
-				startActivity(i2);
-				return true;
-			case R.id.action_group_invite:
-				if (isCreator == null || !isCreator)
-					throw new IllegalStateException();
-				Intent i3 = new Intent(this, GroupInviteActivity.class);
-				i3.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i3, REQUEST_GROUP_INVITE);
-				return true;
-			case R.id.action_group_leave:
-				if (isCreator == null || isCreator)
-					throw new IllegalStateException();
-				showLeaveGroupDialog();
-				return true;
-			case R.id.action_group_dissolve:
-				if (isCreator == null || !isCreator)
-					throw new IllegalStateException();
-				showDissolveGroupDialog();
-			default:
-				return super.onOptionsItemSelected(item);
+		int itemId = item.getItemId();
+		if (itemId == R.id.action_group_member_list) {
+			Intent i1 = new Intent(this, GroupMemberListActivity.class);
+			i1.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i1);
+			return true;
+		} else if (itemId == R.id.action_group_reveal) {
+			if (isCreator == null || isCreator)
+				throw new IllegalStateException();
+			Intent i2 = new Intent(this, RevealContactsActivity.class);
+			i2.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i2);
+			return true;
+		} else if (itemId == R.id.action_group_invite) {
+			if (isCreator == null || !isCreator)
+				throw new IllegalStateException();
+			Intent i3 = new Intent(this, GroupInviteActivity.class);
+			i3.putExtra(GROUP_ID, groupId.getBytes());
+			startActivityForResult(i3, REQUEST_GROUP_INVITE);
+			return true;
+		} else if (itemId == R.id.action_group_leave) {
+			if (isCreator == null || isCreator)
+				throw new IllegalStateException();
+			showLeaveGroupDialog();
+			return true;
+		} else if (itemId == R.id.action_group_dissolve) {
+			if (isCreator == null || !isCreator)
+				throw new IllegalStateException();
+			showDissolveGroupDialog();
+
+			return super.onOptionsItemSelected(item);
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		if (request == REQUEST_GROUP_INVITE && result == RESULT_OK) {
 			displaySnackbar(R.string.groups_invitation_sent);
 		} else super.onActivityResult(request, result, data);

@@ -22,8 +22,6 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	void setGroupId(GroupId groupId);
 
-	void loadNamedGroup(ResultExceptionHandler<G, DbException> handler);
-
 	void loadSharingContacts(
 			ResultExceptionHandler<Collection<ContactId>, DbException> handler);
 

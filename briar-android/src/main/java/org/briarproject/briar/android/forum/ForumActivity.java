@@ -21,6 +21,7 @@ import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
 import org.briarproject.briar.android.threaded.ThreadListController;
+import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.forum.Forum;
 
 import javax.annotation.Nullable;
@@ -28,11 +29,13 @@ import javax.inject.Inject;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static android.widget.Toast.LENGTH_SHORT;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_FORUM;
+import static org.briarproject.briar.android.util.UiUtils.observeOnce;
 import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEXT_LENGTH;
 
 @MethodsNotNullByDefault
@@ -42,16 +45,27 @@ public class ForumActivity extends
 		implements ForumListener {
 
 	@Inject
+	ViewModelProvider.Factory viewModelFactory;
+	@Inject
 	ForumController forumController;
+
+	private ForumViewModel viewModel;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
+		viewModel = new ViewModelProvider(this, viewModelFactory)
+				.get(ForumViewModel.class);
 	}
 
 	@Override
 	protected ThreadListController<Forum, ForumPostItem> getController() {
 		return forumController;
+	}
+
+	@Override
+	protected ThreadListViewModel<Forum, ForumPostItem> getViewModel() {
+		return viewModel;
 	}
 
 	@Override
@@ -62,8 +76,13 @@ public class ForumActivity extends
 
 		Intent i = getIntent();
 		String groupName = i.getStringExtra(GROUP_NAME);
-		if (groupName != null) setTitle(groupName);
-		else loadNamedGroup();
+		if (groupName != null) {
+			setTitle(groupName);
+		} else {
+			observeOnce(viewModel.loadForum(), this, forum ->
+					setTitle(forum.getName())
+			);
+		}
 
 		// Open member list on Toolbar click
 		if (toolbar != null) {
@@ -77,18 +96,14 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected void onNamedGroupLoaded(Forum forum) {
-		setTitle(forum.getName());
-	}
-
-	@Override
 	protected ThreadItemAdapter<ForumPostItem> createAdapter(
 			LinearLayoutManager layoutManager) {
 		return new ThreadItemAdapter<>(this, layoutManager);
 	}
 
 	@Override
-	protected void onActivityResult(int request, int result, Intent data) {
+	protected void onActivityResult(int request, int result,
+			@Nullable Intent data) {
 		super.onActivityResult(request, result, data);
 
 		if (request == REQUEST_SHARE_FORUM && result == RESULT_OK) {
@@ -108,25 +123,24 @@ public class ForumActivity extends
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle presses on the action bar items
-		switch (item.getItemId()) {
-			case R.id.action_forum_share:
-				Intent i2 = new Intent(this, ShareForumActivity.class);
-				i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				i2.putExtra(GROUP_ID, groupId.getBytes());
-				startActivityForResult(i2, REQUEST_SHARE_FORUM);
-				return true;
-			case R.id.action_forum_sharing_status:
-				Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
-				i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
-				i3.putExtra(GROUP_ID, groupId.getBytes());
-				startActivity(i3);
-				return true;
-			case R.id.action_forum_delete:
-				showUnsubscribeDialog();
-				return true;
-			default:
-				return super.onOptionsItemSelected(item);
+		int itemId = item.getItemId();
+		if (itemId == R.id.action_forum_share) {
+			Intent i2 = new Intent(this, ShareForumActivity.class);
+			i2.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			i2.putExtra(GROUP_ID, groupId.getBytes());
+			startActivityForResult(i2, REQUEST_SHARE_FORUM);
+			return true;
+		} else if (itemId == R.id.action_forum_sharing_status) {
+			Intent i3 = new Intent(this, ForumSharingStatusActivity.class);
+			i3.setFlags(FLAG_ACTIVITY_CLEAR_TOP);
+			i3.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i3);
+			return true;
+		} else if (itemId == R.id.action_forum_delete) {
+			showUnsubscribeDialog();
+			return true;
 		}
+		return super.onOptionsItemSelected(item);
 	}
 
 	@Override

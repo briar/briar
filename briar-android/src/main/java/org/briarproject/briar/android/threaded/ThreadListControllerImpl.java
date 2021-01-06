@@ -130,23 +130,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 		}
 	}
 
-	@Override
-	public void loadNamedGroup(
-			ResultExceptionHandler<G, DbException> handler) {
-		checkGroupId();
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				G groupItem = loadNamedGroup();
-				logDuration(LOG, "Loading group", start);
-				handler.onResult(groupItem);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
-	}
-
 	@DatabaseExecutor
 	protected abstract G loadNamedGroup() throws DbException;
 
