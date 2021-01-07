@@ -27,10 +27,10 @@
 
 	<Button
 		android:id="@+id/buttonLearnMore"
+		style="?android:attr/borderlessButtonStyle"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
 		android:text="@string/learn_more"
-		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toStartOf="parent"
 		app:layout_constraintTop_toBottomOf="@+id/textViewExplanation" />
 
