@@ -5,6 +5,7 @@ import android.app.Application;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
+import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
@@ -18,10 +19,16 @@ import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
+import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
+import org.briarproject.briar.api.privategroup.GroupMessageHeader;
+import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.client.MessageTreeImpl;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -32,20 +39,22 @@ import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
+import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
+import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class GroupViewModel
-		extends ThreadListViewModel<PrivateGroup, GroupMessageItem> {
+class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 
 	private static final Logger LOG = getLogger(GroupViewModel.class.getName());
 
 	private final PrivateGroupManager privateGroupManager;
 	private final GroupMessageFactory groupMessageFactory;
 
-	MutableLiveData<PrivateGroup> privateGroup = new MutableLiveData<>();
-	MutableLiveData<Boolean> isCreator = new MutableLiveData<>();
+	private final MutableLiveData<PrivateGroup> privateGroup =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> isCreator = new MutableLiveData<>();
 
 	@Inject
 	GroupViewModel(Application application,
@@ -58,11 +67,12 @@ class GroupViewModel
 			AndroidNotificationManager notificationManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			Clock clock,
+			MessageTracker messageTracker,
 			PrivateGroupManager privateGroupManager,
 			GroupMessageFactory groupMessageFactory) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor,
 				identityManager, notificationManager, cryptoExecutor, clock,
-				eventBus);
+				messageTracker, eventBus);
 		this.privateGroupManager = privateGroupManager;
 		this.groupMessageFactory = groupMessageFactory;
 	}
@@ -89,6 +99,37 @@ class GroupViewModel
 				logException(LOG, WARNING, e);
 			}
 		});
+	}
+
+	@Override
+	public void loadItems() {
+		loadList(txn -> {
+			// TODO first check if group is dissolved
+			long start = now();
+			List<GroupMessageHeader> headers =
+					privateGroupManager.getHeaders(txn, groupId);
+			logDuration(LOG, "Loading headers", start);
+			List<GroupMessageItem> items =
+					buildItems(txn, headers, this::buildItem);
+			return new MessageTreeImpl<>(items).depthFirstOrder();
+		}, this::setItems);
+	}
+
+	private GroupMessageItem buildItem(GroupMessageHeader header, String text) {
+		if (header instanceof JoinMessageHeader) {
+			return new JoinMessageItem((JoinMessageHeader) header, text);
+		}
+		return new GroupMessageItem(header, text);
+	}
+
+	@Override
+	protected String loadMessageText(
+			Transaction txn, PostHeader header) throws DbException {
+		if (header instanceof JoinMessageHeader) {
+			// will be looked up later
+			return "";
+		}
+		return privateGroupManager.getMessageText(txn, header.getId());
 	}
 
 	void deletePrivateGroup() {

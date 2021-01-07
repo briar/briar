@@ -21,7 +21,6 @@ import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity
 import org.briarproject.briar.android.threaded.ThreadListActivity;
 import org.briarproject.briar.android.threaded.ThreadListController;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
-import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.Visibility;
 
 import javax.annotation.Nullable;
@@ -41,7 +40,7 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class GroupActivity extends
-		ThreadListActivity<PrivateGroup, GroupMessageItem, GroupMessageAdapter>
+		ThreadListActivity<GroupMessageItem, GroupMessageAdapter>
 		implements GroupListener {
 
 	@Inject
@@ -65,12 +64,12 @@ public class GroupActivity extends
 	}
 
 	@Override
-	protected ThreadListController<PrivateGroup, GroupMessageItem> getController() {
+	protected ThreadListController<GroupMessageItem> getController() {
 		return controller;
 	}
 
 	@Override
-	protected ThreadListViewModel<PrivateGroup, GroupMessageItem> getViewModel() {
+	protected ThreadListViewModel<GroupMessageItem> getViewModel() {
 		return viewModel;
 	}
 
@@ -103,22 +102,11 @@ public class GroupActivity extends
 		}
 
 		setGroupEnabled(false);
-	}
-
-	@Override
-	protected GroupMessageAdapter createAdapter(
-			LinearLayoutManager layoutManager) {
-		return new GroupMessageAdapter(this, layoutManager);
-	}
-
-	@Override
-	protected void loadItems() {
 		controller.isDissolved(
 				new UiResultExceptionHandler<Boolean, DbException>(this) {
 					@Override
 					public void onResultUi(Boolean isDissolved) {
 						setGroupEnabled(!isDissolved);
-						GroupActivity.super.loadItems();
 					}
 
 					@Override
@@ -126,6 +114,12 @@ public class GroupActivity extends
 						handleException(exception);
 					}
 				});
+	}
+
+	@Override
+	protected GroupMessageAdapter createAdapter(
+			LinearLayoutManager layoutManager) {
+		return new GroupMessageAdapter(this, layoutManager);
 	}
 
 	@Override

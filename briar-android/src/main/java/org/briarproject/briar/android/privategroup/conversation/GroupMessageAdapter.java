@@ -32,7 +32,7 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 	@LayoutRes
 	@Override
 	public int getItemViewType(int position) {
-		GroupMessageItem item = items.get(position);
+		GroupMessageItem item = getItem(position);
 		return item.getLayout();
 	}
 
@@ -55,7 +55,7 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 	void updateVisibility(AuthorId memberId, Visibility v) {
 		int position = findItemPosition(memberId);
 		if (position != NO_POSITION) {
-			GroupMessageItem item = items.get(position);
+			GroupMessageItem item = getItem(position);
 			if (item instanceof JoinMessageItem) {
 				((JoinMessageItem) item).setVisibility(v);
 				notifyItemChanged(findItemPosition(item), item);
@@ -63,12 +63,20 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 		}
 	}
 
+	@Deprecated
 	private int findItemPosition(AuthorId a) {
-		int count = items.size();
-		for (int i = 0; i < count; i++) {
-			GroupMessageItem item = items.get(i);
+		for (int i = 0; i < getItemCount(); i++) {
+			GroupMessageItem item = getItem(i);
 			if (item.getAuthor().getId().equals(a))
 				return i;
+		}
+		return NO_POSITION; // Not found
+	}
+
+	@Deprecated
+	private int findItemPosition(GroupMessageItem itemToFind) {
+		for (int i = 0; i < getItemCount(); i++) {
+			if (getItem(i).equals(itemToFind)) return i;
 		}
 		return NO_POSITION; // Not found
 	}

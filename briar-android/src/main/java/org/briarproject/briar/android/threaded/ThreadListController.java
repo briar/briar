@@ -7,7 +7,6 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.android.controller.ActivityLifecycleController;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.briar.api.client.NamedGroup;
 
 import java.util.Collection;
 
@@ -16,16 +15,13 @@ import javax.annotation.Nullable;
 import androidx.annotation.UiThread;
 
 @NotNullByDefault
-public interface ThreadListController<G extends NamedGroup, I extends ThreadItem>
+public interface ThreadListController<I extends ThreadItem>
 		extends ActivityLifecycleController {
 
 	void setGroupId(GroupId groupId);
 
 	void loadSharingContacts(
 			ResultExceptionHandler<Collection<ContactId>, DbException> handler);
-
-	void loadItems(
-			ResultExceptionHandler<ThreadItemList<I>, DbException> handler);
 
 	void markItemRead(I item);
 
@@ -48,7 +44,8 @@ public interface ThreadListController<G extends NamedGroup, I extends ThreadItem
 
 	interface ThreadListDataSource {
 
-		@UiThread @Nullable
+		@UiThread
+		@Nullable
 		MessageId getFirstVisibleMessageId();
 	}
 

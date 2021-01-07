@@ -30,8 +30,13 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	private final List<List<T>> unsortedLists = new ArrayList<>();
 
 	@SuppressWarnings("UseCompareMethod")
-	private Comparator<T> comparator = (o1, o2) ->
+	private final Comparator<T> comparator = (o1, o2) ->
 			Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
+
+	public MessageTreeImpl(Collection<T> collection) {
+		super();
+		add(collection);
+	}
 
 	@Override
 	public synchronized void clear() {
@@ -79,6 +84,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	@GuardedBy("this")
 	private void sortUnsorted() {
 		for (List<T> list : unsortedLists) {
+			//noinspection Java8ListSort
 			Collections.sort(list, comparator);
 		}
 		unsortedLists.clear();
@@ -95,17 +101,7 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	}
 
 	@Override
-	public synchronized void setComparator(Comparator<T> comparator) {
-		this.comparator = comparator;
-		// Sort all lists with the new comparator
-		Collections.sort(roots, comparator);
-		for (Map.Entry<MessageId, List<T>> entry : nodeMap.entrySet()) {
-			Collections.sort(entry.getValue(), comparator);
-		}
-	}
-
-	@Override
-	public synchronized Collection<T> depthFirstOrder() {
+	public synchronized List<T> depthFirstOrder() {
 		List<T> orderedList = new ArrayList<>();
 		for (T root : roots) {
 			traverse(orderedList, root, 0);

@@ -19,7 +19,6 @@ import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
-import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumPost;
@@ -43,7 +42,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class ForumControllerImpl extends
-		ThreadListControllerImpl<Forum, ForumPostItem, ForumPostHeader, ForumPost, ForumListener>
+		ThreadListControllerImpl<ForumPostItem, ForumPostHeader, ForumPost, ForumListener>
 		implements ForumController {
 
 	private static final Logger LOG =
@@ -96,16 +95,6 @@ class ForumControllerImpl extends
 				listener.onForumLeft(c.getContactId());
 			}
 		}
-	}
-
-	@Override
-	protected Collection<ForumPostHeader> loadHeaders() throws DbException {
-		return forumManager.getPostHeaders(getGroupId());
-	}
-
-	@Override
-	protected String loadMessageText(ForumPostHeader h) throws DbException {
-		return forumManager.getPostText(h.getId());
 	}
 
 	@Override

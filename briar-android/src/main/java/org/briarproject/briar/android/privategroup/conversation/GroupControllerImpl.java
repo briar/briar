@@ -24,7 +24,6 @@ import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.JoinMessageHeader;
-import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.event.ContactRelationshipRevealedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
@@ -47,7 +46,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 class GroupControllerImpl extends
-		ThreadListControllerImpl<PrivateGroup, GroupMessageItem, GroupMessageHeader, GroupMessage, GroupListener>
+		ThreadListControllerImpl<GroupMessageItem, GroupMessageHeader, GroupMessage, GroupListener>
 		implements GroupController {
 
 	private static final Logger LOG =
@@ -106,21 +105,6 @@ class GroupControllerImpl extends
 				listener.onGroupDissolved();
 			}
 		}
-	}
-
-	@Override
-	protected Collection<GroupMessageHeader> loadHeaders() throws DbException {
-		return privateGroupManager.getHeaders(getGroupId());
-	}
-
-	@Override
-	protected String loadMessageText(GroupMessageHeader header)
-			throws DbException {
-		if (header instanceof JoinMessageHeader) {
-			// will be looked up later
-			return "";
-		}
-		return privateGroupManager.getMessageText(header.getId());
 	}
 
 	@Override

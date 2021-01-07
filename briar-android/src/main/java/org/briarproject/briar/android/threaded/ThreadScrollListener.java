@@ -20,11 +20,11 @@ class ThreadScrollListener<I extends ThreadItem>
 	private static final Logger LOG =
 			getLogger(ThreadScrollListener.class.getName());
 
-	private final ThreadListController<?, I> controller;
+	private final ThreadListController<I> controller;
 	private final UnreadMessageButton upButton, downButton;
 
 	ThreadScrollListener(ThreadItemAdapter<I> adapter,
-			ThreadListController<?, I> controller,
+			ThreadListController<I> controller,
 			UnreadMessageButton upButton,
 			UnreadMessageButton downButton) {
 		super(adapter);

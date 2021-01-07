@@ -21,7 +21,6 @@ import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.client.NamedGroup;
 import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.client.ThreadedMessage;
 
@@ -34,7 +33,6 @@ import java.util.logging.Logger;
 
 import androidx.annotation.CallSuper;
 
-import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
 import static org.briarproject.bramble.util.LogUtils.logException;
@@ -42,9 +40,9 @@ import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage, L extends ThreadListListener<I>>
+public abstract class ThreadListControllerImpl<I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage, L extends ThreadListListener<I>>
 		extends DbControllerImpl
-		implements ThreadListController<G, I>, EventListener {
+		implements ThreadListController<I>, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
@@ -130,42 +128,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 	}
 
 	@Override
-	public void loadItems(
-			ResultExceptionHandler<ThreadItemList<I>, DbException> handler) {
-		checkGroupId();
-		runOnDbThread(() -> {
-			try {
-				// Load headers
-				long start = now();
-				Collection<H> headers = loadHeaders();
-				logDuration(LOG, "Loading headers", start);
-
-				// Load bodies into cache
-				start = now();
-				for (H header : headers) {
-					if (!textCache.containsKey(header.getId())) {
-						textCache.put(header.getId(),
-								loadMessageText(header));
-					}
-				}
-				logDuration(LOG, "Loading bodies", start);
-
-				// Build and hand over items
-				handler.onResult(buildItems(headers));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
-	}
-
-	@DatabaseExecutor
-	protected abstract Collection<H> loadHeaders() throws DbException;
-
-	@DatabaseExecutor
-	protected abstract String loadMessageText(H header) throws DbException;
-
-	@Override
 	public void markItemRead(I item) {
 		markItemsRead(Collections.singletonList(item));
 	}
@@ -206,19 +168,6 @@ public abstract class ThreadListControllerImpl<G extends NamedGroup, I extends T
 
 	@DatabaseExecutor
 	protected abstract H addLocalMessage(M message) throws DbException;
-
-	private ThreadItemList<I> buildItems(Collection<H> headers)
-			throws DbException {
-		ThreadItemList<I> items = new ThreadItemListImpl<>();
-		for (H h : headers) {
-			items.add(buildItem(h, textCache.get(h.getId())));
-		}
-		MessageId msgId = messageTracker.loadStoredMessageId(groupId);
-		if (LOG.isLoggable(INFO))
-			LOG.info("Loaded last top visible message id " + msgId);
-		items.setFirstVisibleId(msgId);
-		return items;
-	}
 
 	protected abstract I buildItem(H header, String text);
 
