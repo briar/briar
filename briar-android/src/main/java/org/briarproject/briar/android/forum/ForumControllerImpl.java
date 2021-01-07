@@ -43,7 +43,7 @@ import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
 class ForumControllerImpl extends
-		ThreadListControllerImpl<Forum, ForumItem, ForumPostHeader, ForumPost, ForumListener>
+		ThreadListControllerImpl<Forum, ForumPostItem, ForumPostHeader, ForumPost, ForumListener>
 		implements ForumController {
 
 	private static final Logger LOG =
@@ -138,8 +138,8 @@ class ForumControllerImpl extends
 
 	@Override
 	public void createAndStoreMessage(String text,
-			@Nullable ForumItem parentItem,
-			ResultExceptionHandler<ForumItem, DbException> handler) {
+			@Nullable ForumPostItem parentItem,
+			ResultExceptionHandler<ForumPostItem, DbException> handler) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
@@ -158,7 +158,7 @@ class ForumControllerImpl extends
 
 	private void createMessage(String text, long timestamp,
 			@Nullable MessageId parentId, LocalAuthor author,
-			ResultExceptionHandler<ForumItem, DbException> handler) {
+			ResultExceptionHandler<ForumPostItem, DbException> handler) {
 		cryptoExecutor.execute(() -> {
 			LOG.info("Creating forum post...");
 			ForumPost msg = forumManager.createLocalPost(getGroupId(), text,
@@ -178,8 +178,8 @@ class ForumControllerImpl extends
 	}
 
 	@Override
-	protected ForumItem buildItem(ForumPostHeader header, String text) {
-		return new ForumItem(header, text);
+	protected ForumPostItem buildItem(ForumPostHeader header, String text) {
+		return new ForumPostItem(header, text);
 	}
 
 }

@@ -8,9 +8,9 @@ import org.briarproject.briar.api.forum.Forum;
 import androidx.annotation.UiThread;
 
 @NotNullByDefault
-interface ForumController extends ThreadListController<Forum, ForumItem> {
+interface ForumController extends ThreadListController<Forum, ForumPostItem> {
 
-	interface ForumListener extends ThreadListListener<ForumItem> {
+	interface ForumListener extends ThreadListListener<ForumPostItem> {
 		@UiThread
 		void onForumLeft(ContactId c);
 	}

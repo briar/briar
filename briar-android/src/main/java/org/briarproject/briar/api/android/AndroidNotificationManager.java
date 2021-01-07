@@ -82,6 +82,10 @@ public interface AndroidNotificationManager {
 
 	void unblockNotification(GroupId g);
 
+	void blockAllForumPostNotifications();
+
+	void unblockAllForumPostNotifications();
+
 	void blockAllGroupMessageNotifications();
 
 	void unblockAllGroupMessageNotifications();

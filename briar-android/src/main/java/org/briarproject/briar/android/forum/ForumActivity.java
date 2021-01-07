@@ -38,7 +38,7 @@ import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEX
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ForumActivity extends
-		ThreadListActivity<Forum, ForumItem, ThreadItemAdapter<ForumItem>>
+		ThreadListActivity<Forum, ForumPostItem, ThreadItemAdapter<ForumPostItem>>
 		implements ForumListener {
 
 	@Inject
@@ -50,7 +50,7 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected ThreadListController<Forum, ForumItem> getController() {
+	protected ThreadListController<Forum, ForumPostItem> getController() {
 		return forumController;
 	}
 
@@ -82,7 +82,7 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected ThreadItemAdapter<ForumItem> createAdapter(
+	protected ThreadItemAdapter<ForumPostItem> createAdapter(
 			LinearLayoutManager layoutManager) {
 		return new ThreadItemAdapter<>(this, layoutManager);
 	}

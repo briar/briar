@@ -10,15 +10,15 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.NotThreadSafe;
 
 @NotThreadSafe
-class ForumItem extends ThreadItem {
+class ForumPostItem extends ThreadItem {
 
-	ForumItem(ForumPostHeader h, String text) {
+	ForumPostItem(ForumPostHeader h, String text) {
 		super(h.getId(), h.getParentId(), text, h.getTimestamp(), h.getAuthor(),
 				h.getAuthorInfo(), h.isRead());
 	}
 
-	ForumItem(MessageId messageId, @Nullable MessageId parentId, String text,
-			long timestamp, Author author, AuthorInfo authorInfo) {
+	ForumPostItem(MessageId messageId, @Nullable MessageId parentId,
+			String text, long timestamp, Author author, AuthorInfo authorInfo) {
 		super(messageId, parentId, text, timestamp, author, authorInfo, true);
 	}
 

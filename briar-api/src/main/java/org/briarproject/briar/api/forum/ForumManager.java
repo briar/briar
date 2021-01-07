@@ -75,6 +75,11 @@ public interface ForumManager {
 	Collection<Forum> getForums() throws DbException;
 
 	/**
+	 * Returns all forums to which the user subscribes.
+	 */
+	Collection<Forum> getForums(Transaction txn) throws DbException;
+
+	/**
 	 * Returns the text of the forum post with the given ID.
 	 */
 	String getPostText(MessageId m) throws DbException;
@@ -92,7 +97,13 @@ public interface ForumManager {
 	/**
 	 * Returns the group count for the given forum.
 	 */
+	@Deprecated
 	GroupCount getGroupCount(GroupId g) throws DbException;
+
+	/**
+	 * Returns the group count for the given forum.
+	 */
+	GroupCount getGroupCount(Transaction txn, GroupId g) throws DbException;
 
 	/**
 	 * Marks a message as read or unread and updates the group count.

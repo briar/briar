@@ -25,7 +25,6 @@ import org.robolectric.annotation.Config;
 import java.util.Arrays;
 
 import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
 import static org.briarproject.bramble.api.identity.AuthorInfo.Status.UNKNOWN;
 import static org.briarproject.bramble.test.TestUtils.getAuthor;
 import static org.briarproject.bramble.test.TestUtils.getRandomId;
@@ -68,7 +67,7 @@ public class ForumActivityTest {
 
 	private TestForumActivity forumActivity;
 	@Captor
-	private ArgumentCaptor<UiResultExceptionHandler<ThreadItemList<ForumItem>, DbException>>
+	private ArgumentCaptor<UiResultExceptionHandler<ThreadItemList<ForumPostItem>, DbException>>
 			rc;
 
 	@Before
@@ -80,42 +79,42 @@ public class ForumActivityTest {
 				intent).create().start().resume().get();
 	}
 
-	private ThreadItemList<ForumItem> getDummyData() {
-		ForumItem[] forumItems = new ForumItem[6];
-		for (int i = 0; i < forumItems.length; i++) {
+	private ThreadItemList<ForumPostItem> getDummyData() {
+		ForumPostItem[] forumPostItems = new ForumPostItem[6];
+		for (int i = 0; i < forumPostItems.length; i++) {
 			Author author = getAuthor();
 			String text = getRandomString(MAX_FORUM_POST_TEXT_LENGTH);
-			forumItems[i] = new ForumItem(MESSAGE_IDS[i], PARENT_IDS[i],
+			forumPostItems[i] = new ForumPostItem(MESSAGE_IDS[i], PARENT_IDS[i],
 					text, System.currentTimeMillis(), author,
 					new AuthorInfo(UNKNOWN));
-			forumItems[i].setLevel(LEVELS[i]);
+			forumPostItems[i].setLevel(LEVELS[i]);
 		}
-		ThreadItemList<ForumItem> list = new ThreadItemListImpl<>();
-		list.addAll(Arrays.asList(forumItems));
+		ThreadItemList<ForumPostItem> list = new ThreadItemListImpl<>();
+		list.addAll(Arrays.asList(forumPostItems));
 		return list;
 	}
 
 	@Test
 	public void testNestedEntries() {
 		ForumController mc = forumActivity.getController();
-		ThreadItemList<ForumItem> dummyData = getDummyData();
+		ThreadItemList<ForumPostItem> dummyData = getDummyData();
 		verify(mc, times(1)).loadItems(rc.capture());
 		rc.getValue().onResult(dummyData);
-		ThreadItemAdapter<ForumItem> adapter = forumActivity.getAdapter();
+		ThreadItemAdapter<ForumPostItem> adapter = forumActivity.getAdapter();
 		Assert.assertNotNull(adapter);
 		assertEquals(6, adapter.getItemCount());
-		assertTrue(dummyData.get(0).getText()
-				.equals(adapter.getItemAt(0).getText()));
-		assertTrue(dummyData.get(1).getText()
-				.equals(adapter.getItemAt(1).getText()));
-		assertTrue(dummyData.get(2).getText()
-				.equals(adapter.getItemAt(2).getText()));
-		assertTrue(dummyData.get(3).getText()
-				.equals(adapter.getItemAt(3).getText()));
-		assertTrue(dummyData.get(4).getText()
-				.equals(adapter.getItemAt(4).getText()));
-		assertTrue(dummyData.get(5).getText()
-				.equals(adapter.getItemAt(5).getText()));
+		assertEquals(dummyData.get(0).getText(),
+				adapter.getItemAt(0).getText());
+		assertEquals(dummyData.get(1).getText(),
+				adapter.getItemAt(1).getText());
+		assertEquals(dummyData.get(2).getText(),
+				adapter.getItemAt(2).getText());
+		assertEquals(dummyData.get(3).getText(),
+				adapter.getItemAt(3).getText());
+		assertEquals(dummyData.get(4).getText(),
+				adapter.getItemAt(4).getText());
+		assertEquals(dummyData.get(5).getText(),
+				adapter.getItemAt(5).getText());
 	}
 
 }
