@@ -3,6 +3,9 @@ package org.briarproject.briar.android.conversation;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Switch;
@@ -72,6 +75,12 @@ public class ConversationSettingsFragment extends BaseFragment {
 	}
 
 	@Override
+	public void onCreate(@Nullable Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setHasOptionsMenu(true);
+	}
+
+	@Override
 	public View onCreateView(LayoutInflater inflater,
 			@Nullable ViewGroup container,
 			@Nullable Bundle savedInstanceState) {
@@ -124,6 +133,22 @@ public class ConversationSettingsFragment extends BaseFragment {
 			switchDisappearingMessages.setChecked(disappearingMessages);
 			switchDisappearingMessages.setEnabled(true);
 		});
+	}
+
+	@Override
+	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+		inflater.inflate(R.menu.help_action, menu);
+		super.onCreateOptionsMenu(menu, inflater);
+	}
+
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.action_help) {
+			// TODO: display dialog
+			return true;
+		}
+		return super.onOptionsItemSelected(item);
 	}
 
 }

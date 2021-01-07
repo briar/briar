@@ -2,8 +2,6 @@ package org.briarproject.briar.android.conversation;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.contact.ContactId;
@@ -71,17 +69,8 @@ public class ConversationSettingsActivity extends BriarActivity implements
 		if (item.getItemId() == android.R.id.home) {
 			onBackPressed();
 			return true;
-		} else if (item.getItemId() == R.id.action_help) {
-			// TODO: display dialog
 		}
 		return false;
-	}
-
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		MenuInflater inflater = getMenuInflater();
-		inflater.inflate(R.menu.help_action, menu);
-		return super.onCreateOptionsMenu(menu);
 	}
 
 }
