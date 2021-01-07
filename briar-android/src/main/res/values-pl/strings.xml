@@ -501,7 +501,10 @@
   <string name="optional_contact_email">Twój adres email (opcjonalne)</string>
   <string name="include_debug_report_crash">Załącz anonimowe dane na temat awarii</string>
   <string name="include_debug_report_feedback">Załącz anonimowe dane o tym urządzeniu</string>
-  <string name="could_not_load_report_data">Nie można było załadować danych raportu.</string>
+  <string name="dev_report_basic_info">Podstawowe informacje</string>
+  <string name="dev_report_memory">Pamięć</string>
+  <string name="dev_report_storage">Storage</string>
+  <string name="dev_report_connectivity">Łączenie</string>
   <string name="send_report">Wyślij raport</string>
   <string name="close">Zamknij</string>
   <string name="dev_report_saved">Raport zapisany. Zostanie wysłany następnym razem kiedy zalogujesz się do Briar.</string>

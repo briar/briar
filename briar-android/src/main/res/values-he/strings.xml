@@ -555,16 +555,29 @@
   <string name="optional_contact_email">כתובת הדוא״ל שלך (רשותי)</string>
   <string name="include_debug_report_crash">כלול נתונים אלמוניים לגבי הקריסה</string>
   <string name="include_debug_report_feedback">כלול נתונים אלמוניים לגבי מכשיר זה</string>
-  <string name="could_not_load_report_data">לא היה ניתן לטעון נתוני דוח.</string>
+  <string name="dev_report_basic_info">מידע בסיסי</string>
+  <string name="dev_report_device_info">מידע מכשיר</string>
+  <string name="dev_report_time_info">מידע זמן</string>
+  <string name="dev_report_memory">זיכרון</string>
+  <string name="dev_report_storage">אחסון</string>
+  <string name="dev_report_connectivity">קישוריות</string>
+  <string name="dev_report_build_config">תצורת בנייה</string>
+  <string name="dev_report_logcat">יומן יישום</string>
+  <string name="dev_report_device_features">מאפייני מכשיר</string>
   <string name="send_report">שלח דוח</string>
   <string name="close">סגור</string>
+  <string name="dev_report_sending">שולח משוב…</string>
+  <string name="dev_report_sent">משוב נשלח</string>
   <string name="dev_report_saved">הדוח נשמר. הוא יישלח בפעם הבאה שתתחבר אל Briar.</string>
+  <string name="dev_report_error">שגיאה: שליחת דוח נכשלה</string>
   <!--Sign Out-->
   <string name="progress_title_logout">מתנתק מן Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">ציפוי מסך התגלה</string>
   <string name="screen_filter_body">יישום אחר מציירת מעל Briar. כדי להגן על אבטחתך, Briar לא יגיב לנגיעות כאשר יישום אחר מצייר מעל.\n\nהיישומים הבאים יכולים לצייר מעל:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">יישום אחר מצייר מעל Briar. כדי להגן על אבטחתך, Briar לא יגיב לנגיעות כאשר יישום אחר מצייר מעל.\n\nסקור יישומים למטה כדי למצוא את היישום האחראי.</string>
   <string name="screen_filter_allow">התר ליישומים אלו לצייר מעל</string>
+  <string name="screen_filter_review_apps">סקור יישומים</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">הרשאת מצלמה</string>
   <string name="permission_camera_request_body">כדי לסרוק את קוד ה־QR, היישום Briar צריך גישה אל המצלמה.</string>
@@ -573,6 +586,7 @@
   <string name="permission_camera_location_title">מצלמה ומיקום</string>
   <string name="permission_camera_location_request_body">כדי לסרוק את קוד ה־QR, היישום Briar צריך הרשאה אל המצלמה.\n\nכדי לגלות מכשירי שן־כחולה, Briar צריך הרשאה להשיג גישה אל מיקומך.\n\nBriar אינו מאחסן את מיקומך או משתף אותו עם אף אחד.</string>
   <string name="permission_camera_denied_body">דחית גישה אל המצלמה, אבל הוספת אנשי קשר דורשת שימוש במצלמה.\n\nאנא שקול הענקת גישה.</string>
+  <string name="permission_location_denied_body">דחית גישה אל המיקום שלך, אבל Briar צריך הרשאה זו כדי לגלות מכשירי Bluetooth.\n\nאנא שקול להעניק גישה.</string>
   <string name="qr_code">קוד QR</string>
   <string name="show_qr_code_fullscreen">הראה קוד QR במסך מלא</string>
   <!--App Locking-->

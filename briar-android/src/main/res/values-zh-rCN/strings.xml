@@ -27,7 +27,7 @@
   <string name="enter_password">密码</string>
   <string name="try_again">密码错误，请重试</string>
   <string name="dialog_title_cannot_check_password">无法检查密码</string>
-  <string name="dialog_message_cannot_check_password">Briar无法检查您的密码。请尝试重新启动您的设备以解决此问题。</string>
+  <string name="dialog_message_cannot_check_password">Briar 无法检查您的密码。请尝试重新启动您的设备以解决此问题。</string>
   <string name="sign_in_button">登录</string>
   <string name="forgotten_password">我忘记了密码</string>
   <string name="dialog_title_lost_password">密码遗失</string>
@@ -60,36 +60,36 @@
   <string name="lock_button">锁定应用</string>
   <string name="settings_button">设置</string>
   <string name="sign_out_button">登出</string>
-  <string name="transports_onboarding_text">点击这里来控制Briar如何连接到您的联系人</string>
+  <string name="transports_onboarding_text">点击这里来控制 Briar 如何与您的联系人连接。</string>
   <!--Transports: Tor-->
   <string name="transport_tor">互联网</string>
-  <string name="tor_device_status_online_wifi">你的手机通过Wi-Fi上网</string>
+  <string name="tor_device_status_online_wifi">您的手机通过 Wi-Fi 访问互联网</string>
   <string name="tor_device_status_online_mobile">您的手机通过移动数据访问互联网</string>
-  <string name="tor_device_status_offline">你的手机不能上网</string>
-  <string name="tor_plugin_status_enabling">Briar正在连接互联网</string>
-  <string name="tor_plugin_status_active">Briar 已联网</string>
-  <string name="tor_plugin_status_inactive">Briar 无法联网</string>
-  <string name="tor_plugin_status_disabled">Briar 配置为不使用互联网</string>
-  <string name="tor_plugin_status_disabled_mobile_data">Briar 配置为不使用移动数据</string>
-  <string name="tor_plugin_status_disabled_battery">Briar配置为在用电池运行时不使用互联网</string>
-  <string name="tor_plugin_status_disabled_country_blocked">Briar配置为在这个国家不使用互联网</string>
+  <string name="tor_device_status_offline">您的手机无法访问互联网</string>
+  <string name="tor_plugin_status_enabling">Briar 正在连接互联网</string>
+  <string name="tor_plugin_status_active">Briar 已连接到互联网</string>
+  <string name="tor_plugin_status_inactive">Briar 无法连接到互联网</string>
+  <string name="tor_plugin_status_disabled">Briar 被配置为不使用互联网</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar 被配置为不使用移动数据</string>
+  <string name="tor_plugin_status_disabled_battery">Briar 被配置为在用电池运行时不使用互联网</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar 被配置为在这个国家不使用互联网</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">无线局域网</string>
   <string name="transport_lan_long">同一 Wi-Fi 网络</string>
-  <string name="lan_device_status_on">你的手机连接到Wi-Fi</string>
-  <string name="lan_device_status_off">你的手机未连接到Wi-Fi</string>
-  <string name="lan_plugin_status_enabling">Briar正在连接Wi-Fi网络</string>
-  <string name="lan_plugin_status_active">Briar已连接到此Wi-Fi网络</string>
-  <string name="lan_plugin_status_inactive">Briar不能连接到此Wi-Fi网络</string>
-  <string name="lan_plugin_status_disabled">Briar 配置为不使用Wi-Fi 网络</string>
+  <string name="lan_device_status_on">您的手机已连接到 Wi-Fi</string>
+  <string name="lan_device_status_off">您的手机未连接到 Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar 正在连接 Wi-Fi 网络</string>
+  <string name="lan_plugin_status_active">Briar 已连接到 Wi-Fi 网络</string>
+  <string name="lan_plugin_status_inactive">Briar 无法连接到此 Wi-Fi 网络</string>
+  <string name="lan_plugin_status_disabled">Briar 被配置为不使用 Wi-Fi 网络</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">蓝牙</string>
-  <string name="bt_device_status_on">你手机的蓝牙已打开</string>
-  <string name="bt_device_status_off">你手机额蓝牙已关闭</string>
+  <string name="bt_device_status_on">您手机的蓝牙已开启</string>
+  <string name="bt_device_status_off">您手机的蓝牙已关闭</string>
   <string name="bt_plugin_status_enabling">Briar 正连接蓝牙</string>
   <string name="bt_plugin_status_active">Briar 已连接蓝牙</string>
-  <string name="bt_plugin_status_inactive">Briar 不能连接蓝牙</string>
-  <string name="bt_plugin_status_disabled">Briar 配置为不使用蓝牙</string>
+  <string name="bt_plugin_status_inactive">Briar 无法连接蓝牙</string>
+  <string name="bt_plugin_status_disabled">Briar 被配置为不使用蓝牙</string>
   <!--Notifications-->
   <string name="reminder_notification_title">已登出 Briar</string>
   <string name="reminder_notification_text">轻按以重新登录。</string>
@@ -427,10 +427,10 @@
   <!--Settings Connections-->
   <string name="network_settings_title">连接</string>
   <string name="bluetooth_setting">通过蓝牙连接联系人</string>
-  <string name="wifi_setting">通过同一Wi-Fi和联系人连接</string>
+  <string name="wifi_setting">通过同一个 Wi-Fi 网络和联系人连接</string>
   <string name="tor_enable_title">通过互联网和联系人连接</string>
-  <string name="tor_enable_summary">为了保护隐私，所有连接都通过Tor网络</string>
-  <string name="tor_network_setting">Tor网络连接方式</string>
+  <string name="tor_enable_summary">为了保护隐私，所有连接都通过 Tor 网络</string>
+  <string name="tor_network_setting">Tor 网络连接方式</string>
   <string name="tor_network_setting_automatic">基于位置自动选择</string>
   <string name="tor_network_setting_without_bridges">不通过网桥连接到 Tor</string>
   <string name="tor_network_setting_with_bridges">通过网桥连接到 Tor</string>
@@ -521,16 +521,30 @@
   <string name="optional_contact_email">您的邮箱地址（选填）</string>
   <string name="include_debug_report_crash">包含关于本次崩溃的匿名数据</string>
   <string name="include_debug_report_feedback">包含关于本设备的匿名数据</string>
-  <string name="could_not_load_report_data">无法加载报告数据。</string>
+  <string name="dev_report_basic_info">基础信息</string>
+  <string name="dev_report_device_info">设备信息</string>
+  <string name="dev_report_stacktrace">堆栈追踪</string>
+  <string name="dev_report_time_info">时间信息</string>
+  <string name="dev_report_memory">内存</string>
+  <string name="dev_report_storage">存储</string>
+  <string name="dev_report_connectivity">连通性</string>
+  <string name="dev_report_build_config">编译配置</string>
+  <string name="dev_report_logcat">应用程序日志</string>
+  <string name="dev_report_device_features">设备特性</string>
   <string name="send_report">发送报告</string>
   <string name="close">关闭</string>
+  <string name="dev_report_sending">发送反馈中……</string>
+  <string name="dev_report_sent">反馈已发送</string>
   <string name="dev_report_saved">报告已保存，将于您下次登录时发送。</string>
+  <string name="dev_report_error">错误：报告发送失败</string>
   <!--Sign Out-->
   <string name="progress_title_logout">正在登出 Briar……</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">检测到屏幕覆盖</string>
   <string name="screen_filter_body">另一个应用覆盖在了 Briar 上。为了保护您的安全，在有其他应用覆盖的情况下， Briar 将不会对触控做出反应。\n\n如下应用可能覆盖在上方：\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">另一款应用程序正显示在 Briar的上层。为了保护您的安全，Briar 在另一个应用程序显示在上层时时不会响应触摸。\n\n查看下面的应用程序，寻找是哪个应用程序。</string>
   <string name="screen_filter_allow">允许这些应用覆盖在上方</string>
+  <string name="screen_filter_review_apps">查看应用程序</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">相机权限</string>
   <string name="permission_camera_request_body">Briar 需要获得相机权限以扫描二维码。</string>
@@ -539,7 +553,7 @@
   <string name="permission_camera_location_title">相机和位置</string>
   <string name="permission_camera_location_request_body"> Briar 需要相机权限以扫描二维码。\n\nBriar 需要位置信息权限以发现蓝牙设备。\n\nBriar 不会存储您的位置或将它分享给任何人。</string>
   <string name="permission_camera_denied_body">您已拒绝相机权限，而添加联系人需要使用相机。\n\n请考虑授予相机权限。</string>
-  <string name="permission_location_denied_body">您已拒绝访问您的位置，但Briar需要此权限才能发现蓝牙设备。\n\n请考虑授予访问权限。</string>
+  <string name="permission_location_denied_body">您已拒绝访问您的位置信息，但 Briar 需要此权限才能发现蓝牙设备。\n\n请考虑授予访问权限。</string>
   <string name="qr_code">二维码</string>
   <string name="show_qr_code_fullscreen">全屏显示二维码</string>
   <!--App Locking-->
@@ -550,7 +564,7 @@
   <string name="lock_is_locked">Briar 已锁定</string>
   <string name="lock_tap_to_unlock">轻按以解锁</string>
   <!--Connections Screen-->
-  <string name="transports_help_text">Briar可以通过互联网、Wi-Fi或蓝牙连接到您的联系人。\n\n为了保护隐私，所有的互联网连接都通过Tor网络。\n\n如果一个联系人可以通过多种方法联系到，Briar会并行地使用它们。</string>
+  <string name="transports_help_text">Briar 可以通过互联网、Wi-Fi 或蓝牙来连接到您的联系人。\n\n为了保护隐私，本应用会通过 Tor 网络进行所有的互联网连接。\n\n如果一个联系人可以通过多种方法联系到，Briar 会并行地使用它们。</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">韩梅梅</string>

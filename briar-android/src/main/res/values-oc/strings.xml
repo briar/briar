@@ -498,7 +498,6 @@ contactes qu’avètz partejat aqueste flux quitaràn benlèu de recebre las mes
   <string name="optional_contact_email">Vòstre corrièl (opcional)</string>
   <string name="include_debug_report_crash">Ajustar de donas anonimas tocant lo fracàs</string>
   <string name="include_debug_report_feedback">Ajustar de donas anonimas tocant aqueste periferic</string>
-  <string name="could_not_load_report_data">Impossible de cargar las donadas del rapòrt.</string>
   <string name="send_report">Enviar lo rapòrt</string>
   <string name="close">Tampar</string>
   <string name="dev_report_saved">Rapòrt salvat. Serà enviat a vòstra connexion venenta a Briar.</string>

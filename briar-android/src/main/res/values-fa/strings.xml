@@ -69,19 +69,29 @@
   <string name="sign_out_button">خروج</string>
   <!--Transports: Tor-->
   <string name="transport_tor">اینترنت</string>
+  <string name="tor_device_status_offline">تلفن شما دارای دسترسی اینترنتی نیست</string>
   <string name="tor_plugin_status_enabling">Briar در حال اتصال به اینترنت می باشد</string>
   <string name="tor_plugin_status_active">Briar به اینترنت متصل شد</string>
   <string name="tor_plugin_status_inactive">Briar نمی تواند به اینترنت متصل شود</string>
+  <string name="tor_plugin_status_disabled">Briar طوری پیکربندی شده تا از اینترنت استفاده نکند</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar طوری پیکربندی شده تا از داده موبایل استفاده نکند</string>
+  <string name="tor_plugin_status_disabled_battery">Briar طوری پیکربندی شده تا از اینترنت در هنگام مصرف باتری استفاده نکند</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar طوری پیکربندی شده تا از اینترنت در این کشور استفاده نکند</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">وای فای</string>
   <string name="transport_lan_long">همان شبکه وای-فای</string>
   <string name="lan_device_status_on">موبایل شما به وای-فای وصل می باشد</string>
   <string name="lan_device_status_off">موبایل شما به وای-فای وصل نیست</string>
   <string name="lan_plugin_status_enabling">Briar در حال اتصال به شبکه وای-فای می باشد</string>
+  <string name="lan_plugin_status_active">Briar به شبکه وای-فای متصل می باشد</string>
+  <string name="lan_plugin_status_inactive">Briar نمی‌تواند به شبکه وای-فای وصل شود</string>
+  <string name="lan_plugin_status_disabled">Briar طوری پیکربندی شده تا از شبکه وای-فای استفاده نکند</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">بلوتوث</string>
   <string name="bt_device_status_on">بلوتوث موبایل شما روشن می باشد</string>
   <string name="bt_device_status_off">بلوتوث موبایل شما خاموش می باشد</string>
+  <string name="bt_plugin_status_enabling">Briar در حال اتصال به بلوتوث می باشد</string>
+  <string name="bt_plugin_status_active">Briar به بلوتوث وصل می باشد</string>
   <string name="bt_plugin_status_inactive">Briar نمی تواند به بلوتوث وصل شود</string>
   <string name="bt_plugin_status_disabled">Briar طوری پیکربندی شده که از بلوتوث استفاده نکند</string>
   <!--Notifications-->
@@ -558,9 +568,18 @@
   <string name="optional_contact_email">آدرس ایمیل شما (اختیاری)</string>
   <string name="include_debug_report_crash">قرار دادن داده های ناشناس مربوط به خرابی</string>
   <string name="include_debug_report_feedback">قرار دادن داده های ناشناس درباره این دستگاه</string>
-  <string name="could_not_load_report_data">امکان بارگذاری داده های گزارش وجود ندارد.</string>
+  <string name="dev_report_basic_info">اطلاعات پایه</string>
+  <string name="dev_report_device_info">اطلاعات دستگاه</string>
+  <string name="dev_report_time_info">اطلاعات زمانی</string>
+  <string name="dev_report_memory">حافظه</string>
+  <string name="dev_report_storage">حافظه</string>
+  <string name="dev_report_connectivity">اتصال</string>
+  <string name="dev_report_build_config">پیکربندی ساخت</string>
+  <string name="dev_report_device_features">ویژگی‌های دستگاه</string>
   <string name="send_report">ارسال گزارش</string>
   <string name="close">بستن</string>
+  <string name="dev_report_sending">در حال فرستادن نظر...</string>
+  <string name="dev_report_sent">بازخورد ارسال شد</string>
   <string name="dev_report_saved">گزارش ذخیره شد. دفعه بعدی که وارد Briar (برایر) شدید فرستاده خواهد شد.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">خروج از Briar (برایر)...</string>

@@ -532,7 +532,8 @@ Així que l\'actualitzi li veureu una icona diferent .</string>
   <string name="optional_contact_email">La vostra adreça de correu (opcional)</string>
   <string name="include_debug_report_crash">Inclou dades anònimes sobre la fallida</string>
   <string name="include_debug_report_feedback">Inclou dades anònimes sobre el dispositiu</string>
-  <string name="could_not_load_report_data">No s\'han pogut carregar les dades de l\'informe.</string>
+  <string name="dev_report_basic_info">Informació bàsica</string>
+  <string name="dev_report_storage">Emmagatzematge</string>
   <string name="send_report">Envia l\'informe</string>
   <string name="close">Tanca</string>
   <string name="dev_report_saved">S\'ha desat l\'informe. Se us enviarà la propera vegada que inicieu sessió a Briar.</string>

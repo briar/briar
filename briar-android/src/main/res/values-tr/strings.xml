@@ -531,16 +531,29 @@
   <string name="optional_contact_email">E-posta adresiniz (isteğe bağlı)</string>
   <string name="include_debug_report_crash">Çökme ile  ilgili anonim verileri ekle</string>
   <string name="include_debug_report_feedback">Bu aygıtla ilgili anonim verileri ekle</string>
-  <string name="could_not_load_report_data">Rapor verileri yüklenemedi.</string>
+  <string name="dev_report_basic_info">Temel bilgi</string>
+  <string name="dev_report_device_info">Aygıt bilgisi</string>
+  <string name="dev_report_stacktrace">Yığın izleme</string>
+  <string name="dev_report_time_info">Zaman bilgisi</string>
+  <string name="dev_report_memory">Bellek</string>
+  <string name="dev_report_storage">Depo</string>
+  <string name="dev_report_connectivity">Bağlanabilirlik</string>
+  <string name="dev_report_build_config">Derleme yapılandırması</string>
+  <string name="dev_report_logcat">Uygulama günlüğü</string>
+  <string name="dev_report_device_features">Aygıt Seçenekleri</string>
   <string name="send_report">Raporu gönder</string>
   <string name="close">Kapat</string>
+  <string name="dev_report_sending">Geri bildirim gönderiliyor…</string>
+  <string name="dev_report_sent">Geri bildirim gönderildi</string>
   <string name="dev_report_saved">Rapor kaydedildi. Briar\'a bir sonraki girişinizde gönderilecektir.</string>
+  <string name="dev_report_error">Hata: bildirim gönderimi başarısız</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Briar\'dan çıkılıyor...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Ekran bindirme algılandı</string>
   <string name="screen_filter_body">Başka bir uygulama Briar\'ın üstünde görüntüleniyor. Bir başka uygulama Briar üstünde görüntülendiğinde, güvenliğinizi korumak için Briar dokunmalara tepki vermeyecektir.\n\nÜstte görüntülenen aşağıdaki uygulamalar olabilir:\n\n%1$s </string>
   <string name="screen_filter_allow">Bu uygulamaların üstte görüntülenmesine izin ver</string>
+  <string name="screen_filter_review_apps">Uygulamaları değerlendirin</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kamera izinleri</string>
   <string name="permission_camera_request_body">QR kodunu taramak için Briar\'ın kameraya erişmesi gerekiyor.</string>

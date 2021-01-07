@@ -531,7 +531,6 @@
   <string name="optional_contact_email">Вашата е-пошта (опционално)</string>
   <string name="include_debug_report_crash">Вклучи анонимни податоци за ова срушување</string>
   <string name="include_debug_report_feedback">Вкучи анонимни податоци за овој уред</string>
-  <string name="could_not_load_report_data">Не можат да се вчитаат податоците од извештајот.</string>
   <string name="send_report">Испрати извештај</string>
   <string name="close">Затвори</string>
   <string name="dev_report_saved">Извештајот е зачуван. Ќе биде испратен следниот пат кога ќе се вклучите на Briar.</string>

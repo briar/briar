@@ -439,7 +439,6 @@
   <string name="optional_contact_email">Vaša email adresa (opciono)</string>
   <string name="include_debug_report_crash">Uključite anonimne podatke o rušenju</string>
   <string name="include_debug_report_feedback">Uključite anonimne podatke o ovom uređaju</string>
-  <string name="could_not_load_report_data">Nije bilo moguće učitati podatke izvještaja</string>
   <string name="send_report">Pošalji izvještaj</string>
   <string name="close">Zatvori</string>
   <string name="dev_report_saved">Izvještaj je sačuvan. Biće poslat slijedeći put kada se ulogujete u Briar.</string>

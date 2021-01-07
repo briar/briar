@@ -553,16 +553,30 @@
   <string name="optional_contact_email">Ваш адрес email (необязательно)</string>
   <string name="include_debug_report_crash">Включить анонимные данные о сбое</string>
   <string name="include_debug_report_feedback">Включить анонимные данные об этом устройстве</string>
-  <string name="could_not_load_report_data">Не удалось загрузить данные отчета.</string>
+  <string name="dev_report_basic_info">Основная информация</string>
+  <string name="dev_report_device_info">Информация об устройстве</string>
+  <string name="dev_report_stacktrace">Трассировки стека</string>
+  <string name="dev_report_time_info">Информация о времени</string>
+  <string name="dev_report_memory">Память</string>
+  <string name="dev_report_storage">Хранилище</string>
+  <string name="dev_report_connectivity">Подключение</string>
+  <string name="dev_report_build_config">Конфигурация сборки</string>
+  <string name="dev_report_logcat">Журнал приложения</string>
+  <string name="dev_report_device_features">Характеристики устройства</string>
   <string name="send_report">Отправить отчет</string>
   <string name="close">Закрыть</string>
+  <string name="dev_report_sending">Отправка отзыва...</string>
+  <string name="dev_report_sent">Отзыв отправлен</string>
   <string name="dev_report_saved">Отчет сохранен. Он будет отправлен при следующем входе в Briar.</string>
+  <string name="dev_report_error">Ошибка: не удалось отправить отчет</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Выход из Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Обнаружено наложение экрана</string>
   <string name="screen_filter_body">Другое приложение накладывается на Briar. Чтобы защитить вашу безопасность, Briar не будет реагировать на прикосновения, пока есть наложение.\n\nМогут накладываться следующие приложения:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Другое приложение накладывается на Briar. Чтобы защитить вашу безопасность, Briar не будет реагировать на прикосновения, пока есть наложение.\n\nПросмотрите приложения, которые могут влиять.</string>
   <string name="screen_filter_allow">Разрешить этим приложениям наложение?</string>
+  <string name="screen_filter_review_apps">Просмотр приложений</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Доступ к камере</string>
   <string name="permission_camera_request_body">Для сканирования QR-кода Briar необходим доступ к камере.</string>
@@ -571,6 +585,7 @@
   <string name="permission_camera_location_title">Камера и местоположение</string>
   <string name="permission_camera_location_request_body">Для сканирования QR-кода Briar необходим доступ к камере.\n\nДля обнаружения Bluetooth-устройств, Briar требуется разрешение на доступ к вашему местоположению.\n\nBriar не хранит ваше местоположение и не делится им кем-либо еще.</string>
   <string name="permission_camera_denied_body">Доступ к камере запрещен, но для добавления контактов необходимо использовать камеру.\n\nРассмотрите возможность предоставления доступа.</string>
+  <string name="permission_location_denied_body">Доступ к местоположению запрещен, но Briar необходимо это разрешение для обнаружения устройств Bluetooth.\n\nРассмотрите возможность предоставления доступа.</string>
   <string name="qr_code">QR-код</string>
   <string name="show_qr_code_fullscreen">Показать QR-код во весь экран</string>
   <!--App Locking-->

@@ -540,16 +540,30 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="optional_contact_email">Email címe (opcionális)</string>
   <string name="include_debug_report_crash">Névtelen adat beágyazása az összeomlásról</string>
   <string name="include_debug_report_feedback">Névtelen adat beágyazása az eszközről</string>
-  <string name="could_not_load_report_data">Nem sikerült a jelentés adatot betölteni.</string>
+  <string name="dev_report_basic_info">Alapinformáció</string>
+  <string name="dev_report_device_info">Eszköz információ</string>
+  <string name="dev_report_stacktrace">Stacktrace</string>
+  <string name="dev_report_time_info">Idő információ</string>
+  <string name="dev_report_memory">Memória</string>
+  <string name="dev_report_storage">Tárhely</string>
+  <string name="dev_report_connectivity">Csatlakozódás</string>
+  <string name="dev_report_build_config">Build konfiguráció</string>
+  <string name="dev_report_logcat">App log</string>
+  <string name="dev_report_device_features">Eszköz szolgáltatások</string>
   <string name="send_report">Jelentés elküldése</string>
   <string name="close">Bezár</string>
+  <string name="dev_report_sending">Visszajelzés küldése...</string>
+  <string name="dev_report_sent">Visszajelzés elküldve</string>
   <string name="dev_report_saved">A jelentés mentve. Elküldésre kerül akkor, amikor legközelebb bejelentkezik a Briar-ba.</string>
+  <string name="dev_report_error">Hiba: Riport küldése sikertelen</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Kilépés a Briar-ból...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Képernyő felülírás észlelve </string>
   <string name="screen_filter_body">Egy másik app a Briar tetejére rajzol. A biztonsága védelme érdekében a Briar nem válaszol az érintésre, ha egy másik app rajzol a tetejére.\n\nA következő app lehet, ami a tetejére rajzol:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Egy másik app a Briar tetejére rajzol. A biztonsága védelme érdekében a Briar nem válaszol az érintésre, ha egy másik app rajzol a tetejére.\n\nTekintsd át az appokat, hogy megtaláld az ezért felelőst.</string>
   <string name="screen_filter_allow">Az appok engedélyezése a felé rajzolásra</string>
+  <string name="screen_filter_review_apps">Appok áttekintése</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kamera jogosultságok</string>
   <string name="permission_camera_request_body">A QR kód olvasáshoz a Briar-nak szüksége van kamera hozzáférésre.</string>
@@ -558,6 +572,7 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="permission_camera_location_title">Kamera és lokáció</string>
   <string name="permission_camera_location_request_body">A QR kód beszkenneléséhez a Briar-nak szüksége van a Kamerához hozzáférésre.\n\nA Bluetooth eszközök észleléséhez a Briar-nak szükségve van a lokációhoz hozzáférésre.\n\nA Briar nem tárolja lokációját vagy ossza meg bárkivel.</string>
   <string name="permission_camera_denied_body">Megtiltotta hozzáférést a kamerához, de a kapcsolatok hozzáadásához szükséges a kamera.\n\nKérjük gondolja meg a jog megadását.</string>
+  <string name="permission_location_denied_body">Megtiltotta hozzáférést a helyhez, azonban a Briar-nak szüksége van erre, hogy detektálja a Bluetooth eszközöket.\n\nKérjük gondolja meg a jog megadását.</string>
   <string name="qr_code">QR kód</string>
   <string name="show_qr_code_fullscreen">A QR kód teljes képernyősen</string>
   <!--App Locking-->
@@ -571,15 +586,15 @@ Vigyázat: Ez végleg törli az identitásait, kapcsolatait és üzeneteit</stri
   <string name="transports_help_text">A Briar Interneten, Wi-Fi-n vagy Bluetooth-on keresztül csatlakozhat kapcsolataihoz.\n\nAz összes internetkapcsolat a Tor hálózaton megy keresztül megy az adatvédelem érdekében.\n\nHa egy kapcsolatot több módszerrel is el lehet érni, Briar párhuzamosan használja azokat.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
-  <string name="screenshot_alice">Alice</string>
+  <string name="screenshot_alice">Alíz</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_bob">Bob</string>
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_carol">Carol</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Bob!-->
-  <string name="screenshot_message_1">Hi Bob!</string>
+  <string name="screenshot_message_1">Szia Bob!</string>
   <!--This is a message to be used in screenshots. Please use the same translation for Alice!-->
-  <string name="screenshot_message_2">Hi Alice! Köszönöm hogy említette nekem a Briar-t!</string>
+  <string name="screenshot_message_2">Szia Alíz! Köszönöm, hogy megemlítetted nekem a Briar-t!</string>
   <!--This is a message to be used in screenshots.-->
   <string name="screenshot_message_3">Szívesen, remélem tetszeni fog 😀</string>
 </resources>

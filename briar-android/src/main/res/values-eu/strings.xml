@@ -497,7 +497,6 @@
   <string name="optional_contact_email">Zure e-mail helbidea (aukerakoa)</string>
   <string name="include_debug_report_crash">Gehitu kraskatzeari buruzko datu anonimoak</string>
   <string name="include_debug_report_feedback">Gehitu gailu honi buruzko datu anonimoak</string>
-  <string name="could_not_load_report_data">Ezin izan dira txostenaren datuak kargatu.</string>
   <string name="send_report">Bidali txostena</string>
   <string name="close">Itxi</string>
   <string name="dev_report_saved">Txostena gordeta. Briar-en saioa hasten duzun hurrengoan bidaliko da.</string>

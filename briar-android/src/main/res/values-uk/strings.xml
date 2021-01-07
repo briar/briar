@@ -500,7 +500,6 @@
   <string name="optional_contact_email">Ваша електронна адреса (необов\'язково)</string>
   <string name="include_debug_report_crash">Додати анонімну інформацію про аварійний збій</string>
   <string name="include_debug_report_feedback">Додати анонімну інформацію про цей пристрій</string>
-  <string name="could_not_load_report_data">Не вдалося завантажити дані звіту.</string>
   <string name="send_report">Надіслати звіт</string>
   <string name="close">Закрити</string>
   <string name="dev_report_saved">Звіт збережено. Його буде надіслано наступного разу, як ви увійдете до Briar.</string>

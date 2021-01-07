@@ -479,7 +479,6 @@
   <string name="optional_contact_email">आपका ईमेल पता (वैकल्पिक)</string>
   <string name="include_debug_report_crash">दुर्घटना के बारे में अनाम डेटा शामिल करें</string>
   <string name="include_debug_report_feedback">इस डिवाइस के बारे में अनाम डेटा शामिल करें</string>
-  <string name="could_not_load_report_data">रिपोर्ट डेटा लोड नहीं किया जा सका</string>
   <string name="send_report">रिपोर्ट भेजो</string>
   <string name="close">बंद करे</string>
   <string name="dev_report_saved">रिपोर्ट सहेजी गई अगली बार जब आप Briar  में प्रवेश करेंगे तो उसे भेजा जाएगा।</string>

@@ -572,9 +572,12 @@
   <string name="optional_contact_email">بريدك الالكتروني (إختياري)</string>
   <string name="include_debug_report_crash">تضمين بيانات مجهولة عن الإنهيار</string>
   <string name="include_debug_report_feedback">تضمين بيانات مجهولة عن هذا الجهاز</string>
-  <string name="could_not_load_report_data">لم يمكن تحميل بيانات التقرير.</string>
+  <string name="dev_report_basic_info">المعلومات الأساسية</string>
+  <string name="dev_report_storage">تخزين</string>
+  <string name="dev_report_connectivity">الاتصال</string>
   <string name="send_report">ارسال التقرير</string>
   <string name="close">إغلاق</string>
+  <string name="dev_report_sending">ارسال التعليقات</string>
   <string name="dev_report_saved">تم حفظ التقرير. سيتم إرساله عند تسجيل الدخول إلى Briar (براير) في المرة القادمة.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">تسجيل الخروج من Briar (براير)...</string>

@@ -531,16 +531,30 @@
   <string name="optional_contact_email">Tölvupóstfangið þitt (valfrjálst)</string>
   <string name="include_debug_report_crash">Senda nafnlaus gögn um hrunið</string>
   <string name="include_debug_report_feedback">Senda nafnlaus gögn um tækið</string>
-  <string name="could_not_load_report_data">Gat ekki hlaðið inn gögnum skýrslunnar.</string>
+  <string name="dev_report_basic_info">Grunnupplýsingar</string>
+  <string name="dev_report_device_info">Upplýsingar um tæki</string>
+  <string name="dev_report_stacktrace">Stacktrace-rakning</string>
+  <string name="dev_report_time_info">Tímaupplýsingar</string>
+  <string name="dev_report_memory">Minni</string>
+  <string name="dev_report_storage">Geymslurými</string>
+  <string name="dev_report_connectivity">Tengingar</string>
+  <string name="dev_report_build_config">Byggingaruppsetning</string>
+  <string name="dev_report_logcat">Atvikaskrá forrits</string>
+  <string name="dev_report_device_features">Eiginleikar tækis</string>
   <string name="send_report">Senda skýrslu</string>
   <string name="close">Loka</string>
+  <string name="dev_report_sending">Sendi umsögn…</string>
+  <string name="dev_report_sent">Umsögn send</string>
   <string name="dev_report_saved">Skýrsla vistuð. Hún verður send næst þegar þú skráir þig inn í Briar.</string>
+  <string name="dev_report_error">Villa: Sending skýrslu mistókst</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Skrái út úr Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Skjáyfirlag fannst</string>
   <string name="screen_filter_body">Annað forrit er að birta upplýsingar ofan á Briar. Í öryggisskyni mun Briar ekki bregðast við snertingum þegar annað forrit teiknar ofaná það.\n\nEftirfarandi forrit gætu verið að birta upplýsingar ofan á:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Annað forrit er að birta upplýsingar ofan á Briar. Í öryggisskyni mun Briar ekki bregðast við snertingum þegar annað forrit teiknar ofaná það.\n\nSkoðaðu eftirfarandi forrit til að finna það þeirra sem gæti valdið þessu.</string>
   <string name="screen_filter_allow">Leyfa þessum forritum að birta upplýsingar efst</string>
+  <string name="screen_filter_review_apps">Yfirfara forrit</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Heimildir á myndavél</string>
   <string name="permission_camera_request_body">Til að skanna QR-kóðann þarf Briar heimild til að nota myndavélina.</string>

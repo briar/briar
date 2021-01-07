@@ -451,7 +451,6 @@
   <string name="optional_contact_email">Sizim elektron ünvanınız (istəyinizə bağlıdır)</string>
   <string name="include_debug_report_crash">Cədvəl haqqında anonim məlumatları əlavə edin</string>
   <string name="include_debug_report_feedback">Bu cihaz haqqında anonim məlumatları əlavə edin</string>
-  <string name="could_not_load_report_data">Hesabat yüklənə bilmədi.</string>
   <string name="send_report">Hesabat göndər</string>
   <string name="close">Bağla</string>
   <string name="dev_report_saved">Hesabat saxlandı. Briar-a növbəti dəfə daxil olduqda göndəriləcək.</string>

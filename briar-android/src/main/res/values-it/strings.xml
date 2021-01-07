@@ -531,10 +531,22 @@
   <string name="optional_contact_email">Il tuo indirizzo email (facoltativo)</string>
   <string name="include_debug_report_crash">Includere dati anonimi riguardo al crash</string>
   <string name="include_debug_report_feedback">Includere dati anonimi riguardo al tuo dispositivo</string>
-  <string name="could_not_load_report_data">Non è stato possibile caricare i dati del report.</string>
+  <string name="dev_report_basic_info">Informazioni di base</string>
+  <string name="dev_report_device_info">Informazioni dispositivo</string>
+  <string name="dev_report_stacktrace">Stack trace</string>
+  <string name="dev_report_time_info">Informazioni orario</string>
+  <string name="dev_report_memory">Memoria</string>
+  <string name="dev_report_storage">Spazio</string>
+  <string name="dev_report_connectivity">Connettività</string>
+  <string name="dev_report_build_config">Configurazione build</string>
+  <string name="dev_report_logcat">Registro app</string>
+  <string name="dev_report_device_features">Caratteristiche dispositivo</string>
   <string name="send_report">Invia report</string>
   <string name="close">Chiudi</string>
+  <string name="dev_report_sending">Trasmissione feedback...</string>
+  <string name="dev_report_sent">Commenti inviati</string>
   <string name="dev_report_saved">Report salvato. Verrà spedito la prossima volta che loggherai in Briar.</string>
+  <string name="dev_report_error">Errore: invio segnalazione fallita</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Uscire da Briar ...</string>
   <!--Screen Filters & Tapjacking-->

@@ -148,7 +148,7 @@
   <string name="no_contacts_action">Atingeți iconița + pentru a adăuga un contact</string>
   <string name="date_no_private_messages">Fără mesaje.</string>
   <string name="no_private_messages">Niciun mesaj de arătat</string>
-  <string name="message_hint">Scrieți mesajul</string>
+  <string name="message_hint">Tastați mesajul</string>
   <string name="image_caption_hint">Adaugă un subtitlu (opțional)</string>
   <string name="image_attach">Atașează imagine</string>
   <string name="image_attach_error">Nu s-au putut atașa imaginile</string>
@@ -541,16 +541,30 @@
   <string name="optional_contact_email">Adresa de email (opțional)</string>
   <string name="include_debug_report_crash">Include date anonime despre eroare</string>
   <string name="include_debug_report_feedback">Include date anonime despre acest dispozitiv</string>
-  <string name="could_not_load_report_data">Nu s-au putut încărca datele din raport.</string>
+  <string name="dev_report_basic_info">Informații de bază</string>
+  <string name="dev_report_device_info">Informații despre dispozitiv</string>
+  <string name="dev_report_stacktrace">Jurnal eroare</string>
+  <string name="dev_report_time_info">Informații despre timp</string>
+  <string name="dev_report_memory">Memorie</string>
+  <string name="dev_report_storage">Depozitare</string>
+  <string name="dev_report_connectivity">Conectivitate</string>
+  <string name="dev_report_build_config">Informații despre aplicație</string>
+  <string name="dev_report_logcat">Jurnal aplicație</string>
+  <string name="dev_report_device_features">Caracteristici dispozitiv</string>
   <string name="send_report">Trimite raport</string>
   <string name="close">Închide</string>
+  <string name="dev_report_sending">Se trimite feedback…</string>
+  <string name="dev_report_sent">Feedback trimis</string>
   <string name="dev_report_saved">Raport salvat. V-a fi trimis data viitoare când vă conectați la Briar.</string>
+  <string name="dev_report_error">Eroare: Trimiterea raportului a eșuat</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Ieșire din Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">S-a detectat ceva suprapus pe ecran</string>
   <string name="screen_filter_body">O altă aplicație este suprapusă pe Briar. Pentru a vă proteja securitatea, Briar nu va reacționa la atingeri în timp ce există o suprapunere.\n\nAplicațiile următoare pot fi suprapuse:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">O altă aplicație este suprapusă pe Briar. Pentru a vă proteja securitatea, Briar nu va reacționa la atingeri în timp ce există o suprapunere.\n\nAplicațiile de mai jos pot fi responsablie.</string>
   <string name="screen_filter_allow">Permite acestor aplicații să deseneze deasupra</string>
+  <string name="screen_filter_review_apps">Recenzii aplicații</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permisiune de acces la camera foto</string>
   <string name="permission_camera_request_body">Pentru a scana codul QR, Briar are nevoie să acceseze camera foto.</string>

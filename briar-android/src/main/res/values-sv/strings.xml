@@ -531,16 +531,30 @@
   <string name="optional_contact_email">Din e-postadress (valfritt)</string>
   <string name="include_debug_report_crash">Inkludera anonym data om krashen.</string>
   <string name="include_debug_report_feedback">Inkludera anonym data om den här enheten</string>
-  <string name="could_not_load_report_data">Kunde ej ladda rapportdata.</string>
+  <string name="dev_report_basic_info">Grundläggande information</string>
+  <string name="dev_report_device_info">Enhetsinformation</string>
+  <string name="dev_report_stacktrace">Stacktrace</string>
+  <string name="dev_report_time_info">Tidsinformation</string>
+  <string name="dev_report_memory">Minne</string>
+  <string name="dev_report_storage">Lagringsutrymme</string>
+  <string name="dev_report_connectivity">Anslutningar</string>
+  <string name="dev_report_build_config">Byggkonfiguration</string>
+  <string name="dev_report_logcat">Applogg</string>
+  <string name="dev_report_device_features">Enhetsfunktioner</string>
   <string name="send_report">Skicka rapport</string>
   <string name="close">Stäng</string>
+  <string name="dev_report_sending">Skickar återkoppling...</string>
+  <string name="dev_report_sent">Återkoppling skickad</string>
   <string name="dev_report_saved">Rapporten har sparats. Den kommer skickas nästa gång du loggar in i Briar.</string>
+  <string name="dev_report_error">Fel: Sändning av rapporten misslyckades</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Loggar ur Briar...</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Ett skärmöverlägg (overlay) upptäcktes</string>
   <string name="screen_filter_body">En annan app ritar ovanpå Briar. För säkerhets skull slutar Briar svara på tryckningar när en annan app ritar ovanpå.\n\nFöljande appar kan tänkas rita ovanpå Briar:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">En annan app ritar ovanpå Briar. För att bevara din säkerhet kommer Briar inte att svara på gester när appen ritar ovanpå.\n\nGranska apparna nedan för att hitta den ansvariga appen.</string>
   <string name="screen_filter_allow">Tillåt dessa appar att rita ovanpå</string>
+  <string name="screen_filter_review_apps">Granska appar</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Kameraåtkomst</string>
   <string name="permission_camera_request_body">För att skanna QR-koden så behöver Briar ha tillgång till kameran.</string>
@@ -549,6 +563,7 @@
   <string name="permission_camera_location_title">Kamera- och platsåtkomst</string>
   <string name="permission_camera_location_request_body">För att skanna QR-koden så behöver Briar ha tillgång till kameran.\n\nFör att upptäcka Bluetooth-enheter så behöver Briar ha tillgång till din fysiska plats.\n\nBriar lagrar inte din plats och delar den inte med någon.</string>
   <string name="permission_camera_denied_body">Du har avvisat åtkomst till kameran, men den behövs för att kontakter ska kunna läggas till.\n\nVänligen överväg att godkänna åtkomst.</string>
+  <string name="permission_location_denied_body">Du har nekat åtkomst till din plats, men Briar behöver detta tillstånd för att upptäcka Bluetooth-enheter.\n\nVänligen överväg att ge åtkomst.</string>
   <string name="qr_code">QR-kod</string>
   <string name="show_qr_code_fullscreen">Visa QR-koden i fullskärm</string>
   <!--App Locking-->

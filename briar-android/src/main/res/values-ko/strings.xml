@@ -521,7 +521,9 @@
   <string name="optional_contact_email">이메일 주소(선택 사항)</string>
   <string name="include_debug_report_crash">사고에 대해 익명으로 자료도 보내기</string>
   <string name="include_debug_report_feedback">익명으로 이 기기에 대한 자료도 보내기</string>
-  <string name="could_not_load_report_data">리포트 자료를 불러올 수 없었습니다.</string>
+  <string name="dev_report_basic_info">Basic information</string>
+  <string name="dev_report_storage">Storage</string>
+  <string name="dev_report_connectivity">연결</string>
   <string name="send_report">리포트 보내기</string>
   <string name="close">닫기</string>
   <string name="dev_report_saved">리포트를 저장했습니다. 다음 번에 Briar에 로그인 할 때 보내지게 됩니다.</string>

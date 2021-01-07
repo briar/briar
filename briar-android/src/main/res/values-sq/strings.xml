@@ -531,16 +531,29 @@
   <string name="optional_contact_email">Adresa juaj email (në daçi)</string>
   <string name="include_debug_report_crash">Përfshi të dhëna anonime rreth vithisjes</string>
   <string name="include_debug_report_feedback">Përfshi të dhëna anonime rreth kësaj pajisjeje</string>
-  <string name="could_not_load_report_data">S\’u ngarkuan dot të dhëna njoftimi.</string>
+  <string name="dev_report_basic_info">Të dhëna elementare</string>
+  <string name="dev_report_device_info">Të dhëna pajisjeje</string>
+  <string name="dev_report_time_info">Të dhëna kohe</string>
+  <string name="dev_report_memory">Kujtesë</string>
+  <string name="dev_report_storage">Depozitim</string>
+  <string name="dev_report_connectivity">Aftësi lidhjeje</string>
+  <string name="dev_report_build_config">Formësim montimi</string>
+  <string name="dev_report_logcat">Regjistër aplikacioni</string>
+  <string name="dev_report_device_features">Veçori Pajisjeje</string>
   <string name="send_report">Dërgoje njoftimin</string>
   <string name="close">Mbylle</string>
+  <string name="dev_report_sending">Po dërgohen përshtypjet…</string>
+  <string name="dev_report_sent">Përshtypjet u dërguan</string>
   <string name="dev_report_saved">Njoftimi u ruajt. Do të dërgohet herën tjetër që do të hyni në Briar.</string>
+  <string name="dev_report_error">Gabim: Dërgimi i raportit dështoi</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Po dilet nga Briar-i…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">U kap dalje jashtë ekrani</string>
   <string name="screen_filter_body">Sipër Briar-it po vizaton një tjetër aplikacion. Për të mbrojtur sigurinë tuaj, Briar-i s\’do t\’u përgjigjet prekjeve kur një tjetër aplikacion vizaton përsipër.\n\nPërsipër mund të jenë duke vizatuar aplikacionet vijues:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Sipër Briar-it po vizaton një tjetër aplikacion. Për të mbrojtur sigurinë tuaj, Briar-i s\’do t\’u përgjigjet prekjeve kur një tjetër aplikacion vizaton përsipër.\n\nShqyrtoni aplikacionet më poshtë, që të gjeni aplikacionin përgjegjës.</string>
   <string name="screen_filter_allow">Lejoji këto aplikacione të vizatojnë përsipër</string>
+  <string name="screen_filter_review_apps">Shqyrtoni aplikacione</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Leje mbi kamerën</string>
   <string name="permission_camera_request_body">Që të skanojë kodin QR, Briar-i lypset të hyjë te kamera.</string>

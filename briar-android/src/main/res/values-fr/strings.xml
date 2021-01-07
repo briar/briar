@@ -531,10 +531,19 @@
   <string name="optional_contact_email">Votre adresse courriel (facultative)</string>
   <string name="include_debug_report_crash">Inclure des données anonymes concernant le plantage</string>
   <string name="include_debug_report_feedback">Inclure des données anonymes concernant cet appareil</string>
-  <string name="could_not_load_report_data">Impossible de charger les données du rapport.</string>
+  <string name="dev_report_basic_info">Informations de base</string>
+  <string name="dev_report_device_info">Informations sur l\'appareil</string>
+  <string name="dev_report_time_info">Informations temporelles</string>
+  <string name="dev_report_memory">Mémoire</string>
+  <string name="dev_report_storage">Stockage</string>
+  <string name="dev_report_connectivity">Connectivité</string>
+  <string name="dev_report_device_features">Fonctionnalités de l\'appareil</string>
   <string name="send_report">Envoyer le rapport</string>
   <string name="close">Fermer</string>
+  <string name="dev_report_sending">Envoi de la rétroaction…</string>
+  <string name="dev_report_sent">Rétroaction envoyée avec succès</string>
   <string name="dev_report_saved">Le rapport a été enregistré. Il sera envoyé lors de votre prochaine connexion à Briar.</string>
+  <string name="dev_report_error">Erreur : l\'envoi du signalement a échoué</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Déconnexion de Briar…</string>
   <!--Screen Filters & Tapjacking-->

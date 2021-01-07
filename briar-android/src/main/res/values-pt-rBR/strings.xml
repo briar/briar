@@ -64,10 +64,33 @@
   <string name="transports_onboarding_text">Clique aqui para controlar como o Briar se conecta aos seus contatos.</string>
   <!--Transports: Tor-->
   <string name="transport_tor">Internet</string>
+  <string name="tor_device_status_online_wifi">Seu celular possui acesso à Internet via Wi-Fi</string>
+  <string name="tor_device_status_online_mobile">Seu celular possui acesso à Internet via dados móveis</string>
+  <string name="tor_device_status_offline">Seu celular não possui acesso à Internet</string>
+  <string name="tor_plugin_status_enabling">Briar está se conectando à Internet</string>
+  <string name="tor_plugin_status_active">Briar está conectado à Internet</string>
+  <string name="tor_plugin_status_inactive">Briar não pode conectar-se à Internet</string>
+  <string name="tor_plugin_status_disabled">Briar está configurado para não usar a Internet</string>
+  <string name="tor_plugin_status_disabled_mobile_data">Briar está configurado para não usar dados móveis</string>
+  <string name="tor_plugin_status_disabled_battery">Briar está configurado para não usar a Internet quando depender apenas da bateria</string>
+  <string name="tor_plugin_status_disabled_country_blocked">Briar está configurado para não usar a Internet neste país</string>
   <!--Transports: Wi-Fi-->
   <string name="transport_lan">Wi-fi</string>
+  <string name="transport_lan_long">Mesma rede de Wi-Fi</string>
+  <string name="lan_device_status_on">Seu celular está conectado ao Wi-Fi</string>
+  <string name="lan_device_status_off">Seu celular não está conectado ao Wi-Fi</string>
+  <string name="lan_plugin_status_enabling">Briar está se conectando à rede Wi-Fi</string>
+  <string name="lan_plugin_status_active">Briar está conectado à rede Wi-Fi</string>
+  <string name="lan_plugin_status_inactive">Briar não pode se conectar à rede Wi-Fi</string>
+  <string name="lan_plugin_status_disabled">Briar está configurado para não usar a rede Wi-Fi</string>
   <!--Transports: Bluetooth-->
   <string name="transport_bt">Bluetooth</string>
+  <string name="bt_device_status_on">O Bluetooth do seu celular está habilitado</string>
+  <string name="bt_device_status_off">O Bluetooth do seu celular está desabilitado</string>
+  <string name="bt_plugin_status_enabling">Briar está se conectando ao Bluetooth</string>
+  <string name="bt_plugin_status_active">Briar está conectado ao Bluetooth</string>
+  <string name="bt_plugin_status_inactive">Briar não conseguiu se conectar ao Bluetooth</string>
+  <string name="bt_plugin_status_disabled">Briar está configurado para não usar Bluetooth</string>
   <!--Notifications-->
   <string name="reminder_notification_title">Saiu do Briar</string>
   <string name="reminder_notification_text">Toque para fazer login novamente.</string>
@@ -413,10 +436,19 @@
   <string name="pref_theme_system">Padrão do Sistema</string>
   <!--Settings Connections-->
   <string name="network_settings_title">Conexões</string>
+  <string name="bluetooth_setting">Acessar contatos via Bluetooth</string>
+  <string name="wifi_setting">Acessar contatos usando a mesma rede Wi-Fi</string>
+  <string name="tor_enable_title">Acessar contatos via Internet</string>
+  <string name="tor_enable_summary">Por privacidade, todas as conexões passam pela rede Tor</string>
+  <string name="tor_network_setting">Método de conexão para a rede Tor</string>
   <string name="tor_network_setting_automatic">Automático baseado na localização </string>
+  <string name="tor_network_setting_without_bridges">Use a rede Tor sem pontes</string>
+  <string name="tor_network_setting_with_bridges">Use a rede Tor com pontes</string>
+  <string name="tor_network_setting_never">Não se conectar à Internet</string>
   <!--How and when Briar will connect to Tor: E.g. "Don't connect to the Internet (in China)" or "Use Tor network with bridges (in Belarus)"-->
   <string name="tor_network_setting_summary">Automático: %1$s (em %2$s) </string>
   <string name="tor_mobile_data_title">Usar dados moveis</string>
+  <string name="tor_only_when_charging_title">Conectar à Internet somente durante carregamento de bateria</string>
   <string name="tor_only_when_charging_summary">Desabilita conexão à Internet quando seu dispositivo estiver somente na bateria</string>
   <!--Settings Security and Panic-->
   <string name="security_settings_title">Segurança</string>
@@ -499,16 +531,30 @@
   <string name="optional_contact_email">E-mail de contato (opcional)</string>
   <string name="include_debug_report_crash">Incluir informações anonimas sobre o </string>
   <string name="include_debug_report_feedback">Incluir dados anônimos sobre esse dispositivo </string>
-  <string name="could_not_load_report_data">Não foi possível carregar os dados do relatório.</string>
+  <string name="dev_report_basic_info">Informação Básica</string>
+  <string name="dev_report_device_info">Informações do dispositivo</string>
+  <string name="dev_report_stacktrace">Rastreamento de pilha</string>
+  <string name="dev_report_time_info">Informação de tempo</string>
+  <string name="dev_report_memory">Memória</string>
+  <string name="dev_report_storage">Armazenamento</string>
+  <string name="dev_report_connectivity">Conectividade</string>
+  <string name="dev_report_build_config">Configuração de execução</string>
+  <string name="dev_report_logcat">Log do App</string>
+  <string name="dev_report_device_features">Características do dispositivo</string>
   <string name="send_report">Enviar relatório </string>
   <string name="close">Fechar</string>
+  <string name="dev_report_sending">Enviando feedback...</string>
+  <string name="dev_report_sent">Feedback enviado</string>
   <string name="dev_report_saved">Relatório salvo. Ele será enviado na próxima vez em que você entrar no Briar.</string>
+  <string name="dev_report_error">Erro: falha no envio do relatório</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Saindo do Briar…</string>
   <!--Screen Filters & Tapjacking-->
   <string name="screen_filter_title">Sobreposição de tela detectada</string>
   <string name="screen_filter_body">Outro aplicativo está se sobrepondo sobre o Briar. Para proteger sua segurança, Briar não responderá a seus toques enquanto estiver sobreposto.\n\nOs seguintes aplicativos podem estar se sobrepondo:\n\n%1$s</string>
+  <string name="screen_filter_body_api_30">Outro app está sendo executado sobre o Briar. Para garantir sua segurança, Briar não responderá aos toques quando outro app estiver em execução.\n\nRevise os apps abaixo para encontrar o responsável.</string>
   <string name="screen_filter_allow">Permitir que estes aplicativos se sobreponham</string>
+  <string name="screen_filter_review_apps">Revise os apps</string>
   <!--Permission Requests-->
   <string name="permission_camera_title">Permissão da câmera</string>
   <string name="permission_camera_request_body">O Briar precisa acessar a câmera para pode escanear o código QR.</string>
@@ -517,6 +563,7 @@
   <string name="permission_camera_location_title">Câmera e localização</string>
   <string name="permission_camera_location_request_body">Para escanear o código QR, O Briar precisa de acesso à câmera.\n\nPara encontrar dispositivos Bluetooth, O Briar precisa de permissão para acessar a localização.\n\nO Briar não armazena seu localização ou a compartilhar com qualquer pessoa.</string>
   <string name="permission_camera_denied_body">Você negou acesso à câmera, mas para adicionar contatos você precisa da câmera.\n\nPor favor, pense em liberar o acesso a ela.</string>
+  <string name="permission_location_denied_body">Você desabilitou o acesso à sua localização, no entanto o Briar precisa da permissão para saber se há dispositivos Bluetooth.\n\nPor favor, considere liberar o acesso.</string>
   <string name="qr_code">Código QR</string>
   <string name="show_qr_code_fullscreen">Mostrar o código QR na tela cheia</string>
   <!--App Locking-->
@@ -527,6 +574,7 @@
   <string name="lock_is_locked">O Briar está desbloqueado</string>
   <string name="lock_tap_to_unlock">Toque para desbloquear</string>
   <!--Connections Screen-->
+  <string name="transports_help_text">Briar pode se conectar aos seus contatos via Internet, Wi-Fi ou Bluetooth.\n\nTodas as conexões com a Internet acontecem via rede do Tor, por privacidade.\n\nSe um contato pode ser alcançado de várias formas, Briar as utilizará em paralelo.</string>
   <!--Screenshots-->
   <!--This is a name to be used in screenshots. Feel free to change it to a local name.-->
   <string name="screenshot_alice">Alice</string>

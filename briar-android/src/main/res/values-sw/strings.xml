@@ -513,9 +513,9 @@ Umepoteza nenosiri.</string>
   <string name="optional_contact_email">Barua pepe yako (hiari)</string>
   <string name="include_debug_report_crash">Jumuisha data isiyojulikana kuhusu ajali</string>
   <string name="include_debug_report_feedback">Jumuisha data isiyojulikana kuhusu kifaa hiki</string>
-  <string name="could_not_load_report_data">Haikuweza kupakia data ya ripoti.</string>
   <string name="send_report">Tuma repoti </string>
   <string name="close">Funga</string>
+  <string name="dev_report_sending">Kutuma mrejesho...</string>
   <string name="dev_report_saved">Ripoti imehifadhiwa. Itatumwa wakati ujao ukiingia kwenye Briar.</string>
   <!--Sign Out-->
   <string name="progress_title_logout">Kuondoka Kwenye Briar...</string>
