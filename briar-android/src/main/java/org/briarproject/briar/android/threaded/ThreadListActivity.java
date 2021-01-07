@@ -137,6 +137,12 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	}
 
 	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		getViewModel().storeMessageId(getFirstVisibleMessageId());
+	}
+
+	@Override
 	@Nullable
 	public MessageId getFirstVisibleMessageId() {
 		if (layoutManager != null && adapter != null) {
@@ -154,19 +160,27 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		if (items.isEmpty()) {
 			list.showData();
 		} else {
-			adapter.submitList(items);
-			// TODO get this ID from elsewhere
-			MessageId messageId = null; // items.getFirstVisibleItemId();
-			if (messageId != null)
-				adapter.setItemWithIdVisible(messageId);
-			list.showData();
-			if (layoutManagerState == null) {
-				list.scrollToPosition(0);  // Scroll to the top
-			} else {
-				layoutManager.onRestoreInstanceState(layoutManagerState);
-			}
+			adapter.submitList(items, this::scrollAfterListCommitted);
 			updateTextInput();
 		}
+	}
+
+	/**
+	 * Scrolls to the first visible item last time the activity was open,
+	 * if one exists and this is the first time, the list gets displayed.
+	 * Or scrolls to a locally added item that has just been added to the list.
+	 */
+	private void scrollAfterListCommitted() {
+		MessageId restoredFirstVisibleItemId =
+				getViewModel().getAndResetRestoredMessageId();
+		MessageId scrollToItem =
+				getViewModel().getAndResetScrollToItem();
+		if (restoredFirstVisibleItemId != null) {
+			scrollToItemAtTop(restoredFirstVisibleItemId);
+		} else if (scrollToItem != null) {
+			scrollToItemAtTop(scrollToItem);
+		}
+		scrollListener.updateUnreadButtons(layoutManager);
 	}
 
 	protected void loadSharingContacts() {
@@ -206,10 +220,6 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
 		super.onSaveInstanceState(outState);
-		if (layoutManager != null) {
-			layoutManagerState = layoutManager.onSaveInstanceState();
-			outState.putParcelable("layoutManager", layoutManagerState);
-		}
 		if (replyId != null) {
 			outState.putByteArray(KEY_REPLY_ID, replyId.getBytes());
 		}
@@ -218,7 +228,6 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
 		super.onRestoreInstanceState(savedInstanceState);
-		layoutManagerState = savedInstanceState.getParcelable("layoutManager");
 	}
 
 	@Override
@@ -247,11 +256,11 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		updateTextInput();
 		// FIXME This does not work for a hardware keyboard
 		if (textInput.isKeyboardOpen()) {
-			scrollToItemAtTop(item);
+			scrollToItemAtTop(item.getId());
 		} else {
 			// wait with scrolling until keyboard opened
 			textInput.setOnKeyboardShownListener(() -> {
-				scrollToItemAtTop(item);
+				scrollToItemAtTop(item.getId());
 				textInput.setOnKeyboardShownListener(null);
 			});
 		}
@@ -277,11 +286,10 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		}
 	}
 
-	private void scrollToItemAtTop(I item) {
-		int position = NO_POSITION;// adapter.findItemPosition(item);
+	private void scrollToItemAtTop(MessageId messageId) {
+		int position = adapter.findItemPosition(messageId);
 		if (position != NO_POSITION) {
-			layoutManager
-					.scrollToPositionWithOffset(position, 0);
+			layoutManager.scrollToPositionWithOffset(position, 0);
 		}
 	}
 
@@ -307,19 +315,7 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
 		I replyItem = adapter.getHighlightedItem();
-		UiResultExceptionHandler<I, DbException> handler =
-				new UiResultExceptionHandler<I, DbException>(this) {
-					@Override
-					public void onResultUi(I result) {
-						addItem(result, true);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				};
-		getController().createAndStoreMessage(text, replyItem, handler);
+		getViewModel().createAndStoreMessage(text, replyItem);
 		textInput.hideSoftKeyboard();
 		textInput.clearText();
 		replyId = null;
@@ -330,29 +326,12 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 
 	@Override
 	public void onItemReceived(I item) {
-		addItem(item, false);
+		getViewModel().addItem(item, false);
 	}
 
 	@Override
 	public void onGroupRemoved() {
 		supportFinishAfterTransition();
-	}
-
-	private void addItem(I item, boolean isLocal) {
-		MessageId parent = item.getParentId();
-		if (parent != null) {
-			// We've incremented the adapter's revision, so the item will be
-			// loaded when its parent has been loaded
-			LOG.info("Ignoring item with missing parent");
-			return;
-		}
-		// TODO submit new list
-
-		if (isLocal) {
-			scrollToItemAtTop(item);
-		} else {
-			scrollListener.updateUnreadButtons(layoutManager);
-		}
 	}
 
 }

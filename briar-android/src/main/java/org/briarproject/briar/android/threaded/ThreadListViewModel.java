@@ -21,14 +21,19 @@ import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.MessageTree;
 import org.briarproject.briar.api.client.PostHeader;
+import org.briarproject.briar.client.MessageTreeImpl;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
+
+import javax.annotation.Nullable;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.UiThread;
@@ -36,13 +41,16 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
+import static org.briarproject.bramble.util.LogUtils.logException;
 import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class ThreadListViewModel<I extends ThreadItem> extends DbViewModel
+public abstract class ThreadListViewModel<I extends ThreadItem>
+		extends DbViewModel
 		implements EventListener {
 
 	private static final Logger LOG =
@@ -55,11 +63,18 @@ public abstract class ThreadListViewModel<I extends ThreadItem> extends DbViewMo
 	private final MessageTracker messageTracker;
 	private final EventBus eventBus;
 
-	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
+	@DatabaseExecutor
+	private final MessageTree<I> messageTree = new MessageTreeImpl<>();
+	protected final Map<MessageId, String> textCache =
+			new ConcurrentHashMap<>();
 	private final MutableLiveData<LiveResult<List<I>>> items =
 			new MutableLiveData<>();
+	private final AtomicReference<MessageId> scrollToItem =
+			new AtomicReference<>();
 
 	protected volatile GroupId groupId;
+	private final AtomicReference<MessageId> storedMessageId =
+			new AtomicReference<>();
 
 	public ThreadListViewModel(Application application,
 			@DatabaseExecutor Executor dbExecutor,
@@ -95,10 +110,29 @@ public abstract class ThreadListViewModel<I extends ThreadItem> extends DbViewMo
 	@CallSuper
 	public void setGroupId(GroupId groupId) {
 		this.groupId = groupId;
+		loadStoredMessageId();
 		loadItems();
 	}
 
+	private void loadStoredMessageId() {
+		runOnDbThread(() -> {
+			try {
+				storedMessageId
+						.set(messageTracker.loadStoredMessageId(groupId));
+				if (LOG.isLoggable(INFO)) {
+					LOG.info("Loaded last top visible message id " +
+							storedMessageId);
+				}
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
 	public abstract void loadItems();
+
+	public abstract void createAndStoreMessage(String text,
+			@Nullable I parentItem);
 
 	@UiThread
 	protected void setItems(LiveResult<List<I>> items) {
@@ -106,7 +140,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem> extends DbViewMo
 	}
 
 	@DatabaseExecutor
-	protected <H extends PostHeader> List<I> buildItems(
+	protected <H extends PostHeader> List<I> recreateItems(
 			Transaction txn, Collection<H> headers, ItemGetter<H, I> itemGetter)
 			throws DbException {
 		long start = now();
@@ -122,21 +156,43 @@ public abstract class ThreadListViewModel<I extends ThreadItem> extends DbViewMo
 		}
 		logDuration(LOG, "Loading bodies and creating items", start);
 
-		MessageId msgId = messageTracker.loadStoredMessageId(txn, groupId);
-		if (LOG.isLoggable(INFO)) {
-			LOG.info("Loaded last top visible message id " + msgId);
-		}
-		// TODO store this elsewhere
-		items.setFirstVisibleId(msgId);
-		return items;
+		messageTree.clear();
+		messageTree.add(items);
+		return messageTree.depthFirstOrder();
+	}
+
+	protected void addItem(I item, boolean local) {
+		messageTree.add(item);
+		if (local) scrollToItem.set(item.getId());
+		items.postValue(new LiveResult<>(messageTree.depthFirstOrder()));
 	}
 
 	@DatabaseExecutor
 	protected abstract String loadMessageText(Transaction txn,
 			PostHeader header) throws DbException;
 
+	void storeMessageId(@Nullable MessageId messageId) {
+		if (messageId != null) runOnDbThread(() -> {
+			try {
+				messageTracker.storeMessageId(groupId, messageId);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	@Nullable
+	MessageId getAndResetRestoredMessageId() {
+		return storedMessageId.getAndSet(null);
+	}
+
 	LiveData<LiveResult<List<I>>> getItems() {
 		return items;
+	}
+
+	@Nullable
+	MessageId getAndResetScrollToItem() {
+		return scrollToItem.getAndSet(null);
 	}
 
 	public interface ItemGetter<H extends PostHeader, I> {

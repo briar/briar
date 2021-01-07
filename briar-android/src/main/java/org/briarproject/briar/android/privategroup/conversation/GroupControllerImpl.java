@@ -7,21 +7,15 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.briar.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
-import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.privategroup.GroupMember;
-import org.briarproject.briar.api.privategroup.GroupMessage;
-import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
@@ -36,37 +30,32 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
+import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-class GroupControllerImpl extends
-		ThreadListControllerImpl<GroupMessageItem, GroupMessageHeader, GroupMessage, GroupListener>
+class GroupControllerImpl extends ThreadListControllerImpl<GroupMessageItem>
 		implements GroupController {
 
 	private static final Logger LOG =
-			Logger.getLogger(GroupControllerImpl.class.getName());
+			getLogger(GroupControllerImpl.class.getName());
 
 	private final PrivateGroupManager privateGroupManager;
-	private final GroupMessageFactory groupMessageFactory;
 
 	@Inject
 	GroupControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			PrivateGroupManager privateGroupManager,
-			GroupMessageFactory groupMessageFactory, EventBus eventBus,
-			MessageTracker messageTracker, Clock clock,
+			EventBus eventBus, Clock clock,
 			AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
-				eventBus, clock, notificationManager, messageTracker);
+				eventBus, clock, notificationManager);
 		this.privateGroupManager = privateGroupManager;
-		this.groupMessageFactory = groupMessageFactory;
 	}
 
 	@Override
@@ -78,6 +67,8 @@ class GroupControllerImpl extends
 	@Override
 	public void eventOccurred(Event e) {
 		super.eventOccurred(e);
+
+		GroupListener listener = (GroupListener) this.listener;
 
 		if (e instanceof GroupMessageAddedEvent) {
 			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
@@ -132,52 +123,7 @@ class GroupControllerImpl extends
 		});
 	}
 
-	@Override
-	public void createAndStoreMessage(String text,
-			@Nullable GroupMessageItem parentItem,
-			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
-		runOnDbThread(() -> {
-			try {
-				LocalAuthor author = identityManager.getLocalAuthor();
-				MessageId parentId = null;
-				MessageId previousMsgId =
-						privateGroupManager.getPreviousMsgId(getGroupId());
-				GroupCount count =
-						privateGroupManager.getGroupCount(getGroupId());
-				long timestamp = count.getLatestMsgTime();
-				if (parentItem != null) parentId = parentItem.getId();
-				timestamp = max(clock.currentTimeMillis(), timestamp + 1);
-				createMessage(text, timestamp, parentId, author, previousMsgId,
-						handler);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
-	}
-
-	private void createMessage(String text, long timestamp,
-			@Nullable MessageId parentId, LocalAuthor author,
-			MessageId previousMsgId,
-			ResultExceptionHandler<GroupMessageItem, DbException> handler) {
-		cryptoExecutor.execute(() -> {
-			LOG.info("Creating group message...");
-			GroupMessage msg = groupMessageFactory
-					.createGroupMessage(getGroupId(), timestamp,
-							parentId, author, text, previousMsgId);
-			storePost(msg, text, handler);
-		});
-	}
-
-	@Override
-	protected GroupMessageHeader addLocalMessage(GroupMessage message)
-			throws DbException {
-		return privateGroupManager.addLocalMessage(message);
-	}
-
-	@Override
-	protected GroupMessageItem buildItem(GroupMessageHeader header,
-			String text) {
+	private GroupMessageItem buildItem(GroupMessageHeader header, String text) {
 		if (header instanceof JoinMessageHeader) {
 			return new JoinMessageItem((JoinMessageHeader) header, text);
 		}

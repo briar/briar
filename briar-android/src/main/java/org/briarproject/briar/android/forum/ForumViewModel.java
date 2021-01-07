@@ -11,32 +11,37 @@ import org.briarproject.bramble.api.db.TransactionManager;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.forum.Forum;
 import org.briarproject.briar.api.forum.ForumManager;
+import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
-import org.briarproject.briar.client.MessageTreeImpl;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import static android.widget.Toast.LENGTH_SHORT;
+import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -98,10 +103,50 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			List<ForumPostHeader> headers =
 					forumManager.getPostHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			List<ForumPostItem> items =
-					buildItems(txn, headers, this::buildItem);
-			return new MessageTreeImpl<>(items).depthFirstOrder();
+			return recreateItems(txn, headers, this::buildItem);
 		}, this::setItems);
+	}
+
+	@Override
+	public void createAndStoreMessage(String text,
+			@Nullable ForumPostItem parentItem) {
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor author = identityManager.getLocalAuthor();
+				GroupCount count = forumManager.getGroupCount(groupId);
+				long timestamp = max(count.getLatestMsgTime() + 1,
+						clock.currentTimeMillis());
+				MessageId parentId =
+						parentItem != null ? parentItem.getId() : null;
+				createMessage(text, timestamp, parentId, author);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	private void createMessage(String text, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author) {
+		cryptoExecutor.execute(() -> {
+			LOG.info("Creating forum post...");
+			ForumPost msg = forumManager.createLocalPost(groupId, text,
+					timestamp, parentId, author);
+			storePost(msg, text);
+		});
+	}
+
+	private void storePost(ForumPost msg, String text) {
+		runOnDbThread(() -> {
+			try {
+				long start = now();
+				ForumPostHeader header = forumManager.addLocalPost(msg);
+				textCache.put(msg.getMessage().getId(), text);
+				addItem(buildItem(header, text), true);
+				logDuration(LOG, "Storing forum post", start);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
 	}
 
 	private ForumPostItem buildItem(ForumPostHeader header, String text) {

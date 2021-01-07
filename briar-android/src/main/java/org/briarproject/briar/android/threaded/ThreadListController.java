@@ -27,9 +27,6 @@ public interface ThreadListController<I extends ThreadItem>
 
 	void markItemsRead(Collection<I> items);
 
-	void createAndStoreMessage(String text, @Nullable I parentItem,
-			ResultExceptionHandler<I, DbException> handler);
-
 	interface ThreadListListener<I> extends ThreadListDataSource {
 
 		@UiThread

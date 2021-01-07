@@ -11,32 +11,37 @@ import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.Author;
 import org.briarproject.bramble.api.identity.IdentityManager;
+import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
+import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
+import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.client.PostHeader;
+import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
-import org.briarproject.briar.client.MessageTreeImpl;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 import static java.util.logging.Logger.getLogger;
 import static org.briarproject.bramble.util.LogUtils.logDuration;
@@ -109,9 +114,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			List<GroupMessageHeader> headers =
 					privateGroupManager.getHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			List<GroupMessageItem> items =
-					buildItems(txn, headers, this::buildItem);
-			return new MessageTreeImpl<>(items).depthFirstOrder();
+			return recreateItems(txn, headers, this::buildItem);
 		}, this::setItems);
 	}
 
@@ -130,6 +133,52 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			return "";
 		}
 		return privateGroupManager.getMessageText(txn, header.getId());
+	}
+
+	@Override
+	public void createAndStoreMessage(String text,
+			@Nullable GroupMessageItem parentItem) {
+		runOnDbThread(() -> {
+			try {
+				LocalAuthor author = identityManager.getLocalAuthor();
+				MessageId parentId = null;
+				MessageId previousMsgId =
+						privateGroupManager.getPreviousMsgId(groupId);
+				GroupCount count = privateGroupManager.getGroupCount(groupId);
+				long timestamp = count.getLatestMsgTime();
+				if (parentItem != null) parentId = parentItem.getId();
+				timestamp = max(clock.currentTimeMillis(), timestamp + 1);
+				createMessage(text, timestamp, parentId, author, previousMsgId);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	private void createMessage(String text, long timestamp,
+			@Nullable MessageId parentId, LocalAuthor author,
+			MessageId previousMsgId) {
+		cryptoExecutor.execute(() -> {
+			LOG.info("Creating group message...");
+			GroupMessage msg = groupMessageFactory.createGroupMessage(groupId,
+					timestamp, parentId, author, text, previousMsgId);
+			storePost(msg, text);
+		});
+	}
+
+	private void storePost(GroupMessage msg, String text) {
+		runOnDbThread(() -> {
+			try {
+				long start = now();
+				GroupMessageHeader header =
+						privateGroupManager.addLocalMessage(msg);
+				textCache.put(msg.getMessage().getId(), text);
+				addItem(buildItem(header, text), true);
+				logDuration(LOG, "Storing group message", start);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
 	}
 
 	void deletePrivateGroup() {

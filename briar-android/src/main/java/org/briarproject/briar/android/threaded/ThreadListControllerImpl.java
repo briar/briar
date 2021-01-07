@@ -17,17 +17,10 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.DbControllerImpl;
-import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
-import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.client.PostHeader;
-import org.briarproject.briar.api.client.ThreadedMessage;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
@@ -40,39 +33,34 @@ import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
-public abstract class ThreadListControllerImpl<I extends ThreadItem, H extends PostHeader, M extends ThreadedMessage, L extends ThreadListListener<I>>
+public abstract class ThreadListControllerImpl<I extends ThreadItem>
 		extends DbControllerImpl
 		implements ThreadListController<I>, EventListener {
 
 	private static final Logger LOG =
 			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
-	private final EventBus eventBus;
-	private final MessageTracker messageTracker;
-	private final Map<MessageId, String> textCache = new ConcurrentHashMap<>();
-
 	private volatile GroupId groupId;
 
+	private final EventBus eventBus;
 	protected final IdentityManager identityManager;
 	protected final AndroidNotificationManager notificationManager;
 	protected final Executor cryptoExecutor;
 	protected final Clock clock;
 
 	// UI thread
-	protected L listener;
+	protected ThreadListListener<I> listener;
 
 	protected ThreadListControllerImpl(@DatabaseExecutor Executor dbExecutor,
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor, EventBus eventBus,
-			Clock clock, AndroidNotificationManager notificationManager,
-			MessageTracker messageTracker) {
+			Clock clock, AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager);
 		this.identityManager = identityManager;
 		this.cryptoExecutor = cryptoExecutor;
 		this.notificationManager = notificationManager;
 		this.clock = clock;
 		this.eventBus = eventBus;
-		this.messageTracker = messageTracker;
 	}
 
 	@Override
@@ -84,7 +72,7 @@ public abstract class ThreadListControllerImpl<I extends ThreadItem, H extends P
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onActivityCreate(Activity activity) {
-		listener = (L) activity;
+		listener = (ThreadListListener<I>) activity;
 	}
 
 	@CallSuper
@@ -103,16 +91,7 @@ public abstract class ThreadListControllerImpl<I extends ThreadItem, H extends P
 
 	@Override
 	public void onActivityDestroy() {
-		MessageId messageId = listener.getFirstVisibleMessageId();
-		if (messageId != null) {
-			dbExecutor.execute(() -> {
-				try {
-					messageTracker.storeMessageId(groupId, messageId);
-				} catch (DbException e) {
-					logException(LOG, WARNING, e);
-				}
-			});
-		}
+
 	}
 
 	@CallSuper
@@ -149,27 +128,6 @@ public abstract class ThreadListControllerImpl<I extends ThreadItem, H extends P
 
 	@DatabaseExecutor
 	protected abstract void markRead(MessageId id) throws DbException;
-
-	protected void storePost(M msg, String text,
-			ResultExceptionHandler<I, DbException> resultHandler) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				H header = addLocalMessage(msg);
-				textCache.put(msg.getMessage().getId(), text);
-				logDuration(LOG, "Storing message", start);
-				resultHandler.onResult(buildItem(header, text));
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				resultHandler.onException(e);
-			}
-		});
-	}
-
-	@DatabaseExecutor
-	protected abstract H addLocalMessage(M message) throws DbException;
-
-	protected abstract I buildItem(H header, String text);
 
 	protected GroupId getGroupId() {
 		checkGroupId();

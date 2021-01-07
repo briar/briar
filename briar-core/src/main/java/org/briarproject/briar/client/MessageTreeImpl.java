@@ -33,11 +33,6 @@ public class MessageTreeImpl<T extends MessageTree.MessageNode>
 	private final Comparator<T> comparator = (o1, o2) ->
 			Long.valueOf(o1.getTimestamp()).compareTo(o2.getTimestamp());
 
-	public MessageTreeImpl(Collection<T> collection) {
-		super();
-		add(collection);
-	}
-
 	@Override
 	public synchronized void clear() {
 		roots.clear();

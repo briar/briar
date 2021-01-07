@@ -109,7 +109,6 @@ public interface ForumManager {
 	/**
 	 * Returns the group count for the given forum.
 	 */
-	@Deprecated
 	GroupCount getGroupCount(GroupId g) throws DbException;
 
 	/**

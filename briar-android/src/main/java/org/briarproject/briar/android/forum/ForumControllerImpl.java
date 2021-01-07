@@ -8,20 +8,15 @@ import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
-import org.briarproject.bramble.api.identity.LocalAuthor;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
-import org.briarproject.briar.android.forum.ForumController.ForumListener;
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
-import org.briarproject.briar.api.client.MessageTracker;
-import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
-import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
@@ -33,16 +28,13 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
-import static java.lang.Math.max;
 import static java.util.logging.Level.WARNING;
 import static org.briarproject.bramble.util.LogUtils.logException;
 
 @NotNullByDefault
-class ForumControllerImpl extends
-		ThreadListControllerImpl<ForumPostItem, ForumPostHeader, ForumPost, ForumListener>
+class ForumControllerImpl extends ThreadListControllerImpl<ForumPostItem>
 		implements ForumController {
 
 	private static final Logger LOG =
@@ -56,10 +48,10 @@ class ForumControllerImpl extends
 			LifecycleManager lifecycleManager, IdentityManager identityManager,
 			@CryptoExecutor Executor cryptoExecutor,
 			ForumManager forumManager, ForumSharingManager forumSharingManager,
-			EventBus eventBus, Clock clock, MessageTracker messageTracker,
+			EventBus eventBus, Clock clock,
 			AndroidNotificationManager notificationManager) {
 		super(dbExecutor, lifecycleManager, identityManager, cryptoExecutor,
-				eventBus, clock, notificationManager, messageTracker);
+				eventBus, clock, notificationManager);
 		this.forumManager = forumManager;
 		this.forumSharingManager = forumSharingManager;
 	}
@@ -73,6 +65,8 @@ class ForumControllerImpl extends
 	@Override
 	public void eventOccurred(Event e) {
 		super.eventOccurred(e);
+
+		ForumListener listener = (ForumListener) this.listener;
 
 		if (e instanceof ForumPostReceivedEvent) {
 			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
@@ -120,44 +114,7 @@ class ForumControllerImpl extends
 		});
 	}
 
-	@Override
-	public void createAndStoreMessage(String text,
-			@Nullable ForumPostItem parentItem,
-			ResultExceptionHandler<ForumPostItem, DbException> handler) {
-		runOnDbThread(() -> {
-			try {
-				LocalAuthor author = identityManager.getLocalAuthor();
-				GroupCount count = forumManager.getGroupCount(getGroupId());
-				long timestamp = max(count.getLatestMsgTime() + 1,
-						clock.currentTimeMillis());
-				MessageId parentId = parentItem != null ?
-						parentItem.getId() : null;
-				createMessage(text, timestamp, parentId, author, handler);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
-	}
-
-	private void createMessage(String text, long timestamp,
-			@Nullable MessageId parentId, LocalAuthor author,
-			ResultExceptionHandler<ForumPostItem, DbException> handler) {
-		cryptoExecutor.execute(() -> {
-			LOG.info("Creating forum post...");
-			ForumPost msg = forumManager.createLocalPost(getGroupId(), text,
-					timestamp, parentId, author);
-			storePost(msg, text, handler);
-		});
-	}
-
-	@Override
-	protected ForumPostHeader addLocalMessage(ForumPost p) throws DbException {
-		return forumManager.addLocalPost(p);
-	}
-
-	@Override
-	protected ForumPostItem buildItem(ForumPostHeader header, String text) {
+	private ForumPostItem buildItem(ForumPostHeader header, String text) {
 		return new ForumPostItem(header, text);
 	}
 

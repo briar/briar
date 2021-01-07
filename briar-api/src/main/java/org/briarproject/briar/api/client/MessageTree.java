@@ -13,15 +13,12 @@ public interface MessageTree<T extends MessageTree.MessageNode> {
 
 	void add(Collection<T> nodes);
 
-	@Deprecated
 	void add(T node);
 
-	@Deprecated
 	void clear();
 
 	List<T> depthFirstOrder();
 
-	@Deprecated
 	boolean contains(MessageId m);
 
 	@NotNullByDefault

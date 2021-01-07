@@ -66,16 +66,11 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		ui.bind(item, listener);
 	}
 
-	void setItemWithIdVisible(MessageId messageId) {
-		int pos = 0;
+	public int findItemPosition(MessageId id) {
 		for (int i = 0; i < getItemCount(); i++) {
-			I item = getItem(i);
-			if (item.getId().equals(messageId)) {
-				layoutManager.scrollToPosition(pos);
-				break;
-			}
-			pos++;
+			if (id.equals(getItem(i).getId())) return i;
 		}
+		return NO_POSITION; // Not found
 	}
 
 	/**

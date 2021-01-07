@@ -58,7 +58,7 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 			GroupMessageItem item = getItem(position);
 			if (item instanceof JoinMessageItem) {
 				((JoinMessageItem) item).setVisibility(v);
-				notifyItemChanged(findItemPosition(item), item);
+				notifyItemChanged(findItemPosition(item.getId()), item);
 			}
 		}
 	}
@@ -69,14 +69,6 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 			GroupMessageItem item = getItem(i);
 			if (item.getAuthor().getId().equals(a))
 				return i;
-		}
-		return NO_POSITION; // Not found
-	}
-
-	@Deprecated
-	private int findItemPosition(GroupMessageItem itemToFind) {
-		for (int i = 0; i < getItemCount(); i++) {
-			if (getItem(i).equals(itemToFind)) return i;
 		}
 		return NO_POSITION; // Not found
 	}
