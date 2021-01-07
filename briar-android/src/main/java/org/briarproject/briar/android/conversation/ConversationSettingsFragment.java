@@ -8,6 +8,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.Switch;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
@@ -96,6 +97,11 @@ public class ConversationSettingsFragment extends BaseFragment {
 					viewModel.setAutoDeleteTimerEnabled(value);
 				});
 
+		Button buttonLearnMore = contentView.findViewById(R.id.buttonLearnMore);
+		buttonLearnMore.setOnClickListener(e -> {
+			showLearnMoreDialog();
+		});
+
 		viewModel = ViewModelProviders.of(requireActivity(), viewModelFactory)
 				.get(ConversationViewModel.class);
 
@@ -145,10 +151,17 @@ public class ConversationSettingsFragment extends BaseFragment {
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.action_help) {
-			// TODO: display dialog
+			showLearnMoreDialog();
 			return true;
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private void showLearnMoreDialog() {
+		ConversationSettingsLearnMoreDialog
+				dialog = new ConversationSettingsLearnMoreDialog();
+		dialog.show(requireActivity().getSupportFragmentManager(),
+				ConversationSettingsLearnMoreDialog.TAG);
 	}
 
 }
