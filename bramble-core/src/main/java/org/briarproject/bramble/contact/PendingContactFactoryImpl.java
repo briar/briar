@@ -11,6 +11,7 @@ import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.bramble.util.Base32;
 
 import java.security.GeneralSecurityException;
+import java.util.Locale;
 import java.util.regex.Matcher;
 
 import javax.inject.Inject;
@@ -52,7 +53,7 @@ class PendingContactFactoryImpl implements PendingContactFactory {
 		byte[] raw = new byte[RAW_LINK_BYTES];
 		raw[0] = FORMAT_VERSION;
 		arraycopy(encoded, 0, raw, 1, encoded.length);
-		return "briar://" + Base32.encode(raw).toLowerCase();
+		return "briar://" + Base32.encode(raw).toLowerCase(Locale.US);
 	}
 
 	private PublicKey parseHandshakeLink(String link) throws FormatException {
