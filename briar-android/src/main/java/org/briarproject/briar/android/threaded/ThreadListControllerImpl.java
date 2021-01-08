@@ -14,7 +14,6 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
-import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -78,14 +77,12 @@ public abstract class ThreadListControllerImpl<I extends ThreadItem>
 	@CallSuper
 	@Override
 	public void onActivityStart() {
-		notificationManager.blockNotification(getGroupId());
 		eventBus.addListener(this);
 	}
 
 	@CallSuper
 	@Override
 	public void onActivityStop() {
-		notificationManager.unblockNotification(getGroupId());
 		eventBus.removeListener(this);
 	}
 
@@ -94,16 +91,8 @@ public abstract class ThreadListControllerImpl<I extends ThreadItem>
 
 	}
 
-	@CallSuper
 	@Override
 	public void eventOccurred(Event e) {
-		if (e instanceof GroupRemovedEvent) {
-			GroupRemovedEvent s = (GroupRemovedEvent) e;
-			if (s.getGroup().getId().equals(getGroupId())) {
-				LOG.info("Group removed");
-				listener.onGroupRemoved();
-			}
-		}
 	}
 
 	@Override

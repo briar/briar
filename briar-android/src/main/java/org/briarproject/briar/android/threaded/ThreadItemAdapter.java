@@ -30,10 +30,8 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	static final int UNDEFINED = -1;
 
 	private final ThreadItemListener<I> listener;
-	private final LinearLayoutManager layoutManager;
 
-	public ThreadItemAdapter(ThreadItemListener<I> listener,
-			LinearLayoutManager layoutManager) {
+	public ThreadItemAdapter(ThreadItemListener<I> listener) {
 		super(new DiffUtil.ItemCallback<I>() {
 			@Override
 			public boolean areItemsTheSame(I a, I b) {
@@ -47,7 +45,6 @@ public class ThreadItemAdapter<I extends ThreadItem>
 			}
 		});
 		this.listener = listener;
-		this.layoutManager = layoutManager;
 	}
 
 	@NonNull
@@ -101,10 +98,17 @@ public class ThreadItemAdapter<I extends ThreadItem>
 		return null;
 	}
 
+	@Nullable
+	MessageId getFirstVisibleMessageId(LinearLayoutManager layoutManager) {
+		int position = layoutManager.findFirstVisibleItemPosition();
+		if (position == NO_POSITION) return null;
+		return getItemAt(position).getId();
+	}
+
 	/**
 	 * Returns the position of the first unread item below the current viewport
 	 */
-	int getVisibleUnreadPosBottom() {
+	int getVisibleUnreadPosBottom(LinearLayoutManager layoutManager) {
 		int positionBottom = layoutManager.findLastVisibleItemPosition();
 		if (positionBottom == NO_POSITION) return NO_POSITION;
 		for (int i = positionBottom + 1; i < getItemCount(); i++) {
@@ -116,7 +120,7 @@ public class ThreadItemAdapter<I extends ThreadItem>
 	/**
 	 * Returns the position of the first unread item above the current viewport
 	 */
-	int getVisibleUnreadPosTop() {
+	int getVisibleUnreadPosTop(LinearLayoutManager layoutManager) {
 		int positionTop = layoutManager.findFirstVisibleItemPosition();
 		int position = NO_POSITION;
 		for (int i = 0; i < getItemCount(); i++) {

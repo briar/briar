@@ -26,7 +26,6 @@ import javax.inject.Inject;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP;
 import static org.briarproject.briar.android.activity.RequestCodes.REQUEST_SHARE_FORUM;
@@ -64,6 +63,11 @@ public class ForumActivity extends
 	}
 
 	@Override
+	protected ThreadItemAdapter<ForumPostItem> createAdapter() {
+		return new ThreadItemAdapter<>(this);
+	}
+
+	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
@@ -91,9 +95,9 @@ public class ForumActivity extends
 	}
 
 	@Override
-	protected ThreadItemAdapter<ForumPostItem> createAdapter(
-			LinearLayoutManager layoutManager) {
-		return new ThreadItemAdapter<>(this, layoutManager);
+	public void onStart() {
+		super.onStart();
+		viewModel.clearForumPostNotification();
 	}
 
 	@Override

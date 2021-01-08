@@ -14,7 +14,6 @@ import org.briarproject.briar.api.privategroup.Visibility;
 
 import androidx.annotation.LayoutRes;
 import androidx.annotation.UiThread;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static androidx.recyclerview.widget.RecyclerView.NO_POSITION;
 
@@ -24,9 +23,8 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 
 	private boolean isCreator = false;
 
-	GroupMessageAdapter(ThreadItemListener<GroupMessageItem> listener,
-			LinearLayoutManager layoutManager) {
-		super(listener, layoutManager);
+	GroupMessageAdapter(ThreadItemListener<GroupMessageItem> listener) {
+		super(listener);
 	}
 
 	@LayoutRes
@@ -47,7 +45,7 @@ class GroupMessageAdapter extends ThreadItemAdapter<GroupMessageItem> {
 		return new ThreadPostViewHolder<>(v);
 	}
 
-	void setPerspective(boolean isCreator) {
+	void setIsCreator(boolean isCreator) {
 		this.isCreator = isCreator;
 		notifyDataSetChanged();
 	}

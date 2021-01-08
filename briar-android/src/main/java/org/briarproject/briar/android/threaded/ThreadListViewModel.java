@@ -7,6 +7,7 @@ import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.db.Transaction;
 import org.briarproject.bramble.api.db.TransactionManager;
+import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.identity.IdentityManager;
@@ -15,6 +16,7 @@ import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
+import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
@@ -65,14 +67,18 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	@DatabaseExecutor
 	private final MessageTree<I> messageTree = new MessageTreeImpl<>();
-	protected final Map<MessageId, String> textCache =
+	protected final Map<MessageId, String> textCache = // TODO still needed?
 			new ConcurrentHashMap<>();
 	private final MutableLiveData<LiveResult<List<I>>> items =
+			new MutableLiveData<>();
+	private final MutableLiveData<Boolean> groupRemoved =
 			new MutableLiveData<>();
 	private final AtomicReference<MessageId> scrollToItem =
 			new AtomicReference<>();
 
 	protected volatile GroupId groupId;
+	@Nullable
+	private MessageId replyId;
 	private final AtomicReference<MessageId> storedMessageId =
 			new AtomicReference<>();
 
@@ -112,6 +118,26 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		this.groupId = groupId;
 		loadStoredMessageId();
 		loadItems();
+	}
+
+	public void blockNotifications() {
+		notificationManager.blockNotification(groupId);
+	}
+
+	public void unblockNotifications() {
+		notificationManager.unblockNotification(groupId);
+	}
+
+	@Override
+	@CallSuper
+	public void eventOccurred(Event e) {
+		if (e instanceof GroupRemovedEvent) {
+			GroupRemovedEvent s = (GroupRemovedEvent) e;
+			if (s.getGroup().getId().equals(groupId)) {
+				LOG.info("Group removed");
+				groupRemoved.setValue(true);
+			}
+		}
 	}
 
 	private void loadStoredMessageId() {
@@ -161,15 +187,41 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		return messageTree.depthFirstOrder();
 	}
 
-	protected void addItem(I item, boolean local) {
+	/**
+	 * Add a remote item on the UI thread.
+	 * The list will not scroll, but show an unread indicator.
+	 */
+	@UiThread
+	protected void addItem(I item) {
 		messageTree.add(item);
-		if (local) scrollToItem.set(item.getId());
+		items.setValue(new LiveResult<>(messageTree.depthFirstOrder()));
+	}
+
+	/**
+	 * Add a local item from the DB thread.
+	 * The list will scroll to the new item.
+	 */
+	@DatabaseExecutor
+	protected void addItemAsync(I item) {
+		messageTree.add(item);
+		scrollToItem.set(item.getId());
 		items.postValue(new LiveResult<>(messageTree.depthFirstOrder()));
 	}
 
 	@DatabaseExecutor
 	protected abstract String loadMessageText(Transaction txn,
 			PostHeader header) throws DbException;
+
+	@UiThread
+	public void setReplyId(@Nullable MessageId id) {
+		replyId = id;
+	}
+
+	@UiThread
+	@Nullable
+	public MessageId getReplyId() {
+		return replyId;
+	}
 
 	void storeMessageId(@Nullable MessageId messageId) {
 		if (messageId != null) runOnDbThread(() -> {
@@ -188,6 +240,10 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	LiveData<LiveResult<List<I>>> getItems() {
 		return items;
+	}
+
+	LiveData<Boolean> getGroupRemoved() {
+		return groupRemoved;
 	}
 
 	@Nullable

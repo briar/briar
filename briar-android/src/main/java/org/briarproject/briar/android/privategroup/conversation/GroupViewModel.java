@@ -30,6 +30,8 @@ import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
+import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -60,6 +62,8 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	private final MutableLiveData<PrivateGroup> privateGroup =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> isCreator = new MutableLiveData<>();
+	private final MutableLiveData<Boolean> isDissolved =
+			new MutableLiveData<>();
 
 	@Inject
 	GroupViewModel(Application application,
@@ -84,13 +88,36 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 
 	@Override
 	public void eventOccurred(Event e) {
-
+		if (e instanceof GroupMessageAddedEvent) {
+			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
+			// only act on non-local messages in this group
+			if (!g.isLocal() && g.getGroupId().equals(groupId)) {
+				LOG.info("Group message received, adding...");
+				GroupMessageItem item = buildItem(g.getHeader(), g.getText());
+				addItem(item);
+				if (item instanceof JoinMessageItem) {
+					// TODO
+//					if (((JoinMessageItem) item).isInitial()) loadSharingContacts();
+				}
+			}
+		} else if (e instanceof GroupDissolvedEvent) {
+			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
+			if (g.getGroupId().equals(groupId)) {
+				isDissolved.setValue(true);
+			}
+		} else {
+			super.eventOccurred(e);
+		}
 	}
 
 	@Override
 	public void setGroupId(GroupId groupId) {
 		super.setGroupId(groupId);
 		loadPrivateGroup(groupId);
+	}
+
+	public void clearGroupMessageNotifications() {
+		notificationManager.clearGroupMessageNotification(groupId);
 	}
 
 	private void loadPrivateGroup(GroupId groupId) {
@@ -109,7 +136,10 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 	@Override
 	public void loadItems() {
 		loadList(txn -> {
-			// TODO first check if group is dissolved
+			// check first if group is dissolved
+			isDissolved
+					.postValue(privateGroupManager.isDissolved(txn, groupId));
+			// no continue to load the items
 			long start = now();
 			List<GroupMessageHeader> headers =
 					privateGroupManager.getHeaders(txn, groupId);
@@ -173,7 +203,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 				GroupMessageHeader header =
 						privateGroupManager.addLocalMessage(msg);
 				textCache.put(msg.getMessage().getId(), text);
-				addItem(buildItem(header, text), true);
+				addItemAsync(buildItem(header, text));
 				logDuration(LOG, "Storing group message", start);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -197,6 +227,10 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 
 	LiveData<Boolean> isCreator() {
 		return isCreator;
+	}
+
+	LiveData<Boolean> isDissolved() {
+		return isDissolved;
 	}
 
 }

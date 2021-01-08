@@ -29,6 +29,7 @@ import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
+import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -80,7 +81,20 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 
 	@Override
 	public void eventOccurred(Event e) {
+		if (e instanceof ForumPostReceivedEvent) {
+			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
+			if (f.getGroupId().equals(groupId)) {
+				LOG.info("Forum post received, adding...");
+				ForumPostItem item = buildItem(f.getHeader(), f.getText());
+				addItem(item);
+			}
+		} else {
+			super.eventOccurred(e);
+		}
+	}
 
+	void clearForumPostNotification() {
+		notificationManager.clearForumPostNotification(groupId);
 	}
 
 	LiveData<Forum> loadForum() {
@@ -141,7 +155,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 				long start = now();
 				ForumPostHeader header = forumManager.addLocalPost(msg);
 				textCache.put(msg.getMessage().getId(), text);
-				addItem(buildItem(header, text), true);
+				addItemAsync(buildItem(header, text));
 				logDuration(LOG, "Storing forum post", start);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);

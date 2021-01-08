@@ -7,13 +7,11 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 
 import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
 import org.briarproject.briar.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.briar.android.privategroup.memberlist.GroupMemberListActivity;
@@ -29,7 +27,6 @@ import javax.inject.Inject;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
@@ -50,9 +47,6 @@ public class GroupActivity extends
 
 	private GroupViewModel viewModel;
 
-	@Nullable
-	private Boolean isCreator = null;
-	private boolean isDissolved = false;
 	private MenuItem revealMenuItem, inviteMenuItem, leaveMenuItem,
 			dissolveMenuItem;
 
@@ -74,6 +68,11 @@ public class GroupActivity extends
 	}
 
 	@Override
+	protected GroupMessageAdapter createAdapter() {
+		return new GroupMessageAdapter(this);
+	}
+
+	@Override
 	public void onCreate(@Nullable Bundle state) {
 		super.onCreate(state);
 
@@ -85,11 +84,7 @@ public class GroupActivity extends
 		observeOnce(viewModel.getPrivateGroup(), this, privateGroup ->
 				setTitle(privateGroup.getName())
 		);
-		observeOnce(viewModel.isCreator(), this, isCreator -> {
-			this.isCreator = isCreator; // TODO remove field
-			adapter.setPerspective(isCreator);
-			showMenuItems();
-		});
+		observeOnce(viewModel.isCreator(), this, adapter::setIsCreator);
 
 		// Open member list on Toolbar click
 		if (toolbar != null) {
@@ -101,25 +96,18 @@ public class GroupActivity extends
 			});
 		}
 
+		// start with group disabled and enable when not dissolved
 		setGroupEnabled(false);
-		controller.isDissolved(
-				new UiResultExceptionHandler<Boolean, DbException>(this) {
-					@Override
-					public void onResultUi(Boolean isDissolved) {
-						setGroupEnabled(!isDissolved);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
+		viewModel.isDissolved().observe(this, dissolved -> {
+			setGroupEnabled(!dissolved);
+			if (dissolved) onGroupDissolved();
+		});
 	}
 
 	@Override
-	protected GroupMessageAdapter createAdapter(
-			LinearLayoutManager layoutManager) {
-		return new GroupMessageAdapter(this, layoutManager);
+	public void onStart() {
+		super.onStart();
+		viewModel.clearGroupMessageNotifications();
 	}
 
 	@Override
@@ -139,8 +127,13 @@ public class GroupActivity extends
 		leaveMenuItem.setVisible(false);
 		dissolveMenuItem.setVisible(false);
 
-		// show items based on role
-		showMenuItems();
+		// show items based on role (which will not change, so observe once)
+		observeOnce(viewModel.isCreator(), this, isCreator -> {
+			revealMenuItem.setVisible(!isCreator);
+			inviteMenuItem.setVisible(isCreator);
+			leaveMenuItem.setVisible(!isCreator);
+			dissolveMenuItem.setVisible(isCreator);
+		});
 
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -154,26 +147,26 @@ public class GroupActivity extends
 			startActivity(i1);
 			return true;
 		} else if (itemId == R.id.action_group_reveal) {
-			if (isCreator == null || isCreator)
+			if (viewModel.isCreator().getValue())
 				throw new IllegalStateException();
 			Intent i2 = new Intent(this, RevealContactsActivity.class);
 			i2.putExtra(GROUP_ID, groupId.getBytes());
 			startActivity(i2);
 			return true;
 		} else if (itemId == R.id.action_group_invite) {
-			if (isCreator == null || !isCreator)
+			if (!viewModel.isCreator().getValue())
 				throw new IllegalStateException();
 			Intent i3 = new Intent(this, GroupInviteActivity.class);
 			i3.putExtra(GROUP_ID, groupId.getBytes());
 			startActivityForResult(i3, REQUEST_GROUP_INVITE);
 			return true;
 		} else if (itemId == R.id.action_group_leave) {
-			if (isCreator == null || isCreator)
+			if (viewModel.isCreator().getValue())
 				throw new IllegalStateException();
 			showLeaveGroupDialog();
 			return true;
 		} else if (itemId == R.id.action_group_dissolve) {
-			if (isCreator == null || !isCreator)
+			if (!viewModel.isCreator().getValue())
 				throw new IllegalStateException();
 			showDissolveGroupDialog();
 
@@ -191,25 +184,16 @@ public class GroupActivity extends
 	}
 
 	@Override
-	public void onItemReceived(GroupMessageItem item) {
-		super.onItemReceived(item);
-		if (item instanceof JoinMessageItem) {
-			if (((JoinMessageItem) item).isInitial()) loadSharingContacts();
-		}
-	}
-
-	@Override
 	protected int getMaxTextLength() {
 		return MAX_GROUP_POST_TEXT_LENGTH;
 	}
 
 	@Override
 	public void onReplyClick(GroupMessageItem item) {
-		if (!isDissolved) super.onReplyClick(item);
+		if (!viewModel.isDissolved().getValue()) super.onReplyClick(item);
 	}
 
 	private void setGroupEnabled(boolean enabled) {
-		isDissolved = !enabled;
 		sendController.setReady(enabled);
 		list.getRecyclerView().setAlpha(enabled ? 1f : 0.5f);
 
@@ -219,15 +203,6 @@ public class GroupActivity extends
 		} else {
 			textInput.setVisibility(VISIBLE);
 		}
-	}
-
-	private void showMenuItems() {
-		// we need to have the menu items and know if we are the creator
-		if (leaveMenuItem == null || isCreator == null) return;
-		revealMenuItem.setVisible(!isCreator);
-		inviteMenuItem.setVisible(isCreator);
-		leaveMenuItem.setVisible(!isCreator);
-		dissolveMenuItem.setVisible(isCreator);
 	}
 
 	private void showLeaveGroupDialog() {
@@ -268,7 +243,6 @@ public class GroupActivity extends
 				sharingController.getOnlineCount());
 	}
 
-	@Override
 	public void onGroupDissolved() {
 		setGroupEnabled(false);
 		AlertDialog.Builder builder =

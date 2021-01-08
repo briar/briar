@@ -17,10 +17,8 @@ import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
-import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
 import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
 import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
 import java.util.ArrayList;
@@ -59,7 +57,6 @@ class ForumControllerImpl extends ThreadListControllerImpl<ForumPostItem>
 	@Override
 	public void onActivityStart() {
 		super.onActivityStart();
-		notificationManager.clearForumPostNotification(getGroupId());
 	}
 
 	@Override
@@ -68,13 +65,7 @@ class ForumControllerImpl extends ThreadListControllerImpl<ForumPostItem>
 
 		ForumListener listener = (ForumListener) this.listener;
 
-		if (e instanceof ForumPostReceivedEvent) {
-			ForumPostReceivedEvent f = (ForumPostReceivedEvent) e;
-			if (f.getGroupId().equals(getGroupId())) {
-				LOG.info("Forum post received, adding...");
-				listener.onItemReceived(buildItem(f.getHeader(), f.getText()));
-			}
-		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
+		if (e instanceof ForumInvitationResponseReceivedEvent) {
 			ForumInvitationResponseReceivedEvent f =
 					(ForumInvitationResponseReceivedEvent) e;
 			ForumInvitationResponse r = f.getMessageHeader();
@@ -112,10 +103,6 @@ class ForumControllerImpl extends ThreadListControllerImpl<ForumPostItem>
 				handler.onException(e);
 			}
 		});
-	}
-
-	private ForumPostItem buildItem(ForumPostHeader header, String text) {
-		return new ForumPostItem(header, text);
 	}
 
 }

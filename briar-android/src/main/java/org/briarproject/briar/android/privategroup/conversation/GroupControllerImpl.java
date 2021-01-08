@@ -16,13 +16,9 @@ import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.privategroup.GroupMember;
-import org.briarproject.briar.api.privategroup.GroupMessageHeader;
-import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
 import org.briarproject.briar.api.privategroup.event.ContactRelationshipRevealedEvent;
-import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupInvitationResponseReceivedEvent;
-import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
 import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
 import java.util.ArrayList;
@@ -61,7 +57,6 @@ class GroupControllerImpl extends ThreadListControllerImpl<GroupMessageItem>
 	@Override
 	public void onActivityStart() {
 		super.onActivityStart();
-		notificationManager.clearGroupMessageNotification(getGroupId());
 	}
 
 	@Override
@@ -70,13 +65,7 @@ class GroupControllerImpl extends ThreadListControllerImpl<GroupMessageItem>
 
 		GroupListener listener = (GroupListener) this.listener;
 
-		if (e instanceof GroupMessageAddedEvent) {
-			GroupMessageAddedEvent g = (GroupMessageAddedEvent) e;
-			if (!g.isLocal() && g.getGroupId().equals(getGroupId())) {
-				LOG.info("Group message received, adding...");
-				listener.onItemReceived(buildItem(g.getHeader(), g.getText()));
-			}
-		} else if (e instanceof ContactRelationshipRevealedEvent) {
+		if (e instanceof ContactRelationshipRevealedEvent) {
 			ContactRelationshipRevealedEvent c =
 					(ContactRelationshipRevealedEvent) e;
 			if (getGroupId().equals(c.getGroupId())) {
@@ -89,11 +78,6 @@ class GroupControllerImpl extends ThreadListControllerImpl<GroupMessageItem>
 			GroupInvitationResponse r = g.getMessageHeader();
 			if (getGroupId().equals(r.getShareableId()) && r.wasAccepted()) {
 				listener.onInvitationAccepted(g.getContactId());
-			}
-		} else if (e instanceof GroupDissolvedEvent) {
-			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
-			if (getGroupId().equals(g.getGroupId())) {
-				listener.onGroupDissolved();
 			}
 		}
 	}
@@ -116,28 +100,6 @@ class GroupControllerImpl extends ThreadListControllerImpl<GroupMessageItem>
 						contactIds.add(m.getContactId());
 				}
 				handler.onResult(contactIds);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-				handler.onException(e);
-			}
-		});
-	}
-
-	private GroupMessageItem buildItem(GroupMessageHeader header, String text) {
-		if (header instanceof JoinMessageHeader) {
-			return new JoinMessageItem((JoinMessageHeader) header, text);
-		}
-		return new GroupMessageItem(header, text);
-	}
-
-	@Override
-	public void isDissolved(
-			ResultExceptionHandler<Boolean, DbException> handler) {
-		runOnDbThread(() -> {
-			try {
-				boolean isDissolved =
-						privateGroupManager.isDissolved(getGroupId());
-				handler.onResult(isDissolved);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 				handler.onException(e);
