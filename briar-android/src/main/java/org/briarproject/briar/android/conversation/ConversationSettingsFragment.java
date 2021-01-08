@@ -8,8 +8,8 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.Switch;
+import android.widget.TextView;
 
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -97,7 +97,8 @@ public class ConversationSettingsFragment extends BaseFragment {
 					viewModel.setAutoDeleteTimerEnabled(value);
 				});
 
-		Button buttonLearnMore = contentView.findViewById(R.id.buttonLearnMore);
+		TextView buttonLearnMore =
+				contentView.findViewById(R.id.buttonLearnMore);
 		buttonLearnMore.setOnClickListener(e -> {
 			showLearnMoreDialog();
 		});
