@@ -144,7 +144,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			List<GroupMessageHeader> headers =
 					privateGroupManager.getHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			return recreateItems(txn, headers, this::buildItem);
+			return createItems(txn, headers, this::buildItem);
 		}, this::setItems);
 	}
 
@@ -202,7 +202,6 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 				long start = now();
 				GroupMessageHeader header =
 						privateGroupManager.addLocalMessage(msg);
-				textCache.put(msg.getMessage().getId(), text);
 				addItemAsync(buildItem(header, text));
 				logDuration(LOG, "Storing group message", start);
 			} catch (DbException e) {

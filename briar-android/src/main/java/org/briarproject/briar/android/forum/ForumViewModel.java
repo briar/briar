@@ -117,7 +117,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			List<ForumPostHeader> headers =
 					forumManager.getPostHeaders(txn, groupId);
 			logDuration(LOG, "Loading headers", start);
-			return recreateItems(txn, headers, this::buildItem);
+			return createItems(txn, headers, this::buildItem);
 		}, this::setItems);
 	}
 
@@ -154,7 +154,6 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			try {
 				long start = now();
 				ForumPostHeader header = forumManager.addLocalPost(msg);
-				textCache.put(msg.getMessage().getId(), text);
 				addItemAsync(buildItem(header, text));
 				logDuration(LOG, "Storing forum post", start);
 			} catch (DbException e) {

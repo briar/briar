@@ -29,8 +29,6 @@ import org.briarproject.briar.client.MessageTreeImpl;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.Logger;
@@ -67,8 +65,6 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	@DatabaseExecutor
 	private final MessageTree<I> messageTree = new MessageTreeImpl<>();
-	protected final Map<MessageId, String> textCache = // TODO still needed?
-			new ConcurrentHashMap<>();
 	private final MutableLiveData<LiveResult<List<I>>> items =
 			new MutableLiveData<>();
 	private final MutableLiveData<Boolean> groupRemoved =
@@ -166,18 +162,13 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	}
 
 	@DatabaseExecutor
-	protected <H extends PostHeader> List<I> recreateItems(
+	protected <H extends PostHeader> List<I> createItems(
 			Transaction txn, Collection<H> headers, ItemGetter<H, I> itemGetter)
 			throws DbException {
 		long start = now();
 		ThreadItemList<I> items = new ThreadItemListImpl<>();
 		for (H header : headers) {
-			MessageId id = header.getId();
-			String text = textCache.get(header.getId());
-			if (text == null) {
-				text = loadMessageText(txn, header);
-				textCache.put(id, text);
-			}
+			String text = loadMessageText(txn, header);
 			items.add(itemGetter.getItem(header, text));
 		}
 		logDuration(LOG, "Loading bodies and creating items", start);
