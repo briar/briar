@@ -124,10 +124,8 @@ public class PrivateGroupManagerIntegrationTest
 		addGroup();
 
 		// create and add test message with no previousMsgId
-		@SuppressWarnings("ConstantConditions")
-		GroupMessage msg = groupMessageFactory
-				.createGroupMessage(groupId0, clock.currentTimeMillis(), null,
-						author0, "test", null);
+		GroupMessage msg = groupMessageFactory.createGroupMessage(groupId0,
+				clock.currentTimeMillis(), null, author0, "test", null);
 		groupManager0.addLocalMessage(msg);
 
 		// sync test message
@@ -342,23 +340,19 @@ public class PrivateGroupManagerIntegrationTest
 		Collection<GroupMember> members0 = groupManager0.getMembers(groupId0);
 		assertEquals(2, members0.size());
 		for (GroupMember m : members0) {
-			if (m.getAuthor().equals(author0)) {
-				assertEquals(VISIBLE, m.getVisibility());
-			} else {
+			if (!m.getAuthor().equals(author0)) {
 				assertEquals(author1, m.getAuthor());
-				assertEquals(VISIBLE, m.getVisibility());
 			}
+			assertEquals(VISIBLE, m.getVisibility());
 		}
 
 		Collection<GroupMember> members1 = groupManager1.getMembers(groupId0);
 		assertEquals(2, members1.size());
 		for (GroupMember m : members1) {
-			if (m.getAuthor().equals(author1)) {
-				assertEquals(VISIBLE, m.getVisibility());
-			} else {
+			if (!m.getAuthor().equals(author1)) {
 				assertEquals(author0, m.getAuthor());
-				assertEquals(VISIBLE, m.getVisibility());
 			}
+			assertEquals(VISIBLE, m.getVisibility());
 		}
 	}
 
@@ -368,27 +362,11 @@ public class PrivateGroupManagerIntegrationTest
 
 		Collection<GroupMessageHeader> headers0 =
 				groupManager0.getHeaders(groupId0);
-		for (GroupMessageHeader h : headers0) {
-			if (h instanceof JoinMessageHeader) {
-				JoinMessageHeader j = (JoinMessageHeader) h;
-				// all relationships of the creator are visible
-				assertEquals(VISIBLE, j.getVisibility());
-			}
-		}
+		assertEquals(2, headers0.size());
 
 		Collection<GroupMessageHeader> headers1 =
 				groupManager1.getHeaders(groupId0);
-		for (GroupMessageHeader h : headers1) {
-			if (h instanceof JoinMessageHeader) {
-				JoinMessageHeader j = (JoinMessageHeader) h;
-				if (h.getAuthor().equals(author1))
-					// we are visible to ourselves
-					assertEquals(VISIBLE, j.getVisibility());
-				else
-					// our relationship to the creator is visible
-					assertEquals(VISIBLE, j.getVisibility());
-			}
-		}
+		assertEquals(2, headers1.size());
 	}
 
 	@Test
@@ -461,34 +439,6 @@ public class PrivateGroupManagerIntegrationTest
 		for (GroupMember m : members2) {
 			if (m.getAuthor().equals(author1)) {
 				assertEquals(REVEALED_BY_CONTACT, m.getVisibility());
-			}
-		}
-
-		// assert that join messages reflect revealed relationship
-		Collection<GroupMessageHeader> headers1 =
-				groupManager1.getHeaders(groupId0);
-		for (GroupMessageHeader h : headers1) {
-			if (h instanceof JoinMessageHeader) {
-				JoinMessageHeader j = (JoinMessageHeader) h;
-				if (h.getAuthor().equals(author2))
-					// 1 revealed the relationship to 2
-					assertEquals(REVEALED_BY_US, j.getVisibility());
-				else
-					// 1's other relationship (to 1 and creator) are visible
-					assertEquals(VISIBLE, j.getVisibility());
-			}
-		}
-		Collection<GroupMessageHeader> headers2 =
-				groupManager2.getHeaders(groupId0);
-		for (GroupMessageHeader h : headers2) {
-			if (h instanceof JoinMessageHeader) {
-				JoinMessageHeader j = (JoinMessageHeader) h;
-				if (h.getAuthor().equals(author1))
-					// 2's relationship was revealed by 1
-					assertEquals(REVEALED_BY_CONTACT, j.getVisibility());
-				else
-					// 2's other relationship (to 2 and creator) are visible
-					assertEquals(VISIBLE, j.getVisibility());
 			}
 		}
 	}
