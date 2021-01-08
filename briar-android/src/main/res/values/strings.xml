@@ -549,7 +549,6 @@
 	<!-- Conversation Settings -->
 	<string name="disappearing_messages_title">Disappearing messages</string>
 	<string name="disappearing_messages_cat_title">Self-destructing messages</string>
-	<string name="disappearing_messages_explanation_short">You can configure disappearing messages here.</string>
 	<string name="disappearing_messages_explanation_long">You can configure disappearing messages here.
 		Messages that will disappear are marked with a bomb icon.
 		\n\nTurning on this setting will make new messages in this conversation automatically disappear 7 days after being received.
@@ -558,7 +557,7 @@
 		\n\nKeep in mind that recipients can still make analogue copies of the messages you sent.
 		\n\nIf you change this setting, it will apply to your messages immediately and to messages of
 		your contact once they receive any message from you after changing the setting.</string>
-	<string name="learn_more">Learn more</string>
+	<string name="learn_more">Learn more about disappearing messages</string>
 	<string name="disappearing_messages_summary">Make future messages in this conversation automatically disappear 7\u00A0days after being received.</string>
 
 	<!-- Settings Feedback -->
