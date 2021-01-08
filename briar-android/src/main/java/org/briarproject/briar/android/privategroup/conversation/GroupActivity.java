@@ -6,20 +6,15 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.identity.AuthorId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.privategroup.conversation.GroupController.GroupListener;
 import org.briarproject.briar.android.privategroup.creation.GroupInviteActivity;
 import org.briarproject.briar.android.privategroup.memberlist.GroupMemberListActivity;
 import org.briarproject.briar.android.privategroup.reveal.RevealContactsActivity;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
-import org.briarproject.briar.android.threaded.ThreadListController;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
-import org.briarproject.briar.api.privategroup.Visibility;
 
 import javax.annotation.Nullable;
 import javax.inject.Inject;
@@ -37,29 +32,18 @@ import static org.briarproject.briar.api.privategroup.PrivateGroupConstants.MAX_
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class GroupActivity extends
-		ThreadListActivity<GroupMessageItem, GroupMessageAdapter>
-		implements GroupListener {
+		ThreadListActivity<GroupMessageItem, GroupMessageAdapter> {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	@Inject
-	GroupController controller;
 
 	private GroupViewModel viewModel;
-
-	private MenuItem revealMenuItem, inviteMenuItem, leaveMenuItem,
-			dissolveMenuItem;
 
 	@Override
 	public void injectActivity(ActivityComponent component) {
 		component.inject(this);
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(GroupViewModel.class);
-	}
-
-	@Override
-	protected ThreadListController<GroupMessageItem> getController() {
-		return controller;
 	}
 
 	@Override
@@ -77,24 +61,20 @@ public class GroupActivity extends
 		super.onCreate(state);
 
 		Toolbar toolbar = setUpCustomToolbar(false);
+		// Open member list on Toolbar click
+		toolbar.setOnClickListener(v -> {
+			Intent i = new Intent(GroupActivity.this,
+					GroupMemberListActivity.class);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i);
+		});
 
-		Intent i = getIntent();
-		String groupName = i.getStringExtra(GROUP_NAME);
+		String groupName = getIntent().getStringExtra(GROUP_NAME);
 		if (groupName != null) setTitle(groupName);
 		observeOnce(viewModel.getPrivateGroup(), this, privateGroup ->
 				setTitle(privateGroup.getName())
 		);
 		observeOnce(viewModel.isCreator(), this, adapter::setIsCreator);
-
-		// Open member list on Toolbar click
-		if (toolbar != null) {
-			toolbar.setOnClickListener(v -> {
-				Intent i1 = new Intent(GroupActivity.this,
-						GroupMemberListActivity.class);
-				i1.putExtra(GROUP_ID, groupId.getBytes());
-				startActivity(i1);
-			});
-		}
 
 		// start with group disabled and enable when not dissolved
 		setGroupEnabled(false);
@@ -116,49 +96,38 @@ public class GroupActivity extends
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.group_actions, menu);
 
-		revealMenuItem = menu.findItem(R.id.action_group_reveal);
-		inviteMenuItem = menu.findItem(R.id.action_group_invite);
-		leaveMenuItem = menu.findItem(R.id.action_group_leave);
-		dissolveMenuItem = menu.findItem(R.id.action_group_dissolve);
-
-		// all role-dependent items are invisible until we know our role
-		revealMenuItem.setVisible(false);
-		inviteMenuItem.setVisible(false);
-		leaveMenuItem.setVisible(false);
-		dissolveMenuItem.setVisible(false);
-
 		// show items based on role (which will not change, so observe once)
 		observeOnce(viewModel.isCreator(), this, isCreator -> {
-			revealMenuItem.setVisible(!isCreator);
-			inviteMenuItem.setVisible(isCreator);
-			leaveMenuItem.setVisible(!isCreator);
-			dissolveMenuItem.setVisible(isCreator);
+			menu.findItem(R.id.action_group_reveal).setVisible(!isCreator);
+			menu.findItem(R.id.action_group_invite).setVisible(isCreator);
+			menu.findItem(R.id.action_group_leave).setVisible(!isCreator);
+			menu.findItem(R.id.action_group_dissolve).setVisible(isCreator);
 		});
-
-		return super.onCreateOptionsMenu(menu);
+		super.onCreateOptionsMenu(menu);
+		return true;
 	}
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int itemId = item.getItemId();
 		if (itemId == R.id.action_group_member_list) {
-			Intent i1 = new Intent(this, GroupMemberListActivity.class);
-			i1.putExtra(GROUP_ID, groupId.getBytes());
-			startActivity(i1);
+			Intent i = new Intent(this, GroupMemberListActivity.class);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i);
 			return true;
 		} else if (itemId == R.id.action_group_reveal) {
 			if (viewModel.isCreator().getValue())
 				throw new IllegalStateException();
-			Intent i2 = new Intent(this, RevealContactsActivity.class);
-			i2.putExtra(GROUP_ID, groupId.getBytes());
-			startActivity(i2);
+			Intent i = new Intent(this, RevealContactsActivity.class);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i);
 			return true;
 		} else if (itemId == R.id.action_group_invite) {
 			if (!viewModel.isCreator().getValue())
 				throw new IllegalStateException();
-			Intent i3 = new Intent(this, GroupInviteActivity.class);
-			i3.putExtra(GROUP_ID, groupId.getBytes());
-			startActivityForResult(i3, REQUEST_GROUP_INVITE);
+			Intent i = new Intent(this, GroupInviteActivity.class);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivityForResult(i, REQUEST_GROUP_INVITE);
 			return true;
 		} else if (itemId == R.id.action_group_leave) {
 			if (viewModel.isCreator().getValue())
@@ -169,8 +138,7 @@ public class GroupActivity extends
 			if (!viewModel.isCreator().getValue())
 				throw new IllegalStateException();
 			showDissolveGroupDialog();
-
-			return super.onOptionsItemSelected(item);
+			return true;
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -233,18 +201,7 @@ public class GroupActivity extends
 		viewModel.deletePrivateGroup();
 	}
 
-	@Override
-	public void onContactRelationshipRevealed(AuthorId memberId, ContactId c,
-			Visibility v) {
-		adapter.updateVisibility(memberId, v);
-
-		sharingController.add(c);
-		setToolbarSubTitle(sharingController.getTotalCount(),
-				sharingController.getOnlineCount());
-	}
-
 	public void onGroupDissolved() {
-		setGroupEnabled(false);
 		AlertDialog.Builder builder =
 				new AlertDialog.Builder(this, R.style.BriarDialogTheme);
 		builder.setTitle(getString(R.string.groups_dissolved_dialog_title));

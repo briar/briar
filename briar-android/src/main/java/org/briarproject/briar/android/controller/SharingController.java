@@ -7,6 +7,7 @@ import java.util.Collection;
 
 import androidx.annotation.UiThread;
 
+@Deprecated
 @NotNullByDefault
 public interface SharingController {
 

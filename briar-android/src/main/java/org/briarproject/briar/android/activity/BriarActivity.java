@@ -160,7 +160,6 @@ public abstract class BriarActivity extends BaseActivity {
 	 * @param ownLayout true if the custom toolbar brings its own layout
 	 * @return the Toolbar object or null if content view did not contain one
 	 */
-	@Nullable
 	protected Toolbar setUpCustomToolbar(boolean ownLayout) {
 		// Custom Toolbar
 		Toolbar toolbar = findViewById(R.id.toolbar);

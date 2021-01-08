@@ -3,6 +3,8 @@ package org.briarproject.briar.android.forum;
 import android.app.Application;
 import android.widget.Toast;
 
+import org.briarproject.bramble.api.contact.Contact;
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -19,18 +21,24 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.R;
+import org.briarproject.briar.android.sharing.SharingController;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.api.forum.Forum;
+import org.briarproject.briar.api.forum.ForumInvitationResponse;
 import org.briarproject.briar.api.forum.ForumManager;
 import org.briarproject.briar.api.forum.ForumPost;
 import org.briarproject.briar.api.forum.ForumPostHeader;
 import org.briarproject.briar.api.forum.ForumSharingManager;
+import org.briarproject.briar.api.forum.event.ForumInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.forum.event.ForumPostReceivedEvent;
+import org.briarproject.briar.api.sharing.event.ContactLeftShareableEvent;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -66,6 +74,7 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			AndroidExecutor androidExecutor,
 			IdentityManager identityManager,
 			AndroidNotificationManager notificationManager,
+			SharingController sharingController,
 			@CryptoExecutor Executor cryptoExecutor,
 			Clock clock,
 			MessageTracker messageTracker,
@@ -73,8 +82,8 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 			ForumManager forumManager,
 			ForumSharingManager forumSharingManager) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor,
-				identityManager, notificationManager, cryptoExecutor, clock,
-				messageTracker, eventBus);
+				identityManager, notificationManager, sharingController,
+				cryptoExecutor, clock, messageTracker, eventBus);
 		this.forumManager = forumManager;
 		this.forumSharingManager = forumSharingManager;
 	}
@@ -87,6 +96,20 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 				LOG.info("Forum post received, adding...");
 				ForumPostItem item = buildItem(f.getHeader(), f.getText());
 				addItem(item);
+			}
+		} else if (e instanceof ForumInvitationResponseReceivedEvent) {
+			ForumInvitationResponseReceivedEvent f =
+					(ForumInvitationResponseReceivedEvent) e;
+			ForumInvitationResponse r = f.getMessageHeader();
+			if (r.getShareableId().equals(groupId) && r.wasAccepted()) {
+				LOG.info("Forum invitation was accepted");
+				sharingController.add(f.getContactId());
+			}
+		} else if (e instanceof ContactLeftShareableEvent) {
+			ContactLeftShareableEvent c = (ContactLeftShareableEvent) e;
+			if (c.getGroupId().equals(groupId)) {
+				LOG.info("Forum left by contact");
+				sharingController.remove(c.getContactId());
 			}
 		} else {
 			super.eventOccurred(e);
@@ -123,15 +146,13 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 
 	@Override
 	public void createAndStoreMessage(String text,
-			@Nullable ForumPostItem parentItem) {
+			@Nullable MessageId parentId) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
 				GroupCount count = forumManager.getGroupCount(groupId);
 				long timestamp = max(count.getLatestMsgTime() + 1,
 						clock.currentTimeMillis());
-				MessageId parentId =
-						parentItem != null ? parentItem.getId() : null;
 				createMessage(text, timestamp, parentId, author);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
@@ -177,6 +198,21 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 		runOnDbThread(() -> {
 			try {
 				forumManager.setReadFlag(groupId, item.getId(), true);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	public void loadSharingContacts() {
+		runOnDbThread(() -> {
+			try {
+				Collection<Contact> contacts =
+						forumSharingManager.getSharedWith(groupId);
+				Collection<ContactId> contactIds =
+						new ArrayList<>(contacts.size());
+				for (Contact c : contacts) contactIds.add(c.getId());
+				sharingController.addAll(contactIds);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}

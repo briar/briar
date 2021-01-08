@@ -1,61 +1,50 @@
-package org.briarproject.briar.android.controller;
+package org.briarproject.briar.android.sharing;
 
 import org.briarproject.bramble.api.connection.ConnectionRegistry;
 import org.briarproject.bramble.api.contact.ContactId;
+import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
 import org.briarproject.bramble.api.plugin.event.ContactConnectedEvent;
 import org.briarproject.bramble.api.plugin.event.ContactDisconnectedEvent;
+import org.briarproject.bramble.api.system.AndroidExecutor;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.annotation.Nullable;
 import javax.inject.Inject;
 
 import androidx.annotation.UiThread;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
-@Deprecated
 @NotNullByDefault
 public class SharingControllerImpl implements SharingController, EventListener {
 
 	private final EventBus eventBus;
 	private final ConnectionRegistry connectionRegistry;
+	private final AndroidExecutor executor;
 
 	// UI thread
 	private final Set<ContactId> contacts = new HashSet<>();
-
-	// UI thread
-	@Nullable
-	private SharingListener listener;
+	private final MutableLiveData<SharingInfo> sharingInfo =
+			new MutableLiveData<>();
 
 	@Inject
 	SharingControllerImpl(EventBus eventBus,
-			ConnectionRegistry connectionRegistry) {
+			ConnectionRegistry connectionRegistry,
+			AndroidExecutor executor) {
 		this.eventBus = eventBus;
 		this.connectionRegistry = connectionRegistry;
-	}
-
-	@Override
-	public void setSharingListener(SharingListener listener) {
-		this.listener = listener;
-	}
-
-	@Override
-	public void unsetSharingListener(SharingListener listener) {
-		if (this.listener == listener) this.listener = null;
-	}
-
-	@Override
-	public void onStart() {
+		this.executor = executor;
 		eventBus.addListener(this);
 	}
 
 	@Override
-	public void onStop() {
+	public void onCleared() {
 		eventBus.removeListener(this);
 	}
 
@@ -70,30 +59,18 @@ public class SharingControllerImpl implements SharingController, EventListener {
 
 	@UiThread
 	private void setConnected(ContactId c) {
-		if (listener == null) throw new IllegalStateException();
 		if (contacts.contains(c)) {
-			int online = getOnlineCount();
-			listener.onSharingInfoUpdated(contacts.size(), online);
+			updateLiveData();
 		}
 	}
 
-	@Override
-	public void addAll(Collection<ContactId> c) {
-		contacts.addAll(c);
+	@UiThread
+	private void updateLiveData() {
+		int online = getOnlineCount();
+		sharingInfo.setValue(new SharingInfo(contacts.size(), online));
 	}
 
-	@Override
-	public void add(ContactId c) {
-		contacts.add(c);
-	}
-
-	@Override
-	public void remove(ContactId c) {
-		contacts.remove(c);
-	}
-
-	@Override
-	public int getOnlineCount() {
+	private int getOnlineCount() {
 		int online = 0;
 		for (ContactId c : contacts) {
 			if (connectionRegistry.isConnected(c)) online++;
@@ -102,8 +79,31 @@ public class SharingControllerImpl implements SharingController, EventListener {
 	}
 
 	@Override
-	public int getTotalCount() {
-		return contacts.size();
+	@DatabaseExecutor
+	public void addAll(Collection<ContactId> c) {
+		executor.runOnUiThread(() -> {
+			contacts.addAll(c);
+			updateLiveData();
+		});
+	}
+
+	@UiThread
+	@Override
+	public void add(ContactId c) {
+		contacts.add(c);
+		updateLiveData();
+	}
+
+	@UiThread
+	@Override
+	public void remove(ContactId c) {
+		contacts.remove(c);
+		updateLiveData();
+	}
+
+	@Override
+	public LiveData<SharingInfo> getSharingInfo() {
+		return sharingInfo;
 	}
 
 }

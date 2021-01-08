@@ -6,19 +6,14 @@ import android.view.MenuItem;
 
 import com.google.android.material.snackbar.Snackbar;
 
-import org.briarproject.bramble.api.contact.ContactId;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.BriarActivity;
-import org.briarproject.briar.android.controller.SharingController;
-import org.briarproject.briar.android.controller.SharingController.SharingListener;
-import org.briarproject.briar.android.controller.handler.UiResultExceptionHandler;
+import org.briarproject.briar.android.sharing.SharingController.SharingInfo;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter.ThreadItemListener;
-import org.briarproject.briar.android.threaded.ThreadListController.ThreadListListener;
 import org.briarproject.briar.android.util.BriarSnackbarBuilder;
 import org.briarproject.briar.android.view.BriarRecyclerView;
 import org.briarproject.briar.android.view.TextInputView;
@@ -27,11 +22,9 @@ import org.briarproject.briar.android.view.TextSendController.SendListener;
 import org.briarproject.briar.android.view.UnreadMessageButton;
 import org.briarproject.briar.api.attachment.AttachmentHeader;
 
-import java.util.Collection;
 import java.util.List;
 
 import javax.annotation.Nullable;
-import javax.inject.Inject;
 
 import androidx.annotation.CallSuper;
 import androidx.annotation.StringRes;
@@ -44,26 +37,18 @@ import static org.briarproject.bramble.util.StringUtils.isNullOrEmpty;
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadItemAdapter<I>>
-		extends BriarActivity
-		implements ThreadListListener<I>, SendListener, SharingListener,
-		ThreadItemListener<I> {
+		extends BriarActivity implements SendListener, ThreadItemListener<I> {
 
 	protected final A adapter = createAdapter();
-	private ThreadScrollListener<I> scrollListener;
+	protected abstract ThreadListViewModel<I> getViewModel();
+	protected abstract A createAdapter();
 	protected BriarRecyclerView list;
-	private LinearLayoutManager layoutManager;
 	protected TextInputView textInput;
 	protected TextSendController sendController;
 	protected GroupId groupId;
 
-	protected abstract ThreadListController<I> getController();
-
-	protected abstract ThreadListViewModel<I> getViewModel();
-
-	protected abstract A createAdapter();
-
-	@Inject
-	protected SharingController sharingController;
+	private LinearLayoutManager layoutManager;
+	private ThreadScrollListener<I> scrollListener;
 
 	@CallSuper
 	@Override
@@ -76,8 +61,8 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		byte[] b = i.getByteArrayExtra(GROUP_ID);
 		if (b == null) throw new IllegalStateException("No GroupId in intent.");
 		groupId = new GroupId(b);
-		getController().setGroupId(groupId);
-		getViewModel().setGroupId(groupId);
+		ThreadListViewModel<I> viewModel = getViewModel();
+		viewModel.setGroupId(groupId);
 
 		textInput = findViewById(R.id.text_input_container);
 		sendController = new TextSendController(textInput, this, false);
@@ -92,7 +77,7 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		layoutManager = new LinearLayoutManager(this);
 		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
-		scrollListener = new ThreadScrollListener<>(adapter, getViewModel(),
+		scrollListener = new ThreadScrollListener<>(adapter, viewModel,
 				upButton, downButton);
 		list.getRecyclerView().addOnScrollListener(scrollListener);
 
@@ -109,17 +94,16 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 			}
 		});
 
-		getViewModel().getItems().observe(this, result -> result
+		viewModel.getItems().observe(this, result -> result
 				.onError(this::handleException)
 				.onSuccess(this::displayItems)
 		);
 
-		getViewModel().getGroupRemoved().observe(this, removed -> {
+		viewModel.getSharingInfo().observe(this, this::setToolbarSubTitle);
+
+		viewModel.getGroupRemoved().observe(this, removed -> {
 			if (removed) supportFinishAfterTransition();
 		});
-
-		sharingController.setSharingListener(this);
-		loadSharingContacts();
 	}
 
 	@CallSuper
@@ -127,7 +111,6 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	public void onStart() {
 		super.onStart();
 		getViewModel().blockNotifications();
-		sharingController.onStart();
 		list.startPeriodicUpdate();
 	}
 
@@ -136,7 +119,6 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 	public void onStop() {
 		super.onStop();
 		getViewModel().unblockNotifications();
-		sharingController.onStop();
 		list.stopPeriodicUpdate();
 	}
 
@@ -174,8 +156,11 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		if (items.isEmpty()) {
 			list.showData();
 		} else {
-			adapter.submitList(items, this::scrollAfterListCommitted);
-			updateTextInput();
+			adapter.submitList(items, () -> {
+				// do stuff *after* list had been updated
+				scrollAfterListCommitted();
+				updateTextInput();
+			});
 		}
 	}
 
@@ -197,24 +182,6 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		scrollListener.updateUnreadButtons(layoutManager);
 	}
 
-	protected void loadSharingContacts() {
-		getController().loadSharingContacts(
-				new UiResultExceptionHandler<Collection<ContactId>, DbException>(
-						this) {
-					@Override
-					public void onResultUi(Collection<ContactId> contacts) {
-						sharingController.addAll(contacts);
-						int online = sharingController.getOnlineCount();
-						setToolbarSubTitle(contacts.size(), online);
-					}
-
-					@Override
-					public void onExceptionUi(DbException exception) {
-						handleException(exception);
-					}
-				});
-	}
-
 	@Override
 	public void onReplyClick(I item) {
 		getViewModel().setReplyId(item.getId());
@@ -231,23 +198,11 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		}
 	}
 
-	@Override
-	public void onSharingInfoUpdated(int total, int online) {
-		setToolbarSubTitle(total, online);
-	}
-
-	@Override
-	public void onInvitationAccepted(ContactId c) {
-		sharingController.add(c);
-		setToolbarSubTitle(sharingController.getTotalCount(),
-				sharingController.getOnlineCount());
-	}
-
-	protected void setToolbarSubTitle(int total, int online) {
+	protected void setToolbarSubTitle(SharingInfo sharingInfo) {
 		ActionBar actionBar = getSupportActionBar();
 		if (actionBar != null) {
-			actionBar.setSubtitle(
-					getString(R.string.shared_with, total, online));
+			actionBar.setSubtitle(getString(R.string.shared_with,
+					sharingInfo.total, sharingInfo.online));
 		}
 	}
 
@@ -280,8 +235,8 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 			List<AttachmentHeader> headers) {
 		if (isNullOrEmpty(text)) throw new AssertionError();
 
-		I replyItem = adapter.getHighlightedItem();
-		getViewModel().createAndStoreMessage(text, replyItem);
+		MessageId replyId = getViewModel().getReplyId();
+		getViewModel().createAndStoreMessage(text, replyId);
 		textInput.hideSoftKeyboard();
 		textInput.clearText();
 		getViewModel().setReplyId(null);

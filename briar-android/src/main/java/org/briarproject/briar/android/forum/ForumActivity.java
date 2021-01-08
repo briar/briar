@@ -7,17 +7,14 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
-import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.briar.R;
 import org.briarproject.briar.android.activity.ActivityComponent;
-import org.briarproject.briar.android.forum.ForumController.ForumListener;
 import org.briarproject.briar.android.sharing.ForumSharingStatusActivity;
 import org.briarproject.briar.android.sharing.ShareForumActivity;
 import org.briarproject.briar.android.threaded.ThreadItemAdapter;
 import org.briarproject.briar.android.threaded.ThreadListActivity;
-import org.briarproject.briar.android.threaded.ThreadListController;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
 
 import javax.annotation.Nullable;
@@ -35,13 +32,10 @@ import static org.briarproject.briar.api.forum.ForumConstants.MAX_FORUM_POST_TEX
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public class ForumActivity extends
-		ThreadListActivity<ForumPostItem, ThreadItemAdapter<ForumPostItem>>
-		implements ForumListener {
+		ThreadListActivity<ForumPostItem, ThreadItemAdapter<ForumPostItem>> {
 
 	@Inject
 	ViewModelProvider.Factory viewModelFactory;
-	@Inject
-	ForumController forumController;
 
 	private ForumViewModel viewModel;
 
@@ -50,11 +44,6 @@ public class ForumActivity extends
 		component.inject(this);
 		viewModel = new ViewModelProvider(this, viewModelFactory)
 				.get(ForumViewModel.class);
-	}
-
-	@Override
-	protected ThreadListController<ForumPostItem> getController() {
-		return forumController;
 	}
 
 	@Override
@@ -72,25 +61,21 @@ public class ForumActivity extends
 		super.onCreate(state);
 
 		Toolbar toolbar = setUpCustomToolbar(false);
+		// Open member list on Toolbar click
+		toolbar.setOnClickListener(v -> {
+			Intent i = new Intent(ForumActivity.this,
+					ForumSharingStatusActivity.class);
+			i.putExtra(GROUP_ID, groupId.getBytes());
+			startActivity(i);
+		});
 
-		Intent i = getIntent();
-		String groupName = i.getStringExtra(GROUP_NAME);
+		String groupName = getIntent().getStringExtra(GROUP_NAME);
 		if (groupName != null) {
 			setTitle(groupName);
 		} else {
 			observeOnce(viewModel.loadForum(), this, forum ->
 					setTitle(forum.getName())
 			);
-		}
-
-		// Open member list on Toolbar click
-		if (toolbar != null) {
-			toolbar.setOnClickListener(v -> {
-				Intent i1 = new Intent(ForumActivity.this,
-						ForumSharingStatusActivity.class);
-				i1.putExtra(GROUP_ID, groupId.getBytes());
-				startActivity(i1);
-			});
 		}
 	}
 
@@ -115,8 +100,8 @@ public class ForumActivity extends
 		// Inflate the menu items for use in the action bar
 		MenuInflater inflater = getMenuInflater();
 		inflater.inflate(R.menu.forum_actions, menu);
-
-		return super.onCreateOptionsMenu(menu);
+		super.onCreateOptionsMenu(menu);
+		return true;
 	}
 
 	@Override
@@ -156,13 +141,6 @@ public class ForumActivity extends
 		builder.setNegativeButton(R.string.dialog_button_leave, okListener);
 		builder.setPositiveButton(R.string.cancel, null);
 		builder.show();
-	}
-
-	@Override
-	public void onForumLeft(ContactId c) {
-		sharingController.remove(c);
-		setToolbarSubTitle(sharingController.getTotalCount(),
-				sharingController.getOnlineCount());
 	}
 
 }

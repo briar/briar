@@ -19,6 +19,8 @@ import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.sync.event.GroupRemovedEvent;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.android.sharing.SharingController;
+import org.briarproject.briar.android.sharing.SharingController.SharingInfo;
 import org.briarproject.briar.android.viewmodel.DbViewModel;
 import org.briarproject.briar.android.viewmodel.LiveResult;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
@@ -27,6 +29,7 @@ import org.briarproject.briar.api.client.MessageTree;
 import org.briarproject.briar.api.client.PostHeader;
 import org.briarproject.briar.client.MessageTreeImpl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -58,6 +61,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	protected final IdentityManager identityManager;
 	protected final AndroidNotificationManager notificationManager;
+	protected final SharingController sharingController;
 	protected final Executor cryptoExecutor;
 	protected final Clock clock;
 	private final MessageTracker messageTracker;
@@ -85,6 +89,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 			AndroidExecutor androidExecutor,
 			IdentityManager identityManager,
 			AndroidNotificationManager notificationManager,
+			SharingController sharingController,
 			@CryptoExecutor Executor cryptoExecutor,
 			Clock clock,
 			MessageTracker messageTracker,
@@ -94,6 +99,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		this.notificationManager = notificationManager;
 		this.cryptoExecutor = cryptoExecutor;
 		this.clock = clock;
+		this.sharingController = sharingController;
 		this.messageTracker = messageTracker;
 		this.eventBus = eventBus;
 		this.eventBus.addListener(this);
@@ -103,17 +109,19 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	protected void onCleared() {
 		super.onCleared();
 		eventBus.removeListener(this);
+		sharingController.onCleared();
 	}
 
 	/**
 	 * Needs to be called right after initialization,
-	 * before calling other methods.
+	 * before calling any other methods.
 	 */
 	@CallSuper
 	public void setGroupId(GroupId groupId) {
 		this.groupId = groupId;
 		loadStoredMessageId();
 		loadItems();
+		loadSharingContacts();
 	}
 
 	public void blockNotifications() {
@@ -154,7 +162,13 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 	public abstract void loadItems();
 
 	public abstract void createAndStoreMessage(String text,
-			@Nullable I parentItem);
+			@Nullable MessageId parentMessageId);
+
+	/**
+	 * Loads the ContactIds of all contacts the group is shared with
+	 * and adds them to {@link SharingController}.
+	 */
+	public abstract void loadSharingContacts();
 
 	@UiThread
 	protected void setItems(LiveResult<List<I>> items) {
@@ -166,7 +180,7 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 			Transaction txn, Collection<H> headers, ItemGetter<H, I> itemGetter)
 			throws DbException {
 		long start = now();
-		ThreadItemList<I> items = new ThreadItemListImpl<>();
+		List<I> items = new ArrayList<>();
 		for (H header : headers) {
 			String text = loadMessageText(txn, header);
 			items.add(itemGetter.getItem(header, text));
@@ -233,6 +247,10 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 
 	LiveData<LiveResult<List<I>>> getItems() {
 		return items;
+	}
+
+	LiveData<SharingInfo> getSharingInfo() {
+		return sharingController.getSharingInfo();
 	}
 
 	LiveData<Boolean> getGroupRemoved() {

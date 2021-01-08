@@ -2,6 +2,7 @@ package org.briarproject.briar.android.privategroup.conversation;
 
 import android.app.Application;
 
+import org.briarproject.bramble.api.contact.ContactId;
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
 import org.briarproject.bramble.api.db.DbException;
@@ -19,20 +20,27 @@ import org.briarproject.bramble.api.sync.GroupId;
 import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.AndroidExecutor;
 import org.briarproject.bramble.api.system.Clock;
+import org.briarproject.briar.android.sharing.SharingController;
 import org.briarproject.briar.android.threaded.ThreadListViewModel;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 import org.briarproject.briar.api.client.MessageTracker;
 import org.briarproject.briar.api.client.MessageTracker.GroupCount;
 import org.briarproject.briar.api.client.PostHeader;
+import org.briarproject.briar.api.privategroup.GroupMember;
 import org.briarproject.briar.api.privategroup.GroupMessage;
 import org.briarproject.briar.api.privategroup.GroupMessageFactory;
 import org.briarproject.briar.api.privategroup.GroupMessageHeader;
 import org.briarproject.briar.api.privategroup.JoinMessageHeader;
 import org.briarproject.briar.api.privategroup.PrivateGroup;
 import org.briarproject.briar.api.privategroup.PrivateGroupManager;
+import org.briarproject.briar.api.privategroup.event.ContactRelationshipRevealedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupDissolvedEvent;
+import org.briarproject.briar.api.privategroup.event.GroupInvitationResponseReceivedEvent;
 import org.briarproject.briar.api.privategroup.event.GroupMessageAddedEvent;
+import org.briarproject.briar.api.privategroup.invitation.GroupInvitationResponse;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Logger;
@@ -74,14 +82,15 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			EventBus eventBus,
 			IdentityManager identityManager,
 			AndroidNotificationManager notificationManager,
+			SharingController sharingController,
 			@CryptoExecutor Executor cryptoExecutor,
 			Clock clock,
 			MessageTracker messageTracker,
 			PrivateGroupManager privateGroupManager,
 			GroupMessageFactory groupMessageFactory) {
 		super(application, dbExecutor, lifecycleManager, db, androidExecutor,
-				identityManager, notificationManager, cryptoExecutor, clock,
-				messageTracker, eventBus);
+				identityManager, notificationManager, sharingController,
+				cryptoExecutor, clock, messageTracker, eventBus);
 		this.privateGroupManager = privateGroupManager;
 		this.groupMessageFactory = groupMessageFactory;
 	}
@@ -95,10 +104,23 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 				LOG.info("Group message received, adding...");
 				GroupMessageItem item = buildItem(g.getHeader(), g.getText());
 				addItem(item);
-				if (item instanceof JoinMessageItem) {
-					// TODO
-//					if (((JoinMessageItem) item).isInitial()) loadSharingContacts();
+				if (item instanceof JoinMessageItem &&
+						(((JoinMessageItem) item).isInitial())) {
+					loadSharingContacts();
 				}
+			}
+		} else if (e instanceof GroupInvitationResponseReceivedEvent) {
+			GroupInvitationResponseReceivedEvent g =
+					(GroupInvitationResponseReceivedEvent) e;
+			GroupInvitationResponse r = g.getMessageHeader();
+			if (r.getShareableId().equals(groupId) && r.wasAccepted()) {
+				sharingController.add(g.getContactId());
+			}
+		} else if (e instanceof ContactRelationshipRevealedEvent) {
+			ContactRelationshipRevealedEvent c =
+					(ContactRelationshipRevealedEvent) e;
+			if (c.getGroupId().equals(groupId)) {
+				sharingController.add(c.getContactId());
 			}
 		} else if (e instanceof GroupDissolvedEvent) {
 			GroupDissolvedEvent g = (GroupDissolvedEvent) e;
@@ -139,7 +161,7 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 			// check first if group is dissolved
 			isDissolved
 					.postValue(privateGroupManager.isDissolved(txn, groupId));
-			// no continue to load the items
+			// now continue to load the items
 			long start = now();
 			List<GroupMessageHeader> headers =
 					privateGroupManager.getHeaders(txn, groupId);
@@ -167,16 +189,14 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 
 	@Override
 	public void createAndStoreMessage(String text,
-			@Nullable GroupMessageItem parentItem) {
+			@Nullable MessageId parentId) {
 		runOnDbThread(() -> {
 			try {
 				LocalAuthor author = identityManager.getLocalAuthor();
-				MessageId parentId = null;
 				MessageId previousMsgId =
 						privateGroupManager.getPreviousMsgId(groupId);
 				GroupCount count = privateGroupManager.getGroupCount(groupId);
 				long timestamp = count.getLatestMsgTime();
-				if (parentItem != null) parentId = parentItem.getId();
 				timestamp = max(clock.currentTimeMillis(), timestamp + 1);
 				createMessage(text, timestamp, parentId, author, previousMsgId);
 			} catch (DbException e) {
@@ -215,6 +235,23 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		runOnDbThread(() -> {
 			try {
 				privateGroupManager.setReadFlag(groupId, item.getId(), true);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
+	public void loadSharingContacts() {
+		runOnDbThread(() -> {
+			try {
+				Collection<GroupMember> members =
+						privateGroupManager.getMembers(groupId);
+				Collection<ContactId> contactIds = new ArrayList<>();
+				for (GroupMember m : members) {
+					if (m.getContactId() != null)
+						contactIds.add(m.getContactId());
+				}
+				sharingController.addAll(contactIds);
 			} catch (DbException e) {
 				logException(LOG, WARNING, e);
 			}
