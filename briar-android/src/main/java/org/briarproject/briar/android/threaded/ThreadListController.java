@@ -20,10 +20,6 @@ public interface ThreadListController<I extends ThreadItem>
 	void loadSharingContacts(
 			ResultExceptionHandler<Collection<ContactId>, DbException> handler);
 
-	void markItemRead(I item);
-
-	void markItemsRead(Collection<I> items);
-
 	interface ThreadListListener<I> {
 		@UiThread
 		void onInvitationAccepted(ContactId c);

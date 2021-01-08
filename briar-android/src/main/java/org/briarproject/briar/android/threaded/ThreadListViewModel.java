@@ -224,6 +224,8 @@ public abstract class ThreadListViewModel<I extends ThreadItem>
 		});
 	}
 
+	protected abstract void markItemRead(I item);
+
 	@Nullable
 	MessageId getAndResetRestoredMessageId() {
 		return storedMessageId.getAndSet(null);

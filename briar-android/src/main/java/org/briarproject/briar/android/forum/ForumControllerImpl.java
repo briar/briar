@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.NotNullByDefault;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
@@ -80,11 +79,6 @@ class ForumControllerImpl extends ThreadListControllerImpl<ForumPostItem>
 				listener.onForumLeft(c.getContactId());
 			}
 		}
-	}
-
-	@Override
-	protected void markRead(MessageId id) throws DbException {
-		forumManager.setReadFlag(getGroupId(), id, true);
 	}
 
 	@Override

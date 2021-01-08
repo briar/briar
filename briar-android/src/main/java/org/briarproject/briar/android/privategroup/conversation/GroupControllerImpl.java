@@ -10,7 +10,6 @@ import org.briarproject.bramble.api.identity.IdentityManager;
 import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.handler.ResultExceptionHandler;
 import org.briarproject.briar.android.threaded.ThreadListControllerImpl;
@@ -80,11 +79,6 @@ class GroupControllerImpl extends ThreadListControllerImpl<GroupMessageItem>
 				listener.onInvitationAccepted(g.getContactId());
 			}
 		}
-	}
-
-	@Override
-	protected void markRead(MessageId id) throws DbException {
-		privateGroupManager.setReadFlag(getGroupId(), id, true);
 	}
 
 	@Override

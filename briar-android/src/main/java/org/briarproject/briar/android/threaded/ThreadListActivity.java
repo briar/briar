@@ -92,7 +92,7 @@ public abstract class ThreadListActivity<I extends ThreadItem, A extends ThreadI
 		layoutManager = new LinearLayoutManager(this);
 		list.setLayoutManager(layoutManager);
 		list.setAdapter(adapter);
-		scrollListener = new ThreadScrollListener<>(adapter, getController(),
+		scrollListener = new ThreadScrollListener<>(adapter, getViewModel(),
 				upButton, downButton);
 		list.getRecyclerView().addOnScrollListener(scrollListener);
 

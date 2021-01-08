@@ -172,6 +172,17 @@ class ForumViewModel extends ThreadListViewModel<ForumPostItem> {
 		return forumManager.getPostText(txn, header.getId());
 	}
 
+	@Override
+	protected void markItemRead(ForumPostItem item) {
+		runOnDbThread(() -> {
+			try {
+				forumManager.setReadFlag(groupId, item.getId(), true);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
 	void deleteForum() {
 		runOnDbThread(() -> {
 			try {

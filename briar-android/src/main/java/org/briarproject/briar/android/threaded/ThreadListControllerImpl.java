@@ -4,7 +4,6 @@ import android.app.Activity;
 
 import org.briarproject.bramble.api.crypto.CryptoExecutor;
 import org.briarproject.bramble.api.db.DatabaseExecutor;
-import org.briarproject.bramble.api.db.DbException;
 import org.briarproject.bramble.api.event.Event;
 import org.briarproject.bramble.api.event.EventBus;
 import org.briarproject.bramble.api.event.EventListener;
@@ -13,31 +12,19 @@ import org.briarproject.bramble.api.lifecycle.LifecycleManager;
 import org.briarproject.bramble.api.nullsafety.MethodsNotNullByDefault;
 import org.briarproject.bramble.api.nullsafety.ParametersNotNullByDefault;
 import org.briarproject.bramble.api.sync.GroupId;
-import org.briarproject.bramble.api.sync.MessageId;
 import org.briarproject.bramble.api.system.Clock;
 import org.briarproject.briar.android.controller.DbControllerImpl;
 import org.briarproject.briar.api.android.AndroidNotificationManager;
 
-import java.util.Collection;
-import java.util.Collections;
 import java.util.concurrent.Executor;
-import java.util.logging.Logger;
 
 import androidx.annotation.CallSuper;
-
-import static java.util.logging.Level.WARNING;
-import static org.briarproject.bramble.util.LogUtils.logDuration;
-import static org.briarproject.bramble.util.LogUtils.logException;
-import static org.briarproject.bramble.util.LogUtils.now;
 
 @MethodsNotNullByDefault
 @ParametersNotNullByDefault
 public abstract class ThreadListControllerImpl<I extends ThreadItem>
 		extends DbControllerImpl
 		implements ThreadListController<I>, EventListener {
-
-	private static final Logger LOG =
-			Logger.getLogger(ThreadListControllerImpl.class.getName());
 
 	private volatile GroupId groupId;
 
@@ -94,29 +81,6 @@ public abstract class ThreadListControllerImpl<I extends ThreadItem>
 	@Override
 	public void eventOccurred(Event e) {
 	}
-
-	@Override
-	public void markItemRead(I item) {
-		markItemsRead(Collections.singletonList(item));
-	}
-
-	@Override
-	public void markItemsRead(Collection<I> items) {
-		runOnDbThread(() -> {
-			try {
-				long start = now();
-				for (I i : items) {
-					markRead(i.getId());
-				}
-				logDuration(LOG, "Marking read", start);
-			} catch (DbException e) {
-				logException(LOG, WARNING, e);
-			}
-		});
-	}
-
-	@DatabaseExecutor
-	protected abstract void markRead(MessageId id) throws DbException;
 
 	protected GroupId getGroupId() {
 		checkGroupId();

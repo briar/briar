@@ -210,6 +210,17 @@ class GroupViewModel extends ThreadListViewModel<GroupMessageItem> {
 		});
 	}
 
+	@Override
+	protected void markItemRead(GroupMessageItem item) {
+		runOnDbThread(() -> {
+			try {
+				privateGroupManager.setReadFlag(groupId, item.getId(), true);
+			} catch (DbException e) {
+				logException(LOG, WARNING, e);
+			}
+		});
+	}
+
 	void deletePrivateGroup() {
 		runOnDbThread(() -> {
 			try {
