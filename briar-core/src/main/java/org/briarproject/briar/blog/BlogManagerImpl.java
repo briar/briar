@@ -446,6 +446,14 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	}
 
 	@Override
+	public Collection<GroupId> getBlogIds(Transaction txn) throws DbException {
+		List<GroupId> groupIds = new ArrayList<>();
+		Collection<Group> groups = db.getGroups(txn, CLIENT_ID, MAJOR_VERSION);
+		for (Group g : groups) groupIds.add(g.getId());
+		return groupIds;
+	}
+
+	@Override
 	public BlogPostHeader getPostHeader(GroupId g, MessageId m)
 			throws DbException {
 		Transaction txn = db.startTransaction(true);
@@ -471,6 +479,15 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 		}
 	}
 
+	@Override
+	public String getPostText(Transaction txn, MessageId m) throws DbException {
+		try {
+			return getPostText(clientHelper.getMessageAsList(txn, m));
+		} catch (FormatException e) {
+			throw new DbException(e);
+		}
+	}
+
 	private String getPostText(BdfList message) throws FormatException {
 		MessageType type = MessageType.valueOf(message.getLong(0).intValue());
 		if (type == POST) {
@@ -488,7 +505,12 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 	@Override
 	public Collection<BlogPostHeader> getPostHeaders(GroupId g)
 			throws DbException {
+		return db.transactionWithResult(true, txn -> getPostHeaders(txn, g));
+	}
 
+	@Override
+	public List<BlogPostHeader> getPostHeaders(Transaction txn, GroupId g)
+			throws DbException {
 		// Query for posts and comments only
 		BdfDictionary query1 = BdfDictionary.of(
 				new BdfEntry(KEY_TYPE, POST.getInt())
@@ -497,8 +519,7 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 				new BdfEntry(KEY_TYPE, COMMENT.getInt())
 		);
 
-		Collection<BlogPostHeader> headers = new ArrayList<>();
-		Transaction txn = db.startTransaction(true);
+		List<BlogPostHeader> headers = new ArrayList<>();
 		try {
 			Map<MessageId, BdfDictionary> metadata1 =
 					clientHelper.getMessageMetadataAsDictionary(txn, g, query1);
@@ -528,13 +549,10 @@ class BlogManagerImpl extends BdfIncomingMessageHook implements BlogManager,
 						entry.getKey(), meta, authorInfos);
 				headers.add(h);
 			}
-			db.commitTransaction(txn);
-			return headers;
 		} catch (FormatException e) {
 			throw new DbException(e);
-		} finally {
-			db.endTransaction(txn);
 		}
+		return headers;
 	}
 
 	@Override
