@@ -16,14 +16,14 @@ def getStdout = { command, defaultValue ->
 }
 
 android {
-	compileSdkVersion rootProject.ext.compileSdkVersion
-	buildToolsVersion rootProject.ext.buildToolsVersion
+	compileSdkVersion 30
+	buildToolsVersion '30.0.2'
 
 	defaultConfig {
-		minSdkVersion rootProject.ext.minSdkVersion
-		targetSdkVersion rootProject.ext.targetSdkVersion
-		versionCode rootProject.ext.versionCode
-		versionName rootProject.ext.versionName
+		minSdkVersion 16
+		targetSdkVersion 29
+		versionCode 10213
+		versionName "1.2.13"
 		applicationId "org.briarproject.briar.android"
 		buildConfigField "String", "GitHash",
 				"\"${getStdout(['git', 'rev-parse', '--short=7', 'HEAD'], 'No commit hash')}\""
